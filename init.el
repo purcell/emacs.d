@@ -76,17 +76,6 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Update time stamps marked with 'Last modified:' in HTML and Text mode
-;;----------------------------------------------------------------------------
-(require 'time-stamp)
-(setq time-stamp-line-limit 0
-      time-stamp-start "^Last modified: "
-      time-stamp-end "$")
-(add-hook 'text-mode-hook
-          (lambda () (add-hook 'write-file-hooks 'time-stamp nil t)))
-
-
-;;----------------------------------------------------------------------------
 ;; Auto line-wrap
 ;;----------------------------------------------------------------------------
 ;(add-hook 'text-mode-hook 'auto-fill-mode)  ;; turns it on even for html-mode
