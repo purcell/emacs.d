@@ -1,0 +1,85 @@
+@ignore
+@node Semantic Internals
+@chapter Semantic Internals
+@c This 'ignore' section fools texinfo-all-menus-update into creating
+@c proper menus for this chapter.
+@end ignore
+
+This chapter explains the internals of @semantic{}.
+This information would not be needed by neither application developers
+nor grammar developers.
+
+It would be useful mostly for the hackers who would like to learn
+more about how @semantic{} works.
+
+@section Semanticdb
+
+@acronym{Semanticdb} complexity is certainly an issue.  It is a rather
+hairy problem to try and solve.
+
+This is just an overview really.  The basic organization is this:
+
+@table @file
+@item semanticdb.el
+Defines a @dfn{database} and a @dfn{table} base class.  You can
+instantiate these classes, and use them, but they are not persistent.
+
+This file also provides support for @code{semanticdb-minor-mode},
+which automatically associates files with tables in databases so that
+tags are @emph{saved} while a buffer is not in memory.
+
+Lastly, it has that @dfn{root} stuff in it.  Basically, it is a system
+by which a file can be associated with the root of a project, so if
+you have a tree of directories and source files, it can find the root,
+and allow a tag-search to span all available databases in that
+directory hierarchy.
+
+@item semanticdb-file.el
+Subclass the base class database so that it can be saved to disk.
+Implements all the hooks needed to unbind/rebind tags to a buffer
+while writing them to a file.  Overrides various methods as necessary.
+
+@item semanticdb-system.el
+Subclass @code{semanticdb-file}.  Supports creating a @acronym{DB} in
+a directory you do not have write-access to, and saving the cache in
+your home directory.  Also implements a @acronym{C}/@acronym{C++}
+subclass which can be used for caching @file{/usr/include}.  (A rather
+slow process.)
+
+@item semanticdb-el.el
+Implements a different kind of @dfn{system} database that uses Emacs
+internals to perform queries.  Sadly, this shows a problem of
+nomenclature since it is not a @code{semanticdb-system-database}
+(which saves to a file), but database with no file component that
+queries system tags in a different way.
+
+@item semanticdb-find.el
+Infrastructure for searching groups @semantic{} databases, and dealing
+with the search results format.
+@end table
+
+New things partly written, or to be written someday.
+
+@table @file
+@item semanticdb-postgres.el
+Any @acronym{DB} would do, @acronym{MySQL} would be fine.  Basically write
+tags into a relational database, and provide searching facilities.
+This is probably the only way to allow fast look-ups in humongous
+source areas.  Another possibility would be something like what
+@acronym{Cscope} does.
+
+@item semanticdb-java.el
+A system database for @acronym{Java} that uses @acronym{JDEE}
+@acronym{BeanShell} queries.
+
+@item semanticdb-obj.el
+A system database that uses command line tools to rip symbols out of
+@file{.so}, or @file{.a}, or @file{.o} files, and translates into
+tags.
+
+@item semanticdb-javascript.el
+A recent notion that somehow knows all those built-ins
+@acronym{JavaScript} has.
+@end table
+
+@c  LocalWords:  Cscope JDEE BeanShell JavaScript MySQL Semanticdb

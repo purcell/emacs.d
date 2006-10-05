@@ -1,0 +1,574 @@
+@c -*-texinfo-*-
+@c
+@c $Id: ede-projects.texi,v 1.2 2001/04/27 00:19:27 zappo Exp $
+@c
+
+@c The next line is for the back-search to see what node this one
+@c resides in.
+
+@c @node Project,
+@c @chapter Project Listing
+
+@c This command is a convenience to help rebuild this file.  Use C-x C-e
+@c on the expression below to rebuild the entire index (but only
+@c after loading in all relevant source files.)
+
+@c (eieiodoc-class ede-project-placeholder "pj")
+@menu
+* ede-project-placeholder ::
+*  ede-project ::
+*   ede-proj-project ::
+*   project-am-makefile ::
+@end menu
+
+
+@node ede-project-placeholder, ede-project,  , Project
+@comment  node-name,  next,  previous,  up
+@section ede-project-placeholder
+@pjindex ede-project-placeholder
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item ede-project-placeholder
+@table @asis
+@item Children:
+@w{@xref{ede-project}.} 
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-project-placeholder
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :name
+Type: @code{string} @*
+Default Value: @code{"Untitled"}
+
+The name used when generating distribution files.
+@refill
+
+@item :version
+Type: @code{string} @*
+Default Value: @code{"1.0"}
+
+The version number used when distributing files.
+@refill
+
+@item :file
+Type: @code{string} @*
+Default Value: @code{unbound}
+
+File name where this project is stored.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method ede-project-force-load :PRIMARY this 
+Make sure the placeholder @var{THIS} is replaced with the real thing.
+Return the new object created in its place.
+@end deffn
+
+@deffn Method project-interactive-select-target :PRIMARY this prompt 
+Make sure placeholder @var{THIS} is replaced with the real thing, and pass through.
+@end deffn
+
+@deffn Method project-add-file :PRIMARY this file 
+Make sure placeholder @var{THIS} is replaced with the real thing, and pass through.
+@end deffn
+
+
+@node ede-project, ede-proj-project, ede-project-placeholder, Project
+@comment  node-name,  next,  previous,  up
+@section ede-project
+@pjindex ede-project
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-project-placeholder}.}
+@table @code
+@item ede-project
+@table @asis
+@item Children:
+@w{@xref{ede-proj-project},} @w{@xref{project-am-makefile}.} 
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-project
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :targets
+Type: @code{list} @*
+Default Value: @code{unbound}
+
+List of top level targets in this project.
+@refill
+
+@item :configurations
+Type: @code{list} @*
+Default Value: @code{("debug" "release")}
+
+List of available configuration types.
+Individual target/project types can form associations between a configuration,
+and target specific elements such as build variables.
+@refill
+
+@item :configuration-default @*
+Default Value: @code{"debug"}
+
+The default configuration.
+@refill
+
+@item :local-variables @*
+Default Value: @code{nil}
+
+Project local variables
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method eieio-speedbar-description :PRIMARY obj 
+Provide a speedbar description for @var{OBJ}.
+@end deffn
+
+@deffn Method ede-map-any-target-p :PRIMARY this proc 
+For project @var{THIS}, map @var{PROC} to all targets and return if any non-nil.
+Return the first non-@code{nil} value returned by @var{PROC}.
+@end deffn
+
+@deffn Method project-rescan :PRIMARY this 
+Rescan the EDE proj project @var{THIS}.
+@end deffn
+
+@deffn Method ede-map-subprojects :PRIMARY this proc 
+For object @var{THIS}, execute @var{PROC} on all subprojects.
+@end deffn
+
+@deffn Method ede-convert-path :PRIMARY this path 
+Convert path in a standard way for a given project.
+Default to making it project relative.
+Argument @var{THIS} is the project to convert @var{PATH} to.
+@end deffn
+
+@deffn Method ede-name :PRIMARY this 
+Return a short-name for @var{THIS} project file.
+Do this by extracting the lowest directory name.
+@end deffn
+
+@deffn Method eieio-speedbar-derive-line-path :PRIMARY obj &optional depth 
+Return the path to @var{OBJ}.
+Optional @var{DEPTH} is the depth we start at.
+@end deffn
+
+@deffn Method ede-buffer-header-file :PRIMARY this buffer 
+Return @code{nil}, projects don't have header files.
+@end deffn
+
+@deffn Method ede-buffer-documentation-files :PRIMARY this buffer 
+Return all documentation in project @var{THIS} based on @var{BUFFER}.
+@end deffn
+
+@deffn Method ede-map-targets :PRIMARY this proc 
+For object @var{THIS}, execute @var{PROC} on all targets.
+@end deffn
+
+@deffn Method ede-buffer-mine :PRIMARY this buffer 
+Return non-@code{nil} if object @var{THIS} lays claim to the file in @var{BUFFER}.
+@end deffn
+
+@deffn Method ede-object-keybindings :PRIMARY this 
+Retrieves the slot @code{keybindings} from an object of class @code{ede-project}
+@end deffn
+
+@deffn Method ede-description :PRIMARY this 
+Return a description suitible for the minibuffer about @var{THIS}.
+@end deffn
+
+@deffn Method eieio-speedbar-object-children :PRIMARY this 
+Return the list of speedbar display children for @var{THIS}.
+@end deffn
+
+@deffn Method project-make-dist :PRIMARY this 
+Build a distribution for the project based on @var{THIS} target.
+@end deffn
+
+@deffn Method project-new-target-custom :PRIMARY proj 
+Create a new target.  It is up to the project @var{PROJ} to get the name.
+@end deffn
+
+@deffn Method ede-expand-filename :PRIMARY this filename &optional force 
+Return a fully qualified file name based on project @var{THIS}.
+@var{FILENAME} should be just a filename which occurs in a directory controlled
+by this project.
+Optional argument @var{FORCE} forces the default filename to be provided even if it
+doesn't exist.
+@end deffn
+
+@deffn Method ede-menu-items-build :PRIMARY obj &optional current 
+Return a list of menu items for building project @var{OBJ}.
+If optional argument @var{CURRENT} is non-@code{nil}, return sub-menu code.
+@end deffn
+
+@deffn Method project-new-target :PRIMARY proj 
+Create a new target.  It is up to the project @var{PROJ} to get the name.
+@end deffn
+
+@deffn Method project-compile-project :PRIMARY obj &optional command 
+Compile the entire current project @var{OBJ}.
+Argument @var{COMMAND} is the command to use when compiling.
+@end deffn
+
+@deffn Method eieio-speedbar-object-buttonname :PRIMARY object 
+Return a string to use as a speedbar button for @var{OBJECT}.
+@end deffn
+
+@deffn Method ede-map-project-buffers :PRIMARY this proc 
+For @var{THIS}, execute @var{PROC} on all buffers belonging to @var{THIS}.
+@end deffn
+
+@deffn Method eieio-done-customizing :PRIMARY proj 
+Call this when a user finishes customizing @var{PROJ}.
+@end deffn
+
+@deffn Method ede-documentation :PRIMARY this 
+Return a list of files that provides documentation.
+Documentation is not for object @var{THIS}, but is provided by @var{THIS} for other
+files in the project.
+@end deffn
+
+@deffn Method project-interactive-select-target :PRIMARY this prompt 
+Interactivly query for a target that exists in project @var{THIS}.
+Argument @var{PROMPT} is the prompt to use when querying the user for a target.
+@end deffn
+
+@deffn Method ede-target-in-project-p :PRIMARY proj target 
+Is @var{PROJ} the parent of @var{TARGET}?
+If @var{TARGET} belongs to a subproject, return that project file.
+@end deffn
+
+@deffn Method ede-find-target :PRIMARY proj buffer 
+Fetch the target in @var{PROJ} belonging to @var{BUFFER} or nil.
+@end deffn
+
+@deffn Method ede-add-subproject :PRIMARY proj-a proj-b 
+Add into @var{PROJ-A}, the subproject @var{PROJ-B}.
+@end deffn
+
+@deffn Method ede-commit-project :PRIMARY proj 
+Commit any change to @var{PROJ} to its file.
+@end deffn
+
+@deffn Method ede-object-menu :PRIMARY this 
+Retrieves the slot @code{menu} from an object of class @code{ede-project}
+@end deffn
+
+@deffn Method ede-commit-local-variables :PRIMARY proj 
+Commit change to local variables in @var{PROJ}.
+@end deffn
+
+
+@node ede-proj-project, project-am-makefile, ede-project, Project
+@comment  node-name,  next,  previous,  up
+@section ede-proj-project
+@pjindex ede-proj-project
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-project-placeholder}.}
+@table @code
+@item @w{@xref{ede-project}.}
+@table @code
+@item ede-proj-project
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-project
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :makefile-type
+Type: @code{symbol} @*
+Default Value: @code{Makefile}
+
+The type of Makefile to generate.
+Can be one of @code{'Makefile}, 'Makefile.in, or 'Makefile.am.
+If this value is NOT @code{'Makefile}, then that overrides the @code{:makefile} slot
+in targets.
+@refill
+
+@item :variables
+Type: @code{list} @*
+Default Value: @code{nil}
+
+Variables to set in this Makefile.
+@refill
+
+@item :configuration-variables
+Type: @code{list} @*
+Default Value: @code{("debug" (("DEBUG" . "1")))}
+
+Makefile variables to use in different configurations.
+These variables are used in the makefile when a configuration becomes active.
+@refill
+
+@item :inference-rules @*
+Default Value: @code{nil}
+
+Inference rules to add to the makefile.
+@refill
+
+@item :automatic-dependencies
+Type: @code{boolean} @*
+Default Value: @code{t}
+
+Non-@code{nil} to do implement automatic dependencies in the Makefile.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-rescan :PRIMARY this 
+Rescan the EDE proj project @var{THIS}.
+@end deffn
+
+@deffn Method ede-proj-makefile-create :PRIMARY this mfilename 
+Create a Makefile for all Makefile targets in @var{THIS}.
+@var{MFILENAME} is the makefile to generate.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-rules :PRIMARY this 
+Insert rules needed by @var{THIS} target.
+@end deffn
+
+@deffn Method ede-proj-makefile-tags :PRIMARY this targets 
+Insert into the current location rules to make recursive TAGS files.
+Argument @var{THIS} is the project to create tags for.
+Argument @var{TARGETS} are the targets we should depend on for TAGS.
+@end deffn
+
+@deffn Method project-update-version :PRIMARY this 
+The @code{:version} of project @var{THIS} has changed.
+@end deffn
+
+@deffn Method ede-buffer-mine :PRIMARY this buffer 
+Return @code{t} if object @var{THIS} lays claim to the file in @var{BUFFER}.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-variables :PRIMARY this 
+Insert variables needed by target @var{THIS}.
+@end deffn
+
+@deffn Method project-make-dist :PRIMARY this 
+Build a distribution for the project based on @var{THIS} target.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-dist-rules :PRIMARY this 
+Insert distribution rules for @var{THIS} in a Makefile, such as CLEAN and DIST.
+@end deffn
+
+@deffn Method project-new-target-custom :PRIMARY this 
+Create a new target in @var{THIS} for custom.
+@end deffn
+
+@deffn Method ede-proj-makefile-create-maybe :PRIMARY this mfilename 
+Create a Makefile for all Makefile targets in @var{THIS} if needed.
+@var{MFILENAME} is the makefile to generate.
+@end deffn
+
+@deffn Method ede-proj-configure-test-required-file :PRIMARY this file 
+For project @var{THIS}, test that the file @var{FILE} exists, or create it.
+@end deffn
+
+@deffn Method ede-proj-setup-buildenvironment :PRIMARY this &optional force 
+Setup the build environment for project @var{THIS}.
+Handles the Makefile, or a Makefile.am configure.in combination.
+Optional argument @var{FORCE} will force items to be regenerated.
+@end deffn
+
+@deffn Method ede-proj-makefile-garbage-patterns :PRIMARY this 
+Return a list of patterns that are considred garbage to @var{THIS}.
+These are removed with make clean.
+@end deffn
+
+@deffn Method ede-proj-configure-synchronize :PRIMARY this 
+Synchronize what we know about project @var{THIS} into configure.in.
+@end deffn
+
+@deffn Method project-new-target :PRIMARY this 
+Create a new target in @var{THIS} based on the current buffer.
+@end deffn
+
+@deffn Method project-compile-project :PRIMARY proj &optional command 
+Compile the entire current project @var{PROJ}.
+Argument @var{COMMAND} is the command to use when compiling.
+@end deffn
+
+@deffn Method ede-proj-makefile-configuration-variables :PRIMARY this configuration 
+Return a list of configuration variables from @var{THIS}.
+Use @var{CONFIGURATION} as the current configuration to query.
+@end deffn
+
+@deffn Method eieio-done-customizing :PRIMARY proj 
+Call this when a user finishes customizing this object.
+Argument @var{PROJ} is the project to save.
+@end deffn
+
+@deffn Method ede-proj-configure-recreate :PRIMARY this 
+Delete project @var{THIS}es configure script and start over.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-user-rules :PRIMARY this 
+Insert user specified rules needed by @var{THIS} target.
+This is different from @dfn{ede-proj-makefile-insert-rules} in that this
+function won't create the building rules which are auto created with
+automake.
+@end deffn
+
+@deffn Method ede-proj-dist-makefile :PRIMARY this 
+Return the name of the Makefile with the DIST target in it for @var{THIS}.
+@end deffn
+
+@deffn Method ede-proj-configure-file :PRIMARY this 
+The configure.in script used by project @var{THIS}.
+@end deffn
+
+@deffn Method ede-commit-project :PRIMARY proj 
+Commit any change to @var{PROJ} to its file.
+@end deffn
+
+@deffn Method ede-commit-local-variables :PRIMARY proj 
+Commit change to local variables in @var{PROJ}.
+@end deffn
+
+
+@node project-am-makefile,  , ede-proj-project, Project
+@comment  node-name,  next,  previous,  up
+@section project-am-makefile
+@pjindex project-am-makefile
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-project-placeholder}.}
+@table @code
+@item @w{@xref{ede-project}.}
+@table @code
+@item project-am-makefile
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type project-am-makefile
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :targets
+Type: @code{list} @*
+Default Value: @code{nil}
+
+@xref{ede-project}.
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-rescan :PRIMARY this 
+Rescan the makefile for all targets and sub targets.
+@end deffn
+
+@deffn Method project-am-subtree :PRIMARY ampf subpath 
+Return the sub project in @var{AMPF} specified by @var{SUBPATH}.
+@end deffn
+
+@deffn Method project-targets-for-file :PRIMARY proj 
+Return a list of targets the project @var{PROJ}.
+@end deffn
+
+@deffn Method ede-buffer-mine :PRIMARY this buffer 
+Return @code{t} if object @var{THIS} lays claim to the file in @var{BUFFER}.
+@end deffn
+
+@deffn Method project-new-target :PRIMARY proj 
+Create a new target named NAME.
+Argument TYPE is the type of target to insert.  This is a string
+matching something in @code{project-am-type-alist} or type class symbol.
+Despite the fact that this is a method, it depends on the current
+buffer being in order to provide a smart default target type.
+@end deffn
+
+@deffn Method project-compile-project :PRIMARY obj &optional command 
+Compile the entire current project.
+Argument @var{COMMAND} is the command to use when compiling.
+@end deffn
+
+@deffn Method ede-find-target :PRIMARY amf buffer 
+Fetch the target belonging to @var{BUFFER}.
+@end deffn
+
+

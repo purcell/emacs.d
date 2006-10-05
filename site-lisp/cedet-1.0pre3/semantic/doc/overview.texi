@@ -1,0 +1,227 @@
+@ignore
+@node Overview
+@chapter Overview
+@c This 'ignore' section fools texinfo-all-menus-update into creating
+@c proper menus for this chapter.
+@end ignore
+
+This chapter gives the overview of @semantic{} and its goals.
+
+With Emacs, regular expressions (and syntax tables) are the basis of
+identifying components in a programming language source for purposes
+such as color highlighting.  This approach has proved is usefulness,
+but have limitations.
+
+@semantic{} provides a new intrastructure that goes far beyond text
+analysis based on regular expressions.
+
+@semantic{} uses @dfn{parsers} to analyze programming language
+sources.  For languages that can be described using a context-free
+grammar, parsers can be based on the grammar of the language.  Or they
+can be @dfn{external parsers} implemented using any means.  This
+allows the use of a regular expression parser for non-regular
+languages, or external programs for speed.
+
+@semantic{} provides extensive tools to help support a new language.
+An original @acronym{LL} parser, and a Bison-like @acronym{LALR}
+parser are included.  So, for a regular language, all that the
+developer needs to do is write a grammar file along with appropriate
+semantic rules.
+
+@semantic{} allows an uniform representation of language components,
+and provides a common @acronym{API} so that programmers can develop
+applications that work for all languages.  The distribution includes
+good set of tools and examples for the application writers, that
+demonstrate the usefulness of @semantic{}.
+
+The following diagram illustrates the benefits of using @semantic{}:
+
+@table @strong
+@item Please Note:
+The words in all-capital are those that @semantic{} itself provides.
+Others are current or future languages or applications that are not
+distributed along with @semantic{}.
+@end table
+
+@example
+                                                             Applications
+                                                                 and
+                                                              Utilities
+                                                                -------
+                                                               /       \
+               +---------------+    +--------+    +--------+
+         C --->| C      PARSER |--->|        |    |        |
+               +---------------+    |        |    |        |
+               +---------------+    | COMMON |    | COMMON |<--- SPEEDBAR
+      Java --->| JAVA   PARSER |--->|        |    |        |
+               +---------------+    | PARSE  |    | PARSE  |<--- SENATOR
+               +---------------+    |        |    |        |
+    Python --->| PYTHON PARSER |--->| TREE   |    | TREE   |<--- DOCUMENT
+               +---------------+    |        |    |        |
+               +---------------+    | FORMAT |    | API    |<--- SEMANTICDB
+    Scheme --->| SCHEME PARSER |--->|        |    |        |
+               +---------------+    |        |    |        |<--- jdee
+               +---------------+    |        |    |        |
+   Texinfo --->| TEXI.  PARSER |--->|        |    |        |<--- ecb
+               +---------------+    |        |    |        |
+
+                    ...                ...           ...         ...
+
+               +---------------+    |        |    |        |<--- app. 1
+   Lang. A --->| A      Parser |--->|        |    |        |
+               +---------------+    |        |    |        |<--- app. 2
+               +---------------+    |        |    |        |
+   Lang. B --->| B      Parser |--->|        |    |        |<--- app. 3
+               +---------------+    |        |    |        |
+
+                     ...        ...     ...          ...       ...
+
+               +---------------+    |        |    |        |
+   Lang. Y --->| Y      Parser |--->|        |    |        |<--- app. ?
+               +---------------+    |        |    |        |
+               +---------------+    |        |    |        |<--- app. ?
+   Lang. Z --->| Z      Parser |--->|        |    |        |
+               +---------------+    +--------+    +--------+
+@end example
+
+@ignore
+This is from the Overview chapter of the original semantic.texi.
+
+Semantic is a tool primarily for the Emacs-Lisp programmer.
+However, it comes with ``applications'' that non-programmer might
+find useful.
+This chapter is mostly for the benefit of these non-programmers
+as it gives brief descriptions of basic concepts such as
+grammars, parsers, compiler-compilers, parse-tree, etc.
+
+@cindex grammar
+The grammar of a natural language defines rules by which valid phrases
+and sentences can be composed using words, the fundamental units with
+which all sentences are created.
+@cindex context-free grammar
+In a similar fashion, a ``context-free grammar'' defines the rules by which
+programs can be composed using the fundamental units of the language,
+i.e., numbers, symbols, punctuations, etc.
+Context-free grammars are often specified in a well-known form called
+@cindex Backus-Naur Form
+@cindex BNF
+Backus-Naur Form, BNF for short.
+This is a systematic way of representing context-free grammars
+such that programs can read files with grammars written in BNF
+and generate code for ``parser'' of that language.
+@cindex yacc
+@cindex compiler-compiler
+YACC (Yet Another Compiler Compiler) is one such program that has been
+part of UNIX operating systems since the 1970's.
+YACC is pronounced the same as ``yak'', the long-haired ox found in Asia.
+The parser generated by YACC is usually a C program.
+@cindex bison
+@uref{http://www.gnu.org/software/bison/bison.html , Bison}
+is also a ``compiler compiler'' that takes BNF grammars and produces
+parsers in C language.
+The difference between YACC and Bison is that Bison is
+@cindex free software
+@uref{http://www.gnu.org/philosophy/free-sw.html , free software}
+and upward-compatible with YACC.
+It also comes with an excellent manual.
+
+Semantic is similar in spirit to YACC and Bison.
+@cindex bovinator
+Semantic, however, is referred to as a @dfn{bovinator} rather than
+as a parser, because it is a lesser cousin of YACC and Bison.
+It is lesser in that it does not perform a full parse
+like YACC or Bison.
+@cindex bovination
+Instead, it @dfn{bovinates}.
+``Bovination'' refers to partial parsing which
+@cindex parse tree
+creates @dfn{parse trees} of only the top most
+expressions rather than parsing every nested expression.
+This is sufficient for the purposes for which semantic was designed.
+Semantic is meant to be used within Emacs for providing
+editor-related features such as code browsers and translators rather
+than for compiling which requires far more complex and complete parsers.
+Semantic is not designed to be able to create full parse trees.
+
+@cindex parser
+One key benefit of semantic is that it creates parse trees
+@cindex bovine tree
+(perhaps the term @dfn{bovine tree} may be more accurate)
+with the same structure regardless of the type of language involved.
+Higher level applications written to work with bovine trees
+will then work with any language for which the grammar is available.
+For example, a code browser written today that supports C, C++, and
+Java may work without any change on other languages that do not even
+exist yet.
+All one has to do is to write the BNF specification for the new language.
+The rest of the work is done by semantic.
+For certain languages, it is hard if not impossible to specify the syntax
+of the language in BNF form, e.g.,
+@uref{http://www.texinfo.org ,texinfo}
+and other document oriented languages.
+Semantic provides a parser for texinfo nevertheless.
+Instead of BNF grammar, texinfo files are ``parsed'' using
+@ref{Regexps,regular-expressions,regular-expressions,emacs}.
+
+Semantic comes with grammars for these languages:
+
+@itemize @bullet
+@item C
+@item Emacs-Lisp
+@item java
+@item makefile
+@item scheme
+@end itemize
+
+Several tools employing semantic that provide user observable features
+are listed in @ref{Tools} section.
+
+@end ignore
+
+@menu
+* Semantic Components::         
+@end menu
+
+@node Semantic Components
+@section Semantic Components
+
+This chapter gives an overview of major components of @semantic{} and
+how they interact with each other to perform its job.
+
+The first step of parsing is to break up the input file into its
+fundamental components.  This step is called lexical analysis.  The
+output of the lexical analyzer is a list of tokens that make up the
+file.
+
+@example
+        syntax table, keywords list, and options
+                         |
+                         |
+                         v
+    input file  ---->  Lexer   ----> token stream
+@end example
+
+The next step is the parsing shown below.
+
+@example
+                    parser tables
+                         |
+                         v
+    token stream --->  Parser  ----> parse tree
+@end example
+
+The end result, the parse tree, is created based on the parser tables,
+which are in the internal representation of the language grammar used by
+@semantic{}.
+
+The @semantic{} database provides caching of the parse trees by saving them
+into files named @file{semantic.cache} automatically when loading them
+when appropriate instead of re-parsing.  The reason for this is to save the
+time it takes to parse a file which could take several seconds or more
+for large files.
+
+Finally, @semantic{} provides an @acronym{API} for the Emacs Lisp
+programmer to access the information in the parse tree.
+
+
+@c  LocalWords:  API LALR

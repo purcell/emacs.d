@@ -1,0 +1,13 @@
+;; Object ede-proj-project
+;; EDE project file.
+(ede-proj-project "ede-proj-project"
+  :name "Tests"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-aux "Tests"
+    :name "Tests"
+    :path ""
+    :source '("test.c" "test.cpp" "templates.cpp" "test.make" "scopetest.cpp" "scopetest.java")
+    )
+   )
+  )

@@ -1,0 +1,529 @@
+Semantic 2.0 is a major new version.
+
+* Versioning
+
+Semantic now uses `inversion' to track version numbers of different
+releases.  Semanticdb table files save the version number they are
+created at, and can identify old tables to regenerate them when an
+incompatible upgrade occurs.
+
+* API changes
+
+** Naming Conventions
+
+There is a new naming convention for the things Semantic refers too.
+The list of renamed functions is far to long to list here.  All
+functions that used the old conventions have been changed to use the
+new conventions, and are not explicitly listed here unless there is
+an incompatible change.
+
+*** New conventions
+
+token - Refers to a lexical analyzer production.
+stream - A list of tokens
+tag - Refers to a datastructure created by a grammar to represent
+      something in a language file
+table - A hierarchical list of tags.
+tag-class - A tag may represent a function, data type, or variable.
+parse - Run a source file through a parser.
+
+*** Old conventions
+
+token - Could be a lexical token, or a tag
+nonterminal - Could be a grammar nonterminal, or a tag
+stream - Could be a list of lexical tokens, or a tag table.
+token-type - New represented as tag-class
+bovinate - Run a source file through a parser.
+
+*** Obsoletion stratety
+
+The new framework function `semantic-alias-obsolete' has been used to
+obsolete old functions and allow old code to continue working.  Byte
+compiler warnings will be produced if old functions are used.  The
+old function will be completely removed in a future release.
+
+For variables, the function `semantic-varalias-obsolete' has been
+used.  When available it uses a native alias routine for compatibility
+or displays a warning.
+
+** Lexical analysis.
+
+*** The old `semantic-flex' API is deprecated.
+
+The lexical analysis toolkit has been completely rewritten as a new
+`semantic-lex' API.
+
+*** Lexical token management.
+
+`semantic-lex-token'
+Create a new lexical token.
+
+`semantic-lex-token-class'
+Fetch the class of a lexical token.
+
+`semantic-lex-token-bounds'
+Fetch the start and end locations of a lexical token.
+
+`semantic-lex-token-start' and `semantic-lex-token-end'
+Respectively fetch the start and end position of a lexical token.
+
+`semantic-lex-token-text'
+Fetch the text associated with a lexical token.
+
+*** Macros to easily build custom lexers.
+
+`define-lex'
+Define a new lexer as a set of lexical rules.
+
+`define-lex-analyzer'
+Base macro to create a lexical rule.
+
+A lexical rule associates a PATTERN to an ACTION.
+
+A PATTERN describes how to match data in the input stream, with a
+combination of regular expressions and strings.
+
+An ACTION is a set of arbitrary Emacs Lisp statements executed when
+the input stream matches the corresponding PATTERN, typically to push
+a new token on the lexical stream.
+
+`define-lex-regex-analyzer' and `define-lex-simple-regex-analyzer'
+Create lexical rules that match a regexp.
+
+`define-lex-block-analyzer'
+Create a lexical rule for paired delimiters blocks.
+
+*** A set of useful lexical rules is predefined.
+
+`semantic-lex-beginning-of-line'
+`semantic-lex-newline'
+`semantic-lex-newline-as-whitespace'
+`semantic-lex-ignore-newline'
+`semantic-lex-whitespace'
+`semantic-lex-ignore-whitespace'
+`semantic-lex-number'
+`semantic-lex-symbol-or-keyword'
+`semantic-lex-charquote'
+`semantic-lex-punctuation'
+`semantic-lex-punctuation-type'
+`semantic-lex-paren-or-list'
+`semantic-lex-open-paren'
+`semantic-lex-close-paren'
+`semantic-lex-string'
+`semantic-lex-comments'
+`semantic-lex-comments-as-whitespace'
+`semantic-lex-ignore-comments'
+`semantic-lex-default-action'
+
+*** Some lexers are predefined too.
+
+A comment lexer: `semantic-comment-lexer' that handles comments.
+A `semantic-simple-lexer' that ignores comments and whitespace, and
+returns tokens corresponding to syntax as specified by the syntax
+table.
+
+*** `semantic-lex' core "overload" function.
+
+Called to lexically analyze text in an area of the current buffer.
+
+*** debugging bad syntax
+
+Using `semantic-lex-debug-analyzers' combined with `debug-on-error'
+allows you to debug analyzers inside usually protected parsing
+routines.
+
+** Parsing
+
+*** API to manage a parse tree state.
+
+`semantic-parse-tree-set-unparseable'
+Indicate that there are lexical issues that prevent parsing.
+
+`semantic-parse-tree-set-unparseable-p'
+Return non-nil if  there are lexical issues that prevent parsing.
+
+`semantic-parse-tree-set-needs-update'
+Indicate that the current parse tree needs to be updated.
+
+`semantic-parse-tree-needs-update-p'
+Return non-nil if the current parse tree needs to be updated.
+
+`semantic-parse-tree-set-needs-rebuild'
+Indicate that the current parse tree needs to be rebuilt.
+
+`semantic-parse-tree-needs-rebuild-p'
+Return non-nil if the current parse tree needs to be rebuilt.
+
+`semantic-parse-tree-set-up-to-date'
+Indicate that the current parse tree is up to date.
+
+`semantic-parse-tree-up-to-date-p'
+Return non-nil if the current parse tree is up to date.
+
+*** Core "overload" functions to abstract call to parsers.
+
+New parsers can be plugged-in easily by overriding the following
+core functions:
+
+`semantic-parse-stream' called to parse a given stream, starting at a
+given nonterminal rule.
+
+`semantic-parse-changes' called to reparse changes in the current
+buffer.
+
+`semantic-parse-region' called to parse a buffer's area.
+
+*** Four core parsers are available.
+
+- Two general parsers
+
+  - The Semantic "bovinator".
+  - A new LALR(1) parser: Wisent, port of Bison 1.3 in Elisp.
+
+- Two specific parsers
+
+  - The Elisp parser based on the Emacs built-in function `read'.
+  - A regexp parser used in `texinfo-mode'.
+
+*** Iterative parser.
+
+Iterative parsers are better than rule-based iterative functions
+in that they can handle obscure errors more cleanly.
+
+The new `semantic-repeat-parse-whole-stream' helper function abstracts
+this action for other parser centric routines.
+
+*** Incremental parser.
+
+In Semantic 1.x, changes were handled in a simplistic manner, where
+tags that changed were reparsed one at a time.  Any other form of
+edit were managed through a full re-parse.
+
+The new `semantic-edits-incremental-parser' attempts to minimize the
+number of times a full re-parse needs to occur.  While overlays and
+tags will continue to be recycled in the simple case, new cases
+where tags are inserted or old tags removed from the original list
+are handled.
+
+*** Lexical Safety feature.
+
+You can protect code from reparsing the buffer if there are lexical
+errors with the `semantic-lex-catch-errors' macro.
+
+*** Deprecated and removed API.
+
+The `semantic-flex' API is deprecated, and replaced by the new
+`semantic-lex' API.  The old API still exists for compatibility with
+Semantic 1.x.
+
+`semantic-parse-region' should be used instead of
+`semantic-bovinate-region-until-error' and
+`semantic-bovinate-from-nonterminal-full' which still exist for
+compatibility with the Semantic 1.x API.
+
+The old incremental parser `semantic-rebovinate-token' and associated
+`semantic-show-dirty-mode' have been removed and replaced respectively
+by new `semantic-edits-incremental-parser' and
+`semantic-highlight-edits-mode'.
+
+`semantic-bovinate-toplevel-override' is replaced by the new core
+parsing "overloads".
+
+`semantic-bovine-toplevel-full-reparse-needed-p' and
+`semantic-bovine-toplevel-partial-reparse-needed-p' are replaced by
+the new parse tree state management API.
+
+`semanticdb-project-predicates' hook is renamed
+`semanticdb-project-predicate-functions'.
+
+* Grammar framework.
+
+Semantic 2.0 introduced a new common grammar framework to simplify
+development of grammars suitable to parser needs.
+
+** New "abstract" major mode: `semantic-grammar-mode'.
+That defines a useful environment to develop grammars (indentation,
+syntax highlighting, parsing, etc.).
+
+By deriving new "concrete" major modes one can provide customized
+generators that convert a grammar parse tree into Elisp forms needed
+by a particular parser.
+
+** New "overloads" are provided to customize Elisp generation.
+
+`grammar-setupcode-builder'
+That returns the setup code form.
+
+`grammar-parsetable-builder'
+That returns the parser table value.
+
+`grammar-keywordtable-builder'
+That returns the keyword table table value.
+
+`grammar-tokentable-builder'
+That returns the token table value.
+
+** New grammar modes derived from `semantic-grammar-mode'.
+
+*** `bovine-grammar-mode'.
+That converts grammar input form into Elisp code to be used by the
+"bovinator".  Such grammars are associated to the .by file extension.
+Old grammars in .bnf files are no longer supported.
+
+*** `wisent-grammar-mode'.
+That converts grammar input form into Elisp code to be used by the
+Wisent LALR parser.  Such grammars are associated to the .wy
+file extension.
+
+** Grammar build process
+
+A new grammar construction process separates generated code from hand
+written code.  An semantic specific EDE extension will generate
+Makefile rules to build these files.
+
+Language specific human written code must call the automatically
+generated setup function.
+
+*** Auto-generation of lexical rules
+
+The new %type statement combined with the use of %token and %keyword
+statements permits the declaration of a lexical type and associates it
+with patterns that define how to match lexical tokens of that type.
+
+The grammar construction process can benefit from the %type, %keyword
+and %token declarations to automatically generate the definition of a
+lexical rule for each explicitly declared lexical type.
+
+Default values are provided for well known types like <keyword>,
+<symbol>, <string>, <number>, <punctuation>, and <block>.  Those types
+assume that the correct patterns are provided by %keyword and %token
+statements, a simple "%type <type>" declaration should generally
+suffice to auto-generate a suitable lexical rule.
+
+It is then easy to put predefined and auto-generated lexical rules
+together to build ad-hoc lexical analyzers.  Examples are available
+among the grammars included in the distribution.
+
+*** Bovine grammar
+
+A file FOO.by will create the file FOO-by.el, and FOO-by.elc
+automatically.
+
+*** Wisent grammar
+
+A file FOO.wy will create the file FOO-wy.el, and FOO-wy.elc
+automatically.
+
+* Decorations.
+
+** secondary overlays
+An API for adding secondary overlays onto a tag has been added.
+This allows you to add/remove arbitrary visual effects onto a tag.
+Uses tag link hooks to make sure the overlays are added/removed
+safely.
+
+** folded tags
+New functions `semantic-set-tag-folded' and `semantic-tag-folded-p'
+allow you to put a tag into a 'folded' state where only the 1st line
+is showing. 
+
+* Database.
+
+** semanticdb.el
+
+*** `semanticdb-abstract-table'
+New base class for all tables of tokens lists.
+
+*** `semantidb-table'
+Inherits from the abstract table.
+
+*** `semanticdb-project-database'
+No longer saves itself to a file.
+
+** semanticdb-file.el
+New routines for databases saved to disk in plain EIEIO save files.
+Depends on `inversion' for save file compatibility tests.
+
+*** `semanticdb-project-database-file'
+File based project database type.
+
+** semanticdb-search.el
+All old search routines have been moved into this file.
+All old search routines are now methods on database projects.
+All old search routines have been obsoleted.  Use semanticdb-find.el
+based routines instead.  These functions are still maintained because
+the semanticdb-find based routines do not yet handle all the same
+search paramters as the old routines.
+
+*** `semanticdb-search-results-table'
+Class for any search in a database with no tables of its own.
+
+*** Different search classes
+Searches in databases have been broken into three classes.
+- Basic search - on values as stored directly in a semantic token.
+- Advanced search - complex searches of relationships.  Needed for
+  system databases which cannot support a generic search.
+- Generic search - Takes a predicate.  System databases cannot usually
+  support this style of search.
+
+** semanticdb-find.el
+New prefered search routines which start with `semanticdb-find...'.
+These routines take fewer parameters.  There are more types of search
+routines than before to make up for the missing parameters.
+
+*** Basic search
+Scans the current buffer, and all files included into this buffer.
+Only scans top level tags.
+
+*** Deep search
+A Deep search will "flatten" the tags in a file so they are all
+visible, including parts of structures or classes.
+
+*** Brute searches
+As a basic search, but scans all files in the current project.
+
+*** semanticdb-find-translate-path
+This new routines determines the "path" to scan.  There are two basic
+types of paths.  The default is to examine the specified buffers
+include list, and only scan those files.  Optional "brute" path will
+scan all files in the current project, including system level databases.
+
+*** database Find Results
+Find Results are somewhat more formalized, and have routines to
+deal with them.
+
+semanticdb-find-results-p
+semanticdb-strip-find-results
+semanticdb-find-result-with-nil-p
+semanticdb-find-result-length
+semanticdb-find-result-nth
+
+Find results can be passed into any semanticdb-find routine as the
+path and only those results will be scanned.
+
+*** New types of searches not originally in semanticdb-search.el
+
+**** semanticdb-find-*-by-name-for-completion
+Searches "for completion" use different matching constraints
+equivalent to the regular expression "^chars", which provide a speed
+improvement.
+
+** semanticdb-system.el
+Representation of a database belonging to system libraries.
+These databases may not come from source code, and can represent
+object files, header file libraries and the like.
+
+*** `semanticdb-project-database-system'
+Baseclass for any system database.
+
+*** `semanticdb-project-database-system-c'
+Class for C libraries of header files.
+
+** semanticdb-el.el
+Special system database representing Emacs' internal state.
+Implements all search routines optimized as much as possible.
+
+*** `semanticdb-table-emacs-lisp'
+Table representing search results for Emacs Lisp symbols.
+
+*** `semanticdb-project-database-emacs-lisp'
+Database representing Emacs' internal symbol obarray.
+
+** semanticdb-mk
+Routines for building semantic.cache files from a command line script.
+
+* Utilities.
+
+** `semantic-find-tag-parent-by-overlay'
+Find the parent of a tag by overlays.
+    
+* Minor modes.
+
+** `semantic-show-parser-state-mode'
+Display the parser state in the modeline.
+
+** `semantic-highlight-edits-mode'
+Highlight areas that a user edits.
+
+** `semantic-stickyfunc-mode'
+Make the current functions header `sticky' to the top of the current
+window.  (Emacs 21 required)
+
+** `semantic-auto-parse-mode' obsolete
+** `semantic-summary-mode' obsolete
+
+** `semantic-idle-scheduler-mode'
+Replaces seman`tic-auto-parse-mode'.  Reparses all buffers.
+Also schedules additional functionality.
+
+** `semantic-idle-summary-mode'
+Replaces seman`tic-summary-mode'.  Uses the new idle scheduler
+to execute itself.
+
+** `semantic-idle-completions-mode'
+New minor mode for automatically going into inline completion
+for symbol prefixes.
+
+** `semantic-decoration-mode'
+New minor mode that manages any form of decoration to be added to
+tags.  It absorbs the duties of:
+
+** `semantic-show-tag-boundaries-mode': obsolete
+** `semantic-highlight-by-attribute-mode': obsolete
+
+* Hooks.
+
+** `semantic-before-auto-parse-hooks'
+Run before option `semantic-auto-parse-mode' begins parsing.
+
+** `semantic-after-auto-parse-hooks'
+Run after option `semantic-auto-parse-mode' has parsed.
+
+* Smart Completion
+
+** `semantic-analyze-current-context'
+This is now an overridable function.
+The objects contain more details on scoping for more accurate
+symbol lookup.
+
+** `semantic-analyze-possible-completions'
+This is now an overridable function.
+
+* Setup.
+
+A lot of things are now auto-loaded on demand.  Setup should now be
+done through the cedet.el initialization file.
+
+* Languages.
+
+** Python parser added.
+The LALR grammar is based on the official grammar with slight
+modifications.  The tokens generated are formatted similar to
+those produced by the Java parser.
+
+** Erlang parser added.
+The grammar was written for semantic 1.4 in BNF format, and converted
+to .by format.
+
+** HTML external parser added.
+The regexp based parser was copied from the texinfo example
+and modified for semantic 2.0.
+
+** Makefile parser improved.
+There is now excellent smart completion support.
+
+** Emacs lisp parser improved.
+The Emacs Lisp parser is now more flexible.  Using the new macros
+`semantic-elisp-setup-form-parser' and
+`semantic-elisp-reuse-form-parser', it is easy to parse all kind of
+Lisp forms to produce semantic tags.
+
+** Texinfo parser improved
+The texinfo parser was updated, and supports the new
+analysis engine.
+
+
+Local variables:
+mode: outline
+paragraph-separate: "[ 	]*$"
+end:

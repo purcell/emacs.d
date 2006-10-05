@@ -1,0 +1,44 @@
+NAME
+    yaml-mode - Simple major mode to edit YAML file for emacs
+
+SYNOPSIS
+      # You must add path installed yaml-mode.el to load-path.
+      (autoload 'yaml-mode "yaml-mode" "YAML" t)
+      (setq auto-mode-alist
+            (append '(("\\.yml$" . yaml-mode)) auto-mode-alist))
+
+DESCRIPTION
+    yaml-mode is major mode for emacs.
+
+INSTALL
+    You can install yaml-mode typing below.
+
+        % make
+        % make install
+
+        or
+
+        % make PREFIX=/your/home/dir
+        % make install PREFIX=/your/home/dir
+
+SETTING
+    see SYNOPSIS.
+
+AUTHOR
+    Yoshiki Kurihara <kurihara@cpan.org> Copyright (C) 2002 by Free Software
+    Foundation, Inc.
+
+    This file is free software; you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation; either version 2, or (at your option) any
+    later version.
+
+    This file is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+    more details.
+
+    You should have received a copy of the GNU General Public License along
+    with GNU Emacs; see the file COPYING. If not, write to the Free Software
+    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+    USA.

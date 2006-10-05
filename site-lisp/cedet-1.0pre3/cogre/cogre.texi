@@ -1,0 +1,93 @@
+\input texinfo   @c -*-texinfo-*-
+@c
+@c $Id: cogre.texi,v 1.1 2001/08/08 01:40:41 zappo Exp $
+@c
+@setfilename cogre.info
+@settitle COGRE: COnnected GRaph Editor
+
+@ifinfo
+@format
+START-INFO-DIR-ENTRY
+* cogre: (cogre).       Graphs & UML for Emacs
+END-INFO-DIR-ENTRY
+@end format
+@end ifinfo
+
+@titlepage
+@sp 10
+@center @titlefont{cogre}
+@vskip 0pt plus 1 fill
+Copyright @copyright{} 2001 Eric M. Ludlam
+@end titlepage
+
+
+@node Top, , , (dir)Top
+@comment  node-name,  next,  previous,  up
+
+COGRE is a package that enables Emacs to display UML diagrams in a
+text buffer.  Any kind of graph can be supported through object
+inheritance via EIEIO @xref{(eieio)Top}.
+
+Warning: Very little in this manual has been written.
+
+@menu
+* Getting Started::       Graphs, Nodes, and Links
+* Class Diagrams::        Creating Class diagrams
+* Semantic Support::      Emacs can make diagrams for you
+* Index::
+@end menu
+
+@node Getting Started, Class Diagrams, Top, Top
+@comment  node-name,  next,  previous,  up
+@chapter Getting Started
+
+There are three basic parts to any COGRE interface.
+
+@enumerate
+@item Graph
+The graph consists of a buffer, and all child elements in that graph.
+The graph is treated as any other Emacs buffer.  When that buffer is
+selected, Graph editing commands are available.
+@item Node
+A Node consists of a square region of screen space, and usually a
+name.  Nodes can be anything, but common examples are Classes,
+Packages, or other ``object like'' things.
+@item Link
+A Link is a line that connects two nodes.  A link may not exist
+without a node at both ends.  When a node is deleted, all links
+connected to it in some way are also deleted.
+@end enumerate
+
+@menu
+* Creating Nodes and Links ::
+* Moving Nodes ::
+* Customizing Nodes ::
+@end menu
+
+@node Creating Nodes and Links, Moving Nodes, Getting Started, Getting Started
+@comment  node-name,  next,  previous,  up
+
+@node Moving Nodes, Customizing Nodes, Creating Nodes and Links, Getting Started
+@comment  node-name,  next,  previous,  up
+
+@node Customizing Nodes, , Moving Nodes, Getting Started
+@comment  node-name,  next,  previous,  up
+
+@node Class Diagrams, Semantic Support, Getting Started, Top
+@comment  node-name,  next,  previous,  up
+@chapter Class Diagrams
+
+Add text here
+
+@node Semantic Support, Index ,Class Diagrams, Top
+@comment  node-name,  next,  previous,  up
+@chapter Semantic Support
+
+Add text here
+
+@node Index, , Semantic Support, Top
+@comment  node-name,  next,  previous,  up
+
+@contents
+
+@bye

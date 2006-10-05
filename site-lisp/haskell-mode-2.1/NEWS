@@ -1,0 +1,35 @@
+Changes since 2.0:
+
+* inf-haskell uses ghci if hugs is absent.
+
+* Fix up some binding conflicts (C-c C-o in haskell-doc)
+
+* Many (hopefully minor) changes to the indentation.
+
+* New symbols in haskell-font-lock-symbols-alist.
+
+Changes since 1.45:
+
+* keybindings C-c <char> have been replaced by C-c C-<char> so as not
+  to collide with minor modes.
+
+* The following modules are now automatically activated without having to
+  add anything to haskell-mode-hook:
+  haskell-font-lock (just turn on global-font-lock-mode).
+  haskell-decl-scan (just bind `imenu' to some key).
+
+* In recent Emacsen, haskell-doc hooks into eldoc-mode.
+
+* haskell-hugs and haskell-ghci are superceded by inf-haskell.
+
+* Indentation rules have been improved when using layout inside parens/braces.
+
+* Symbols like -> and \ can be displayed as actual arrows and lambdas.
+  See haskell-font-lock-symbols.
+
+* Tweaks to the font-lock settings.  Among other things paren-matching
+  with things like \(x,y) should work correctly now.
+
+* New maintainer <monnier@gnu.org>.
+
+# arch-tag: e50204f2-98e4-438a-bcd1-a49afde5efa5

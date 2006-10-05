@@ -1,0 +1,1612 @@
+@c -*-texinfo-*-
+@c
+@c $Id: ede-targets.texi,v 1.2 2001/04/27 00:20:16 zappo Exp $
+@c
+
+@c The next line is for the back-search to see what node this one
+@c resides in.
+
+@c @node Targets,
+@c @chapter Target Listing
+
+@c This command is a convenience to help rebuild this file.  Use C-x C-e
+@c on the expression below to rebuild the entire index (but only
+@c after loading in all relevant source files.)
+
+@c (eieiodoc-class ede-target "tg")
+@menu
+* ede-target ::
+*  ede-proj-target ::
+*   ede-proj-target-makefile ::
+*    ede-proj-target-makefile-objectcode ::
+*     ede-proj-target-makefile-archive ::
+*     ede-proj-target-makefile-program ::
+*      ede-proj-target-makefile-shared-object ::
+*    ede-proj-target-elisp ::
+*    ede-proj-target-makefile-info ::
+*    ede-proj-target-makefile-miscelaneous ::
+*   ede-proj-target-aux ::
+*   ede-proj-target-scheme ::
+*  project-am-target ::
+*   project-am-objectcode ::
+*    project-am-program ::
+*    project-am-lib ::
+*   project-am-lisp ::
+*   project-am-texinfo ::
+*   project-am-man ::
+@end menu
+
+
+@node ede-target, ede-proj-target,  , Targets
+@comment  node-name,  next,  previous,  up
+@section ede-target
+@tgindex ede-target
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item ede-target
+@table @asis
+@item Children:
+@w{@xref{ede-proj-target},} @w{@xref{project-am-target}.} 
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-target
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :name
+Type: @code{string} @*
+Default Value: @code{unbound}
+
+Name of this target.
+@refill
+
+@item :path
+Type: @code{string} @*
+Default Value: @code{unbound}
+
+The path to the sources of this target.
+Relative to the path of the project it belongs to.
+@refill
+
+@item :source
+Type: @code{list} @*
+Default Value: @code{nil}
+
+Source files in this target.
+@refill
+
+@item :versionsource
+Type: @code{list} @*
+Default Value: @code{nil}
+
+Source files with a version string in them.
+These files are checked for a version string whenever the EDE version
+of the master project is changed.  When strings are found, the version
+previously there is updated.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method eieio-speedbar-description :PRIMARY obj 
+Provide a speedbar description for @var{OBJ}.
+@end deffn
+
+@deffn Method project-compile-target :PRIMARY obj &optional command 
+Compile the current target @var{OBJ}.
+Argument @var{COMMAND} is the command to use for compiling the target.
+@end deffn
+
+@deffn Method project-debug-target :PRIMARY obj 
+Run the current project target @var{OBJ} in a debugger.
+@end deffn
+
+@deffn Method ede-convert-path :PRIMARY this path 
+Convert path in a standard way for a given project.
+Default to making it project relative.
+Argument @var{THIS} is the project to convert @var{PATH} to.
+@end deffn
+
+@deffn Method ede-name :PRIMARY this 
+Return the name of @var{THIS} targt.
+@end deffn
+
+@deffn Method ede-target-buffer-in-sourcelist :PRIMARY this buffer source 
+Return non-@code{nil} if object @var{THIS} is in @var{BUFFER} to a @var{SOURCE} list.
+Handles complex path issues.
+@end deffn
+
+@deffn Method eieio-speedbar-derive-line-path :PRIMARY obj &optional depth 
+Return the path to @var{OBJ}.
+Optional @var{DEPTH} is the depth we start at.
+@end deffn
+
+@deffn Method ede-buffer-header-file :PRIMARY this buffer 
+There are no default header files in EDE.
+Do a quick check to see if there is a Header tag in this buffer.
+@end deffn
+
+@deffn Method project-remove-file :PRIMARY ot fnnd 
+Remove the current buffer from project target @var{OT}.
+Argument @var{FNND} is an argument.
+@end deffn
+
+@deffn Method ede-buffer-documentation-files :PRIMARY this buffer 
+Check for some documenation files for @var{THIS}.
+Also do a quick check to see if there is a Documentation tag in this @var{BUFFER}.
+@end deffn
+
+@deffn Method ede-buffer-mine :PRIMARY this buffer 
+Return non-@code{nil} if object @var{THIS} lays claim to the file in @var{BUFFER}.
+@end deffn
+
+@deffn Method ede-map-target-buffers :PRIMARY this proc 
+For @var{THIS}, execute @var{PROC} on all buffers belonging to @var{THIS}.
+@end deffn
+
+@deffn Method eieio-speedbar-child-description :PRIMARY obj 
+Provide a speedbar description for a plain-child of @var{OBJ}.
+A plain child is a child element which is not an EIEIO object.
+@end deffn
+
+@deffn Method ede-object-keybindings :PRIMARY this 
+Retrieves the slot @code{keybindings} from an object of class @code{ede-target}
+@end deffn
+
+@deffn Method ede-description :PRIMARY this 
+Return a description suitible for the minibuffer about @var{THIS}.
+@end deffn
+
+@deffn Method eieio-speedbar-object-children :PRIMARY this 
+Return the list of speedbar display children for @var{THIS}.
+@end deffn
+
+@deffn Method ede-object-sourcecode :PRIMARY this 
+Retrieves the slot @code{sourcetype} from an object of class @code{ede-target}
+@end deffn
+
+@deffn Method ede-expand-filename :PRIMARY this filename &optional force 
+Return a fully qualified file name based on target @var{THIS}.
+@var{FILENAME} should a a filename which occurs in a directory in which @var{THIS} works.
+Optional argument @var{FORCE} forces the default filename to be provided even if it
+doesn't exist.
+@end deffn
+
+@deffn Method ede-menu-items-build :PRIMARY obj &optional current 
+Return a list of menu items for building target @var{OBJ}.
+If optional argument @var{CURRENT} is non-@code{nil}, return sub-menu code.
+@end deffn
+
+@deffn Method ede-want-file-p :PRIMARY this file 
+Return non-@code{nil} if @var{THIS} target wants @var{FILE}.
+@end deffn
+
+@deffn Method project-delete-target :PRIMARY ot 
+Delete the current target @var{OT} from it's parent project.
+@end deffn
+
+@deffn Method ede-target-sourcecode :PRIMARY this 
+Return the sourcecode objects which @var{THIS} permits.
+@end deffn
+
+@deffn Method eieio-speedbar-child-make-tag-lines :PRIMARY this depth 
+Create a speedbar tag line for a child of @var{THIS}.
+It has depth @var{DEPTH}.
+@end deffn
+
+@deffn Method eieio-speedbar-object-buttonname :PRIMARY object 
+Return a string to use as a speedbar button for @var{OBJECT}.
+@end deffn
+
+@deffn Method eieio-done-customizing :PRIMARY target 
+Call this when a user finishes customizing @var{TARGET}.
+@end deffn
+
+@deffn Method project-edit-file-target :PRIMARY ot 
+Edit the target @var{OT} associated w/ this file.
+@end deffn
+
+@deffn Method ede-documentation :PRIMARY this 
+Return a list of files that provides documentation.
+Documentation is not for object @var{THIS}, but is provided by @var{THIS} for other
+files in the project.
+@end deffn
+
+@deffn Method ede-want-file-source-p :PRIMARY this file 
+Return non-@code{nil} if @var{THIS} target wants @var{FILE}.
+@end deffn
+
+@deffn Method ede-want-file-auxiliary-p :PRIMARY this file 
+Return non-@code{nil} if @var{THIS} target wants @var{FILE}.
+@end deffn
+
+@deffn Method project-add-file :PRIMARY ot file 
+Add the current buffer into project project target @var{OT}.
+Argument @var{FILE} is the file to add.
+@end deffn
+
+@deffn Method ede-target-name :PRIMARY this 
+Return the name of @var{THIS} target, suitable for make or debug style commands.
+@end deffn
+
+@deffn Method ede-object-menu :PRIMARY this 
+Retrieves the slot @code{menu} from an object of class @code{ede-target}
+@end deffn
+
+
+@node ede-proj-target, ede-proj-target-makefile, ede-target, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target
+@tgindex ede-proj-target
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item ede-proj-target
+@table @asis
+@item Children:
+@w{@xref{ede-proj-target-makefile},} @w{@xref{ede-proj-target-aux},} @w{@xref{ede-proj-target-scheme}.} 
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :auxsource
+Type: @code{list} @*
+Default Value: @code{nil}
+
+Auxilliary source files included in this target.
+Each of these is considered equivalent to a source file, but it is not
+distributed, and each should have a corresponding rule to build it.
+@refill
+
+@item :compiler
+Type: @code{(or null symbol)} @*
+Default Value: @code{nil}
+
+The compiler to be used to compile this object.
+This should be a symbol, which contains the object defining the compiler.
+This enables save/restore to do so by name, permitting the sharing
+of these compiler resources, and global customization thereof.
+@refill
+
+@item :linker
+Type: @code{(or null symbol)} @*
+Default Value: @code{nil}
+
+The linker to be used to link compled sources for this object.
+This should be a symbol, which contains the object defining the linker.
+This enables save/restore to do so by name, permitting the sharing
+of these linker resources, and global customization thereof.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-compile-target :PRIMARY obj &optional command 
+Compile the current target @var{OBJ}.
+Argument @var{COMMAND} is the command to use for compiling the target.
+@end deffn
+
+@deffn Method project-rescan :PRIMARY this readstream 
+Rescan target @var{THIS} from the read list @var{READSTREAM}.
+@end deffn
+
+@deffn Method project-debug-target :PRIMARY obj 
+Run the current project target @var{OBJ} in a debugger.
+@end deffn
+
+@deffn Method ede-proj-configure-add-missing :PRIMARY this 
+Query if any files needed by @var{THIS} provided by automake are missing.
+Results in --add-missing being passed to automake.
+@end deffn
+
+@deffn Method ede-proj-flush-autoconf :PRIMARY this 
+Flush the configure file (current buffer) to accomodate @var{THIS}.
+By flushing, remove any cruft that may be in the file.  Subsequent
+calls to @dfn{ede-proj-tweak-autoconf} can restore items removed by flush.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-rules :PRIMARY this 
+Insert rules needed by @var{THIS} target.
+@end deffn
+
+@deffn Method project-remove-file :PRIMARY target file 
+For @var{TARGET}, remove @var{FILE}.
+@var{FILE} must be massaged by @dfn{ede-convert-path}.
+@end deffn
+
+@deffn Method ede-buffer-mine :PRIMARY this buffer 
+Return @code{t} if object @var{THIS} lays claim to the file in @var{BUFFER}.
+@end deffn
+
+@deffn Method ede-proj-configure-create-missing :PRIMARY this 
+Add any missing files for @var{THIS} by creating them.
+@end deffn
+
+@deffn Method ede-proj-makefile-sourcevar :PRIMARY this 
+Return the variable name for @var{THIS}'s sources.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-variables :PRIMARY this &optional moresource 
+Insert variables needed by target @var{THIS}.
+Optional argument @var{MORESOURCE} is a list of additional sources to add to the
+sources variable.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-automake-post-variables :PRIMARY this 
+Insert variables needed by target @var{THIS} in Makefile.am after SOURCES.
+@end deffn
+
+@deffn Method ede-proj-linkers :PRIMARY obj 
+List of linkers being used by @var{OBJ}.
+If the @code{linker} slot is empty, concoct one on a first match found
+basis for any given type from the @code{availablelinkers} slot.
+Otherwise, return the @code{linker} slot.
+Converts all symbols into the objects to be used.
+@end deffn
+
+@deffn Method ede-proj-makefile-garbage-patterns :PRIMARY this 
+Return a list of patterns that are considred garbage to @var{THIS}.
+These are removed with make clean.
+@end deffn
+
+@deffn Method ede-proj-tweak-autoconf :PRIMARY this 
+Tweak the configure file (current buffer) to accomodate @var{THIS}.
+@end deffn
+
+@deffn Method ede-proj-compilers :PRIMARY obj 
+List of compilers being used by @var{OBJ}.
+If the @code{compiler} slot is empty, concoct one on a first match found
+basis for any given type from the @code{availablecompilers} slot.
+Otherwise, return the @code{compiler} slot.
+Converts all symbols into the objects to be used.
+@end deffn
+
+@deffn Method project-delete-target :PRIMARY this 
+Delete the current target @var{THIS} from it's parent project.
+@end deffn
+
+@deffn Method ede-proj-makefile-target-name :PRIMARY this 
+Return the name of the main target for @var{THIS} target.
+@end deffn
+
+@deffn Method eieio-done-customizing :PRIMARY target 
+Call this when a user finishes customizing this object.
+Argument @var{TARGET} is the project we are completing customization on.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-user-rules :PRIMARY this 
+Insert user specified rules needed by @var{THIS} target.
+@end deffn
+
+@deffn Method project-add-file :PRIMARY this file 
+Add to target @var{THIS} the current buffer represented as @var{FILE}.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-automake-pre-variables :PRIMARY this 
+Insert variables needed by target @var{THIS} in Makefile.am before SOURCES.
+@end deffn
+
+@deffn Method ede-proj-makefile-dependency-files :PRIMARY this 
+Return a list of source files to convert to dependencies.
+Argument @var{THIS} is the target to get sources from.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-source-variables :PRIMARY this &optional moresource 
+Insert the source variables needed by @var{THIS}.
+Optional argument @var{MORESOURCE} is a list of additional sources to add to the
+sources variable.
+@end deffn
+
+
+@node ede-proj-target-makefile, ede-proj-target-makefile-objectcode, ede-proj-target, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target-makefile
+@tgindex ede-proj-target-makefile
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{ede-proj-target}.}
+@table @code
+@item ede-proj-target-makefile
+@table @asis
+@item Children:
+@w{@xref{ede-proj-target-makefile-objectcode},} @w{@xref{ede-proj-target-elisp},} @w{@xref{ede-proj-target-makefile-info},} @w{@xref{ede-proj-target-makefile-miscelaneous}.} 
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target-makefile
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :makefile
+Type: @code{string} @*
+Default Value: @code{"Makefile"}
+
+File name of generated Makefile.
+@refill
+
+@item :partofall
+Type: @code{boolean} @*
+Default Value: @code{t}
+
+Non @code{nil} means the rule created is part of the all target.
+Setting this to @code{nil} creates the rule to build this item, but does not
+include it in the ALL`all:' rule.
+@refill
+
+@item :configuration-variables
+Type: @code{list} @*
+Default Value: @code{nil}
+
+Makefile variables appended to use in different configurations.
+These variables are used in the makefile when a configuration becomes active.
+Target variables are always renamed such as foo_CFLAGS, then included into
+commands where the variable would usually appear.
+@refill
+
+@item :rules
+Type: @code{list} @*
+Default Value: @code{nil}
+
+Arbitrary rules and dependencies needed to make this target.
+It is safe to leave this blank.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method ede-proj-makefile-dependencies :PRIMARY this 
+Return a string representing the dependencies for @var{THIS}.
+Some compilers only use the first element in the dependencies, others
+have a list of intermediates (object files), and others don't care.
+This allows customization of how these elements appear.
+@end deffn
+
+@deffn Method project-compile-target :PRIMARY obj &optional command 
+Compile the current target program @var{OBJ}.
+Optional argument @var{COMMAND} is the s the alternate command to use.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-rules :PRIMARY this 
+Insert rules needed by @var{THIS} target.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-variables :PRIMARY this &optional moresource 
+Insert variables needed by target @var{THIS}.
+Optional argument @var{MORESOURCE} is a list of additional sources to add to the
+sources variable.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-commands :PRIMARY this 
+Insert the commands needed by target @var{THIS}.
+For targets, insert the commands needed by the chosen compiler.
+@end deffn
+
+
+@node ede-proj-target-makefile-objectcode, ede-proj-target-makefile-archive, ede-proj-target-makefile, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target-makefile-objectcode
+@tgindex ede-proj-target-makefile-objectcode
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{ede-proj-target}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile}.}
+@table @code
+@item ede-proj-target-makefile-objectcode
+@table @asis
+@item Children:
+@w{@xref{ede-proj-target-makefile-archive},} @w{@xref{ede-proj-target-makefile-program}.} 
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target-makefile-objectcode
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :configuration-variables
+Type: @code{list} @*
+Default Value: @code{("debug" ("CFLAGS" . "-g") ("LDFLAGS" . "-g"))}
+
+@xref{ede-proj-target-makefile}.
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method ede-buffer-header-file :PRIMARY this buffer 
+There are no default header files.
+@end deffn
+
+@deffn Method ede-proj-makefile-sourcevar :PRIMARY this 
+Return the variable name for @var{THIS}'s sources.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-variables :PRIMARY this &optional moresource 
+Insert variables needed by target @var{THIS}.
+Optional argument @var{MORESOURCE} is not used.
+@end deffn
+
+@deffn Method ede-proj-makefile-dependency-files :PRIMARY this 
+Return a list of source files to convert to dependencies.
+Argument @var{THIS} is the target to get sources from.
+@end deffn
+
+
+@node ede-proj-target-makefile-archive, ede-proj-target-makefile-program, ede-proj-target-makefile-objectcode, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target-makefile-archive
+@tgindex ede-proj-target-makefile-archive
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{ede-proj-target}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile-objectcode}.}
+@table @code
+@item ede-proj-target-makefile-archive
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target-makefile-archive
+
+@table @asis
+@end table
+@subsection Specialized Methods
+
+@deffn Method ede-proj-makefile-insert-rules :PRIMARY this 
+Create the make rule needed to create an archive for @var{THIS}.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-source-variables :BEFORE this 
+Insert bin_PROGRAMS variables needed by target @var{THIS}.
+We aren't acutally inserting SOURCE details, but this is used by the
+Makefile.am generator, so use it to add this important bin program.
+@end deffn
+
+
+@node ede-proj-target-makefile-program, ede-proj-target-makefile-shared-object, ede-proj-target-makefile-archive, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target-makefile-program
+@tgindex ede-proj-target-makefile-program
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{ede-proj-target}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile-objectcode}.}
+@table @code
+@item ede-proj-target-makefile-program
+@table @asis
+@item Children:
+@w{@xref{ede-proj-target-makefile-shared-object}.} 
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target-makefile-program
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :ldlibs
+Type: @code{list} @*
+Default Value: @code{nil}
+
+Libraries, such as "m" or "Xt" which this program dependso on.
+The linker flag "-l" is automatically prepended.  Do not include a "lib"
+prefix, or a ".so" suffix.
+@refill
+
+@item :ldflags
+Type: @code{list} @*
+Default Value: @code{nil}
+
+Additional flags to add when linking this target.
+Use ldlibs to add addition libraries.  Use this to specify specific
+options to the linker.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-debug-target :PRIMARY obj 
+Debug a program target @var{OBJ}.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-rules :PRIMARY this 
+Insert rules needed by @var{THIS} target.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-automake-post-variables :PRIMARY this 
+Insert bin_PROGRAMS variables needed by target @var{THIS}.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-automake-pre-variables :PRIMARY this 
+Insert bin_PROGRAMS variables needed by target @var{THIS}.
+@end deffn
+
+
+@node ede-proj-target-makefile-shared-object, ede-proj-target-elisp, ede-proj-target-makefile-program, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target-makefile-shared-object
+@tgindex ede-proj-target-makefile-shared-object
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{ede-proj-target}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile-objectcode}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile-program}.}
+@table @code
+@item ede-proj-target-makefile-shared-object
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target-makefile-shared-object
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :ldflags
+Type: @code{list} @*
+Default Value: @code{unbound}
+
+@xref{ede-proj-target-makefile-program}.
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method ede-proj-configure-add-missing :PRIMARY this 
+Query if any files needed by @var{THIS} provided by automake are missing.
+Results in --add-missing being passed to automake.
+@end deffn
+
+@deffn Method ede-proj-makefile-sourcevar :PRIMARY this 
+Return the variable name for @var{THIS}'s sources.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-automake-post-variables :PRIMARY this 
+Insert bin_PROGRAMS variables needed by target @var{THIS}.
+We need to override -program which has an LDADD element.
+@end deffn
+
+@deffn Method ede-proj-makefile-target-name :PRIMARY this 
+Return the name of the main target for @var{THIS} target.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-automake-pre-variables :PRIMARY this 
+Insert bin_PROGRAMS variables needed by target @var{THIS}.
+We aren't acutally inserting SOURCE details, but this is used by the
+Makefile.am generator, so use it to add this important bin program.
+@end deffn
+
+
+@node ede-proj-target-elisp, ede-proj-target-makefile-info, ede-proj-target-makefile-shared-object, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target-elisp
+@tgindex ede-proj-target-elisp
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{ede-proj-target}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile}.}
+@table @code
+@item ede-proj-target-elisp
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target-elisp
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :aux-packages
+Type: @code{list} @*
+Default Value: @code{nil}
+
+Additional packages needed.
+There should only be one toplevel package per auxiliary tool needed.
+These packages location is found, and added to the compile time
+load path.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-compile-target :PRIMARY obj 
+Compile all sources in a Lisp target @var{OBJ}.
+@end deffn
+
+@deffn Method ede-proj-flush-autoconf :PRIMARY this 
+Flush the configure file (current buffer) to accomodate @var{THIS}.
+@end deffn
+
+@deffn Method ede-proj-makefile-sourcevar :PRIMARY this 
+Return the variable name for @var{THIS}'s sources.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-variables :AFTER this 
+Insert variables needed by target @var{THIS}.
+@end deffn
+
+@deffn Method ede-proj-tweak-autoconf :PRIMARY this 
+Tweak the configure file (current buffer) to accomodate @var{THIS}.
+@end deffn
+
+@deffn Method ede-update-version-in-source :PRIMARY this version 
+In a Lisp file, updated a version string for @var{THIS} to @var{VERSION}.
+There are standards in Elisp files specifying how the version string
+is found, such as a @code{-version} variable, or the standard header.
+@end deffn
+
+
+@node ede-proj-target-makefile-info, ede-proj-target-makefile-miscelaneous, ede-proj-target-elisp, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target-makefile-info
+@tgindex ede-proj-target-makefile-info
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{ede-proj-target}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile}.}
+@table @code
+@item ede-proj-target-makefile-info
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target-makefile-info
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :mainmenu
+Type: @code{string} @*
+Default Value: @code{""}
+
+The main menu resides in this file.
+All other sources should be included independently.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method ede-proj-configure-add-missing :PRIMARY this 
+Query if any files needed by @var{THIS} provided by automake are missing.
+Results in --add-missing being passed to automake.
+@end deffn
+
+@deffn Method object-write :PRIMARY this 
+Before commiting any change to @var{THIS}, make sure the mainmenu is first.
+@end deffn
+
+@deffn Method ede-proj-makefile-sourcevar :PRIMARY this 
+Return the variable name for @var{THIS}'s sources.
+@end deffn
+
+@deffn Method ede-proj-makefile-target-name :PRIMARY this 
+Return the name of the main target for @var{THIS} target.
+@end deffn
+
+@deffn Method ede-documentation :PRIMARY this 
+Return a list of files that provides documentation.
+Documentation is not for object @var{THIS}, but is provided by @var{THIS} for other
+files in the project.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-source-variables :PRIMARY this &optional moresource 
+Insert the source variables needed by @var{THIS} info target.
+Optional argument @var{MORESOURCE} is a list of additional sources to add to the
+sources variable.
+Does the usual for Makefile mode, but splits source into two variables
+when working in Automake mode.
+@end deffn
+
+
+@node ede-proj-target-makefile-miscelaneous, ede-proj-target-aux, ede-proj-target-makefile-info, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target-makefile-miscelaneous
+@tgindex ede-proj-target-makefile-miscelaneous
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{ede-proj-target}.}
+@table @code
+@item @w{@xref{ede-proj-target-makefile}.}
+@table @code
+@item ede-proj-target-makefile-miscelaneous
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target-makefile-miscelaneous
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :submakefile
+Type: @code{string} @*
+Default Value: @code{""}
+
+Miscelaneous sources which have a specialized makefile.
+The sub-makefile is used to build this target.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method ede-proj-makefile-insert-rules :PRIMARY this 
+Create the make rule needed to create an archive for @var{THIS}.
+@end deffn
+
+@deffn Method ede-proj-makefile-sourcevar :PRIMARY this 
+Return the variable name for @var{THIS}'s sources.
+@end deffn
+
+@deffn Method ede-proj-makefile-dependency-files :PRIMARY this 
+Return a list of files which @var{THIS} target depends on.
+@end deffn
+
+
+@node ede-proj-target-aux, ede-proj-target-scheme, ede-proj-target-makefile-miscelaneous, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target-aux
+@tgindex ede-proj-target-aux
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{ede-proj-target}.}
+@table @code
+@item ede-proj-target-aux
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target-aux
+
+@table @asis
+@end table
+@subsection Specialized Methods
+
+@deffn Method ede-proj-makefile-sourcevar :PRIMARY this 
+Return the variable name for @var{THIS}'s sources.
+@end deffn
+
+
+@node ede-proj-target-scheme, project-am-target, ede-proj-target-aux, Targets
+@comment  node-name,  next,  previous,  up
+@section ede-proj-target-scheme
+@tgindex ede-proj-target-scheme
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{ede-proj-target}.}
+@table @code
+@item ede-proj-target-scheme
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-proj-target-scheme
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :interpreter
+Type: @code{string} @*
+Default Value: @code{"guile"}
+
+The preferred interpreter for this code.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method ede-proj-tweak-autoconf :PRIMARY this 
+Tweak the configure file (current buffer) to accomodate @var{THIS}.
+@end deffn
+
+
+@node project-am-target, project-am-objectcode, ede-proj-target-scheme, Targets
+@comment  node-name,  next,  previous,  up
+@section project-am-target
+@tgindex project-am-target
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item project-am-target
+@table @asis
+@item Children:
+@w{@xref{project-am-objectcode},} @w{@xref{project-am-lisp},} @w{@xref{project-am-texinfo},} @w{@xref{project-am-man}.} 
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type project-am-target
+
+@table @asis
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-compile-target :PRIMARY obj &optional command 
+Compile the current target.
+Argument @var{COMMAND} is the command to use for compiling the target.
+@end deffn
+
+@deffn Method project-compile-target-command :PRIMARY this 
+Default target to use when compiling a given target.
+@end deffn
+
+@deffn Method project-remove-file :PRIMARY ot fnnd 
+Remove the current buffer from any project targets.
+@end deffn
+
+@deffn Method project-make-dist :PRIMARY this 
+Run the current project in the debugger.
+@end deffn
+
+@deffn Method project-compile-project :PRIMARY obj &optional command 
+Compile the entire current project.
+Argument @var{COMMAND} is the command to use when compiling.
+@end deffn
+
+@deffn Method project-edit-file-target :PRIMARY obj 
+Edit the target associated w/ this file.
+@end deffn
+
+@deffn Method project-add-file :PRIMARY ot 
+Add the current buffer into a project.
+@var{OT} is the object target.  DIR is the directory to start in.
+@end deffn
+
+
+@node project-am-objectcode, project-am-program, project-am-target, Targets
+@comment  node-name,  next,  previous,  up
+@section project-am-objectcode
+@tgindex project-am-objectcode
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{project-am-target}.}
+@table @code
+@item project-am-objectcode
+@table @asis
+@item Children:
+@w{@xref{project-am-program},} @w{@xref{project-am-lib}.} 
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type project-am-objectcode
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :source
+Type: @code{list} @*
+Default Value: @code{unbound}
+
+@xref{project-am-target}.
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-am-macro :PRIMARY this 
+Return the default macro to 'edit' for this object type.
+@end deffn
+
+@deffn Method project-debug-target :PRIMARY obj 
+Run the current project target in a debugger.
+@end deffn
+
+@deffn Method project-compile-target-command :PRIMARY this 
+Default target to use when compiling an object code target.
+@end deffn
+
+@deffn Method ede-buffer-header-file :PRIMARY this buffer 
+There are no default header files.
+@end deffn
+
+@deffn Method ede-buffer-mine :PRIMARY this buffer 
+Return @code{t} if object @var{THIS} lays claim to the file in @var{BUFFER}.
+@end deffn
+
+@deffn Method ede-sb-expand :PRIMARY this depth 
+Expand node describing something built into objectcode.
+TEXT is the text clicked on.  TOKEN is the object we are expanding from.
+INDENT is the current indentatin level.
+@end deffn
+
+
+@node project-am-program, project-am-lib, project-am-objectcode, Targets
+@comment  node-name,  next,  previous,  up
+@section project-am-program
+@tgindex project-am-program
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{project-am-target}.}
+@table @code
+@item @w{@xref{project-am-objectcode}.}
+@table @code
+@item project-am-program
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type project-am-program
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :ldadd @*
+Default Value: @code{nil}
+
+Additional LD args.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-rescan :PRIMARY this 
+Rescan object @var{THIS}.
+@end deffn
+
+@deffn Method ede-sb-button :PRIMARY this depth 
+Create a speedbar button for object @var{THIS} at @var{DEPTH}.
+@end deffn
+
+
+@node project-am-lib, project-am-lisp, project-am-program, Targets
+@comment  node-name,  next,  previous,  up
+@section project-am-lib
+@tgindex project-am-lib
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{project-am-target}.}
+@table @code
+@item @w{@xref{project-am-objectcode}.}
+@table @code
+@item project-am-lib
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type project-am-lib
+
+@table @asis
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-rescan :PRIMARY this 
+Rescan object @var{THIS}.
+@end deffn
+
+@deffn Method ede-sb-button :PRIMARY this depth 
+Create a speedbar button for object @var{THIS} at @var{DEPTH}.
+@end deffn
+
+
+@node project-am-lisp, project-am-texinfo, project-am-lib, Targets
+@comment  node-name,  next,  previous,  up
+@section project-am-lisp
+@tgindex project-am-lisp
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{project-am-target}.}
+@table @code
+@item project-am-lisp
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type project-am-lisp
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :lisp @*
+Default Value: @code{unbound}
+
+List of lisp files to build.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-am-macro :PRIMARY this 
+Return the default macro to 'edit' for this object.
+@end deffn
+
+@deffn Method project-rescan :PRIMARY this 
+Rescan the lisp sources.
+@end deffn
+
+@deffn Method ede-buffer-mine :PRIMARY this buffer 
+Return @code{t} if object @var{THIS} lays claim to the file in @var{BUFFER}.
+@end deffn
+
+@deffn Method ede-sb-button :PRIMARY this depth 
+Create a speedbar button for object @var{THIS} at @var{DEPTH}.
+@end deffn
+
+@deffn Method ede-sb-expand :PRIMARY this depth 
+Expand node describing lisp code.
+TEXT is the text clicked on.  TOKEN is the object we are expanding from.
+INDENT is the current indentatin level.
+@end deffn
+
+
+@node project-am-texinfo, project-am-man, project-am-lisp, Targets
+@comment  node-name,  next,  previous,  up
+@section project-am-texinfo
+@tgindex project-am-texinfo
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{project-am-target}.}
+@table @code
+@item project-am-texinfo
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type project-am-texinfo
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :include @*
+Default Value: @code{nil}
+
+Additional texinfo included in this one.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-am-macro :PRIMARY this 
+Return the default macro to 'edit' for this object type.
+@end deffn
+
+@deffn Method project-rescan :PRIMARY this 
+Rescan object @var{THIS}.
+@end deffn
+
+@deffn Method project-compile-target-command :PRIMARY this 
+Default target t- use when compling a texinfo file.
+@end deffn
+
+@deffn Method ede-buffer-mine :PRIMARY this buffer 
+Return @code{t} if object @var{THIS} lays claim to the file in @var{BUFFER}.
+@end deffn
+
+@deffn Method ede-sb-button :PRIMARY this depth 
+Create a speedbar button for object @var{THIS} at @var{DEPTH}.
+@end deffn
+
+@deffn Method ede-sb-expand :PRIMARY this depth 
+Expand node describing a texinfo manual.
+TEXT is the text clicked on.  TOKEN is the object we are expanding from.
+INDENT is the current indentatin level.
+@end deffn
+
+@deffn Method ede-documentation :PRIMARY this 
+Return a list of files that provides documentation.
+Documentation is not for object @var{THIS}, but is provided by @var{THIS} for other
+files in the project.
+@end deffn
+
+
+@node project-am-man,  , project-am-texinfo, Targets
+@comment  node-name,  next,  previous,  up
+@section project-am-man
+@tgindex project-am-man
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-target}.}
+@table @code
+@item @w{@xref{project-am-target}.}
+@table @code
+@item project-am-man
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type project-am-man
+
+@table @asis
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-am-macro :PRIMARY this 
+Return the default macro to 'edit' for this object type.
+@end deffn
+
+@deffn Method project-rescan :PRIMARY this 
+Rescan object @var{THIS}.
+@end deffn
+
+@deffn Method ede-buffer-mine :PRIMARY this buffer 
+Return @code{t} if object @var{THIS} lays claim to the file in @var{BUFFER}.
+@end deffn
+
+@deffn Method ede-sb-button :PRIMARY this depth 
+Create a speedbar button for object @var{THIS} at @var{DEPTH}.
+@end deffn
+
+

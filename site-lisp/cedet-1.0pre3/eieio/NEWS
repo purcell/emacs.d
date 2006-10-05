@@ -1,0 +1,45 @@
+History of changes made to EIEIO
+
+
+Changes In EIEIO Version 1.0
+
+* Method Invocation Changes
+  Several changes have been made to method invocation to make it more
+  compatible with CLOS.  These changes may be incompatible with
+  previous versions of EIEIO.
+
+** :BEFORE and :AFTER methods cannot call `call-next-method' anymore.
+
+** All inherited :BEFORE and :AFTER implementations are called for
+   each method call, with the most specific methods being called
+   first.
+
+** You can now call a :STATIC method by passing in an object as well
+   as a class.
+
+** accessor methods for :class allocated slots are now :static methods.
+
+* Linemark Changes
+
+** Allow creation of marks in files that are not associated with a file.
+
+** Linemark faces have changed slightly.
+
+** viss-bookmark changes
+
+*** You can clear bookmarks in bufferes not assocated with files.
+
+* lmcompile.el - new demo program for linemark.
+
+* Documentation Changes
+
+** Richard Stallman provided advice for the EIEIO manual.  This has
+   been appended to the end of the manual as a comment to be dealt
+   with.
+
+
+Local variables:
+mode: outline
+paragraph-separate: "[ 	]*$"
+end:
+

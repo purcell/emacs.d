@@ -1,0 +1,15 @@
+/* XPM */ 
+static char * ecbnohandle_xpm[] = {
+"8 10 2 1",
+" 	c None",
+"!	c black",
+"        ",
+"        ",
+"        ",
+"        ",
+"        ",
+"        ",
+"        ",
+"        ",
+"        ",
+"        "};

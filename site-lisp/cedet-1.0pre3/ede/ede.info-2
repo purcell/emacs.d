@@ -1,0 +1,1482 @@
+This is ede.info, produced by makeinfo version 4.3 from ede.texi.
+
+START-INFO-DIR-ENTRY
+* ede: (ede).       Objects for Emacs
+END-INFO-DIR-ENTRY
+
+
+File: ede.info,  Node: ede-proj-target,  Next: ede-proj-target-makefile,  Prev: ede-target,  Up: Targets
+
+ede-proj-target
+===============
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `ede-proj-target'
+
+                        Children:
+                              *Note ede-proj-target-makefile::,
+                              *Note ede-proj-target-aux::,
+                              *Note ede-proj-target-scheme::.
+
+   Create a new object with name NAME of class type ede-proj-target
+
+Slots:
+
+    `:auxsource'
+          Type: `list'
+          Default Value: `nil'
+
+          Auxilliary source files included in this target.  Each of
+          these is considered equivalent to a source file, but it is not
+          distributed, and each should have a corresponding rule to
+          build it.
+
+    `:compiler'
+          Type: `(or null symbol)'
+          Default Value: `nil'
+
+          The compiler to be used to compile this object.  This should
+          be a symbol, which contains the object defining the compiler.
+          This enables save/restore to do so by name, permitting the
+          sharing of these compiler resources, and global customization
+          thereof.
+
+    `:linker'
+          Type: `(or null symbol)'
+          Default Value: `nil'
+
+          The linker to be used to link compled sources for this object.
+          This should be a symbol, which contains the object defining
+          the linker.  This enables save/restore to do so by name,
+          permitting the sharing of these linker resources, and global
+          customization thereof.
+
+Specialized Methods
+-------------------
+
+ - Method: project-compile-target :PRIMARY obj &optional command
+     Compile the current target OBJ.  Argument COMMAND is the command
+     to use for compiling the target.
+
+ - Method: project-rescan :PRIMARY this readstream
+     Rescan target THIS from the read list READSTREAM.
+
+ - Method: project-debug-target :PRIMARY obj
+     Run the current project target OBJ in a debugger.
+
+ - Method: ede-proj-configure-add-missing :PRIMARY this
+     Query if any files needed by THIS provided by automake are missing.
+     Results in -add-missing being passed to automake.
+
+ - Method: ede-proj-flush-autoconf :PRIMARY this
+     Flush the configure file (current buffer) to accomodate THIS.  By
+     flushing, remove any cruft that may be in the file.  Subsequent
+     calls to "ede-proj-tweak-autoconf" can restore items removed by
+     flush.
+
+ - Method: ede-proj-makefile-insert-rules :PRIMARY this
+     Insert rules needed by THIS target.
+
+ - Method: project-remove-file :PRIMARY target file
+     For TARGET, remove FILE.  FILE must be massaged by
+     "ede-convert-path".
+
+ - Method: ede-buffer-mine :PRIMARY this buffer
+     Return `t' if object THIS lays claim to the file in BUFFER.
+
+ - Method: ede-proj-configure-create-missing :PRIMARY this
+     Add any missing files for THIS by creating them.
+
+ - Method: ede-proj-makefile-sourcevar :PRIMARY this
+     Return the variable name for THIS's sources.
+
+ - Method: ede-proj-makefile-insert-variables :PRIMARY this &optional
+          moresource
+     Insert variables needed by target THIS.  Optional argument
+     MORESOURCE is a list of additional sources to add to the sources
+     variable.
+
+ - Method: ede-proj-makefile-insert-automake-post-variables :PRIMARY
+          this
+     Insert variables needed by target THIS in Makefile.am after
+     SOURCES.
+
+ - Method: ede-proj-linkers :PRIMARY obj
+     List of linkers being used by OBJ.  If the `linker' slot is empty,
+     concoct one on a first match found basis for any given type from
+     the `availablelinkers' slot.  Otherwise, return the `linker' slot.
+     Converts all symbols into the objects to be used.
+
+ - Method: ede-proj-makefile-garbage-patterns :PRIMARY this
+     Return a list of patterns that are considred garbage to THIS.
+     These are removed with make clean.
+
+ - Method: ede-proj-tweak-autoconf :PRIMARY this
+     Tweak the configure file (current buffer) to accomodate THIS.
+
+ - Method: ede-proj-compilers :PRIMARY obj
+     List of compilers being used by OBJ.  If the `compiler' slot is
+     empty, concoct one on a first match found basis for any given type
+     from the `availablecompilers' slot.  Otherwise, return the
+     `compiler' slot.  Converts all symbols into the objects to be used.
+
+ - Method: project-delete-target :PRIMARY this
+     Delete the current target THIS from it's parent project.
+
+ - Method: ede-proj-makefile-target-name :PRIMARY this
+     Return the name of the main target for THIS target.
+
+ - Method: eieio-done-customizing :PRIMARY target
+     Call this when a user finishes customizing this object.  Argument
+     TARGET is the project we are completing customization on.
+
+ - Method: ede-proj-makefile-insert-user-rules :PRIMARY this
+     Insert user specified rules needed by THIS target.
+
+ - Method: project-add-file :PRIMARY this file
+     Add to target THIS the current buffer represented as FILE.
+
+ - Method: ede-proj-makefile-insert-automake-pre-variables :PRIMARY this
+     Insert variables needed by target THIS in Makefile.am before
+     SOURCES.
+
+ - Method: ede-proj-makefile-dependency-files :PRIMARY this
+     Return a list of source files to convert to dependencies.
+     Argument THIS is the target to get sources from.
+
+ - Method: ede-proj-makefile-insert-source-variables :PRIMARY this
+          &optional moresource
+     Insert the source variables needed by THIS.  Optional argument
+     MORESOURCE is a list of additional sources to add to the sources
+     variable.
+
+
+File: ede.info,  Node: ede-proj-target-makefile,  Next: ede-proj-target-makefile-objectcode,  Prev: ede-proj-target,  Up: Targets
+
+ede-proj-target-makefile
+========================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note ede-proj-target::.'
+
+                        `ede-proj-target-makefile'
+
+                             Children:
+                                   *Note ede-proj-target-makefile-objectcode::,
+                                   *Note ede-proj-target-elisp::,
+                                   *Note ede-proj-target-makefile-info::,
+                                   *Note ede-proj-target-makefile-miscelaneous::.
+
+   Create a new object with name NAME of class type
+ede-proj-target-makefile
+
+Slots:
+
+    `:makefile'
+          Type: `string'
+          Default Value: `"Makefile"'
+
+          File name of generated Makefile.
+
+    `:partofall'
+          Type: `boolean'
+          Default Value: `t'
+
+          Non `nil' means the rule created is part of the all target.
+          Setting this to `nil' creates the rule to build this item,
+          but does not include it in the ALL`all:' rule.
+
+    `:configuration-variables'
+          Type: `list'
+          Default Value: `nil'
+
+          Makefile variables appended to use in different
+          configurations.  These variables are used in the makefile
+          when a configuration becomes active.  Target variables are
+          always renamed such as foo_CFLAGS, then included into
+          commands where the variable would usually appear.
+
+    `:rules'
+          Type: `list'
+          Default Value: `nil'
+
+          Arbitrary rules and dependencies needed to make this target.
+          It is safe to leave this blank.
+
+Specialized Methods
+-------------------
+
+ - Method: ede-proj-makefile-dependencies :PRIMARY this
+     Return a string representing the dependencies for THIS.  Some
+     compilers only use the first element in the dependencies, others
+     have a list of intermediates (object files), and others don't care.
+     This allows customization of how these elements appear.
+
+ - Method: project-compile-target :PRIMARY obj &optional command
+     Compile the current target program OBJ.  Optional argument COMMAND
+     is the s the alternate command to use.
+
+ - Method: ede-proj-makefile-insert-rules :PRIMARY this
+     Insert rules needed by THIS target.
+
+ - Method: ede-proj-makefile-insert-variables :PRIMARY this &optional
+          moresource
+     Insert variables needed by target THIS.  Optional argument
+     MORESOURCE is a list of additional sources to add to the sources
+     variable.
+
+ - Method: ede-proj-makefile-insert-commands :PRIMARY this
+     Insert the commands needed by target THIS.  For targets, insert
+     the commands needed by the chosen compiler.
+
+
+File: ede.info,  Node: ede-proj-target-makefile-objectcode,  Next: ede-proj-target-makefile-archive,  Prev: ede-proj-target-makefile,  Up: Targets
+
+ede-proj-target-makefile-objectcode
+===================================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note ede-proj-target::.'
+
+                        `*Note ede-proj-target-makefile::.'
+
+                             `ede-proj-target-makefile-objectcode'
+
+                                  Children:
+                                        *Note ede-proj-target-makefile-archive::,
+                                        *Note ede-proj-target-makefile-program::.
+
+   Create a new object with name NAME of class type
+ede-proj-target-makefile-objectcode
+
+Slots:
+
+    `:configuration-variables'
+          Type: `list'
+          Default Value: `("debug" ("CFLAGS" . "-g") ("LDFLAGS" .
+          "-g"))'
+
+          *Note ede-proj-target-makefile::.
+
+Specialized Methods
+-------------------
+
+ - Method: ede-buffer-header-file :PRIMARY this buffer
+     There are no default header files.
+
+ - Method: ede-proj-makefile-sourcevar :PRIMARY this
+     Return the variable name for THIS's sources.
+
+ - Method: ede-proj-makefile-insert-variables :PRIMARY this &optional
+          moresource
+     Insert variables needed by target THIS.  Optional argument
+     MORESOURCE is not used.
+
+ - Method: ede-proj-makefile-dependency-files :PRIMARY this
+     Return a list of source files to convert to dependencies.
+     Argument THIS is the target to get sources from.
+
+
+File: ede.info,  Node: ede-proj-target-makefile-archive,  Next: ede-proj-target-makefile-program,  Prev: ede-proj-target-makefile-objectcode,  Up: Targets
+
+ede-proj-target-makefile-archive
+================================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note ede-proj-target::.'
+
+                        `*Note ede-proj-target-makefile::.'
+
+                             `*Note ede-proj-target-makefile-objectcode::.'
+
+                                  `ede-proj-target-makefile-archive'
+                                        No children
+
+   Create a new object with name NAME of class type
+ede-proj-target-makefile-archive
+
+Specialized Methods
+-------------------
+
+ - Method: ede-proj-makefile-insert-rules :PRIMARY this
+     Create the make rule needed to create an archive for THIS.
+
+ - Method: ede-proj-makefile-insert-source-variables :BEFORE this
+     Insert bin_PROGRAMS variables needed by target THIS.  We aren't
+     acutally inserting SOURCE details, but this is used by the
+     Makefile.am generator, so use it to add this important bin program.
+
+
+File: ede.info,  Node: ede-proj-target-makefile-program,  Next: ede-proj-target-makefile-shared-object,  Prev: ede-proj-target-makefile-archive,  Up: Targets
+
+ede-proj-target-makefile-program
+================================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note ede-proj-target::.'
+
+                        `*Note ede-proj-target-makefile::.'
+
+                             `*Note ede-proj-target-makefile-objectcode::.'
+
+                                  `ede-proj-target-makefile-program'
+
+                                       Children:
+                                             *Note ede-proj-target-makefile-shared-object::.
+
+   Create a new object with name NAME of class type
+ede-proj-target-makefile-program
+
+Slots:
+
+    `:ldlibs'
+          Type: `list'
+          Default Value: `nil'
+
+          Libraries, such as "m" or "Xt" which this program dependso on.
+          The linker flag "-l" is automatically prepended.  Do not
+          include a "lib" prefix, or a ".so" suffix.
+
+    `:ldflags'
+          Type: `list'
+          Default Value: `nil'
+
+          Additional flags to add when linking this target.  Use ldlibs
+          to add addition libraries.  Use this to specify specific
+          options to the linker.
+
+Specialized Methods
+-------------------
+
+ - Method: project-debug-target :PRIMARY obj
+     Debug a program target OBJ.
+
+ - Method: ede-proj-makefile-insert-rules :PRIMARY this
+     Insert rules needed by THIS target.
+
+ - Method: ede-proj-makefile-insert-automake-post-variables :PRIMARY
+          this
+     Insert bin_PROGRAMS variables needed by target THIS.
+
+ - Method: ede-proj-makefile-insert-automake-pre-variables :PRIMARY this
+     Insert bin_PROGRAMS variables needed by target THIS.
+
+
+File: ede.info,  Node: ede-proj-target-makefile-shared-object,  Next: ede-proj-target-elisp,  Prev: ede-proj-target-makefile-program,  Up: Targets
+
+ede-proj-target-makefile-shared-object
+======================================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note ede-proj-target::.'
+
+                        `*Note ede-proj-target-makefile::.'
+
+                             `*Note ede-proj-target-makefile-objectcode::.'
+
+                                  `*Note ede-proj-target-makefile-program::.'
+
+                                       `ede-proj-target-makefile-shared-object'
+                                             No children
+
+   Create a new object with name NAME of class type
+ede-proj-target-makefile-shared-object
+
+Slots:
+
+    `:ldflags'
+          Type: `list'
+          Default Value: `unbound'
+
+          *Note ede-proj-target-makefile-program::.
+
+Specialized Methods
+-------------------
+
+ - Method: ede-proj-configure-add-missing :PRIMARY this
+     Query if any files needed by THIS provided by automake are missing.
+     Results in -add-missing being passed to automake.
+
+ - Method: ede-proj-makefile-sourcevar :PRIMARY this
+     Return the variable name for THIS's sources.
+
+ - Method: ede-proj-makefile-insert-automake-post-variables :PRIMARY
+          this
+     Insert bin_PROGRAMS variables needed by target THIS.  We need to
+     override -program which has an LDADD element.
+
+ - Method: ede-proj-makefile-target-name :PRIMARY this
+     Return the name of the main target for THIS target.
+
+ - Method: ede-proj-makefile-insert-automake-pre-variables :PRIMARY this
+     Insert bin_PROGRAMS variables needed by target THIS.  We aren't
+     acutally inserting SOURCE details, but this is used by the
+     Makefile.am generator, so use it to add this important bin program.
+
+
+File: ede.info,  Node: ede-proj-target-elisp,  Next: ede-proj-target-makefile-info,  Prev: ede-proj-target-makefile-shared-object,  Up: Targets
+
+ede-proj-target-elisp
+=====================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note ede-proj-target::.'
+
+                        `*Note ede-proj-target-makefile::.'
+
+                             `ede-proj-target-elisp'
+                                   No children
+
+   Create a new object with name NAME of class type
+ede-proj-target-elisp
+
+Slots:
+
+    `:aux-packages'
+          Type: `list'
+          Default Value: `nil'
+
+          Additional packages needed.  There should only be one
+          toplevel package per auxiliary tool needed.  These packages
+          location is found, and added to the compile time load path.
+
+Specialized Methods
+-------------------
+
+ - Method: project-compile-target :PRIMARY obj
+     Compile all sources in a Lisp target OBJ.
+
+ - Method: ede-proj-flush-autoconf :PRIMARY this
+     Flush the configure file (current buffer) to accomodate THIS.
+
+ - Method: ede-proj-makefile-sourcevar :PRIMARY this
+     Return the variable name for THIS's sources.
+
+ - Method: ede-proj-makefile-insert-variables :AFTER this
+     Insert variables needed by target THIS.
+
+ - Method: ede-proj-tweak-autoconf :PRIMARY this
+     Tweak the configure file (current buffer) to accomodate THIS.
+
+ - Method: ede-update-version-in-source :PRIMARY this version
+     In a Lisp file, updated a version string for THIS to VERSION.
+     There are standards in Elisp files specifying how the version
+     string is found, such as a `-version' variable, or the standard
+     header.
+
+
+File: ede.info,  Node: ede-proj-target-makefile-info,  Next: ede-proj-target-makefile-miscelaneous,  Prev: ede-proj-target-elisp,  Up: Targets
+
+ede-proj-target-makefile-info
+=============================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note ede-proj-target::.'
+
+                        `*Note ede-proj-target-makefile::.'
+
+                             `ede-proj-target-makefile-info'
+                                   No children
+
+   Create a new object with name NAME of class type
+ede-proj-target-makefile-info
+
+Slots:
+
+    `:mainmenu'
+          Type: `string'
+          Default Value: `""'
+
+          The main menu resides in this file.  All other sources should
+          be included independently.
+
+Specialized Methods
+-------------------
+
+ - Method: ede-proj-configure-add-missing :PRIMARY this
+     Query if any files needed by THIS provided by automake are missing.
+     Results in -add-missing being passed to automake.
+
+ - Method: object-write :PRIMARY this
+     Before commiting any change to THIS, make sure the mainmenu is
+     first.
+
+ - Method: ede-proj-makefile-sourcevar :PRIMARY this
+     Return the variable name for THIS's sources.
+
+ - Method: ede-proj-makefile-target-name :PRIMARY this
+     Return the name of the main target for THIS target.
+
+ - Method: ede-documentation :PRIMARY this
+     Return a list of files that provides documentation.  Documentation
+     is not for object THIS, but is provided by THIS for other files in
+     the project.
+
+ - Method: ede-proj-makefile-insert-source-variables :PRIMARY this
+          &optional moresource
+     Insert the source variables needed by THIS info target.  Optional
+     argument MORESOURCE is a list of additional sources to add to the
+     sources variable.  Does the usual for Makefile mode, but splits
+     source into two variables when working in Automake mode.
+
+
+File: ede.info,  Node: ede-proj-target-makefile-miscelaneous,  Next: ede-proj-target-aux,  Prev: ede-proj-target-makefile-info,  Up: Targets
+
+ede-proj-target-makefile-miscelaneous
+=====================================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note ede-proj-target::.'
+
+                        `*Note ede-proj-target-makefile::.'
+
+                             `ede-proj-target-makefile-miscelaneous'
+                                   No children
+
+   Create a new object with name NAME of class type
+ede-proj-target-makefile-miscelaneous
+
+Slots:
+
+    `:submakefile'
+          Type: `string'
+          Default Value: `""'
+
+          Miscelaneous sources which have a specialized makefile.  The
+          sub-makefile is used to build this target.
+
+Specialized Methods
+-------------------
+
+ - Method: ede-proj-makefile-insert-rules :PRIMARY this
+     Create the make rule needed to create an archive for THIS.
+
+ - Method: ede-proj-makefile-sourcevar :PRIMARY this
+     Return the variable name for THIS's sources.
+
+ - Method: ede-proj-makefile-dependency-files :PRIMARY this
+     Return a list of files which THIS target depends on.
+
+
+File: ede.info,  Node: ede-proj-target-aux,  Next: ede-proj-target-scheme,  Prev: ede-proj-target-makefile-miscelaneous,  Up: Targets
+
+ede-proj-target-aux
+===================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note ede-proj-target::.'
+
+                        `ede-proj-target-aux'
+                              No children
+
+   Create a new object with name NAME of class type ede-proj-target-aux
+
+Specialized Methods
+-------------------
+
+ - Method: ede-proj-makefile-sourcevar :PRIMARY this
+     Return the variable name for THIS's sources.
+
+
+File: ede.info,  Node: ede-proj-target-scheme,  Next: project-am-target,  Prev: ede-proj-target-aux,  Up: Targets
+
+ede-proj-target-scheme
+======================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note ede-proj-target::.'
+
+                        `ede-proj-target-scheme'
+                              No children
+
+   Create a new object with name NAME of class type
+ede-proj-target-scheme
+
+Slots:
+
+    `:interpreter'
+          Type: `string'
+          Default Value: `"guile"'
+
+          The preferred interpreter for this code.
+
+Specialized Methods
+-------------------
+
+ - Method: ede-proj-tweak-autoconf :PRIMARY this
+     Tweak the configure file (current buffer) to accomodate THIS.
+
+
+File: ede.info,  Node: project-am-target,  Next: project-am-objectcode,  Prev: ede-proj-target-scheme,  Up: Targets
+
+project-am-target
+=================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `project-am-target'
+
+                        Children:
+                              *Note project-am-objectcode::,
+                              *Note project-am-lisp::,
+                              *Note project-am-texinfo::,
+                              *Note project-am-man::.
+
+   Create a new object with name NAME of class type project-am-target
+
+Specialized Methods
+-------------------
+
+ - Method: project-compile-target :PRIMARY obj &optional command
+     Compile the current target.  Argument COMMAND is the command to
+     use for compiling the target.
+
+ - Method: project-compile-target-command :PRIMARY this
+     Default target to use when compiling a given target.
+
+ - Method: project-remove-file :PRIMARY ot fnnd
+     Remove the current buffer from any project targets.
+
+ - Method: project-make-dist :PRIMARY this
+     Run the current project in the debugger.
+
+ - Method: project-compile-project :PRIMARY obj &optional command
+     Compile the entire current project.  Argument COMMAND is the
+     command to use when compiling.
+
+ - Method: project-edit-file-target :PRIMARY obj
+     Edit the target associated w/ this file.
+
+ - Method: project-add-file :PRIMARY ot
+     Add the current buffer into a project.  OT is the object target.
+     DIR is the directory to start in.
+
+
+File: ede.info,  Node: project-am-objectcode,  Next: project-am-program,  Prev: project-am-target,  Up: Targets
+
+project-am-objectcode
+=====================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note project-am-target::.'
+
+                        `project-am-objectcode'
+
+                             Children:
+                                   *Note project-am-program::,
+                                   *Note project-am-lib::.
+
+   Create a new object with name NAME of class type
+project-am-objectcode
+
+Slots:
+
+    `:source'
+          Type: `list'
+          Default Value: `unbound'
+
+          *Note project-am-target::.
+
+Specialized Methods
+-------------------
+
+ - Method: project-am-macro :PRIMARY this
+     Return the default macro to 'edit' for this object type.
+
+ - Method: project-debug-target :PRIMARY obj
+     Run the current project target in a debugger.
+
+ - Method: project-compile-target-command :PRIMARY this
+     Default target to use when compiling an object code target.
+
+ - Method: ede-buffer-header-file :PRIMARY this buffer
+     There are no default header files.
+
+ - Method: ede-buffer-mine :PRIMARY this buffer
+     Return `t' if object THIS lays claim to the file in BUFFER.
+
+ - Method: ede-sb-expand :PRIMARY this depth
+     Expand node describing something built into objectcode.  TEXT is
+     the text clicked on.  TOKEN is the object we are expanding from.
+     INDENT is the current indentatin level.
+
+
+File: ede.info,  Node: project-am-program,  Next: project-am-lib,  Prev: project-am-objectcode,  Up: Targets
+
+project-am-program
+==================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note project-am-target::.'
+
+                        `*Note project-am-objectcode::.'
+
+                             `project-am-program'
+                                   No children
+
+   Create a new object with name NAME of class type project-am-program
+
+Slots:
+
+    `:ldadd
+          '
+          Default Value: `nil'
+
+          Additional LD args.
+
+Specialized Methods
+-------------------
+
+ - Method: project-rescan :PRIMARY this
+     Rescan object THIS.
+
+ - Method: ede-sb-button :PRIMARY this depth
+     Create a speedbar button for object THIS at DEPTH.
+
+
+File: ede.info,  Node: project-am-lib,  Next: project-am-lisp,  Prev: project-am-program,  Up: Targets
+
+project-am-lib
+==============
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note project-am-target::.'
+
+                        `*Note project-am-objectcode::.'
+
+                             `project-am-lib'
+                                   No children
+
+   Create a new object with name NAME of class type project-am-lib
+
+Specialized Methods
+-------------------
+
+ - Method: project-rescan :PRIMARY this
+     Rescan object THIS.
+
+ - Method: ede-sb-button :PRIMARY this depth
+     Create a speedbar button for object THIS at DEPTH.
+
+
+File: ede.info,  Node: project-am-lisp,  Next: project-am-texinfo,  Prev: project-am-lib,  Up: Targets
+
+project-am-lisp
+===============
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note project-am-target::.'
+
+                        `project-am-lisp'
+                              No children
+
+   Create a new object with name NAME of class type project-am-lisp
+
+Slots:
+
+    `:lisp
+          '
+          Default Value: `unbound'
+
+          List of lisp files to build.
+
+Specialized Methods
+-------------------
+
+ - Method: project-am-macro :PRIMARY this
+     Return the default macro to 'edit' for this object.
+
+ - Method: project-rescan :PRIMARY this
+     Rescan the lisp sources.
+
+ - Method: ede-buffer-mine :PRIMARY this buffer
+     Return `t' if object THIS lays claim to the file in BUFFER.
+
+ - Method: ede-sb-button :PRIMARY this depth
+     Create a speedbar button for object THIS at DEPTH.
+
+ - Method: ede-sb-expand :PRIMARY this depth
+     Expand node describing lisp code.  TEXT is the text clicked on.
+     TOKEN is the object we are expanding from.  INDENT is the current
+     indentatin level.
+
+
+File: ede.info,  Node: project-am-texinfo,  Next: project-am-man,  Prev: project-am-lisp,  Up: Targets
+
+project-am-texinfo
+==================
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note project-am-target::.'
+
+                        `project-am-texinfo'
+                              No children
+
+   Create a new object with name NAME of class type project-am-texinfo
+
+Slots:
+
+    `:include
+          '
+          Default Value: `nil'
+
+          Additional texinfo included in this one.
+
+Specialized Methods
+-------------------
+
+ - Method: project-am-macro :PRIMARY this
+     Return the default macro to 'edit' for this object type.
+
+ - Method: project-rescan :PRIMARY this
+     Rescan object THIS.
+
+ - Method: project-compile-target-command :PRIMARY this
+     Default target t- use when compling a texinfo file.
+
+ - Method: ede-buffer-mine :PRIMARY this buffer
+     Return `t' if object THIS lays claim to the file in BUFFER.
+
+ - Method: ede-sb-button :PRIMARY this depth
+     Create a speedbar button for object THIS at DEPTH.
+
+ - Method: ede-sb-expand :PRIMARY this depth
+     Expand node describing a texinfo manual.  TEXT is the text clicked
+     on.  TOKEN is the object we are expanding from.  INDENT is the
+     current indentatin level.
+
+ - Method: ede-documentation :PRIMARY this
+     Return a list of files that provides documentation.  Documentation
+     is not for object THIS, but is provided by THIS for other files in
+     the project.
+
+
+File: ede.info,  Node: project-am-man,  Prev: project-am-texinfo,  Up: Targets
+
+project-am-man
+==============
+
+Inheritance Tree:
+
+    `eieio-speedbar'
+
+         `eieio-speedbar-directory-button'
+
+              `*Note ede-target::.'
+
+                   `*Note project-am-target::.'
+
+                        `project-am-man'
+                              No children
+
+   Create a new object with name NAME of class type project-am-man
+
+Specialized Methods
+-------------------
+
+ - Method: project-am-macro :PRIMARY this
+     Return the default macro to 'edit' for this object type.
+
+ - Method: project-rescan :PRIMARY this
+     Rescan object THIS.
+
+ - Method: ede-buffer-mine :PRIMARY this buffer
+     Return `t' if object THIS lays claim to the file in BUFFER.
+
+ - Method: ede-sb-button :PRIMARY this depth
+     Create a speedbar button for object THIS at DEPTH.
+
+
+File: ede.info,  Node: Sourcecode,  Next: Compilers,  Prev: Targets,  Up: Top
+
+Sourcecode
+**********
+
+   The source code type is an object designed to associated files with
+targets.
+
+* Menu:
+
+* ede-sourcecode ::
+
+
+File: ede.info,  Node: ede-sourcecode,  Up: Sourcecode
+
+ede-sourcecode
+==============
+
+Inheritance Tree:
+
+    `eieio-instance-inheritor'
+
+         `ede-sourcecode'
+               No children
+
+   Create a new object with name NAME of class type ede-sourcecode
+
+Slots:
+
+    `:parent-instance'
+          Type: `eieio-instance-inheritor'
+
+          The parent of this instance.  If a slot of this class is
+          reference, and is unbound, then  the parent is checked for a
+          value.
+
+    `:name'
+          Type: `string'
+
+          The name of this type of source code.  Such as "C" or "Emacs
+          Lisp"
+
+    `:sourcepattern'
+          Type: `string'
+          Default Value: `".*"'
+
+          Emacs regex matching sourcecode this target accepts.
+
+    `:auxsourcepattern'
+          Type: `(or null string)'
+          Default Value: `nil'
+
+          Emacs regex matching auxiliary source code this target
+          accepts.  Aux source are source code files needed for
+          compilation, which are not comiled themselves.
+
+    `:enable-subdirectories'
+          Type: `boolean'
+          Default Value: `nil'
+
+          Non `nil' if this sourcecode type uses subdirectores.  If
+          sourcecode always lives near the target creating it, this
+          should be nil.  If sourcecode can, or typically lives in a
+          subdirectory of the owning target, set this to t.
+
+    `:garbagepattern'
+          Type: `list'
+          Default Value: `nil'
+
+          Shell file regex matching files considered as garbage.  This
+          is a list of items added to an `rm' command when executing a
+          `clean' type directive.
+
+Specialized Methods
+-------------------
+
+ - Method: initialize-instance :AFTER this &rest fields
+     Make sure that all ede compiler objects are cached in
+     `ede-compiler-list'.
+
+ - Method: ede-want-any-files-p :PRIMARY this filenames
+     Return non-`nil' if THIS will accept any files in FILENAMES.
+
+ - Method: ede-want-any-source-files-p :PRIMARY this filenames
+     Return non-`nil' if THIS will accept any source files in FILENAMES.
+
+ - Method: ede-want-any-auxiliary-files-p :PRIMARY this filenames
+     Return non-`nil' if THIS will accept any aux files in FILENAMES.
+
+ - Method: ede-buffer-header-file :PRIMARY this filename
+     Return a list of file names of header files for THIS with FILENAME.
+     Used to guess header files, but uses the auxsource regular
+     expression.
+
+ - Method: ede-want-file-p :PRIMARY this filename
+     Return non-`nil' if sourcecode definition THIS will take FILENAME.
+
+ - Method: ede-want-file-source-p :PRIMARY this filename
+     Return non-`nil' if THIS will take FILENAME as an auxiliary .
+
+ - Method: ede-want-file-auxiliary-p :PRIMARY this filename
+     Return non-`nil' if THIS will take FILENAME as an auxiliary .
+
+
+File: ede.info,  Node: Compilers,  Prev: Sourcecode,  Up: Top
+
+Compilers
+*********
+
+   The compiler object is designed to associate source code with
+compilers.  The target then references the compilers it can use.  When
+the makefile is created, this object type knows how to create compile
+commands.
+
+* Menu:
+
+* ede-compilation-program ::
+*  ede-compiler ::
+*   ede-object-compiler ::
+*  ede-linker ::
+
+
+File: ede.info,  Node: ede-compilation-program,  Next: ede-compiler,  Up: Compilers
+
+ede-compilation-program
+=======================
+
+Inheritance Tree:
+
+    `eieio-instance-inheritor'
+
+         `ede-compilation-program'
+
+              Children:
+                    *Note ede-compiler::, *Note ede-linker::.
+
+   Create a new object with name NAME of class type
+ede-compilation-program
+
+Slots:
+
+    `:parent-instance'
+          Type: `eieio-instance-inheritor'
+
+          The parent of this instance.  If a slot of this class is
+          reference, and is unbound, then  the parent is checked for a
+          value.
+
+    `:name'
+          Type: `string'
+
+          Name of this type of compiler.
+
+    `:variables'
+          Type: `list'
+
+          Variables needed in the Makefile for this compiler.  An assoc
+          list where each element is (VARNAME . VALUE) where VARNAME is
+          a string, and VALUE is either a string, or a list of strings.
+          For example, GCC would define CC=gcc, and emacs would define
+          EMACS=emacs.
+
+    `:sourcetype'
+          Type: `list'
+
+          A list of `ede-sourcecode' *Note ede-sourcecode::. objects
+          this class will handle.  This is used to match target objects
+          with the compilers and linkers they can use, and which files
+          this object is interested in.
+
+    `:rules'
+          Type: `list'
+          Default Value: `nil'
+
+          Auxiliary rules needed for this compiler to run.  For
+          example, yacc/lex files need additional chain rules, or
+          inferences.
+
+    `:commands'
+          Type: `list'
+
+          The commands used to execute this compiler.  The object which
+          uses this compiler will place these commands after it's rule
+          definition.
+
+    `:autoconf'
+          Type: `list'
+          Default Value: `nil'
+
+          Autoconf function to call if this type of compiler is used.
+          When a project is in Automake mode, this defines the autoconf
+          function to call to initialize automake to use this compiler.
+          For example, there may be multiple C compilers, but they all
+          probably use the same autoconf form.
+
+    `:objectextention'
+          Type: `string'
+
+          A string which is the extention used for object files.  For
+          example, C code uses .o on unix, and Emacs Lisp uses .elc.
+
+Specialized Methods
+-------------------
+
+ - Method: ede-proj-flush-autoconf :PRIMARY this
+     Flush the configure file (current buffer) to accomodate THIS.
+
+ - Method: ede-proj-makefile-insert-rules :PRIMARY this
+     Insert rules needed for THIS compiler object.
+
+ - Method: ede-proj-makefile-insert-variables :PRIMARY this
+     Insert variables needed by the compiler THIS.
+
+ - Method: ede-proj-makefile-insert-commands :PRIMARY this
+     Insert the commands needed to use compiler THIS.  The object
+     creating makefile rules must call this method for the compiler it
+     decides to use after inserting in the rule.
+
+ - Method: ede-object-sourcecode :PRIMARY this
+     Retrieves the slot `sourcetype' from an object of class
+     `ede-compilation-program'
+
+ - Method: ede-proj-tweak-autoconf :PRIMARY this
+     Tweak the configure file (current buffer) to accomodate THIS.
+
+
+File: ede.info,  Node: ede-compiler,  Next: ede-object-compiler,  Prev: ede-compilation-program,  Up: Compilers
+
+ede-compiler
+============
+
+Inheritance Tree:
+
+    `eieio-instance-inheritor'
+
+         `*Note ede-compilation-program::.'
+
+              `ede-compiler'
+
+                   Children:
+                         *Note ede-object-compiler::.
+
+   Create a new object with name NAME of class type ede-compiler
+
+Slots:
+
+    `:parent-instance'
+          Type: `eieio-instance-inheritor'
+
+          The parent of this instance.  If a slot of this class is
+          reference, and is unbound, then  the parent is checked for a
+          value.
+
+    `:name'
+          Type: `string'
+
+          Name of this type of compiler.
+
+    `:variables'
+          Type: `list'
+
+          Variables needed in the Makefile for this compiler.  An assoc
+          list where each element is (VARNAME . VALUE) where VARNAME is
+          a string, and VALUE is either a string, or a list of strings.
+          For example, GCC would define CC=gcc, and emacs would define
+          EMACS=emacs.
+
+    `:sourcetype'
+          Type: `list'
+
+          A list of `ede-sourcecode' *Note ede-sourcecode::. objects
+          this class will handle.  This is used to match target objects
+          with the compilers and linkers they can use, and which files
+          this object is interested in.
+
+    `:commands'
+          Type: `list'
+
+          The commands used to execute this compiler.  The object which
+          uses this compiler will place these commands after it's rule
+          definition.
+
+    `:objectextention'
+          Type: `string'
+
+          A string which is the extention used for object files.  For
+          example, C code uses .o on unix, and Emacs Lisp uses .elc.
+
+    `:makedepends'
+          Type: `boolean'
+          Default Value: `nil'
+
+          Non-`nil' if this compiler can make dependencies.
+
+    `:uselinker'
+          Type: `boolean'
+          Default Value: `nil'
+
+          Non-`nil' if this compiler creates code that can be linked.
+          This requires that the containing target also define a list
+          of available linkers that can be used.
+
+Specialized Methods
+-------------------
+
+ - Method: initialize-instance :AFTER this &rest fields
+     Make sure that all ede compiler objects are cached in
+     `ede-compiler-list'.
+
+ - Method: ede-proj-makefile-insert-object-variables :PRIMARY this
+          targetname sourcefiles
+     Insert an OBJ variable to specify object code to be generated for
+     THIS.  The name of the target is TARGETNAME as a string.
+     SOURCEFILES is the list of files to be objectified.  Not all
+     compilers do this.
+
+ - Method: ede-compiler-intermediate-objects-p :PRIMARY this
+     Return non-`nil' if THIS has intermediate object files.  If this
+     compiler creates code that can be linked together, then the object
+     files created by the compiler are considered intermediate.
+
+ - Method: ede-compiler-intermediate-object-variable :PRIMARY this
+          targetname
+     Return a string based on THIS representing a make object variable.
+     TARGETNAME is the name of the target that these objects belong to.
+
+
+File: ede.info,  Node: ede-object-compiler,  Next: ede-linker,  Prev: ede-compiler,  Up: Compilers
+
+ede-object-compiler
+===================
+
+Inheritance Tree:
+
+    `eieio-instance-inheritor'
+
+         `*Note ede-compilation-program::.'
+
+              `*Note ede-compiler::.'
+
+                   `ede-object-compiler'
+                         No children
+
+   Create a new object with name NAME of class type ede-object-compiler
+
+Slots:
+
+    `:parent-instance'
+          Type: `eieio-instance-inheritor'
+
+          The parent of this instance.  If a slot of this class is
+          reference, and is unbound, then  the parent is checked for a
+          value.
+
+    `:name'
+          Type: `string'
+
+          Name of this type of compiler.
+
+    `:variables'
+          Type: `list'
+
+          Variables needed in the Makefile for this compiler.  An assoc
+          list where each element is (VARNAME . VALUE) where VARNAME is
+          a string, and VALUE is either a string, or a list of strings.
+          For example, GCC would define CC=gcc, and emacs would define
+          EMACS=emacs.
+
+    `:sourcetype'
+          Type: `list'
+
+          A list of `ede-sourcecode' *Note ede-sourcecode::. objects
+          this class will handle.  This is used to match target objects
+          with the compilers and linkers they can use, and which files
+          this object is interested in.
+
+    `:commands'
+          Type: `list'
+
+          The commands used to execute this compiler.  The object which
+          uses this compiler will place these commands after it's rule
+          definition.
+
+    `:objectextention'
+          Type: `string'
+
+          A string which is the extention used for object files.  For
+          example, C code uses .o on unix, and Emacs Lisp uses .elc.
+
+    `:uselinker'
+          Type: `boolean'
+          Default Value: `t'
+
+          *Note ede-compiler::.
+
+    `:dependencyvar'
+          Type: `list'
+
+          A variable dedicated to dependency generation.
+
+Specialized Methods
+-------------------
+
+ - Method: ede-proj-makefile-insert-variables :PRIMARY this
+     Insert variables needed by the compiler THIS.
+
+
+File: ede.info,  Node: ede-linker,  Prev: ede-object-compiler,  Up: Compilers
+
+ede-linker
+==========
+
+Inheritance Tree:
+
+    `eieio-instance-inheritor'
+
+         `*Note ede-compilation-program::.'
+
+              `ede-linker'
+                    No children
+
+   Create a new object with name NAME of class type ede-linker
+
+Slots:
+
+    `:parent-instance'
+          Type: `eieio-instance-inheritor'
+
+          The parent of this instance.  If a slot of this class is
+          reference, and is unbound, then  the parent is checked for a
+          value.
+
+    `:name'
+          Type: `string'
+
+          Name of this type of compiler.
+
+    `:variables'
+          Type: `list'
+
+          Variables needed in the Makefile for this compiler.  An assoc
+          list where each element is (VARNAME . VALUE) where VARNAME is
+          a string, and VALUE is either a string, or a list of strings.
+          For example, GCC would define CC=gcc, and emacs would define
+          EMACS=emacs.
+
+    `:sourcetype'
+          Type: `list'
+
+          A list of `ede-sourcecode' *Note ede-sourcecode::. objects
+          this class will handle.  This is used to match target objects
+          with the compilers and linkers they can use, and which files
+          this object is interested in.
+
+    `:commands'
+          Type: `list'
+
+          The commands used to execute this compiler.  The object which
+          uses this compiler will place these commands after it's rule
+          definition.
+
+    `:objectextention'
+          Type: `string'
+
+          A string which is the extention used for object files.  For
+          example, C code uses .o on unix, and Emacs Lisp uses .elc.
+
+Specialized Methods
+-------------------
+
+ - Method: initialize-instance :AFTER this &rest fields
+     Make sure that all ede compiler objects are cached in
+     `ede-linker-list'.
+
+

@@ -1,0 +1,148 @@
+2006-10-03 dima <dima.exe@gmail.com>
+  * rails.el: do not apply untabify in makefile-mode
+  * rails-ruby.el: small fix in ruby-indent-or-complete
+
+2006-06-10 CrazyPit <crazypit13@gmail.com>
+  * rails-core.el: rails-quoted-file (needed to fix bug with space in path)
+  * rails-navigation.el: new rules to rails-goto-file-on-current-line, rails-find for fixtures
+  * rails.el: rails-brows-api
+  * rails-lib.el: new helper functions write-string-to-file, read-from-file
+  * rails-webrick.el: fix bug with space in path
+  * rails-scipts.el: add caching for rake tasks
+
+2006-04-19 CrazyPit <crazypit13@gmail.com>
+  * rails-navigation.el: rails-nav:create-new-layout updated, text moved to variable
+  rails-layout-template, name add. rails goto file from string for layout now used
+  rails-nav:create-new-layout if layout with this name does not exist
+  * rails.el: add modify syntax to ruby-mode-hook for "!" symbol,
+  add local modifying syntax for rails-browse-api-at-point
+
+
+2006-04-17  dima  <dima.exe@gmail.com>
+  * rails-ui.el: apply snippets to nxml-mode-abbrev-table
+
+2006-04-11  dima  <dima.exe@gmail.com>
+
+  * rails-for-controller.el
+  (rails-controller:switch-to-view): using rais-core:menu
+  (rails-controller:switch-with-menu): using rails-core:menu
+
+  * rails-navigation.el: new function rails-nav:create=new-layout
+  (rails-nav:goto-file-with-menu): add optional parameter append-to-menu
+
+  * rails-for-rhtml.el:
+  drop rails-for-rhtml:switch-to-controller-action
+
+  * rails-for-controller.el:
+  drop rails-for-controller:switch-by-current-controller,
+  rails-for-controller:switch-to-functional-test,
+  rails-for-controller:switch-to-helper,
+  rails-for-controller:switch-to-view2,
+  rails-for-controller:switch-to-controller
+  rails-for-controller:switch-to-views
+  (rails-controller:switch-with-menu): mark partials, add separator
+
+  * rails-lib.el (snippet-menu-line): add snippet abbrevation in menu
+
+  * rails-ui.el (rails-minor-mode-menu-bar-map):
+  drop menu items [webrick brows], [webrick auto-brows]
+
+2006-04-04 CrazyPit <crazypit13@gmail.com>
+  * rails-navigation.el, rails-lib.el, rails-ui.el: rails-lib:goto-* renamed to
+  rails-nav:goto-* and moved to rails-navigation.el
+
+2006-04-01 CrazyPit <crazypit13@gmail.com>
+  * rails-core.el: new function js-file, partial-name updated.
+  * rails-navigation.el: new rule for switching line to file (rails-line-->js)
+  * rails-scipts.el: bugfix in run-ruby-in-buffer
+  * rails-ui.el: new snippet %for
+  * rails-webrick.el: rails-webrick:start now interactive, auto-open-browser
+  work only in controllers and views.
+        * rails.el: bugfix in rails-create-tags
+
+2006-03-31 CrazyPit <crazypit13@gmail.com>
+  * rails-navigation.el: rails-goto-file-from-file change, now use funcall instead
+  rails-goto-menu-call, function rails-goto-menu-call removed.
+  * rails-for-controller.el: views-for-current-action now using lexical closures.
+  * rails-lib.el: fix bug in snippet-menu-line
+  * rails.el: fix bug in rails-get-api-entries
+
+2006-03-30  CrazyPit  <crazypit13@gmail.com>
+  * rails.el: interface to Rails HTML API documentaion. rails-browse-api-at-point,
+  rails-browse-api-method, rails-browse-api-class, rails-get-api-entries
+  * rails-lib.el: new function capital-word-p
+  * rails-scipts.el: Rake integration - new functions rails-rake and rails-rake-tasks.
+  Running ruby consoles and breakpointers in separated buffers for each project:
+  new functions run-ruby-in-buffer, rails-run-interactive and rails-run-console,
+  rails-run-breakpointer updated
+  * rails-core.el new macro in-root
+  * rails.el: new variable rails-tags-command, rails-open-log now interactive + cleanup,
+        rails-create-tags cleanup, new hook for dired mode
+  * rails-navigation.el: new variable rails-find-file-function, 3 new rails-finds.
+  * rails-ui.el: cleanup, add many new hotkeys
+
+2006-03-28  CrazyPit  <crazypit13@gmail.com>
+  * rails-ui.el: create rails-ui.el, move UI code from rails.el to rails-ui.el
+  * rails-navigation.el: rails-goto-controller-->view, rails-goto-view-->controller
+  rails-goto-all-->simple, rails-goto-all-->helper, rails-goto-all-->functional-test,
+  rails-goto-all-->controller extracted to other files.
+  Refactoring of rails-goto-file-from-file-actions and rails-goto-file-from-file
+  now run-time generation and invisible, helper function rails-goto-menu-call.
+  menu items available.
+  * rails-for-rhtml.el: switch-to-controller-action added
+  * rails-for-controller.el: views-for-current-action. switch-by-current-controller,
+  switch-to-functional-test, switch-to-helper, switch-to-view2, switch-to-controller --
+  extracted with renaming from rails-navigation.el.
+  * rails-core.el: fix in functional-test-file, + long-controller-name added,
+  rails-core:menu upadte (posn-at-point call added)
+
+2006-03-28  dima  <dima.exe@gmail.com>
+
+  * rails-for-controller.el: new functions
+  rails-controller:get-current-controller-and-action,
+  rails-controller:switch-with-menu
+  (rails-for-controller): setup variables rails-primary-switch-func,
+  rails-secondary-switch-func
+
+  * rails-core.el (rails-core:helper-file): fix invalid path
+  (rails-core:functional-test-file): fix invalid path
+  (rails-core:get-view-files): ACTION is optional parameter
+
+  * rails-for-rhtml.el: new functions rails-rhtml:switch-with-menu,
+  rails-rhtml:switch-to-helper,
+  rails-rhtml:get-current-controller-and-action
+  (rails-for-rhtml): setup variables rails-primary-switch-func,
+  rails-secondary-switch-func
+
+  * rails.el: add variables rails-primary-switch-func,
+  rails-secondary-switch-func
+
+  * rails-lib.el: add interactive functions
+  rails-lib:run-primary-switch-func, rails-lib:run-secondary-switch-func
+
+  2006-03-28  CrazyPit  <crazypit13@gmail.com>
+
+  * rails.el: rails-run-sql with stuff
+  * rails-navigation.el: rails finds added
+  * rails-scipts.el: generators/destroyers, shells and rails-create project added
+  from test branch
+  * rails-navigation.el: rails-goto-file-on-current-line and
+  rails-goto-file-from-file function with stuff added from test branch
+
+  2006-03-27  CrazyPit  <crazypit13@gmail.com>
+
+  * rails-lib.el: many helper functions from test branch added
+  * rails-core.el: functions from test branch added, class-by-file updated +
+  new variable rails-core:class-dirs, get-model-view updated
+  * rails-webrick.el: open-browser updated, open-browser-on-controller,
+  auto-open-browser added
+
+2006-03-22  dima  <dima.exe@gmail.com>
+
+  * rails-core.el: add macro rails-core:local-add-to-rails-menubar
+
+2006-03-21  dima  <dima.exe@gmail.com>
+
+  * rails.el: split into two files
+  * rails-core.el: move to this all helper function and macros
+
