@@ -236,7 +236,7 @@
 (add-hook 'ruby-mode-hook
           (lambda () (viper-change-state-to-vi)))
 
-(add-auto-mode 'ruby-mode "Rakefile$" "\.rake$" "\.rxml$" "\.rjs")
+(add-auto-mode 'ruby-mode "Rakefile$" "\.rake$" "\.rxml$" "\.rjs" ".irbrc")
 (add-auto-mode 'html-mode "\.rhtml$")
 
 
