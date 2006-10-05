@@ -250,7 +250,7 @@
 (setq compile-command "rake ")
 
 (mmm-add-classes
- '((eruby :submode ruby-mode :front "<%[=]?" :back  "-?%>")))
+ '((eruby :submode ruby-mode :front "<%=?" :back  "-?%>")))
 
 (mmm-add-mode-ext-class 'html-mode "\\.rhtml$" 'eruby)
 (mmm-add-mode-ext-class 'yaml-mode "\\.yml$" 'eruby)
