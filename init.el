@@ -174,9 +174,7 @@
 ;;----------------------------------------------------------------------------
 (set-face-attribute 'default nil
                     :family "monaco" :height 120)
-;(require 'tool-bar)
 (tool-bar-mode nil)
-;(require 'scroll-bar)
 (scroll-bar-mode nil)
 ;; Default frame size (perfect for Macbook Pro when scrollbar and toolbar hidden...)
 (setq default-frame-alist '((width  . 202)
