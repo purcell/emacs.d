@@ -1,0 +1,133 @@
+* The SLIME Hacker's Handbook                                   -*- outline -*-
+
+* Lisp code file structure
+
+The Lisp code is organised into these files:
+
+  swank-backend.lisp:
+    Definition of the interface to non-portable features.
+    Stand-alone.
+
+  swank-<cmucl|...>.lisp:
+    Backend implementation for a specific Common Lisp system.
+    Uses swank-backend.lisp.
+
+  swank.lisp:
+    The top-level server program, built from the other components.
+    Uses swank-backend.lisp as an interface to the actual backends.
+
+* ChangeLog
+
+For each change we make an entry in the ChangeLog file. This is
+typically done using the command `add-change-log-entry-other-window'
+(C-x 4 a). The message can be automatically extracted from the
+ChangeLog to use in a CVS commit message by pressing C-c C-a in a
+vc-mode or pcl-cvs commit buffer.
+
+ChangeLog diffs are automatically sent to the slime-devel mailing list
+each day as a sort of digest summary of the slime-cvs list.
+
+There are good tips on writing ChangeLog entries in the GNU Coding Standards:
+  http://www.gnu.org/prep/standards_40.html#SEC40
+
+For information about Emacs's ChangeLog support see the `Change Log'
+and `Change Logs and VC' nodes of the Emacs manual:
+  http://www.gnu.org/software/emacs/manual/html_node/emacs_333.html#SEC333
+  http://www.gnu.org/software/emacs/manual/html_node/emacs_156.html#SEC156
+
+* Sending Patches
+
+If you would like to send us improvements you can create a patch with
+C-x v = in the buffer or manually with 'cvs diff -u'.  It's helpful if
+you also include a ChangeLog entry describing your change.
+
+* Test Suite
+
+The Elisp code includes a command `slime-run-tests' to run a test
+suite. This can give a pretty good sanity-check for your changes.
+
+Some backends do not pass the full test suite because of missing
+features. In these cases the test suite is still useful to ensure that
+changes don't introduce new errors. CMUCL historically passes the full
+test suite so it makes a good sanity check for fundamental changes
+(e.g. to the protocol).
+
+Running the test suite, adding new cases, and increasing the number of
+cases that backends support are all very good for karma.
+
+
+* Source code layout
+
+We use a special source file layout to take advantage of some fancy
+Emacs features: outline-mode and "narrowing".
+
+** Outline structure
+
+Our source files have a hierarchical structure using comments like
+these:
+
+  ;;;; Heading
+  ;;;;; Subheading
+  ... etc
+
+We do this as a nice way to structure the program. We try to keep each
+(sub)section small enough to fit in your head: typically around 50-200
+lines of code each. Each section usually begins with a brief
+introduction, followed by its highest-level functions, followed by
+their subroutines. This is a pleasing shape for a source file to have.
+
+Of course the comments mean something to Emacs too. One handy usage is
+to bring up a hyperlinked "table of contents" for the source file
+using this command:
+
+  (defun show-outline-structure ()
+    "Show the outline-mode structure of the current buffer."
+    (interactive)
+    (occur (concat "^" outline-regexp)))
+
+Another is to use `outline-minor-mode' to fold away certain parts of
+the buffer. See the `Outline Mode' section of the Emacs manual for
+details about that.
+
+(This file is also formatted for outline mode. If you're reading in
+Emacs you can play around e.g. by pressing `C-c C-d' right now.)
+
+** Pagebreak characters (^L)
+
+We partition source files into chunks using pagebreak characters. Each
+chunk is a substantial piece of code that can be considered in
+isolation, that could perhaps be a separate source file if we were
+fanatical about small source files (rather than big ones!)
+
+The page breaks usually go in the same place as top-level outline-mode
+headings, but they don't have to. They're flexible.
+
+In the old days, when slime.el was less than 100 pages long, these
+page breaks were helpful when printing it out to read. Now they're
+useful for something else: narrowing.
+
+You can use `C-x n p' (narrow-to-page) to "zoom in" on a
+pagebreak-delimited section of the file as if it were a separate
+buffer in itself. You can then use `C-x n w' (widen) to "zoom out" and
+see the whole file again. This is tremendously helpful for focusing
+your attention on one part of the program as if it were its own file.
+
+(This file contains some page break characters. If you're reading in
+Emacs you can press `C-x n p' to narrow to this page, and then later
+`C-x n w' to make the whole buffer visible again.)
+
+
+* Coding style
+
+We like the fact that each function in SLIME will fit on a single
+screen, and would like to preserve this property! Beyond that we're
+not dogmatic :-)
+
+In early discussions we all made happy noises about the advice in
+Norvig and Pitman's _Tutorial on Good Lisp Programming Style_:
+  http://www.norvig.com/luv-slides.ps
+
+Remember that to rewrite a program better is the sincerest form of
+code appreciation. When you can see a way to rewrite a part of SLIME
+better, please do so!
+
