@@ -180,7 +180,7 @@
 (setq default-frame-alist '((width  . 202)
                             (height . 50)
                             (top . 0)
-                            (left . 0)
+                            (left . 3)
                             (tool-bar-lines . 0)))
 
 
