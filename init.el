@@ -326,6 +326,17 @@
 (slime-setup)
 
 (add-auto-mode 'lisp-mode "\\.cl$")
+(add-hook 'slime-mode-hook 'pretty-lambdas)
+
+;; pretty lambda (see also slime) ->  "λ"
+;;  'greek small letter lambda' / utf8 cebb / unicode 03bb -> \u03BB / mule?!
+;; in greek-iso8859-7 -> 107  >  86 ec
+(defun pretty-lambdas ()
+  (font-lock-add-keywords
+   nil `(("(\\(lambda\\>\\)"
+          (0 (progn (compose-region (match-beginning 1) (match-end 1)
+                                    ,(make-char 'greek-iso8859-7 107))
+                    'slime-repl-output-face))))))
 
 
 ;;----------------------------------------------------------------------------
