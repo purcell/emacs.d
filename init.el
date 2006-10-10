@@ -174,14 +174,12 @@
 ;;----------------------------------------------------------------------------
 (set-face-attribute 'default nil
                     :family "monaco" :height 120)
+;; Default frame size (perfect for Macbook Pro when scrollbar and toolbar hidden...)
+(setq initial-frame-alist '((width  . 202) (height . 50) (top . 0) (left . 3) (tool-bar-lines . 0)))
+(setq default-frame-alist '((width  . 202) (height . 50) (top . 22) (left . 3) (tool-bar-lines . 0)))
 (tool-bar-mode nil)
 (scroll-bar-mode nil)
-;; Default frame size (perfect for Macbook Pro when scrollbar and toolbar hidden...)
-(setq default-frame-alist '((width  . 202)
-                            (height . 50)
-                            (top . 0)
-                            (left . 3)
-                            (tool-bar-lines . 0)))
+;(fringe-mode '(nil . 0))
 
 
 ;;----------------------------------------------------------------------------
