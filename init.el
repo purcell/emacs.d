@@ -379,10 +379,11 @@
 ;; Locales (setting them earlier in this file doesn't work in X)
 ;;----------------------------------------------------------------------------
 (when (or window-system (string-match "UTF-8" (shell-command-to-string "locale")))
-  (let* ((enc 'utf-8))
-    (progn
-      (set-keyboard-coding-system enc)
-      (setq locale-coding-system enc)
-      (set-default-coding-systems enc)
-      (set-selection-coding-system enc)
-      (prefer-coding-system enc))))
+  (set-language-environment 'utf-8)
+  (set-keyboard-coding-system 'utf-8-mac)
+  (setq locale-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-systems 'utf-8)
+  (set-clipboard-coding-systems 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8))
