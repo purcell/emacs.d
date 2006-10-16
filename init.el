@@ -29,7 +29,7 @@
 ;; Augment search path for external programs (for OSX)
 ;;----------------------------------------------------------------------------
 (dolist (dir '("/usr/local/bin" "/opt/local/bin"
-               "/opt/local/lib/pgsql8/bin" "~/bin"))
+               "/opt/local/lib/postgresql81/bin" "~/bin"))
   (setenv "PATH" (concat (expand-file-name dir) ":" (getenv "PATH")))
   (setq exec-path (append (list (expand-file-name dir)) exec-path)))
 
@@ -336,7 +336,8 @@
    nil `(("(\\(lambda\\>\\)"
           (0 (progn (compose-region (match-beginning 1) (match-end 1)
                                     ,(make-char 'greek-iso8859-7 107))
-                    'slime-repl-output-face))))))
+                    'font-lock-keyword-face))))))
+(global-set-key [f4] 'slime-selector)
 
 
 ;;----------------------------------------------------------------------------
