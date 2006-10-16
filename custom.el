@@ -38,6 +38,7 @@
  '(recentf-exclude (quote ("/tmp/")))
  '(recentf-mode t)
  '(ruby-electric-expand-delimiters-list nil)
+ '(safe-local-variable-values (quote ((Package . LISP-UNIT))))
  '(show-paren-mode t)
  '(slime-autodoc-mode t t)
  '(speedbar-directory-unshown-regexp "^\\(CVS\\|RCS\\|SCCS\\|\\.svn\\|_darcs\\)\\'")
