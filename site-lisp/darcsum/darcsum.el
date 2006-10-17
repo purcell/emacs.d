@@ -35,7 +35,7 @@
 ;; changes; RET on a directory reveals changes to its files.
 ;;
 ;; Displayed changes may be recorded with "c", which offers a buffer
-;; for inputing the change name (first line) and long description
+;; for inputting the change name (first line) and long description
 ;; (subsequent lines).  C-c C-c records the patch.
 ;;
 ;; If you only want to record a part of your changes, you need to mark
@@ -43,6 +43,9 @@
 ;; (done on the change, the file (all changes) or the directory (all
 ;; changes in all files)), only marked changes are recorded,
 ;; regardless of point.
+;;
+;; Alternatively, if no changes are marked, then only visible changes
+;; are recorded.
 ;;
 ;; Changes can be removed with "r".  Move changes between buffers with
 ;; "M", which prompts for a darcsum buffer to move to (creating one if
@@ -65,6 +68,7 @@
 ;; - Interface to darcs changes
 ;; - Changes from "replace" aren't shown
 ;; - Interface to darcs replace
+;; - Interface to darcs changes / darcs unrecord / darcs amend
 
 ;;; Code:
 
@@ -160,11 +164,11 @@
 ;;   LINE     An integer giving the first line of the hunk
 ;;   -LINE    Integer line of hunk, but hunk is not "visible"
 ;;   (LINE)   Integer line of hunk, but hunk is "marked"
-;;   SYMBOL   Non-hunk change: 'addfile 'newfile 'rmfile 'binary or 'replace 
+;;   SYMBOL   Non-hunk change: 'addfile 'newfile 'rmfile 'binary or 'replace
 ;;   -SYMBOL  Non-hunk change, but change is not "visible"
 ;;   (SYMBOL) Non-hunk change, but change is "marked"
 ;;
-;; Each CHANGE is a string which represent a modification to make to
+;; Each CHANGE is a string which represents a modification to make to
 ;; the file after the starting LINE.  It begins with either a "+" or
 ;; "-" to indicate if the line should be removed or added to the file.
 ;;
@@ -193,31 +197,31 @@
     (-binary  . binary)))
 
 (defun darcsum-item-visible-p (item)
-  "Is item visible?
-Everything but negative numbers and invisible symbols are visible"
+  "Is ITEM visible?
+Everything but negative numbers and invisible symbols are visible."
   (if (numberp item) (<= 0 item)
     (not (assq item darcsum-invisible-item-alist))))
 
 (defun darcsum-visible-item (item)
-  "Convert item to visible."
+  "Convert ITEM to visible."
   (let (a)
-    (cond 
+    (cond
      ((numberp item) (abs item))
      ((setq a (assq item darcsum-invisible-item-alist)) (cdr a))
      (t item))))
 
 (defun darcsum-invisible-item (item)
-  "Convert item to invisible."
+  "Convert ITEM to invisible."
   (let (a)
-    (cond 
+    (cond
      ((numberp item) (- (abs item)))
      ((setq a (rassq item darcsum-invisible-item-alist)) (car a))
      (t item))))
 
 (defun darcsum-toggle-item (item)
-  "Mark visible change item as invisible and vice versa."
+  "Mark visible change ITEM as invisible and vice versa."
   (let (a)
-    (cond 
+    (cond
      ((numberp item) (- item))
      ((setq a (assq item darcsum-invisible-item-alist)) (cdr a))
      ((setq a (rassq item darcsum-invisible-item-alist)) (car a))
@@ -230,7 +234,7 @@ Everything but negative numbers and invisible symbols are visible"
     (binary . "Modified binary")))
 
 (defun darcsum-item-status (item)
-  "Return file-status displayed with item."
+  "Return file-status displayed with ITEM."
   (cdr (assq (darcsum-visible-item item) darcsum-item-status-alist)))
 
 (eval-and-compile
@@ -331,11 +335,11 @@ Everything but negative numbers and invisible symbols are visible"
 
 (defun darcsum-change-< (l r)
   (setq l (car l)
-	l (if (listp l) (car l) l) 
+	l (if (listp l) (car l) l)
 	l (darcsum-visible-item l)
 	l (or (cdr (assq l darcsum-item-numeric-alist)) l))
   (setq r (car r)
-	r (if (listp r) (car r) r) 
+	r (if (listp r) (car r) r)
 	r (darcsum-visible-item r)
 	r (or (cdr (assq r darcsum-item-numeric-alist)) r))
   (< l r))
@@ -353,7 +357,7 @@ Everything but negative numbers and invisible symbols are visible"
 		      (unless (member change (cdr fentry))
 			(nconc fentry (list change))
 			(setcdr fentry
-				(sort (cdr fentry) 
+				(sort (cdr fentry)
 				      (function darcsum-change-<))))
 		    (nconc dentry (list (list (car file) change)))))
 	      (setq data (cons (list (car dir)
@@ -444,10 +448,10 @@ Everything but negative numbers and invisible symbols are visible"
 			(nreverse lines))))
 	   (t
 	    (setq item (intern kind)
-		  item (if (and 
+		  item (if (and
 			    (eq item 'addfile)
 			    (not (or (eq pending t)
-				     (darcsum-changeset-has-directory-p 
+				     (darcsum-changeset-has-directory-p
 				      pending dir))))
 			   'newfile
 			 item)
@@ -520,7 +524,7 @@ Everything but negative numbers and invisible symbols are visible"
 			(darcsum-add-face " * " 'darcsum-change-line-face t)
 		      "   ")
 		    " "
-		    (darcsum-add-face (format "%-24s" 
+		    (darcsum-add-face (format "%-24s"
 					      (if status status "Modified"))
 				      (if all-marked
 					  'darcsum-need-action-marked-face
@@ -535,7 +539,7 @@ Everything but negative numbers and invisible symbols are visible"
 	    (setq beg (point))
 	    (cond
 	     ((eq 'replace item)
-	      (insert (darcsum-add-face 
+	      (insert (darcsum-add-face
 		       "replace   "
 		       'darcsum-change-line-face t)
 		      (format " %s" (cadr change))
@@ -546,7 +550,7 @@ Everything but negative numbers and invisible symbols are visible"
 					 'darcsum-file (car file)
 					 'darcsum-change change)))
 	     ((symbolp item)
-	      ;; 'addfile 'newfile 'rmfile 'binary or '-replace 
+	      ;; 'addfile 'newfile 'rmfile 'binary or '-replace
 	      ;; xyzzy
 	      )
 	     ((> item 0)
@@ -632,11 +636,6 @@ non-nil, in which case return all visible changes."
 ;; If there are any marked changes, these are what get recorded.
 ;; Otherwise, all *visible* changes are recorded.
 
-(defcustom darcsum-register ?S
-  "The register in which the window configuration is stored."
-  :type 'character
-  :group 'darcsum)
-
 (defcustom darcsum-program "darcs"
   "*The program name which darcsum will use to invoke darcs."
   :type 'string
@@ -652,6 +651,18 @@ non-nil, in which case return all visible changes."
 (defvar darcsum-changeset-to-record nil)
 (defvar darcsum-logfile)
 
+(defvar darcsum-window-configuration-temp nil)
+
+(defsubst darcsum-remember-window-configuration ()
+  (setq darcsum-window-configuration-temp (list (current-window-configuration)
+					   (point-marker))))
+(defsubst darcsum-recall-window-configuration ()
+  (if darcsum-window-configuration-temp
+      (progn
+	 (set-window-configuration (car darcsum-window-configuration-temp))
+	 (goto-char (cadr darcsum-window-configuration-temp)))
+    (error "No window configuration to restore.")))
+
 (defsubst darcsum-changes-handled ()
   (if (buffer-live-p darcsum-parent-buffer)
       (let ((changeset darcsum-changeset-to-record))
@@ -660,11 +671,12 @@ non-nil, in which case return all visible changes."
 		(darcsum-remove-changeset darcsum-data changeset))
 	  (darcsum-refresh)))))
 
-(defun darcsum-start-process (subcommand args &optional name value &rest localize)
+(defun darcsum-start-process (subcommand args
+					 &optional name value &rest localize)
   "Start darcs process."
-    (let* 
+    (let*
 	((buf (generate-new-buffer (format " *darcs %s*" subcommand)))
-	 (process-environment 
+	 (process-environment
 	    ;; Use the environment variables to turn off highlighting.  (You
 	    ;; could use `show-trailing-whitespace' in the buffer to highlight
 	    ;; trailing space in the diffs.)
@@ -672,7 +684,8 @@ non-nil, in which case return all visible changes."
 			  "DARCS_DONT_COLOR=1")
 		    process-environment))
 	 (process-connection-type nil)
-	 (proc (apply 'start-process "darcs" buf darcsum-program subcommand args)))
+	 (proc (apply 'start-process "darcs"
+		      buf darcsum-program subcommand args)))
       (set-process-sentinel proc 'darcsum-process-sentinel)
       (set-process-filter proc 'darcsum-process-filter)
       (with-current-buffer buf
@@ -684,10 +697,10 @@ non-nil, in which case return all visible changes."
       proc))
 
 (defun darcsum-process-sentinel (proc string)
-  (cond 
+  (cond
    ((and (string-match "^exited abnormally" string) (process-buffer proc))
     (message string))))
-    
+
 (defun darcsum-process-filter (proc string)
   (with-current-buffer (process-buffer proc)
     (let ((moving (= (point) (process-mark proc))))
@@ -742,11 +755,13 @@ non-nil, in which case return all visible changes."
 	  (kill-buffer (current-buffer))))
 
        ((looking-at "\n*Darcs needs to know what name")
-	(let* ((default-mail (concat user-full-name " <" user-mail-address ">"))
+	(let* ((default-mail (concat user-full-name
+				     " <" user-mail-address ">"))
 	       (enable-recursive-minibuffers t)
 	       (mail-address (read-string
-			      (format "What is your email address? (default %s) "
-				      default-mail)
+			      (format
+			       "What is your email address? (default %s) "
+			       default-mail)
 			      nil nil default-mail)))
 	  (process-send-string proc mail-address)
 	  (process-send-string proc "\n"))
@@ -798,8 +813,9 @@ non-nil, in which case return all visible changes."
 	(error "No record description entered")))
     (write-region (point-min) (point-max) tempfile)
     (kill-buffer (current-buffer))
-    (jump-to-register darcsum-register)
+    (darcsum-recall-window-configuration)
     (message "Recording changes...")
+    ;;;;;;;; TODO: optionally pass in e.g. --no-test somehow
     (darcsum-start-process
      "record" (list "--logfile" tempfile)
      'darcsum-logfile tempfile
@@ -808,10 +824,14 @@ non-nil, in which case return all visible changes."
 
 (defun darcsum-record ()
   "Record selected changeset.
-Note that only changes displayed in the buffer (with \\<darcsum-mode-map>\\[darcsum-toggle])
-are recorded."
+Note that only changes selected for recording are actually recorded.
+If some changes are marked \(with \
+\\<darcsum-mode-map>\\[darcsum-toggle-mark]\), \
+then only those changes are recorded.
+Otherwise, only changes which are selected to be displayed in the buffer
+\(with \\<darcsum-mode-map>\\[darcsum-toggle]\) are recorded."
   (interactive)
-  (window-configuration-to-register darcsum-register)
+  (darcsum-remember-window-configuration)
   (let ((parent-buf (current-buffer))
 	(changeset (darcsum-selected-changeset t))
         (buf (get-buffer-create "*darcs comment*")))
@@ -820,7 +840,8 @@ are recorded."
     (set (make-local-variable 'darcsum-changeset-to-record) changeset)
     (set (make-local-variable 'darcsum-parent-buffer) parent-buf)
     (message
-     "Title of change on first line, long comment after.  C-c C-c to record.")))
+     "Title of change on first line, long comment after.  \
+C-c C-c to record.")))
 
 (defun darcsum-send (recipient)
   "Send selected changeset via email."
@@ -842,6 +863,7 @@ are recorded."
      'darcsum-changeset-to-record (darcsum-selected-changeset t)
      'darcsum-parent-buffer (current-buffer))))
 
+;;;;;;;; TODO: history of previous record comments, like in vc-mode
 (defvar darcsum-comment-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-x\C-s" 'darcsum-really-record)
@@ -879,7 +901,9 @@ are recorded."
       (current-buffer))))
 
 (defun darcsum-move (other-buffer)
-  "Move the selected changeset in another darcsum buffer.
+  "Move the selected changeset to another darcsum buffer OTHER-BUFFER.
+
+In interactive mode, prompts for the name of a buffer to move the changeset to.
 
 Changesets may be moved around in different buffers, to ease
 the collection of changes to record in a single darcs patch."
@@ -973,7 +997,7 @@ VIEW non-nil means open in View mode."
 (defun darcsum-toggle-mark ()
   "Toggle mark on current changeset.
 
-Marked changesets have priority over simply activated ones, regarding
+Marked changesets have priority over simply activated ones regarding
 the selection of changesets to commit."
   (interactive)
   (darcsum-check-darcsum-mode)
@@ -993,15 +1017,16 @@ The activation of a changeset exposes the associated change, and selects
 it for later commit."
   (interactive)
   (darcsum-check-darcsum-mode)
+  ;;;;;;;; TODO: easier to expose a hunk which was made invisible by mistake
   (let ((changeset (darcsum-changeset-at-point t)))
     (let ((any-visible
 	   (darcsum-applicable-p
-	    changeset 
+	    changeset
 	    (function
 	     (lambda (d f change)
 	       (darcsum-item-visible-p (darcsum-change-item change)))))))
 	(darcsum-apply-to-changeset
-	 changeset 
+	 changeset
 	 (function
 	  (lambda (dir file change)
 	    (let ((item (darcsum-change-item change)))
@@ -1237,7 +1262,8 @@ the file or the directory at point into the boring file."
 	(look-for-adds (or arg darcsum-look-for-adds))
 	(darcsum-default-expanded t))
     (message "Re-running darcsum-whatsnew")
-    (let ((changes (darcsum-whatsnew dir look-for-adds t darcsum-show-context)))
+    (let ((changes (darcsum-whatsnew
+		    dir look-for-adds t darcsum-show-context)))
       (setq darcsum-data
 	    (darcsum-merge-changeset darcsum-data changes)))
     (darcsum-refresh)))
@@ -1421,7 +1447,7 @@ Inserts the entry in the darcs comment file instead of the ChangeLog."
 		      "Show trailing whitespace in changes."
 		      (setq show-trailing-whitespace t)))
 
-;;; This is the entry code, M-x darcsum (or M-x darcs-summary)
+;;; This is the entry code, M-x darcsum-whatsnew
 
 (defun darcsum-display (data &optional look-for-adds)
   (with-current-buffer (generate-new-buffer "*darcs*")
@@ -1453,12 +1479,17 @@ Inserts the entry in the darcs comment file instead of the ChangeLog."
   :group 'darcsum)
 
 (defcustom darcsum-whatsnew-at-toplevel t
-  "*Use top-level repository directory as default argument to darcsum-whatsnew."
+  "*Use top-level repository directory as default argument to \
+`darcsum-whatsnew'."
   :type 'boolean
   :group 'darcsum)
 
 ;;;###autoload
-(defun darcsum-whatsnew (directory &optional look-for-adds no-display show-context)
+(defun darcsum-whatsnew (directory
+			 &optional look-for-adds no-display show-context)
+  "Run `darcs whatsnew' in DIRECTORY, displaying the output in `darcsum-mode'.
+
+When invoked interactively, prompt for the directory to display changes for."
   (interactive
    ; fancy "DDirectory: \nP"
    (let ((root
@@ -1497,8 +1528,10 @@ Inserts the entry in the darcs comment file instead of the ChangeLog."
 	  (if (= result 1)
 	      (progn (and (interactive-p) (message "No changes!"))
 		     nil)
-	    (progn (if (member "*darcs-output*" (mapcar (lambda (&rest x) (apply 'buffer-name x))
-						   (buffer-list)))
+	    (progn (if (member "*darcs-output*"
+			       (mapcar (lambda (&rest x)
+					 (apply 'buffer-name x))
+				       (buffer-list)) )
 		       (kill-buffer "*darcs-output*"))
 		   (if (fboundp 'clone-buffer)
 		       (clone-buffer "*darcs-output*" t))
@@ -1524,6 +1557,12 @@ Leave it be if it's not a string."
 
 ;;;###autoload
 (defun darcsum-view (directory)
+  "View the contents of the current buffer as a darcs changeset for DIRECTORY.
+More precisely, searches forward from point for the next changeset-like region,
+and attempts to parse that as a darcs patch.
+
+When invoked interactively, prompts for a directory; by default, the current
+working directory is assumed."
   (interactive
    (list (funcall (if (fboundp 'read-directory-name)
 		      'read-directory-name
@@ -1599,7 +1638,8 @@ Leave it be if it's not a string."
   (eval-after-load "gnus-sum"
     '(progn
        (define-key gnus-summary-mime-map "V" 'gnus-article-view-darcs-patch)
-       (define-key gnus-summary-article-map "V" 'gnus-summary-view-darcs-patch))))
+       (define-key gnus-summary-article-map "V"
+	 'gnus-summary-view-darcs-patch))))
 
 (provide 'darcsum)
 ;;; darcsum.el ends here
