@@ -1,4 +1,17 @@
 ;;----------------------------------------------------------------------------
+;; Which functionality to enable (use t or nil for true and false)
+;;----------------------------------------------------------------------------
+(setq *vi-emulation-support-enabled* t) ; "viper-mode"
+(setq *ecb-support-enabled* t) ; Emacs code browser (IDE)
+(setq *haskell-support-enabled* t)
+(setq *slime-support-enabled* t)
+(setq *macbook-pro-support-enabled* t)
+(setq *erlang-support-enabled* t)
+(setq *darcs-support-enabled* t) ; You can use darcs to update these conf files
+(setq *rails-support-enabled* t)
+
+
+;;----------------------------------------------------------------------------
 ;; Set load path
 ;;----------------------------------------------------------------------------
 (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
@@ -28,10 +41,11 @@
 ;;----------------------------------------------------------------------------
 ;; Augment search path for external programs (for OSX)
 ;;----------------------------------------------------------------------------
-(dolist (dir '("/usr/local/bin" "/opt/local/bin"
-               "/opt/local/lib/postgresql81/bin" "~/bin"))
-  (setenv "PATH" (concat (expand-file-name dir) ":" (getenv "PATH")))
-  (setq exec-path (append (list (expand-file-name dir)) exec-path)))
+(when *macbook-pro-support-enabled*
+  (dolist (dir '("/usr/local/bin" "/opt/local/bin"
+                 "/opt/local/lib/postgresql81/bin" "~/bin"))
+    (setenv "PATH" (concat (expand-file-name dir) ":" (getenv "PATH")))
+    (setq exec-path (append (list (expand-file-name dir)) exec-path))))
 
 
 ;;----------------------------------------------------------------------------
@@ -61,23 +75,25 @@
 ;;----------------------------------------------------------------------------
 ;; VI emulation and related key mappings
 ;;----------------------------------------------------------------------------
-(setq viper-mode t)
-(require 'viper)
-(define-key viper-insert-global-user-map "\C-n" 'hippie-expand)
-(define-key viper-insert-global-user-map "\C-p" 'hippie-expand)
+(when *vi-emulation-support-enabled*
+  (setq viper-mode t)
+  (require 'viper)
+  (define-key viper-insert-global-user-map "\C-n" 'hippie-expand)
+  (define-key viper-insert-global-user-map "\C-p" 'hippie-expand))
 
 
 ;;----------------------------------------------------------------------------
 ;; Erlang
 ;;----------------------------------------------------------------------------
-;(setq load-path (cons (expand-file-name "/usr/local/share/emacs/site-lisp/distel") load-path))
-;;(defun my-erlang-load-hook ()
-;; (setq erlang-root-dir "/opt/otp/lib/erlang"))
-;;(add-hook 'erlang-load-hook 'my-erlang-load-hook)
-(setq erlang-root-dir "/opt/local/lib/erlang")
-(require 'erlang-start)
-;(require 'distel)
-;(add-hook 'erlang-mode-hook 'distel-erlang-mode-hook)
+(when *erlang-support-enabled*
+  ;;(setq load-path (cons (expand-file-name "/usr/local/share/emacs/site-lisp/distel") load-path))
+  ;;(defun my-erlang-load-hook ()
+  ;; (setq erlang-root-dir "/opt/otp/lib/erlang"))
+  ;;(add-hook 'erlang-load-hook 'my-erlang-load-hook)
+  (setq erlang-root-dir "/opt/local/lib/erlang")
+  (require 'erlang-start))
+  ;;(require 'distel)
+  ;;(add-hook 'erlang-mode-hook 'distel-erlang-mode-hook))
 
 
 ;;----------------------------------------------------------------------------
@@ -95,16 +111,17 @@
 ;;----------------------------------------------------------------------------
 ;; Darcs
 ;;----------------------------------------------------------------------------
-(require 'darcs)
-(add-to-list 'vc-handled-backends 'DARCS)
-(autoload 'vc-darcs-find-file-hook "vc-darcs")
-(add-hook 'find-file-hooks 'vc-darcs-find-file-hook)
+(when *darcs-support-enabled*
+  (require 'darcs)
+  (add-to-list 'vc-handled-backends 'DARCS)
+  (autoload 'vc-darcs-find-file-hook "vc-darcs")
+  (add-hook 'find-file-hooks 'vc-darcs-find-file-hook)
 
-(require 'darcsum)
-(setq darcsum-whatsnew-switches "-l")
+  (require 'darcsum)
+  (setq darcsum-whatsnew-switches "-l")
 
-(require 'grep)
-(add-to-list 'grep-find-ignored-directories "_darcs")
+  (require 'grep)
+  (add-to-list 'grep-find-ignored-directories "_darcs"))
 
 
 ;;----------------------------------------------------------------------------
@@ -124,6 +141,7 @@
 ;; Use C-f during file selection to switch to regular find-file
 (ido-mode t)  ; use 'buffer rather than t to use only buffer switching
 (setq ido-enable-flex-matching t)
+(setq ido-auto-merge-work-directories-length -1)
 
 (setq ibuffer-shrink-to-minimum-size t
       ibuffer-always-show-last-buffer nil
@@ -172,14 +190,14 @@
 ;;----------------------------------------------------------------------------
 ;; Window size and features
 ;;----------------------------------------------------------------------------
-(set-face-attribute 'default nil
-                    :family "monaco" :height 120)
-;; Default frame size (perfect for Macbook Pro when scrollbar and toolbar hidden...)
-(setq initial-frame-alist '((width  . 202) (height . 50) (top . 0) (left . 3) (tool-bar-lines . 0)))
-(setq default-frame-alist '((width  . 202) (height . 50) (top . 22) (left . 3) (tool-bar-lines . 0)))
+(when *macbook-pro-support-enabled*
+  (set-face-attribute 'default nil :family "monaco" :height 120)
+  ;; Default frame size (perfect for Macbook Pro when scrollbar and toolbar hidden...)
+  (setq initial-frame-alist '((width  . 202) (height . 50) (top . 0) (left . 3) (tool-bar-lines . 0)))
+  (setq default-frame-alist '((width  . 202) (height . 50) (top . 22) (left . 3) (tool-bar-lines . 0))))
+
 (tool-bar-mode nil)
 (scroll-bar-mode nil)
-;(fringe-mode '(nil . 0))
 
 
 ;;----------------------------------------------------------------------------
@@ -196,10 +214,13 @@
 ;;----------------------------------------------------------------------------
 ;; ECB (Emacs Code Browser)
 ;;----------------------------------------------------------------------------
-; Change default location of semantic.cache files
-(setq semanticdb-default-save-directory (expand-file-name "~/.semanticdb"))
-(require 'cedet)
-(require 'ecb-autoloads)
+(when *ecb-support-enabled*
+  ;; Change default location of semantic.cache files
+  (setq semanticdb-default-save-directory (expand-file-name "~/.semanticdb"))
+  (unless (file-directory-p semanticdb-default-save-directory)
+    (make-directory semanticdb-default-save-directory))
+  (require 'cedet)
+  (require 'ecb-autoloads))
 
 
 ;;----------------------------------------------------------------------------
@@ -209,8 +230,8 @@
 (setq ruby-electric-expand-delimiters-list nil)  ; Only use ruby-electric for adding 'end'
 (add-hook 'ruby-mode-hook
           (lambda () (ruby-electric-mode)))
-(add-hook 'ruby-mode-hook
-          (lambda () (viper-change-state-to-vi)))
+(when *vi-emulation-support-enabled*
+  (add-hook 'ruby-mode-hook (lambda () (viper-change-state-to-vi))))
 
 (add-auto-mode 'ruby-mode "Rakefile$" "\.rake$" "\.rxml$" "\.rjs" ".irbrc")
 (add-auto-mode 'html-mode "\.rhtml$")
@@ -262,22 +283,22 @@
 ;;----------------------------------------------------------------------------
 ; Rails (http://rubyforge.org/projects/emacs-rails/)
 ;;----------------------------------------------------------------------------
-(defun try-complete-abbrev (old)
-  (if (expand-abbrev) t nil))
+(when *rails-support-enabled*
+  (defun try-complete-abbrev (old)
+    (if (expand-abbrev) t nil))
 
-(setq hippie-expand-try-functions-list
-      '(try-complete-abbrev
-        try-complete-file-name
-        try-expand-dabbrev))
+  (setq hippie-expand-try-functions-list
+        '(try-complete-abbrev
+          try-complete-file-name
+          try-expand-dabbrev))
 
-(require 'rails)
-(setq rails-webrick:use-mongrel t)
-(setq rails-api-root (expand-file-name "~/Documents/External/rails"))
+  (require 'rails)
+  (setq rails-webrick:use-mongrel t)
+  (setq rails-api-root (expand-file-name "~/Documents/External/rails"))
 
-(require 'ecb)
-(add-to-list 'ecb-compilation-buffer-names '("\\(development\\|test\\|production\\).log" . t))
-
-;; TODO: Fix ridiculous tab completion behaviour by fixing up 'ruby-indent-or-complete
+  (when *ecb-support-enabled*
+    (require 'ecb)
+    (add-to-list 'ecb-compilation-buffer-names '("\\(development\\|test\\|production\\).log" . t))))
 
 
 ;;----------------------------------------------------------------------------
@@ -318,44 +339,44 @@
 ;;----------------------------------------------------------------------------
 ;; Lisp / Slime
 ;;----------------------------------------------------------------------------
-(setf slime-lisp-implementations
-      '((sbcl ("sbcl") :coding-system utf-8-unix)
-        (cmucl ("cmucl") :coding-system iso-latin-1-unix)))
-(setf slime-default-lisp 'sbcl)
-(require 'slime)
-(slime-setup)
+(when *slime-support-enabled*
+  (setf slime-lisp-implementations
+        '((sbcl ("sbcl") :coding-system utf-8-unix)
+          (cmucl ("cmucl") :coding-system iso-latin-1-unix)))
+  (setf slime-default-lisp 'sbcl)
+  (require 'slime)
+  (slime-setup)
 
-(add-auto-mode 'lisp-mode "\\.cl$")
-(add-hook 'slime-mode-hook 'pretty-lambdas)
+  (add-auto-mode 'lisp-mode "\\.cl$")
+  (add-hook 'slime-mode-hook 'pretty-lambdas)
 
-;; pretty lambda (see also slime) ->  "λ"
-;;  'greek small letter lambda' / utf8 cebb / unicode 03bb -> \u03BB / mule?!
-;; in greek-iso8859-7 -> 107  >  86 ec
-(defun pretty-lambdas ()
-  (font-lock-add-keywords
-   nil `(("(\\(lambda\\>\\)"
-          (0 (progn (compose-region (match-beginning 1) (match-end 1)
-                                    ,(make-char 'greek-iso8859-7 107))
-                    'font-lock-keyword-face))))))
-(global-set-key [f4] 'slime-selector)
+  ;; pretty lambda (see also slime) ->  "λ"
+  ;;  'greek small letter lambda' / utf8 cebb / unicode 03bb -> \u03BB / mule?!
+  ;; in greek-iso8859-7 -> 107  >  86 ec
+  (defun pretty-lambdas ()
+    (font-lock-add-keywords
+     nil `(("(\\(lambda\\>\\)"
+            (0 (progn (compose-region (match-beginning 1) (match-end 1)
+                                      ,(make-char 'greek-iso8859-7 107))
+                      'font-lock-keyword-face))))))
+  (global-set-key [f4] 'slime-selector))
 
 
 ;;----------------------------------------------------------------------------
 ;; Haskell
 ;;----------------------------------------------------------------------------
-(load-library "haskell-site-file")
+(when *haskell-support-enabled*
+  (load-library "haskell-site-file")
 
-(setq haskell-hugs-program-args '("-98" "+."))
-(setq haskell-ghci-program-args '("-fglasgow-exts"))
+  (setq haskell-hugs-program-args '("-98" "+."))
+  (setq haskell-ghci-program-args '("-fglasgow-exts"))
 
-(add-hook 'haskell-mode-hook
-          (lambda ()
-            ;(turn-on-haskell-hugs)
-            (turn-on-haskell-doc-mode)
-            (turn-on-haskell-indent)
-            (turn-on-haskell-simple-indent)
-            (font-lock-mode)))
-            ;(turn-on-haskell-ghci)))
+  (add-hook 'haskell-mode-hook
+            (lambda ()
+              (turn-on-haskell-doc-mode)
+              (turn-on-haskell-indent)
+              (turn-on-haskell-simple-indent)
+              (font-lock-mode))))
 
 ;;----------------------------------------------------------------------------
 ;; Conversion of line endings
