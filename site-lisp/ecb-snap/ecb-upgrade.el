@@ -159,6 +159,9 @@
 
 ;; IMPORTANT: The version-number is auto-frobbed from the Makefile. Do not
 ;; change it here!
+;; (defconst ecb-version "2.33beta1"
+;;   "Current ECB version.")
+
 (defconst ecb-version "2.33beta1"
   "Current ECB version.")
 
@@ -1485,7 +1488,8 @@ Note: Normally this URL should never change but who knows..."
 
 
 (defcustom ecb-wget-setup (cons (if (fboundp 'executable-find)
-                                    (executable-find "wget")
+                                    (or (executable-find "wget")
+                                        "Please_add_wget_to_your_path_or_set_the_fullpath_to_wget")
                                   "wget")
                                 (case system-type
                                   (cygwin32 'cygwin)
@@ -1510,7 +1514,8 @@ Value is a cons-cell where:
 
 
 (defcustom ecb-gzip-setup (cons (if (fboundp 'executable-find)
-                                    (executable-find "gzip")
+                                    (or (executable-find "gzip")
+                                        "Please_add_gzip_to_your_path_or_set_the_fullpath_to_gzip")
                                   "gzip")
                                 (case system-type
                                   (cygwin32 'cygwin)
@@ -1528,7 +1533,8 @@ For a description about the possible settings see `ecb-wget-setup'."
                        (const :tag "Other" :value other))))
 
 (defcustom ecb-tar-setup (cons (if (fboundp 'executable-find)
-                                   (executable-find "tar")
+                                   (or (executable-find "tar")
+                                       "Please_add_tar_to_your_path_or_set_the_fullpath_to_tar")
                                  "tar")
                                (case system-type
                                  (cygwin32 'cygwin)

@@ -3592,7 +3592,9 @@ for compilation-buffers \(if a compile-window is used, see above)."
         ad-do-it))
     (if (equal (ecb-where-is-point) 'ecb)
         (ecb-select-edit-window))
-    (let ((pop-up-windows t))
+    (let ((pop-up-windows t)
+          ;; Don't let these interfere...
+          same-window-buffer-names same-window-regexps)          
       (pop-to-buffer (ad-get-arg 0) t
                      (if ecb-running-xemacs
                          (selected-frame)
