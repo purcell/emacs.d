@@ -220,7 +220,10 @@
   (unless (file-directory-p semanticdb-default-save-directory)
     (make-directory semanticdb-default-save-directory))
   (require 'cedet)
-  (require 'ecb-autoloads))
+  (require 'ecb-autoloads)
+
+  (add-hook 'ecb-activate-hook
+            (lambda () (setq global-semantic-idle-scheduler-mode nil))))
 
 
 ;;----------------------------------------------------------------------------
