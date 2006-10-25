@@ -684,8 +684,12 @@ function names like \(SETF GET)."
 
 ;;; Multithreading
 
-(defimplementation initialize-multiprocessing ()
-  (mp:initialize-multiprocessing))
+(defimplementation initialize-multiprocessing (continuation)
+  (cond ((not mp::*multiprocessing*)
+         (push (list "Initialize SLIME" '() continuation) 
+               mp:*initial-processes*)
+         (mp:initialize-multiprocessing))
+        (t (funcall continuation))))
 
 (defimplementation spawn (fn &key name)
   (let ((mp:*process-initial-bindings* 

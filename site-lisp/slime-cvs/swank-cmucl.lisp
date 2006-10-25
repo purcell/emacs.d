@@ -1475,7 +1475,12 @@ A utility for debugging DEBUG-FUNCTION-ARGLIST."
                       (error (make-condition
                               'sldb-condition
                               :original-condition condition)))))
-      (funcall debugger-loop-fn))))
+      (unwind-protect
+           (progn
+             #+(or)(sys:scrub-control-stack)
+             (funcall debugger-loop-fn))
+        #+(or)(sys:scrub-control-stack)
+        ))))
 
 (defun frame-down (frame)
   (handler-case (di:frame-down frame)
@@ -1960,21 +1965,23 @@ The `symbol-value' of each element is a type tag.")
 
 (defmethod inspect-for-emacs ((o array) (inspector cmucl-inspector))
   inspector
-  (values (format nil "~A is an array." o)
-          (label-value-line*
-           (:header (describe-primitive-type o))
-           (:rank (array-rank o))
-           (:fill-pointer (kernel:%array-fill-pointer o))
-           (:fill-pointer-p (kernel:%array-fill-pointer-p o))
-           (:elements (kernel:%array-available-elements o))           
-           (:data (kernel:%array-data-vector o))
-           (:displacement (kernel:%array-displacement o))
-           (:displaced-p (kernel:%array-displaced-p o))
-           (:dimensions (array-dimensions o)))))
+  (if (typep o 'simple-array)
+      (call-next-method)
+      (values (format nil "~A is an array." o)
+              (label-value-line*
+               (:header (describe-primitive-type o))
+               (:rank (array-rank o))
+               (:fill-pointer (kernel:%array-fill-pointer o))
+               (:fill-pointer-p (kernel:%array-fill-pointer-p o))
+               (:elements (kernel:%array-available-elements o))           
+               (:data (kernel:%array-data-vector o))
+               (:displacement (kernel:%array-displacement o))
+               (:displaced-p (kernel:%array-displaced-p o))
+               (:dimensions (array-dimensions o))))))
 
 (defmethod inspect-for-emacs ((o simple-vector) (inspector cmucl-inspector))
   inspector
-  (values (format nil "~A is a vector." o)
+  (values (format nil "~A is a simple-vector." o)
           (append 
            (label-value-line*
             (:header (describe-primitive-type o))
@@ -2042,15 +2049,14 @@ The `symbol-value' of each element is a type tag.")
 
 #+mp
 (progn
-  (defimplementation initialize-multiprocessing () 
-    (mp::init-multi-processing))
-  
-  (defimplementation startup-idle-and-top-level-loops ()
+  (defimplementation initialize-multiprocessing (continuation) 
+    (mp::init-multi-processing)
+    (mp:make-process continuation :name "swank")
     ;; Threads magic: this never returns! But top-level becomes
     ;; available again.
-    (unless mp::*initial-process*
+    (unless mp::*idle-process*
       (mp::startup-idle-and-top-level-loops)))
-
+  
   (defimplementation spawn (fn &key name)
     (mp:make-process fn :name (or name "Anonymous")))
 

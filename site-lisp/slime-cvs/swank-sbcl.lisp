@@ -572,15 +572,29 @@ Return NIL if the symbol is unbound."
 
 (defimplementation list-callers (symbol)
   (let ((fn (fdefinition symbol)))
-    (mapcar #'function-dspec (sb-introspect:find-function-callers fn))))
+    (sanitize-xrefs
+     (mapcar #'function-dspec (sb-introspect:find-function-callers fn)))))
 
 (defimplementation list-callees (symbol)
   (let ((fn (fdefinition symbol)))
-    (mapcar #'function-dspec (sb-introspect:find-function-callees fn))))
+    (sanitize-xrefs
+     (mapcar #'function-dspec (sb-introspect:find-function-callees fn)))))
 
-#-#.(swank-backend::sbcl-with-new-stepper-p)
-(defimplementation ignored-xref-function-names ()
-  '(nil sb-c::step-form sb-c::step-values))
+(defun sanitize-xrefs (x)
+  (remove-duplicates
+   (remove-if (lambda (f)
+                (member f (ignored-xref-function-names)))
+              x
+              :key #'car)
+   :test (lambda (a b)
+           (and (eq (first a) (first b))
+                (equal (second a) (second b))))))
+
+(defun ignored-xref-function-names ()
+  #-#.(swank-backend::sbcl-with-new-stepper-p)
+  '(nil sb-c::step-form sb-c::step-values)
+  #+#.(swank-backend::sbcl-with-new-stepper-p)
+  '(nil))
 
 (defun function-dspec (fn)
   "Describe where the function FN was defined.
@@ -934,6 +948,12 @@ stack."
                           (ash 1 sb-vm:n-lowtag-bits))
                          (ash (sb-kernel:%code-code-size o) sb-vm:word-shift)
                          :stream s))))))))
+
+(defmethod inspect-for-emacs ((o sb-ext:weak-pointer) (inspector sbcl-inspector))
+  (declare (ignore inspector))
+  (values "A weak pointer."
+          (label-value-line*
+           (:value (sb-ext:weak-pointer-value o)))))
 
 (defmethod inspect-for-emacs ((o sb-kernel:fdefn) (inspector sbcl-inspector))
   (declare (ignore inspector))

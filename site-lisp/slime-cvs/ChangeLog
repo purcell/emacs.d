@@ -1,3 +1,147 @@
+2006-10-21  Helmut Eller  <heller@common-lisp.net>
+
+	* swank-lispworks.lisp (initialize-multiprocessing): Don't init
+	MP if it is already running.
+
+	* test.sh: Run Emacs in Screen.
+
+2006-10-20  Helmut Eller  <heller@common-lisp.net>
+
+	* swank-backend.lisp, swank-cmucl.lisp:
+	(startup-idle-and-top-level-loops): Deleted. Merged into
+	initialize-multiprocessing.
+
+2006-10-20  Attila Lendvai  <attila.lendvai@gmail.com>
+	
+	* slime.el (slime-fuzzy-choices-buffer): Added kill-buffer-hook to
+	the completion buffer to slime-fuzzy-abort, so we get out from the
+	completion mode and key maps when the completion buffer is closed.
+
+2006-10-20  Marco Baringer  <mb@bese.it>
+	
+	* slime.el (slime-target-buffer-fuzzy-completions-map): Fix a bug
+	I introduced when applying levente's patch.
+
+2006-10-20  Martin Simmons <martin@lispworks.com>
+
+	* swank-backend.lisp (initialize-multiprocessing): New API to
+	support lisps where initialize-multiprocessing may not return (lispworks).
+
+	* swank.lisp (start-server): initialize-multiprocessing's API has changed.
+
+	* swank-lispworks.lisp (initialize-multiprocessing): Update for new API.
+
+	* swank-cmucl.lisp (initialize-multiprocessing): Update for new API.
+	
+	* swank-allegro.lisp (initialize-multiprocessing): Update for new api.
+	
+2006-10-20  Levente Mészáros <levente.meszaros@gmail.com>
+
+	Added "in-place" fuzzy completion GUI. See
+	slime-fuzzy-completions-map and
+	slime-target-buffer-fuzzy-completions-map for details.
+
+	* slime.el (slime-space-information-p): New variable.
+	(slime-target-buffer-fuzzy-completions-mode): New keymap for
+	in-place fuzzy completions.
+	(slime-fuzzy-target-buffer-completions-mode): New minor mode for
+	in-place fuzzy completions.
+	(slime-fuzzy-current-completion-overlay): New overlay for
+	highlighting currently selected completion.
+	(slime-fuzzy-completions-map): Added new fuzzy completon keys
+	(slime-fuzzy-indent-and-complete-symbol): New function.
+	(slime-fuzzy-complete-symbol): Use new in-place fuzzy completion.
+	(slime-fuzzy-choices-buffer): Support in-place completion editing.
+	(slime-fuzzy-fill-completions-buffer): Highlight completions,
+	don't automatically jump to completion buffer.
+	(slime-fuzzy-enable-target-buffer-completions-mode,
+	slime-fuzzy-disable-target-buffer-completions-mode): New modes for
+	moving in/out of in-place fuzzy completion mode
+	(slime-fuzzy-next, slime-fuzzy-prev): Don't assume point is in the
+	completion buffer.
+	(slime-fuzzy-dehighlight-current-completion,
+	slime-fuzzy-highlight-current-completion): Manage completion
+	selection highlighting.
+	(slime-fuzzy-select-or-update-completions): New function.
+	(slime-fuzzy-process-event-in-completions-buffer): New function.
+	(slime-fuzzy-select-and-process-event-in-target-buffer): New function.
+	(slime-fuzzy-done): Changed to deal with in-place completion.
+	
+2006-10-19  Helmut Eller  <heller@common-lisp.net>
+
+	* swank-backend.lisp (ignored-xref-function-names): Deleted.
+
+	* swank.lisp (guess-package-from-string): Remove special case for
+	"#.". parse-package will handle that just fine.
+	(find-definitions-for-emacs): Don't filter errors out.
+	(sanitize-xrefs): Moved to swank-sbcl.  The backend is supposed to
+	return sane values. 
+
+	* swank-sbcl.lisp: See above.
+	
+	* slime.el (slime-find-buffer-package): Simplify.
+
+2006-10-17  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-accept-process-output): The timeout arg can be
+	nil. Handle that case.
+
+2006-10-17  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* slime.el (slime-find-buffer-package): Handle #. forms.
+
+	* swank.lisp (guess-package-from-string): Handle #. forms.
+	(inspect-for-emacs standard-class): Handle non-string
+	:documentation slot contents.
+
+	* swank-sbcl.lisp (inspect-for-emacs weak-pointer ...): Added
+	method.
+	
+2006-10-16  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (sldb-activate): Get debug-info from the correct
+	thread. Fixes bug reported by Dan Weinreb <dlw@itasoftware.com>.
+	(unwind-to-previous-sldb-level): New test.
+	(slime-init-command): Send a single form.
+	(slime-insert-presentation): Honor slime-repl-enable-presentations.
+	Presentations kill SLDB and the inspector in Emacs 20 (besides
+	being troublesome GC-wise).
+
+	* swank.lisp: Clean up global IO redirection.
+	(setup-stream-indirection): Turn macro into a
+	function and delay initialization after user init files are
+	loaded, so that we do nothing if *globally-redirect-io* is nil.
+	(*after-init-hook*, run-after-init-hook)
+	(init-global-stream-redirection): New.
+
+	(parse-symbol-or-lose): Lose loudly and early (instead of failing
+	silently).
+	
+	* swank-loader.lisp: Abort on compile-time or load-time errors.
+	Don't try to load the source-file if COMPILE-FILE's 3rd return
+	value is true (it's true even for warnings).
+	(handle-loadtime-error): New function.
+	
+	Run the after-init-hook.
+
+	* swank-cmucl.lisp (inspect-for-emacs): Don't break for
+	simple-strings.
+
+2006-10-11  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* slime.el (slime-presentation-syntax-table): New.
+	(slime-add-presentation-properties): Install it in a syntax-table
+	text property, so that #<...> is balanced in a presentation.
+	(slime-remove-presentation-properties): Remove the text property.
+	(slime-repl-mode): Respect the syntax text properties of
+	presentations in REPL buffers.
+
+2006-10-09  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* swank.lisp (completions-for-keyword): Look up the operator names
+	in the right package.  Return nil (rather than signalling an
+	error) when no valid operator name is present.
+
 2006-10-08  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
 
 	* swank-loader.lisp (lisp-version-string) [allegro]: Distinguish

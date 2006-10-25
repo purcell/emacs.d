@@ -616,8 +616,9 @@
 
 ;;;; Multithreading
 
-(defimplementation initialize-multiprocessing ()
-  (mp:start-scheduler))
+(defimplementation initialize-multiprocessing (continuation)
+  (mp:start-scheduler)
+  (funcall continuation))
 
 (defimplementation spawn (fn &key name)
   (mp:process-run-function name fn))

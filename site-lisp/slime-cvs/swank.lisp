@@ -21,6 +21,7 @@
            #:ed-in-emacs
            #:print-indentation-lossage
            #:swank-debugger-hook
+           #:run-after-init-hook
            ;; These are user-configurable variables:
            #:*communication-style*
            #:*log-events*
@@ -129,7 +130,6 @@ ALIST is a list of the form ((VAR . VAL) ...)."
      (eval-when (:compile-toplevel :load-toplevel :execute)
        (export ',name :swank))))
 
-(declaim (ftype (function () nil) missing-arg))
 (defun missing-arg ()
   "A function that the compiler knows will never to return a value.
 You can use (MISSING-ARG) as the initform for defstruct slots that
@@ -165,6 +165,12 @@ Backend code should treat the connection structure as opaque.")
 
 (defvar *pre-reply-hook* '()
   "Hook run (without arguments) immediately before replying to an RPC.")
+
+(defvar *after-init-hook* '()
+  "Hook run after user init files are loaded.")
+
+(defun run-after-init-hook ()
+  (run-hook *after-init-hook*))
 
 
 ;;;; Connections
@@ -399,12 +405,13 @@ Valid values are :none, :line, and :full.")
                      dont-close (external-format *coding-system*))
   "Start the server and write the listen port number to PORT-FILE.
 This is the entry point for Emacs."
-  (when (eq style :spawn)
-    (initialize-multiprocessing))
-  (setup-server 0 (lambda (port) (announce-server-port port-file port))
-                style dont-close external-format)
-  (when (eq style :spawn)
-    (startup-idle-and-top-level-loops)))
+  (flet ((start-server-aux ()
+           (setup-server 0 (lambda (port) 
+                             (announce-server-port port-file port))
+                         style dont-close external-format)))
+    (if (eq style :spawn)
+        (initialize-multiprocessing #'start-server-aux)
+        (start-server-aux))))
 
 (defun create-server (&key (port default-server-port)
                       (style *communication-style*)
@@ -922,15 +929,21 @@ of the toplevel restart."
 ;;; variables, so they can always be assigned to affect a global
 ;;; change.
 
-(defvar *globally-redirect-io* t
+(defvar *globally-redirect-io* nil
   "When non-nil globally redirect all standard streams to Emacs.")
 
-(defmacro setup-stream-indirection (stream-var)
+;;;;; Global redirection setup
+
+(defvar *saved-global-streams* '()
+  "A plist to save and restore redirected stream objects.
+E.g. the value for '*standard-output* holds the stream object
+for *standard-output* before we install our redirection.")
+
+(defun setup-stream-indirection (stream-var &optional stream)
   "Setup redirection scaffolding for a global stream variable.
 Supposing (for example) STREAM-VAR is *STANDARD-INPUT*, this macro:
 
-1. Saves the value of *STANDARD-INPUT* in a variable called
-*REAL-STANDARD-INPUT*.
+1. Saves the value of *STANDARD-INPUT* in `*SAVED-GLOBAL-STREAMS*'.
 
 2. Creates *CURRENT-STANDARD-INPUT*, initially with the same value as
 *STANDARD-INPUT*.
@@ -942,48 +955,42 @@ This has the effect of making *CURRENT-STANDARD-INPUT* contain the
 effective global value for *STANDARD-INPUT*. This way we can assign
 the effective global value even when *STANDARD-INPUT* is shadowed by a
 dynamic binding."
-  (let ((real-stream-var (prefixed-var '#:real stream-var))
-        (current-stream-var (prefixed-var '#:current stream-var)))
-    `(progn
-       ;; Save the real stream value for the future.
-       (defvar ,real-stream-var ,stream-var)
-       ;; Define a new variable for the effective stream.
-       ;; This can be reassigned.
-       (defvar ,current-stream-var ,stream-var)
-       ;; Assign the real binding as a synonym for the current one.
-       (setq ,stream-var (make-synonym-stream ',current-stream-var)))))
+  (let ((current-stream-var (prefixed-var '#:current stream-var))
+        (stream (or stream (symbol-value stream-var))))
+    ;; Save the real stream value for the future.
+    (setf (getf *saved-global-streams* stream-var) stream)
+    ;; Define a new variable for the effective stream.
+    ;; This can be reassigned.
+    (proclaim `(special ,current-stream-var))
+    (set current-stream-var stream)
+    ;; Assign the real binding as a synonym for the current one.
+    (set stream-var (make-synonym-stream current-stream-var))))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun prefixed-var (prefix variable-symbol)
-    "(PREFIXED-VAR \"FOO\" '*BAR*) => SWANK::*FOO-BAR*"
-    (let ((basename (subseq (symbol-name variable-symbol) 1)))
-      (intern (format nil "*~A-~A" prefix basename) :swank))))
+(defun prefixed-var (prefix variable-symbol)
+  "(PREFIXED-VAR \"FOO\" '*BAR*) => SWANK::*FOO-BAR*"
+  (let ((basename (subseq (symbol-name variable-symbol) 1)))
+    (intern (format nil "*~A-~A" (string prefix) basename) :swank)))
 
-;;;;; Global redirection setup
-
-;; FIXME: This doesn't work with Allegros IDE (MAKE-SYNONYM-STREAM
-;; doesn't work with their GUI-streams). Maybe we should just drop this
-;; global redirection stuff.
-;;
-;; (setup-stream-indirection *standard-output*)
-;; (setup-stream-indirection *error-output*)
-;; (setup-stream-indirection *trace-output*)
-;; (setup-stream-indirection *standard-input*)
-;; (setup-stream-indirection *debug-io*)
-;; (setup-stream-indirection *query-io*)
-;; (setup-stream-indirection *terminal-io*)
-
-(defparameter *standard-output-streams*
+(defvar *standard-output-streams*
   '(*standard-output* *error-output* *trace-output*)
   "The symbols naming standard output streams.")
 
-(defparameter *standard-input-streams*
+(defvar *standard-input-streams*
   '(*standard-input*)
   "The symbols naming standard input streams.")
 
-(defparameter *standard-io-streams*
+(defvar *standard-io-streams*
   '(*debug-io* *query-io* *terminal-io*)
   "The symbols naming standard io streams.")
+
+(defun init-global-stream-redirection ()
+  (when *globally-redirect-io*
+    (mapc #'setup-stream-indirection 
+          (append *standard-output-streams*
+                  *standard-input-streams*
+                  *standard-io-streams*))))
+
+(add-hook *after-init-hook* 'init-global-stream-redirection)
 
 (defun globally-redirect-io-to-connection (connection)
   "Set the standard I/O streams to redirect to CONNECTION.
@@ -1014,7 +1021,7 @@ Assigns *CURRENT-<STREAM>* for all standard streams."
                               *standard-input-streams*
                               *standard-io-streams*))
     (set (prefixed-var '#:current stream-var)
-         (symbol-value (prefixed-var '#:real stream-var)))))
+         (getf *saved-global-streams* stream-var))))
 
 ;;;;; Global redirection hooks
 
@@ -1349,7 +1356,7 @@ Return the symbol and a flag indicating whether the symbols was found."
   (multiple-value-bind (symbol status) (parse-symbol string package)
     (if status
         (values symbol status)
-        (abort-request "Unknown symbol: ~A [in ~A]" string package))))
+        (error "Unknown symbol: ~A [in ~A]" string package))))
 
 ;; FIXME: interns the name
 (defun parse-package (string)
@@ -1358,11 +1365,13 @@ Return the package or nil."
   (multiple-value-bind (name pos) 
       (if (zerop (length string))
           (values :|| 0)
-          (let ((*package* keyword-package))
+          (let ((*package* *swank-io-package*))
             (ignore-errors (read-from-string string))))
-    (if (and (or (keywordp name) (stringp name))
-             (= (length string) pos))
-        (find-package name))))
+    (and name
+         (or (symbolp name) 
+             (stringp name))
+         (= (length string) pos)
+         (find-package name))))
 
 (defun guess-package-from-string (name &optional (default-package *package*))
   (or (and name
@@ -2238,38 +2247,39 @@ forward keywords to OPERATOR."
            (apply #'arglist-ref arg nil (rest indices))))))))
 
 (defslimefun completions-for-keyword (names keyword-string arg-indices)
-  (multiple-value-bind (name index)
-      (find-valid-operator-name names)
-    (with-buffer-syntax ()
-      (let* ((form (operator-designator-to-form name))
-             (operator-form (first form))
-             (argument-forms (rest form))
-             (arglist
-              (form-completion operator-form argument-forms
-                               :remove-args nil)))
-        (unless (eql arglist :not-available)
-          (let* ((indices (butlast (reverse (last arg-indices (1+ index)))))
-                 (arglist (apply #'arglist-ref arglist operator-form indices)))
-            (when (and arglist (arglist-p arglist))
-              ;; It would be possible to complete keywords only if we
-              ;; are in a keyword position, but it is not clear if we
-              ;; want that.
-              (let* ((keywords 
-                      (mapcar #'keyword-arg.keyword
-                              (arglist.keyword-args arglist)))
-                     (keyword-name
-                      (tokenize-symbol keyword-string))
-                     (matching-keywords
-                      (find-matching-symbols-in-list keyword-name keywords
-                                                     #'compound-prefix-match))
-                     (converter (output-case-converter keyword-string))
-                     (strings
-                      (mapcar converter
-                              (mapcar #'symbol-name matching-keywords)))
-                     (completion-set
-                      (format-completion-set strings nil "")))
-                (list completion-set
-                      (longest-completion completion-set))))))))))
+  (with-buffer-syntax ()
+    (multiple-value-bind (name index)
+        (find-valid-operator-name names)
+      (when name
+        (let* ((form (operator-designator-to-form name))
+               (operator-form (first form))
+               (argument-forms (rest form))
+               (arglist
+                (form-completion operator-form argument-forms
+                                 :remove-args nil)))
+          (unless (eql arglist :not-available)
+            (let* ((indices (butlast (reverse (last arg-indices (1+ index)))))
+                   (arglist (apply #'arglist-ref arglist operator-form indices)))
+              (when (and arglist (arglist-p arglist))
+                ;; It would be possible to complete keywords only if we
+                ;; are in a keyword position, but it is not clear if we
+                ;; want that.
+                (let* ((keywords 
+                        (mapcar #'keyword-arg.keyword
+                                (arglist.keyword-args arglist)))
+                       (keyword-name
+                        (tokenize-symbol keyword-string))
+                       (matching-keywords
+                        (find-matching-symbols-in-list keyword-name keywords
+                                                       #'compound-prefix-match))
+                       (converter (output-case-converter keyword-string))
+                       (strings
+                        (mapcar converter
+                                (mapcar #'symbol-name matching-keywords)))
+                       (completion-set
+                        (format-completion-set strings nil "")))
+                  (list completion-set
+                        (longest-completion completion-set)))))))))))
            
 
 (defun arglist-to-string (arglist package &key print-right-margin highlight)
@@ -3034,7 +3044,6 @@ Record compiler notes signalled as `compiler-condition's."
     (*print-length* . nil)))
 
 (defun apply-macro-expander (expander string)
-  (declare (type function expander))
   (with-buffer-syntax ()
     (with-bindings *macroexpand-printer-bindings*
       (prin1-to-string (funcall expander (from-string string))))))
@@ -3681,7 +3690,7 @@ FUZZY-COMPLETIONS, format the list into user-readable output."
 The result is a list of property lists."
   (let ((package (if package
                      (or (find-package (string-to-package-designator package))
-                         (abort-request "No such package: ~S" package)))))
+                         (error "No such package: ~S" package)))))
     (mapcan (listify #'briefly-describe-symbol-for-emacs)
             (sort (remove-duplicates
                    (apropos-symbols name external-only case-sensitive package))
@@ -3708,7 +3717,6 @@ Like `describe-symbol-for-emacs' but with at most one line per item."
   "Like (mapcar FN . LISTS) but only call FN on objects satisfying TEST.
 Example:
 \(map-if #'oddp #'- '(1 2 3 4 5)) => (-1 2 -3 4 -5)"
-  (declare (type function test fn))
   (apply #'mapcar
          (lambda (x) (if (funcall test x) (funcall fn x) x))
          lists))
@@ -3716,7 +3724,6 @@ Example:
 (defun listify (f)
   "Return a function like F, but which returns any non-null value
 wrapped in a list."
-  (declare (type function f))
   (lambda (x)
     (let ((y (funcall f x)))
       (and y (list y)))))
@@ -3862,7 +3869,7 @@ Include the nicknames if INCLUDE-NICKNAMES is true."
 	   (format nil "~S is now unprofiled." fname))
 	  (t
            (profile fname)
-	   (format nil "~S is now profiled." fname)))))  
+	   (format nil "~S is now profiled." fname)))))
 
 
 ;;;; Source Locations
@@ -3874,8 +3881,7 @@ DSPEC is a string and LOCATION a source location. NAME is a string."
       (ignore-errors (values (from-string name)))
     (cond (error '())
           (t (loop for (dspec loc) in (find-definitions sexp)
-                   unless (eql :error (first loc))
-                     collect (list (to-string dspec) loc))))))
+                   collect (list (to-string dspec) loc))))))
 
 (defun alistify (list key test)
   "Partition the elements of LIST into an alist.  KEY extracts the key
@@ -3889,7 +3895,7 @@ from an element and TEST is used to compare keys."
 	    (push e (cdr probe))
             (push (cons k (list e)) alist))))
     alist))
-  
+
 (defun location-position< (pos1 pos2)
   (cond ((and (position-p pos1) (position-p pos2))
          (< (position-pos pos1)
@@ -3898,7 +3904,7 @@ from an element and TEST is used to compare keys."
 
 (defun partition (list test key)
   (declare (type function test key))
-  (loop for e in list 
+  (loop for e in list
 	if (funcall test (funcall key e)) collect e into yes
 	else collect e into no
 	finally (return (values yes no))))
@@ -3919,10 +3925,10 @@ from an element and TEST is used to compare keys."
 (defun group-xrefs (xrefs)
   "Group XREFS, a list of the form ((DSPEC LOCATION) ...) by location.
 The result is a list of the form ((LOCATION . ((DSPEC . LOCATION) ...)) ...)."
-  (multiple-value-bind (resolved errors) 
+  (multiple-value-bind (resolved errors)
       (partition xrefs #'location-valid-p #'xref.location)
     (let ((alist (alistify resolved #'xref-buffer #'equal)))
-      (append 
+      (append
        (loop for (buffer . list) in alist
              collect (cons (second buffer)
                            (mapcar (lambda (xref)
@@ -3930,8 +3936,8 @@ The result is a list of the form ((LOCATION . ((DSPEC . LOCATION) ...)) ...)."
                                            (xref.location xref)))
                                    (sort list #'location-position<
                                          :key #'xref-position))))
-       (if errors 
-           (list (cons "Unresolved" 
+       (if errors
+           (list (cons "Unresolved"
                        (mapcar (lambda (xref)
                                  (cons (to-string (xref.dspec xref))
                                        (xref.location xref)))
@@ -3940,27 +3946,16 @@ The result is a list of the form ((LOCATION . ((DSPEC . LOCATION) ...)) ...)."
 (defslimefun xref (type symbol-name)
   (let ((symbol (parse-symbol-or-lose symbol-name *buffer-package*)))
     (group-xrefs
-     (sanitize-xrefs
-      (ecase type
-        (:calls (who-calls symbol))
-        (:calls-who (calls-who symbol))
-        (:references (who-references symbol))
-        (:binds (who-binds symbol))
-        (:sets (who-sets symbol))
-        (:macroexpands (who-macroexpands symbol))
-        (:specializes (who-specializes symbol))
-        (:callers (list-callers symbol))
-        (:callees (list-callees symbol)))))))
-
-(defun sanitize-xrefs (x)
-  (remove-duplicates
-   (remove-if (lambda (f)
-                (member f (ignored-xref-function-names)))
-              x
-              :key #'car)
-   :test (lambda (a b)
-           (and (eq (first a) (first b))
-                (equal (second a) (second b))))))
+     (ecase type
+       (:calls (who-calls symbol))
+       (:calls-who (calls-who symbol))
+       (:references (who-references symbol))
+       (:binds (who-binds symbol))
+       (:sets (who-sets symbol))
+       (:macroexpands (who-macroexpands symbol))
+       (:specializes (who-specializes symbol))
+       (:callers (list-callers symbol))
+       (:callees (list-callees symbol))))))
 
 
 ;;;; Inspecting
@@ -4380,8 +4375,9 @@ See `methods-by-applicability'.")
                                       (swank-mop:slot-definition-name slot)))))
                   '("#<N/A (class not finalized)>"))
             (:newline)
-            ,@(when (documentation class t)
-                `("Documentation:" (:newline) ,(documentation class t) (:newline)))
+            ,@(let ((doc (documentation class t)))
+                (when doc
+                  `("Documentation:" (:newline) ,(inspector-princ doc) (:newline))))
             "Sub classes: "
             ,@(common-seperated-spec (swank-mop:class-direct-subclasses class)
                                      (lambda (sub)
