@@ -368,8 +368,14 @@
 (autoload 'paredit-mode "paredit-beta"
   "Minor mode for pseudo-structurally editing Lisp code." t)
 
+(defun enable-paredit (keymap)
+  (paredit-mode +1)
+  (define-key keymap (kbd "(") 'paredit-open-list)
+  (define-key keymap (kbd ")") 'paredit-close-list)
+  (define-key keymap (kbd "RET") 'paredit-newline))
+
 (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
-(add-hook 'emacs-lisp-mode-hook (lambda () (paredit-mode +1)))
+(add-hook 'emacs-lisp-mode-hook (lambda () (enable-paredit emacs-lisp-mode-map)))
 
 (when *slime-support-enabled*
   (setf slime-lisp-implementations
@@ -378,11 +384,12 @@
   (setf slime-default-lisp 'sbcl)
   (require 'slime)
   (slime-setup)
-
   (add-auto-mode 'lisp-mode "\\.cl$")
   (add-hook 'slime-mode-hook 'pretty-lambdas)
-  (add-hook 'slime-mode-hook (lambda () (paredit-mode +1)))
+  (add-hook 'slime-mode-hook (lambda () (enable-paredit slime-mode-map)))
   (global-set-key [f4] 'slime-selector))
+
+    
 
 ;;----------------------------------------------------------------------------
 ;; Haskell
