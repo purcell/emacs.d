@@ -4,6 +4,7 @@
 (setq *vi-emulation-support-enabled* t) ; "viper-mode"
 (setq *ecb-support-enabled* t) ; Emacs code browser (IDE)
 (setq *haskell-support-enabled* t)
+(setq *ocaml-support-enabled* t)
 (setq *slime-support-enabled* t)
 (setq *macbook-pro-support-enabled* t)
 (setq *erlang-support-enabled* t)
@@ -407,6 +408,17 @@
               (turn-on-haskell-simple-indent)
               (font-lock-mode))))
 
+
+;;----------------------------------------------------------------------------
+;; OCaml
+;;----------------------------------------------------------------------------
+(when *ocaml-support-enabled*
+  (add-auto-mode 'caml-mode "\\.ml[iylp]?$")
+  (autoload 'caml-mode "caml" "Major mode for editing Caml code." t)
+  (autoload 'run-caml "inf-caml" "Run an inferior Caml process." t)
+  (if window-system (require 'caml-font)))
+
+  
 ;;----------------------------------------------------------------------------
 ;; Conversion of line endings
 ;;----------------------------------------------------------------------------
