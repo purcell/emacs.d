@@ -289,6 +289,9 @@
 ; run the current test function using F8 key
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f8] 'ruby-test-function)))
 
+(add-hook 'ruby-mode-hook (lambda () (local-set-key [f7] 'recompile)))
+
+
 (require 'find-func)
 (defun directory-of-library (library-name)
   (file-name-as-directory (file-name-directory (find-library-name library-name))))
