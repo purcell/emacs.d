@@ -146,7 +146,9 @@
 (setq mmm-submode-decoration-level 0)
 (mmm-add-mode-ext-class nil "\.jsp$" 'jsp)
 (setq-default mmm-never-modes
-              (append '(sldb-mode) '(ediff-mode) '(text-mode) '(compilation-mode) mmm-never-modes))
+              (append '(sldb-mode) '(ediff-mode) '(text-mode)
+                      '(compilation-mode) '(inferior-haskell-mode)
+                      mmm-never-modes))
 
 
 ;;----------------------------------------------------------------------------
