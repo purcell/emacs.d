@@ -1,6 +1,6 @@
 ;;; haskell-ghci.el --- A GHCi interaction mode
 
-;; Copyright (C) 2004, 2005  Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2005, 2006  Free Software Foundation, Inc.
 ;; Copyright (C) 2001  Chris Webb
 ;; Copyright (C) 1998, 1999  Guy Lapalme
 
@@ -83,7 +83,6 @@ Maps the following commands in the haskell keymap:
     \\[haskell-ghci-load-file] to save the current buffer and load it by sending the :load command to GHCi.
     \\[haskell-ghci-reload-file] to send the :reload command to GHCi without saving the buffer.
     \\[haskell-ghci-show-ghci-buffer] to show the GHCi buffer and go to it."
-  (interactive)
   (local-set-key "\C-c\C-s" 'haskell-ghci-start-process)
   (local-set-key "\C-c\C-l" 'haskell-ghci-load-file)
   (local-set-key "\C-c\C-r" 'haskell-ghci-reload-file)
@@ -92,13 +91,12 @@ Maps the following commands in the haskell keymap:
 
 (defun turn-off-haskell-ghci ()
   "Turn off Haskell interaction mode with a GHCi interpreter within a buffer."
-  (interactive)
   (local-unset-key  "\C-c\C-s")
   (local-unset-key  "\C-c\C-l")
   (local-unset-key  "\C-c\C-r")
   (local-unset-key  "\C-c\C-b"))
 
-(defun haskell-ghci-mode ()
+(define-derived-mode haskell-ghci-mode comint-mode "Haskell GHCi"
   "Major mode for interacting with an inferior GHCi session.
 
 The commands available from within a Haskell script are:
@@ -112,15 +110,7 @@ The commands available from within a Haskell script are:
 \\[comint-send-input] before end of GHCI output copies rest of line and sends it to GHCI as input.
 \\[comint-kill-input] and \\[backward-kill-word] are kill commands, imitating normal Unix input editing.
 \\[comint-interrupt-subjob] interrupts the comint or its current subjob if any.
-\\[comint-stop-subjob] stops, likewise. \\[comint-quit-subjob] sends quit signal."
-  (interactive)
-  (comint-mode)
-  (setq major-mode 'haskell-ghci-mode)
-  (setq mode-name "Haskell GHCi")
-  (if haskell-ghci-mode-map
-      nil
-    (setq haskell-ghci-mode-map (copy-keymap comint-mode-map)))
-  (use-local-map haskell-ghci-mode-map))
+\\[comint-stop-subjob] stops, likewise. \\[comint-quit-subjob] sends quit signal.")
 
 
 ;; GHCi interface:
@@ -183,7 +173,7 @@ Prompt for a list of args if called with an argument."
   ;; Track directory changes using the `:cd' command.
   (setq shell-cd-regexp ":cd")
   (setq shell-dirtrackp t)
-  (setq comint-input-sentinel 'shell-directory-tracker)
+  (add-hook 'comint-input-filter-functions 'shell-directory-tracker nil 'local)
 
   ;; GHCi prompt should be of the form `ModuleName> '.
   (setq comint-prompt-regexp  "^\\*?[A-Z][\\._a-zA-Z0-9]*\\( \\*?[A-Z][\\._a-zA-Z0-9]*\\)*> ")

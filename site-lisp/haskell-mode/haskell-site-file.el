@@ -6,6 +6,7 @@
               (or (file-name-directory load-file-name) (car load-path)))
 
 
+
 ;;;### (autoloads (haskell-doc-show-type haskell-doc-mode) "haskell-doc"
 ;;;;;;  "haskell-doc.el" (17263 33718))
 ;;; Generated autoloads from haskell-doc.el
@@ -26,11 +27,13 @@ of prelude functions and their types, or from the local functions in the
 current buffer.
 
 \(fn &optional SYM)" t nil)
+(put 'haskell 'custom-loads (cons 'haskell-doc (get 'haskell 'custom-loads)))
+(put 'haskell-doc 'custom-loads (cons 'haskell-doc (get 'haskell-doc 'custom-loads)))
 
 ;;;***
 
 ;;;### (autoloads (haskell-indent-mode) "haskell-indent" "haskell-indent.el"
-;;;;;;  (17263 45887))
+;;;;;;  (17263 45416))
 ;;; Generated autoloads from haskell-indent.el
 
 (autoload (quote haskell-indent-mode) "haskell-indent" "\
@@ -63,11 +66,13 @@ next line to indent.
 Invokes `haskell-indent-hook' if not nil.
 
 \(fn &optional ARG)" t nil)
+(put 'haskell-indent 'custom-loads (cons 'haskell-indent (get 'haskell-indent 'custom-loads)))
+(put 'haskell 'custom-loads (cons 'haskell-indent (get 'haskell 'custom-loads)))
 
 ;;;***
 
 ;;;### (autoloads (literate-haskell-mode haskell-mode) "haskell-mode"
-;;;;;;  "haskell-mode.el" (17259 57505))
+;;;;;;  "haskell-mode.el" (17259 54545))
 ;;; Generated autoloads from haskell-mode.el
 
 (autoload (quote haskell-mode) "haskell-mode" "\
@@ -117,11 +122,13 @@ As `haskell-mode' but for literate scripts.
 (add-to-list 'auto-mode-alist '("\\.l[gh]s\\'" . literate-haskell-mode))
 (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+(put 'languages 'custom-loads (cons 'haskell-mode (get 'languages 'custom-loads)))
+(put 'haskell 'custom-loads (cons 'haskell-mode (get 'haskell 'custom-loads)))
 
 ;;;***
 
 ;;;### (autoloads (inferior-haskell-load-file switch-to-haskell)
-;;;;;;  "inf-haskell" "inf-haskell.el" (17259 53134))
+;;;;;;  "inf-haskell" "inf-haskell.el" (17264 51731))
 ;;; Generated autoloads from inf-haskell.el
 
 (defalias (quote run-haskell) (quote switch-to-haskell))
@@ -135,12 +142,13 @@ Show the inferior-haskell buffer.  Start the process if needed.
 Pass the current buffer's file to the inferior haskell process.
 
 \(fn &optional RELOAD)" t nil)
+(put 'haskell 'custom-loads (cons 'inf-haskell (get 'haskell 'custom-loads)))
 
 ;;;***
 
 ;;;### (autoloads nil nil ("haskell-decl-scan.el" "haskell-font-lock.el"
 ;;;;;;  "haskell-ghci.el" "haskell-hugs.el" "haskell-simple-indent.el")
-;;;;;;  (17263 46557 241275))
+;;;;;;  (17264 58578 552243))
 
 ;;;***
 

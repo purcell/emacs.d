@@ -119,4 +119,17 @@ foo = case findprop attr props of
 data T = T { granularity :: (Int, Int, Int, Int) -- FIXME: self indentation?
            , items :: Map (Int, Int, Int, Int) [Item] }
 
+foo = case foo of
+        [] ->
+            case bar of
+              [] ->
+                  return ()
+              (x:xs) -> -- FIXME
+
+bar = do toto
+         if titi
+           then tutu            -- FIXME
+           else tata            -- FIXME
+
+
 -- arch-tag: de0069e3-c0a0-495c-b441-d4ff6e0509b1

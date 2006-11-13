@@ -3,7 +3,8 @@
 ;; Copyright (C) 2004, 2005  Free Software Foundation, Inc.
 ;; Copyright (C) 1997-1998 Graeme E Moss
 
-;; Authors: 1997-1998 Graeme E Moss <gem@cs.york.ac.uk>
+;; Author: 1997-1998 Graeme E Moss <gem@cs.york.ac.uk>
+;; Maintainer: Stefan Monnier <monnier@gnu.org>
 ;; Keywords: declarations menu files Haskell
 ;; URL: http://cvs.haskell.org/cgi-bin/cvsweb.cgi/fptools/CONTRIB/haskell-modes/emacs/haskell-decl-scan.el?rev=HEAD
 
@@ -71,9 +72,6 @@
 ;;
 ;; Present Limitations/Future Work (contributions are most welcome!):
 ;;
-;; . Unicode is still a mystery...  has anyone used it yet?  We still
-;;   support Latin-ISO-8859-1 though (the character set of Haskell 1.3).
-;;
 ;; . Declarations requiring information extending beyond starting line
 ;;   don't get scanned properly, eg.
 ;;   > class Eq a =>
@@ -131,7 +129,7 @@
 
 (require 'haskell-mode)
 
-(defconst haskell-decl-scan-version "1.9"
+(defconst haskell-decl-scan-version "$Revision: 1.11 $"
   "Version number of haskell-decl-scan.")
 (defun haskell-decl-scan-version ()
   "Echo the current version of haskell-decl-scan in the minibuffer."
@@ -174,56 +172,47 @@
 
 
 (defun haskell-ds-get-variable (prefix)
-  "Assuming point is looking at the regexp PREFIX followed by the
+  "Return variable involved in value binding or type signature.
+Assumes point is looking at the regexp PREFIX followed by the
 start of a declaration (perhaps in the middle of a series of
-declarations concerning a single variable), if this declaration is a
-value binding or type signature, return the variable involved, and
-otherwise returns nil.  Point is not moved in either case."
+declarations concerning a single variable).  Otherwise return nil.
+Point is not changed."
   ;; I think I can now handle all declarations bar those with comments
   ;; nested before the second lexeme.
-  (let ((orig-table (syntax-table))
-	(start (point))
-	par-start
-	name)
-    (set-syntax-table haskell-ds-syntax-table)
-    (re-search-forward (concat "\\=" prefix) (point-max) t)
-    ;; Keyword.
-    (if (looking-at haskell-ds-start-keywords-re)
-	()
-      (if (looking-at "(\\(\\s_+\\))")
-	  ;; Paranthesised symbolic variable.
-	  (setq name (haskell-ds-match-string 1))
-	(if (if (looking-at "(")
-		;; Skip paranthesised expression.
-		(progn
-		  (setq par-start t)
-		  (forward-sexp)
-		  ;; Repeating this code and avoiding moving point if
-		  ;; possible speeds things up.
-		  (looking-at "\\(\\)\\s-*\\(\\s_+\\|`\\(\\sw+\\)`\\)"))
-	      (looking-at "\\(\\sw+\\)\\s-*\\(\\s_+\\|`\\(\\sw+\\)`\\)"))
-	    (let ((match2 (haskell-ds-match-string 2)))
-	      ;; Weed out `::', `=' and `|' from potential infix
-	      ;; symbolic variable.
-	      (if (member match2 '("::" "=" "|"))
-		  (if (not par-start)
-		      ;; Variable identifier.
-		      (setq name (haskell-ds-match-string 1)))
-		(if (eq (aref match2 0) ?\`)
-		    ;; Infix variable identifier.
-		    (setq name (haskell-ds-match-string 3))
-		  ;; Infix symbolic variable.
-		  (setq name match2)))))
-	;; Variable identifier.
-	(if (and (not name) (looking-at "\\sw+"))
-	    (setq name (haskell-ds-match-string 0)))))
-    ;; Return the result.
-    (goto-char start)
-    (set-syntax-table orig-table)
-    name))
+  (save-excursion
+    (with-syntax-table haskell-ds-syntax-table
+      (if (looking-at prefix) (goto-char (match-end 0)))
+      ;; Keyword.
+      (if (looking-at haskell-ds-start-keywords-re)
+          nil
+        (or ;; Parenthesized symbolic variable.
+         (and (looking-at "(\\(\\s_+\\))") (haskell-ds-match-string 1))
+         ;; General case.
+         (if (looking-at
+              (if (eq ?\( (char-after))
+                  ;; Skip paranthesised expression.
+                  (progn
+                    (forward-sexp)
+                    ;; Repeating this code and avoiding moving point if
+                    ;; possible speeds things up.
+                    "\\(\\'\\)?\\s-*\\(\\s_+\\|`\\(\\sw+\\)`\\)")
+                "\\(\\sw+\\)?\\s-*\\(\\s_+\\|`\\(\\sw+\\)`\\)"))
+             (let ((match2 (haskell-ds-match-string 2)))
+               ;; Weed out `::', `=' and `|' from potential infix
+               ;; symbolic variable.
+               (if (member match2 '("::" "=" "|"))
+                   ;; Variable identifier.
+                   (haskell-ds-match-string 1)
+                 (if (eq (aref match2 0) ?\`)
+                     ;; Infix variable identifier.
+                     (haskell-ds-match-string 3)
+                   ;; Infix symbolic variable.
+                   match2))))
+         ;; Variable identifier.
+         (and (looking-at "\\sw+") (haskell-ds-match-string 0)))))))
 
 (defun haskell-ds-move-to-start-regexp (inc regexp)
-  "Move to beginning of line that succeeds/preceeds (INC = 1/-1)
+  "Move to beginning of line that succeeds/precedes (INC = 1/-1)
 current line that starts with REGEXP and is not in `font-lock-comment-face'."
   ;; Making this defsubst instead of defun appears to have little or
   ;; no effect on efficiency.  It is probably not called enough to do
@@ -233,12 +222,12 @@ current line that starts with REGEXP and is not in `font-lock-comment-face'."
 		  (eq (get-text-property (point) 'face)
 		      'font-lock-comment-face)))))
 
-(defvar literate-haskell-ds-line-prefix "> "
-  "The regexp that matches the start of a line of Bird-style literate
-code for the purposes of `imenu' support.  Current value is \"> \" as we
-assume top-level declarations start at column 3.  Must not contain the
-special \"^\" regexp as we may not use the regexp at the start of a
-regexp string.  Note this is only for `imenu' support.")
+(defvar literate-haskell-ds-line-prefix "> ?"
+  "Regexp matching start of a line of Bird-style literate code.
+Current value is \"> \" as we assume top-level declarations start
+at column 3.  Must not contain the special \"^\" regexp as we may
+not use the regexp at the start of a regexp string.  Note this is
+only for `imenu' support.")
 
 (defvar haskell-ds-start-decl-re "\\(\\sw\\|(\\)"
   "The regexp that starts a Haskell declaration.")
@@ -248,8 +237,8 @@ regexp string.  Note this is only for `imenu' support.")
   "The regexp that starts a Bird-style literate Haskell declaration.")
 
 (defun haskell-ds-move-to-decl (direction bird-literate fix)
-  "General function for moving to the start of a declaration, either
-forwards or backwards from point, with normal or with Bird-style
+  "General function for moving to the start of a declaration,
+either forwards or backwards from point, with normal or with Bird-style
 literate scripts.  If DIRECTION is t, then forward, else backward.  If
 BIRD-LITERATE is t, then treat as Bird-style literate scripts, else
 normal scripts.  Returns point if point is left at the start of a
@@ -260,7 +249,7 @@ then point does not move if already at the start of a declaration."
   ;; identifier out of a value binding with non-alphanumeric first
   ;; argument, this function will treat such value bindings as
   ;; separate from the declarations surrounding it.
-  (let (;; The variable typed or bound in the current series of
+  (let ( ;; The variable typed or bound in the current series of
 	;; declarations.
 	name
 	;; The variable typed or bound in the new declaration.
@@ -275,114 +264,106 @@ then point does not move if already at the start of a declaration."
 			   literate-haskell-ds-start-decl-re
 			 haskell-ds-start-decl-re))
 	(increment (if direction 1 -1))
-	(bound (if direction (point-max) (point-min)))
-	;; Original syntax table.
-	(orig-table (syntax-table))
-	result)
+	(bound (if direction (point-max) (point-min))))
     ;; Change syntax table.
-    (set-syntax-table haskell-ds-syntax-table)
-    ;; Move to beginning of line that starts the "current
-    ;; declaration" (dependent on DIRECTION and FIX), and then get
-    ;; the variable typed or bound by this declaration, if any.
-    (let (;; Where point was at call of function.
-	  (here (point))
-	  ;; Where the declaration on this line (if any) starts.
-	  (start (progn
-		   (beginning-of-line)
-                   ;; Checking the face to ensure a declaration starts
-                   ;; here seems to be the only addition to make this
-                   ;; module support LaTeX-style literate scripts.
-		   (if (and (looking-at start-decl-re)
-                            (not (eq (get-text-property (point) 'face)
-                                     'font-lock-comment-face)))
-		       (match-beginning 1)))))
-      (if (and start
-	       ;; This complicated boolean determines whether we
-	       ;; should include the declaration that starts on the
-	       ;; current line as the "current declaration" or not.
-	       (or (and (or (and direction (not fix))
-			    (and (not direction) fix))
-			(>= here start))
-		   (and (or (and direction fix)
-			    (and (not direction) (not fix)))
-			(> here start))))
-	  ;; If so, we are already at start of the current line, so
-	  ;; do nothing.
-	  ()
-	;; If point was before start of a declaration on the first
-	;; line of the buffer (possible for Bird-style literate
-	;; scripts) then we are in the abyss.
-	(if (and start (bobp))
-	    (setq abyss t)
-	  ;; Otherwise we move to the start of the first declaration
-	  ;; on a line preceeding the current one.
-	  (haskell-ds-move-to-start-regexp -1 start-decl-re))))
-    ;; If we are in the abyss, position and return as appropriate.
-    (if abyss
-	(if (not direction)
-	    (setq result nil)
-	  (re-search-forward (concat "\\=" line-prefix) (point-max) t)
-	  (setq result (point)))
-      ;; Get the variable typed or bound by this declaration, if any. 
-      (setq name (haskell-ds-get-variable line-prefix))
-      (if (not name)
-	  ;; If no such variable, stop at the start of this
-	  ;; declaration if moving backward, or move to the next
-	  ;; declaration if moving forward.
-	  (if direction
-	      (haskell-ds-move-to-start-regexp 1 start-decl-re))
-	;; If there is a variable, find the first
-	;; succeeding/preceeding declaration that does not type or
-	;; bind it.  Check for reaching start/end of buffer.
-	(haskell-ds-move-to-start-regexp increment start-decl-re)
-	(while (and (/= (point) bound)
-		    (and (setq newname (haskell-ds-get-variable line-prefix))
-			 (string= name newname)))
-	  (setq name newname)
-	  (haskell-ds-move-to-start-regexp increment start-decl-re))
-	;; If we are going backward, and have either reached a new
-	;; declaration or the beginning of a buffer that does not
-	;; start with a declaration, move forward to start of next
-	;; declaration (which must exist).  Otherwise, we are done.
-	(if (and (not direction)
-		 (or (and (looking-at start-decl-re)
-			  (not (string= name
-					;; Note we must not use
-					;; newname here as this may
-					;; not have been set if we
-					;; have reached the beginning
-					;; of the buffer.
-					(haskell-ds-get-variable
-					 line-prefix))))
-		     (and (not (looking-at start-decl-re))
-			  (bobp))))
-	    (haskell-ds-move-to-start-regexp 1 start-decl-re)))
-      ;; Store whether we are at the start of a declaration or not.
-      ;; Used to calculate final result.
-      (let ((at-start-decl (looking-at start-decl-re)))
-	;; If we are at the beginning of a line, move over
-	;; line-prefix, if present at point.
-	(if (bolp)
-	    (re-search-forward (concat "\\=" line-prefix) (point-max) t))
-	;; Return point if at the start of a declaration and nil
-	;; otherwise.
-	(setq result (if at-start-decl (point) nil))))
-    ;; Replace original syntax table.
-    (set-syntax-table orig-table)
-    ;; Return the result.
-    result))
+    (with-syntax-table haskell-ds-syntax-table
+      ;; Move to beginning of line that starts the "current
+      ;; declaration" (dependent on DIRECTION and FIX), and then get
+      ;; the variable typed or bound by this declaration, if any.
+      (let ( ;; Where point was at call of function.
+            (here (point))
+            ;; Where the declaration on this line (if any) starts.
+            (start (progn
+                     (beginning-of-line)
+                     ;; Checking the face to ensure a declaration starts
+                     ;; here seems to be the only addition to make this
+                     ;; module support LaTeX-style literate scripts.
+                     (if (and (looking-at start-decl-re)
+                              (not (eq (get-text-property (point) 'face)
+                                       'font-lock-comment-face)))
+                         (match-beginning 1)))))
+        (if (and start
+                 ;; This complicated boolean determines whether we
+                 ;; should include the declaration that starts on the
+                 ;; current line as the "current declaration" or not.
+                 (or (and (or (and direction (not fix))
+                              (and (not direction) fix))
+                          (>= here start))
+                     (and (or (and direction fix)
+                              (and (not direction) (not fix)))
+                          (> here start))))
+            ;; If so, we are already at start of the current line, so
+            ;; do nothing.
+            ()
+          ;; If point was before start of a declaration on the first
+          ;; line of the buffer (possible for Bird-style literate
+          ;; scripts) then we are in the abyss.
+          (if (and start (bobp))
+              (setq abyss t)
+            ;; Otherwise we move to the start of the first declaration
+            ;; on a line preceeding the current one.
+            (haskell-ds-move-to-start-regexp -1 start-decl-re))))
+      ;; If we are in the abyss, position and return as appropriate.
+      (if abyss
+          (if (not direction)
+              nil
+            (re-search-forward (concat "\\=" line-prefix) nil t)
+            (point))
+        ;; Get the variable typed or bound by this declaration, if any.
+        (setq name (haskell-ds-get-variable line-prefix))
+        (if (not name)
+            ;; If no such variable, stop at the start of this
+            ;; declaration if moving backward, or move to the next
+            ;; declaration if moving forward.
+            (if direction
+                (haskell-ds-move-to-start-regexp 1 start-decl-re))
+          ;; If there is a variable, find the first
+          ;; succeeding/preceeding declaration that does not type or
+          ;; bind it.  Check for reaching start/end of buffer.
+          (haskell-ds-move-to-start-regexp increment start-decl-re)
+          (while (and (/= (point) bound)
+                      (and (setq newname (haskell-ds-get-variable line-prefix))
+                           (string= name newname)))
+            (setq name newname)
+            (haskell-ds-move-to-start-regexp increment start-decl-re))
+          ;; If we are going backward, and have either reached a new
+          ;; declaration or the beginning of a buffer that does not
+          ;; start with a declaration, move forward to start of next
+          ;; declaration (which must exist).  Otherwise, we are done.
+          (if (and (not direction)
+                   (or (and (looking-at start-decl-re)
+                            (not (string= name
+                                          ;; Note we must not use
+                                          ;; newname here as this may
+                                          ;; not have been set if we
+                                          ;; have reached the beginning
+                                          ;; of the buffer.
+                                          (haskell-ds-get-variable
+                                           line-prefix))))
+                       (and (not (looking-at start-decl-re))
+                            (bobp))))
+              (haskell-ds-move-to-start-regexp 1 start-decl-re)))
+        ;; Store whether we are at the start of a declaration or not.
+        ;; Used to calculate final result.
+        (let ((at-start-decl (looking-at start-decl-re)))
+          ;; If we are at the beginning of a line, move over
+          ;; line-prefix, if present at point.
+          (if (bolp)
+              (re-search-forward (concat "\\=" line-prefix) (point-max) t))
+          ;; Return point if at the start of a declaration and nil
+          ;; otherwise.
+          (if at-start-decl (point) nil))))))
 
 (defun haskell-ds-bird-p ()
-  (if (boundp 'haskell-literate)
-      (eq haskell-literate 'bird) nil))
+  (and (boundp 'haskell-literate) (eq haskell-literate 'bird)))
 
 (defun haskell-ds-backward-decl ()
-  "Move point backward to the first character preceeding the current
+  "Move point backward to the first character preceding the current
 point that starts a top-level declaration.  A series of declarations
 concerning one variable is treated as one declaration by this
 function.  So, if point is within a top-level declaration then move it
 to the start of that declaration.  If point is already at the start of
-a top-level declaration, then move it to the start of the preceeding
+a top-level declaration, then move it to the start of the preceding
 declaration.  Returns point if point is left at the start of a
 declaration, and nil otherwise, ie. because point is at the beginning
 of the buffer and no declaration starts there."
@@ -395,8 +376,8 @@ of the buffer and no declaration starts there."
   (haskell-ds-move-to-decl t (haskell-ds-bird-p) nil))
 
 (defun haskell-ds-generic-find-next-decl (bird-literate)
-  "Find the name, position and type of the declaration at or after
-point.  Returns `((name . (start-position . name-position)) . type)'
+  "Find the name, position and type of the declaration at or after point.
+Return ((NAME . (START-POSITION . NAME-POSITION)) . TYPE)
 if one exists and nil otherwise.  The start-position is at the start
 of the declaration, and the name-position is at the start of the name
 of the declaration.  The name is a string, the positions are buffer
@@ -410,11 +391,9 @@ positions and the type is one of the symbols \"variable\", \"datatype\",
 	;; Buffer positions marking the start and end of the space
 	;; containing a declaration.
 	start
-	end
-	;; Original syntax table.
-	(orig-table (syntax-table)))
+	end)
     ;; Change to declaration scanning syntax.
-    (set-syntax-table haskell-ds-syntax-table)
+    (with-syntax-table haskell-ds-syntax-table
     ;; Stop when we are at the end of the buffer or when a valid
     ;; declaration is grabbed.
     (while (not (or (eobp) name))
@@ -470,7 +449,7 @@ positions and the type is one of the symbols \"variable\", \"datatype\",
 	(setq name (format "%s"
 			   (buffer-substring
 			    (point)
-			    (progn			       
+			    (progn
 			      ;; Look for a `where'.
 			      (if (re-search-forward "\\<where\\>" end t)
 				  ;; Move back to just before the `where'.
@@ -489,14 +468,12 @@ positions and the type is one of the symbols \"variable\", \"datatype\",
 	(setq type 'instance)))
       ;; Move past start of current declaration.
       (goto-char end))
-    ;; Replace syntax table.
-    (set-syntax-table orig-table)
     ;; If we have a valid declaration then return it, otherwise return
     ;; nil.
     (if name
 	(cons (cons name (cons (copy-marker start t) (copy-marker name-pos t)))
 	      type)
-      nil)))
+      nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Declaration scanning via `imenu'.
@@ -569,8 +546,7 @@ datatypes) in a Haskell file for the `imenu' package."
     index-alist))
 
 (defun haskell-ds-imenu-label-cmp (el1 el2)
-  "Predicate to compare labels in lists produced by
-`haskell-ds-create-imenu-index'."
+  "Predicate to compare labels in lists from `haskell-ds-create-imenu-index'."
   (string< (car el1) (car el2)))
 
 (defun haskell-ds-imenu ()
@@ -583,8 +559,8 @@ datatypes) in a Haskell file for the `imenu' package."
 ;; Declaration scanning via `func-menu'.
 
 (defun haskell-ds-func-menu-next (buffer)
-  "Non-literate Haskell version of `haskell-ds-generic-func-menu-next'." 
-  (haskell-ds-generic-func-menu-next (haskell-ds-bird-p) buffer)) 
+  "Non-literate Haskell version of `haskell-ds-generic-func-menu-next'."
+  (haskell-ds-generic-func-menu-next (haskell-ds-bird-p) buffer))
 
 (defun haskell-ds-generic-func-menu-next (bird-literate buffer)
   "Return `(name . pos)' of next declaration."
@@ -619,6 +595,10 @@ datatypes) in a Haskell file for the `imenu' package."
   (concat "^" literate-haskell-ds-start-decl-re)
   "As `haskell-ds-func-menu-regexp' but for Bird-style literate scripts.")
 
+(defvar fume-menubar-menu-name)
+(defvar fume-function-name-regexp-alist)
+(defvar fume-find-function-name-method-alist)
+
 (defun haskell-ds-func-menu ()
   "Use `func-menu' to establish declaration scanning for Haskell scripts."
   (require 'func-menu)
@@ -634,16 +614,18 @@ datatypes) in a Haskell file for the `imenu' package."
   (local-set-key "\C-cg" 'fume-prompt-function-goto)
   (local-set-key [(meta button1)] 'fume-mouse-function-goto))
 
-;; Key mappings.
-(defun haskell-ds-keys ()
-  "Map the keys for forward and backward declaration movement."
-  (local-set-key "\M-\C-e" 'haskell-ds-forward-decl)
-  (local-set-key "\M-\C-a" 'haskell-ds-backward-decl))
-
 ;; The main functions to turn on declaration scanning.
 (defun turn-on-haskell-decl-scan ()
-  "Turn on declaration scanning for Haskell mode.  Top-level
-declarations are scanned and listed in the menu item \"Declarations\".
+  "Unconditionally activate `haskell-decl-scan-mode'."
+  (haskell-decl-scan-mode 1))
+
+(defvar haskell-decl-scan-mode nil)
+(make-variable-buffer-local 'haskell-decl-scan-mode)
+
+;;;###autoload
+(defun haskell-decl-scan-mode (&optional arg)
+  "Minor mode for declaration scanning for Haskell mode.
+Top-level declarations are scanned and listed in the menu item \"Declarations\".
 Selecting an item from this menu will take point to the start of the
 declaration.
 
@@ -684,12 +666,26 @@ assumed, respectively.
 Invokes `haskell-decl-scan-hook' if not nil.
 
 Use `haskell-decl-scan-version' to find out what version this is."
-  (interactive)
-  (haskell-ds-keys)
-  (if (fboundp 'imenu)
-      (haskell-ds-imenu)
-    (haskell-ds-func-menu))
-  (run-hooks 'haskell-decl-scan-hook))
+  (if (boundp 'beginning-of-defun-function)
+      (if haskell-decl-scan-mode
+          (progn
+            (set (make-local-variable 'beginning-of-defun-function)
+                 'haskell-ds-backward-decl)
+            (set (make-local-variable 'end-of-defun-function)
+                 'haskell-ds-forward-decl))
+        (kill-local-variable 'beginning-of-defun-function)
+        (kill-local-variable 'end-of-defun-function))
+    (local-set-key "\M-\C-e"
+                   (if haskell-decl-scan-mode 'haskell-ds-forward-decl))
+    (local-set-key "\M-\C-a"
+                   (if haskell-decl-scan-mode 'haskell-ds-backward-decl)))
+  (if haskell-decl-scan-mode
+      (if (fboundp 'imenu)
+          (haskell-ds-imenu)
+        (haskell-ds-func-menu))
+    ;; How can we cleanly remove that menus?
+    (local-set-key [menu-bar index] nil))
+  (run-hooks 'haskell-decl-scan-mode-hook))
 
 ;; Provide ourselves:
 

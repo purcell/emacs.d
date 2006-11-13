@@ -1,6 +1,6 @@
 ;;; haskell-font-lock.el --- Font locking module for Haskell Mode
 
-;; Copyright 2003, 2004, 2005  Free Software Foundation, Inc.
+;; Copyright 2003, 2004, 2005, 2006  Free Software Foundation, Inc.
 ;; Copyright 1997-1998 Graeme E Moss, and Tommy Thorn
 
 ;; Authors: 1997-1998 Graeme E Moss <gem@cs.york.ac.uk> and
@@ -105,7 +105,7 @@
 (require 'font-lock)
 
 ;; Version.
-(defconst haskell-font-lock-version "1.17"
+(defconst haskell-font-lock-version "$Revision: 1.23 $"
   "Version number of haskell-font-lock.")
 (defun haskell-font-lock-version ()
   "Echo the current version of haskell-font-lock in the minibuffer."
@@ -132,7 +132,7 @@ and `unicode'."
 	(memq haskell-font-lock-symbols '(t unicode))
 	(list (cons "\\" (decode-char 'ucs 955))))
    ;; The symbols can come from a JIS0208 font.
-   (and (fboundp 'make-char) (charsetp 'japanese-jisx0208)
+   (and (fboundp 'make-char) (fboundp 'charsetp) (charsetp 'japanese-jisx0208)
 	(memq haskell-font-lock-symbols '(t japanese-jisx0208))
 	(list (cons "not" (make-char 'japanese-jisx0208 34 76))
 	      (cons "\\" (make-char 'japanese-jisx0208 38 75))
@@ -210,7 +210,11 @@ Regexp match data 0 points to the chars."
 	  (push x alist)))
       (when alist
 	`((,(regexp-opt (mapcar 'car alist) t)
-	   (0 (haskell-font-lock-compose-symbol ',alist))))))))
+	   (0 (haskell-font-lock-compose-symbol ',alist)
+              ;; In Emacs-21, if the `override' field is nil, the face
+              ;; expressions is only evaluated if the text has currently
+              ;; no face.  So force evaluation by using `keep'.
+              keep)))))))
 
 ;; The font lock regular expressions.
 (defun haskell-font-lock-keywords-create (literate)
@@ -262,16 +266,18 @@ Returns keywords suitable for `font-lock-keywords'."
 		  "\\S_"))
          ;; Reserved identifiers
 	 (reservedid
-	  (concat "\\b"
-		  ;; ?? `as' and `qualified' aren't in the Haskell98 list.
+	  (concat "\\<"
+		  ;; `as' and `qualified' are part of the import spec
+                  ;; syntax, but `as' doesn't seem to be reserved.  Don't
+                  ;; know about `qualified'.
 		  ;; `_' can go in here since it has temporary word syntax.
 		  ;; (regexp-opt
-		  ;;  '("as" "case" "class" "data" "default" "deriving" "do"
+		  ;;  '("case" "class" "data" "default" "deriving" "do"
 		  ;;    "else" "hiding" "if" "import" "in" "infix" "infixl"
 		  ;;    "infixr" "instance" "let" "module" "newtype" "of"
 		  ;;    "qualified" "then" "type" "where" "_") t)
-		  "\\(_\\|as\\|c\\(ase\\|lass\\)\\|d\\(ata\\|e\\(fault\\|riving\\)\\|o\\)\\|else\\|hiding\\|i\\(mport\\|n\\(fix[lr]?\\|stance\\)\\|[fn]\\)\\|let\\|module\\|newtype\\|of\\|qualified\\|t\\(hen\\|ype\\)\\|where\\)"
-		  "\\b"))
+		  "\\(_\\|c\\(ase\\|lass\\)\\|d\\(ata\\|e\\(fault\\|riving\\)\\|o\\)\\|else\\|hiding\\|i\\(mport\\|n\\(fix[lr]?\\|stance\\)\\|[fn]\\)\\|let\\|module\\|newtype\\|of\\|qualified\\|t\\(hen\\|ype\\)\\|where\\)"
+		  "\\>"))
 
          ;; This unreadable regexp matches strings and character
          ;; constants.  We need to do this with one regexp to handle
@@ -285,7 +291,11 @@ Returns keywords suitable for `font-lock-keywords'."
 	 ;; Top-level declarations
 	 (topdecl-var
 	  (concat line-prefix "\\(" varid "\\)\\s-*\\("
-		  varid "\\|" conid "\\|::\\|=\\||\\|\\s(\\)"))
+                  ;; A toplevel declaration can be followed by a definition
+                  ;; (=), a type (::), a guard, or a pattern which can
+                  ;; either be a variable, a constructor, a parenthesized
+                  ;; thingy, or an integer or a string.
+		  varid "\\|" conid "\\|::\\|=\\||\\|\\s(\\|[0-9\"']\\)"))
 	 (topdecl-var2
 	  (concat line-prefix "\\(" varid "\\|" conid "\\)\\s-*`\\(" varid "\\)`"))
 	 (topdecl-sym
@@ -298,7 +308,7 @@ Returns keywords suitable for `font-lock-keywords'."
 	  `(;; NOTICE the ordering below is significant
 	    ;;
 	    ("^#.*$" 0 'font-lock-warning-face t)
-	    ,@(unless haskell-emacs21-features
+	    ,@(unless haskell-emacs21-features ;Supports nested comments?
 		;; Expensive.
 		`((,string-and-char 1 font-lock-string-face)))
 
@@ -333,7 +343,7 @@ Returns keywords suitable for `font-lock-keywords'."
 	    (,sym 0 (if (eq (char-after (match-beginning 0)) ?:)
 			haskell-constructor-face
 		      haskell-operator-face))))
-    (unless haskell-emacs21-features
+    (unless (boundp 'font-lock-syntactic-keywords)
       (case literate
 	(bird
 	 (setq keywords
@@ -533,15 +543,12 @@ of Moss&Thorn) is non-nil, a Bird-style literate script is assumed.
 Invokes `haskell-font-lock-hook' if not nil.
 
 Use `haskell-font-lock-version' to find out what version this is."
-
-  (interactive)
   (haskell-font-lock-defaults-create)
   (run-hooks 'haskell-font-lock-hook)
   (turn-on-font-lock))
 
 (defun turn-off-haskell-font-lock ()
   "Turns off font locking in current buffer."
-  (interactive)
   (font-lock-mode -1))
 
 ;; Provide ourselves:

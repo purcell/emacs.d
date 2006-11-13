@@ -1,6 +1,6 @@
 ;;; haskell-hugs.el --- simplistic interaction mode with a
 
-;; Copyright 2004, 2005  Free Software Foundation, Inc.
+;; Copyright 2004, 2005, 2006  Free Software Foundation, Inc.
 ;; Copyright 1998, 1999  Guy Lapalme
 
 ;; Hugs interpreter for Haskell developped by 
@@ -37,7 +37,7 @@
 ;; To send a Haskell buffer to another buffer running a Hugs interpreter
 ;; The functions are adapted from  the Hugs Mode developed by
 ;;         Chris Van Humbeeck <chris.vanhumbeeck@cs.kuleuven.ac.be>
-;; which can be obtained at:
+;; which used to be available at:
 ;; http://www-i2.informatik.rwth-aachen.de/Forschung/FP/Haskell/hugs-mode.el
 ;;
 ;; Installation:
@@ -87,21 +87,17 @@ Maps the followind commands in the haskell keymap.
        to send the :reload command to Hugs without saving the buffer.
      \\[haskell-hugs-show-hugs-buffer]
        to show the Hugs buffer and go to it."
-  (interactive)
   (local-set-key "\C-c\C-s" 'haskell-hugs-start-process)
   (local-set-key "\C-c\C-l" 'haskell-hugs-load-file)
   (local-set-key "\C-c\C-r" 'haskell-hugs-reload-file)
-  (local-set-key "\C-c\C-b" 'haskell-hugs-show-hugs-buffer)
-  )
+  (local-set-key "\C-c\C-b" 'haskell-hugs-show-hugs-buffer))
 
 (defun turn-off-haskell-hugs ()
   "Turn off Haskell interaction mode with a Hugs interpreter within a buffer."
-  (interactive)
   (local-unset-key  "\C-c\C-s")
   (local-unset-key  "\C-c\C-l")
   (local-unset-key  "\C-c\C-r")
-  (local-unset-key  "\C-c\C-b")
-  )
+  (local-unset-key  "\C-c\C-b"))
 
 (define-derived-mode haskell-hugs-mode comint-mode "Haskell Hugs"
 ;; called by haskell-hugs-start-process,
@@ -181,7 +177,7 @@ Prompts for a list of args if called with an argument."
   (make-local-variable 'shell-dirtrackp)
   (setq shell-cd-regexp         ":cd")
   (setq shell-dirtrackp         t)
-  (setq comint-input-sentinel   'shell-directory-tracker)
+  (add-hook 'comint-input-filter-functions 'shell-directory-tracker nil 'local)
                                 ; ? or  module name in Hugs 1.4
   (setq comint-prompt-regexp  "^\? \\|^[A-Z][_a-zA-Z0-9\.]*> ")
     ;; comint's history syntax conflicts with Hugs syntax, eg. !!

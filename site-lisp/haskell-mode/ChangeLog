@@ -1,3 +1,137 @@
+2006-10-19  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-load-file): Simplify and make more
+	robust at the same time.
+
+	* haskell-doc.el: Drop p-c-idle-h in favor of run-with-idle-timer.
+	(haskell-doc-timer, haskell-doc-buffers): New vars.
+	(haskell-doc-mode): Use them.
+	(haskell-doc-check-active): Update the check.
+	(haskell-doc-mode-print-current-symbol-info): Don't sit-for unless it's
+	really needed.  Remove the interactive spec.
+
+2006-09-25  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-mode.el (haskell-mode-menu): Fix typo.
+
+2006-09-20  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-font-lock.el (haskell-font-lock-keywords-create): Use a more
+	precise test for literate haskell highlighting.
+
+	* haskell-mode.el (haskell-mode-menu): New menu.
+	(haskell-mode): Use new name `eldoc-documentation-function'.
+
+2006-05-18  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-wait-for-prompt): New fun, extracted
+	from inferior-haskell-send-command.
+	(inferior-haskell-send-command): Use it.
+	(inferior-haskell-wait-and-jump): New custom var.
+	(inferior-haskell-load-file): Use it.
+
+2006-05-17  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-mode): Use shell-dirtrack-mode
+	if possible.
+
+	* haskell-hugs.el (haskell-hugs-start-process):
+	* haskell-ghci.el (haskell-ghci-start-process):
+	Use comint-input-filter-functions rather than the outdated
+	comint-input-sentinel.  Reported by Jerry James <james@xemacs.org>.
+
+2005-12-09  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* indent.hs: Add some erroneous cases.
+
+	* haskell-font-lock.el (haskell-font-lock-keywords-create):
+	Minor regexp fiddling.
+
+2005-11-23  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-indent.el (haskell-indent-next-symbol): Simplify.
+	(haskell-indent-comment): Rename from haskell-indent-inside-comment.
+	(haskell-indent-skip-lexeme-forward)
+	(haskell-indent-offset-after-info, haskell-indent-hanging-p): New funs.
+	(haskell-indent-inhibit-after-offset, haskell-indent-dont-hang):
+	New variables.
+	(haskell-indent-closing-keyword, haskell-indent-after-keyword-column)
+	(haskell-indent-inside-paren): New functions, extracted
+	from haskell-indent-indentation-info.  Use the above new functions.
+	(haskell-indent-indentation-info): Use them.
+	(haskell-indent-after-keywords): Add data for ( and {.
+
+	* haskell-font-lock.el (haskell-font-lock-keywords-create): `as' is not
+	a reserved keyword, apparently, and is used as var name.
+
+2005-11-21  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-*.el (turn-(on|off)-*): Make non-interactive.
+
+	* haskell-decl-scan.el (haskell-decl-scan-mode): New minor mode.
+	(turn-on-haskell-decl-scan): Use it.
+
+	* haskell-doc.el (haskell-doc-extract-types): Get labelled data working.
+	(haskell-doc-prelude-types): Update via auto-generation.
+
+	* haskell-doc.el (haskell-doc-extract-types): Get it partly working.
+	(haskell-doc-fetch-lib-urls): Don't use a literal if we apply
+	`nreverse' on it later on.
+	(haskell-doc-prelude-types): Update some parts by auto-generation.
+	(haskell-doc-grab, haskell-doc-string-nub-ws): Simplify.
+
+	* haskell-doc.el (haskell-doc-maintainer, haskell-doc-varlist)
+	(haskell-doc-submit-bug-report, haskell-doc-ftp-site)
+	(haskell-doc-visit-home): Remove.
+	(haskell-doc-reserved-ids, haskell-doc-fetch-lib-urls)
+	(haskell-doc-extract-and-insert-types): New funs.
+	(haskell-doc-reserved-ids): Fix type of `map'.
+
+2005-11-20  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-load-file): Fix the
+	compilation-parsing-end fiddling so it doesn't get moved inadvertently.
+
+	* haskell-font-lock.el (haskell-font-lock-symbols-alist): Some XEmacs
+	versions define make-char but not charsetp.
+	(haskell-font-lock-symbols-keywords): Add a `keep' arg so
+	de-highlighting in strings works correctly even in Emacs-21.
+
+	* haskell-doc.el: Add coding cookie.
+
+2005-11-14  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-decl-scan.el (haskell-ds-get-variable): Massage.
+	(haskell-ds-move-to-decl, haskell-ds-generic-find-next-decl):
+	Use with-syntax-table.
+
+2005-11-14  Dave Love  <fx@gnu.org>
+
+	* haskell-decl-scan.el: Docstring fixes.
+	(haskell-ds-keys): Delete.
+	(turn-on-haskell-decl-scan): Inline it here.
+	Use beginning-of-defun-function if available.
+
+	* haskell-font-lock.el (haskell-font-lock-keywords-create): Add pattern
+	for numbers and strings for arguments to toplevel declarations.
+
+2005-11-14  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-error-regexp-alist): Fix GHCi
+	regexp, add support for warnings.
+
+2005-11-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* Makefile (dist): Remove profile file and avoid ztar.
+
+	* inf-haskell.el (inferior-haskell-command): Provide a default.
+	(with-selected-window): Define if necessary.
+	(inferior-haskell-load-file): Display the buffer.
+
+	* haskell-indent.el (haskell-indent-indentation-info): Typo.
+
+	* haskell-ghci.el (haskell-ghci-mode): Use define-derived-mode.
+
 2005-11-07  Stefan Monnier  <monnier@iro.umontreal.ca>
 
 	* Release version 2.1.

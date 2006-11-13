@@ -1,0 +1,81 @@
+Haskell Mode for Emacs: Installation Guide
+------------------------------------------
+
+When Emacs is started up, it normally runs a file called ~/.emacs located in
+your home directory.  This file should contain all of your personal
+customisations written as a series of Elisp commands.  In order to install
+the Haskell mode, you have to tell Emacs where to find it.  This is done by
+adding some commands to the init file.
+
+Installation
+------------
+
+- If you are using XEmacs, the haskell-mode package should be available for
+  installation through the XEmacs package UI.
+
+- If you are using Debian, you can install the package haskell-mode with
+  a command like "apt-get install haskell-mode".
+
+Otherwise:
+
+- Download and unpack the basic mode and modules into a suitable directory,
+  e.g. ~/lib/emacs/haskell-mode/ where ~ stands for your home directory.
+
+- Assuming you have placed the basic mode haskell-mode.el and the modules
+  you want to use in the directory ~/lib/emacs/haskell-mode/, add the
+  following command to your init file (~/.emacs):
+
+    (load "~/lib/emacs/haskell-mode/haskell-site-file")
+
+  adding the following lines according to which modules you want to use:
+
+    (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+    (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+    ;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
+
+  Note that the two indentation modules are mutually exclusive - add at
+  most one.  Note that the line of code for simple indentation is commented
+  out (using a preceeding ;) in preference for the more advanced
+  indentation module.  Installation is now complete!
+
+The other modules are automatically loaded when needed in the following way:
+
+- Font locking: just turn it on via `global-font-lock-mode' or do
+  (add-hook 'haskell-mode-hook 'font-lock-mode)
+
+- Declaration scanning: just use M-x imenu or bind `imenu' to a key.  E.g.
+  (global-set-key [(control meta down-mouse-3)] 'imenu) or you can also add
+  it to the menubar with (add-hook 'haskell-mode-hook 'imenu-add-menubar-index)
+
+- Interaction with inferior Haskell interpreter: just hit C-c C-z  or  C-c C-l.
+
+
+Customisation
+-------------
+
+Most customisations are on the functionality of a particular module.
+See the documentation of that module for information on its
+customisation.
+
+
+Known problems
+--------------
+
+It seems that some version of XEmacs come without the fsf-compat package
+(which provides functions such as `line-end-position') and it seems that
+even if your XEmacs does have the fsf-compat package installed it does not
+autoload its part.  Thus you may have to add (require 'goto-addr)
+in your .emacs.
+
+
+Support
+-------
+
+Any problems, do mail me <monnier@iro.umontreal.ca> and I will try my best
+to help you!
+
+
+
+
+
+<!-- arch-tag: 25fc8494-611d-459f-9919-579c97f6313e -->
