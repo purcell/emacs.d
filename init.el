@@ -403,15 +403,15 @@
 (when *haskell-support-enabled*
   (load-library "haskell-site-file")
 
-  (setq haskell-hugs-program-args '("-98" "+."))
-  (setq haskell-ghci-program-args '("-fglasgow-exts"))
+  (setq haskell-program-name (executable-find "ghci"))
+  (setq haskell-font-lock-symbols t)
+  ; (setq haskell-hugs-program-args '("-98" "+."))
+  ; (setq haskell-ghci-program-args '("-fglasgow-exts"))
 
   (add-hook 'haskell-mode-hook
             (lambda ()
               (turn-on-haskell-doc-mode)
-              (turn-on-haskell-indent)
-              (turn-on-haskell-simple-indent)
-              (font-lock-mode))))
+              (turn-on-haskell-indent))))
 
 
 ;;----------------------------------------------------------------------------
