@@ -403,6 +403,8 @@
 (when *haskell-support-enabled*
   (load-library "haskell-site-file")
 
+  (load-library "cabal-mode")
+
   (setq haskell-program-name (executable-find "ghci"))
   (setq haskell-font-lock-symbols t)
   ; (setq haskell-hugs-program-args '("-98" "+."))
