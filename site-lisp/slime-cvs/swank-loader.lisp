@@ -108,18 +108,12 @@ operating system, and hardware architecture."
   "Returns true if NEW-FILE is newer than OLD-FILE."
   (> (file-write-date new-file) (file-write-date old-file)))
 
-;; Currently just use the modification time of the ChangeLog.  We
-;; could also try to use one of those CVS keywords.
 (defun slime-version-string ()
   "Return a string identifying the SLIME version.
 Return nil if nothing appropriate is available."
-  (let* ((changelog (merge-pathnames "ChangeLog" *source-directory*))
-         (date (file-write-date changelog)))
-    (cond (date (multiple-value-bind (_s _m _h date month year)
-                    (decode-universal-time date)
-                  (declare (ignore _s _m _h))
-                  (format nil "~D-~2,'0D-~2,'0D" year month date)))
-          (t nil))))
+  (with-open-file (s (merge-pathnames "ChangeLog" *source-directory*)
+                     :if-does-not-exist nil)
+    (and s (symbol-name (read s)))))
 
 (defun default-fasl-directory ()
   (merge-pathnames
@@ -205,6 +199,8 @@ recompiled."
                    (fasl-directory *fasl-directory*))
   (compile-files-if-needed-serially (swank-source-files source-directory)
                                     fasl-directory)
+  (set (read-from-string "swank::*swank-wire-protocol-version*")
+       (slime-version-string))
   (funcall (intern (string :warn-unimplemented-interfaces) :swank-backend))
   (load-site-init-file source-directory)
   (load-user-init-file)

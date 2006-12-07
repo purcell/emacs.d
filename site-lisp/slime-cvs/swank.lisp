@@ -1,4 +1,4 @@
-;;; -*- outline-regexp: ";;;;;*"; indent-tabs-mode: nil -*-
+;;; -*- outline-regexp:";;;;;*" indent-tabs-mode:nil coding:latin-1-unix -*-
 ;;;
 ;;; This code has been placed in the Public Domain.  All warranties
 ;;; are disclaimed.
@@ -16,7 +16,6 @@
   (:use :common-lisp :swank-backend)
   (:export #:startup-multiprocessing
            #:start-server 
-           #:create-swank-server
            #:create-server
            #:ed-in-emacs
            #:print-indentation-lossage
@@ -24,6 +23,7 @@
            #:run-after-init-hook
            ;; These are user-configurable variables:
            #:*communication-style*
+           #:*dont-close*
            #:*log-events*
            #:*log-output*
            #:*use-dedicated-output-stream*
@@ -181,8 +181,6 @@ Backend code should treat the connection structure as opaque.")
 ;;; used solely to pipe user-output to Emacs (an optimization).
 ;;;
 
-(defvar *coding-system* ':iso-latin-1-unix)
-
 (defstruct (connection
              (:conc-name connection.)
              (:print-function print-connection))
@@ -227,10 +225,7 @@ Backend code should treat the connection structure as opaque.")
   ;; The communication style used.
   (communication-style nil :type (member nil :spawn :sigio :fd-handler))
   ;; The coding system for network streams.
-  (external-format *coding-system* :type (member :iso-latin-1-unix 
-                                                 :emacs-mule-unix
-                                                 :utf-8-unix
-                                                 :euc-jp-unix)))
+  (coding-system ))
 
 (defun print-connection (conn stream depth)
   (declare (ignore depth))
@@ -384,6 +379,15 @@ Useful for low level debugging."
 (defun ascii-char-p (c) 
   (<= (char-code c) 127))
 
+(defmacro do-symbols* ((var &optional (package '*package*) result-form) &body body)
+  "Just like do-symbols, but makes sure a symbol is visited only once."
+  (let ((seen-ht (gensym "SEEN-HT")))
+    `(let ((,seen-ht (make-hash-table :test #'eq)))
+      (do-symbols (,var ,package ,result-form)
+        (unless (gethash ,var ,seen-ht)
+          (setf (gethash ,var ,seen-ht) t)
+          ,@body)))))
+
 
 ;;;; TCP Server
 
@@ -396,37 +400,44 @@ Useful for low level debugging."
 
 (defvar *communication-style* (preferred-communication-style))
 
+(defvar *dont-close* nil
+  "Default value of :dont-close argument to start-server and
+  create-server.")
+
 (defvar *dedicated-output-stream-buffering* 
   (if (eq *communication-style* :spawn) :full :none)
   "The buffering scheme that should be used for the output stream.
 Valid values are :none, :line, and :full.")
 
+(defvar *coding-system* "iso-latin-1-unix")
+
 (defun start-server (port-file &key (style *communication-style*)
-                     dont-close (external-format *coding-system*))
+                                    (dont-close *dont-close*)
+                                    (coding-system *coding-system*))
   "Start the server and write the listen port number to PORT-FILE.
 This is the entry point for Emacs."
   (flet ((start-server-aux ()
            (setup-server 0 (lambda (port) 
                              (announce-server-port port-file port))
-                         style dont-close external-format)))
+                         style dont-close 
+                         (find-external-format-or-lose coding-system))))
     (if (eq style :spawn)
         (initialize-multiprocessing #'start-server-aux)
         (start-server-aux))))
 
 (defun create-server (&key (port default-server-port)
                       (style *communication-style*)
-                      dont-close (external-format *coding-system*))
+                      (dont-close *dont-close*) 
+                      (coding-system *coding-system*))
   "Start a SWANK server on PORT running in STYLE.
 If DONT-CLOSE is true then the listen socket will accept multiple
 connections, otherwise it will be closed after the first."
   (setup-server port #'simple-announce-function style dont-close 
-                external-format))
+                (find-external-format-or-lose coding-system)))
 
-(defun create-swank-server (&optional (port default-server-port)
-                            (style *communication-style*)
-                            (announce-fn #'simple-announce-function)
-                            dont-close (external-format *coding-system*))
-  (setup-server port announce-fn style dont-close external-format))
+(defun find-external-format-or-lose (coding-system)
+  (or (find-external-format coding-system)
+      (error "Unsupported coding system: ~s" coding-system)))
 
 (defparameter *loopback-interface* "127.0.0.1")
 
@@ -454,7 +465,7 @@ connections, otherwise it will be closed after the first."
            (unless dont-close
              (close-socket socket)
              (setf closed-socket-p t))
-           (let ((connection (create-connection client style external-format)))
+           (let ((connection (create-connection client style)))
              (run-hook *new-connection-hook* connection)
              (push connection *connections*)
              (serve-requests connection)))
@@ -526,8 +537,7 @@ returns two values: the output function, and the dedicated
 stream (or NIL if none was created)."
   (if *use-dedicated-output-stream*
       (let ((stream (open-dedicated-output-stream 
-                     (connection.socket-io connection)
-                     (connection.external-format connection))))
+                     (connection.socket-io connection))))
         (values (lambda (string)
                   (write-string string stream)
                   (force-output stream))
@@ -539,7 +549,7 @@ stream (or NIL if none was created)."
                     (send-to-emacs `(:write-string ,string)))))
               nil)))
 
-(defun open-dedicated-output-stream (socket-io external-format)
+(defun open-dedicated-output-stream (socket-io)
   "Open a dedicated output connection to the Emacs on SOCKET-IO.
 Return an output stream suitable for writing program output.
 
@@ -549,8 +559,12 @@ This is an optimized way for Lisp to deliver output to Emacs."
     (unwind-protect
          (let ((port (local-port socket)))
            (encode-message `(:open-dedicated-output-stream ,port) socket-io)
-           (let ((dedicated (accept-authenticated-connection
-                             socket :external-format external-format 
+           (let ((dedicated (accept-authenticated-connection 
+                             socket 
+                             :external-format 
+                             (or (ignore-errors
+                                   (stream-external-format socket-io))
+                                 :default)
                              :buffering *dedicated-output-stream-buffering*
                              :timeout 30)))
              (close-socket socket)
@@ -590,11 +604,11 @@ of the toplevel restart."
                         ;; Connection to Emacs lost. [~%~
                         ;;  condition: ~A~%~
                         ;;  type: ~S~%~
-                        ;;  encoding: ~S style: ~S dedicated: ~S]~%"
+                        ;;  encoding: ~A style: ~S dedicated: ~S]~%"
             backtrace
             (escape-non-ascii (safe-condition-message condition) )
             (type-of condition)
-            (connection.external-format c) 
+            (ignore-errors (stream-external-format (connection.socket-io c)))
             (connection.communication-style c)
             *use-dedicated-output-stream*)
     (finish-output *debug-io*)))
@@ -869,7 +883,7 @@ of the toplevel restart."
           (connection.user-input connection)       in)
     connection))
 
-(defun create-connection (socket-io style external-format)
+(defun create-connection (socket-io style)
   (let ((success nil))
     (unwind-protect
          (let ((c (ecase style
@@ -897,7 +911,6 @@ of the toplevel restart."
                                       :send #'send-to-socket-io
                                       :serve-requests #'simple-serve-requests)))))
            (setf (connection.communication-style c) style)
-           (setf (connection.external-format c) external-format)
            (initialize-streams-for-connection c)
            (setf success t)
            c)
@@ -1202,14 +1215,18 @@ converted to lower case."
              ((:ok value) value)
              ((:abort) (abort)))))))
 
+(defvar *swank-wire-protocol-version* nil
+  "The version of the swank/slime communication protocol.")
+
 (defslimefun connection-info ()
   "Return a key-value list of the form: 
-\(&key PID STYLE LISP-IMPLEMENTATION MACHINE FEATURES PACKAGE)
+\(&key PID STYLE LISP-IMPLEMENTATION MACHINE FEATURES PACKAGE VERSION)
 PID: is the process-id of Lisp process (or nil, depending on the STYLE)
 STYLE: the communication style
 LISP-IMPLEMENTATION: a list (&key TYPE NAME VERSION)
 FEATURES: a list of keywords
-PACKAGE: a list (&key NAME PROMPT)"
+PACKAGE: a list (&key NAME PROMPT)
+VERSION: the protocol version"
   (setq *slime-features* *features*)
   `(:pid ,(getpid) :style ,(connection.communication-style *emacs-connection*)
     :lisp-implementation (:type ,(lisp-implementation-type)
@@ -1220,7 +1237,8 @@ PACKAGE: a list (&key NAME PROMPT)"
               :version ,(machine-version))
     :features ,(features-for-emacs)
     :package (:name ,(package-name *package*)
-              :prompt ,(package-string-for-prompt *package*))))
+              :prompt ,(package-string-for-prompt *package*))
+    :version ,*swank-wire-protocol-version*))
 
 (defslimefun io-speed-test (&optional (n 5000) (m 1))
   (let* ((s *standard-output*)
@@ -2272,7 +2290,7 @@ forward keywords to OPERATOR."
                        (matching-keywords
                         (find-matching-symbols-in-list keyword-name keywords
                                                        #'compound-prefix-match))
-                       (converter (output-case-converter keyword-string))
+                       (converter (completion-output-symbol-converter keyword-string))
                        (strings
                         (mapcar converter
                                 (mapcar #'symbol-name matching-keywords)))
@@ -2596,6 +2614,12 @@ Return its name and the string to use in the prompt."
   (let ((p (setq *package* (guess-package-from-string package))))
     (list (package-name p) (package-string-for-prompt p))))
 
+(defun make-presentations-result (values)
+  ;; overridden in present.lisp
+  `(:present ,(loop for x in values 
+                    collect (cons (prin1-to-string x) 
+                                  (save-presented-object x)))))
+
 (defslimefun listener-eval (string)
   (clear-user-input)
   (with-buffer-syntax ()
@@ -2609,9 +2633,7 @@ Return its name and the string to use in the prompt."
 	(setq +++ ++  ++ +  + last-form)
         (cond ((eq *slime-repl-suppress-output* t) '(:suppress-output))
               (*record-repl-results*
-               `(:present ,(loop for x in values 
-                                 collect (cons (prin1-to-string x) 
-                                               (save-presented-object x)))))
+               (make-presentations-result values))
               (t 
                `(:values ,(mapcar #'prin1-to-string values))))))))
 
@@ -2962,13 +2984,16 @@ The time is measured in microseconds."
       (list (to-string result)
             (format nil "~,2F" (/ usecs 1000000.0))))))
 
-(defslimefun compile-file-for-emacs (filename load-p &optional external-format)
+(defslimefun compile-file-for-emacs (filename load-p)
   "Compile FILENAME and, when LOAD-P, load the result.
 Record compiler notes signalled as `compiler-condition's."
   (with-buffer-syntax ()
     (let ((*compile-print* nil))
-      (swank-compiler (lambda () (swank-compile-file filename load-p
-                                                     external-format))))))
+      (swank-compiler 
+       (lambda ()
+         (swank-compile-file filename load-p
+                             (or (guess-external-format filename)
+                                 :default)))))))
 
 (defslimefun compile-string-for-emacs (string buffer position directory)
   "Compile STRING (exerpted from BUFFER at POSITION).
@@ -3106,41 +3131,40 @@ format. The cases are as follows:
   "Return the set of completion-candidates as strings."
   (multiple-value-bind (name package-name package internal-p)
       (parse-completion-arguments string default-package-name)
-    (let* ((symbols (and package
-                         (find-matching-symbols name
-                                                package
-                                                (and (not internal-p)
-                                                     package-name)
-                                                matchp)))
-           (packs (and (not package-name)
-                       (find-matching-packages name matchp)))
-           (converter (output-case-converter name))
-           (strings
-            (mapcar converter
-                    (nconc (mapcar #'symbol-name symbols) packs))))
-      (format-completion-set strings internal-p package-name))))
+    (let* ((symbols (mapcar (completion-output-symbol-converter name)
+                            (and package
+                                 (mapcar #'symbol-name
+                                         (find-matching-symbols name
+                                                                package
+                                                                (and (not internal-p)
+                                                                     package-name)
+                                                                matchp)))))
+           (packs (mapcar (completion-output-package-converter name)
+                          (and (not package-name)
+                               (find-matching-packages name matchp)))))
+      (format-completion-set (nconc symbols packs) internal-p package-name))))
 
 (defun find-matching-symbols (string package external test)
   "Return a list of symbols in PACKAGE matching STRING.
 TEST is called with two strings.  If EXTERNAL is true, only external
 symbols are returned."
   (let ((completions '())
-        (converter (output-case-converter string)))
+        (converter (completion-output-symbol-converter string)))
     (flet ((symbol-matches-p (symbol)
              (and (or (not external)
                       (symbol-external-p symbol package))
                   (funcall test string
                            (funcall converter (symbol-name symbol))))))
-      (do-symbols (symbol package) 
+      (do-symbols* (symbol package) 
         (when (symbol-matches-p symbol)
           (push symbol completions))))
-    (remove-duplicates completions)))
+    completions))
 
 (defun find-matching-symbols-in-list (string list test)
   "Return a list of symbols in LIST matching STRING.
 TEST is called with two strings."
   (let ((completions '())
-        (converter (output-case-converter string)))
+        (converter (completion-output-symbol-converter string)))
     (flet ((symbol-matches-p (symbol)
              (funcall test string
                       (funcall converter (symbol-name symbol)))))
@@ -3208,19 +3232,43 @@ Returns a list of completions with package qualifiers if needed."
     (values (concatenate 'string prefix string)
             (length prefix))))
 
-(defun output-case-converter (input)
-  "Return a function to case convert strings for output.
+(defun completion-output-case-converter (input &optional with-escaping-p)
+  "Return a function to convert strings for the completion output.
 INPUT is used to guess the preferred case."
   (ecase (readtable-case *readtable*)
-    (:upcase (if (some #'lower-case-p input) #'string-downcase #'identity))
+    (:upcase (cond ((or with-escaping-p
+                        (every #'upper-case-p input))
+                    #'identity)
+                   (t #'string-downcase)))
     (:invert (lambda (output)
                (multiple-value-bind (lower upper) (determine-case output)
                  (cond ((and lower upper) output)
                        (lower (string-upcase output))
                        (upper (string-downcase output))
                        (t output)))))
-    (:downcase (if (some #'upper-case-p input) #'string-upcase #'identity))
+    (:downcase (cond ((or with-escaping-p
+                          (every #'lower-case-p input))
+                      #'identity)
+                     (t #'string-upcase)))
     (:preserve #'identity)))
+
+(defun completion-output-package-converter (input)
+  "Return a function to convert strings for the completion output.
+INPUT is used to guess the preferred case."
+  (completion-output-case-converter input))
+
+(defun completion-output-symbol-converter (input)
+  "Return a function to convert strings for the completion output.
+INPUT is used to guess the preferred case. Escape symbols when needed."
+  (let ((case-converter (completion-output-case-converter input))
+        (case-converter-with-escaping (completion-output-case-converter input t)))
+    (lambda (str)
+      (if (some (lambda (el)
+                  (member el '(#\: #\. #\  #\Newline #\Tab)))
+                str)
+          (concatenate 'string "|" (funcall case-converter-with-escaping str) "|")
+          (funcall case-converter str)))))
+
 
 (defun determine-case (string)
   "Return two booleans LOWER and UPPER indicating whether STRING
@@ -3320,7 +3368,7 @@ For example:
            
 ;;;; Fuzzy completion
 
-(defslimefun fuzzy-completions (string default-package-name &optional limit)
+(defslimefun fuzzy-completions (string default-package-name &key limit time-limit-in-msec)
   "Return an (optionally limited to LIMIT best results) list of
 fuzzy completions for a symbol designator STRING.  The list will
 be sorted by score, most likely match first.
@@ -3346,7 +3394,13 @@ designator's format. The cases are as follows:
   FOO      - Symbols accessible in the buffer package.
   PKG:FOO  - Symbols external in package PKG.
   PKG::FOO - Symbols accessible in package PKG."
-  (fuzzy-completion-set string default-package-name limit))
+  ;; We may send this as elisp [] arrays to spare a coerce here,
+  ;; but then the network serialization were slower by handling arrays.
+  ;; Instead we limit the number of completions that is transferred
+  ;; (the limit is set from emacs).
+  (coerce (fuzzy-completion-set string default-package-name
+                                :limit limit :time-limit-in-msec time-limit-in-msec)
+          'list))
 
 (defun convert-fuzzy-completion-result (result converter
                                         internal-p package-name)
@@ -3358,12 +3412,14 @@ a :special-operator, or a :package."
   (destructuring-bind (symbol-or-name score chunks) result
     (multiple-value-bind (name added-length)
         (format-completion-result
-         (funcall converter 
-                  (if (symbolp symbol-or-name)
-                      (symbol-name symbol-or-name)
-                      symbol-or-name))
+         (if converter
+             (funcall converter 
+                      (if (symbolp symbol-or-name)
+                          (symbol-name symbol-or-name)
+                          symbol-or-name))
+             symbol-or-name)
          internal-p package-name)
-      (list name score 
+      (list name score
             (mapcar
              #'(lambda (chunk)
                  ;; fix up chunk positions to account for possible
@@ -3395,66 +3451,94 @@ a :special-operator, or a :package."
                                      )))
                   collect flag)))))
 
-(defun fuzzy-completion-set (string default-package-name &optional limit)
+(defun fuzzy-completion-set (string default-package-name &key limit time-limit-in-msec)
   "Prepares list of completion obajects, sorted by SCORE, of fuzzy
 completions of STRING in DEFAULT-PACKAGE-NAME.  If LIMIT is set,
 only the top LIMIT results will be returned."
+  (declare (type (or null (integer 0 #.(1- most-positive-fixnum))) limit time-limit-in-msec))
   (multiple-value-bind (name package-name package internal-p)
       (parse-completion-arguments string default-package-name)
-    (let* ((symbols (and package
-                         (fuzzy-find-matching-symbols name
-                                                      package
-                                                      (and (not internal-p)
-                                                           package-name))))
-           (packs (and (not package-name)
-                       (fuzzy-find-matching-packages name)))
-           (converter (output-case-converter name))
-           (results
-            (sort (mapcar #'(lambda (result)
-                              (convert-fuzzy-completion-result
-                               result converter internal-p package-name))
-                          (nconc symbols packs))
-                  #'> :key #'second)))
-      (when (and limit 
-                 (> limit 0) 
-                 (< limit (length results)))
-        (setf (cdr (nthcdr (1- limit) results)) nil))
-      results)))
+    (flet ((convert (vector &optional converter)
+             (when vector
+               (loop for idx below (length vector)
+                     for el = (aref vector idx)
+                     do (setf (aref vector idx) (convert-fuzzy-completion-result
+                                                 el converter internal-p package-name))))))
+      (let* ((symbols (and package
+                           (fuzzy-find-matching-symbols name
+                                                        package
+                                                        (and (not internal-p)
+                                                             package-name)
+                                                        :time-limit-in-msec time-limit-in-msec
+                                                        :return-converted-p nil)))
+             (packs (and (not package-name)
+                         (fuzzy-find-matching-packages name)))
+             (results))
+        (convert symbols (completion-output-symbol-converter string))
+        (convert packs)
+        (setf results (sort (concatenate 'vector symbols packs) #'> :key #'second))
+        (when (and limit
+                   (> limit 0)
+                   (< limit (length results)))
+          (if (array-has-fill-pointer-p results)
+              (setf (fill-pointer results) limit)
+              (setf results (make-array limit :displaced-to results))))
+        results))))
 
-(defun fuzzy-find-matching-symbols (string package external)
+(defun fuzzy-find-matching-symbols (string package external &key time-limit-in-msec return-converted-p)
   "Return a list of symbols in PACKAGE matching STRING using the
 fuzzy completion algorithm.  If EXTERNAL is true, only external
 symbols are returned."
-  (let ((completions '())
-        (converter (output-case-converter string)))
-    (flet ((symbol-match (symbol)
+  (let ((completions (make-array 256 :adjustable t :fill-pointer 0))
+        (time-limit (if time-limit-in-msec
+                        (ceiling (/ time-limit-in-msec 1000))
+                        0))
+        (utime-at-start (get-universal-time))
+        (count 0)
+        (converter (completion-output-symbol-converter string)))
+    (declare (type (integer 0 #.(1- most-positive-fixnum)) count time-limit)
+             (type function converter))
+    (flet ((symbol-match (symbol converted)
              (and (or (not external)
                       (symbol-external-p symbol package))
-                  (compute-highest-scoring-completion 
-                   string (funcall converter (symbol-name symbol))))))
-      (do-symbols (symbol package)
-        (if (string= "" string)
-            (when (or (and external (symbol-external-p symbol package))
-                      (not external))
-              (push (list symbol 0.0 (list (list 0 ""))) completions))
-            (multiple-value-bind (result score) (symbol-match symbol)
-              (when result
-                (push (list symbol score result) completions))))))
-    (remove-duplicates completions :key #'first)))
+                  (compute-highest-scoring-completion
+                   string converted))))
+      (block loop
+        (do-symbols* (symbol package)
+          (incf count)
+          (when (and (not (zerop time-limit))
+                     (zerop (mod count 256))  ; ease up on calling get-universal-time like crazy
+                     (>= (- (get-universal-time) utime-at-start) time-limit))
+            (return-from loop))
+          (let* ((converted (funcall converter (symbol-name symbol)))
+                 (result (if return-converted-p converted symbol)))
+            (if (string= "" string)
+                (when (or (and external (symbol-external-p symbol package))
+                          (not external))
+                  (vector-push-extend (list result 0.0 (list (list 0 ""))) completions))
+                (multiple-value-bind (match-result score) (symbol-match symbol converted)
+                  (when match-result
+                    (vector-push-extend (list result score match-result) completions)))))))
+      completions)))
 
 (defun fuzzy-find-matching-packages (name)
   "Return a list of package names matching NAME using the fuzzy
 completion algorithm."
-  (let ((converter (output-case-converter name)))
+  (let ((converter (completion-output-package-converter name))
+        (completions (make-array 32 :adjustable t :fill-pointer 0)))
+    (declare (optimize (speed 3))
+             (type function converter))  
     (loop for package in (list-all-packages)
           for package-name = (concatenate 'string 
                                           (funcall converter
                                                    (package-name package)) 
                                           ":")
           for (result score) = (multiple-value-list
-                                (compute-highest-scoring-completion
-                                 name package-name))
-          if result collect (list package-name score result))))
+                                   (compute-highest-scoring-completion
+                                    name package-name))
+          when result do
+          (vector-push-extend (list package-name score result) completions))
+    completions))
 
 (defslimefun fuzzy-completion-selected (original-string completion)
   "This function is called by Slime when a fuzzy completion is
@@ -3680,6 +3764,48 @@ FUZZY-COMPLETIONS, format the list into user-readable output."
     (loop for (sym score result) in winners do
           (format t "~&~VA  score ~8,2F  ~A"
                   max-len (highlight-completion result sym) score result))))
+
+
+;;;; Completion for character names
+
+(defslimefun completions-for-character (prefix)
+  (let ((completion-set 
+         (sort 
+          (character-completion-set prefix 
+                                    #'compound-prefix-match/ci/underscores)
+          #'string<)))
+    (list completion-set (longest-completion/underscores completion-set))))
+
+(defun compound-prefix-match/ci/underscores (prefix target)
+  "Like compound-prefix-match, but case-insensitive, and using the underscore, 
+not the hyphen, as a delimiter." 
+  (declare (type simple-string prefix target))
+  (loop for ch across prefix
+        with tpos = 0
+        always (and (< tpos (length target))
+                    (if (char= ch #\_)
+                        (setf tpos (position #\_ target :start tpos))
+                        (char-equal ch (aref target tpos))))
+        do (incf tpos)))
+
+(defun longest-completion/underscores (completions)
+  "Return the longest prefix for all COMPLETIONS.
+COMPLETIONS is a list of strings."
+  (untokenize-completion/underscores
+   (mapcar #'longest-common-prefix
+           (transpose-lists (mapcar #'tokenize-completion/underscores 
+                                    completions)))))
+
+(defun tokenize-completion/underscores (string)
+  "Return all substrings of STRING delimited by #\_."
+  (loop with end
+        for start = 0 then (1+ end)
+        until (> start (length string))
+        do (setq end (or (position #\_ string :start start) (length string)))
+        collect (subseq string start end)))
+
+(defun untokenize-completion/underscores (tokens)
+  (format nil "~{~A~^_~}" tokens))
 
 
 ;;;; Documentation
@@ -4241,8 +4367,8 @@ NIL is returned if the list is circular."
                       for name = (swank-mop:slot-definition-name slotd)
                       collect `(:value ,slotd ,(string name))
                       collect " = "
-                      collect (if (swank-mop:slot-boundp-using-class c o slotd)
-                                  `(:value ,(swank-mop:slot-value-using-class 
+                      collect (if (slot-boundp-using-class-for-inspector c o slotd)
+                                  `(:value ,(slot-value-using-class-for-inspector 
                                              c o slotd))
                                   "#<unbound>")
                       collect '(:newline))))))
@@ -4282,31 +4408,42 @@ See `methods-by-applicability'.")
 		     maxlen
 		     (length doc))))
 
-(defun all-slots-for-inspector (object)
-  (append (list "------------------------------" '(:newline)
-               "All Slots:" '(:newline))          
-          (loop
-             with direct-slots = (swank-mop:class-direct-slots (class-of object))
-             for slot in (swank-mop:class-slots (class-of object))
-             for slot-def = (or (find-if (lambda (a)
-                                           ;; find the direct slot
-                                           ;; with the same name
-                                           ;; as SLOT (an
-                                           ;; effective slot).
-                                           (eql (swank-mop:slot-definition-name a)
-                                                (swank-mop:slot-definition-name slot)))
-                                         direct-slots)
-                                slot)
-             collect `(:value ,slot-def ,(inspector-princ (swank-mop:slot-definition-name slot-def)))
-             collect " = "
-             if (slot-boundp object (swank-mop:slot-definition-name slot-def))
-             collect `(:value ,(slot-value object (swank-mop:slot-definition-name slot-def)))
-             else
-             collect "#<unbound>"
-             collect '(:newline))))
+(defgeneric slot-value-using-class-for-inspector (class object slot)
+  (:method (class object slot)
+           (swank-mop:slot-value-using-class class object slot)))
+
+(defgeneric slot-boundp-using-class-for-inspector (class object slot)
+  (:method (class object slot)
+           (swank-mop:slot-boundp-using-class class object slot)))
+
+(defgeneric all-slots-for-inspector (object inspector)
+  (:method ((object standard-object) inspector)
+    (declare (ignore inspector))
+    (append '("------------------------------" (:newline)
+              "All Slots:" (:newline))
+            (loop
+               with class = (class-of object)
+               with direct-slots = (swank-mop:class-direct-slots (class-of object))
+               for slot in (swank-mop:class-slots (class-of object))
+               for slot-def = (or (find-if (lambda (a)
+                                             ;; find the direct slot
+                                             ;; with the same name
+                                             ;; as SLOT (an
+                                             ;; effective slot).
+                                             (eql (swank-mop:slot-definition-name a)
+                                                  (swank-mop:slot-definition-name slot)))
+                                           direct-slots)
+                                  slot)
+               collect `(:value ,slot-def ,(inspector-princ (swank-mop:slot-definition-name slot-def)))
+               collect " = "
+               if (slot-boundp-using-class-for-inspector class object slot)
+               collect `(:value ,(slot-value-using-class-for-inspector
+                                  (class-of object) object slot))
+               else
+               collect "#<unbound>"
+               collect '(:newline)))))
 
 (defmethod inspect-for-emacs ((gf standard-generic-function) inspector)
-  (declare (ignore inspector))
   (flet ((lv (label value) (label-value-line label value)))
     (values 
      "A generic function."
@@ -4329,10 +4466,9 @@ See `methods-by-applicability'.")
                             (remove-method gf m))))
 	      (:newline)))
       `((:newline))
-      (all-slots-for-inspector gf)))))
+      (all-slots-for-inspector gf inspector)))))
 
 (defmethod inspect-for-emacs ((method standard-method) inspector)
-  (declare (ignore inspector))
   (values "A method." 
           `("Method defined on the generic function " 
 	    (:value ,(swank-mop:method-generic-function method)
@@ -4350,10 +4486,9 @@ See `methods-by-applicability'.")
             (:newline)
             "Method function: " (:value ,(swank-mop:method-function method))
             (:newline)
-            ,@(all-slots-for-inspector method))))
+            ,@(all-slots-for-inspector method inspector))))
 
 (defmethod inspect-for-emacs ((class standard-class) inspector)
-  (declare (ignore inspector))
   (values "A class."
           `("Name: " (:value ,(class-name class))
             (:newline)
@@ -4410,11 +4545,10 @@ See `methods-by-applicability'.")
                                `(:value ,(swank-mop:class-prototype class))
                                '"#<N/A (class not finalized)>")
             (:newline)
-            ,@(all-slots-for-inspector class))))
+            ,@(all-slots-for-inspector class inspector))))
 
 (defmethod inspect-for-emacs ((slot swank-mop:standard-slot-definition) inspector)
-  (declare (ignore inspector))
-  (values "A slot." 
+  (values "A slot."
           `("Name: " (:value ,(swank-mop:slot-definition-name slot))
             (:newline)
             ,@(when (swank-mop:slot-definition-documentation slot)
@@ -4427,7 +4561,7 @@ See `methods-by-applicability'.")
                              "#<unspecified>") (:newline)
             "Init function: " (:value ,(swank-mop:slot-definition-initfunction slot))            
             (:newline)
-            ,@(all-slots-for-inspector slot))))
+            ,@(all-slots-for-inspector slot inspector))))
 
 (defmethod inspect-for-emacs ((package package) inspector)
   (declare (ignore inspector))

@@ -370,9 +370,11 @@ Example:
         (abort-request "Couldn't find ASDF operation ~S" operation-name))
       (apply operate operation system-name keyword-args))))
 
-(definterface swank-compile-file (filename load-p &optional external-format)
+(definterface swank-compile-file (filename load-p external-format)
    "Compile FILENAME signalling COMPILE-CONDITIONs.
-If LOAD-P is true, load the file after compilation.")
+If LOAD-P is true, load the file after compilation.
+EXTERNAL-FORMAT is a value returned by find-external-format or
+:default.")
 
 (deftype severity () 
   '(member :error :read-error :warning :style-warning :note))
@@ -403,6 +405,49 @@ If LOAD-P is true, load the file after compilation.")
 
    (location :initarg :location
              :accessor location)))
+
+(definterface find-external-format (coding-system)
+  "Return a \"external file format designator\" for CODING-SYSTEM.
+CODING-SYSTEM is Emacs-style coding system name (a string),
+e.g. \"latin-1-unix\"."
+  (if (equal coding-system "iso-latin-1-unix")
+      :default
+      nil))
+
+(definterface guess-external-format (filename)
+  "Detect the external format for the file with name FILENAME.
+Return nil if the file contains no special markers."
+  ;; Look for a Emacs-style -*- coding: ... -*- or Local Variable: section.
+  (with-open-file (s filename :if-does-not-exist nil
+                     :external-format (or (find-external-format "latin-1-unix")
+                                          :default))
+    (if s 
+        (or (let* ((line (read-line s nil))
+                   (p (search "-*-" line)))
+              (when p
+                (let* ((start (+ p (length "-*-")))
+                       (end (search "-*-" line :start2 start)))
+                  (when end
+                    (%search-coding line start end)))))
+            (let* ((len (file-length s))
+                   (buf (make-string (min len 3000))))
+              (file-position s (- len (length buf)))
+              (read-sequence buf s)
+              (let ((start (search "Local Variables:" buf :from-end t))
+                    (end (search "End:" buf :from-end t)))
+                (and start end (< start end)
+                     (%search-coding buf start end))))))))
+
+(defun %search-coding (str start end)
+  (let ((p (search "coding:" str :start2 start :end2 end)))
+    (when p
+      (incf p (length "coding:"))
+      (loop while (and (< p end)
+                       (member (aref str p) '(#\space #\tab)))
+            do (incf p))
+      (let ((end (position-if (lambda (c) (find c '(#\space #\tab #\newline)))
+                              str :start p)))
+        (find-external-format (subseq str p end))))))
 
 
 ;;;; Streams
@@ -953,3 +998,15 @@ SPEC can be:
 (definterface make-weak-value-hash-table (&rest args)
   "Like MAKE-HASH-TABLE, but weak w.r.t. the values."
   (apply #'make-hash-table args))
+
+
+;;;; Character names
+
+(definterface character-completion-set (prefix matchp)
+  "Return a list of names of characters that match PREFIX."
+  ;; Handle the standard and semi-standard characters.
+  (loop for name in '("Newline" "Space" "Tab" "Page" "Rubout"
+                      "Linefeed" "Return" "Backspace")
+     when (funcall matchp prefix name)
+     collect name))
+

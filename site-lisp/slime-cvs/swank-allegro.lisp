@@ -18,8 +18,6 @@
 
 ;;; swank-mop
 
-;; maybe better change MOP to ACLMOP ?  
-;; CLOS also works in ACL5. --he
 (import-swank-mop-symbols :clos '(:slot-definition-documentation))
 
 (defun swank-mop:slot-definition-documentation (slot)
@@ -44,25 +42,26 @@
 (defimplementation accept-connection (socket &key external-format buffering
                                              timeout)
   (declare (ignore buffering timeout))
-  (let ((ef (or external-format :iso-latin-1-unix))
-        (s (socket:accept-connection socket :wait t)))
-    (set-external-format s ef)
+  (let ((s (socket:accept-connection socket :wait t)))
+    (when external-format
+      (setf (stream-external-format s) external-format))
     s))
 
-(defun find-external-format (coding-system)
-  #+(version>= 6)
-  (let* ((name (ecase coding-system
-                 (:iso-latin-1-unix :latin1)
-                 (:utf-8-unix :utf8)
-                 (:emacs-mule-unix :emacs-mule))))
-    (excl:crlf-base-ef (excl:find-external-format name :try-variant t)))
-  #-(version>= 6)  
-  (ecase coding-system 
-    (:iso-latin-1-unix :default)))
+(defvar *external-format-to-coding-system*
+  '((:iso-8859-1 
+     "latin-1" "latin-1-unix" "iso-latin-1-unix" 
+     "iso-8859-1" "iso-8859-1-unix")
+    (:utf-8 "utf-8" "utf-8-unix")
+    (:euc-jp "euc-jp" "euc-jp-unix")
+    (:us-ascii "us-ascii" "us-ascii-unix")
+    (:emacs-mule "emacs-mule" "emacs-mule-unix")))
 
-(defun set-external-format (stream external-format)
-  (setf (stream-external-format stream)
-        (find-external-format external-format)))
+(defimplementation find-external-format (coding-system)
+  (let ((e (rassoc-if (lambda (x) (member coding-system x :test #'equal))
+                      *external-format-to-coding-system*)))
+    (and e (excl:crlf-base-ef 
+            (excl:find-external-format (car e) 
+                                       :try-variant t)))))
 
 (defimplementation format-sldb-condition (c)
   (princ-to-string c))
@@ -140,6 +139,15 @@
   (let ((*sldb-topframe* (find-topframe))
         (excl::*break-hook* nil))
     (funcall debugger-loop-fn)))
+
+(defimplementation sldb-break-at-start (fname)
+  ;; :print-before is kind of mis-used but we just want to stuff our break form
+  ;; somewhere. This does not work for setf, :before and :after methods, which
+  ;; need special syntax in the trace call, see ACL's doc/debugging.htm chapter 10.
+  (eval `(trace (,fname
+                 :print-before
+                 ((break "Function start breakpoint of ~A" ',fname)))))
+  `(:ok ,(format nil "Set breakpoint at start of ~S" fname)))
 
 (defun find-topframe ()
   (let ((skip-frames 3))
@@ -228,7 +236,6 @@
   (member (type-of object) '(excl::compiler-note compiler::compiler-note)))
 
 (defun compiler-undefined-functions-called-warning-p (object)
-  #+(version>= 6)
   (typep object 'excl:compiler-undefined-functions-called-warning))
 
 (deftype compiler-note ()
@@ -283,16 +290,12 @@
                  )
     (funcall function)))
 
-(defimplementation swank-compile-file (filename load-p 
-                                       &optional external-format)
+(defimplementation swank-compile-file (filename load-p external-format)
   (with-compilation-hooks ()
     (let ((*buffer-name* nil)
-          (*compile-filename* filename)
-          (ef (if external-format 
-                  (find-external-format external-format)
-                  :default)))
+          (*compile-filename* filename))
       (compile-file *compile-filename* :load-after-compile load-p
-                    :external-format ef))))
+                    :external-format external-format))))
 
 (defun call-with-temp-file (fn)
   (let ((tmpname (system:make-temp-file-name)))
@@ -760,3 +763,11 @@
 
 (defimplementation make-weak-value-hash-table (&rest args)
   (apply #'make-hash-table :values :weak args))
+
+
+;;;; Character names
+
+(defimplementation character-completion-set (prefix matchp)
+  (loop for name being the hash-keys of excl::*name-to-char-table*
+       when (funcall matchp prefix name)
+       collect (string-capitalize name)))

@@ -42,7 +42,9 @@ Maps from truename to source-cache-entry structure.")
   "Load a file into the cache when the user modifies its buffer.
 This is a win if the user then saves the file and tries to M-. into it."
   (unless (source-cached-p filename)
-    (ignore-errors (source-cache-get filename (file-write-date filename)))))
+    (ignore-errors
+      (source-cache-get filename (file-write-date filename))))
+  nil)
 
 (defun get-source-code (filename code-date)
   "Return the source code for FILENAME as written on DATE in a string.
@@ -75,7 +77,10 @@ Return NIL if the right version cannot be found."
 
 (defun read-file (filename)
   "Return the entire contents of FILENAME as a string."
-  (with-open-file (s filename :direction :input)
+  (with-open-file (s filename :direction :input
+		     :external-format (or (guess-external-format filename)
+					  (find-external-format "latin-1")
+					  :default))
     (let ((string (make-string (file-length s))))
       (read-sequence string s)
       string)))

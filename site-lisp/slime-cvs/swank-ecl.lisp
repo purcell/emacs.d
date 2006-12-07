@@ -1,6 +1,10 @@
-;;;; -*- Mode: lisp; indent-tabs-mode: nil -*-
+;;;; -*- indent-tabs-mode: nil -*-
 ;;;
 ;;; swank-ecl.lisp --- SLIME backend for ECL.
+;;;
+;;; This code has been placed in the Public Domain.  All warranties
+;;; are disclaimed.
+;;;
 
 ;;; Administrivia
 
@@ -42,11 +46,10 @@
 (defimplementation accept-connection (socket
                                       &key external-format
                                       buffering timeout)
-  (declare (ignore buffering timeout))
-  (assert (eq external-format :iso-latin-1-unix))
-  (make-socket-io-stream (accept socket) external-format))
+  (declare (ignore buffering timeout external-format))
+  (make-socket-io-stream (accept socket)))
 
-(defun make-socket-io-stream (socket external-format)
+(defun make-socket-io-stream (socket)
   (sb-bsd-sockets:socket-make-stream socket
                                      :output t
                                      :input t
@@ -118,7 +121,7 @@
     (funcall function)))
 
 (defimplementation swank-compile-file (*compile-filename* load-p
-                                       &optional external-format)
+                                       external-format)
   (declare (ignore external-format))
   (with-compilation-hooks ()
     (let ((*buffer-name* nil))

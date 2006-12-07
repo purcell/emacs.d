@@ -86,9 +86,10 @@ If you copy the HyperSpec to another location, customize the variable
   (interactive (list (let* ((symbol-at-point (thing-at-point 'symbol))
 			    (stripped-symbol 
 			     (and symbol-at-point
-				  (downcase
-				   (common-lisp-hyperspec-strip-cl-package 
-				    symbol-at-point)))))
+				  (substring-no-properties
+				   (downcase
+				    (common-lisp-hyperspec-strip-cl-package 
+				     symbol-at-point))))))
                        (if (and stripped-symbol
                                 (intern-soft stripped-symbol
                                              common-lisp-hyperspec-symbols))
@@ -1205,6 +1206,10 @@ If you copy the HyperSpec to another location, customize the variable
 		  (pushnew (cadr entry) (symbol-value symbol) :test 'equal)
 		  (set symbol (cdr entry))))))
 	'(("c" (22 3 1 1)) ("C: Character" (22 3 1 1))
+	  ("%" (22 3 1 2)) ("Percent: Newline" (22 3 1 2))
+	  ("&" (22 3 1 3)) ("Ampersand: Fresh-line" (22 3 1 3))
+	  ("|" (22 3 1 4)) ("Vertical-Bar: Page" (22 3 1 4))
+	  ("~" (22 3 1 5)) ("Tilde: Tilde" (22 3 1 5))
 	  ("r" (22 3 2 1)) ("R: Radix" (22 3 2 1))
 	  ("d" (22 3 2 2)) ("D: Decimal" (22 3 2-2))
           ("b" (22 3 2 3)) ("B: Binary" (22 3 2 3))

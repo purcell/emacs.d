@@ -38,7 +38,7 @@
 
 (defimplementation accept-connection (socket 
                                       &key external-format buffering timeout)
-  (let ((external-format (or external-format :iso-latin-1-unix))
+  (let ((external-format (or external-format :default))
         (buffering (or buffering :full))
         (fd (socket-fd socket)))
       (loop
@@ -68,17 +68,20 @@
   (let ((hostent (ext:lookup-host-entry hostname)))
     (car (ext:host-entry-addr-list hostent))))
 
-(defun find-external-format (coding-system)
-  (case coding-system
-    (:iso-latin-1-unix :iso-8859-1)
-    (:utf-8-unix :utf-8)
-    (:euc-jp-unix :euc-jp)
-    (t coding-system)))
+(defvar *external-format-to-coding-system*
+  '((:iso-8859-1 
+     "latin-1" "latin-1-unix" "iso-latin-1-unix" 
+     "iso-8859-1" "iso-8859-1-unix")
+    (:utf-8 "utf-8" "utf-8-unix")
+    (:euc-jp "euc-jp" "euc-jp-unix")))
+
+(defimplementation find-external-format (coding-system)
+  (car (rassoc-if (lambda (x) (member coding-system x :test #'equal))
+                  *external-format-to-coding-system*)))
 
 (defun make-socket-io-stream (fd external-format buffering)
   "Create a new input/output fd-stream for 'fd."
-  (let* ((external-format (find-external-format external-format))
-         (stream (sys:make-fd-stream fd :input t :output t
+  (let* ((stream (sys:make-fd-stream fd :input t :output t
                                      :element-type 'base-char
                                      :buffering buffering
                                      :external-format external-format)))
@@ -374,21 +377,17 @@
                    (c::warning        #'handle-notification-condition))
       (funcall function))))
 
-(defimplementation swank-compile-file (filename load-p 
-                                       &optional external-format)
-  (let ((external-format (if external-format 
-                             (find-external-format external-format)
-                             :default)))
-    (with-compilation-hooks ()
-      (let ((*buffer-name* nil)
-            (ext:*ignore-extra-close-parentheses* nil))
-        (multiple-value-bind (output-file warnings-p failure-p)
-            (compile-file filename :external-format external-format)
-          (unless failure-p
-            ;; Cache the latest source file for definition-finding.
-            (source-cache-get filename (file-write-date filename))
-            (when load-p (load output-file)))
-          (values output-file warnings-p failure-p))))))
+(defimplementation swank-compile-file (filename load-p external-format)
+  (with-compilation-hooks ()
+    (let ((*buffer-name* nil)
+          (ext:*ignore-extra-close-parentheses* nil))
+      (multiple-value-bind (output-file warnings-p failure-p)
+          (compile-file filename :external-format external-format)
+        (unless failure-p
+          ;; Cache the latest source file for definition-finding.
+          (source-cache-get filename (file-write-date filename))
+          (when load-p (load output-file)))
+        (values output-file warnings-p failure-p)))))
 
 (defimplementation swank-compile-string (string &key buffer position directory)
   (declare (ignore directory))

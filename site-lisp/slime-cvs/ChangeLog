@@ -1,3 +1,327 @@
+2006-12-07  Paul Collins <paul@briny.ondioline.org>
+
+	* hyperspec.el (common-lisp-hyperspec): Strip all text properties
+	from the symbol-at-point to avoid problems with read-only text.
+	
+2006-12-06  Marco Baringer  <mb@bese.it>
+
+	* slime.el (slime-search-buffer-package): Don't call
+	match-string-no-properties if it's not defined (as is on some
+	xemacs')
+	(slime-repl-clear-buffer): Added optional prefix argument
+	specifying how many lines to leave.
+
+2006-12-06  Johan Bockgård  <bojohan+sf@dd.chalmers.se>
+
+	* swank.lisp (fuzzy-completion-set): Don't mix for clauses and
+	body clauses in loop.
+
+2006-12-05  Helmut Eller  <heller@common-lisp.net>
+
+	* swank.lisp (create-swank-server): Removed. Use create-server
+	instead.
+	
+	* slime.el (slime-first-change-hook): Don't do anything if buffers
+	file doesn't exist.
+	(slime-start, slime-set-connection-info): Add support for a
+	:init-function which is called after the usual initialization of the
+	connection is completed.
+
+	* swank-source-file-cache.lisp (buffer-first-change): Always
+	return nil and remove the now redundant test with probe-file.
+
+	* swank-backend.lisp (guess-external-format): Return nil if the
+	file can't be opened.  Previusly we wrongly read from stdin.
+	
+2006-12-05  Juho Snellman  <jsnell@iki.fi>
+	
+	Real xref support for SBCL (requires SBCL 1.0.0.18).
+	
+	* swank-sbcl.lisp (who-calls): New function, fetch xref data from
+	sb-introspect.
+	(who-binds): Ditto.
+	(who-sets): Ditto.
+	(who-references): Ditto.
+	(who-macroexpands): Ditto.
+	(defxref): New macro, create the above functions.
+	(source-location-for-xref-data): New, map from sb-introspect xref
+	format to the Swank xref format.
+	(sanitize-xrefs): Map PCL method names to something more readable.
+	(string-path-snippet): New function, finds a more accurate source
+	snippet for definition source locations which have both an 
+	:emacs-string and a full source path available. Otherwise the xref
+	location would point to the toplevel form rather than the exact 
+	form for functions compiled with C-c C-c.
+	(source-file-position): New function, somewhat like
+	source-path-file-position but uses the source-file cache, handles
+	missing form-paths more gracefully.
+	(make-definition-source-location): Use the above two functions.
+	(sbcl-with-xref-p): New function, detect whether SBCL has xref support
+	for backwards compability.
+	
+2006-11-26  Juho Snellman  <jsnell@iki.fi>
+
+	* swank-source-file-cache.lisp (buffer-first-change): Check
+	whether a file exists before trying load it into the source cache.
+	
+2006-11-26  Juho Snellman  <jsnell@iki.fi>
+
+	Restore the way M-n and M-p used to work in the REPL. (cherry-picked
+	from a patch with other changes, sent by Attila Lendvai).
+
+	* slime.el (slime-repl-previous-input-starting-with-current-input)
+	(slime-repl-next-input-starting-with-current-input): New functions,
+	work like the old slime-repl-previous-input / next-input.
+	(slime-repl-matching-input-regexp): Restore old version.	
+	(slime-repl-mode-map): Bind s-r-p-i-s-w-c-i and s-r-n-i-s-w-c-i
+	to M-p and M-n respectively. slime-repl-previous-input and
+	slime-repl-next-input are still accessible with C-up / C-down.
+	
+2006-11-25  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-repl-read-break): Use a :emacs-interrupt message
+	instead of a RPC to swank:simple-break.  Suggested by Taylor R
+	Campbell.
+
+2006-11-24  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-search-buffer-package): Prettify the package
+	name if it is written as string or keyword.
+
+2006-11-23  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-in-expression-p): Use `read' and `eq' to test
+	the first element of the list.  Previuosly, the pattern (foo)
+	wrongly matched (foobar) because we used (looking-at <symbol>).
+
+	* swank-cmucl.lisp (setf-definitions): Also include defs which
+	were created with (defun (setf NAME) ...).  Previously we only
+	found definitions created with defsetf or define-setf-expander.
+
+2006-11-22  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-edit-definition): Don't hide error messages.
+
+2006-11-21  Helmut Eller  <heller@common-lisp.net>
+
+	* swank.lisp (*coding-system*): "Coding systems" are now strings
+	instead of keywords.
+
+2006-11-19  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-compile-file): Let the Lisp side choose the
+	coding system.
+	(slime-coding): Deleted.
+
+	* swank.lisp (compile-file-for-emacs): Use guess-external-format.
+	(swank:create-server): no more accepts an  :external-format 'enc ,
+	use  :coding-system "enc"  instead.
+	
+	* swank-backend.lisp (find-external-format)
+	(guess-external-format): New.
+	(swank-compile-file): The external-format argument is now a
+	backend specific value returned by find-external-format.
+
+	* swank-cmucl.lisp, swank-sbcl.lisp, swank-clisp,
+	swank-lispworks.lisp, swank-allegro.lisp, swank-corman.lisp,
+	swank-ecl.lisp, swank-scl.lisp, swank-abcl.lisp, swank-openmcl:
+	Update implementations accordingly.
+
+	* swank-source-file-cache.lisp (read-file): Use guess-external-format.
+	
+	* swank.lisp (*swank-wire-protocol-version*): Is now initialized
+	by the loader.
+	(wire-protocol-version): Removed, because it contained a reference
+	to swank-loader::*source-directory*.
+
+	* slime.el (slime-set-connection-info): On protocol version
+	mismatch, ask the user how to proceed.
+	(slime-protocol-version): New variable. Initialize it at compile
+	time to detect stale elc files.
+
+	* swank-loader.lisp (load-swank): Set the protocol version.
+	
+2006-11-12  Marco Baringer  <mb@bese.it>
+
+	* slime.el (slime-make-tramp-file-name): Added (require 'tramp)
+	since tramp-make-tramp-file-name is not an autoloaded function.
+
+2006-11-07  Edi Weitz  <edi@agharta.de>
+
+	* slime.el (slime-fuzzy-completion-time-limit-in-msec): Escaped
+	left parenthesis in doc string.
+
+2006-11-05  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* slime.el (slime-complete-keywords-contextually): Unused
+	variable, removed.
+
+2006-11-05  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (sldb-sexp-highlight-mode): Remove bloat.
+
+2006-11-04  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	Support nested presentations in REPL results, when present.lisp is
+	loaded. 
+	
+	* swank.lisp (make-presentations-result): New, factored out from
+	listener-eval. 
+	(listener-eval): Use it here.
+
+	* present.lisp (make-presentations-result): Override it here.
+
+2006-11-03  Marco Baringer  <mb@bese.it>
+
+	* swank.lisp (all-slots-for-inspector): Added declare ignore for
+	unused argument inspector (openmcl warns about this). Reindented.
+
+2006-11-01  Attila Lendvai  <attila.lendvai@gmail.com>
+       
+	* slime.el (sldb-sexp-highlight-mode): New custom.
+	(slime-handle-repl-shortcut): Trigger slime-lookup-shortcut when
+	the point is anywhere before slime-repl-input-start-mark.  IOW,
+	you can press "," anywhere before the prompt.
+	(slime-edit-definition): Handle the case when there are only such
+	entries returned from swank that have errors.
+	(slime-read-from-minibuffer): Allow overriding of the keymap.
+	(slime-repl-previous-matching-input): Similar behaviour like
+	isearch-forward.
+	(slime-repl-next-matching-input): Ditto. In more details: You can
+	freely navigate with slime-repl-previous/next-input with M-p and
+	M-n at any time among the history entries.  When M-r is pressed,
+	which invokes slime-repl-previous-matching-input, the the
+	minibuffer is activated to read the regexp to search for and the
+	contents will default to the current repl input.  Pressing M-r
+	again will start searching with the last pattern used no matter
+	what the content of the minibuffer is. Subsequent invocations of
+	M-r get the next match, and of course the same applies for M-s,
+	which is slime-repl-previous-matching-input.
+
+	* swank.lisp (fuzzy-completion-set): Fix on clisp.
+	(convert-fuzzy-completion-result): Fix symbol fbound and other
+	annotations.
+	(slot-value-using-class-for-inspector): New.
+	(slot-boundp-using-class-for-inspector): New.
+	(inspect-for-emacs): Use the special slot access methods so that
+	it's possible to customize the inspecting of complex
+	slots (e.g. computed-class at
+	http://common-lisp.net/project/computed-class/).
+	(all-slots-for-inspector): Converted to generic method.
+
+2006-11-01  Marco Baringer  <mb@bese.it>
+
+	* swank.lisp (*swank-wire-protocol-version*): Use a defvar to
+	declare the existence of tihs variable to the lisp (Reported by:
+	Jonathon McKitrick <jcm@FreeBSD-uk.eu.org>).
+	
+2006-10-30  Marco Baringer  <mb@bese.it>
+
+	* swank.lisp (*dont-close*): New variable.
+	(defpackage :swank): Export *dont-close*.
+	(start-server, create-server): Use *dont-close* as the default
+	value of the :dont-close parameter.
+	(connection-info): Send the wire-protocol-version (supplied by the
+	swank-version.el file) to slime when connecting.
+	(wire-protocol-version): New function.
+
+	* slime.el (slime-global-variable-name-regexp): New variable.
+	(slime-global-variable-name-p): Use
+	slime-global-variable-name-regexp.
+	("swank-version"): Load swank-version.el to get the wire protocol
+	version.
+	(slime-set-connection-info): Check the wire protocol version.
+
+2006-10-30  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-global-variable-name-p): Oops... need to handle
+	very long strings.
+
+2006-10-29  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* slime.el (slime-global-variable-name-p): Use defun* instead of
+	defun.
+
+2006-10-29  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-global-variable-name-p): Simplified.
+
+2006-10-28  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	Add completion for character names. 
+	
+	* slime.el (slime-completions-for-character): New.
+	(slime-contextual-completions): Use it here.
+
+	* swank-backend.lisp (character-completion-set): New interface.
+
+	* swank-allegro.lisp (character-completion-set): Implement it.
+
+	* swank.lisp (completions-for-character): New slimefun.
+	(compound-prefix-match/ci/underscores) 
+	(longest-completion/underscores, tokenize-completion/underscores) 
+	(untokenize-completion/underscores): New functions.
+
+2006-10-28 Ivan Toshkov <ivan@toshkov.org>
+
+	* hyperspec.el: Missing Hyperspec links for ~| and ~~
+
+2006-10-27 Ivan Toshkov <ivan@toshkov.org>
+
+	* hyperspec.el: Missing Hyperspec links for ~% and ~&
+	
+2006-10-27 Nikodemus Siivola <nikodemus@random-state.net>
+
+	* swank-sbcl.lisp (make-weak-key-hash-table): Restore support
+	for older SBCLs without weak hash-tables.
+	(make-weak-value-hash-table): Ditto.
+
+2006-10-26  Utz-Uwe Haus  <haus+slime@mail.math.uni-magdeburg.de>
+
+	* swank-allegro.lisp (sldb-break-at-start): Implement.
+
+2006-10-26  Attila Lendvai  <attila.lendvai@gmail.com>
+   
+	* slime.el (slime-setup-command-hooks): Use make-local-hook.
+	(slime-repl-mode): Ditto.
+	(slime-fuzzy-choices-buffer): Ditto.
+	(sldb-mode): Ditto.
+	(slime-fuzzy-completion-limit): New variable.
+	(slime-fuzzy-completion-time-limit-in-msec): New variable.
+	(slime-fuzzy-next): Fix when at the end of the buffer.
+	(completion-output-symbol-converter): New to handle escaped
+	symbols for those who need to mess around with symbols like
+	layered-function-definers::|CONTEXTL::SLOT-VALUE-USING-LAYER|.
+	When a symbol is escaped then completion is case sensitive.
+	(completion-output-package-converter): New.
+	(mimic-key-bindings): New to easily define bindings by first
+	trying to look up bindings for an operation and only use the
+	provided default bindings if nothing was found in the source
+	keymap. Use it to set up fuzzy bindings. (Hint: if you have keys
+	like previous-line customized, then only load slime after they
+	have been set, and the fuzzy mode will mimic them.)
+	(slime-temp-buffer-quit): Always close the opened window, updated
+	docstring.  Also made the fuzzy maps smarter, they now try to look
+	up keys with 'where-is-internal and map the functions on them.
+   
+	* swank-sbcl.lisp
+	(make-weak-value-hash-table): New for sbcl.
+	(make-weak-key-hash-table): New for sbcl.
+   
+	* swank.lisp (fuzzy-completions and friends): Added :limit and
+	:time-limit-in-msec keyword params. Used vectors instead of lists
+	that nearly doubled its speed (at least on sbcl).  Also added some
+	declare optimize and type annotations.
+	(do-symbols*): New, uses a hash-table to visit only non-seen
+	symbols. Replaced various uses of do-symbols where it was
+	appropiate.
+
+2006-10-26  Marco Baringer  <mb@bese.it>
+
+	* slime.el (slime-global-variable-name-p): Use a custom 'parser'
+	instead of string-match to avoid regexp overflow errors on very
+	long strings.
+
 2006-10-21  Helmut Eller  <heller@common-lisp.net>
 
 	* swank-lispworks.lisp (initialize-multiprocessing): Don't init
@@ -41,7 +365,7 @@
 	slime-fuzzy-completions-map and
 	slime-target-buffer-fuzzy-completions-map for details.
 
-	* slime.el (slime-space-information-p): New variable.
+	* slime.el (slime-fuzzy-completion-in-place): New variable.
 	(slime-target-buffer-fuzzy-completions-mode): New keymap for
 	in-place fuzzy completions.
 	(slime-fuzzy-target-buffer-completions-mode): New minor mode for
@@ -10514,3 +10838,5 @@
 ;; Local Variables:
 ;; coding: latin-1
 ;; End:
+
+This file has been placed in the public domain.

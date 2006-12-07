@@ -116,22 +116,35 @@
 
 (defimplementation close-socket (socket)
   (socket:socket-server-close socket))
-
-(defun find-encoding (external-format)
-  (let ((charset (ecase external-format
-		   (:iso-latin-1-unix "iso-8859-1")
-		   (:utf-8-unix       "utf-8")
-		   (:euc-jp-unix      "euc-jp"))))
-    (ext:make-encoding :charset charset :line-terminator :unix)))
   
 (defimplementation accept-connection (socket
 				      &key external-format buffering timeout)
   (declare (ignore buffering timeout))
-  (setq external-format (or external-format :iso-latin-1-unix))
   (socket:socket-accept socket
 			:buffered nil ;; XXX should be t
 			:element-type 'character
-			:external-format (find-encoding external-format)))
+			:external-format external-format))
+
+;;; Coding systems
+
+(defvar *external-format-to-coding-system*
+  '(((:charset "iso-8859-1" :line-terminator :unix) 
+     "latin-1-unix" "iso-latin-1-unix" "iso-8859-1-unix")
+    ((:charset "iso-8859-1":latin-1) 
+     "latin-1" "iso-latin-1" "iso-8859-1")
+    ((:charset "utf-8") "utf-8")
+    ((:charset "utf-8" :line-terminator :unix) "utf-8-unix")
+    ((:charset "euc-jp") "euc-jp")
+    ((:charset "euc-jp" :line-terminator :unix) "euc-jp-unix")
+    ((:charset "us-ascii") "us-ascii")
+    ((:charset "us-ascii" :line-terminator :unix) "us-ascii-unix")))
+
+(defimplementation find-external-format (coding-system)
+  (let ((args (car (rassoc-if (lambda (x) 
+				(member coding-system x :test #'equal))
+			      *external-format-to-coding-system*))))
+    (and args (apply #'ext:make-encoding args))))
+
 
 ;;; Swank functions
 
@@ -467,17 +480,14 @@ Execute BODY with NAME's function slot set to FUNCTION."
 			  :message (princ-to-string condition)
 			  :location (compiler-note-location))))
 
-(defimplementation swank-compile-file (filename load-p 
-				       &optional external-format)
-  (let ((ef (if external-format 
-		(find-encoding external-format)
-		:default)))
-    (with-compilation-hooks ()
-      (with-compilation-unit ()
-	(let ((fasl-file (compile-file filename :external-format ef)))
-	  (when (and load-p fasl-file)
-	    (load fasl-file))
-	  nil)))))
+(defimplementation swank-compile-file (filename load-p external-format)
+  (with-compilation-hooks ()
+    (with-compilation-unit ()
+      (let ((fasl-file (compile-file filename 
+				     :external-format external-format)))
+	(when (and load-p fasl-file)
+	  (load fasl-file))
+	nil))))
 
 (defimplementation swank-compile-string (string &key buffer position directory)
   (declare (ignore directory))

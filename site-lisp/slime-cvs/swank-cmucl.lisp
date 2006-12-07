@@ -100,13 +100,8 @@
 
 (defimplementation accept-connection (socket &key
                                       external-format buffering timeout)
-  (declare (ignore timeout))
-  (let ((ef (or external-format :iso-latin-1-unix))
-        (buffering (or buffering :full)))
-    (unless (eq ef ':iso-latin-1-unix)
-      (remove-fd-handlers socket)
-      (remove-sigio-handlers socket)
-      (error "External format ~S not supported" ef))
+  (declare (ignore timeout external-format))
+  (let ((buffering (or buffering :full)))
     (make-socket-io-stream (ext:accept-tcp-connection socket) buffering)))
 
 ;;;;; Sockets
@@ -338,8 +333,7 @@ NIL if we aren't compiling from a buffer.")
                    (c::warning        #'handle-notification-condition))
       (funcall function))))
 
-(defimplementation swank-compile-file (filename load-p 
-                                       &optional external-format)
+(defimplementation swank-compile-file (filename load-p external-format)
   (declare (ignore external-format))
   (clear-xref-info filename)
   (with-compilation-hooks ()
@@ -1143,7 +1137,10 @@ Signal an error if no constructor can be found."
 
 (defun setf-definitions (name)
   (let ((function (or (ext:info :setf :inverse name)
-                      (ext:info :setf :expander name))))
+                      (ext:info :setf :expander name)
+                      (and (symbolp name)
+                           (fboundp `(setf ,name))
+                           (fdefinition `(setf ,name))))))
     (if function
         (list (list `(setf ,name) 
                     (function-location (coerce function 'function)))))))

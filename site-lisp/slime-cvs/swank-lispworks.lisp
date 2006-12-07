@@ -67,24 +67,35 @@
 
 (defimplementation accept-connection (socket 
                                       &key external-format buffering timeout)
-  (declare (ignore buffering timeout))
-  (assert (member external-format '(nil :iso-latin-1-unix)))
+  (declare (ignore buffering timeout external-format))
   (let* ((fd (comm::get-fd-from-socket socket)))
     (assert (/= fd -1))
     (make-instance 'comm:socket-stream :socket fd :direction :io 
                    :element-type 'base-char)))
-
-(defun find-external-format (coding-system &optional default)
-  (case coding-system
-    (:iso-latin-1-unix '(:latin-1 :eol-style :lf))
-    (:utf-8-unix '(:utf-8 :eol-style :lf))
-    (t default)))
 
 (defun set-sigint-handler ()
   ;; Set SIGINT handler on Swank request handler thread.
   #-win32
   (sys::set-signal-handler +sigint+ 
                            (make-sigint-handler mp:*current-process*)))
+
+;;; Coding Systems
+
+(defvar *external-format-to-coding-system*
+  '(((:latin-1 :eol-style :lf) 
+     "latin-1-unix" "iso-latin-1-unix" "iso-8859-1-unix")
+    ((:latin-1) 
+     "latin-1" "iso-latin-1" "iso-8859-1")
+    ((:utf-8) "utf-8")
+    ((:utf-8 :eol-style :lf) "utf-8-unix")
+    ((:euc-jp) "euc-jp")
+    ((:euc-jp :eol-style :lf) "euc-jp-unix")
+    ((:ascii) "us-ascii")
+    ((:ascii :eol-style :lf) "us-ascii-unix")))
+
+(defimplementation find-external-format (coding-system)
+  (car (rassoc-if (lambda (x) (member coding-system x :test #'equal))
+                  *external-format-to-coding-system*)))
 
 ;;; Unix signals
 
@@ -362,13 +373,9 @@ Return NIL if the symbol is unbound."
          (signal-error-data-base compiler::*error-database* ,location)
          (signal-undefined-functions compiler::*unknown-functions* ,location)))))
 
-(defimplementation swank-compile-file (filename load-p 
-                                       &optional external-format)
+(defimplementation swank-compile-file (filename load-p external-format)
   (with-swank-compilation-unit (filename)
-    (let ((ef (if external-format 
-                  (find-external-format external-format) 
-                  :default)))
-      (compile-file filename :load load-p :external-format ef))))
+    (compile-file filename :load load-p :external-format external-format)))
 
 (defvar *within-call-with-compilation-hooks* nil
   "Whether COMPILE-FILE was called from within CALL-WITH-COMPILATION-HOOKS.")

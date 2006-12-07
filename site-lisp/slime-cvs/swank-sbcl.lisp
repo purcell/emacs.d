@@ -30,6 +30,16 @@
   (defun sbcl-with-new-stepper-p ()
     (if (find-symbol "ENABLE-STEPPING" "SB-IMPL")
         '(and)
+        '(or)))
+  ;; Ditto for weak hash-tables
+  (defun sbcl-with-weak-hash-tables ()
+    (if (find-symbol "HASH-TABLE-WEAKNESS" "SB-EXT")
+        '(and)
+        '(or)))
+  ;; And for xref support (1.0.1)
+  (defun sbcl-with-xref-p ()
+    (if (find-symbol "WHO-CALLS" "SB-INTROSPECT")
+        '(and)
         '(or))))
 
 ;;; swank-mop
@@ -124,22 +134,27 @@
     (sb-bsd-sockets:socket (sb-bsd-sockets:socket-file-descriptor socket))
     (file-stream (sb-sys:fd-stream-fd socket))))
 
-(defun find-external-format (coding-system)
-  (ecase coding-system
-    (:iso-latin-1-unix :iso-8859-1)
-    (:utf-8-unix :utf-8)
-    (:euc-jp-unix :euc-jp)))
+(defvar *external-format-to-coding-system*
+  '((:iso-8859-1 
+     "latin-1" "latin-1-unix" "iso-latin-1-unix" 
+     "iso-8859-1" "iso-8859-1-unix")
+    (:utf-8 "utf-8" "utf-8-unix")
+    (:euc-jp "euc-jp" "euc-jp-unix")
+    (:us-ascii "us-ascii" "us-ascii-unix")))
+
+(defimplementation find-external-format (coding-system)
+  (car (rassoc-if (lambda (x) (member coding-system x :test #'equal))
+                  *external-format-to-coding-system*)))
 
 (defun make-socket-io-stream (socket external-format buffering)
-  (let ((ef (find-external-format external-format)))
-    (sb-bsd-sockets:socket-make-stream socket
-                                       :output t
-                                       :input t
-                                       :element-type 'character
-                                       :buffering buffering
-                                       #+sb-unicode :external-format
-                                       #+sb-unicode ef
-                                       )))
+  (sb-bsd-sockets:socket-make-stream socket
+                                     :output t
+                                     :input t
+                                     :element-type 'character
+                                     :buffering buffering
+                                     #+sb-unicode :external-format
+                                     #+sb-unicode external-format
+                                     ))
 
 (defun accept (socket)
   "Like socket-accept, but retry on EAGAIN."
@@ -368,20 +383,17 @@ compiler state."
 
 (defvar *trap-load-time-warnings* nil)
 
-(defimplementation swank-compile-file (filename load-p
-                                       &optional external-format)
-  (let ((ef (if external-format
-                (find-external-format external-format)
-                :default)))
-    (handler-case
-        (let ((output-file (with-compilation-hooks ()
-                             (compile-file filename :external-format ef))))
-          (when output-file
-            ;; Cache the latest source file for definition-finding.
-            (source-cache-get filename (file-write-date filename))
-            (when load-p
-              (load output-file))))
-      (sb-c:fatal-compiler-error () nil))))
+(defimplementation swank-compile-file (filename load-p external-format)
+  (handler-case
+      (let ((output-file (with-compilation-hooks ()
+                           (compile-file filename 
+                                         :external-format external-format))))
+        (when output-file
+          ;; Cache the latest source file for definition-finding.
+          (source-cache-get filename (file-write-date filename))
+          (when load-p
+            (load output-file))))
+    (sb-c:fatal-compiler-error () nil)))
 
 ;;;; compile-string
 
@@ -478,34 +490,45 @@ This is useful when debugging the definition-finding code.")
         plist
       (cond
         (emacs-buffer
-         (let ((pos (if form-path
-                        (with-debootstrapping
-                          (source-path-string-position
-                           form-path emacs-string))
-                        character-offset)))
+         (let* ((pos (if form-path
+                         (with-debootstrapping
+                           (source-path-string-position form-path emacs-string))
+                         character-offset))
+                (snippet (string-path-snippet emacs-string form-path pos)))
            (make-location `(:buffer ,emacs-buffer)
                           `(:position ,(+ pos emacs-position))
-                          `(:snippet ,emacs-string))))
+                          `(:snippet ,snippet))))
         ((not pathname)
          `(:error ,(format nil "Source of ~A ~A not found"
                            (string-downcase type) name)))
         (t
          (let* ((namestring (namestring (translate-logical-pathname pathname)))
-                (*readtable* (guess-readtable-for-filename namestring))
-                (pos (1+ (with-debootstrapping
-                           ;; Some internal functions have no source path
-                           ;; or offset available, just the file (why?).
-                           ;; In these cases we can at least try to open
-                           ;; the right file.
-                           (if form-path
-                               (source-path-file-position form-path
-                                                          pathname)
-                               0))))
-                (snippet (source-hint-snippet namestring
-                                              file-write-date pos)))
+                (pos (source-file-position namestring file-write-date form-path
+                                           character-offset))
+                (snippet (source-hint-snippet namestring file-write-date pos)))
            (make-location `(:file ,namestring)
                           `(:position ,pos)
                           `(:snippet ,snippet))))))))
+
+(defun string-path-snippet (string form-path position)
+  (if form-path
+      ;; If we have a form-path, use it to derive a more accurate
+      ;; snippet, so that we can point to the individual form rather
+      ;; than just the toplevel form.
+      (multiple-value-bind (data end)
+          (let ((*read-suppress* t))
+            (read-from-string string nil nil :start position))
+        (declare (ignore data))
+        (subseq string position end))
+      string))    
+    
+(defun source-file-position (filename write-date form-path character-offset)
+  (let ((source (get-source-code filename write-date))
+        (*readtable* (guess-readtable-for-filename filename)))
+    (1+ (with-debootstrapping
+          (if form-path
+              (source-path-string-position form-path source)
+              (or character-offset 0))))))
 
 (defun source-hint-snippet (filename write-date position)
   (let ((source (get-source-code filename write-date)))
@@ -569,6 +592,30 @@ Return NIL if the symbol is unbound."
      (describe (find-class symbol)))
     (:type
      (describe (sb-kernel:values-specifier-type symbol)))))
+  
+#+#.(swank-backend::sbcl-with-xref-p)
+(progn
+  (defmacro defxref (name)
+    `(defimplementation ,name (what)
+       (sanitize-xrefs   
+        (mapcar #'source-location-for-xref-data
+                (,(find-symbol (symbol-name name) "SB-INTROSPECT")
+                  what)))))
+  (defxref who-calls)
+  (defxref who-binds)
+  (defxref who-sets)
+  (defxref who-references)
+  (defxref who-macroexpands))
+
+(defun source-location-for-xref-data (xref-data)
+  (let ((name (car xref-data))
+        (source-location (cdr xref-data)))
+    (list name
+          (handler-case (make-definition-source-location source-location
+                                                         'function
+                                                         name)
+            (error (e)
+              (list :error (format nil "Error: ~A" e)))))))
 
 (defimplementation list-callers (symbol)
   (let ((fn (fdefinition symbol)))
@@ -580,11 +627,20 @@ Return NIL if the symbol is unbound."
     (sanitize-xrefs
      (mapcar #'function-dspec (sb-introspect:find-function-callees fn)))))
 
-(defun sanitize-xrefs (x)
+(defun sanitize-xrefs (xrefs)
   (remove-duplicates
    (remove-if (lambda (f)
                 (member f (ignored-xref-function-names)))
-              x
+              (loop for entry in xrefs
+                    for name = (car entry)
+                    collect (if (and (consp name)
+                                     (member (car name)
+                                             '(sb-pcl::fast-method
+                                               sb-pcl::slow-method
+                                               sb-pcl::method)))
+                                (cons (cons 'defmethod (cdr name))
+                                      (cdr entry))
+                                entry))
               :key #'car)
    :test (lambda (a b)
            (and (eq (first a) (first b))
@@ -1178,11 +1234,14 @@ stack."
 
 ;;; Weak datastructures
 
+(defimplementation make-weak-key-hash-table (&rest args)  
+  #+#.(swank-backend::sbcl-with-weak-hash-tables)
+  (apply #'make-hash-table :weakness :key args)
+  #-#.(swank-backend::sbcl-with-weak-hash-tables)
+  (apply #'make-hash-table args))
 
-;; SBCL doesn't actually implement weak hash-tables, the WEAK-P
-;; keyword is just a decoy. Leave this here, but commented out,
-;; so that no-one tries adding it back.
-#+(or)
-(defimplementation make-weak-key-hash-table (&rest args)
-  (apply #'make-hash-table :weak-p t args))
-
+(defimplementation make-weak-value-hash-table (&rest args)
+  #+#.(swank-backend::sbcl-with-weak-hash-tables)
+  (apply #'make-hash-table :weakness :value args)
+  #-#.(swank-backend::sbcl-with-weak-hash-tables)
+  (apply #'make-hash-table args))

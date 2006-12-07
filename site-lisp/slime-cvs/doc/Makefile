@@ -1,3 +1,5 @@
+# This file has been placed in the public domain.
+#
 # Where to put the info file(s). NB: the GNU Coding Standards (GCS)
 # and the Filesystem Hierarchy Standard (FHS) differ on where info
 # files belong. The GCS says /usr/local/info; the FHS says
@@ -12,23 +14,28 @@ INSTALL_CMD=install -m 644
 # Info files generated here.
 infofiles=slime.info
 
-all: slime.ps slime.info slime.pdf
+TEXI = slime.texi contributors.texi
 
-install: install-info
+all: slime.ps slime.info slime.html slime.pdf
 
-uninstall: uninstall-info
+slime.dvi: $(TEXI)
+	texi2dvi slime.texi
 
 slime.ps: slime.dvi
 	dvips -o $@ $<
 
-slime.dvi: slime.texi contributors.texi
-	texi2dvi slime.texi
+slime.info: $(TEXI)
+	makeinfo $<
 
-slime.pdf: slime.texi contributors.texi
+slime.html: $(TEXI)
+	texi2html $<
+
+slime.pdf: $(TEXI)
 	texi2pdf $<
 
-slime.info: slime.texi contributors.texi
-	makeinfo $<
+install: install-info
+
+uninstall: uninstall-info
 
 # Create contributors.texi, a texinfo table listing all known
 # contributors of code.
@@ -98,3 +105,4 @@ really_clean: clean
 	rm -f slime.info
 	rm -f slime.pdf
 	rm -f slime.ps
+	rm -f slime.html

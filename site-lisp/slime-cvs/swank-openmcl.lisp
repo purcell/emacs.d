@@ -168,9 +168,7 @@
 
 (defimplementation accept-connection (socket
                                       &key external-format buffering timeout)
-  (declare (ignore buffering timeout))
-  (let ((ef (or external-format :iso-latin-1-unix)))
-    (assert (eq ef :iso-latin-1-unix)))
+  (declare (ignore buffering timeout external-format))
   (ccl:accept-connection socket :wait t))
 
 (defimplementation emacs-connected ()
@@ -298,8 +296,7 @@ condition."
   (handler-bind ((ccl::compiler-warning 'handle-compiler-warning))
     (funcall function)))
 
-(defimplementation swank-compile-file (filename load-p 
-                                       &optional external-format)
+(defimplementation swank-compile-file (filename load-p external-format)
   (declare (ignore external-format))
   (with-compilation-hooks ()
     (let ((*buffer-name* nil)

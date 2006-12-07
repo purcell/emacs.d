@@ -8,9 +8,26 @@
 @end direntry
 @c %**end of header
 
+@set EDITION 2.0
+@c @set UPDATED @today{}
+@set UPDATED @code{$Date: 2006/11/22 06:27:38 $}
+@set TITLE SLIME User Manual
+@settitle @value{TITLE}, version @value{EDITION}
+
+@titlepage
+@title @value{TITLE}
+@titlefont{version @value{EDITION}}
+@sp 2
+@image{slime-small}
+@sp 4
+@subtitle Compiled: @value{UPDATED}
+@end titlepage
+
 @c Written by Luke Gorrie.
-@c
+@c 
 @c This file has been placed in the public domain.
+@c 
+@c Modified by Jeff Cunningham.
 
 @macro SLIME
 @acronym{SLIME}
@@ -33,20 +50,32 @@
 @code{\command\}@*
 @end macro
 
-@set EDITION 2.0
-@set UPDATED @code{$Date: 2006/09/20 18:37:47 $}
+@macro kbdanchor{key, command}
+@anchor{\command\}
+@item \key\
+@code{\command\}@*
+@end macro
 
-@titlepage
-@title SLIME User Manual
-@subtitle The Superior Lisp Interaction Mode for Emacs
-@subtitle @value{EDITION}, @value{UPDATED}
-@author
-@end titlepage
+@macro kbdindex{key, command}
+@item \key\
+@xref{\command\}.
+@end macro
+
+@macro fcnanchor{name}
+@anchor{\name\}
+@item M-x
+@code{\name\}@*
+@end macro
+
+@macro fcnindex{name}
+@item \name\
+@xref{\name\}.
+@end macro
 
 @c @setchapternewpage off
-
 @contents
 
+@c ----------------------- 
 @node Top, Introduction, (dir), (dir)
 
 @ifinfo
@@ -57,17 +86,20 @@ the manual for version 1.2.
 
 @end ifinfo
 @menu
-* Introduction::                
+* Introduction::
 * Getting started::             
-* slime-mode::                  
+* slime-mode::
 * REPL::                        
 * Debugger::                    
 * Extras::                      
 * Customization::               
 * Tips and Tricks::             
 * Credits::                     
+* Index to Key Bindings::
+* Index to Functions::                     
 @end menu
 
+@c ----------------------- 
 @node Introduction, Getting started, Top, Top
 @chapter Introduction
 
@@ -95,6 +127,7 @@ required implementation-specific functionality is specified by a
 well-defined interface and implemented separately for each Lisp
 implementation. This makes @SLIME{} readily portable.
 
+@c ----------------------- 
 @node Getting started, slime-mode, Introduction, Top
 @chapter Getting started
 
@@ -107,6 +140,7 @@ This chapter tells you how to get @SLIME{} up and running.
 * Running::                     
 @end menu
 
+@c ----------------------- 
 @node Platforms, Downloading, Getting started, Getting started
 @section Supported Platforms
 
@@ -144,6 +178,7 @@ prone to variation. These include the precision of placing
 compiler-note annotations, @acronym{XREF} support, and fancy debugger
 commands (like ``restart frame'').
 
+@c ----------------------- 
 @node Downloading, Installation, Platforms, Getting started
 @section Downloading SLIME
 
@@ -161,6 +196,7 @@ mailing list use the @CVS{} version of the code.
 * CVS Incantations::            
 @end menu
 
+@c ----------------------- 
 @node CVS, CVS Incantations, Downloading, Downloading
 @subsection Downloading from CVS
 
@@ -186,6 +222,7 @@ once per month).
 * CVS Incantations::            
 @end menu
 
+@c ----------------------- 
 @node CVS Incantations,  , CVS, Downloading
 @subsection CVS incantations
 
@@ -217,6 +254,7 @@ repository version:
 cvs diff -rHEAD ChangeLog      # or: -rFAIRLY-STABLE
 @end example
 
+@c ----------------------- 
 @node Installation, Running, Downloading, Getting started
 @section Installation
 
@@ -241,6 +279,7 @@ intend to use @SLIME{}. Doing so will add a lot of extra bindings to
 the keymap for Lisp source files that may be confusing and may not
 work correctly for a Lisp process started by @SLIME{}.
 
+@c ----------------------- 
 @node Running,  , Installation, Getting started
 @section Running SLIME
 
@@ -252,6 +291,13 @@ created where you can enter Lisp expressions for evaluation.
 
 At this point @SLIME{} is up and running and you can start exploring.
 
+You can restart the @code{inferior-lisp} process using the function:
+@table @kbd
+@fcnanchor{slime-restart-inferior-lisp}
+@end table
+
+
+@c ----------------------- 
 @node slime-mode, REPL, Getting started, Top
 @chapter @code{slime-mode}
 
@@ -266,6 +312,7 @@ describes the @code{slime-mode} and its relatives.
 * Reader conditionals::         
 @end menu
 
+@c ----------------------- 
 @node User-interface conventions, Commands, slime-mode, slime-mode
 @section User-interface conventions
 
@@ -275,12 +322,13 @@ principles are described in this section.
 
 @menu
 * Temporary buffers::           
-* Key bindings::                
+* About key bindings::                
 * inferior-lisp::               
 * Multithreading::              
 @end menu
 
-@node Temporary buffers, Key bindings, User-interface conventions, User-interface conventions
+@c ----------------------- 
+@node Temporary buffers, About key bindings, User-interface conventions, User-interface conventions
 @subsection Temporary buffers
 
 Some @SLIME{} commands create temporary buffers to display their
@@ -305,8 +353,9 @@ addition to any special mode of their own. This makes the usual
 @SLIME{} commands available for describing symbols, looking up
 function definitions, and so on.
 
-@node Key bindings, inferior-lisp, Temporary buffers, User-interface conventions
-@subsection Key bindings
+@c ----------------------- 
+@node About key bindings, inferior-lisp, Temporary buffers, User-interface conventions
+@subsection About key bindings
 
 In general we try to make our key bindings fit with the overall Emacs
 style. We also have the following somewhat unusual convention of our
@@ -326,7 +375,16 @@ will display all bindings starting with that prefix, so @kbd{C-c C-d
 C-h} will actually list the bindings for all documentation commands.
 This feature is just a bit too useful to clobber!
 
-@node inferior-lisp, Multithreading, Key bindings, User-interface conventions
+You can assign or change default key bindings using the @code{global-set-key}
+function in your @file{~/.emacs} file like this:
+@example
+(global-set-key "\C-cs" 'slime-selector)
+@end example
+@noindent
+which binds @kbd{C-c s} to the function @code{global-set-key}.
+
+@c ----------------------- 
+@node inferior-lisp, Multithreading, About key bindings, User-interface conventions
 @subsection @code{*inferior-lisp*} buffer
 
 @SLIME{} internally uses the @code{inferior-lisp} package to start
@@ -353,6 +411,7 @@ command that pops up the @code{*inferior-lisp*} buffer, that command
 doesn't belong to @SLIME{}, and you should probably lookup our
 equivalent.
 
+@c ----------------------- 
 @node Multithreading,  , inferior-lisp, User-interface conventions
 @subsection Multithreading
 
@@ -379,184 +438,67 @@ doubles by default:
        swank:*default-worker-thread-bindings*).
 @end example
 
+@c ----------------------- 
 @node Commands, Semantic indentation, User-interface conventions, slime-mode
 @section Commands
 
+@acronym{SLIME} commands are divided into the following general
+categories: @strong{Programming, Compilation, Evaluation, Recovery,
+Inspector, and Profiling}, discussed in separate sections below. There
+are also comprehensive indices to commands by function (@pxref{Index
+to Functions}) and by function (@pxref{Index to Key Bindings}).
+
 @menu
+* Programming::         
 * Compilation::                 
-* Finding definitions::         
-* Lisp Evaluation::             
-* Documentation::               
-* Programming Helpers::         
+* Evaluation::             
 * Recovery::                    
-* Cross-reference::             
 * Inspector::                   
 * Profiling::                   
+* Other::
 @end menu
 
-@node Compilation, Finding definitions, Commands, Commands
-@subsection Compilation commands
+@c ----------------------- 
+@node Programming, Compilation, , Commands
+@subsection Programming commands
 
-@SLIME{} has fancy commands for compiling functions, files, and
-packages. The fancy part is that notes and warnings offered by the
-Lisp compiler are intercepted and annotated directly onto the
-corresponding expressions in the Lisp source buffer. (Give it a try to
-see what this means.)
-
-@table @kbd
-
-@kbditem{C-c C-k, slime-compile-and-load-file}
-Compile and load the current buffer's source file.
-
-@kbditem{C-c M-k, slime-compile-file}
-Compile (but don't load) the current buffer's source file.
-
-@kbditem{C-c C-c, slime-compile-defun}
-Compile the top-level form at point.
-
-@end table
-
-The annotations are indicated as underlining on source forms. The
-compiler message associated with an annotation can be read either by
-placing the mouse over the text or with the selection commands below.
-
-@table @kbd
-
-@item M-n
-@itemx M-p
-@code{slime-next-note, slime-previous-note}@*
-These commands move the point between compiler notes and display the new note.
-
-@kbditem{C-c M-c, slime-remove-notes}
-Remove all annotations from the buffer.
-
-@end table
-
-@node Finding definitions, Lisp Evaluation, Compilation, Commands
-@subsection Finding definitions (``Meta-Point'').
-
-The familiar @kbd{M-.} command is provided. For generic functions this
-command finds all methods, and with some systems it does other fancy
-things (like tracing structure accessors to their @code{DEFSTRUCT}
-definition).
-
-@table @kbd
-
-@kbditem{M-., slime-edit-definition}
-Go to the definition of the symbol at point.
-
-@item M-,
-@code{slime-pop-find-definition-stack}
-Go back from a definition found with @kbd{M-.}. This gives multi-level
-backtracking when @kbd{M-.} has been used several times.
-
-@end table
-
-@node Lisp Evaluation, Documentation, Finding definitions, Commands
-@subsection Lisp Evaluation
-
-These commands each evaluate a Lisp expression in a different way. By
-default they show their results in a message, but a prefix argument
-causes the results to be printed in the @REPL{} instead.
-
-@table @kbd
-
-@kbditem{C-M-x, slime-eval-defun}
-Evaluate top-level form.
-
-@kbditem{C-x C-e, slime-eval-last-expression}
-Evaluate the expression before point.
-
-@kbditem{C-c C-p, slime-pprint-eval-last-expression}
-Evaluate the expression before point and pretty-print the result.
-
-@kbditem{C-c C-r, slime-eval-region}
-Evaluate the region.
-
-@kbditem{C-c :, slime-interactive-eval}
-Evaluate an expression read from the minibuffer.
-
-@anchor{slime-scratch}
-@item M-x slime-scratch
-Create a @file{*slime-scratch*} buffer. In this
-buffer you can enter Lisp expressions and evaluate them with
-@kbd{C-j}, like in Emacs's @file{*scratch*} buffer.
-
-@end table
-
-If `C-M-x' or `C-x C-e' is given a numeric argument, it inserts the
-value into the current buffer at point, rather than displaying it in the
-echo area.
-
-@node Documentation, Programming Helpers, Lisp Evaluation, Commands
-@subsection Documentation
-
-@SLIME{}'s online documentation commands follow the example of Emacs
-Lisp. The commands all share the common prefix @kbd{C-c C-d} and allow
-the final key to be modified or unmodified (@xref{Key bindings}.)
-
-@table @kbd
-
-@kbditem{C-c C-d d, slime-describe-symbol}
-Describe the symbol at point.
-
-@kbditem{C-c C-d a, slime-apropos}
-Apropos search. Search Lisp symbol names for a substring match and
-present their documentation strings. By default the external symbols
-of all packages are searched. With a prefix argument you can choose a
-specific package and whether to include unexported symbols.
-
-@kbditem{C-c C-d z, slime-apropos-all}
-Like @code{slime-apropos} but also includes internal symbols by default.
-
-@kbditem{C-c C-d p, slime-apropos-package}
-Show apropos results of all symbols in a package. This command is for
-browsing a package at a high-level. With package-name completion it
-also serves as a rudimentary Smalltalk-ish image-browser.
-
-@kbditem{C-c C-d h, slime-hyperspec-lookup}
-Lookup the symbol at point in the @cite{Common Lisp Hyperspec}. This
-uses the familiar @file{hyperspec.el} to show the appropriate section
-in a web browser. The Hyperspec is found either on the Web or in
-@code{common-lisp-hyperspec-root}, and the browser is selected by
-@code{browse-url-browser-function}.
-
-@kbditem{C-c C-d ~, common-lisp-hyperspec-format}
-Lookup a format character in the @cite{Common Lisp Hyperspec}.
-@end table
-
-@node Programming Helpers, Recovery, Documentation, Commands
-@subsection Programming Helpers
+Programming commands are divided into the following categories:
+@strong{Completion, Documentation, Coss-reference, Finding
+definitions, Macro-expansion, and Disassembly}, discussed in
+separate sections below.
 
 @menu
 * Completion::                  
-* Macro Expansion::             
-* Accessing Documentation::     
+* Closure::               
+* Indentation::               
+* Documentation::               
+* Cross-reference::             
+* Finding definitions::         
+* Macro-expansion::             
 * Disassembly::                 
 @end menu
 
-@node Completion, Macro Expansion, Programming Helpers, Programming Helpers
-@subsubsection Completion
+@c ----------------------- 
+@node Completion, Closure, , Programming
+@subsubsection Completion commands
+
+Completion commands are used to complete a symbol or form based on
+what is already present at point. Classical completion assumes an
+exact prefix and gives choices only where branches may occur. Fuzzy
+completion tries harder.
 
 @table @kbd
-@kbditem{M-TAB, slime-complete-symbol}
+@anchor{slime-complete-symbol}
+@itemx M-TAB
+@item C-c C-i
+@item C-M-i
+@code{slime-complete-symbol}@*
 Complete the symbol at point. Note that three styles of completion are
-available in @SLIME{}, and the default differs from normal Emacs
-completion. @xref{Emacs-side customization}.
+available in @SLIME{}, and the default differs from normal Emacs 
+completion (@pxref{slime-complete-symbol-function}). 
+@xref{Emacs-side customization}.
 
-@anchor{slime-fuzzy-complete-symbol}
-@kbditem{C-c M-i, slime-fuzzy-complete-symbol}
-Presents a list of likely completions to choose from for an
-abbreviation at point.  This is a third completion method and it is
-very different from the more traditional completion to which
-@command{slime-complete-symbol} defaults.  It attempts to complete a
-symbol all at once, instead of in pieces.  For example, ``mvb'' will
-find ``@code{multiple-value-bind}'' and ``norm-df'' will find
-``@code{least-positive-normalized-double-float}''.  This can also be
-selected as the method of completion used for
-@code{slime-complete-symbol}.
-
-@kbditem{C-c C-s, slime-complete-form} 
+@kbdanchor{C-c C-s, slime-complete-form} 
 Looks up and inserts into the current buffer the argument list for the
 function at point, if there is one.  More generally, the command
 completes an incomplete form with a template for the missing arguments.
@@ -583,63 +525,116 @@ functions and for handling @code{make-instance} and
 (make-instance 'foo <C-c C-s>
   --inserts--> :bar bar :blub blub initargs...)
 @end example
+
+@kbdanchor{C-c M-i, slime-fuzzy-complete-symbol}
+Presents a list of likely completions to choose from for an
+abbreviation at point.  This is a third completion method and it is
+very different from the more traditional completion to which
+@command{slime-complete-symbol} defaults.  It attempts to complete a
+symbol all at once, instead of in pieces.  For example, ``mvb'' will
+find ``@code{multiple-value-bind}'' and ``norm-df'' will find
+``@code{least-positive-normalized-double-float}''.  This can also be
+selected as the method of completion used for
+@code{slime-complete-symbol}.
+
+@fcnanchor{slime-fuzzy-completions-mode}
+@fcnanchor{slime-fuzzy-abort}
 @end table
 
-@node Macro Expansion, Accessing Documentation, Completion, Programming Helpers
-@subsubsection Macro Expansion
 
-@xref{slime-macroexpansion-minor-mode}.
+@c ----------------------- 
+@node Closure, Indentation, Completion, Programming
+@subsubsection Closure commands
+
+Closure commands are used to fill in missing parenthesis.  
 
 @table @kbd
-@kbditem{C-c C-m, slime-macroexpand-1}
-Macroexpand the expression at point once.  If invoked with a prefix
-argument, use macroexpand instead of macroexpand-1.
+@kbdanchor{C-c C-q, slime-close-parens-at-point}
+Closes parentheses at point to complete the top-level-form by inserting ')'
+characters at until @code{beginning-of-defun} and @code{end-of-defun}
+execute without errors, or @code{slime-close-parens-limit} is exceeded.
 
-@kbditem{C-c M-m, slime-macroexpand-all}
-Fully macroexpand the expression at point.
+@kbdanchor{C-], slime-close-all-sexp}
+Balance parentheses of open s-expressions at point.
+Insert enough right-parentheses to balance unmatched left-parentheses.
+Delete extra left-parentheses.  Reformat trailing parentheses 
+Lisp-stylishly.
 
-@kbditem{C-c C-t, slime-toggle-trace-fdefinition}
-Toggle tracing of the function at point.  If invoked with a prefix
-argument, read additional information, like which particular method
-should be traced.
+If @code{REGION} is true, operate on the region. Otherwise operate on
+the top-level sexp before point.
 @end table
 
-@node Accessing Documentation, Disassembly, Macro Expansion, Programming Helpers
-@subsubsection Accessing Documentation
+
+@c ----------------------- 
+@node Indentation, Documentation, Closure, Programming
+@subsubsection Indentation commands
 
 @table @kbd
-@kbditem{SPC, slime-space}
-The space key inserts a space and also looks up and displays the
+@kbdanchor{C-c M-q, slime-reindent-defun}
+Re-indents the current defun, or refills the current paragraph.
+If point is inside a comment block, the text around point will be
+treated as a paragraph and will be filled with @code{fill-paragraph}.
+Otherwise, it will be treated as Lisp code, and the current defun
+will be reindented.  If the current defun has unbalanced parens,
+an attempt will be made to fix it before reindenting.
+
+When given a prefix argument, the text around point will always
+be treated as a paragraph.  This is useful for filling docstrings."
+@end table
+
+
+@c ----------------------- 
+@node Documentation, Cross-reference, Indentation, Programming
+@subsubsection Documentation commands
+
+@SLIME{}'s online documentation commands follow the example of Emacs
+Lisp. The commands all share the common prefix @kbd{C-c C-d} and allow
+the final key to be modified or unmodified (@pxref{About key bindings}.)
+
+@table @kbd
+
+@kbdanchor{SPC, slime-space}
+The space key inserts a space, but also looks up and displays the
 argument list for the function at point, if there is one.
+
+@kbdanchor{C-c C-d d, slime-describe-symbol}
+Describe the symbol at point.
+
+@kbdanchor{C-c C-f, slime-describe-function}
+Describe the function at point.
+
+@kbdanchor{C-c C-d a, slime-apropos}
+Perform an apropos search on Lisp symbol names for a regular expression
+match and display their documentation strings. By default the external
+symbols of all packages are searched. With a prefix argument you can choose a
+specific package and whether to include unexported symbols.
+
+@kbdanchor{C-c C-d z, slime-apropos-all}
+Like @code{slime-apropos} but also includes internal symbols by default.
+
+@kbdanchor{C-c C-d p, slime-apropos-package}
+Show apropos results of all symbols in a package. This command is for
+browsing a package at a high-level. With package-name completion it
+also serves as a rudimentary Smalltalk-ish image-browser.
+
+@kbdanchor{C-c C-d h, slime-hyperspec-lookup}
+Lookup the symbol at point in the @cite{Common Lisp Hyperspec}. This
+uses the familiar @file{hyperspec.el} to show the appropriate section
+in a web browser. The Hyperspec is found either on the Web or in
+@code{common-lisp-hyperspec-root}, and the browser is selected by
+@code{browse-url-browser-function}.
+
+Note: this is one case where @kbd{C-c C-d h} is @emph{not} the same as
+@kbd{C-c C-d C-h}.
+
+@kbdanchor{C-c C-d ~, common-lisp-hyperspec-format}
+Lookup a @emph{format character} in the @cite{Common Lisp Hyperspec}.
 @end table
 
-@node Disassembly,  , Accessing Documentation, Programming Helpers
-@subsubsection Disassembly
 
-@table @kbd
-@kbditem{C-c M-d, slime-disassemble-symbol}
-Disassemble the function definition of the symbol at point.
-@end table
-
-@node Recovery, Cross-reference, Programming Helpers, Commands
-@subsection Abort/Recovery
-
-@table @kbd
-
-@kbditem{C-c C-b, slime-interrupt}
-Interrupt Lisp (send @code{SIGINT}).
-
-@kbditem{C-c ~, slime-sync-package-and-default-directory}
-Synchronize the current package and working directory from Emacs to
-Lisp.
-
-@kbditem{C-c M-p, slime-repl-set-package}
-Set the current package of the @acronym{REPL}.
-
-@end table
-
-@node Cross-reference, Inspector, Recovery, Commands
-@subsection Cross-reference
+@c ----------------------- 
+@node Cross-reference, Finding definitions, Documentation, Programming
+@subsubsection Cross-reference commands
 
 @SLIME{}'s cross-reference commands are based on the support provided
 by the Lisp system, which varies widely between Lisps. For systems
@@ -650,27 +645,29 @@ Repository} and bundled with @SLIME{}.
 Each command operates on the symbol at point, or prompts if there is
 none. With a prefix argument they always prompt. You can either enter
 the key bindings as shown here or with the control modified on the
-last key, @xref{Key bindings}.
+last key, @xref{About key bindings}.
 
 @table @kbd
-
-@kbditem{C-c C-w c, slime-who-calls}
+@kbdanchor{C-c C-w c, slime-who-calls}
 Show function callers.
 
-@kbditem{C-c C-w r, slime-who-references}
+@kbdanchor{C-c C-w r, slime-who-references}
 Show references to global variable.
 
-@kbditem{C-c C-w b, slime-who-binds}
+@kbdanchor{C-c C-w b, slime-who-binds}
 Show bindings of a global variable.
 
-@kbditem{C-c C-w s, slime-who-sets}
+@kbdanchor{C-c C-w s, slime-who-sets}
 Show assignments to a global variable.
 
-@kbditem{C-c C-w m, slime-who-macroexpands}
+@kbdanchor{C-c C-w m, slime-who-macroexpands}
 Show expansions of a macro.
 
-@item M-x slime-who-specializes
+@fcnanchor{slime-who-specializes}
 Show all known methods specialized on a class.
+
+@fcnanchor{slime-goto-xref}
+Goto the cross-referenced location at point.
 
 @end table
 
@@ -681,14 +678,225 @@ systems, and are most useful as a fallback when precise @acronym{XREF}
 information is unavailable.
 
 @table @kbd
-@kbditem{C-c <, slime-list-callers}
+@kbdanchor{C-c <, slime-list-callers}
 List callers of a function.
-@kbditem{C-c >, slime-list-callees}
+
+@kbdanchor{C-c >, slime-list-callees}
 List callees of a function.
+
+@fcnanchor{slime-calls-who}
+Show all known functions called by the function SYMBOL.
 @end table
 
-@node Inspector, Profiling, Cross-reference, Commands
-@subsection Inspector
+
+
+@c ----------------------- 
+@node Finding definitions, Macro-expansion, Cross-reference, Programming
+@subsubsection Finding definitions (``Meta-Point'' commands).
+
+The familiar @kbd{M-.} command is provided. For generic functions this
+command finds all methods, and with some systems it does other fancy
+things (like tracing structure accessors to their @code{DEFSTRUCT}
+definition).
+
+@table @kbd
+
+@kbdanchor{M-., slime-edit-definition}
+Go to the definition of the symbol at point.
+
+@anchor{slime-pop-find-definition-stack}
+@item M-,
+@code{slime-pop-find-definition-stack}
+Go back to the point where @kbd{M-.} was invoked. This gives multi-level
+backtracking when @kbd{M-.} has been used several times.
+
+@kbdanchor{C-x 4 ., slime-edit-definition-other-window}
+Like @code{slime-edit-definition} but switchs to the other window to edit the definition in.
+
+@kbdanchor{C-x 5 ., slime-edit-definition-other-frame}
+Like @code{slime-edit-definition} but opens another frame to edit the definition in.
+
+@fcnanchor{slime-edit-definition-with-etags}
+Use an ETAGS table to find definition at point.
+@end table
+
+@c ----------------------- 
+@node Macro-expansion, Disassembly, Finding definitions, Programming
+@subsubsection Macro-expansion commands
+
+@table @kbd
+@anchor{slime-macroexpand-1}
+@item C-c C-m
+@itemx C-c RET
+@code{slime-macroexpand-1}@*
+Macroexpand the expression at point once.  If invoked with a prefix
+argument, use macroexpand instead of macroexpand-1.
+
+@kbdanchor{C-c M-m, slime-macroexpand-all}
+Fully macroexpand the expression at point.
+
+@kbdanchor{C-c C-t, slime-toggle-trace-fdefinition}
+Toggle tracing of the function at point.  If invoked with a prefix
+argument, read additional information, like which particular method
+should be traced.
+
+@fcnanchor{slime-untrace-all}
+Untrace all functions.
+
+@end table
+
+For additional minor-mode commands and discussion,
+@pxref{slime-macroexpansion-minor-mode}.
+
+
+@c ----------------------- 
+@node Disassembly, , Macro-expansion, Programming
+@subsubsection Disassembly commands
+
+@table @kbd
+
+@kbdanchor{C-c M-d, slime-disassemble-symbol}
+Disassemble the function definition of the symbol at point.
+@end table
+
+@c ----------------------- 
+@c ----------------------- 
+@node Compilation, Evaluation, Programming, Commands
+@subsection Compilation commands
+
+@SLIME{} has fancy commands for compiling functions, files, and
+packages. The fancy part is that notes and warnings offered by the
+Lisp compiler are intercepted and annotated directly onto the
+corresponding expressions in the Lisp source buffer. (Give it a try to
+see what this means.)
+
+@table @kbd
+@kbdanchor{C-c C-c, slime-compile-defun}
+Compile the top-level form at point.
+@cindex compiling functions
+
+@kbdanchor{C-c C-y, slime-call-defun}
+Insert a call to the function defined around point into the REPL.
+
+@kbdanchor{C-c C-k, slime-compile-and-load-file}
+Compile and load the current buffer's source file.
+
+@kbdanchor{C-c M-k, slime-compile-file}
+Compile (but don't load) the current buffer's source file.
+
+@kbdanchor{C-c C-l, slime-load-file}
+Load a source file and compile if necessary, without loading into a buffer..
+
+@kbdanchor{C-c C-z, slime-switch-to-output-buffer}
+Select the output buffer, preferably in a different window.
+
+@fcnanchor{slime-compile-region}
+Compile region at point.
+
+@fcnanchor{slime-compiler-macroexpand}
+Display the compiler-macro expansion of sexp at point.
+
+@fcnanchor{slime-compiler-macroexpand-1}
+Display the compiler-macro expansion of sexp at point.
+
+@fcnanchor{slime-compiler-notes-default-action-or-show-details}
+Invoke the action at point, or show details.
+
+@fcnanchor{slime-compiler-notes-default-action-or-show-details/mouse}
+Invoke the action pointed at by the mouse, or show details.
+
+@fcnanchor{slime-compiler-notes-mode}
+
+@fcnanchor{slime-compiler-notes-quit}
+
+@fcnanchor{slime-compiler-notes-show-details}
+@end table
+
+The annotations are indicated as underlining on source forms. The
+compiler message associated with an annotation can be read either by
+placing the mouse over the text or with the selection commands below.
+
+@table @kbd
+@kbdanchor{M-n, slime-next-note}
+Move the point to the next compiler note and displays the note.
+
+@kbdanchor{M-p, slime-previous-note}
+Move the point to the previous compiler note and displays the note.
+
+@kbdanchor{C-c M-c, slime-remove-notes}
+Remove all annotations from the buffer.
+@end table
+
+@c ----------------------- 
+@node Evaluation, Recovery, Compilation, Commands
+@subsection Evaluation commands
+
+These commands each evaluate a Lisp expression in a different way. By
+default they show their results in a message, but a prefix argument
+causes the results to be printed in the @REPL{} instead.
+
+@table @kbd
+
+@kbdanchor{C-M-x, slime-eval-defun}
+Evaluate the current toplevel form.
+Use @code{slime-re-evaluate-defvar} if the from starts with @code{(defvar}.
+
+@kbdanchor{C-x C-e, slime-eval-last-expression}
+Evaluate the expression before point.
+@end table
+
+If @kbd{C-M-x} or @kbd{C-x C-e} is given a numeric argument, it inserts the
+value into the current buffer at point, rather than displaying it in the
+echo area.
+
+@table @kbd
+@kbdanchor{C-c C-p, slime-pprint-eval-last-expression}
+Evaluate the expression before point and pretty-print the result.
+
+@kbdanchor{C-c C-r, slime-eval-region}
+Evaluate the region.
+
+@kbdanchor{C-x M-e, slime-eval-last-expression-display-output}
+Display output buffer and evaluate the expression preceding point.
+
+@kbdanchor{C-c :, slime-interactive-eval}
+Evaluate an expression read from the minibuffer.
+
+@kbdanchor{M-x, slime-scratch}
+Create a @file{*slime-scratch*} buffer. In this
+buffer you can enter Lisp expressions and evaluate them with
+@kbd{C-j}, like in Emacs's @file{*scratch*} buffer.
+
+@kbdanchor{C-c E, slime-edit-value}
+Edit the value of a setf-able form in a new buffer @file{*Edit <form>*}.
+The value is inserted into a temporary buffer for editing and then set
+in Lisp when committed with @code{slime-edit-value-commit}.
+
+@kbdanchor{C-c C-u, slime-undefine-function}
+Unbind symbol for function at point.
+@end table
+
+
+@c ----------------------- 
+@node Recovery, Inspector, Evaluation, Commands
+@subsection Abort/Recovery commands
+
+@table @kbd
+@kbdanchor{C-c C-b, slime-interrupt}
+Interrupt Lisp (send @code{SIGINT}).
+
+@kbdanchor{C-c ~, slime-sync-package-and-default-directory}
+Synchronize the current package and working directory from Emacs to
+Lisp.
+
+@kbdanchor{C-c M-p, slime-repl-set-package}
+Set the current package of the @acronym{REPL}.
+
+@end table
+
+@c ----------------------- 
+@node Inspector, Profiling, Recovery, Commands
+@subsection Inspector commands
 
 The @SLIME{} inspector is a very fancy Emacs-based alternative to the
 standard @code{INSPECT} function. The inspector presents objects in
@@ -704,51 +912,70 @@ programs. For details see the the @code{inspect-for-emacs} generic
 function in @file{swank-backend.lisp}.
 
 @table @kbd
-@kbditem{C-c I, slime-inspect}
+
+@kbdanchor{C-c I, slime-inspect}
 Inspect the value of an expression entered in the minibuffer.
+
 @end table
 
 The standard commands available in the inspector are:
 
 @table @kbd
 
-@kbditem{RET, slime-inspector-operate-on-point} 
+@kbdanchor{RET, slime-inspector-operate-on-point} 
 If point is on a value then recursivly call the inspcetor on that
 value. If point is on an action then call that action.
 
-@kbditem{d, slime-inspector-describe}
+@kbdanchor{d, slime-inspector-describe}
 Describe the slot at point.
 
-@kbditem{l, slime-inspector-pop}
+@kbdanchor{l, slime-inspector-pop}
 Go back to the previous object (return from @kbd{RET}).
 
-@kbditem{n, slime-inspector-next}
+@kbdanchor{n, slime-inspector-next}
 The inverse of @kbd{l}. Also bound to @kbd{SPC}.
 
-@kbditem{q, slime-inspector-quit}
+@kbdanchor{q, slime-inspector-quit}
 Dismiss the inspector buffer.
 
-@kbditem{M-RET, slime-inspector-copy-down} Evaluate the value under
+@kbdanchor{M-RET, slime-inspector-copy-down} Evaluate the value under
 point via the REPL (to set `*').
 
 @end table
 
-@node Profiling,  , Inspector, Commands
-@subsection Profiling
+@c ----------------------- 
+@node Profiling, Other, Inspector, Commands
+@subsection Profiling commands
 
 @table @kbd
-@item M-x slime-toggle-profile-fdefinition
+@fcnanchor{slime-toggle-profile-fdefinition}
 Toggle profiling of a function.
-@item M-x slime-profile-package
+@fcnanchor{slime-profile-package}
 Profile all functions in a package.
-@item M-x slime-unprofile-all
+@fcnanchor{slime-unprofile-all}
 Unprofile all functions.
-@item M-x slime-profile-report
+@fcnanchor{slime-profile-report}
 Report profiler data.
-@item M-x slime-profile-reset
+@fcnanchor{slime-profile-reset}
 Reset profiler data.
+@fcnanchor{slime-profiled-functions}
+Show list of currently profiled functions.
 @end table
 
+@c ----------------------- 
+@node Other,  , Profiling, Commands
+@subsection Shadowed Commands
+
+@table @kbd
+
+@kbdanchor{C-c C-a, slime-nop}
+This key-binding is shadowed from lisp-inf.
+@kbditem{C-c C-v, slime-nop}
+This key-binding is shadowed from lisp-inf.
+
+@end table
+
+@c ----------------------- 
 @node Semantic indentation, Reader conditionals, Commands, slime-mode
 @section Semantic indentation
 
@@ -781,7 +1008,7 @@ just tries to give you good defaults.
 A more subtle issue is that imperfect caching is used for the sake of
 performance. @footnote{@emph{Of course} we made sure it was actually too
 slow before making the ugly optimization.}
-@c
+
 In an ideal world, Lisp would automatically scan every symbol for
 indentation changes after each command from Emacs. However, this is too
 expensive to do every time. Instead Lisp usually just scans the symbols
@@ -794,6 +1021,7 @@ of every symbol each time a new Lisp package is created between commands
 You can use @kbd{M-x slime-update-indentation} to force all symbols to
 be scanned for indentation information.
 
+@c ----------------------- 
 @node Reader conditionals,  , Semantic indentation, slime-mode
 @section Reader conditional fontification
 
@@ -801,6 +1029,7 @@ be scanned for indentation information.
 source buffers and ``grays out'' code that will be skipped for the
 current Lisp connection.
 
+@c ----------------------- 
 @node REPL, Debugger, slime-mode, Top
 @chapter REPL: the ``top level''
 
@@ -827,46 +1056,53 @@ user input.
 * Shortcuts::                   
 @end menu
 
+@c ----------------------- 
 @node REPL commands, Input Navigation, REPL, REPL
 @section REPL commands
 
 @table @kbd
 
-@kbditem{RET, slime-repl-return}
+@kbdanchor{RET, slime-repl-return}
 Evaluate the current input in Lisp if it is complete. If incomplete,
 open a new line and indent. If a prefix argument is given then the
 input is evaluated without checking for completeness.
 
-@kbditem{C-RET, slime-repl-closing-return}
+@kbdanchor{C-RET, slime-repl-closing-return}
 Close any unmatched parenthesis and then evaluate the current input in
 Lisp. Also bound to @kbd{M-RET}.
 
-@kbditem{C-j, slime-repl-newline-and-indent}
+@kbdanchor{C-j, slime-repl-newline-and-indent}
 Open and indent a new line.
 
+@c @anchor{slime-interrupt}
 @kbditem{C-c C-c, slime-interrupt}
 Interrupt the Lisp process with @code{SIGINT}.
 
-@kbditem{TAB, slime-complete-symbol}
-Complete the symbol at point.
+@kbdanchor{C-c M-g, slime-quit}
+Quit slime. 
 
-@kbditem{C-c C-o, slime-repl-clear-output}
+@kbdanchor{C-c C-o, slime-repl-clear-output}
 Remove the output and result of the previous expression from the
 buffer.
 
-@kbditem{C-c C-t, slime-repl-clear-buffer}
+@kbdanchor{C-c C-t, slime-repl-clear-buffer}
 Clear the entire buffer, leaving only a prompt.
 
 @end table
 
+@c ----------------------- 
 @node Input Navigation, Shortcuts, REPL commands, REPL
 @section Input navigation
 
 @table @kbd
 
-@kbditem{C-a, slime-repl-bol}
+@kbdanchor{C-a, slime-repl-bol}
 Go to the beginning of the line, but stop at the @REPL{} prompt.
 
+@anchor{slime-repl-next-input}
+@anchor{slime-repl-next-matching-input}
+@anchor{slime-repl-previous-input}
+@anchor{slime-repl-previous-matching-input}
 @item M-n
 @itemx M-p
 @itemx M-s
@@ -875,11 +1111,15 @@ Go to the beginning of the line, but stop at the @REPL{} prompt.
 @code{slime-repl-@{next,previous@}-matching-input}@*
 @code{comint}-style input history commands.
 
+@anchor{slime-repl-next-prompt}
+@anchor{slime-repl-previous-prompt}
 @item C-c C-n
 @itemx C-c C-p
 @code{slime-repl-next-prompt, slime-repl-previous-prompt}@*
 Move between the current and previous prompts in the @REPL{} buffer.
 
+@anchor{slime-repl-beginning-of-defun}
+@anchor{slime-repl-end-of-defun}
 @item C-M-a
 @itemx C-M-e
 @code{slime-repl-beginning-of-defun, slime-repl-end-of-defun}
@@ -889,6 +1129,7 @@ instead go directly to the beginning or the end, respectively.
 
 @end table
 
+@c ----------------------- 
 @comment  node-name,  next,  previous,  up
 @node Shortcuts,  , Input Navigation, REPL
 @section Shortcuts
@@ -902,6 +1143,7 @@ compiling and loading Lisp systems. The exact set of shortcuts is not
 currently documented in this manual, but you can use the @code{help}
 shortcut to list them interactively.
 
+@c ----------------------- 
 @node Debugger, Extras, REPL, Top
 @chapter SLDB: the SLIME debugger
 
@@ -921,65 +1163,63 @@ backtrace, and poking around in stack frames.
 * Miscellaneous::               
 @end menu
 
+@c ----------------------- 
 @node Examining frames, Restarts, Debugger, Debugger
 @section Examining frames
 
 Commands for examining the stack frame at point.
 
 @table @kbd
-
-@kbditem{t, sldb-toggle-details}
+@kbdanchor{t, sldb-toggle-details}
 Toggle display of local variables and @code{CATCH} tags.
 
-@kbditem{v, sldb-show-source}
+@kbdanchor{v, sldb-show-source}
 View the frame's current source expression. The expression is
 presented in the Lisp source file's buffer.
 
-@kbditem{e, sldb-eval-in-frame}
+@kbdanchor{e, sldb-eval-in-frame}
 Evaluate an expression in the frame. The expression can refer to the
 available local variables in the frame.
 
-@kbditem{d, sldb-pprint-eval-in-frame}
+@kbdanchor{d, sldb-pprint-eval-in-frame}
 Evaluate an expression in the frame and pretty-print the result in a
 temporary buffer.
 
-@kbditem{D, sldb-disassemble}
+@kbdanchor{D, sldb-disassemble}
 Disassemble the frame's function. Includes information such as the
 instruction pointer within the frame.
 
-@kbditem{i, sldb-inspect-in-frame}
+@kbdanchor{i, sldb-inspect-in-frame}
 Inspect the result of evaluating an expression in the frame.
-
 @end table
 
+@c ----------------------- 
 @node Restarts, Frame Navigation, Examining frames, Debugger
 @section Invoking restarts
 
 @table @kbd
-
-@kbditem{a, sldb-abort}
+@kbdanchor{a, sldb-abort}
 Invoke the @code{ABORT} restart.
 
-@kbditem{q, sldb-quit}
+@kbdanchor{q, sldb-quit}
 ``Quit'' -- @code{THROW} to a tag that the top-level @SLIME{}
 request-loop catches.
 
-@kbditem{c, sldb-continue}
+@kbdanchor{c, sldb-continue}
 Invoke the @code{CONTINUE} restart.
 
 @item 0 ... 9
 Invoke a restart by number.
-
 @end table
 
 Restarts can also be invoked by pressing @kbd{RET} or @kbd{Mouse-2} on
 them in the buffer.
 
+@c ----------------------- 
 @node Frame Navigation, Miscellaneous, Restarts, Debugger
 @section Navigating between frames
 
 @table @kbd
-
 @item n
 @item p
 @code{sldb-down, sldb-up}@*
@@ -992,36 +1232,36 @@ Move between frames ``with sugar'': hide the details of the original
 frame and display the details and source code of the next. Sugared
 motion makes you see the details and source code for the current frame
 only.
-
 @end table
 
+@c ----------------------- 
 @node Miscellaneous,  , Frame Navigation, Debugger
 @section Miscellaneous Commands
 
 @table @kbd
-
-@kbditem{r, sldb-restart-frame}
+@kbdanchor{r, sldb-restart-frame}
 Restart execution of the frame with the same arguments it was
 originally called with. (This command is not available in all
 implementations.)
 
-@kbditem{R, sldb-return-from-frame}
+@kbdanchor{R, sldb-return-from-frame}
 Return from the frame with a value entered in the minibuffer. (This
 command is not available in all implementations.)
 
-@kbditem{s, sldb-step}
+@kbdanchor{s, sldb-step}
 Step to the next expression in the frame. (This command is not
 available in all implementations.)
 
-@kbditem{B, sldb-break-with-default-debugger}
+@kbdanchor{B, sldb-break-with-default-debugger}
 Exit @SLDB{} and debug the condition using the Lisp system's default
 debugger.
 
-@kbditem{:, slime-interactive-eval}
+@c @anchor{slime-interactive-eval}
+@kbditem{C-c :, slime-interactive-eval}
 Evaluate an expression entered in the minibuffer.
-
 @end table
 
+@c ----------------------- 
 @node Extras, Customization, Debugger, Top
 @chapter Extras
 
@@ -1033,6 +1273,7 @@ Evaluate an expression entered in the minibuffer.
 * Typeout frames::              
 @end menu
 
+@c ----------------------- 
 @node slime-selector, slime-autodoc-mode, Extras, Extras
 @section @code{slime-selector}
 
@@ -1055,35 +1296,39 @@ The @code{*slime-scratch*} buffer. @xref{slime-scratch}.
 @end table
 
 @code{slime-selector} doesn't have a key binding by default but we
-suggest that you assign it a global one. You can bind @kbd{C-c s} like
-this:
+suggest that you assign it a global one. You can bind it to @kbd{C-c s}
+like this:
 
 @example
 (global-set-key "\C-cs" 'slime-selector)
 @end example
 
+@noindent
 And then you can switch to the @REPL{} from anywhere with @kbd{C-c s
 r}.
 
 The macro @code{def-slime-selector-method} can be used to define new
 buffers for @code{slime-selector} to find.
 
+@c ----------------------- 
 @node slime-autodoc-mode, slime-macroexpansion-minor-mode, slime-selector, Extras
 @section @code{slime-autodoc-mode}
 
-@code{slime-autodoc-mode} is an additional minor-mode for
-automatically showing information about symbols near the point. For
-function names the argument list is displayed and for global variables
-we show the value. This is a clone of @code{eldoc-mode} for Emacs
-Lisp.
+@table @kbd
+@kbditem{M-x, slime-autodoc-mode}
+Autodoc mode is an additional minor-mode for automatically showing
+information about symbols near the point. For function names the
+argument list is displayed, and for global variables, the value. 
+This is a clone of @code{eldoc-mode} for Emacs Lisp.
+@end table
 
-The mode can be enabled in the @code{slime-setup} call of your
+The mode can be enabled by default in the @code{slime-setup} call of your
 @code{~/.emacs}:
-
 @example
 (slime-setup :autodoc t)
 @end example
 
+@c ----------------------- 
 @node slime-macroexpansion-minor-mode, Multiple connections, slime-autodoc-mode, Extras
 @section slime-macroexpansion-minor-mode
 
@@ -1092,17 +1337,20 @@ Within a slime macroexpansion buffer some extra commands are provided
 macroexpansion buffer).
 
 @table @kbd
-@kbditem{C-c C-m, slime-macroexpand-1-inplace}
+@kbdanchor{C-c C-m, slime-macroexpand-1-inplace}
 Just like slime-macroexpand-1 but the original form is replaced with the expansion.
 
+@c @anchor{slime-macroexpand-1-inplace}
 @kbditem{g, slime-macroexpand-1-inplace}
 The last macroexpansion is performed again, the current contents of
 the macroexpansion buffer are replaced with the new expansion.
 
-@kbditem{q, slime-temp-buffer-quit}
+@kbdanchor{q, slime-temp-buffer-quit}
 Close the expansion buffer.
+
 @end table
 
+@c ----------------------- 
 @node Multiple connections, Typeout frames, slime-macroexpansion-minor-mode, Extras
 @section Multiple connections
 
@@ -1128,8 +1376,16 @@ most recently established connection, but this can be reassigned via
 the ``connection list'' buffer:
 
 @table @kbd
-@kbditem{C-c C-x c, slime-list-connections}
+@kbdanchor{C-c C-x c, slime-list-connections}
 Pop up a buffer listing the established connections.
+
+@kbdanchor{C-c C-x t, slime-list-threads}
+Pop up a buffer listing the current threads.
+
+@fcnanchor{slime-abort-connection}
+Abort the current connection.
+
+@fcnanchor{slime-restart-connection-at-point}
 @end table
 
 The buffer displayed by @code{slime-list-connections} gives a one-line
@@ -1141,22 +1397,30 @@ asterisk.
 The commands available in the connection-list buffer are:
 
 @table @kbd
-
-@kbditem{RET, slime-goto-connection}
+@kbdanchor{RET, slime-goto-connection}
 Pop to the @acronym{REPL} buffer of the connection at point.
 
-@kbditem{d, slime-connection-list-make-default}
+@kbdanchor{d, slime-connection-list-make-default}
 Make the connection at point the ``default'' connection. It will then
 be used for commands in @code{slime-mode} source buffers.
 
-@kbditem{g, slime-update-connection-list}
+@kbdanchor{g, slime-update-connection-list}
 Update the connection list in the buffer.
 
 @kbditem{q, slime-temp-buffer-quit}
 Quit the connection list (kill buffer, restore window configuration).
 
+@fcnanchor{slime-connect}
+Connect to a running Swank server.
+
+@fcnanchor{slime-disconnect}
+Disconnect all connextions.
+
+@fcnanchor{slime-connection-list-mode}
+Connection-list. @acronym{SLIME} Connection List Mode.
 @end table
 
+@c ----------------------- 
 @node Typeout frames,  , Multiple connections, Extras
 @section Typeout frames
 
@@ -1169,20 +1433,21 @@ messages are sent to the typeout frame, such as argument lists, macro
 expansions, and so on.
 
 @table @kbd
-@item M-x slime-ensure-typeout-frame
+@fcnanchor{slime-ensure-typeout-frame}
 Ensure that a typeout frame exists, creating one if necessary.
 @end table
 
 If the typeout frame is closed then the echo area will be used again
 as usual.
 
-To have a typeout frame created automatically at startup you can use
-the @code{slime-connected-hook}:
+To have a typeout frame created automatically at startup you can add
+the @code{slime-connected-hook} to your @file{~/.emacs} file:
 
 @example
 (add-hook 'slime-connected-hook 'slime-ensure-typeout-frame)
 @end example
 
+@c ----------------------- 
 @node Customization, Tips and Tricks, Extras, Top
 @chapter Customization
 
@@ -1191,6 +1456,7 @@ the @code{slime-connected-hook}:
 * Lisp-side::                   
 @end menu
 
+@c ----------------------- 
 @node Emacs-side customization, Lisp-side, Customization, Customization
 @section Emacs-side
 
@@ -1212,6 +1478,7 @@ This should be set to @code{t} if you want to use multiprocessing
 (threads) in your Lisp system. It causes any necessary initialization
 to be performed during Lisp server startup.
 
+@anchor{slime-complete-symbol-function}
 @item slime-complete-symbol-function
 The function to use for completion of Lisp symbols. Three completion
 styles are available. The default @code{slime-complete-symbol*}
@@ -1239,7 +1506,7 @@ An alternative is @code{slime-simple-complete-symbol}, which
 completes in the usual Emacs way.  Finally, there is
 @code{slime-fuzzy-complete-symbol}, which is quite different from both
 of the above and tries to find best matches to an abbreviated symbol.
-It also has its own keybinding, defaulting to @kbd{C-c M-i}.
+It also has its own key binding, defaulting to @kbd{C-c M-i}.
 @xref{slime-fuzzy-complete-symbol}, for more information.
 
 @item slime-filename-translations
@@ -1268,6 +1535,7 @@ encoding.
 * Hooks::                       
 @end menu
 
+@c ----------------------- 
 @node Hooks,  , Emacs-side customization, Emacs-side customization
 @subsection Hooks
 
@@ -1291,6 +1559,7 @@ conditions debugged with @SLDB{} be recorded in the @REPL{} buffer.
 
 @end table
 
+@c ----------------------- 
 @node Lisp-side,  , Emacs-side customization, Customization
 @section Lisp-side (Swank)
 
@@ -1304,6 +1573,7 @@ variables.
 * Other configurables::         
 @end menu
 
+@c ----------------------- 
 @node Communication style, Other configurables, Lisp-side, Lisp-side
 @subsection Communication style
 
@@ -1358,6 +1628,7 @@ calling @code{SWANK-BACKEND:PREFERRED-COMMUNICATION-STYLE}. You can
 also override the default by setting
 @code{SWANK:*COMMUNICATION-STYLE*} in your Swank init file.
 
+@c ----------------------- 
 @node Other configurables,  , Communication style, Lisp-side
 @subsection Other configurables
 
@@ -1420,6 +1691,7 @@ your Lisp system's own listener, usually in the buffer
 
 @end table
 
+@c ----------------------- 
 @node Tips and Tricks, Credits, Customization, Top
 @chapter Tips and Tricks
 
@@ -1429,10 +1701,11 @@ your Lisp system's own listener, usually in the buffer
 * Auto-SLIME::                  
 @end menu
 
+@c ----------------------- 
 @node Connecting to a remote lisp
 @section Connecting to a remote lisp
 
-One of the advantages to the way @SLIME{} is implemented is that we
+One of the advantages of the way @SLIME{} is implemented is that we
 can easily run the Emacs side (slime.el) on one machine and the lisp
 backend (swank) on another. The basic idea is to start up lisp on the
 remote machine, load swank and wait for incoming slime connections. On
@@ -1446,11 +1719,12 @@ is that simple.
 * Setting up pathname translations::  
 @end menu
 
+@c ----------------------- 
 @node Setting up the lisp image
 @subsection Setting up the lisp image
 
 
-When you want to load swank without gonig through the normal, Emacs
+When you want to load swank without going through the normal, Emacs
 based, process just load the @file{swank-loader.lisp} file. Just
 execute
 
@@ -1460,10 +1734,8 @@ execute
 
 inside a running lisp image@footnote{@SLIME{} also provides an
 @acronym{ASDF} system definiton which does the same thing}. Now all we
-need to do is startup our swank server. This example assumes we're
-using the default settings, if you need to do anything particular
-(like be able to reconnect to swank after you're done, look into
-@code{swank:create-server}'s other arguments).
+need to do is startup our swank server. The first example assumes we're
+using the default settings.
 
 @example
 (swank:create-server)
@@ -1480,6 +1752,41 @@ output:
 (setf swank:*use-dedicated-output-stream* nil)
 @end example
 
+@c ----------------------- 
+=======
+If you need to do anything particular
+(like be able to reconnect to swank after you're done), look into
+@code{swank:create-server}'s other arguments. Some of these arguments
+are
+@table @code
+
+@item :PORT
+Port number for the server to listen on (default: 4005).
+@item :STYLE
+See @xref{Communication style}.
+@item :DONT-CLOSE
+Boolean indicating if the server will continue to accept connections
+after the first one (default: @code{NIL}). For ``long-running'' lisp processes
+to which you want to be able to connect from time to time,
+specify @code{:dont-close t}
+@item :CODING-SYSTEM
+String designating the encoding to be used to communicate between the
+Emacs and Lisp.
+@end table
+
+So the more complete example will be
+@example
+(swank:create-server :port 4005  :dont-close t :coding-system "utf-8-unix")
+@end example
+On the emacs side you will use something like
+@example
+(setq slime-net-coding-system 'utf-8-unix)
+(slime-connect "127.0.0.1" 4005))
+@end example
+to connect to this lisp image from the same machine.
+
+
+>>>>>>> 1.49
 @node Setting up Emacs
 @subsection Setting up Emacs
 
@@ -1507,6 +1814,7 @@ host (@code{127.0.0.1}) and the default port (@code{4005}). Even
 though we're connecting to a remote machine the ssh tunnel fools Emacs
 into thinking it's actually @code{127.0.0.1}.
 
+@c ----------------------- 
 @node Setting up pathname translations
 @subsection Setting up pathname translations
 
@@ -1538,6 +1846,7 @@ built-in mechanism to setup the proper transaltions by simply doing:
       slime-filename-translations)
 @end example
 
+@c ----------------------- 
 @node Global IO Redirection
 @section Globally redirecting all IO to the REPL
 
@@ -1562,10 +1871,11 @@ accepts the connection so you should set it via
 @code{swank::globally-redirect-io-to-connection} yourself, but you
 shouldn't do that unless you know what you're doing.
 
+@c ----------------------- 
 @node Auto-SLIME
 @section Connecting to SLIME automatically
 
-To making @SLIME{} connect to your lisp whenever you open a lisp file
+To make @SLIME{} connect to your lisp whenever you open a lisp file
 just add this to your @file{.emacs}:
 
 @example
@@ -1575,7 +1885,9 @@ just add this to your @file{.emacs}:
               (save-excursion (slime)))))
 @end example
 
-@node Credits,  , Tips and Tricks, Top
+
+@c ----------------------- 
+@node Credits, Index to Key Bindings, Tips and Tricks, Top
 @chapter Credits
 
 @emph{The soppy ending...}
@@ -1610,5 +1922,769 @@ who've joined in the @SLIME{} development: Dan Barlow and Christophe
 Rhodes of @acronym{SBCL}, Gary Byers of OpenMCL, and Martin Simmons of
 LispWorks. Thanks also to Alain Picard and Memetrics for funding
 Martin's initial work on the LispWorks backend!
+
+
+@c ----------------------- 
+@node Index to Key Bindings, Index to Functions, Credits, Top
+@appendix Index to Key Bindings
+
+@table @kbd
+@kbdindex{SPC, slime-space}
+@kbdindex{C-c RET, slime-macroexpand-1}
+@kbdindex{C-c :, slime-interactive-eval}
+@kbdindex{C-c <, slime-list-callers}
+@kbdindex{C-c >, slime-list-callees}
+@kbdindex{C-c E, slime-edit-value}
+@kbdindex{C-c I, slime-inspect}
+@kbdindex{C-c u, slime-undefine-function}
+@kbdindex{C-c ~, slime-sync-package-and-default-directory}
+@kbdindex{C-c C-], slime-close-all-sexp}
+@kbdindex{C-c C-a, slime-nop} 
+@kbdindex{C-c C-b, slime-interrupt}
+@kbdindex{C-c C-c, slime-compile-defun}
+@kbdindex{C-c C-d d, slime-describe-symbol}
+@kbdindex{C-c C-d ~, common-lisp-hyperspec-format}
+@kbdindex{C-c C-e, slime-interactive-eval}
+@kbdindex{C-c C-f, slime-describe-function}
+@kbdindex{C-c C-i, slime-complete-symbol}
+@kbdindex{C-c C-k, slime-compile-and-load-file}
+@kbdindex{C-c C-l, slime-load-file}
+@kbdindex{C-c C-m, slime-macroexpand-1}
+@kbdindex{C-c C-p, slime-pprint-eval-last-expression}
+@kbdindex{C-c C-q, slime-close-parens-at-point}
+@kbdindex{C-c C-r, slime-eval-region}
+@kbdindex{C-c C-s, slime-complete-form}
+@kbdindex{C-c C-t, slime-toggle-trace-fdefinition}
+@kbdindex{C-c C-v, slime-nop} 
+@kbdindex{C-c C-w s, slime-who-sets}
+@kbdindex{C-c C-x c, slime-list-connections}
+@kbdindex{C-c C-x t, slime-list-threads}
+@kbdindex{C-c C-y, slime-call-defun}
+@kbdindex{C-c C-z, slime-switch-to-output-buffer}
+@kbdindex{C-c M-c, slime-remove-notes}.
+@kbdindex{C-c M-d, slime-disassemble-symbol}
+@kbdindex{C-c M-i, slime-fuzzy-complete-symbol}
+@kbdindex{C-c M-g, slime-quit}
+@kbdindex{C-c M-k, slime-compile-file}
+@kbdindex{C-c M-m, slime-macroexpand-all}
+@kbdindex{C-c M-p, slime-repl-set-package}
+@kbdindex{C-c M-q, slime-reindent-defun}
+@kbdindex{C-x 4 ., slime-edit-definition-other-window}
+@kbdindex{C-x 5 ., slime-edit-definition-other-frame}
+@kbdindex{C-x C-e, slime-eval-last-expression}
+@kbdindex{C-x M-e, slime-eval-last-expression-display-output}
+@kbdindex{M-TAB, slime-complete-symbol}
+@kbdindex{M-*, slime-pop-find-definition-stack}
+@kbdindex{M-., slime-edit-definition}
+@kbdindex{M-\,, slime-pop-find-definition-stack}
+@kbdindex{M-n, slime-next-note}
+@kbdindex{M-p, slime-previous-note}
+@kbdindex{C-M-i, slime-complete-symbol}
+@kbdindex{C-M-x, slime-eval-defun}
+@end table
+
+@c ----------------------- 
+@node Index to Functions,  , Index to Key Bindings, Top
+@appendix Index to Functions
+
+@c Note: the functions commented out below are in slime.el but as
+@c yet unreferenced (and may or may not be -jkc-).  
+
+@table @code
+@fcnindex{common-lisp-hyperspec-format}
+@c @fcnindex{sldb-mode-hook}
+@c @fcnindex{slime-mode-hook}
+@c @fcnindex{slime-repl-mode-hook}
+@c @fcnindex{compile}
+@c @fcnindex{compile-defun}
+@c @fcnindex{fboundp}
+@c @fcnindex{def-sldb-face}
+@c @fcnindex{def-sldb-faces}
+@c @fcnindex{def-slime-selector-method}
+@c @fcnindex{def-slime-test}
+@c @fcnindex{define-sldb-invoke-restart-key}
+@c @fcnindex{define-sldb-invoke-restart-keys}
+@c @fcnindex{define-slime-dialect}
+@c @fcnindex{defslime-repl-shortcut}
+@c @fcnindex{destructure-case}
+@c @fcnindex{in-sldb-face}
+@c @fcnindex{inferior-slime-closing-return}
+@c @fcnindex{inferior-slime-indent-line}
+@c @fcnindex{inferior-slime-input-complete-p}
+@c @fcnindex{inferior-slime-return}
+@fcnindex{sldb-abort}
+@c @fcnindex{sldb-activate}
+@c @fcnindex{sldb-add-face}
+@c @fcnindex{sldb-backward-frame}
+@c @fcnindex{sldb-beginning-of-backtrace}
+@c @fcnindex{sldb-break}
+@c @fcnindex{sldb-break-on-return}
+@fcnindex{sldb-break-with-default-debugger}
+@c @fcnindex{sldb-buffers}
+@c @fcnindex{sldb-catch-tags}
+@fcnindex{sldb-continue}
+@c @fcnindex{sldb-debugged-continuations}
+@c @fcnindex{sldb-default-action}
+@c @fcnindex{sldb-default-action/mouse}
+@c @fcnindex{sldb-delete-overlays}
+@c @fcnindex{sldb-details-down}
+@c @fcnindex{sldb-details-up}
+@fcnindex{sldb-disassemble}
+@c @fcnindex{sldb-dispatch-extras}
+@c @fcnindex{sldb-down}
+@c @fcnindex{sldb-end-of-backtrace}
+@fcnindex{sldb-eval-in-frame}
+@c @fcnindex{sldb-exit}
+@c @fcnindex{sldb-fetch-all-frames}
+@c @fcnindex{sldb-fetch-more-frames}
+@c @fcnindex{sldb-find-buffer}
+@c @fcnindex{sldb-format-reference-node}
+@c @fcnindex{sldb-format-reference-source}
+@c @fcnindex{sldb-forward-frame}
+@c @fcnindex{sldb-frame-details-visible-p}
+@c @fcnindex{sldb-frame-locals}
+@c @fcnindex{sldb-frame-number-at-point}
+@c @fcnindex{sldb-frame-region}
+@c @fcnindex{sldb-get-buffer}
+@c @fcnindex{sldb-get-default-buffer}
+@c @fcnindex{sldb-goto-last-frame}
+@c @fcnindex{sldb-help-summary}
+@c @fcnindex{sldb-hide-frame-details}
+@c @fcnindex{sldb-highlight-sexp}
+@c @fcnindex{sldb-insert-condition}
+@c @fcnindex{sldb-insert-frame}
+@c @fcnindex{sldb-insert-frames}
+@c @fcnindex{sldb-insert-locals}
+@c @fcnindex{sldb-insert-references}
+@c @fcnindex{sldb-insert-restarts}
+@c @fcnindex{sldb-inspect-condition}
+@fcnindex{sldb-inspect-in-frame}
+@c @fcnindex{sldb-inspect-var}
+@c @fcnindex{sldb-invoke-restart}
+@c @fcnindex{sldb-level}
+@c @fcnindex{sldb-list-catch-tags}
+@c @fcnindex{sldb-list-locals}
+@c @fcnindex{sldb-lookup-reference}
+@c @fcnindex{sldb-maybe-recenter-region}
+@c @fcnindex{sldb-next}
+@c @fcnindex{sldb-out}
+@fcnindex{sldb-pprint-eval-in-frame}
+@c @fcnindex{sldb-previous-frame-number}
+@c @fcnindex{sldb-print-condition}
+@c @fcnindex{sldb-prune-initial-frames}
+@fcnindex{sldb-quit}
+@c @fcnindex{sldb-reference-properties}
+@c @fcnindex{sldb-restart-at-point}
+@fcnindex{sldb-restart-frame}
+@fcnindex{sldb-return-from-frame}
+@c @fcnindex{sldb-setup}
+@c @fcnindex{sldb-show-frame-details}
+@c @fcnindex{sldb-show-frame-source}
+@fcnindex{sldb-show-source}
+@fcnindex{sldb-step}
+@c @fcnindex{sldb-sugar-move}
+@fcnindex{sldb-toggle-details}
+@c @fcnindex{sldb-up}
+@c @fcnindex{sldb-var-number-at-point}
+@c @fcnindex{sldb-xemacs-emulate-point-entered-hook}
+@c @fcnindex{sldb-xemacs-post-command-hook}
+@fcnindex{slime-abort-connection}
+@c @fcnindex{slime-accept-process-output}
+@c @fcnindex{slime-activate-font-lock-magic}
+@c @fcnindex{slime-add-face}
+@c @fcnindex{slime-add-presentation-properties}
+@c @fcnindex{slime-after-change-function}
+@c @fcnindex{slime-alistify}
+@fcnindex{slime-apropos}
+@fcnindex{slime-apropos-all}
+@fcnindex{slime-apropos-package}
+@c @fcnindex{slime-apropos-summary}                             [internal]
+@c @fcnindex{slime-arglist}
+@c @fcnindex{slime-arglist-specializers}
+@c @fcnindex{slime-at-top-level-p}
+@c @fcnindex{slime-autodoc}                                     [internal]
+@c @fcnindex{slime-autodoc-global-at-point}                     [internal]
+@c @fcnindex{slime-autodoc-message}                             [internal]
+@c @fcnindex{slime-autodoc-message-dimensions}                  [internal]
+@c @fcnindex{slime-autodoc-message-ok-p}                        [internal]
+@fcnindex{slime-autodoc-mode}
+@c @fcnindex{slime-autodoc-pre-command-refresh-echo-area}       [internal]
+@c @fcnindex{slime-autodoc-start-timer}                             ??
+@c @fcnindex{slime-autodoc-stop-timer}                          [internal]
+@c @fcnindex{slime-autodoc-thing-at-point}                      [internal]
+@c @fcnindex{slime-autodoc-timer-hook}                          [internal]
+@c @fcnindex{slime-background-activities-enabled-p}
+@c @fcnindex{slime-background-message}
+@c @fcnindex{slime-batch-test}
+@c @fcnindex{slime-beginning-of-comment}                        [internal]
+@c @fcnindex{slime-beginning-of-list}                           [internal]
+@c @fcnindex{slime-beginning-of-symbol}                         [internal]
+@c @fcnindex{slime-bogus-completion-alist}
+@c @fcnindex{slime-browse-classes}
+@c @fcnindex{slime-browse-xrefs}
+@c @fcnindex{slime-buffer-substring-with-reified-output}
+@c @fcnindex{slime-busy-p}
+@c @fcnindex{slime-bytecode-stale-p}
+@fcnindex{slime-call-defun}
+@c @fcnindex{slime-call-describer}
+@c @fcnindex{slime-call-with-browser-setup}
+@fcnindex{slime-calls-who}
+@c @fcnindex{slime-changelog-date}
+@c @fcnindex{slime-cheat-sheet}
+@c @fcnindex{slime-cheat-sheet-table}
+@c @fcnindex{slime-check}
+@c @fcnindex{slime-check-coding-system}
+@c @fcnindex{slime-check-connected}
+@c @fcnindex{slime-check-eval-in-emacs-enabled}
+@c @fcnindex{slime-check-sldb-level}
+@c @fcnindex{slime-check-top-level}
+@c @fcnindex{slime-choose-connection}
+@c @fcnindex{slime-choose-overlay-for-sexp}
+@c @fcnindex{slime-choose-overlay-region}
+@c @fcnindex{slime-cl-symbol-external-ref-p}
+@c @fcnindex{slime-cl-symbol-name}
+@c @fcnindex{slime-cl-symbol-package}
+@fcnindex{slime-close-all-sexp}
+@fcnindex{slime-close-parens-at-point}
+@c @fcnindex{slime-coding-system-cl-name}
+@c @fcnindex{slime-coding-system-mulibyte-p}
+@c @fcnindex{slime-compilation-finished}
+@c @fcnindex{slime-compilation-finished-continuation}
+@fcnindex{slime-compile-and-load-file}
+@fcnindex{slime-compile-defun}
+@fcnindex{slime-compile-file}
+@fcnindex{slime-compile-region}
+@c @fcnindex{slime-compile-string}                              [internal]
+@fcnindex{slime-compiler-macroexpand}
+@fcnindex{slime-compiler-macroexpand-1}
+@c @fcnindex{slime-compiler-notes}                              [internal]
+@fcnindex{slime-compiler-notes-default-action-or-show-details}
+@fcnindex{slime-compiler-notes-default-action-or-show-details/mouse}
+@fcnindex{slime-compiler-notes-quit}
+@fcnindex{slime-compiler-notes-show-details}
+@c @fcnindex{slime-compiler-notes-to-tree}                      [internal]
+@c @fcnindex{slime-complete-delay-restoration}                  [internal]
+@c @fcnindex{slime-complete-forget-window-configuration}        [internal]
+@fcnindex{slime-complete-form}
+@c @fcnindex{slime-complete-maybe-restore-window-configuration} [internal]
+@c @fcnindex{slime-complete-maybe-save-window-configuration}    [internal]
+@c @fcnindex{slime-complete-restore-window-configuration}       [internal]
+@fcnindex{slime-complete-symbol}
+@c @fcnindex{slime-complete-symbol*}                            [internal]
+@c @fcnindex{slime-complete-symbol*-fancy-bit}                  [internal]
+@c @fcnindex{slime-completion-window-active-p}                  [internal]
+@c @fcnindex{slime-completions}                                 [internal]
+@c @fcnindex{slime-completions-for-keyword}                     [internal]
+@fcnindex{slime-connect} 
+@c @fcnindex{slime-connected-p}                                 [internal]
+@c @fcnindex{slime-connection}                                  [internal]
+@c @fcnindex{slime-connection-at-point}                         [internal]
+@c @fcnindex{slime-connection-close-hook}                       [internal]
+@fcnindex{slime-connection-list-make-default}
+@fcnindex{slime-connection-list-mode}
+@c @fcnindex{slime-connection-port}                             [internal]
+@c @fcnindex{slime-control-modified-char}
+@c @fcnindex{slime-copy-or-inspect-presentation-at-mouse}
+@c @fcnindex{slime-copy-presentation-at-mouse}
+@c @fcnindex{slime-create-message-window}
+@c @fcnindex{slime-create-note-overlay}
+@c @fcnindex{slime-create-test-results-buffer}
+@c @fcnindex{slime-current-connection}                          [internal]
+@c @fcnindex{slime-current-package}                             [internal]
+@c @fcnindex{slime-def-connection-var}
+@c @fcnindex{slime-define-keys}
+@c @fcnindex{slime-defun-at-point}
+@c @fcnindex{slime-delete-hidden-outline-text}
+@fcnindex{slime-describe-function}
+@c @fcnindex{slime-describe-presentation-at-mouse}
+@fcnindex{slime-describe-symbol}
+@fcnindex{slime-disassemble-symbol}
+@fcnindex{slime-disconnect}
+@c @fcnindex{slime-dismiss-temp-buffer}
+@c @fcnindex{slime-dispatch-event}
+@c @fcnindex{slime-display-buffer-region}
+@c @fcnindex{slime-display-completion-list}
+@c @fcnindex{slime-display-eval-result}
+@c @fcnindex{slime-display-message}
+@c @fcnindex{slime-display-output-buffer}
+@c @fcnindex{slime-display-xref-buffer}
+@c @fcnindex{slime-documentation}
+@c @fcnindex{slime-draw-connection-list}
+@c @fcnindex{slime-easy-menu}
+@c @fcnindex{slime-echo-arglist}
+@c @fcnindex{slime-ed}
+@fcnindex{slime-edit-definition}
+@fcnindex{slime-edit-definition-other-frame}
+@fcnindex{slime-edit-definition-other-window}
+@fcnindex{slime-edit-definition-with-etags}
+@fcnindex{slime-edit-value}
+@c @fcnindex{slime-edit-value-callback}
+@c @fcnindex{slime-edit-value-commit}
+@c @fcnindex{slime-emacs-20-p}
+@c @fcnindex{slime-enclosing-operator-names}
+@c @fcnindex{slime-end-of-symbol}
+@c @fcnindex{slime-ensure-presentation-overlay}
+@c @fcnindex{slime-ensure-typeout-frame}
+@c @fcnindex{slime-etags-definitions}
+@c @fcnindex{slime-eval}
+@c @fcnindex{slime-eval-async}
+@c @fcnindex{slime-eval-buffer}
+@fcnindex{slime-eval-defun}
+@c @fcnindex{slime-eval-describe}
+@c @fcnindex{slime-eval-feature-conditional}
+@c @fcnindex{slime-eval-for-lisp}
+@fcnindex{slime-eval-last-expression}
+@fcnindex{slime-eval-last-expression-display-output}
+@c @fcnindex{slime-eval-macroexpand}
+@c @fcnindex{slime-eval-macroexpand-inplace}
+@c @fcnindex{slime-eval-print}
+@c @fcnindex{slime-eval-print-last-expression}
+@fcnindex{slime-eval-region}
+@c @fcnindex{slime-eval-with-transcript}
+@c @fcnindex{slime-events-buffer}
+@c @fcnindex{slime-execute-tests}
+@c @fcnindex{slime-expand-abbreviations-and-complete}
+@c @fcnindex{slime-expand-class-node}
+@c @fcnindex{slime-expand-xrefs}
+@c @fcnindex{slime-extract-context}
+@c @fcnindex{slime-face-inheritance-possible-p}
+@c @fcnindex{slime-fetch-browsable-xrefs}
+@c @fcnindex{slime-filter-buffers}
+@c @fcnindex{slime-find-asd}                            [internal]
+@c @fcnindex{slime-find-buffer-package}                 [internal]
+@c @fcnindex{slime-find-coding-system}                  [internal]
+@c @fcnindex{slime-find-connection-by-name}             [internal]
+@c @fcnindex{slime-find-filename-translators}           [internal]
+@c @fcnindex{slime-find-next-note}                      [internal]
+@c @fcnindex{slime-find-note}                           [internal]
+@c @fcnindex{slime-find-previous-note}                  [internal]
+@c @fcnindex{slime-first-change-hook}
+@c @fcnindex{slime-fontify-string}
+@c @fcnindex{slime-forward-blanks}
+@c @fcnindex{slime-forward-positioned-source-path}
+@c @fcnindex{slime-forward-reader-comment}
+@c @fcnindex{slime-forward-reader-conditional}
+@c @fcnindex{slime-forward-sexp}
+@c @fcnindex{slime-forward-source-path}
+@c @fcnindex{slime-frame-windows}
+@c @fcnindex{slime-from-lisp-filename}
+@fcnindex{slime-fuzzy-abort}
+@fcnindex{slime-fuzzy-complete-symbol}
+@fcnindex{slime-fuzzy-completions-mode}
+@c @fcnindex{slime-fuzzy-choices-buffer}                       [internal]
+@c @fcnindex{slime-fuzzy-completions}                          [internal]
+@c @fcnindex{slime-fuzzy-done}                                 [internal]
+@c @fcnindex{slime-fuzzy-insert}                               [internal]
+@c @fcnindex{slime-fuzzy-insert-completion-choice}             [internal]
+@c @fcnindex{slime-fuzzy-insert-from-point}                    [internal]
+@c @fcnindex{slime-fuzzy-maybe-restore-window-configuration}   [internal]
+@c @fcnindex{slime-fuzzy-next}                                    ???
+@c @fcnindex{slime-fuzzy-post-command-hook}                    [internal]
+@c @fcnindex{slime-fuzzy-prev}                                    ???
+@c @fcnindex{slime-fuzzy-save-window-configuration}            [internal]
+@c @fcnindex{slime-fuzzy-select}                                  ???
+@c @fcnindex{slime-fuzzy-select/mouse}                            ???
+@c @fcnindex{slime-fuzzy-selected}                              [internal]
+@c @fcnindex{slime-fuzzy-window-configuration-change}           [internal]
+@c @fcnindex{slime-fuzzy-window-configuration-change-add-hook}  [internal]
+@c @fcnindex{slime-generate-connection-name}
+@c @fcnindex{slime-get-arglist}                         [internal]
+@c @fcnindex{slime-get-cached-autodoc}                  [internal]
+@c @fcnindex{slime-get-fuzzy-buffer}                    [internal]
+@c @fcnindex{slime-global-variable-name-p}              [internal]
+@fcnindex{slime-goto-connection}
+@c @fcnindex{slime-goto-definition}                        ???
+@c @fcnindex{slime-goto-definition-other-window}        [internal]
+@c @fcnindex{slime-goto-location-buffer}                [internal]
+@c @fcnindex{slime-goto-location-position}              [internal]
+@c @fcnindex{slime-goto-next-xref}                      [internal]
+@c @fcnindex{slime-goto-source-location}                [internal]
+@fcnindex{slime-goto-xref}
+@c @fcnindex{slime-group-similar}
+@c @fcnindex{slime-handle-indentation-update}
+@c @fcnindex{slime-handle-repl-shortcut}
+@c @fcnindex{slime-hide-inferior-lisp-buffer}           [internal]
+@c @fcnindex{slime-highlight-edits}
+@c @fcnindex{slime-highlight-edits-compile-hook}
+@c @fcnindex{slime-highlight-edits-init-buffer}
+@c @fcnindex{slime-highlight-edits-reset-buffer}
+@c @fcnindex{slime-highlight-notes}
+@fcnindex{slime-hyperspec-lookup}
+@c @fcnindex{slime-in-expression-p}
+@c @fcnindex{slime-indent-and-complete-symbol}
+@c @fcnindex{slime-inferior-connect}                    [internal]
+@c @fcnindex{slime-inferior-lisp-args}                  [internal]
+@c @fcnindex{slime-init-command}
+@c @fcnindex{slime-init-connection-state}
+@c @fcnindex{slime-init-keymaps}
+@c @fcnindex{slime-init-output-buffer}
+@c @fcnindex{slime-init-xref-buffer}
+@c @fcnindex{slime-input-complete-p}
+@c @fcnindex{slime-insert-arglist}
+@c @fcnindex{slime-insert-balanced-comments}
+@c @fcnindex{slime-insert-presentation}
+@c @fcnindex{slime-insert-transcript-delimiter}
+@c @fcnindex{slime-insert-xrefs}
+@c @fcnindex{slime-inside-comment-p}
+@fcnindex{slime-inspect}
+@c @fcnindex{slime-inspect-presentation-at-mouse}
+@c @fcnindex{slime-inspector-buffer}
+@fcnindex{slime-inspector-copy-down}
+@fcnindex{slime-inspector-describe}
+@c @fcnindex{slime-inspector-fontify}
+@c @fcnindex{slime-inspector-insert-ispec}
+@fcnindex{slime-inspector-next}
+@c @fcnindex{slime-inspector-next-inspectable-object}
+@c @fcnindex{slime-inspector-operate-on-click}
+@fcnindex{slime-inspector-operate-on-point}
+@fcnindex{slime-inspector-pop}
+@c @fcnindex{slime-inspector-pprint}
+@c @fcnindex{slime-inspector-previous-inspectable-object}
+@fcnindex{slime-inspector-quit}
+@c @fcnindex{slime-inspector-reinspect}
+@fcnindex{slime-interactive-eval}
+@fcnindex{slime-interrupt}
+@c @fcnindex{slime-intersperse}
+@c @fcnindex{slime-io-speed-test}
+@c @fcnindex{slime-isearch}
+@c @fcnindex{slime-isearch-with-function}
+@c @fcnindex{slime-keys}
+@c @fcnindex{slime-kill-all-buffers}
+@c @fcnindex{slime-last-expression}
+@c @fcnindex{slime-length>}
+@c @fcnindex{slime-lisp-mode-hook}
+@c @fcnindex{slime-list-all-repl-shortcuts}
+@fcnindex{slime-list-callees}
+@fcnindex{slime-list-callers}
+@c @fcnindex{slime-list-compiler-notes}
+@fcnindex{slime-list-connections}
+@c @fcnindex{slime-list-repl-short-cuts}
+@fcnindex{slime-list-threads}
+@fcnindex{slime-load-file}
+@c @fcnindex{slime-load-file-set-package}
+@c @fcnindex{slime-load-system}
+@c @fcnindex{slime-log-event}
+@c @fcnindex{slime-lookup-lisp-implementation}
+@c @fcnindex{slime-lookup-shortcut}
+@fcnindex{slime-macroexpand-1}
+@fcnindex{slime-macroexpand-1-inplace}
+@c @fcnindex{slime-macroexpand-again}
+@fcnindex{slime-macroexpand-all}
+@c @fcnindex{slime-macroexpand-all-inplace}
+@c @fcnindex{slime-make-default-connection}
+@c @fcnindex{slime-make-net-buffer}
+@c @fcnindex{slime-make-tramp-file-name}
+@c @fcnindex{slime-make-typeout-frame}
+@c @fcnindex{slime-make-variables-buffer-local}
+@c @fcnindex{slime-mark-input-start}
+@c @fcnindex{slime-mark-output-end}
+@c @fcnindex{slime-mark-output-start}
+@c @fcnindex{slime-mark-presentation-end}
+@c @fcnindex{slime-mark-presentation-end-handler}
+@c @fcnindex{slime-mark-presentation-start}
+@c @fcnindex{slime-mark-presentation-start-handler}
+@c @fcnindex{slime-maybe-complete-as-filename}
+@c @fcnindex{slime-maybe-display-output-buffer}
+@c @fcnindex{slime-maybe-list-compiler-notes}
+@c @fcnindex{slime-maybe-show-xrefs-for-notes}
+@c @fcnindex{slime-maybe-start-lisp}
+@c @fcnindex{slime-menu-choices-for-presentation}
+@c @fcnindex{slime-merge-note-into-overlay}
+@c @fcnindex{slime-merge-notes}
+@c @fcnindex{slime-merge-notes-for-display}
+@c @fcnindex{slime-message}
+@c @fcnindex{slime-minibuffer-respecting-message}
+@c @fcnindex{slime-most-severe}
+@c @fcnindex{slime-net-close}
+@c @fcnindex{slime-net-connect}
+@c @fcnindex{slime-net-decode-length}
+@c @fcnindex{slime-net-encode-length}
+@c @fcnindex{slime-net-filter}
+@c @fcnindex{slime-net-have-input-p}
+@c @fcnindex{slime-net-read}
+@c @fcnindex{slime-net-send}
+@c @fcnindex{slime-net-sentinel}
+@c @fcnindex{slime-next-line/not-add-newlines}
+@c @fcnindex{slime-next-location}
+@fcnindex{slime-next-note}
+@fcnindex{slime-nop}
+@c @fcnindex{slime-note-at-point}
+@c @fcnindex{slime-note-count-string}
+@c @fcnindex{slime-note-has-location-p}
+@c @fcnindex{slime-note-overlay-p}
+@c @fcnindex{slime-note-overlays-at-point}
+@c @fcnindex{slime-note.location}
+@c @fcnindex{slime-note.message}
+@c @fcnindex{slime-note.references}
+@c @fcnindex{slime-note.severity}
+@c @fcnindex{slime-note.short-message}
+@c @fcnindex{slime-notes-in-same-location-p}
+@c @fcnindex{slime-one-line-ify}
+@c @fcnindex{slime-oneliner}
+@c @fcnindex{slime-only-whitespace-p}
+@c @fcnindex{slime-oos}
+@c @fcnindex{slime-open-inspector}
+@c @fcnindex{slime-open-stream-to-lisp}
+@c @fcnindex{slime-output-buffer}
+@c @fcnindex{slime-output-filter}
+@c @fcnindex{slime-overlay-note}
+@c @fcnindex{slime-parse-context}
+@c @fcnindex{slime-parse-context}
+@c @fcnindex{slime-parse-extended-operator-name}
+@c @fcnindex{slime-parse-extended-operator-name/apply}
+@c @fcnindex{slime-parse-extended-operator-name/cerror}
+@c @fcnindex{slime-parse-extended-operator-name/defmethod}
+@c @fcnindex{slime-parse-extended-operator-name/make-instance}
+@c @fcnindex{slime-parse-toplevel-form}
+@c @fcnindex{slime-pattern-path}
+@c @fcnindex{slime-ping}
+@c @fcnindex{slime-point-moves-p}
+@fcnindex{slime-pop-find-definition-stack}
+@c @fcnindex{slime-pop-to-other-window}
+@c @fcnindex{slime-post-command-hook}
+@fcnindex{slime-pprint-eval-last-expression}
+@c @fcnindex{slime-pprint-event}
+@c @fcnindex{slime-pre-command-hook}
+@c @fcnindex{slime-presentation-around-click}
+@c @fcnindex{slime-presentation-around-or-before-point}
+@c @fcnindex{slime-presentation-around-point}
+@c @fcnindex{slime-presentation-expression}
+@c @fcnindex{slime-presentation-menu}
+@c @fcnindex{slime-presentation-start-p}
+@c @fcnindex{slime-presentation-stop-p}
+@c @fcnindex{slime-presentation-whole-p}
+@c @fcnindex{slime-presentations-around-point}
+@c @fcnindex{slime-preserve-zmacs-region}
+@c @fcnindex{slime-pretty-lambdas}
+@c @fcnindex{slime-pretty-package-name}
+@c @fcnindex{slime-pretty-print-presentation-at-mouse}
+@fcnindex{slime-previous-note}
+@c @fcnindex{slime-prin1-to-string}
+@c @fcnindex{slime-print-apropos}
+@c @fcnindex{slime-print-check-error}
+@c @fcnindex{slime-print-check-failed}
+@c @fcnindex{slime-print-check-ok}
+@c @fcnindex{slime-process}
+@c @fcnindex{slime-process-available-input}
+@fcnindex{slime-profile-package}
+@fcnindex{slime-profile-report}
+@fcnindex{slime-profile-reset}
+@fcnindex{slime-profiled-functions}
+@c @fcnindex{slime-propertize-region}
+@c @fcnindex{slime-property-bounds}
+@c @fcnindex{slime-property-position}
+@c @fcnindex{slime-push-definition-stack}
+@c @fcnindex{slime-qualify-cl-symbol}
+@c @fcnindex{slime-qualify-cl-symbol-name}
+@fcnindex{slime-quit}
+@c @fcnindex{slime-quit-connection-at-point}
+@c @fcnindex{slime-quit-lisp}
+@c @fcnindex{slime-quit-sentinel}
+@c @fcnindex{slime-random-words-of-encouragement}
+@c @fcnindex{slime-re-evaluate-defvar}
+@c @fcnindex{slime-read-from-minibuffer}
+@c @fcnindex{slime-read-interactive-args}
+@c @fcnindex{slime-read-object}
+@c @fcnindex{slime-read-package-name}
+@c @fcnindex{slime-read-port-and-connect}
+@c @fcnindex{slime-read-swank-port}
+@c @fcnindex{slime-read-symbol-name}
+@c @fcnindex{slime-read-system-name}
+@c @fcnindex{slime-read-test-name}
+@c @fcnindex{slime-reading-p}
+@c @fcnindex{slime-recenter-window}
+@c @fcnindex{slime-recently-visited-buffer}
+@c @fcnindex{slime-recompile-bytecode}
+@c @fcnindex{slime-region-for-defun-at-point}
+@c @fcnindex{slime-reify-old-output}
+@fcnindex{slime-reindent-defun}
+@c @fcnindex{slime-reinitialize-inferior-lisp-p}        [internal]
+@c @fcnindex{slime-remove-balanced-comments}
+@c @fcnindex{slime-remove-edits}
+@fcnindex{slime-remove-notes}
+@c @fcnindex{slime-remove-old-overlays}
+@c @fcnindex{slime-remove-presentation-properties}
+@c @fcnindex{slime-repl}
+@c @fcnindex{slime-repl-abort-read}
+@c @fcnindex{slime-repl-add-to-input-history}
+@c @fcnindex{slime-repl-at-prompt-end-p}
+@fcnindex{slime-repl-beginning-of-defun}
+@fcnindex{slime-repl-bol}
+@c @fcnindex{slime-repl-buffer}
+@c @fcnindex{slime-repl-call-with-handler}
+@fcnindex{slime-repl-clear-buffer}
+@fcnindex{slime-repl-clear-output}
+@fcnindex{slime-repl-closing-return}
+@c @fcnindex{slime-repl-current-input}
+@c @fcnindex{slime-repl-delete-current-input}
+@fcnindex{slime-repl-end-of-defun}
+@c @fcnindex{slime-repl-eol}
+@c @fcnindex{slime-repl-eval-string}
+@c @fcnindex{slime-repl-find-prompt}
+@c @fcnindex{slime-repl-grab-old-input}
+@c @fcnindex{slime-repl-grab-old-output}
+@c @fcnindex{slime-repl-history-replace}
+@c @fcnindex{slime-repl-in-input-area-p}
+@c @fcnindex{slime-repl-input-line-beginning-position}
+@c @fcnindex{slime-repl-insert-prompt}
+@c @fcnindex{slime-repl-insert-result}
+@c @fcnindex{slime-repl-kill-input}
+@c @fcnindex{slime-repl-load-history}
+@c @fcnindex{slime-repl-matching-input-regexp}
+@c @fcnindex{slime-repl-merge-histories}
+@c @fcnindex{slime-repl-mode}
+@c @fcnindex{slime-repl-move-output-mark-before-prompt}
+@fcnindex{slime-repl-newline-and-indent}
+@fcnindex{slime-repl-next-input}
+@fcnindex{slime-repl-next-matching-input}
+@fcnindex{slime-repl-next-prompt}
+@c @fcnindex{slime-repl-position-in-history}
+@fcnindex{slime-repl-previous-input}
+@fcnindex{slime-repl-previous-matching-input}
+@fcnindex{slime-repl-previous-prompt}
+@c @fcnindex{slime-repl-read-break}
+@c @fcnindex{slime-repl-read-history}
+@c @fcnindex{slime-repl-read-history-filename}
+@c @fcnindex{slime-repl-read-string}
+@c @fcnindex{slime-repl-recenter-if-needed}
+@c @fcnindex{slime-repl-replace-input}
+@fcnindex{slime-repl-return}
+@c @fcnindex{slime-repl-return-string}
+@c @fcnindex{slime-repl-safe-load-history}
+@c @fcnindex{slime-repl-safe-save-merged-history}
+@c @fcnindex{slime-repl-save-all-histories}
+@c @fcnindex{slime-repl-save-history}
+@c @fcnindex{slime-repl-save-merged-history}
+@c @fcnindex{slime-repl-send-input}
+@c @fcnindex{slime-repl-send-string}
+@fcnindex{slime-repl-set-package}
+@c @fcnindex{slime-repl-show-abort}
+@c @fcnindex{slime-repl-show-maximum-output}
+@c @fcnindex{slime-repl-update-banner}
+@c @fcnindex{slime-reset}
+@c @fcnindex{slime-reset-repl-markers}
+@fcnindex{slime-restart-connection-at-point}
+@fcnindex{slime-restart-inferior-lisp}
+@c @fcnindex{slime-restart-sentinel}                    [internal]
+@c @fcnindex{slime-run-one-test}
+@c @fcnindex{slime-run-tests}
+@c @fcnindex{slime-run-when-idle}
+@c @fcnindex{slime-safe-encoding-p}
+@c @fcnindex{slime-same-line-p}
+@c @fcnindex{slime-save-some-lisp-buffers}
+@c @fcnindex{slime-scheme-mode-hook}
+@fcnindex{slime-scratch}
+@c @fcnindex{slime-scratch-buffer}
+@c @fcnindex{slime-search-call-site}
+@c @fcnindex{slime-search-method-location}
+@c @fcnindex{slime-search-property-change-fn}
+@c @fcnindex{slime-search-suppressed-forms}
+@c @fcnindex{slime-secret}
+@c @fcnindex{slime-select-connection}
+@fcnindex{slime-selector}
+@c @fcnindex{slime-send}
+@c @fcnindex{slime-send-sigint}
+@c @fcnindex{slime-set-connection-info}
+@c @fcnindex{slime-set-default-directory}
+@c @fcnindex{slime-set-inferior-process}
+@c @fcnindex{slime-set-package}
+@c @fcnindex{slime-set-state}
+@c @fcnindex{slime-set-truncate-lines}
+@c @fcnindex{slime-setup-command-hooks}
+@c @fcnindex{slime-setup-connection}
+@c @fcnindex{slime-setup-first-change-hook}
+@c @fcnindex{slime-severity-face}
+@c @fcnindex{slime-severity-label}
+@c @fcnindex{slime-sexp-at-point}
+@c @fcnindex{slime-sexp-at-point-or-error}
+@c @fcnindex{slime-shared-lisp-mode-hook}
+@c @fcnindex{slime-show-apropos}
+@c @fcnindex{slime-show-buffer-position}
+@c @fcnindex{slime-show-definitions}
+@c @fcnindex{slime-show-description}
+@c @fcnindex{slime-show-last-output}
+@c @fcnindex{slime-show-last-output-region}
+@c @fcnindex{slime-show-note}
+@c @fcnindex{slime-show-note-counts}
+@c @fcnindex{slime-show-source-location}
+@c @fcnindex{slime-show-xref}
+@c @fcnindex{slime-show-xrefs}
+@c @fcnindex{slime-simple-complete-symbol}
+@c @fcnindex{slime-simple-completions}
+@c @fcnindex{slime-sldb-level=}
+@fcnindex{slime-space}
+@c @fcnindex{slime-start-and-load}
+@c @fcnindex{slime-start-lisp}
+@c @fcnindex{slime-start-swank-server}
+@c @fcnindex{slime-swank-port-file}
+@fcnindex{slime-switch-to-output-buffer}
+@c @fcnindex{slime-switch-to-scratch-buffer}
+@c @fcnindex{slime-symbol-at-point}
+@c @fcnindex{slime-symbol-end-pos}
+@c @fcnindex{slime-symbol-name-at-point}
+@c @fcnindex{slime-symbol-start-pos}
+@c @fcnindex{slime-sync}
+@fcnindex{slime-sync-package-and-default-directory}
+@c @fcnindex{slime-sync-to-top-level}
+@fcnindex{slime-temp-buffer-quit}
+@c @fcnindex{slime-temporarily-highlight-note}
+@c @fcnindex{slime-test-expect}
+@c @fcnindex{slime-test-failure}
+@c @fcnindex{slime-test-heading}
+@c @fcnindex{slime-test-message}
+@c @fcnindex{slime-test-should-fail-p}
+@c @fcnindex{slime-thread-attach}
+@c @fcnindex{slime-thread-debug}
+@c @fcnindex{slime-thread-insert}
+@c @fcnindex{slime-thread-kill}
+@c @fcnindex{slime-thread-quit}
+@c @fcnindex{slime-to-feature-keyword}
+@c @fcnindex{slime-to-lisp-filename}
+@fcnindex{slime-toggle-profile-fdefinition}
+@fcnindex{slime-toggle-trace-fdefinition}
+@c @fcnindex{slime-trace-query}
+@c @fcnindex{slime-tree-at-point}
+@c @fcnindex{slime-tree-decoration}
+@c @fcnindex{slime-tree-default-printer}
+@c @fcnindex{slime-tree-delete}
+@c @fcnindex{slime-tree-for-note}
+@c @fcnindex{slime-tree-for-severity}
+@c @fcnindex{slime-tree-indent-item}
+@c @fcnindex{slime-tree-insert}
+@c @fcnindex{slime-tree-insert-decoration}
+@c @fcnindex{slime-tree-insert-list}
+@c @fcnindex{slime-tree-insert-references}
+@c @fcnindex{slime-tree-leaf-p}
+@c @fcnindex{slime-tree-print-with-references}
+@c @fcnindex{slime-tree-toggle}
+@c @fcnindex{slime-typeout-active-p}
+@c @fcnindex{slime-typeout-message}
+@fcnindex{slime-undefine-function}
+@c @fcnindex{slime-underline-color}
+@fcnindex{slime-unprofile-all}
+@fcnindex{slime-untrace-all}
+@c @fcnindex{slime-update-autodoc-cache}
+@fcnindex{slime-update-connection-list}
+@c @fcnindex{slime-update-indentation}                  ???
+@c @fcnindex{slime-update-modeline-package}
+@c @fcnindex{slime-urge-bytecode-recompile}
+@c @fcnindex{slime-use-sigint-for-interrupt}
+@c @fcnindex{slime-user-first-name}
+@c @fcnindex{slime-visit-source-path}
+@c @fcnindex{slime-wait-condition}
+@fcnindex{slime-who-binds}
+@fcnindex{slime-who-calls}
+@fcnindex{slime-who-macroexpands}
+@fcnindex{slime-who-references}
+@fcnindex{slime-who-sets}
+@fcnindex{slime-who-specializes}
+@c @fcnindex{slime-window-config-fingerprint}
+@c @fcnindex{slime-with-output-end-mark}
+@c @fcnindex{slime-with-rigid-indentation}
+@c @fcnindex{slime-write-string}
+@c @fcnindex{slime-xref}
+@c @fcnindex{slime-xref-buffer}
+@c @fcnindex{slime-xref-cleanup}
+@end table
 
 @bye

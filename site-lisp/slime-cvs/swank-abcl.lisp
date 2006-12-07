@@ -1,4 +1,4 @@
-;;;; -*- Mode: lisp; indent-tabs-mode: nil; outline-regexp: ";;;;;*"; -*-
+;;;; -*- indent-tabs-mode: nil; outline-regexp: ";;;;;*"; -*-
 ;;;
 ;;; swank-abcl.lisp --- Armedbear CL specific code for SLIME. 
 ;;;
@@ -135,8 +135,7 @@
 
 (defimplementation accept-connection (socket 
                                       &key external-format buffering timeout)
-  (declare (ignore buffering timeout))
-  (assert (member external-format '(nil :iso-latin-1-unix)))
+  (declare (ignore buffering timeout external-format))
   (ext:get-socket-stream (ext:socket-accept socket)))
 
 ;;;; Unix signals
@@ -303,8 +302,7 @@
 
 (defvar *abcl-signaled-conditions*)
 
-(defimplementation swank-compile-file (filename load-p
-                                       &optional external-format)
+(defimplementation swank-compile-file (filename load-p external-format)
   (declare (ignore external-format))
   (let ((jvm::*resignal-compiler-warnings* t)
         (*abcl-signaled-conditions* nil))

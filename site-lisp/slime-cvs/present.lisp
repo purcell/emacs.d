@@ -168,6 +168,21 @@ says that I am starting to print an object with this id. The second says I am fi
 	  (write-annotation stream #'presentation-end record)))
       (funcall continue)))
 
+(defun make-presentations-result (values)
+  ;; Override a function in swank.lisp, so that 
+  ;; nested presentations work in the REPL result.
+  (cond 
+    ((null values)
+     '(:values ()))
+    (t
+     ;; Do the output ourselves.
+     (fresh-line)
+     (dolist (o values)
+       (presenting-object o *standard-output*
+	 (prin1 o))
+       (terpri))
+     '(:suppress-output))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Example: Tell openmcl and cmucl to always present unreadable objects. try (describe 'class) 

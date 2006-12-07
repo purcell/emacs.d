@@ -239,10 +239,8 @@
 
 (defimplementation accept-connection (socket
 				      &key external-format buffering timeout)
-  (declare (ignore buffering timeout))
-  (ecase (or external-format :iso-latin-1-unix)
-    (:iso-latin-1-unix 
-     (sockets:make-socket-stream (sockets:accept-socket socket)))))
+  (declare (ignore buffering timeout external-format))
+  (sockets:make-socket-stream (sockets:accept-socket socket)))
 
 ;;; Misc
 
@@ -367,7 +365,7 @@
     (funcall fn)))
 
 (defimplementation swank-compile-file (*compile-filename* load-p
-				       &optional external-format)
+				       external-format)
   (declare (ignore external-format))
   (with-compilation-hooks ()
     (let ((*buffer-name* nil))
