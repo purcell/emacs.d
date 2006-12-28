@@ -35,416 +35,717 @@
 (unless (boundp 'nxml-mode-abbrev-table)
   (setq nxml-mode-abbrev-table (make-abbrev-table)))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Rails snips ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Snips
 
 (def-snips (ruby-mode-abbrev-table)
-  ("ra"      "render :action => \"$${action}\""
-             "render (action)")
-  ("ral"     "render :action => \"$${action}\", :layout => \"$${layoutname}\""
-             "render (action,layout)")
-  ("rf"      "render :file => \"$${filepath}\""
-             "render (file)")
-  ("rfu"     "render :file => \"$${filepath}\", :use_full_path => $${false}"
-             "render (file,use_full_path)")
-  ("ri"      "render :inline => \"$${<%= 'hello' %>}\""
-             "render (inline)")
-  ("ril"     "render :inline => \"$${<%= 'hello' %>}\", :locals => { $${name} => \"$${value}\" }"
-             "render (inline,locals)")
-  ("rit"     "render :inline => \"$${<%= 'hello' %>}\", :type => :$${rxml})"
-             "render (inline,type)")
-  ("rl"      "render :layout => \"$${layoutname}\""
-             "render (layout)")
-  ("rn"      "render :nothing => $${true}"
-             "render (nothing)")
-  ("rns"     "render :nothing => $${true}, :status => $${401}"
-             "render (nothing,status)")
-  ("rp"      "render :partial => \"$${item}\""
-             "render (partial)")
-  ("rpc"     "render :partial => \"$${item}\", :collection => $${items}"
-             "render (partial,collection)")
-  ("rpl"     "render :partial => \"$${item}\", :locals => { :$${name} => \"$${value}\"}"
-             "render (partial,locals)")
-  ("rpo"     "render :partial => \"$${item}\", :object => $${object}"
-             "render (partial,object)")
-  ("rps"     "render :partial => \"$${item}\", :status => $${500}"
-             "render (partial,status)")
-  ("rt"      "render :text => \"$${Text here...}\""
-             "render (text)")
-  ("rtl"     "render :text => \"$${Text here...}\", :layout => \"$${layoutname}\""
-             "render (text,layout)")
-  ("rtlt"    "render :text => \"$${Text here...}\", :layout => $${true}"
-             "render (text,layout => true)")
-  ("rts"     "render :text => \"$${Text here...}\", :status => $${401}"
-             "")
-  ("rcea"    "render_component :action => \"$${index}\""
-             "render_component (action)")
-  ("rcec"    "render_component :controller => \"$${items}\""
-             "render_component (controller)")
-  ("rceca"   "render_component :controller => \"$${items}\", :action => \"$${index}\""
-             "render_component (controller, action)")
-  ("rea"     "redirect_to :action => \"$${index}\""
-             "redirect_to (action)")
-  ("reai"    "redirect_to :action => \"$${show}\", :id => $${@item}"
-             "redirect_to (action, id)")
-  ("rec"     "redirect_to :controller => \"$${items}\""
-             "redirect_to (controller)")
-  ("reca"    "redirect_to :controller => \"$${items}\", :action => \"$${list}\""
-             "redirect_to (controller, action)")
-  ("recai"   "redirect_to :controller => \"$${items}\", :action => \"$${show}\", :id => $${@item}"
-             "redirect_to (controller, action, id)")
+  ("all" "all? { |$${e}| $. }" "all? { |e| ... }")
+  ("am" "alias_method :$${new_name}, :$${old_name}" "alias_method ...")
+  ("amc" "alias_method_chain :$${first_method}, :$${second_method}" "alias_method_chain ...")
+  ("any" "any? { |$${e}| $. }" "any? { |e| ... }")
+  ("array" "Array.new($${10}) { |$${i}|$. }" "Array.new(10) { |i| ... }")
+  ("art" "assert_redirected_to :action => \"$${index}\"" "assert_redirected_to")
+  ("as" "assert($${test}, \"$${message}\")" "assert(...)")
+  ("ase" "assert_equal($${expected}, $${actual})" "assert_equal(...)")
+  ("asid" "assert_in_delta($${expected_float}, $${actual_float}, $${20})" "assert_in_delta(...)")
+  ("asio" "assert_instance_of($${ExpectedClass}, $${actual_instance})" "assert_instance_of(...)")
+  ("asko" "assert_kind_of($${ExpectedKind}, $${actual_instance})" "assert_kind_of(...)")
+  ("asm" "assert_match(/$${expected_pattern}/, $${actual_string})" "assert_match(...)")
+  ("asn" "assert_nil($${instance})" "assert_nil(...)")
+  ("asne" "assert_not_equal($${unexpected}, $${actual})" "assert_not_equal(...)")
+  ("asnm" "assert_no_match(/$${unexpected_pattern}/, $${actual_string})" "assert_no_match(...)")
+  ("asnn" "assert_not_nil($${instance})" "assert_not_nil(...)")
+  ("asnr" "assert_nothing_raised($${Exception}) { $. }" "assert_nothing_raised(...) { ... }")
+  ("asns" "assert_not_same($${unexpected}, $${actual})" "assert_not_same(...)")
+  ("asnt" "assert_nothing_thrown { $. }" "assert_nothing_thrown { ... }")
+  ("aso" "assert_operator($${left}, :$${operator}, $${right})" "assert_operator(...)")
+  ("asr" "assert_raise($${Exception}) { $. }" "assert_raise(...) { ... }")
+  ("asre" "assert_response :$${success}" "assert_response")
+  ("asrt" "assert_respond_to($${object}, :$${method})" "assert_respond_to(...)")
+  ("ass" "assert_same($${expected}, $${actual})" "assert_same(...)")
+  ("ass" "assert_send([$${object}, :$${message}, $${args}])" "assert_send(...)")
+  ("ast" "assert_throws(:$${expected}) { $. }" "assert_throws(...) { ... }")
+  ("b" "=begin rdoc\n$>$.\n=end" "New Block")
+  ("begin" "begin\n$>$${paste}\nrescue $${Exception} => $${e}\n$>$.\nend\n" "begin ... rescue ... end")
+  ("bm" "TESTS = $${10_000}\nBenchmark.bmbm($${10}) do |results|\n  $.\nend" "Benchmark.bmbm(...) do ... end")
+  ("bt" "belongs_to :$${model}" "belongs_to")
+  ("case" "case $${object}\nwhen $${condition}\n$>$.\nend" "case ... end")
+  ("cl" "classify { |$${e}| $. }" "classify { |e| ... }")
+  ("cladl" "class $${ClassName} < DelegateClass($${ParentClass})\n$>def initialize$${1}\n$>$>super($${del_obj})\n$>$>\n$>$>$.\n$>end\n$>\n$>\nend" "class ... < DelegateClass ... initialize ... end")
+  ("clapr" "class $${ClassName} < $${ParentClass}\n$>def initialize$${1}\n$>$>$.\n$>end\n$>\n$>\nend" "class ... < ParentClass ... initialize ... end")
+  ("clast" "class $${ClassName} < Struct.new(:$${attr_names})\n$>def initialize(*args)\n$>$>super\n$>$>\n$>$>$.\n$>end\n$>\n$>\nend" "class ... < Struct ... initialize ... end")
+  ("class" "class $${ClassName}\n$>$.\nend" "class ... end")
+  ("classi" "class $${ClassName}\n$>def initialize$${1}\n$>$>$.\n$>end\n$>\n$>\nend" "class ... initialize ... end")
+  ("clasf" "class << $${self}\n$>$.\nend" "class << self ... end")
+  ("clabl" "class $${BlankSlate}\n$>instance_methods.each { |meth| undef_method(meth) unless meth =~ /\\A__/ }\n$>\n$>def initialize$${var}\n$>$>@$${delegate} = $${delegate_object}\n$>$>\n$>$>$.\n$>end\n$>\n$>def method_missing(meth, *args, &block)\n$>$>@$${delegate}.send(meth, *args, &block)\n$>end\n$>\n$>\nend" "class BlankSlate ... initialize ... end")
+  ("clafn" "split(\"::\").inject(Object) { |par, const| par.const_get(const) }" "class_from_name()")
+  ("col" "collect { |$${e}| $. }" "collect { |e| ... }")
+  ("collect" "collect { |$${element}| $${element}.$. }" "collect element")
+  ("comp" "include Comparable\n\ndef <=>(other)\n$>$.\nend" "include Comparable ...")
+  ("dee" "Marshal.load(Marshal.dump($${obj_to_copy}))" "deep_copy(...)")
+  ("defd" "def_delegator :$${del_obj}, :$${del_meth}, :$${new_name}" "def_delegator ...")
+  ("defds" "def_delegators :$${del_obj}, :$${del_methods}" "def_delegators ...")
+  ("defs" "def self.$${class_method_name}\n$>$.\nend" "def self ... end")
+  ("deft" "def test_$${case_name}\n$>$.\nend" "def test_ ... end")
+  ("deli" "delete_if { |$${e}| $. }" "delete_if { |e| ... }")
+  ("det" "detect { |$${e}| $. }" "detect { |e| ... }")
+  ("dir" "Dir.glob($${glob}) { |$${file}| $. }" "Dir.glob(\"...\") { |file| ... }")
+  ("do" "do\n$>$.\nend" "do ... end")
+  ("doo" "do |$${object}|\n$>$.\nend" "Insert do |object| ... end")
+  ("dow" "downto($${0}) { |$${n}|$. }" "downto(0) { |n| ... }")
+  ("ea" "each { |$${e}| $. }" "each { |e| ... }")
+  ("eab" "each_byte { |$${byte}| $. }" "each_byte { |byte| ... }")
+  ("eac" "each_char { |$${chr}| $. }" "each_char { |chr| ... }")
+  ("eac" "each_cons($${2}) { |$${group}| $. }" "each_cons(...) { |group| ... }")
+  ("each" "each { |$${element}| $${element}.$. }" "each element")
+  ("each_with_index" "each_with_index { |$${element}, $${idx}| $${element}.$. }" "each_with_index")
+  ("eai" "each_index { |$${i}| $. }" "each_index { |i| ... }")
+  ("eak" "each_key { |$${key}| $. }" "each_key { |key| ... }")
+  ("eal" "each_line$${1} { |$${line}| $. }" "each_line { |line| ... }")
+  ("eap" "each_pair { |$${name}, $${val}| $. }" "each_pair { |name, val| ... }")
+  ("eas" "each_slice($${2}) { |$${group}| $. }" "each_slice(...) { |group| ... }")
+  ("eav" "each_value { |$${val}| $. }" "each_value { |val| ... }")
+  ("eawi" "each_with_index { |$${e}, $${i}| $. }" "each_with_index { |e, i| ... }")
+  ("elsif" "elsif $${condition}\n$>$." "elsif ...")
+  ("enum" "include Enumerable\n\ndef each(&block)\n$>$.\nend" "include Enumerable ...")
+  ("fet" "fetch($${name}) { |$${key}|$. }" "fetch(name) { |key| ... }")
+  ("fil" "fill($${range}) { |$${i}|$. }" "fill(range) { |i| ... }")
+  ("file" "File.foreach($${file}) { |$${line}| $. }" "File.foreach (\"...\") { |line| ... }")
+  ("fin" "find { |$${e}| $. }" "find { |e| ... }")
+  ("fina" "find_all { |$${e}| $. }" "find_all { |e| ... }")
+  ("fl" "flunk(\"$${message}\")" "flunk(...)")
+  ("flao" "inject(Array.new) { |$${arr}, $${a}| $${arr}.push(*$${a}) }" "flatten_once()")
+  ("flash" "flash[:$${notice}] = \"$${Successfully}\"$." "flash[...]")
+  ("forin" "for $${element} in $${collection}\n$>$${element}.$.\nend" "for ... in ... end")
+  ("forw" "extend Forwardable" "extend Forwardable")
+  ("gre" "grep($${pattern}) { |$${match}| $. }" "grep(/pattern/) { |match| ... }")
+  ("gsu" "gsub(/$${pattern}/) { |$${match}|$. }" "gsub(/.../) { |match| ... }")
+  ("habtm" "has_and_belongs_to_many :$${object}" "has_and_belongs_to_many")
+  ("hash" "Hash.new { |$${hash}, $${key}| $${hash}[$${key}] = $. }" "Hash.new { |hash, key| hash[key] = ... }")
+  ("hm" "has_many :$${objects}" "has_many")
+  ("ho" "has_one :$${object}" "has_one")
+  ("if" "if $${condition}\n$>$.\nend" "if ... end")
+  ("ife" "if $${condition}\n$>$${2}\nelse\n$>$${3}\nend" "if ... else ... end")
+  ("inj" "inject($${init}) { |$${mem}, $${var}| $. }" "inject(init) { |mem, var| ... }")
+  ("inject" "inject($${object}) { |$${injection}, $${element}| $${4} }$." "inject object")
+  ("lam" "lambda { |$${args}|$. }" "lambda { |args| ... }")
+  ("logd" "logger.debug \"$${message}\"$." "logger.debug")
+  ("loge" "logger.error \"$${message}\"$." "logger.error")
+  ("logf" "logger.fatal \"$${message}\"$." "logger.fatal")
+  ("logi" "logger.info \"$${message}\"$." "logger.info")
+  ("logw" "logger.warn \"$${message}\"$." "logger.warn")
+  ("map" "map { |$${e}| $. }" "map { |e| ... }")
+  ("mapwi" "enum_with_index.map { |$${e}, $${i}| $. }" "map_with_index { |e, i| ... }")
+  ("max" "max { |a, b| $. }" "max { |a, b| ... }")
+  ("mtclm" "t.column :$${title}, :$${string}\n$>mtclm$." "create several columns")
+  ("mac" "add_column :$${table}, :$${column}, :$${string}" "add column")
+  ("mtcl" "t.column :$${title}, :$${string}$." "create column")
+  ("mrmc" "remove_column :$${table}, :$${column}" "remove column")
+  ("mrec" "rename_column :$${column}, :$${new_column}" "rename column")
+  ("md" "File.open($${dump}, \"w\") { |$${file}| Marshal.dump($${obj}, $${file}) }" "Marshal.dump(..., file)")
+  ("min" "min { |a, b| $. }" "min { |a, b| ... }")
+  ("ml" "File.open($${dump}) { |$${file}| Marshal.load($${file}) }" "Marshal.load(obj)")
+  ("mm" "def method_missing(meth, *args, &block)\n$>$.\nend" "def method_missing ... end")
+  ("modf" "module $${ModuleName}\n$>module ClassMethods\n$>$>$.\n$>end\n$>\n$>extend ClassMethods\n$>\n$>def self.included(receiver)\n$>$>receiver.extend(ClassMethods)\n$>end\n$>\n$>\nend" "module ... ClassMethods ... end")
+  ("mods" "module $${ModuleName}\n$>$.\nend" "module ... end")
+  ("modu" "module $${ModuleName}\n$>module_function\n$>\n$>$.\nend" "module ... module_function ... end")
+  ("mct" "create_table :$${table} do |t|\n    $.\nend" "create table")
+  ("mdct" "drop_table :$${table}\ncreate_table :$${table}" "drop / create Table")
+  ("mdt" "drop_table :$${table}\n$." "drop table")
+  ("mrt" "rename_table :$${table}, :$${new_name}$." "rename table")
+  ("ope" "open($${pipe}) { |$${io}| $. }" "open(\"path/or/url\", \"w\") { |io| ... }")
+  ("par" "partition { |$${e}| $. }" "partition { |e| ... }")
+  ("params" "params[:$${id}]" "params[...]")
+  ("patfh" "File.join(File.dirname(__FILE__), *%w[$${here}])" "path_from_here( ... )")
+  ("pn" "PStore.new($${file_name})" "PStore.new( ... )")
+  ("r" "attr_reader :$${attr_names}" "attr_reader ...")
+  ("ra" "render :action => \"$${action}\"" "render (action)")
+  ("ral" "render :action => \"$${action}\", :layout => \"$${layoutname}\"" "render (action, layout)")
+  ("ran" "sort_by { rand }" "randomize()")
+  ("rb" "#!/usr/bin/env ruby -w\n\n" "#!/usr/local/bin/ruby -w")
+  ("rcea" "render_component :action => \"$${index}\"" "render_component (action)")
+  ("rcec" "render_component :controller => \"$${items}\"" "render_component (controller)")
+  ("rceca" "render_component :controller => \"$${items}\", :action => \"$${index}\"" "render_component (controller, action)")
+  ("rdb" "RAILS_DEFAULT_LOGGER.debug \"$${message}\"$." "RAILS_DEFAULT_LOGGER.debug")
+  ("rea" "redirect_to :action => \"$${index}\"" "redirect_to (action)")
+  ("reai" "redirect_to :action => \"$${show}\", :id => $${item}" "redirect_to (action, id)")
+  ("rec" "redirect_to :controller => \"$${items}\"" "redirect_to (controller)")
+  ("reca" "redirect_to :controller => \"$${items}\", :action => \"$${list}\"" "redirect_to (controller, action)")
+  ("recai" "redirect_to :controller => \"$${items}\", :action => \"$${show}\", :id => $${item}" "redirect_to (controller, action, id)")
+  ("rej" "reject { |$${e}| $. }" "reject { |e| ... }")
+  ("reject" "reject { |$${element}| $${element}.$. }" "reject element")
+  ("rep" "results.report(\"$${name}:\") { TESTS.times { $. } }" "results.report(...) { ... }")
+  ("req" "require \"$.\"" "require \"...\"")
+  ("reve" "reverse_each { |$${e}| $. }" "reverse_each { |e| ... }")
+  ("rf" "render :file => \"$${filepath}\"" "render (file)")
+  ("rfu" "render :file => \"$${filepath}\", :use_full_path => $${false}" "render (file, use_full_path)")
+  ("ri" "render :inline => \"$${hello}\"" "render (inline)")
+  ("ril" "render :inline => \"$${hello}\", :locals => { $${name} => \"$${value}\"$${4} }" "render (inline, locals)")
+  ("rit" "render :inline => \"$${hello}\", :type => $${rxml}" "render (inline, type)")
+  ("rl" "render :layout => \"$${layoutname}\"" "render (layout)")
+  ("rn" "render :nothing => $${true}" "render (nothing)")
+  ("rns" "render :nothing => $${true}, :status => $${401}" "render (nothing, status)")
+  ("rp" "render :partial => \"$${item}\"" "render (partial)")
+  ("rpc" "render :partial => \"$${item}\", :collection => $${items}" "render (partial, collection)")
+  ("rpl" "render :partial => \"$${item}\", :locals => { :$${name} => \"$${value}\"$${4} }" "render (partial, locals)")
+  ("rpo" "render :partial => \"$${item}\", :object => $${object}" "render (partial, object)")
+  ("rps" "render :partial => \"$${item}\", :status => $${500}" "render (partial, status)")
+  ("rt" "render :text => \"$${render}\"" "render (text)")
+  ("rtl" "render :text => \"$${render}\", :layout => \"$${layoutname}\"" "render (text, layout)")
+  ("rtlt" "render :text => \"$${render}\", :layout => $${true}" "render (text, layout => true)")
+  ("rts" "render :text => \"$${render}\", :status => $${401}" "render (text, status)")
+  ("rw" "attr_accessor :$${attr_names}" "attr_accessor ...")
+  ("sca" "scan(/$${pattern}/) { |$${match}| $. }" "scan(/.../) { |match| ... }")
+  ("sel" "select { |$${e}| $. }" "select { |e| ... }")
+  ("select" "select { |$${element}| $${element}.$${2} }$." "select element")
+  ("session" "session[:$${User}]" "session[...]")
+  ("sin" "class << self; self end" "singleton_class()")
+  ("sor" "sort { |a, b| $. }" "sort { |a, b| ... }")
+  ("sorb" "sort_by { |$${e}| $. }" "sort_by { |e| ... }")
+  ("ste" "step($${2}) { |$${n}|$. }" "step(2) { |e| ... }")
+  ("sub" "sub(/$${pattern}/) { |$${match}|$. }" "sub(/.../) { |match| ... }")
+  ("tc" "require \"test/unit\"\n\nrequire \"$${library_file_name}\"\n\nclass Test$${amp} < Test::Unit::TestCase\n$>def test_$${case_name}\n$>$>$.\n$>end\nend" "class ... < Test::Unit::TestCase ... end")
+  ("tim" "times { |$${n}|$. }" "times { |n| ... }")
+  ("tra" "transaction$${1} { $. }" "transaction( ... ) { ... }")
+  ("ts" "require \"test/unit\"\n\nrequire \"tc_$${test_case_file}\"\nrequire \"tc_$${test_case_file}\"\n" "require \"tc_...\" ...")
+  ("unless" "unless $${condition}\n$>$.\nend" "unless ... end")
+  ("until" "until $${condition}\n$>$.\nend" "until ... end")
+  ("upt" "upto($${0}) { |$${n}|$. }" "upto(1.0/0.0) { |n| ... }")
+  ("va" "validates_associated :$${attribute}" "validates_associated")
+  ("vc" "validates_confirmation_of :$${attribute}" "validates_confirmation_of")
+  ("ve" "validates_exclusion_of :$${attribute}" "validates_exclusion_of")
+  ("verred" "verify :only => [:$${1}], :session => :user, :params => :id, :redirect_to => {:action => '$${index}'}\n" "verify -- redirect")
+  ("verren" "verify :only => [:$${1}], :method => :post, :render => {:status => 500, :text => \"use HTTP-POST\"}\n" "verify -- render")
+  ("vl" "validates_length_of :$${attribute}, :within => $${20}" "validates_length_of")
+  ("vp" "validates_presence_of :$${attribute}" "validates_presence_of")
+  ("vpif" "validates_presence_of :$${attribute}, :if => proc { |obj| $${condition} }" "validates_presence_of if")
+  ("vu" "validates_uniqueness_of :$${attribute}" "validates_uniqueness_of")
+  ("vuif" "validates_uniqueness_of :$${attribute}, :if => proc { |obj| $${condition} }" "validates_uniqueness_of if")
+  ("w" "attr_writer :$${attr_names}" "attr_writer ...")
+  ("when" "when $${condition}\n$>$." "when ...")
+  ("while" "while $${condition}\n$>$.\nend" "while ... end")
+  ("y" " :yields: $${arguments}" ":yields:")
+  ("yd" "File.open($${yaml}, \"w\") { |$${file}| YAML.dump($${obj}, $${file}) }" "YAML.dump(..., file)")
+  ("yl" "File.open($${yaml}) { |$${file}| YAML.load($${file}) }" "YAML.load(file)")
+  ("zip" "zip($${enums}) { |$${row}| $. }" "zip(enums) { |row| ... }"))
 
-  ;; Environment
-  ("flash"   "flash[:$${notice}] = \"$${Text here...}\""
-             "flash[...]")
-  ("logi"    "logger.info \"$${Text here...}\""
-             "logger.info")
-  ("par"     "params[:$${id}]"
-             "params[...]")
-  ("ses"     "session[:$${user}]"
-             "session[...]")
-
-  ;; Models
-  ("bt"      "belongs_to :$${model}, :class_name => \"$${class}\", :foreign_key => \"$${key}\""
-             "belongs_to (class_name,foreign_key)")
-  ("hm"      "has_many :$${model}, :class_name => \"$${class}\", :foreign_key => \"$${key}\", :dependent => :$${destroy}"
-             "has_many (class_name,foreign_key,dependent)")
-  ("ho"      "has_one :$${model}, :class_name => \"$${class}\", :foreign_key => \"$${key}\", :dependent => :$${destroy}"
-             "has_one (class_name,foreign_key,dependent)")
-  ("vp"      "validates_presence_of :$${attr}"
-             "validates_presence_of")
-  ("vu"      "validates_uniqueness_of :$${attr}"
-             "validates_uniqueness_of")
-  ("vn"     "validates_numericality_of :$${attr}"
-             "validates_numericality_of")
-
-  ;; Migrations
-  ("mct"     "create_table :$${name} do |t|\n$>$.\nend"
-             "create_table (table)")
-  ("mctf"    "create_table :$${name}, :force => true do |t|\n$>$.\nend"
-             "create_table (table, force)")
-  ("mdt"     "drop_table :$${name}"
-             "drop_table (table)")
-  ("mtcl"    "t.column \"$${name}\", :$${type}"
-             "t.column (column)")
-  ("mac"     "add_column :$${table_name}, :$${column_name}, :$${type}"
-             "add_column (table, column, type)")
-  ("mcc"     "change_column :$${table_name}, :$${column_name}, :$${type}"
-             "change_column (table, column, type)")
-  ("mrec"    "rename_column :$${table_name}, :$${column_name}, :$${new_column_name}"
-             "rename_column (table, name, new_name)")
-  ("mrmc"    "remove_column :$${table_name}, :$${column_name}"
-             "remove_column (table, column)")
-  ("mai"     "add_index :$${table_name}, :$${column_name}"
-             "add_index (table, column)")
-  ("mait"    "add_index :$${table_name}, :$${column_name}, :$${index_type}"
-             "add_index (table, column, type)")
-  ("mrmi"    "remove_index :$${table_name}, :$${column_name}"
-             "remove_index (table, column)"))
-
-;;;; ERB Snips ;;;;
-
-(def-snips (html-mode-abbrev-table html-helper-mode-abbrev-table nxml-mode-abbrev-table)
-  ("ft"      "<%= form_tag :action => \"$${update}\" %>\n$.\n<%= end_form_tag %>"
-             "form_tag")
-  ("lia"     "<%= link_to \"$${title}\", :action => \"$${index}\" %>"
-             "link_to (action)")
-  ("liai"    "<%= link_to \"$${title}\", :action => \"$${edit}\", :id => $${@item} %>"
-             "link_to (action, id)")
-  ("lic"     "<%= link_to \"$${title}\", :controller => \"$${items}\" %>"
-             "link_to (controller)")
-  ("lica"    "<%= link_to \"$${title}\", :controller => \"$${items}\", :action => \"$${index}\" %>"
-             "link_to (controller, action)")
-  ("licai"   "<%= link_to \"$${title}\", :controller => \"$${items}\", :action => \"$${edit}\", :id => $${@item} %>"
-             "link_to (controller, action, id)")
-  ("%h"      "<%=h $${@item} %>"
-             "<% h ... %>")
-  ("%if"     "<% if $${cond} -%>\n$.\n<% end -%>"
-             "<% if/end %>")
-  ("%ifel"   "<% if $${cond} -%>\n$.\n<% else -%>\n<% end -%>"
-             "<% if/else/end %>")
-  ("%unless" "<% unless $${cond} -%>\n$.\n<% end -%>"
-             "<% unless/end %>")
-  ("%for" "<% for $${elem} in @$${list} %>\n$>$.\n<% end %>$>"
-             "<% for/end %>")
-
-  ("%"       "<% $. -%>"
-             "<% ... %>")
-  ("%%"      "<%= $. %>"
-             "<%= ... %>"))
+(def-snips (html-mode-abbrev-table html-helper-mode-abbrev-table nxml-mode-abbrev-table) 
+  ("body" "<body id=\"$${id}\"$${onload}>\n$>$.\n</body>" "body")
+  ("div" "<div$${name}>\n$>$${paste}\n</div>" "div")
+  ("dtht" "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n$>\"http://www.w3.org/TR/html4/strict.dtd\">\n" "HTML -- 4.01 Strict")
+  ("dchttr" "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n$>\"http://www.w3.org/TR/html4/loose.dtd\">\n" "HTML -- 4.01 Transitional")
+  ("dcxmlf" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Frameset//EN\"\n$>\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd\">\n" "XHTML -- 1.0 Frameset")
+  ("dcxmls" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n$>\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n" "XHTML -- 1.0 Strict")
+  ("dcxmlt" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n$>\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" "XHTML -- 1.0 Transitional")
+  ("dcxml1" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\n$>\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n" "XHTML -- 1.1")
+  ("form" "<form action=\"$${action}\" method=\"$${post}\" accept-charset=\"utf-8\">\n$>$.\n\n$><p><input type=\"submit\" value=\"Continue &rarr;\"/></p>\n</form>" "form")
+  ("ft" "<%= form_tag :action => \"$${update}\" %>\n$.\n<%= end_form_tag %>" "form_tag")
+  ("ff" "<%= form_form :$${item}, @$${object}, :action => \"$${update}\" %>\n$.\n<% emd %>" "form_for")
+  ("h" "<h1 id=\"$${alpha}\">$${paste}</h1>" "heading")
+  ("head" "<head>\n$><meta http-equiv=\"Content-type\" content=\"text/html; charset=utf-8\"/>\n$><title>$${title}</title>\n$>$.\n</head>" "head")
+  ("input" "<input type=\"$${button}\" name=\"$${some_name}\" value=\"$${3}\"$${id}>" "input")
+  ("lia" "<%= link_to \"$${text}\", :action => \"$${index}\" %>" "link_to (action)")
+  ("liai" "<%= link_to \"$${text}\", :action => \"$${edit}\", :id => $${item} %>" "link_to (action, id)")
+  ("lic" "<%= link_to \"$${text}\", :controller => \"$${items}\" %>" "link_to (controller)")
+  ("lica" "<%= link_to \"$${text}\", :controller => \"$${items}\", :action => \"$${index}\" %>" "link_to (controller, action)")
+  ("licai" "<%= link_to \"$${text}\", :controller => \"$${items}\", :action => \"$${edit}\", :id => $${item} %>" "link_to (controller, action, id)")
+  ("link" "<link rel=\"$${stylesheet}\" href=\"$${master}\" type=\"text/css\" media=\"$${screen}\" title=\"$${title}\" charset=\"$${utf}\"/>" "link")
+  ("mailto" "<a href=\"mailto:$${example}?subject=$${feedback}\">$${email}</a>" "mailto")
+  ("meta" "<meta name=\"$${name}\" content=\"$${content}\"/>" "meta")
+  ("movie" "<object width=\"$${2}\" height=\"$${3}\" classid=\"clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B\" codebase=\"http://www.apple.com/qtactivex/qtplugin.cab\">\n$><param name=\"src\" value=\"$${1}\"/>\n$><param name=\"controller\" value=\"$${4}\"/>\n$><param name=\"autoplay\" value=\"$${5}\"/>\n$><embed src=\"$${movie}\"\n$>$>width=\"$${320}\" height=\"$${240}\"\n$>$>controller=\"$${true}\" autoplay=\"$${true}\"\n$>$>scale=\"tofit\" cache=\"true\"\n$>$>pluginspage=\"http://www.apple.com/quicktime/download/\"\n$>/>\n</object>" "quicktime")
+  ("script" "<script type=\"text/javascript\" charset=\"utf-8\">\n$>$.\n</script>" "script")
+  ("scriptsrc" "<script src=\"$${1}\" type=\"text/javascript\" charset=\"$${utf}\"></script>" "script with source")
+  ("style" "<style type=\"text/css\" media=\"screen\">\n$>$.\n</style>" "style")
+  ("table" "<table border=\"$${0}\" $${cellpadding}>\n$><tr><th>$${Header}</th></tr>\n$><tr><td>$${Data}</td></tr>\n</table>" "table")
+  ("textarea" "<textarea name=\"$${Name}\" rows=\"$${8}\" cols=\"$${40}\">$.</textarea>" "textarea")
+  ("title" "<title>$${title}</title>" "title")
+  ("%h" "<%=h $${@item} %>" "<% h ... %>")
+  ("%if" "<% if $${cond} -%>\n$.\n<% end -%>" "<% if/end %>")
+  ("%ifel" "<% if $${cond} -%>\n$.\n<% else -%>\n<% end -%>" "<% if/else/end %>")
+  ("%unless" "<% unless $${cond} -%>\n$.\n<% end -%>" "<% unless/end %>")
+  ("%for" "<% for $${elem} in @$${list} %>\n$>$.\n<% end %>$>" "<% for/end %>")
+  ("%" "<% $. -%>" "<% ... %>")
+  ("%%" "<%= $. %>" "<%= ... %>"))
 
 (define-keys rails-minor-mode-menu-bar-map
-    ([rails] (cons "RubyOnRails" (make-sparse-keymap "RubyOnRails")))
-    ([rails svn-status]
-      '(menu-item "SVN status" rails-svn-status-into-root
-                  :enable (rails-core:root)))
 
-    ([rails api-doc] '("Rails API doc at point" . rails-browse-api-at-point))
+  ([rails] (cons "RubyOnRails" (make-sparse-keymap "RubyOnRails")))
 
-    ([rails sql] '("SQL Rails buffer" . rails-run-sql))
+  ([rails rails-customize] '(menu-item "Customize" 
+				       (lambda () (interactive) (customize-group 'rails))
+				       :enable (rails-core:root)))
 
-    ([rails tag] '("Update TAGS file" . rails-create-tags))
-    ([rails ri] '("Search documentation" . rails-search-doc))
-    ([rails goto-file-by-line]
-      '("Goto file by line" . rails-goto-file-on-current-line))
-    ([rails switch-file-menu]
-      '("Switch file menu..." . rails-goto-file-from-file-with-menu))
-    ([rails switch-file]
-      '("Switch file" . rails-goto-file-from-file))
-    ([rails separator] '("--"))
+  ([rails separator0] '("--"))
 
-    ([rails snip] (cons "Snippets" (make-sparse-keymap "Snippets")))
-    ([rails snip render] (cons "render" (make-sparse-keymap "render")))
-    ([rails snip render sk-ra]  (snippet-menu-line 'ruby-mode-abbrev-table "ra"))
-    ([rails snip render sk-ral] (snippet-menu-line 'ruby-mode-abbrev-table "ral"))
-    ([rails snip render sk-rf]  (snippet-menu-line 'ruby-mode-abbrev-table "rf"))
-    ([rails snip render sk-rfu] (snippet-menu-line 'ruby-mode-abbrev-table "rfu"))
-    ([rails snip render sk-ri]  (snippet-menu-line 'ruby-mode-abbrev-table "ri"))
-    ([rails snip render sk-ril] (snippet-menu-line 'ruby-mode-abbrev-table "ril"))
-    ([rails snip render sk-rit] (snippet-menu-line 'ruby-mode-abbrev-table "rit"))
-    ([rails snip render sk-rl]  (snippet-menu-line 'ruby-mode-abbrev-table "rl"))
-    ([rails snip render sk-rn]  (snippet-menu-line 'ruby-mode-abbrev-table "rn"))
-    ([rails snip render sk-rns] (snippet-menu-line 'ruby-mode-abbrev-table "rns"))
-    ([rails snip render sk-rp]  (snippet-menu-line 'ruby-mode-abbrev-table "rp"))
-    ([rails snip render sk-rpc] (snippet-menu-line 'ruby-mode-abbrev-table "rpc"))
-    ([rails snip render sk-rpl] (snippet-menu-line 'ruby-mode-abbrev-table "rpl"))
-    ([rails snip render sk-rpo] (snippet-menu-line 'ruby-mode-abbrev-table "rpo"))
-    ([rails snip render sk-rps] (snippet-menu-line 'ruby-mode-abbrev-table "rps"))
-    ([rails snip render sk-rt] (snippet-menu-line 'ruby-mode-abbrev-table "rt"))
-    ([rails snip render sk-rtl] (snippet-menu-line 'ruby-mode-abbrev-table "rtl"))
-    ([rails snip render sk-rtlt] (snippet-menu-line 'ruby-mode-abbrev-table "rtlt"))
-    ([rails snip render sk-rcea] (snippet-menu-line 'ruby-mode-abbrev-table "rcea"))
-    ([rails snip render sk-rcec] (snippet-menu-line 'ruby-mode-abbrev-table "rcec"))
-    ([rails snip render sk-rceca] (snippet-menu-line 'ruby-mode-abbrev-table "rceca"))
+  ([rails svn-status] '(menu-item "SVN status" rails-svn-status-into-root
+				  :enable (rails-core:root)))
 
-    ([rails snip redirect_to] (cons "redirect_to" (make-sparse-keymap "redirect_to")))
-    ([rails snip redirect_to sk-rea] (snippet-menu-line 'ruby-mode-abbrev-table "rea"))
-    ([rails snip redirect_to sk-reai] (snippet-menu-line 'ruby-mode-abbrev-table "reai"))
-    ([rails snip redirect_to sk-rec] (snippet-menu-line 'ruby-mode-abbrev-table "rec"))
-    ([rails snip redirect_to sk-reca] (snippet-menu-line 'ruby-mode-abbrev-table "reca"))
-    ([rails snip redirect_to sk-recai] (snippet-menu-line 'ruby-mode-abbrev-table "recai"))
+  ([rails api-doc] '("Rails API doc at point" . rails-browse-api-at-point))
 
-    ([rails snip environment] (cons "environment" (make-sparse-keymap "environment")))
-    ([rails snip environment sk-flash] (snippet-menu-line 'ruby-mode-abbrev-table "flash"))
-    ([rails snip environment sk-logi] (snippet-menu-line 'ruby-mode-abbrev-table "logi"))
-    ([rails snip environment sk-params] (snippet-menu-line 'ruby-mode-abbrev-table "par"))
-    ([rails snip environment sk-session] (snippet-menu-line 'ruby-mode-abbrev-table "ses"))
+  ([rails sql] '("SQL Rails buffer" . rails-run-sql))
 
-    ([rails snip model] (cons "model" (make-sparse-keymap "model")))
-    ([rails snip model sk-bt] (snippet-menu-line 'ruby-mode-abbrev-table "bt"))
-    ([rails snip model sk-hm] (snippet-menu-line 'ruby-mode-abbrev-table "hm"))
-    ([rails snip model sk-ho] (snippet-menu-line 'ruby-mode-abbrev-table "ho"))
-    ([rails snip model sk-vp] (snippet-menu-line 'ruby-mode-abbrev-table "vp"))
-    ([rails snip model sk-vu] (snippet-menu-line 'ruby-mode-abbrev-table "vu"))
-    ([rails snip model sk-vn] (snippet-menu-line 'ruby-mode-abbrev-table "vn"))
-    ([rails snip migrations] (cons "migrations" (make-sparse-keymap "model")))
-    ([rails snip migrations mct] (snippet-menu-line 'ruby-mode-abbrev-table "mct"))
-    ([rails snip migrations mctf] (snippet-menu-line 'ruby-mode-abbrev-table "mctf"))
-    ([rails snip migrations mdt] (snippet-menu-line 'ruby-mode-abbrev-table "mdt"))
-    ([rails snip migrations mtcl] (snippet-menu-line 'ruby-mode-abbrev-table "mtcl"))
-    ([rails snip migrations mac] (snippet-menu-line 'ruby-mode-abbrev-table "mac"))
-    ([rails snip migrations mcc] (snippet-menu-line 'ruby-mode-abbrev-table "mcc"))
-    ([rails snip migrations mrec] (snippet-menu-line 'ruby-mode-abbrev-table "mrec"))
-    ([rails snip migrations mrmc] (snippet-menu-line 'ruby-mode-abbrev-table "mrmc"))
-    ([rails snip migrations mai] (snippet-menu-line 'ruby-mode-abbrev-table "mai"))
-    ([rails snip migrations mait] (snippet-menu-line 'ruby-mode-abbrev-table "mait"))
-    ([rails snip migrations mrmi] (snippet-menu-line 'ruby-mode-abbrev-table "mrmi"))
+  ([rails tag] '("Update TAGS file" . rails-create-tags))
 
-    ([rails snip rhtml] (cons "rhtml" (make-sparse-keymap "rhtml")))
-    ([rails snip rhtml sk-erb-ft] (snippet-menu-line 'html-mode-abbrev-table "ft"))
-    ([rails snip rhtml sk-erb-lia] (snippet-menu-line 'html-mode-abbrev-table "lia"))
-    ([rails snip rhtml sk-erb-liai] (snippet-menu-line 'html-mode-abbrev-table "liai"))
-    ([rails snip rhtml sk-erb-lic] (snippet-menu-line 'html-mode-abbrev-table "lic"))
-    ([rails snip rhtml sk-erb-lica] (snippet-menu-line 'html-mode-abbrev-table "lica"))
-    ([rails snip rhtml sk-erb-licai] (snippet-menu-line 'html-mode-abbrev-table "licai"))
-    ([rails snip rhtml sk-erb-h] (snippet-menu-line 'html-mode-abbrev-table "%h"))
-    ([rails snip rhtml sk-erb-if] (snippet-menu-line 'html-mode-abbrev-table "%if"))
-    ([rails snip rhtml sk-erb-unless] (snippet-menu-line 'html-mode-abbrev-table "%unless"))
-    ([rails snip rhtml sk-erb-ifel] (snippet-menu-line 'html-mode-abbrev-table "%ifel"))
-    ([rails snip rhtml sk-erb-block] (snippet-menu-line 'html-mode-abbrev-table "%"))
-    ([rails snip rhtml sk-erb-echo-block] (snippet-menu-line 'html-mode-abbrev-table "%%"))
+  ([rails ri] '("Search documentation" . rails-search-doc))
 
-    ([rails log] (cons "Open log" (make-sparse-keymap "Open log")))
-    ([rails log test]
-      '("test.log" . (lambda() (interactive) (rails-open-log "test"))))
-    ([rails log pro]
-      '("production.log" . (lambda() (interactive) (rails-open-log "production"))))
-    ([rails log dev]
-      '("development.log" . (lambda() (interactive) (rails-open-log "development"))))
+  ([rails goto-file-by-line] '("Goto file by line" . rails-goto-file-on-current-line))
 
-    ([rails config] (cons "Configuration" (make-sparse-keymap "Configuration")))
+  ([rails switch-file-menu] '("Switch file menu..." . rails-lib:run-secondary-switch))
+  ([rails switch-file] '("Switch file" . rails-lib:run-primary-switch))
 
-    ([rails config routes]
-     '("routes.rb" . (lambda ()
-           (interactive)
-           (rails-core:find-file "config/routes.rb"))))
-    ([rails config environment]
-     '("environment.rb" .
-       (lambda()
-   (interactive)
-   (rails-core:find-file "config/environment.rb"))))
-    ([rails config database]
-     '("database.yml" .
-       (lambda()
-   (interactive)
-   (rails-core:find-file "config/database.yml"))))
-    ([rails config boot]
-     '("boot.rb" .
-       (lambda()
-   (interactive)
-   (rails-core:find-file "config/boot.rb"))))
+  ([rails separator1] '("--"))
 
-    ([rails config env] (cons "environments" (make-sparse-keymap "environments")))
-    ([rails config env test]
-     '("test.rb" .
-       (lambda()
-   (interactive)
-   (rails-core:find-file "config/environments/test.rb"))))
-    ([rails config env production]
-     '("production.rb" .
-       (lambda()
-   (interactive)
-   (rails-core:find-file "config/environments/production.rb"))))
-    ([rails config env development]
-     '("development.rb" .
-       (lambda()
-   (interactive)
-   (rails-core:find-file "config/environments/development.rb"))))
+  ([rails snip] (cons "Snippets" (make-sparse-keymap "Snippets")))
 
-    ([rails scr] (cons "Scripts" (make-sparse-keymap "Scripts")))
+  ([rails snip render] (cons "render" (make-sparse-keymap "render")))
 
-    ([rails scr proj] '("Create project" . rails-create-project))
-    ([rails scr rake] '("Rake ..." . rails-rake))
-    ([rails scr console] '("Console" . rails-run-console))
-    ([rails scr break] '("Breakpointer" . rails-run-breakpointer))
+  ([rails snip render rsk-ra] (snippet-menu-line 'ruby-mode-abbrev-table "ra"))
+  ([rails snip render rsk-ral] (snippet-menu-line 'ruby-mode-abbrev-table "ral"))
+  ([rails snip render rsk-rcea] (snippet-menu-line 'ruby-mode-abbrev-table "rcea"))
+  ([rails snip render rsk-rcec] (snippet-menu-line 'ruby-mode-abbrev-table "rcec"))
+  ([rails snip render rsk-rceca] (snippet-menu-line 'ruby-mode-abbrev-table "rceca"))
+  ([rails snip render rsk-rf] (snippet-menu-line 'ruby-mode-abbrev-table "rf"))
+  ([rails snip render rsk-rfu] (snippet-menu-line 'ruby-mode-abbrev-table "rfu"))
+  ([rails snip render rsk-ri] (snippet-menu-line 'ruby-mode-abbrev-table "ri"))
+  ([rails snip render rsk-ril] (snippet-menu-line 'ruby-mode-abbrev-table "ril"))
+  ([rails snip render rsk-rit] (snippet-menu-line 'ruby-mode-abbrev-table "rit"))
+  ([rails snip render rsk-rl] (snippet-menu-line 'ruby-mode-abbrev-table "rl"))
+  ([rails snip render rsk-rn] (snippet-menu-line 'ruby-mode-abbrev-table "rn"))
+  ([rails snip render rsk-rns] (snippet-menu-line 'ruby-mode-abbrev-table "rns"))
+  ([rails snip render rsk-rp] (snippet-menu-line 'ruby-mode-abbrev-table "rp"))
+  ([rails snip render rsk-rpc] (snippet-menu-line 'ruby-mode-abbrev-table "rpc"))
+  ([rails snip render rsk-rpl] (snippet-menu-line 'ruby-mode-abbrev-table "rpl"))
+  ([rails snip render rsk-rpo] (snippet-menu-line 'ruby-mode-abbrev-table "rpo"))
+  ([rails snip render rsk-rps] (snippet-menu-line 'ruby-mode-abbrev-table "rps"))
+  ([rails snip render rsk-rt] (snippet-menu-line 'ruby-mode-abbrev-table "rt"))
+  ([rails snip render rsk-rtl] (snippet-menu-line 'ruby-mode-abbrev-table "rtl"))
+  ([rails snip render rsk-rtlt] (snippet-menu-line 'ruby-mode-abbrev-table "rtlt"))
+  ([rails snip render rsk-rts] (snippet-menu-line 'ruby-mode-abbrev-table "rts"))
 
+  ([rails snip redirect_to] (cons "redirect_to" (make-sparse-keymap "redirect_to")))
 
-    ([rails scr gen] (cons "Generate" (make-sparse-keymap "Generate")))
-    ([rails scr gen migration] '("Migration" . rails-generate-migration))
-    ([rails scr gen scaffold] '("Scaffold" . rails-generate-scaffold))
-    ([rails scr gen model] '("Model" . rails-generate-model))
-    ([rails scr gen controller] '("Controller" . rails-generate-controller))
+  ([rails snip redirect_to rsk-rea] (snippet-menu-line 'ruby-mode-abbrev-table "rea"))
+  ([rails snip redirect_to rsk-reai] (snippet-menu-line 'ruby-mode-abbrev-table "reai"))
+  ([rails snip redirect_to rsk-rec] (snippet-menu-line 'ruby-mode-abbrev-table "rec"))
+  ([rails snip redirect_to rsk-reca] (snippet-menu-line 'ruby-mode-abbrev-table "reca"))
+  ([rails snip redirect_to rsk-recai] (snippet-menu-line 'ruby-mode-abbrev-table "recai"))
 
-    ([rails scr destr] (cons "Destroy" (make-sparse-keymap "Generators")))
-    ([rails scr destr controller] '("Controller" . rails-destroy-controller))
-    ([rails scr destr model] '("Model" . rails-destroy-model))
-    ([rails scr destr scaffold] '("Scaffold" . rails-destroy-scaffold))
+  ([rails snip environment] (cons "environment" (make-sparse-keymap "environment")))
 
+  ([rails snip environment rsk-flash] (snippet-menu-line 'ruby-mode-abbrev-table "flash"))
+  ([rails snip environment rsk-session] (snippet-menu-line 'ruby-mode-abbrev-table "session"))
+  ([rails snip environment rsk-params] (snippet-menu-line 'ruby-mode-abbrev-table "params"))
+  ([rails snip environment rsk-logd] (snippet-menu-line 'ruby-mode-abbrev-table "logd"))
+  ([rails snip environment rsk-loge] (snippet-menu-line 'ruby-mode-abbrev-table "loge"))
+  ([rails snip environment rsk-logf] (snippet-menu-line 'ruby-mode-abbrev-table "logf"))
+  ([rails snip environment rsk-logi] (snippet-menu-line 'ruby-mode-abbrev-table "logi"))
+  ([rails snip environment rsk-logw] (snippet-menu-line 'ruby-mode-abbrev-table "logw"))
 
-    ([rails webrick] (cons "WEBrick" (make-sparse-keymap "WEBrick")))
+  ([rails snip model] (cons "model" (make-sparse-keymap "model")))
 
-    ([rails webrick mongrel]
-      '(menu-item "Use Mongrel" rails-webrick:toggle-use-mongrel
-                  :enable (not (rails-webrick:status))
-                  :button (:toggle
-                           . (and (boundp 'rails-webrick:use-mongrel)
-                                  rails-webrick:use-mongrel))))
+  ([rails snip model rsk-habtm] (snippet-menu-line 'ruby-mode-abbrev-table "habtm"))
+  ([rails snip model rsk-hm] (snippet-menu-line 'ruby-mode-abbrev-table "hm"))
+  ([rails snip model rsk-ho] (snippet-menu-line 'ruby-mode-abbrev-table "ho"))
+  ([rails snip model rsk-bt] (snippet-menu-line 'ruby-mode-abbrev-table "bt"))
+  ([rails snip model rsk-vl] (snippet-menu-line 'ruby-mode-abbrev-table "vl"))
+  ([rails snip model rsk-vp] (snippet-menu-line 'ruby-mode-abbrev-table "vp"))
+  ([rails snip model rsk-vpif] (snippet-menu-line 'ruby-mode-abbrev-table "vpif"))
+  ([rails snip model rsk-vu] (snippet-menu-line 'ruby-mode-abbrev-table "vu"))
+  ([rails snip model rsk-vuif] (snippet-menu-line 'ruby-mode-abbrev-table "vuif"))
+  ([rails snip model rsk-va] (snippet-menu-line 'ruby-mode-abbrev-table "va"))
+  ([rails snip model rsk-vc] (snippet-menu-line 'ruby-mode-abbrev-table "vc"))
+  ([rails snip model rsk-ve] (snippet-menu-line 'ruby-mode-abbrev-table "ve"))
 
-    ([rails webrick separator] '("--"))
+  ([rails snip migrations] (cons "migrations" (make-sparse-keymap "model")))
 
-    ([rails webrick brows]
-      '(menu-item "Open browser..."
-		  rails-webrick:open-browser-on-controller
-		  :enable (rails-webrick:status)))
+  ([rails snip migrations rsk-mtclm] (snippet-menu-line 'ruby-mode-abbrev-table "mtclm"))
+  ([rails snip migrations rsk-mac] (snippet-menu-line 'ruby-mode-abbrev-table "mac"))
+  ([rails snip migrations rsk-mtcl] (snippet-menu-line 'ruby-mode-abbrev-table "mtcl"))
+  ([rails snip migrations rsk-mrmc] (snippet-menu-line 'ruby-mode-abbrev-table "mrmc"))
+  ([rails snip migrations rsk-mrec] (snippet-menu-line 'ruby-mode-abbrev-table "mrec"))
+  ([rails snip migrations rsk-mct] (snippet-menu-line 'ruby-mode-abbrev-table "mct"))
+  ([rails snip migrations rsk-mdct] (snippet-menu-line 'ruby-mode-abbrev-table "mdct"))
+  ([rails snip migrations rsk-mdt] (snippet-menu-line 'ruby-mode-abbrev-table "mdt"))
+  ([rails snip migrations rsk-mrt] (snippet-menu-line 'ruby-mode-abbrev-table "mrt"))
 
-    ([rails webrick auto-brows]
-      '(menu-item "Open browser on current action"
-		  rails-webrick:auto-open-browser
-		  :enable (rails-webrick:status)))
-    
-    ([rails webrick url]
-      '(menu-item "Open browser"
-                  rails-webrick:open-browser
-                  :enable (rails-webrick:status)))
-    ([rails webrick stop]
-      '(menu-item "Stop"
-                  rails-webrick:stop
-                  :enable (rails-webrick:status)))
-    ([rails webrick test]
-      '(menu-item "Start test"
-                  (lambda() (interactive) (rails-webrick:start "test"))
-                  :enable (not (rails-webrick:status))))
-    ([rails webrick production]
-      '(menu-item "Start production"
-                  (lambda() (interactive) (rails-webrick:start "production"))
-                  :enable (not (rails-webrick:status))))
-    ([rails webrick development]
-      '(menu-item "Start development"
-                  (lambda() (interactive) (rails-webrick:start "development"))
-                  :enable (not (rails-webrick:status))))
+  ([rails snip assertions] (cons "assertions" (make-sparse-keymap "assertions")))
 
-    ([rails separator2] '("--"))
+  ([rails snip assertions rsk-art] (snippet-menu-line 'ruby-mode-abbrev-table "art"))
+  ([rails snip assertions rsk-as] (snippet-menu-line 'ruby-mode-abbrev-table "as"))
+  ([rails snip assertions rsk-ase] (snippet-menu-line 'ruby-mode-abbrev-table "ase"))
+  ([rails snip assertions rsk-asid] (snippet-menu-line 'ruby-mode-abbrev-table "asid"))
+  ([rails snip assertions rsk-asio] (snippet-menu-line 'ruby-mode-abbrev-table "asio"))
+  ([rails snip assertions rsk-asko] (snippet-menu-line 'ruby-mode-abbrev-table "asko"))
+  ([rails snip assertions rsk-asm] (snippet-menu-line 'ruby-mode-abbrev-table "asm"))
+  ([rails snip assertions rsk-asn] (snippet-menu-line 'ruby-mode-abbrev-table "asn"))
+  ([rails snip assertions rsk-asne] (snippet-menu-line 'ruby-mode-abbrev-table "asne"))
+  ([rails snip assertions rsk-asnm] (snippet-menu-line 'ruby-mode-abbrev-table "asnm"))
+  ([rails snip assertions rsk-asnn] (snippet-menu-line 'ruby-mode-abbrev-table "asnn"))
+  ([rails snip assertions rsk-asnr] (snippet-menu-line 'ruby-mode-abbrev-table "asnr"))
+  ([rails snip assertions rsk-asns] (snippet-menu-line 'ruby-mode-abbrev-table "asns"))
+  ([rails snip assertions rsk-asnt] (snippet-menu-line 'ruby-mode-abbrev-table "asnt"))
+  ([rails snip assertions rsk-aso] (snippet-menu-line 'ruby-mode-abbrev-table "aso"))
+  ([rails snip assertions rsk-asr] (snippet-menu-line 'ruby-mode-abbrev-table "asr"))
+  ([rails snip assertions rsk-asre] (snippet-menu-line 'ruby-mode-abbrev-table "asre"))
+  ([rails snip assertions rsk-asrt] (snippet-menu-line 'ruby-mode-abbrev-table "asrt"))
+  ([rails snip assertions rsk-ass] (snippet-menu-line 'ruby-mode-abbrev-table "ass"))
+  ([rails snip assertions rsk-ass] (snippet-menu-line 'ruby-mode-abbrev-table "ass"))
+  ([rails snip assertions rsk-ast] (snippet-menu-line 'ruby-mode-abbrev-table "ast"))
 
-    ([rails goto-models] '("Goto models" . rails-nav:goto-models))
-    ([rails goto-controllers] '("Goto controllers" . rails-nav:goto-controllers))
-    ([rails goto-helpers] '("Goto helpers" . rails-nav:goto-helpers))
-    ([rails goto-layouts] '("Goto layouts" . rails-nav:goto-layouts))
-    ([rails goto-stylesheets] '("Goto stylesheets" . rails-nav:goto-stylesheets))
-    ([rails goto-javascripts] '("Goto javascripts" . rails-nav:goto-javascripts))
-    ([rails goto-migrate] '("Goto migrate" . rails-nav:goto-migrate)))
+  ([rails snip ruby] (cons "ruby" (make-sparse-keymap "ruby")))
+
+  ([rails snip ruby ruby-general] (cons "general" (make-sparse-keymap "ruby-general")))
+  ([rails snip ruby ruby-collections] (cons "collections" (make-sparse-keymap "ruby-collections")))
+  ([rails snip ruby ruby-loops] (cons "loops" (make-sparse-keymap "ruby-loops")))
+  ([rails snip ruby ruby-conditions] (cons "conditions" (make-sparse-keymap "ruby-conditions")))
+  ([rails snip ruby ruby-definitions] (cons "definitions" (make-sparse-keymap "ruby-definitions")))
+
+  ([rails snip ruby ruby-collections rsk-all] (snippet-menu-line 'ruby-mode-abbrev-table "all"))
+  ([rails snip ruby ruby-general rsk-am] (snippet-menu-line 'ruby-mode-abbrev-table "am"))
+  ([rails snip ruby ruby-general rsk-amc] (snippet-menu-line 'ruby-mode-abbrev-table "amc"))
+  ([rails snip ruby ruby-collections rsk-any] (snippet-menu-line 'ruby-mode-abbrev-table "any"))
+  ([rails snip ruby ruby-collections rsk-array] (snippet-menu-line 'ruby-mode-abbrev-table "array"))
+  ([rails snip ruby ruby-general rsk-b] (snippet-menu-line 'ruby-mode-abbrev-table "b"))
+  ([rails snip ruby ruby-general rsk-begin] (snippet-menu-line 'ruby-mode-abbrev-table "begin"))
+  ([rails snip ruby ruby-general rsk-bm] (snippet-menu-line 'ruby-mode-abbrev-table "bm"))
+  ([rails snip ruby ruby-conditions rsk-case] (snippet-menu-line 'ruby-mode-abbrev-table "case"))
+  ([rails snip ruby ruby-collections rsk-cl] (snippet-menu-line 'ruby-mode-abbrev-table "cl"))
+  ([rails snip ruby ruby-definitions rsk-cladl] (snippet-menu-line 'ruby-mode-abbrev-table "cladl"))
+  ([rails snip ruby ruby-definitions rsk-clapr] (snippet-menu-line 'ruby-mode-abbrev-table "clapr"))
+  ([rails snip ruby ruby-definitions rsk-clast] (snippet-menu-line 'ruby-mode-abbrev-table "clast"))
+  ([rails snip ruby ruby-definitions rsk-class] (snippet-menu-line 'ruby-mode-abbrev-table "class"))
+  ([rails snip ruby ruby-definitions rsk-classi] (snippet-menu-line 'ruby-mode-abbrev-table "classi"))
+  ([rails snip ruby ruby-definitions rsk-clasf] (snippet-menu-line 'ruby-mode-abbrev-table "clasf"))
+  ([rails snip ruby ruby-definitions rsk-clabl] (snippet-menu-line 'ruby-mode-abbrev-table "clabl"))
+  ([rails snip ruby ruby-definitions rsk-clafn] (snippet-menu-line 'ruby-mode-abbrev-table "clafn"))
+  ([rails snip ruby ruby-collections rsk-col] (snippet-menu-line 'ruby-mode-abbrev-table "col"))
+  ([rails snip ruby ruby-collections rsk-collect] (snippet-menu-line 'ruby-mode-abbrev-table "collect"))
+  ([rails snip ruby ruby-definitions rsk-comp] (snippet-menu-line 'ruby-mode-abbrev-table "comp"))
+  ([rails snip ruby ruby-definitions rsk-dee] (snippet-menu-line 'ruby-mode-abbrev-table "dee"))
+  ([rails snip ruby ruby-definitions rsk-defd] (snippet-menu-line 'ruby-mode-abbrev-table "defd"))
+  ([rails snip ruby ruby-definitions rsk-defds] (snippet-menu-line 'ruby-mode-abbrev-table "defds"))
+  ([rails snip ruby ruby-definitions rsk-defs] (snippet-menu-line 'ruby-mode-abbrev-table "defs"))
+  ([rails snip ruby ruby-definitions rsk-deft] (snippet-menu-line 'ruby-mode-abbrev-table "deft"))
+  ([rails snip ruby ruby-collections rsk-deli] (snippet-menu-line 'ruby-mode-abbrev-table "deli"))
+  ([rails snip ruby ruby-collections rsk-det] (snippet-menu-line 'ruby-mode-abbrev-table "det"))
+  ([rails snip ruby ruby-general rsk-dir] (snippet-menu-line 'ruby-mode-abbrev-table "dir"))
+  ([rails snip ruby ruby-definitions rsk-do] (snippet-menu-line 'ruby-mode-abbrev-table "do"))
+  ([rails snip ruby ruby-definitions rsk-doo] (snippet-menu-line 'ruby-mode-abbrev-table "doo"))
+  ([rails snip ruby ruby-loops rsk-dow] (snippet-menu-line 'ruby-mode-abbrev-table "dow"))
+  ([rails snip ruby ruby-collections rsk-ea] (snippet-menu-line 'ruby-mode-abbrev-table "ea"))
+  ([rails snip ruby ruby-collections rsk-eab] (snippet-menu-line 'ruby-mode-abbrev-table "eab"))
+  ([rails snip ruby ruby-collections rsk-eac] (snippet-menu-line 'ruby-mode-abbrev-table "eac"))
+  ([rails snip ruby ruby-collections rsk-eac] (snippet-menu-line 'ruby-mode-abbrev-table "eac"))
+  ([rails snip ruby ruby-collections rsk-each] (snippet-menu-line 'ruby-mode-abbrev-table "each"))
+  ([rails snip ruby ruby-collections rsk-each_with_index] (snippet-menu-line 'ruby-mode-abbrev-table "each_with_index"))
+  ([rails snip ruby ruby-collections rsk-eai] (snippet-menu-line 'ruby-mode-abbrev-table "eai"))
+  ([rails snip ruby ruby-collections rsk-eak] (snippet-menu-line 'ruby-mode-abbrev-table "eak"))
+  ([rails snip ruby ruby-collections rsk-eal] (snippet-menu-line 'ruby-mode-abbrev-table "eal"))
+  ([rails snip ruby ruby-collections rsk-eap] (snippet-menu-line 'ruby-mode-abbrev-table "eap"))
+  ([rails snip ruby ruby-collections rsk-eas] (snippet-menu-line 'ruby-mode-abbrev-table "eas"))
+  ([rails snip ruby ruby-collections rsk-eav] (snippet-menu-line 'ruby-mode-abbrev-table "eav"))
+  ([rails snip ruby ruby-collections rsk-eawi] (snippet-menu-line 'ruby-mode-abbrev-table "eawi"))
+  ([rails snip ruby ruby-conditions rsk-elsif] (snippet-menu-line 'ruby-mode-abbrev-table "elsif"))
+  ([rails snip ruby ruby-definitions rsk-enum] (snippet-menu-line 'ruby-mode-abbrev-table "enum"))
+  ([rails snip ruby ruby-collections rsk-fet] (snippet-menu-line 'ruby-mode-abbrev-table "fet"))
+  ([rails snip ruby ruby-collections rsk-fil] (snippet-menu-line 'ruby-mode-abbrev-table "fil"))
+  ([rails snip ruby ruby-general rsk-file] (snippet-menu-line 'ruby-mode-abbrev-table "file"))
+  ([rails snip ruby ruby-collections rsk-fin] (snippet-menu-line 'ruby-mode-abbrev-table "fin"))
+  ([rails snip ruby ruby-collections rsk-fina] (snippet-menu-line 'ruby-mode-abbrev-table "fina"))
+  ([rails snip ruby ruby-general rsk-fl] (snippet-menu-line 'ruby-mode-abbrev-table "fl"))
+  ([rails snip ruby ruby-collections rsk-flao] (snippet-menu-line 'ruby-mode-abbrev-table "flao"))
+  ([rails snip ruby ruby-loops rsk-forin] (snippet-menu-line 'ruby-mode-abbrev-table "forin"))
+  ([rails snip ruby ruby-definitions rsk-forw] (snippet-menu-line 'ruby-mode-abbrev-table "forw"))
+  ([rails snip ruby ruby-collections rsk-gre] (snippet-menu-line 'ruby-mode-abbrev-table "gre"))
+  ([rails snip ruby ruby-general rsk-gsu] (snippet-menu-line 'ruby-mode-abbrev-table "gsu"))
+  ([rails snip ruby ruby-definitions rsk-hash] (snippet-menu-line 'ruby-mode-abbrev-table "hash"))
+  ([rails snip ruby ruby-conditions rsk-if] (snippet-menu-line 'ruby-mode-abbrev-table "if"))
+  ([rails snip ruby ruby-conditions rsk-ife] (snippet-menu-line 'ruby-mode-abbrev-table "ife"))
+  ([rails snip ruby ruby-collections rsk-inj] (snippet-menu-line 'ruby-mode-abbrev-table "inj"))
+  ([rails snip ruby ruby-collections rsk-inject] (snippet-menu-line 'ruby-mode-abbrev-table "inject"))
+  ([rails snip ruby ruby-general rsk-lam] (snippet-menu-line 'ruby-mode-abbrev-table "lam"))
+  ([rails snip ruby ruby-collections rsk-map] (snippet-menu-line 'ruby-mode-abbrev-table "map"))
+  ([rails snip ruby ruby-collections rsk-mapwi] (snippet-menu-line 'ruby-mode-abbrev-table "mapwi"))
+  ([rails snip ruby ruby-general rsk-max] (snippet-menu-line 'ruby-mode-abbrev-table "max"))
+  ([rails snip ruby ruby-general rsk-md] (snippet-menu-line 'ruby-mode-abbrev-table "md"))
+  ([rails snip ruby ruby-general rsk-min] (snippet-menu-line 'ruby-mode-abbrev-table "min"))
+  ([rails snip ruby ruby-general rsk-ml] (snippet-menu-line 'ruby-mode-abbrev-table "ml"))
+  ([rails snip ruby ruby-definitions rsk-mm] (snippet-menu-line 'ruby-mode-abbrev-table "mm"))
+  ([rails snip ruby ruby-definitions rsk-modf] (snippet-menu-line 'ruby-mode-abbrev-table "modf"))
+  ([rails snip ruby ruby-definitions rsk-mods] (snippet-menu-line 'ruby-mode-abbrev-table "mods"))
+  ([rails snip ruby ruby-definitions rsk-modu] (snippet-menu-line 'ruby-mode-abbrev-table "modu"))
+  ([rails snip ruby ruby-general rsk-ope] (snippet-menu-line 'ruby-mode-abbrev-table "ope"))
+  ([rails snip ruby ruby-collections rsk-par] (snippet-menu-line 'ruby-mode-abbrev-table "par"))
+  ([rails snip ruby ruby-general rsk-patfh] (snippet-menu-line 'ruby-mode-abbrev-table "patfh"))
+  ([rails snip ruby ruby-general rsk-pn] (snippet-menu-line 'ruby-mode-abbrev-table "pn"))
+  ([rails snip ruby ruby-general rsk-r] (snippet-menu-line 'ruby-mode-abbrev-table "r"))
+  ([rails snip ruby ruby-collections rsk-ran] (snippet-menu-line 'ruby-mode-abbrev-table "ran"))
+  ([rails snip ruby ruby-general rsk-rb] (snippet-menu-line 'ruby-mode-abbrev-table "rb"))
+  ([rails snip ruby ruby-general rsk-rdb] (snippet-menu-line 'ruby-mode-abbrev-table "rdb"))
+  ([rails snip ruby ruby-collections rsk-rej] (snippet-menu-line 'ruby-mode-abbrev-table "rej"))
+  ([rails snip ruby ruby-collections rsk-reject] (snippet-menu-line 'ruby-mode-abbrev-table "reject"))
+  ([rails snip ruby ruby-general rsk-rep] (snippet-menu-line 'ruby-mode-abbrev-table "rep"))
+  ([rails snip ruby ruby-definitions rsk-req] (snippet-menu-line 'ruby-mode-abbrev-table "req"))
+  ([rails snip ruby ruby-collections rsk-reve] (snippet-menu-line 'ruby-mode-abbrev-table "reve"))
+  ([rails snip ruby ruby-definitions rsk-rw] (snippet-menu-line 'ruby-mode-abbrev-table "rw"))
+  ([rails snip ruby ruby-general rsk-sca] (snippet-menu-line 'ruby-mode-abbrev-table "sca"))
+  ([rails snip ruby ruby-collections rsk-sel] (snippet-menu-line 'ruby-mode-abbrev-table "sel"))
+  ([rails snip ruby ruby-collections rsk-select] (snippet-menu-line 'ruby-mode-abbrev-table "select"))
+  ([rails snip ruby ruby-definitions rsk-sin] (snippet-menu-line 'ruby-mode-abbrev-table "sin"))
+  ([rails snip ruby ruby-collections rsk-sor] (snippet-menu-line 'ruby-mode-abbrev-table "sor"))
+  ([rails snip ruby ruby-collections rsk-sorb] (snippet-menu-line 'ruby-mode-abbrev-table "sorb"))
+  ([rails snip ruby ruby-loops rsk-ste] (snippet-menu-line 'ruby-mode-abbrev-table "ste"))
+  ([rails snip ruby ruby-general rsk-sub] (snippet-menu-line 'ruby-mode-abbrev-table "sub"))
+  ([rails snip ruby ruby-definitions rsk-tc] (snippet-menu-line 'ruby-mode-abbrev-table "tc"))
+  ([rails snip ruby ruby-loops rsk-tim] (snippet-menu-line 'ruby-mode-abbrev-table "tim"))
+  ([rails snip ruby ruby-general rsk-tra] (snippet-menu-line 'ruby-mode-abbrev-table "tra"))
+  ([rails snip ruby ruby-definitions rsk-ts] (snippet-menu-line 'ruby-mode-abbrev-table "ts"))
+  ([rails snip ruby ruby-conditions rsk-unless] (snippet-menu-line 'ruby-mode-abbrev-table "unless"))
+  ([rails snip ruby ruby-loops rsk-until] (snippet-menu-line 'ruby-mode-abbrev-table "until"))
+  ([rails snip ruby ruby-loops rsk-upt] (snippet-menu-line 'ruby-mode-abbrev-table "upt"))
+  ([rails snip ruby ruby-general rsk-verred] (snippet-menu-line 'ruby-mode-abbrev-table "verred"))
+  ([rails snip ruby ruby-general rsk-verren] (snippet-menu-line 'ruby-mode-abbrev-table "verren"))
+  ([rails snip ruby ruby-definitions rsk-w] (snippet-menu-line 'ruby-mode-abbrev-table "w"))
+  ([rails snip ruby ruby-conditions rsk-when] (snippet-menu-line 'ruby-mode-abbrev-table "when"))
+  ([rails snip ruby ruby-loops rsk-while] (snippet-menu-line 'ruby-mode-abbrev-table "while"))
+  ([rails snip ruby ruby-general rsk-y] (snippet-menu-line 'ruby-mode-abbrev-table "y"))
+  ([rails snip ruby ruby-general rsk-yd] (snippet-menu-line 'ruby-mode-abbrev-table "yd"))
+  ([rails snip ruby ruby-general rsk-yl] (snippet-menu-line 'ruby-mode-abbrev-table "yl"))
+  ([rails snip ruby ruby-collections rsk-zip] (snippet-menu-line 'ruby-mode-abbrev-table "zip"))
+
+  ([rails snip rhtml] (cons "rhtml" (make-sparse-keymap "rhtml")))
+
+  ([rails snip rhtml sk-body] (snippet-menu-line 'html-mode-abbrev-table "body"))
+  ([rails snip rhtml sk-div] (snippet-menu-line 'html-mode-abbrev-table "div"))
+  ([rails snip rhtml sk-dtht] (snippet-menu-line 'html-mode-abbrev-table "dtht"))
+  ([rails snip rhtml sk-dchttr] (snippet-menu-line 'html-mode-abbrev-table "dchttr"))
+  ([rails snip rhtml sk-dcxmlf] (snippet-menu-line 'html-mode-abbrev-table "dcxmlf"))
+  ([rails snip rhtml sk-dcxmls] (snippet-menu-line 'html-mode-abbrev-table "dcxmls"))
+  ([rails snip rhtml sk-dcxmlt] (snippet-menu-line 'html-mode-abbrev-table "dcxmlt"))
+  ([rails snip rhtml sk-dcxml1] (snippet-menu-line 'html-mode-abbrev-table "dcxml1"))
+  ([rails snip rhtml sk-form] (snippet-menu-line 'html-mode-abbrev-table "form"))
+  ([rails snip rhtml sk-ft] (snippet-menu-line 'html-mode-abbrev-table "ft"))
+  ([rails snip rhtml sk-ff] (snippet-menu-line 'html-mode-abbrev-table "ff"))
+  ([rails snip rhtml sk-h] (snippet-menu-line 'html-mode-abbrev-table "h"))
+  ([rails snip rhtml sk-head] (snippet-menu-line 'html-mode-abbrev-table "head"))
+  ([rails snip rhtml sk-input] (snippet-menu-line 'html-mode-abbrev-table "input"))
+  ([rails snip rhtml sk-lia] (snippet-menu-line 'html-mode-abbrev-table "lia"))
+  ([rails snip rhtml sk-liai] (snippet-menu-line 'html-mode-abbrev-table "liai"))
+  ([rails snip rhtml sk-lic] (snippet-menu-line 'html-mode-abbrev-table "lic"))
+  ([rails snip rhtml sk-lica] (snippet-menu-line 'html-mode-abbrev-table "lica"))
+  ([rails snip rhtml sk-licai] (snippet-menu-line 'html-mode-abbrev-table "licai"))
+  ([rails snip rhtml sk-link] (snippet-menu-line 'html-mode-abbrev-table "link"))
+  ([rails snip rhtml sk-mailto] (snippet-menu-line 'html-mode-abbrev-table "mailto"))
+  ([rails snip rhtml sk-meta] (snippet-menu-line 'html-mode-abbrev-table "meta"))
+  ([rails snip rhtml sk-movie] (snippet-menu-line 'html-mode-abbrev-table "movie"))
+  ([rails snip rhtml sk-script] (snippet-menu-line 'html-mode-abbrev-table "script"))
+  ([rails snip rhtml sk-scriptsrc] (snippet-menu-line 'html-mode-abbrev-table "scriptsrc"))
+  ([rails snip rhtml sk-style] (snippet-menu-line 'html-mode-abbrev-table "style"))
+  ([rails snip rhtml sk-table] (snippet-menu-line 'html-mode-abbrev-table "table"))
+  ([rails snip rhtml sk-textarea] (snippet-menu-line 'html-mode-abbrev-table "textarea"))
+  ([rails snip rhtml sk-title] (snippet-menu-line 'html-mode-abbrev-table "title"))
+  ([rails snip rhtml sk-%h] (snippet-menu-line 'html-mode-abbrev-table "%h"))
+  ([rails snip rhtml sk-%if] (snippet-menu-line 'html-mode-abbrev-table "%if"))
+  ([rails snip rhtml sk-%ifel] (snippet-menu-line 'html-mode-abbrev-table "%ifel"))
+  ([rails snip rhtml sk-%unless] (snippet-menu-line 'html-mode-abbrev-table "%unless"))
+  ([rails snip rhtml sk-%for] (snippet-menu-line 'html-mode-abbrev-table "%for"))
+  ([rails snip rhtml sk-%] (snippet-menu-line 'html-mode-abbrev-table "%"))
+  ([rails snip rhtml sk-%%] (snippet-menu-line 'html-mode-abbrev-table "%%"))
+
+  ([rails log] (cons "Open log" (make-sparse-keymap "Open log")))
+
+  ([rails log test] '("test.log" . (lambda() (interactive) (rails-open-log "test"))))
+  ([rails log pro] '("production.log" . (lambda() (interactive) (rails-open-log "production"))))
+  ([rails log dev] '("development.log" . (lambda() (interactive) (rails-open-log "development"))))
+
+  ([rails config] (cons "Configuration" (make-sparse-keymap "Configuration")))
+
+  ([rails config routes] '("routes.rb" . 
+			   (lambda ()
+			     (interactive)
+			     (rails-core:find-file "config/routes.rb"))))
+
+  ([rails config environment] '("environment.rb" .
+				(lambda()
+				  (interactive)
+				  (rails-core:find-file "config/environment.rb"))))
+
+  ([rails config database] '("database.yml" .
+			     (lambda()
+			       (interactive)
+			       (rails-core:find-file "config/database.yml"))))
+
+  ([rails config boot] '("boot.rb" .
+			 (lambda()
+			   (interactive)
+			   (rails-core:find-file "config/boot.rb"))))
+
+  ([rails config env] (cons "environments" (make-sparse-keymap "environments")))
+
+  ([rails config env test] '("test.rb" .
+			     (lambda()
+			       (interactive)
+			       (rails-core:find-file "config/environments/test.rb"))))
+
+  ([rails config env production] '("production.rb" .
+				   (lambda()
+				     (interactive)
+				     (rails-core:find-file "config/environments/production.rb"))))
+
+  ([rails config env development] '("development.rb" .
+				    (lambda()
+				      (interactive)
+				      (rails-core:find-file "config/environments/development.rb"))))
+
+  ([rails scr] (cons "Scripts" (make-sparse-keymap "Scripts")))
+
+  ([rails scr proj] '("Create project" . rails-create-project))
+  ([rails scr rake] '("Rake..." . rails-rake))
+  ([rails scr console] '("Console" . rails-run-console))
+  ([rails scr break] '("Breakpointer" . rails-run-breakpointer))
+
+  ([rails scr tests] (cons "Tests" (make-sparse-keymap "Tests")))  
+
+  ([rails scr tests tests] '("All" . rails-rake-tests))
+  ([rails scr tests integration] '("Integration tests" . rails-rake-integration-tests))
+  ([rails scr tests functional] '("Functional tests" . rails-rake-functional-tests))
+  ([rails scr tests unit] '("Unit tests" . rails-rake-unit-tests))
+  ([rails scr tests recent] '("Recent tests" . rails-rake-recent-tests))
+
+  ([rails scr gen] (cons "Generate" (make-sparse-keymap "Generate")))
+  ([rails scr gen migration] '("Migration" . rails-generate-migration))
+  ([rails scr gen scaffold] '("Scaffold" . rails-generate-scaffold))
+  ([rails scr gen model] '("Model" . rails-generate-model))
+  ([rails scr gen controller] '("Controller" . rails-generate-controller))
+
+  ([rails scr destr] (cons "Destroy" (make-sparse-keymap "Generators")))
+  ([rails scr destr controller] '("Controller" . rails-destroy-controller))
+  ([rails scr destr model] '("Model" . rails-destroy-model))
+  ([rails scr destr scaffold] '("Scaffold" . rails-destroy-scaffold))
+  
+  ([rails webrick] (cons "WEBrick" (make-sparse-keymap "WEBrick")))
+
+  ([rails webrick mongrel] '(menu-item "Use Mongrel" rails-webrick:toggle-use-mongrel
+				       :enable (not (rails-webrick:status))
+				       :button (:toggle
+						. (and (boundp 'rails-webrick:use-mongrel)
+						       rails-webrick:use-mongrel))))
+
+  ([rails webrick separator] '("--"))
+
+  ([rails webrick brows] '(menu-item "Open browser..."
+				     rails-webrick:open-browser-on-controller
+				     :enable (rails-webrick:status)))
+
+  ([rails webrick auto-brows] '(menu-item "Open browser on current action"
+					  rails-webrick:auto-open-browser
+					  :enable (rails-webrick:status)))
+
+  ([rails webrick url] '(menu-item "Open browser"
+				   rails-webrick:open-browser
+				   :enable (rails-webrick:status)))
+  ([rails webrick stop] '(menu-item "Stop"
+				    rails-webrick:stop
+				    :enable (rails-webrick:status)))
+
+  ([rails webrick test] '(menu-item "Start test"
+				    (lambda() (interactive) (rails-webrick:start "test"))
+				    :enable (not (rails-webrick:status))))
+
+  ([rails webrick production] '(menu-item "Start production"
+					  (lambda() (interactive) (rails-webrick:start "production"))
+					  :enable (not (rails-webrick:status))))
+
+  ([rails webrick development] '(menu-item "Start development"
+					   (lambda() (interactive) (rails-webrick:start "development"))
+					   :enable (not (rails-webrick:status))))
+
+  ([rails webrick default] '(menu-item "Start default"
+				       rails-webrick:start-default-env
+				       :enable (not (rails-webrick:status))))
+
+  ([rails separator2] '("--"))
+
+  ([rails goto-models] '("Go to models" . rails-nav:goto-models))
+  ([rails goto-controllers] '("Go to controllers" . rails-nav:goto-controllers))
+  ([rails goto-helpers] '("Go to helpers" . rails-nav:goto-helpers))
+  ([rails goto-layouts] '("Go to layouts" . rails-nav:goto-layouts))
+  ([rails goto-stylesheets] '("Go to stylesheets" . rails-nav:goto-stylesheets))
+  ([rails goto-javascripts] '("Go to javascripts" . rails-nav:goto-javascripts))
+  ([rails goto-migrate] '("Go to migrate" . rails-nav:goto-migrate)))
 
 (define-keys rails-minor-mode-map
+
   ([menu-bar] rails-minor-mode-menu-bar-map)
+
   ;; Goto
-  ((kbd "\C-c g m") 'rails-nav:goto-models)
-  ((kbd "\C-c g c") 'rails-nav:goto-controllers)
-  ((kbd "\C-c g h") 'rails-nav:goto-helpers)
-  ((kbd "\C-c g l") 'rails-nav:goto-layouts)
-  ((kbd "\C-c g s") 'rails-nav:goto-stylesheets)
-  ((kbd "\C-c g j") 'rails-nav:goto-javascripts)
-  ((kbd "\C-c g g") 'rails-nav:goto-migrate)
+  ((kbd "\C-c \C-c g m") 'rails-nav:goto-models)
+  ((kbd "\C-c \C-c g c") 'rails-nav:goto-controllers)
+  ((kbd "\C-c \C-c g h") 'rails-nav:goto-helpers)
+  ((kbd "\C-c \C-c g l") 'rails-nav:goto-layouts)
+  ((kbd "\C-c \C-c g s") 'rails-nav:goto-stylesheets)
+  ((kbd "\C-c \C-c g j") 'rails-nav:goto-javascripts)
+  ((kbd "\C-c \C-c g g") 'rails-nav:goto-migrate)
 
   ;; Switch
   ((kbd "C-c <up>") 'rails-lib:run-primary-switch)
   ((kbd "C-c <down>") 'rails-lib:run-secondary-switch)
 
   ;; Scripts & SQL
-  ((kbd "\C-c s g c") 'rails-generate-controller)
-  ((kbd "\C-c s g m") 'rails-generate-model)
-  ((kbd "\C-c s g s") 'rails-generate-scaffold)
-  ((kbd "\C-c s g g") 'rails-generate-migration)
-  ((kbd "\C-c s d c") 'rails-destroy-controller)
-  ((kbd "\C-c s d m") 'rails-destroy-model)
-  ((kbd "\C-c s d s") 'rails-destroy-scaffold)
-  ((kbd "\C-c s c")   'rails-run-console)
-  ((kbd "\C-c s b")   'rails-run-breakpointer)
-  ((kbd "\C-c s s")   'rails-run-sql)
-  ((kbd "\C-c s r")   'rails-rake)
-  ((kbd "\C-c s w")   'rails-webrick:start)
+  ((kbd "\C-c \C-c s g c") 'rails-generate-controller)
+  ((kbd "\C-c \C-c s g m") 'rails-generate-model)
+  ((kbd "\C-c \C-c s g s") 'rails-generate-scaffold)
+  ((kbd "\C-c \C-c s g g") 'rails-generate-migration)
+  ((kbd "\C-c \C-c s d c") 'rails-destroy-controller)
+  ((kbd "\C-c \C-c s d m") 'rails-destroy-model)
+  ((kbd "\C-c \C-c s d s") 'rails-destroy-scaffold)
+  ((kbd "\C-c \C-c s c")   'rails-run-console)
+  ((kbd "\C-c \C-c s b")   'rails-run-breakpointer)
+  ((kbd "\C-c \C-c s s")   'rails-run-sql)
+  ((kbd "\C-c \C-c s r")   'rails-rake)
+  ((kbd "\C-c \C-c s w")   'rails-webrick:start)
+  ((kbd "\C-c \C-c w s")   'rails-webrick:start-default-env)
+  ((kbd "\C-c \C-c w p")   'rails-webrick:stop)
 
   ;; Rails finds
-  ((kbd "\C-c f m") 'rails-find-models)
-  ((kbd "\C-c f c") 'rails-find-controller)
-  ((kbd "\C-c f h") 'rails-find-helpers)
-  ((kbd "\C-c f l") 'rails-find-layout)
-  ((kbd "\C-c f s") 'rails-find-stylesheets)
-  ((kbd "\C-c f j") 'rails-find-javascripts)
-  ((kbd "\C-c f g") 'rails-find-migrate)
+  ((kbd "\C-c \C-c f m") 'rails-find-models)
+  ((kbd "\C-c \C-c f c") 'rails-find-controller)
+  ((kbd "\C-c \C-c f h") 'rails-find-helpers)
+  ((kbd "\C-c \C-c f l") 'rails-find-layout)
+  ((kbd "\C-c \C-c f s") 'rails-find-stylesheets)
+  ((kbd "\C-c \C-c f j") 'rails-find-javascripts)
+  ((kbd "\C-c \C-c f g") 'rails-find-migrate)
 
-  ((kbd "\C-c f v") 'rails-find-view)
-  ((kbd "\C-c f d") 'rails-find-db)
-  ((kbd "\C-c f p") 'rails-find-public)
-  ((kbd "\C-c f f") 'rails-find-fixtures)
-  ((kbd "\C-c f o") 'rails-find-config)
+  ((kbd "\C-c \C-c f v") 'rails-find-view)
+  ((kbd "\C-c \C-c f d") 'rails-find-db)
+  ((kbd "\C-c \C-c f p") 'rails-find-public)
+  ((kbd "\C-c \C-c f f") 'rails-find-fixtures)
+  ((kbd "\C-c \C-c f o") 'rails-find-config)
+
+  ;; Tests
+  ((kbd "\C-c \C-c r t") 'rails-rake-tests)
+  ((kbd "\C-c \C-c r i") 'rails-rake-integration-tests)
+  ((kbd "\C-c \C-c r u") 'rails-rake-unit-tests)
+  ((kbd "\C-c \C-c r f") 'rails-rake-functional-tests)
+  ((kbd "\C-c \C-c r r") 'rails-rake-recent-tests)
 
   ;; Navigation
   ((kbd "<C-return>") 'rails-goto-file-on-current-line)
   ((kbd "<M-S-down>") 'rails-goto-file-from-file-with-menu)
   ((kbd "<M-S-up>")   'rails-goto-file-from-file)
-  ((kbd "\C-c l") 'rails-open-log)
+
+  ((kbd "\C-c \C-c l") 'rails-open-log)
 
   ;; Tags
-  ((kbd "\C-c \C-t") 'rails-create-tags)
-
+  ((kbd "\C-c \C-c \C-t") 'rails-create-tags)
 
   ;; Browser
   ((kbd "\C-c <f5>") 'rails-webrick:auto-open-browser)
-  ;;; Doc
+
+  ;; Documentation
   ([f1]  'rails-search-doc)
   ((kbd "<C-f1>")  'rails-browse-api-at-point)
   ((kbd "C-c <f1>")  'rails-browse-api)
-  
-  ([f9]  'rails-svn-status-into-root))
 
+  ([f9]  'rails-svn-status-into-root))
 
 (provide 'rails-ui)

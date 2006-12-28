@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-webrick.el $
-;; $Id: rails-webrick.el 51 2006-06-10 11:13:04Z crazypit $
+;; $Id: rails-webrick.el 56 2006-12-03 08:54:34Z dimaexe $
 
 ;;; License
 
@@ -27,14 +27,34 @@
 
 ;;; Code:
 
+(defcustom rails-webrick:default-env "development"
+  "Default WEBrick environment"
+  :group 'rails
+  :type 'string
+  :tag "Rails WEBRick Default Environment")
+
+(defcustom rails-webrick:port "3000"
+  "Default WEBrick port"
+  :group 'rails
+  :type 'string
+  :tag "Rails WEBRick Default Port")
+
+(defcustom rails-webrick:use-mongrel nil
+  "Use Mongrel by default, instead of WEBrick"
+  :group 'rails
+  :type 'boolean
+  :tag "Rails WEBRick Use Mongrel")
+
+(defcustom rails-webrick:server-name "http://localhost"
+  "Protocol and the hostname for WEBrick or other rails server"
+  :group 'rails
+  :type 'string
+  :tag "Rails WEBRick Default Server")
+
 (defvar rails-webrick:buffer-name "*WEBrick*")
-(defvar rails-webrick:port "3000")
-(defvar rails-webrick:default-env "development")
-(defvar rails-webrick:open-url (concat "http://localhost:" rails-webrick:port "/"))
-(defvar rails-webrick:use-mongrel nil "Non nil using Mongrel, else WEBrick")
 
 (defun rails-webrick:status()
-  "Return t if webrick process is running"
+  "Return t if a WEBrick process is running."
   (let ((status (get-buffer-process rails-webrick:buffer-name)))
     (if status t nil)))
 
@@ -45,13 +65,14 @@
         (if rails-webrick:use-mongrel "Mongrel" "WEBrick") " stopped"))))
 
 (defun rails-webrick:toggle-use-mongrel()
-  "Toggle rails-webrick:use-mongrel on/off"
+  "Toggle  the use of Mongrel as the backend server."
   (interactive)
-  (setq rails-webrick:use-mongrel (not rails-webrick:use-mongrel)))
+  (setq rails-webrick:use-mongrel (not rails-webrick:use-mongrel))
+  (customize-save-variable 'rails-webrick:use-mongrel rails-webrick:use-mongrel))
 
 (defun rails-webrick:start(&optional env)
-  "Start Webrick process with ENV environment
-   if ENV not set using rails-webrick:default-env"
+  "Start a WEBrick process with ENV environment if ENV is not set
+using `rails-webrick:default-env'."
   (interactive (list (rails-read-enviroment-name)))
   (rails-core:with-root
    (root)
@@ -84,8 +105,14 @@
                           env
                           rails-webrick:port)))))))
 
+(defun rails-webrick:start-default-env ()
+  "Start WEBrick using the default environment defined in
+`rails-webrick:default-env'."
+  (interactive)
+  (rails-webrick:start rails-webrick:default-env))
+
 (defun rails-webrick:stop()
-  "Stop Webrick process"
+  "Stop the WEBrick process."
   (interactive)
   (let ((proc (get-buffer-process rails-webrick:buffer-name)))
     (if proc
@@ -94,18 +121,24 @@
 ;;;;;;;;;; Open browser ;;;;;;;;;;
 
 (defun rails-webrick:open-browser (&optional address)
-  "Open browser for address on current Rails project server"
+  "Open a browser on the main page of the current Rails project
+server."
   (interactive)
-  (let ((url (concat rails-webrick:open-url  address )))
+  (let ((url (concat (concat rails-webrick:server-name
+                             ":"
+                             rails-webrick:port
+                             "/"
+                             address ))))
     (message "Opening browser: %s" url)
     (browse-url url)))
 
 (defun rails-webrick:open-browser-on-controller (&optional controller action params)
-  "Open browser on controller/action/id"
+  "Open browser on the controller/action/id for the current
+file."
   (interactive
    (list
     (completing-read "Controller name: "
-		     (list->alist (rails-core:controllers t)))
+         (list->alist (rails-core:controllers t)))
     (read-from-minibuffer "Action name: ")
     (read-from-minibuffer "Params: ")))
   (rails-core:with-root
@@ -113,20 +146,20 @@
    (when (string-not-empty controller)
      (rails-webrick:open-browser
       (concat (rails-core:file-by-class controller t) "/"
-	      (if (string-not-empty action) (concat action "/")) params)))))
+        (if (string-not-empty action) (concat action "/")) params)))))
 
 (defun rails-webrick:auto-open-browser (ask-parameters?)
-  "Autodetect current action and open browser on it
-   with prefix ask parameters for action."
+  "Autodetect the current action and open browser on it with.
+Prefix the command to ask parameters for action."
   (interactive "P")
   (rails-core:with-root
    (root)
    (if (find (rails-core:buffer-type) '(:view :controller))
        (when-bind (controller (rails-core:current-controller))
-		  (rails-webrick:open-browser-on-controller
-		   controller (rails-core:current-action)
-		   (when ask-parameters?
-		     (read-from-minibuffer "Parameters: "))))
+      (rails-webrick:open-browser-on-controller
+       controller (rails-core:current-action)
+       (when ask-parameters?
+         (read-from-minibuffer "Parameters: "))))
      (message "You can auto-open browser only in view or controller"))))
 
 (provide 'rails-webrick)

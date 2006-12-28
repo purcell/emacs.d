@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 52 2006-10-02 20:39:06Z dimaexe $
+;; $Id: rails.el 59 2006-12-25 01:13:37Z dimaexe $
 
 ;;; License
 
@@ -44,21 +44,58 @@
 (require 'rails-scripts)
 (require 'rails-ui)
 
-
 ;;;;;;;;;; Variable definition ;;;;;;;;;;
 
-(defvar rails-version "0.3")
+(defgroup rails nil
+  "Edit Rails projet with Emacs."
+  :group 'programming
+  :prefix "rails-")
+
+(defcustom rails-api-root nil
+  "*Root of Rails API html documentation. Must be a local directory."
+  :group 'rails
+  :type 'string)
+
+(defcustom rails-tags-command "ctags -e -a --Ruby-kinds=-f -o %s -R %s"
+  "Command used to generate TAGS in Rails root"
+  :group 'rails
+  :type 'string)
+
+(defcustom rails-always-use-text-menus nil
+  "Force the use of text menus by default."
+  :group 'rails
+  :type 'boolean)
+
+(defcustom rails-ask-when-reload-tags nil
+  "When t, every reloading of TAGS table you must confirm it."
+  :group 'rails
+  :type 'boolean)
+
+(defcustom rails-layout-template
+  "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"
+          \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">
+<html xmlns=\"http://www.w3.org/1999/xhtml\"
+      xml:lang=\"en\" lang=\"en\">
+  <head>
+    <title></title>
+    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
+    <%= stylesheet_link_tag \"default\" %>
+  </head>
+
+  <body>
+  </body>
+</html>"
+  "Default html template for new rails layout"
+  :group 'rails
+  :type 'string)
+
+(defvar rails-version "0.4")
 (defvar rails-ruby-command "ruby")
 (defvar rails-templates-list '("rhtml" "rxml" "rjs"))
 (defvar rails-chm-file nil "Path to CHM file or nil")
-(defvar rails-use-another-define-key nil )
+(defvar rails-use-another-define-key nil)
 (defvar rails-primary-switch-func nil)
 (defvar rails-secondary-switch-func nil)
-(defvar rails-tags-command "ctags -e -a --Ruby-kinds=-f -o %s -R %s"
-  "Command, that used for generating TAGS in Rails root")
-(defvar rails-api-root nil
-  "Root of Rails API html documentaion")
-
 
 (defvar rails-for-alist
   '(
@@ -71,40 +108,19 @@
 
 (defvar rails-adapters-alist
   '(("mysql"      . sql-mysql)
-    ("postgresql" . sql-postgres))
+    ("postgresql" . sql-postgres)
+    ("sqlite3" . sql-sqlite))
   "Sets emacs sql function for rails adapter names.")
 
 (defvar rails-tags-dirs '("app" "lib" "test" "db")
   "List of directories from RAILS_ROOT where ctags works.")
 
-(defvar rails-ask-when-reload-tags nil
-  "When t, every reloading of TAGS table you must confirm it.")
-
-(defvar rails-use-text-menu nil
-  "If t use text menu, popup menu otherwise")
+(defun rails-use-text-menu ()
+  "If t use text menu, popup menu otherwise"
+  (or (null window-system) rails-always-use-text-menus))
 
 (defvar rails-find-file-function 'find-file
   "Function witch called by rails finds")
-
-(defvar rails-layout-template
-  "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"
-          \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">
-<html xmlns=\"http://www.w3.org/1999/xhtml\"
-      xml:lang=\"ru\" lang=\"ru\">
-  <head>
-    <title></title>
-    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
-    <%= stylesheet_link_tag \"style\" %>
-    <!--[if IE]>
-    <%= stylesheet_link_tag \"ie\" %>
-    <![endif]-->
-    <%= javascript_include_tag \"defaults\" %>
-  </head>
-
-  <body>
-  </body>
-</html>"
-  "Default html template for new rails layout")
 
 ;;;;;;;; hack ;;;;
 
@@ -136,8 +152,7 @@
 
 ;; helper functions/macros
 (defun rails-open-log (env)
-  "Open Rails log file for environment ``env''
-   (development, production, test)"
+  "Open Rails log file for environment ENV (development, production, test)"
   (interactive (list (rails-read-enviroment-name)))
   (rails-core:with-root
    (root)
@@ -152,6 +167,7 @@
          (setq auto-revert-interval 0.5)
          (auto-revert-set-timer)
          (setq auto-window-vscroll t)
+   (make-local-variable 'rails-api-root)
          (auto-revert-tail-mode t)))))
 
 (defun rails-search-doc (&optional item)
@@ -225,14 +241,22 @@
    (root)
    (save-excursion
      (rails-core:find-file "config/database.yml")
+     ;; The influence of automatic preservation is not received separating from the file.
+     (set-visited-file-name nil)
+     ;; It is the same as the following execution result.
+     ;; cat database.yml | ruby -r yaml -r erb -e 'YAML.load(ERB.new(ARGF.read).result).to_yaml.display'
+     (shell-command-on-region
+      (point-min) (point-max)
+      "ruby -r yaml -r erb -e 'YAML.load(ERB.new(ARGF.read).result).to_yaml.display'"
+      (current-buffer) t)
      (goto-line 1)
      (search-forward-regexp (format "^%s:" env))
      (let ((ans
-      (make-rails-db-conf
-       :adapter  (yml-next-value "adapter")
-       :database (yml-next-value "database")
-       :username (yml-next-value "username")
-       :password (yml-next-value "password"))))
+            (make-rails-db-conf
+             :adapter  (yml-next-value "adapter")
+             :database (yml-next-value "database")
+             :username (yml-next-value "username")
+             :password (yml-next-value "password"))))
        (kill-buffer (current-buffer))
        ans))))
 
@@ -260,24 +284,63 @@
         (flet ((sql-get-login (&rest pars) () t))
           (funcall (rails-database-emacs-func (rails-db-conf-adapter conf))))))))
 
+(defun rails-configured-api-root ()
+  "Test whether `rails-api-root' is configured or not, and offer to configure
+it in case it's still empty for the project."
+  (if (and rails-api-root (/= (length rails-api-root) 0))
+      t
+    (if (file-exists-p (concat (rails-core:root) "doc/api/index.html"))
+  (setq rails-api-root (concat (rails-core:root) "doc/api"))
+      t
+      (progn
+  (if (yes-or-no-p "This project has no API documentation. Would you like to configure it now? ")
+      (progn
+        (message "This may take a while. Please wait...")
+              (rails-core:in-root
+               (let (clobber-gems)
+                 (unless (file-exists-p (concat (rails-core:root) "vendor/rails"))
+                   (setq clobber-gems t)
+                   (message "Freezing gems...")
+                   (shell-command "rake rails:freeze:gems")
+                   ;; Hack to allow generation of the documentation if Rails 1.0 and 1.1
+                   ;; See http://dev.rubyonrails.org/ticket/4459
+                   (shell-command (concat "touch "
+                                          (rails-core:root)
+                                          "vendor/rails/activesupport/README")))
+                 (message "Generating documentation...")
+                 (shell-command "rake doc:rails")
+                 (if clobber-gems
+                     (progn
+                       (message "Unfreezing gems...")
+                       (shell-command "rake rails:unfreeze"))))
+               (kill-buffer "*Shell Command Output*")
+               (message "Done...")
+               (if (file-exists-p (concat (rails-core:root) "doc/api/index.html"))
+                   (setq rails-api-root (concat (rails-core:root) "doc/api")))
+               t))
+    nil)))))
+
 (defun rails-browse-api ()
   "Browse Rails API on RAILS-API-ROOT"
   (interactive)
-  (browse-url (concat rails-api-root "index.html")))
+  (if (rails-configured-api-root)
+      (browse-url (concat rails-api-root "/index.html"))
+    (message "Please configure variable rails-api-root.")))
 
 (defun rails-get-api-entries (name file sexp get-file-func)
-  (save-current-buffer
-    (save-match-data
-      (find-file (concat rails-api-root "/" file))
-      (let* ((result
-              (loop for line in (split-string (buffer-string) "\n")
-                    when (string-match (format sexp (regexp-quote name)) line)
-                    collect (cons (match-string 2 line)
-                                  (match-string 1 line)))))
-        (kill-buffer (current-buffer))
-        (when-bind (api-file (funcall get-file-func result))
-                   (browse-url (concat "file://" rails-api-root "/" api-file)))))))
-
+  (if (file-exists-p (concat rails-api-root "/" file))
+      (save-current-buffer
+  (save-match-data
+    (find-file (concat rails-api-root "/" file))
+    (let* ((result
+      (loop for line in (split-string (buffer-string) "\n")
+      when (string-match (format sexp (regexp-quote name)) line)
+      collect (cons (match-string 2 line)
+              (match-string 1 line)))))
+      (kill-buffer (current-buffer))
+      (when-bind (api-file (funcall get-file-func result))
+           (browse-url (concat "file://" rails-api-root "/" api-file))))))
+    (message "There are no API docs.")))
 
 (defun rails-browse-api-class (class)
   "Browse documentation in Rails API for CLASS."
@@ -301,17 +364,18 @@
   "Open html documentaion on class or method at point.
 Please set variable rails-api-root to path for your local(!) Rails API directory"
   (interactive)
-  (if rails-api-root
+  (if (rails-configured-api-root)
       (let ((current-symbol (prog2
                                 (modify-syntax-entry ?: "w")
                                 (thing-at-point 'sexp)
                               (modify-syntax-entry ?: "."))))
-  (if (capital-word-p current-symbol)
-      (rails-browse-api-class current-symbol)
-    (rails-browse-api-method current-symbol)))
+        (if current-symbol
+            (if (capital-word-p current-symbol)
+                (rails-browse-api-class current-symbol)
+              (rails-browse-api-method current-symbol))))
     (message "Please configure variable rails-api-root.")))
-;;;;
 
+;;; Rails minor mode
 
 (define-minor-mode rails-minor-mode
   "RubyOnRails"
@@ -329,11 +393,15 @@ Please set variable rails-api-root to path for your local(!) Rails API directory
 (add-hook 'ruby-mode-hook
           (lambda()
             (require 'rails-ruby)
-            (modify-syntax-entry ?! "w")
+            (syntax-table)
+            (capitalize "AA/addd_aaa")
+            (modify-syntax-entry ?! "w" (syntax-table))
+            (modify-syntax-entry ?: "w" (syntax-table))
+            (modify-syntax-entry ?_ "w" (syntax-table))
             (local-set-key (kbd "C-.") 'complete-tag)
             (local-set-key (if rails-use-another-define-key
                                (kbd "TAB") (kbd "<tab>"))
-                           'ruby-indent-or-complete)
+                           'ruby-indent-command)
             (local-set-key (if rails-use-another-define-key
                                (kbd "RET") (kbd "<return>"))
                            'ruby-newline-and-indent)))
@@ -350,9 +418,10 @@ Please set variable rails-api-root to path for your local(!) Rails API directory
                (unless (string-match "[Mm]akefile" mode-name)
                  (add-hook 'local-write-file-hooks
                            '(lambda()
-                              (save-excursion
-                                (untabify (point-min) (point-max))
-                                (delete-trailing-whitespace)))))
+                              (when (eq this-command 'save-buffer)
+                                (save-excursion
+                                  (untabify (point-min) (point-max))
+                                  (delete-trailing-whitespace))))))
                (rails-minor-mode t)
                (rails-run-for-alist root)
                (local-set-key (if rails-use-another-define-key "TAB" (kbd "<tab>"))
@@ -361,7 +430,7 @@ Please set variable rails-api-root to path for your local(!) Rails API directory
                                      (snippet-next-field)
                                    (if (looking-at "\\>")
                                        (hippie-expand nil)
-                                     (indent-for-tab-command)))))))))
+                                     (indent-according-to-mode)))))))))
 ;;; Run rails-minor-mode in dired
 (add-hook 'dired-mode-hook
           (lambda ()

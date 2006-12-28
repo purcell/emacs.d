@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
-;; $Id: rails-lib.el 51 2006-06-10 11:13:04Z crazypit $
+;; $Id: rails-lib.el 59 2006-12-25 01:13:37Z dimaexe $
 
 ;;; License
 
@@ -28,13 +28,15 @@
 ;;; Code:
 
 (defun rails-lib:run-primary-switch ()
+  "Run the primary switch function."
   (interactive)
   (if rails-primary-switch-func
       (apply rails-primary-switch-func nil)))
 
 (defun rails-lib:run-secondary-switch ()
+  "Run the secondary switch function."
   (interactive)
-  (if rails-primary-switch-func
+  (if rails-secondary-switch-func
       (apply rails-secondary-switch-func nil)))
 
 ;;;;; Non Rails realted helper functions ;;;;;
@@ -42,10 +44,11 @@
 ;; Syntax macro
 
 (defmacro* when-bind ((var expr) &rest body)
-  "Binds ``var'' and result of ``expr''.
-   If ``expr'' is not nil do body.
-   (when-bind (var (func foo))
-      (do-somth (with var)))"
+  "Binds VAR to the result of EXPR.
+If EXPR is not nil exeutes BODY.
+
+ (when-bind (var (func foo))
+  (do-somth (with var)))."
   `(let ((,var ,expr))
      (when ,var
        ,@body)))
@@ -53,12 +56,12 @@
 ;; Lists
 
 (defun list->alist (list)
-  "Convert (a b c) to ((a . a) (b . b) (c . c))"
+  "Convert (a b c) to ((a . a) (b . b) (c . c))."
   (mapcar #'(lambda (el) (cons el el))
     list))
 
 (defun uniq-list (list)
-  "Retrurn list of uniq elements"
+  "Return a list of unique elements."
   (let ((result '()))
     (dolist (elem list)
       (when (not (member elem result))
@@ -68,42 +71,39 @@
 ;; Strings
 
 (defun string-not-empty (str) ;(+)
-  "Return t if string ``str'' not empty"
+  "Return t if string STR is not empty."
   (and (stringp str) (not (string-equal str ""))))
 
 (defun yml-next-value (name)
-  "Return value of next parameter with name"
-  (search-forward-regexp (format "%s:[ ]*\\(.*\\)[ ]*$" name))
-  (match-string 1))
+  "Return the value of the next parameter named NAME."
+  (if (search-forward-regexp (format "%s:[ ]*\\(.*\\)[ ]*$" name) nil t)
+      (match-string 1)))
 
 (defun current-line-string ()
-  "Return string value of current line"
+  "Return the string value of the current line."
   (buffer-substring-no-properties
    (progn (beginning-of-line) (point))
    (progn (end-of-line) (point))))
 
 (defun remove-postfix (word postfix)
-  "Remove postifix in word if exits.
-  BlaPostfix -> Bla"
+  "Remove the POSTFIX string in WORD if it exists.
+BlaPostfix -> Bla."
   (replace-regexp-in-string (format "%s$" postfix) "" word))
 
 (defun strings-join (separator strings)
-  "Join all STRINGS with SEPARATOR"
-  (let ((new-string
-   (apply #'concat
-    (mapcar (lambda (str) (concat str separator))
-      strings))))
-  (subseq new-string 0 (- (length new-string) (length separator)))))
+  "Join all STRINGS using a SEPARATOR."
+  (mapconcat 'identity strings separator))
 
 (defun capital-word-p (word)
-  "Return t if first letter of WORD is capital"
+  "Return t if first letter of WORD is uppercased."
   (and (>= (elt word 0) 65)
        (<= (elt word 0) 90)))
 
 ;;;;;;;; def-snips stuff ;;;;
 
 (defun snippet-abbrev-function-name (abbrev-table abbrev-name)
-  "Return name of snips abbrev function in abbrev-table for abbrev abbrev-name"
+  "Return the name of the snippet abbreviation function in the
+ABBREV-TABLE for the abbreviation ABBREV-NAME."
   (intern (concat "snippet-abbrev-"
       (snippet-strip-abbrev-table-suffix
        (symbol-name abbrev-table))
@@ -111,14 +111,15 @@
       abbrev-name)))
 
 (defun snippet-menu-description-variable (table name)
-  "Return variable for menu description of snip abbrev-name in abbrev-table"
+  "Return a variable for the menu description of the snippet ABBREV-NAME in ABBREV-TABLE."
   (intern
    (concat
     (symbol-name (snippet-abbrev-function-name table name))
     "-menu-description")))
 
 (defmacro* def-snips ((&rest abbrev-tables) &rest snips)
-  "Generate snippets with menu documentaion in several ``abbrev-tables''
+  "Generate snippets with menu documentaion in several ABBREV-TABLES.
+
   (def-snip (some-mode-abbrev-table other-mode-abbrev-table)
     (\"abbr\"   \"some snip $${foo}\" \"menu documentation\")
     (\"anabr\"   \"other snip $${bar}\" \"menu documentation\")
@@ -135,11 +136,12 @@
         ,desc)))))
 
 (defun snippet-menu-description (abbrev-table name)
-  "Return menu descripton for snip in ``abbrev-table'' with name ``name''"
+  "Return the menu descripton for the snippet named NAME in
+ABBREV-TABLE."
   (symbol-value (snippet-menu-description-variable abbrev-table name)))
 
 (defun snippet-menu-line (abbrev-table name)
-  "Generate menu line for snip ``name''"
+  "Generate a menu line for the snippet NAME in ABBREV-TABLE."
   (cons
    (concat name "\t" (snippet-menu-description abbrev-table name))
    (lexical-let ((func-name (snippet-abbrev-function-name abbrev-table name)))
@@ -148,7 +150,8 @@
 ;;; Define keys
 
 (defmacro define-keys (key-map &rest key-funcs)
-  "Define key bindings for key-map (create key-map, if does not exist"
+  "Define key bindings for KEY-MAP (create KEY-MAP, if it does
+not exist."
   `(progn
      (unless (boundp ',key-map)
        (setf ,key-map (make-keymap)))
@@ -160,15 +163,15 @@
 ;; Files
 
 (defun append-string-to-file (file string)
-  "Append string to end of file"
+  "Append a string to end of a file."
   (write-region string nil file t))
 
 (defun write-string-to-file (file string)
-  "Write string to file (with erasing previos content)"
+  "Write a string to a file (erasing the previous content)."
   (write-region string nil file))
 
 (defun read-from-file (file-name)
-  "Read sexpr from file FILE-NAME"
+  "Read sexpr from a file named FILE-NAME."
   (with-temp-buffer
     (insert-file-contents file-name)
     (read (current-buffer))))
@@ -176,15 +179,14 @@
 ;; File hierarchy functions
 
 (defun find-recursive-files (file-regexp directory)
-  "Return list of files, founded in directory, than match file-regexp"
+  "Return a list of files, found in DIRECTORY and match them to FILE-REGEXP."
   (find-recursive-filter-out
    find-recursive-exclude-files
    (find-recursive-directory-relative-files directory "" file-regexp)))
 
 (defun directory-name (path)
-  "Return name of directory with path
-  f.e. path /foo/bar/baz/../, return bar
-  "
+  "Return the name of a directory with a given path.
+For example, (path \"/foo/bar/baz/../\") returns bar."
   ;; Rewrite me
   (let ((old-path default-directory))
     (cd path)
@@ -193,7 +195,8 @@
       (replace-regexp-in-string "^Directory[ ]*" "" dir))))
 
 (defun find-or-ask-to-create (question file)
-    "Open file  if exist. If not exist ask to create it."
+  "Open file if it exists. If it does not exist, ask to create
+it."
     (if (file-exists-p file)
   (find-file file)
       (when (y-or-n-p question)
@@ -202,17 +205,16 @@
   (find-file file))))
 
 (defun directory-of-file (file-name)
-  "Return parent directory of file FILE-NAME"
+  "Return the parent directory of a file named FILE-NAME."
   (replace-regexp-in-string "[^/]*$" "" file-name))
 
 ;; Buffers
 
 (defun buffer-string-by-name (buffer-name)
-  "Return content of buffer buffer-name as string"
+  "Return the content of buffer named BUFFER-NAME as a string."
   (interactive)
   (save-excursion
     (set-buffer buffer-name)
     (buffer-string)))
-
 
 (provide 'rails-lib)

@@ -1,23 +1,23 @@
 == Features ==
 
-* Identation
+* Indentation
 * Management of WEBrick/Mongrel
-* Display color log file
-* Toggle Switch between Action/View and other file (tests, helpers) automaticly or with menu
-* Switching to file from current line f.e. from redirect_to :controller => ÈfooÉ, :action => ÈbarÉ, swtich to this controller/action
+* Display of colored log files
+* Switching between actions, view and other files (tests, helpers) automatically or using a menu
+* Switching to a file from the current line; for example, from redirect_to :controller => "foo", :action => "bar" to app/views/foo/bar.rhtml
 * TextMate-like snippets (snippets.el)
 * ERb refactoring (create partial from selection, create helper from block)
 * Automatic TAGS generation in RAILS_ROOT directory
 * Quick access to the main configuration files
 * Documentation search using ri or chm file and Rails API reference in HTML 
 * Quick start svn-status in RAILS_ROOT
-* Integration with script/generate script/destroy (controller, model, scaffold, migration)
-* Goto menus for quick access to controllers, models, and other.
-* Auto-determination of current rails DB settings and running SQL console
-* Automatic openning browser on current action (from view or controller)
-* Integration with interactive scripts script/console and script/breakpointer
+* Integration with script/generate and script/destroy (controller, model, scaffold, migration)
+* Go to menus for quick access to controllers, models, and other.
+* Auto-finding of current DB settings for the SQL console
+* Automatic browsing on current action (from view or controller)
+* Integration with script/console and script/breakpointer
 * Fast navigation in Rails root hierarchy (rails finds - C-c f <Key>)
-* Fast running of rails rake with autocomplete
+* Fast running of Rake with autocomplete
 
 
 == Install ==
@@ -40,22 +40,16 @@ Add to your .emacs file:
   (require 'rails)
 ----------------------------------
 
-If you want to use Mongrel instead of WEBrick, add this to you .emacs file:
-(setq rails-use-mongrel t)
-
 For Windows users only:
 
 If you want to use CHM file for help (by default used ri), add this to your .emacs file:
 (setq rails-chm-file "<full_path_to_rails_chm_manual>")
 Download and install KeyHH.exe from http://www.keyworks.net/keyhh.htm
 
-Offitial documetation:
+Oficial documentation:
 http://rubyforge.org/docman/?group_id=1484
 
 For more howtos, see
 * http://scott.elitists.net/users/scott/posts/rails-on-emacs
 * http://www.emacswiki.org/cgi-bin/wiki/RubyMode
-
-== History ==
-empty
 

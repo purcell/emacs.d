@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-for-controller.el $
-;; $Id: rails-for-controller.el 50 2006-04-19 20:50:02Z crazypit $
+;; $Id: rails-for-controller.el 58 2006-12-17 21:47:39Z dimaexe $
 
 ;;; License
 
@@ -28,17 +28,18 @@
 ;;; Code:
 
 (defun rails-controller:get-current-controller-and-action ()
-  "Return list contains current controller and action"
+  "Return a list containing the current controller and action."
   (save-excursion
     (let (action controller)
       (goto-char (line-end-position))
-      (search-backward-regexp "^[ ]*def \\([a-z_]+\\)" nil t)
-      (setq action (match-string-no-properties 1))
-      (search-backward-regexp "^[ ]*class \\([a-zA-Z0-9_:]+\\)[ ]+<" nil t)
-      (setq controller (match-string-no-properties 1))
+      (if (search-backward-regexp "^[ ]*def \\([a-z0-9_]+\\)" nil t)
+    (setq action (match-string-no-properties 1)))
+      (if (search-backward-regexp "^[ ]*class \\([a-zA-Z0-9_:]+\\)[ ]+<" nil t)
+    (setq controller (match-string-no-properties 1)))
       (list controller action))))
 
 (defun rails-controller:switch-to-view()
+  "Switch to the view corresponding to the current action."
   (interactive)
   (let* ((calist (rails-controller:get-current-controller-and-action))
          (controller (nth 0 calist))
@@ -77,6 +78,8 @@
                     (find-file (format "%s/%s.rhtml" file action)))))))))
 
 (defun rails-controller:switch-with-menu ()
+  "Switch to various files related to the current action using a
+menu."
   (interactive)
   (let* ((root (rails-core:root))
          (menu (list))
@@ -90,18 +93,19 @@
          file)
     (while (car files)
       (add-to-list 'menu
-                   (cons
+                   (list
                     (replace-regexp-in-string
                      "\\(.*/\\)\\([^/]+\\)$"
                      (concat
                       (if (string-match "^\_" (file-name-nondirectory (car files))) "Partial" "View") "\: \\2")
                      (car files)) (car files)))
       (setq files (cdr files)))
-    (add-to-list 'menu (cons "--" "--"))
-    (add-to-list 'menu (cons "Functional test" (concat root test)))
+    (unless (rails-use-text-menu)
+      (add-to-list 'menu (list "--" "--")))
+    (add-to-list 'menu (list "Functional test" (concat root test)))
     (if action
-          (add-to-list 'menu (cons "Current action" (car (rails-core:get-view-files controller action)))))
-    (add-to-list 'menu (cons "Helper" (concat root helper)))
+        (add-to-list 'menu (list "Current action" (car (rails-core:get-view-files controller action)))))
+    (add-to-list 'menu (list "Helper" (concat root helper)))
     (setq file
           (rails-core:menu
            (list "Please select.." (cons "Please select.." menu))))
@@ -109,6 +113,7 @@
         (find-file file))))
 
 (defun rails-for-controller ()
+  "Enable controller configurations."
   (interactive)
   (setq rails-secondary-switch-func 'rails-controller:switch-with-menu)
   (setq rails-primary-switch-func 'rails-controller:switch-to-view))
@@ -116,38 +121,45 @@
 ;;;;;;;; Open file from file stuff, please do not delete, while open file from file works fine
 
 (defun rails-for-controller:views-for-current-action ()
+  "Return a list of views for the current action."
   (mapcar (lambda (view-file)
-	    (list (replace-regexp-in-string "\\(.*/\\)\\([^/]+\\)$" "View\: \\2" view-file)
-		  (lexical-let ((file view-file))
-		    (lambda () (interactive) (find-file file)))))
-	  (rails-core:get-view-files (rails-core:current-controller)
-				     (rails-core:current-action))))
+      (list (replace-regexp-in-string "\\(.*/\\)\\([^/]+\\)$" "View\: \\2" view-file)
+      (lexical-let ((file view-file))
+        (lambda () (interactive) (find-file file)))))
+    (rails-core:get-view-files (rails-core:current-controller)
+             (rails-core:current-action))))
 
 (defun rails-for-controller:switch-by-current-controller (to-what file-func)
+  "Switch by the current controller position."
   (let ((controller (rails-core:current-controller)))
     (rails-core:find-or-ask-to-create
      (format "%s for controller %s does not exist, create it? " to-what controller)
      (funcall file-func controller))))
 
 (defun rails-for-controller:switch-to-functional-test ()
+  "Switch to the functional test correspoding to the current controller."
   (rails-for-controller:switch-by-current-controller
    "Functional test" 'rails-core:functional-test-file))
 
 (defun rails-for-controller:switch-to-helper ()
+  "Switch to the helper correspoding to the current controller."
   (rails-for-controller:switch-by-current-controller
    "Helper file" 'rails-core:helper-file))
 
 (defun rails-for-controller:switch-to-view2 ()
+  "Switch to the view correspoding to the current action and
+controller."
   (rails-core:open-controller+action
    :view (rails-core:current-controller) (rails-core:current-action)))
 
 (defun rails-for-controller:switch-to-controller ()
+  "Switch to the controller."
   (rails-core:open-controller+action
    :controller (rails-core:current-controller) nil))
 
 (defun rails-for-controller:switch-to-views ()
+  "Switch to the views."
   (rails-core:open-controller+action
    :view (rails-core:current-controller) nil))
-
 
 (provide 'rails-for-controller)

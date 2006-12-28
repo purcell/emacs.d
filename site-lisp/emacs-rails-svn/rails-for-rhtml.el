@@ -4,7 +4,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-for-rhtml.el $
-;; $Id: rails-for-rhtml.el 47 2006-04-19 09:06:15Z crazypit $
+;; $Id: rails-for-rhtml.el 58 2006-12-17 21:47:39Z dimaexe $
 
 ;;; License
 
@@ -25,10 +25,9 @@
 ;;; Code:
 
 (defun rails-rhtml:create-partial-from-selection ()
-  "Create partial from selection"
+  "Create a partial from current buffer selection."
   (interactive)
-  (if (and mark-active
-           transient-mark-mode)
+  (if mark-active
       (save-excursion
         (let ((name (read-string "Partial name? "))
               (content (buffer-substring-no-properties (region-beginning) (region-end))))
@@ -38,12 +37,13 @@
           (other-window 1)
           (find-file (concat "_" name ".rhtml"))
           (goto-char (point-min))
+          (erase-buffer)
           (insert content)
           (other-window -1)
           (mmm-parse-region (line-beginning-position) (line-end-position))))))
 
 (defun rails-rhtml:create-helper-from-block (&optional helper-name)
-  "Create helper function from current erb block (<% .. %>)"
+  "Create a helper function from current ERb block (<% .. %>)."
   (interactive)
   (rails-core:with-root
    (root)
@@ -57,7 +57,7 @@
               end-pos
               (> current-pos begin-pos)
               (< current-pos end-pos)
-              (string-match "app/views/\\(.*\\)/\\([a-z_]+\\)\.[a-z]+$" file))
+              (string-match "app/views/\\(.*\\)/\\([a-z0-9_]+\\)\.[a-z]+$" file))
          (let* ((helper-file (concat root "app/helpers/" (match-string 1 file) "_helper.rb"))
                 (content (buffer-substring-no-properties begin-pos end-pos))
                 (helper-alist (if helper-name helper-name (read-string "Enter helper function name with args: ")))
@@ -94,16 +94,17 @@
        (message "block not found")))))
 
 (defun rails-rhtml:get-current-controller-and-action ()
-  "Return list contains current controller and action"
+  "Return a list containing the current controller and action."
   (let ((file buffer-file-name)
         controller action)
-    (if (string-match "app/views/\\(.*\\)/\\([a-z_]+\\)\.[a-z]+$" file)
+    (if (string-match "app/views/\\(.*\\)/\\([a-z0-9_]+\\)\.[a-z]+$" file)
         (progn
           (setq controller (match-string-no-properties 1 file))
           (setq action (match-string-no-properties 2 file))))
     (list controller action)))
 
 (defun rails-rhtml:switch-to-action ()
+  "Switch to the current action."
   (interactive)
   (let ((file buffer-file-name))
     (rails-core:with-root
@@ -125,29 +126,28 @@
                      (message controller-class-name))))))))))
 
 (defun rails-rhtml:switch-to-helper ()
+  "Switch to the current helper."
   (let* ((root (rails-core:root))
          (calist (rails-rhtml:get-current-controller-and-action))
          (controller (nth 0 calist)))
     (find-file (concat root (rails-core:helper-file (rails-core:class-by-file controller))))))
 
 (defun rails-rhtml:switch-with-menu ()
+  "Switch to various files related to this view using a menu."
   (interactive)
   (let ((root (rails-core:root))
         (menu (list))
-        pos item)
-    (add-to-list 'menu (cons "Helper" 'rails-rhtml:switch-to-helper))
-    (add-to-list 'menu (cons "Controller" 'rails-rhtml:switch-to-action))
-    (setq pos (if (functionp 'posn-at-point) ; mouse position at point
-                  (nth 2 (posn-at-point))
-                (cons 200 100)))
+        item)
+    (add-to-list 'menu (list "Helper" 'rails-rhtml:switch-to-helper))
+    (add-to-list 'menu (list "Controller" 'rails-rhtml:switch-to-action))
     (setq item
-          (x-popup-menu
-           (list (list (car pos) (cdr pos)) (selected-window))
+          (rails-core:menu
            (list "Please select.." (cons "Please select.." menu))))
     (if item
         (apply item nil))))
 
 (defun rails-for-rhtml ()
+  "Enable RHTML configurations."
   (interactive)
   (setq rails-primary-switch-func 'rails-rhtml:switch-to-action)
   (setq rails-secondary-switch-func 'rails-rhtml:switch-with-menu)
@@ -157,10 +157,9 @@
 ;;;;;; Open file from file
 
 (defun rails-for-rhtml:switch-to-controller-action ()
+  "Switch to the controller and action corresponding the this
+file."
   (rails-core:open-controller+action
    :controller (rails-core:current-controller) (rails-core:current-action)))
-
-
-
 
 (provide 'rails-for-rhtml)

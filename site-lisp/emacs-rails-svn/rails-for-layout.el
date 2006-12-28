@@ -25,6 +25,7 @@
 ;;; Code:
 
 (defun rails-for-layout ()
+  "Enable layout configurations."
   (interactive))
 
 (provide 'rails-for-layout)

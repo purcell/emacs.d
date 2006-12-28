@@ -26,7 +26,7 @@
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 (defun rails-nav:goto-file-with-menu (dir title &optional ext no-inflector append-to-menu)
-  "Make menu to choose files and find-file it"
+  "Make a menu to choose files from and find-file it."
   (let* (file
          files
          (ext (if ext ext "rb"))
@@ -48,29 +48,33 @@
     (if append-to-menu
         (add-to-list 'files append-to-menu t))
 
+    (if files
+  (progn
     (setq file (rails-core:menu
-                (list title (cons title files))))
+          (list title (cons title files))))
     (if file
         (if (symbolp file)
-            (apply file nil)
-          (find-file (concat dir file))))))
+      (apply file nil)
+    (find-file (concat dir file)))))
+      (message "No files found"))))
 
 (defun rails-nav:goto-controllers ()
-  "Goto Controller"
+  "Go to controllers."
   (interactive)
   (rails-nav:goto-file-with-menu "app/controllers/" "Go to controller.."))
 
 (defun rails-nav:goto-models ()
-  "Goto Model"
+  "Go to models."
   (interactive)
   (rails-nav:goto-file-with-menu "app/models/" "Go to model.."))
 
 (defun rails-nav:goto-helpers ()
-  "Goto helper"
+  "Go to helpers."
   (interactive)
   (rails-nav:goto-file-with-menu "app/helpers/" "Go to helper.."))
 
 (defun rails-nav:create-new-layout (&optional name)
+  "Create a new layout."
   (let ((name (or name (read-string "Layout name? ")))
         (root (rails-core:root)))
     (rails-core:find-file (rails-core:layout-file name))
@@ -78,7 +82,7 @@
         (insert rails-layout-template))))
 
 (defun rails-nav:goto-layouts ()
-  "Goto layout"
+  "Go to layouts."
   (interactive)
   (let ((path "app/views/layouts/")
         item)
@@ -86,23 +90,25 @@
     (rails-nav:goto-file-with-menu path "Go to layout.." "rhtml" t item)))
 
 (defun rails-nav:goto-stylesheets ()
-  "Goto layout"
+  "Go to stylesheets."
   (interactive)
   (rails-nav:goto-file-with-menu "public/stylesheets/" "Go to stylesheet.." "css" t))
 
 (defun rails-nav:goto-javascripts ()
-  "Goto layout"
+  "Go tto JavaScripts."
   (interactive)
   (rails-nav:goto-file-with-menu "public/javascripts/" "Go to stylesheet.." "js" t))
 
 (defun rails-nav:goto-migrate ()
-  "Goto migration"
+  "Go to migrations."
   (interactive)
   (rails-nav:goto-file-with-menu "db/migrate/" "Go to migrate.." "rb" t))
 
 ;;;;;;;;;; Goto file on current line ;;;;;;;;;;
 
 (defmacro* def-goto-line (name (&rest conditions) &rest body)
+  "Go to the file specified by the current line. Parses the
+current line for a series of patterns."
   (let ((line (gensym))
         (field (gensym))
         (prefix (gensym)))
@@ -119,15 +125,17 @@
                         (return-from ,name (progn ,@body))))))))))
 
 (defun rails-goto-file-on-current-line (prefix)
-  "Analyze string (or ERb block) and open some file relative with this string.
-F.e. on line with \"renader :partial\" run this function and partial file will be opened.
-Also this function work with \"layout 'name'\",
- \"render/redirect-to [:action => 'name',] [controller => 'n']\", stylesheet_link_tag an other.
+  "Analyze a string (or ERb block) and open some file related with it.
+For example, on a line with \"render :partial\" runing this
+function will open the partial file.  The function works with
+\"layout 'name'\", \"render/redirect-to [:action => 'name',]
+[controller => 'n']\", stylesheet_link_tag and other common
+patterns.
 
-Rule for action/contoller line goto:
- if you in contoller cursor will be placed on controller action.
- if you in view -- view-file with action will be opened.
- Use prefix before command to change this navigation direction."
+Rules for actions/controllers:
+ If you are in a controller, the cursor will be placed on the controller action.
+ If you in view, the view file related to the action will be opened.
+ Use prefix before the command to change this navigation direction."
   (interactive "P")
   (rails-core:with-root
    (root)
@@ -143,10 +151,14 @@ Rule for action/contoller line goto:
        (message "Can't switch to some file form this line.")))))
 
 (defvar rails-on-current-line-gotos
-  '(rails-line-->partial rails-line-->controller+action
-                         rails-line-->layout rails-line-->stylesheet
-                         rails-line-->js)
-  "Functions that will calles when to analyze line when rails-goto-file-on-current-line runned.")
+  '(rails-line-->partial
+    rails-line-->action
+    rails-line-->controller+action
+    rails-line-->layout
+    rails-line-->stylesheet
+    rails-line-->js)
+  "Functions that will ne called to analyze the line when
+rails-goto-file-on-current-line is run.")
 
 (def-goto-line rails-line-->stylesheet (("[ ]*stylesheet_link_tag[ ][\"']\\([^\"']*\\)[\"']"
                                          (name 1)))
@@ -154,11 +166,17 @@ Rule for action/contoller line goto:
    (format "Stylesheet \"%s\" does not exist do you whant to create it? " name)
    (rails-core:stylesheet-name name)))
 
-(def-goto-line rails-line-->partial (("[ ]*render.*:partial[ ]*=>[ ]*[\"']\\([^\"']*\\)[\"']"
-                                      (name 1)))
+(def-goto-line rails-line-->partial (("\\([ ]*render\\|replace_html\\|insert_html\\).*:partial[ ]*=>[ ]*[\"']\\([^\"']*\\)[\"']"
+                                      (name 2)))
   (rails-core:find-or-ask-to-create
    (format "Partial \"%s\" does not exist do you whant to create it? " name)
    (rails-core:partial-name name)))
+
+(def-goto-line rails-line-->action (("\\([ ]*render\\|replace_html\\|insert_html\\).*:action[ ]*=>[ ]*[\"'\:]\\([^\"']*\\)"
+                                     (name 2)))
+  (rails-core:find-or-ask-to-create
+   (format "View \"%s\" does not exist do you whant to create it? " name)
+   (rails-core:view-name name)))
 
 (def-goto-line rails-line-->layout (("^[ ]*layout[ ]*[\"']\\(.*\\)[\"']" (name 1)))
   (let ((file-name (rails-core:layout-file name)))
@@ -171,7 +189,6 @@ Rule for action/contoller line goto:
   (rails-core:find-or-ask-to-create
    (format "JavaScript file \"%s\" does not exist do you whant to create it? " name)
    (rails-core:js-file name)))
-
 
 (defvar rails-line-to-controller/action-keywords
   '("render" "redirect_to" "link_to" "form_tag" "start_form_tag" "render_component"
@@ -194,10 +211,7 @@ Rule for action/contoller line goto:
          (rails-core:current-controller))
        action))))
 
-;;;;;;;;;; Goto file from file ;;;;;;;;;;
-
-
-
+;;;;;;;;;; Go to file from file ;;;;;;;;;;
 
 ;;; For Models
 
@@ -209,7 +223,6 @@ Rule for action/contoller line goto:
 
 (defun rails-by-model-switch-to-model ()
   (rails-by-model-switch-to "Model" 'rails-core:model-file))
-
 
 ;; Plural BUGS!!!
 ;; (defun rails-goto-fixtures-->model ()
