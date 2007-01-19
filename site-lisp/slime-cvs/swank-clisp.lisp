@@ -252,60 +252,59 @@ Return NIL if the symbol is unbound."
   (let* (;;(sys::*break-count* (1+ sys::*break-count*))
 	 ;;(sys::*driver* debugger-loop-fn)
 	 ;;(sys::*fasoutput-stream* nil)
-	 (*sldb-backtrace* (nthcdr 5 (sldb-backtrace))))
+	 (*sldb-backtrace* 
+	  (nthcdr 3 (member (sys::the-frame) (sldb-backtrace)))))
     (funcall debugger-loop-fn)))
 
 (defun nth-frame (index) 
   (nth index *sldb-backtrace*))
 
-;; This is the old backtrace implementation.  Not sure yet wheter the
-;; new is much better.
-;;
-;;(defimplementation compute-backtrace (start end)
-;;  (let ((end (or end most-positive-fixnum)))
-;;    (loop for last = nil then frame
-;;	    for frame = (nth-frame start) then (frame-up frame)
-;;	    for i from start below end
-;;	    until (or (eq frame last) (not frame))
-;;	    collect frame)))
-;; 
-;;(defimplementation print-frame (frame stream)
-;;  (write-string (trim-whitespace
-;;		   (with-output-to-string (stream)
-;;		     (sys::describe-frame stream frame)))
-;;		  stream))
-;;
-;;(defimplementation frame-locals (frame-number)
-;;  (let* ((frame (nth-frame frame-number))
-;;	   (frame-env (sys::eval-at frame '(sys::the-environment))))
-;;    (append
-;;     (frame-do-venv frame (svref frame-env 0))
-;;     (frame-do-fenv frame (svref frame-env 1))
-;;     (frame-do-benv frame (svref frame-env 2))
-;;     (frame-do-genv frame (svref frame-env 3))
-;;     (frame-do-denv frame (svref frame-env 4)))))
-;;
-;;(defimplementation frame-var-value (frame var)
-;;  (getf (nth var (frame-locals frame)) :value))
-
-(defun format-frame (frame)
-  (trim-whitespace 
-   (with-output-to-string (s) 
-     (sys::describe-frame s frame))))
-
-(defun function-frame-p (frame)
-  ;; We are interested in frames which like look "<5> foo ...".  
-  ;; Ugly, I know.
-  (char= #\< (aref (format-frame frame) 0)))
-
 (defun sldb-backtrace ()
   "Return a list ((ADDRESS . DESCRIPTION) ...) of frames."
-  (do ((fframes '())
+  (do ((frames '())
        (last nil frame)
-       (frame (sys::the-frame) (sys::frame-up-1 frame 1)))
-      ((eq frame last) (nreverse fframes))
-    (when (function-frame-p frame)
-      (push (cons frame (format-frame frame)) fframes))))
+       (frame (sys::the-frame) (sys::frame-up-1 frame 1))) ; 1 = "all frames"
+      ((eq frame last) (nreverse frames))
+    (unless (boring-frame-p frame)
+      (push frame frames))))
+
+(defun boring-frame-p (frame)
+  (member (frame-type frame) '(stack-value bind-var bind-env)))
+
+(defun frame-to-string (frame)
+  (with-output-to-string (s) 
+    (sys::describe-frame s frame)))
+
+(defun frame-type (frame)
+  ;; FIXME: should bind *print-length* etc. to small values.
+  (frame-string-type (frame-to-string frame)))
+
+(defvar *frame-prefixes*
+  '(("frame binding variables" bind-var)
+    ("<1> #<compiled-function" compiled-fun)
+    ("<1> #<system-function" sys-fun)
+    ("<1> #<special-operator" special-op)
+    ("EVAL frame" eval)
+    ("APPLY frame" apply)
+    ("compiled tagbody frame" compiled-tagbody)
+    ("compiled block frame" compiled-block)
+    ("block frame" block)
+    ("nested block frame" block)
+    ("tagbody frame" tagbody)
+    ("nested tagbody frame" tagbody)
+    ("catch frame" catch)
+    ("handler frame" handler)
+    ("unwind-protect frame" unwind-protect)
+    ("driver frame" driver)
+    ("frame binding environments" bind-env)
+    ("CALLBACK frame" callback)
+    ("- " stack-value)
+    ("<1> " fun)
+    ("<2> " 2nd-frame)))
+
+(defun frame-string-type (string)
+  (cadr (assoc-if (lambda (pattern) (is-prefix-p pattern string))
+		  *frame-prefixes*)))
 
 (defimplementation compute-backtrace (start end)
   (let* ((bt *sldb-backtrace*)
@@ -313,72 +312,137 @@ Return NIL if the symbol is unbound."
     (subseq bt start (min (or end len) len))))
 
 (defimplementation print-frame (frame stream)
-  (let ((desc (cdr frame)))
-    (write-string (subseq (cdr frame)
-			  (+ (position #\> desc) 2)
-			  (position #\newline desc))
+  (let ((str (frame-to-string frame)))
+    ;;(format stream "~a " (frame-string-type str))
+    (write-string (extract-frame-line str) 
 		  stream)))
+
+(defun extract-frame-line (frame-string)
+  (let ((s frame-string))
+    (trim-whitespace
+     (case (frame-string-type s)
+       ((eval special-op)
+	(string-match "EVAL frame .*for form \\(.*\\)" s 1))
+       (apply
+	(string-match "APPLY frame for call \\(.*\\)" s 1))
+       ((compiled-fun sys-fun fun)
+	(extract-function-name s))
+       (t s)))))
+
+(defun extract-function-name (string)
+  (let ((1st (car (split-frame-string string))))
+    (or (string-match (format nil "^<1>[ ~%]*#<[-A-Za-z]* \\(.*\\)>")
+		      1st
+		      1)
+	(string-match (format nil "^<1>[ ~%]*\\(.*\\)") 1st 1)
+	1st)))
+
+(defun split-frame-string (string)
+  (let ((rx (format nil "~%\\(~{~a~^\\|~}\\)"
+		    (mapcar #'car *frame-prefixes*))))
+    (loop for pos = 0 then (1+ (regexp:match-start match))
+	  for match = (regexp:match rx string :start pos)
+	  if match collect (subseq string pos (regexp:match-start match))
+	  else collect (subseq string pos)
+	  while match)))
+
+(defun string-match (pattern string n)
+  (let* ((match (nth-value n (regexp:match pattern string))))
+    (if match (regexp:match-string string match))))
 
 (defimplementation format-sldb-condition (condition)
   (trim-whitespace (princ-to-string condition)))
 
 (defimplementation eval-in-frame (form frame-number)
-  (sys::eval-at (car (nth-frame frame-number)) form))
+  (sys::eval-at (nth-frame frame-number) form))
 
-;; Don't know how to access locals.  Return some strings instead.
-;; Maybe we should search some frame nearby with a 'sys::the-environment?
 (defimplementation frame-locals (frame-number) 
-  (let ((desc (cdr (nth-frame frame-number))))
-    (list (list :name :|| :id 0
-		:value (trim-whitespace 
-			(subseq desc (position #\newline desc)))))))
+  (let ((frame (nth-frame frame-number)))
+    (loop for i below (%frame-count-vars frame)
+	  collect (list :name (%frame-var-name frame i)
+			:value (%frame-var-value frame i)
+			:id 0))))
 
-(defimplementation frame-var-value (frame var) nil)
+(defimplementation frame-var-value (frame var)
+  (%frame-var-value (nth-frame frame) var))
 
 ;; Interpreter-Variablen-Environment has the shape
 ;; NIL or #(v1 val1 ... vn valn NEXT-ENV).
 
-(defun frame-do-venv (frame venv)
-  (loop for i from 1 below (length venv) by 2
-	as symbol = (svref venv (1- i))
-	and value = (svref venv i)
-	collect (list :name symbol :id 0
-		      :value (if (eq sys::specdecl value)
-                                 ;; special variable
-                                 (sys::eval-at frame symbol)
-                                 ;; lexical variable or symbol macro
-                                 value))))
+(defun %frame-count-vars (frame)
+  (cond ((sys::eval-frame-p frame)
+	 (do ((venv (frame-venv frame) (next-venv venv))
+	      (count 0 (+ count (/ (1- (length venv)) 2))))
+	     ((not venv) count)))
+	((member (frame-type frame) '(compiled-fun sys-fun fun special-op))
+	 (length (%parse-stack-values frame)))
+	(t 0)))
 
-(defun frame-do-fenv (frame fenv)
-  (declare (ignore frame fenv))
-  nil)
+(defun %frame-var-name (frame i)
+  (cond ((sys::eval-frame-p frame)
+	 (nth-value 0 (venv-ref (frame-venv frame) i)))
+	(t (format nil "~D" i))))
 
-(defun frame-do-benv (frame benv)
-  (declare (ignore frame benv))
-  nil)
+(defun %frame-var-value (frame i)
+  (cond ((sys::eval-frame-p frame)
+	 (let ((name (venv-ref (frame-venv frame) i)))
+	   (multiple-value-bind (v c) (ignore-errors (sys::eval-at frame name))
+	     (if c
+		 (format-sldb-condition c)
+		 v))))
+	((member (frame-type frame) '(compiled-fun sys-fun fun special-op))
+	 (let ((str (nth i (%parse-stack-values frame))))
+	   (trim-whitespace (subseq str 2))))
+	(t (break "Not implemented"))))
 
-(defun frame-do-genv (frame genv)
-  (declare (ignore frame genv))
-  nil)
+(defun frame-venv (frame)
+  (let ((env (sys::eval-at frame '(sys::the-environment))))
+    (svref env 0)))
 
-(defun frame-do-denv (frame denv)
-  (declare (ignore frame denv))
-  nil)
+(defun next-venv (venv) (svref venv (1- (length venv))))
+
+(defun venv-ref (env i)
+  "Reference the Ith binding in ENV.
+Return two values: NAME and VALUE"
+  (let ((idx (* i 2)))
+    (if (< idx (1- (length env)))
+	(values (svref env idx) (svref env (1+ idx)))
+	(venv-ref (next-venv env) (- i (/ (1- (length env)) 2))))))
+
+(defun %parse-stack-values (frame)
+  (labels ((next (fp) (sys::frame-down-1 fp 1))
+	   (parse (fp accu)
+	     (let ((str (frame-to-string fp)))
+	       (cond ((is-prefix-p "- " str)
+		      (parse  (next fp) (cons str accu)))
+		     ((is-prefix-p "<1> " str)
+		      ;;(when (eq (frame-type frame) 'compiled-fun)
+		      ;;  (pop accu))
+		      (dolist (str (cdr (split-frame-string str)))
+			(when (is-prefix-p "- " str)
+			  (push str accu)))
+		      (nreverse accu))
+		     (t (parse (next fp) accu))))))
+    (parse (next frame) '())))
+
+(defun is-prefix-p (pattern string)
+  (not (mismatch pattern string :end2 (min (length pattern)
+					   (length string)))))
 
 (defimplementation frame-catch-tags (index)
   (declare (ignore index))
   nil)
 
 (defimplementation return-from-frame (index form)
-  (sys::return-from-eval-frame (car (nth-frame index)) form))
+  (sys::return-from-eval-frame (nth-frame index) form))
 
 (defimplementation restart-frame (index)
-  (sys::redo-eval-frame (car (nth-frame index))))
+  (sys::redo-eval-frame (nth-frame index)))
 
 (defimplementation frame-source-location-for-emacs (index)
   `(:error 
     ,(format nil "frame-source-location not implemented. (frame: ~A)" 
-	     (car (nth-frame index)))))
+	     (nth-frame index))))
 
 ;;; Profiling
 
@@ -555,8 +619,7 @@ Execute BODY with NAME's function slot set to FUNCTION."
 
 ;;; Inspecting
 
-(defclass clisp-inspector (inspector)
-  ())
+(defclass clisp-inspector (inspector) ())
 
 (defimplementation make-default-inspector ()
   (make-instance 'clisp-inspector))
@@ -577,16 +640,25 @@ Execute BODY with NAME's function slot set to FUNCTION."
 		      (sys::insp-title inspection)
 		      (sys::insp-blurb inspection))
               (loop with count = (sys::insp-num-slots inspection)
-                    for i upto count
-		    for (value name) = (multiple-value-list 
-					(funcall (sys::insp-nth-slot 
-						  inspection) i))
-		    collect `((:value ,name) " = " (:value ,value) 
-			      (:newline)))))))
+                    for i below count 
+		    append (multiple-value-bind (value name)
+			       (funcall (sys::insp-nth-slot inspection) 
+					i)
+			     `((:value ,name) " = " (:value ,value) 
+			       (:newline))))))))
 
 (defimplementation quit-lisp ()
   #+lisp=cl (ext:quit)
   #-lisp=cl (lisp:quit))
+
+
+;;;; Weak hashtables
+
+(defimplementation make-weak-key-hash-table (&rest args)
+  (apply #'make-hash-table :weak :key args))
+
+(defimplementation make-weak-value-hash-table (&rest args)
+  (apply #'make-hash-table :weak :value args))
 
 ;;; Local Variables:
 ;;; eval: (put 'compile-file-frobbing-notes 'lisp-indent-function 1)

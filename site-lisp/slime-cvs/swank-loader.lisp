@@ -130,11 +130,11 @@ Return nil if nothing appropriate is available."
                                     :type (pathname-type cfp))
                      binary-directory)))
 
-
 (defun handle-loadtime-error (condition binary-pathname)
-  (format *error-output*
-          "~%~<;; ~@;Error while loading: ~A~%  Condition: ~A~%Aborting.~:>~%"
-          (list binary-pathname condition))
+  (pprint-logical-block (*error-output* () :per-line-prefix ";; ")
+    (format *error-output*
+            "~%Error while loading: ~A~%Condition: ~A~%Aborting.~%"
+            binary-pathname condition))
   (when (equal (directory-namestring binary-pathname)
                (directory-namestring (default-fasl-directory)))
     (ignore-errors (delete-file binary-pathname)))
@@ -144,27 +144,26 @@ Return nil if nothing appropriate is available."
   "Compile each file in FILES if the source is newer than
 its corresponding binary, or the file preceding it was
 recompiled."
-  (with-compilation-unit ()
-    (let ((needs-recompile nil))
-      (dolist (source-pathname files)
-        (let ((binary-pathname (binary-pathname source-pathname
-                                                fasl-directory)))
-          (handler-case
-              (progn
-                (when (or needs-recompile
-                          (not (probe-file binary-pathname))
-                          (file-newer-p source-pathname binary-pathname))
-                  ;; need a to recompile source-pathname, so we'll
-                  ;; need to recompile everything after this too.
-                  (setq needs-recompile t)
-                  (ensure-directories-exist binary-pathname)
-                  (compile-file source-pathname :output-file binary-pathname
-                                :print nil
-                                :verbose t))
-                (load binary-pathname :verbose t))
-            ;; Fail as early as possible
-            (serious-condition (c)
-              (handle-loadtime-error c binary-pathname))))))))
+  (let ((needs-recompile nil))
+    (dolist (source-pathname files)
+      (let ((binary-pathname (binary-pathname source-pathname
+                                              fasl-directory)))
+        (handler-case
+            (progn
+              (when (or needs-recompile
+                        (not (probe-file binary-pathname))
+                        (file-newer-p source-pathname binary-pathname))
+                ;; need a to recompile source-pathname, so we'll
+                ;; need to recompile everything after this too.
+                (setq needs-recompile t)
+                (ensure-directories-exist binary-pathname)
+                (compile-file source-pathname :output-file binary-pathname
+                              :print nil
+                              :verbose t))
+              (load binary-pathname :verbose t))
+          ;; Fail as early as possible
+          (serious-condition (c)
+            (handle-loadtime-error c binary-pathname)))))))
 
 #+(or cormanlisp ecl)
 (defun compile-files-if-needed-serially (files fasl-directory)

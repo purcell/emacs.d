@@ -930,3 +930,5 @@ out IDs for.")
 (defimplementation make-weak-value-hash-table (&rest args)
   (apply #'make-hash-table :weak :value args))
 
+(defimplementation hash-table-weakness (hashtable)
+  (ccl::hash-table-weak-p ht))

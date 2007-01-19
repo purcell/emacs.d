@@ -18,9 +18,12 @@
            #:start-server 
            #:create-server
            #:ed-in-emacs
+           #:inspect-in-emacs
            #:print-indentation-lossage
            #:swank-debugger-hook
            #:run-after-init-hook
+           #:inspect-for-emacs
+           #:inspect-slot-for-emacs
            ;; These are user-configurable variables:
            #:*communication-style*
            #:*dont-close*
@@ -37,6 +40,7 @@
            #:*default-worker-thread-bindings*
            #:*macroexpand-printer-bindings*
            #:*record-repl-results*
+           #:*inspector-dwim-lookup-hooks*
            ;; These are re-exported directly from the backend:
            #:buffer-first-change
            #:frame-source-location-for-emacs
@@ -87,7 +91,7 @@
 Redirection is done while Lisp is processing a request for Emacs.")
 
 (defvar *sldb-printer-bindings*
-  `((*print-pretty*           . nil)
+  `((*print-pretty*           . t)
     (*print-level*            . 4)
     (*print-length*           . 10)
     (*print-circle*           . t)
@@ -97,8 +101,9 @@ Redirection is done while Lisp is processing a request for Emacs.")
     (*print-base*             . 10)
     (*print-radix*            . nil)
     (*print-array*            . t)
-    (*print-lines*            . 200)
-    (*print-escape*           . t))
+    (*print-lines*            . 10)
+    (*print-escape*           . t)
+    (*print-right-margin*     . 70))
   "A set of printer variables used in the debugger.")
 
 (defvar *default-worker-thread-bindings* '()
@@ -194,6 +199,8 @@ Backend code should treat the connection structure as opaque.")
   (user-input       nil :type (or stream null))
   (user-output      nil :type (or stream null))
   (user-io          nil :type (or stream null))
+  ;; A stream where we send REPL results.
+  (repl-results     nil :type (or stream null))
   ;; In multithreaded systems we delegate certain tasks to specific
   ;; threads. The `reader-thread' is responsible for reading network
   ;; requests from Emacs and sending them to the `control-thread'; the
@@ -264,7 +271,7 @@ recently established one."
 (defun make-swank-error (condition)
   (let ((bt (ignore-errors 
               (call-with-debugging-environment 
-               (lambda ()(backtrace 0 nil))))))
+               (lambda () (backtrace 0 nil))))))
     (make-condition 'swank-error :condition condition :backtrace bt)))
 
 (add-hook *new-connection-hook* 'notify-backend-of-connection)
@@ -514,8 +521,8 @@ if the file doesn't exist; otherwise the first line of the file."
     (force-output *debug-io*)))
 
 (defun open-streams (connection)
-  "Return the 4 streams for IO redirection:
-DEDICATED-OUTPUT INPUT OUTPUT IO"
+  "Return the 5 streams for IO redirection:
+DEDICATED-OUTPUT INPUT OUTPUT IO REPL-RESULTS"
   (multiple-value-bind (output-fn dedicated-output) 
       (make-output-function connection)
     (let ((input-fn
@@ -528,7 +535,14 @@ DEDICATED-OUTPUT INPUT OUTPUT IO"
         (let ((out (or dedicated-output out)))
           (let ((io (make-two-way-stream in out)))
             (mapc #'make-stream-interactive (list in out io))
-            (values dedicated-output in out io)))))))
+            (let* ((repl-results-fn
+                    (make-output-function-for-target connection :repl-result))
+                   (repl-results
+                    (nth-value 1 (make-fn-streams 
+                                  (lambda ()
+                                    (error "Should never be called"))
+                                  repl-results-fn))))
+              (values dedicated-output in out io repl-results))))))))
 
 (defun make-output-function (connection)
   "Create function to send user output to Emacs.
@@ -548,6 +562,14 @@ stream (or NIL if none was created)."
                       (abort "Abort sending output to Emacs.")
                     (send-to-emacs `(:write-string ,string)))))
               nil)))
+
+(defun make-output-function-for-target (connection target)
+  "Create a function to send user output to a specific TARGET in Emacs."
+  (lambda (string) 
+    (with-connection (connection)
+      (with-simple-restart
+          (abort "Abort sending output to Emacs.")
+        (send-to-emacs `(:write-string ,string nil ,target))))))
 
 (defun open-dedicated-output-stream (socket-io)
   "Open a dedicated output connection to the Emacs on SOCKET-IO.
@@ -573,14 +595,18 @@ This is an optimized way for Lisp to deliver output to Emacs."
       (when socket
         (close-socket socket)))))
 
+(defvar *sldb-quit-restart* 'abort
+  "What restart should swank attempt to invoke when the user sldb-quits.")
+
 (defun handle-request (connection)
   "Read and process one request.  The processing is done in the extent
 of the toplevel restart."
   (assert (null *swank-state-stack*))
   (let ((*swank-state-stack* '(:handle-request)))
     (with-connection (connection)
-      (with-simple-restart (abort-request "Abort handling SLIME request.")
-        (read-from-emacs)))))
+      (with-simple-restart (abort "Return to SLIME's top level.")
+        (let ((*sldb-quit-restart* (find-restart 'abort)))
+          (read-from-emacs))))))
 
 (defun current-socket-io ()
   (connection.socket-io *emacs-connection*))
@@ -728,7 +754,7 @@ of the toplevel restart."
      (send (find-thread thread-id) `(take-input ,tag ,value)))
     (((:write-string :presentation-start :presentation-end
                      :new-package :new-features :ed :%apply :indentation-update
-                     :eval-no-wait :background-message)
+                     :eval-no-wait :background-message :inspect)
       &rest _)
      (declare (ignore _))
      (encode-message event socket-io))))
@@ -870,17 +896,19 @@ of the toplevel restart."
       (((:write-string :new-package :new-features :debug-condition
                        :presentation-start :presentation-end
                        :indentation-update :ed :%apply :eval-no-wait
-                       :background-message)
+                       :background-message :inspect)
         &rest _)
        (declare (ignore _))
        (send event)))))
 
 (defun initialize-streams-for-connection (connection)
-  (multiple-value-bind (dedicated in out io) (open-streams connection)
+  (multiple-value-bind (dedicated in out io repl-results) 
+      (open-streams connection)
     (setf (connection.dedicated-output connection) dedicated
           (connection.user-io connection)          io
           (connection.user-output connection)      out
-          (connection.user-input connection)       in)
+          (connection.user-input connection)       in
+          (connection.repl-results connection)     repl-results)
     connection))
 
 (defun create-connection (socket-io style)
@@ -1187,7 +1215,7 @@ numbers.
 
 Characters are converted emacs' ?<char> notaion, strings are left
 as they are (except for espacing any nested \" chars, numbers are
-printed in base 10 and symbols are printed as their symbol-nome
+printed in base 10 and symbols are printed as their symbol-name
 converted to lower case."
   (etypecase form
     (string (format nil "~S" form))
@@ -1195,7 +1223,10 @@ converted to lower case."
                   (process-form-for-emacs (car form))
                   (process-form-for-emacs (cdr form))))
     (character (format nil "?~C" form))
-    (symbol (string-downcase (symbol-name form)))
+    (symbol (concatenate 'string (when (eq (symbol-package form)
+                                           #.(find-package "KEYWORD"))
+                                   ":")
+                         (string-downcase (symbol-name form))))
     (number (let ((*print-base* 10))
               (princ-to-string form)))))
 
@@ -1214,6 +1245,25 @@ converted to lower case."
            (destructure-case value
              ((:ok value) value)
              ((:abort) (abort)))))))
+
+(defun present-in-emacs (value-or-values &key (separated-by " "))
+  "Present VALUE in the Emacs repl buffer of the current thread."
+  (unless (consp value-or-values)
+    (setf value-or-values (list value-or-values)))
+  (flet ((present (value)
+           (if (stringp value)
+               (send-to-emacs `(:write-string ,value))
+               (let ((id (save-presented-object value)))
+                 (send-to-emacs `(:write-string ,(prin1-to-string value) ,id))))))
+    (map nil (let ((first-time-p t))
+               (lambda (value)
+                 (when (and (not first-time-p)
+                            separated-by)
+                   (present separated-by))
+                 (present value)
+                 (setf first-time-p nil)))
+         value-or-values))
+  (values))
 
 (defvar *swank-wire-protocol-version* nil
   "The version of the swank/slime communication protocol.")
@@ -2459,7 +2509,9 @@ Errors are trapped and invoke our debugger."
              (let ((i (car values)))
                (format nil "~A~D (#x~X, #o~O, #b~B)" 
                        *echo-area-prefix* i i i i)))
-            (t (format nil "~A~{~S~^, ~}" *echo-area-prefix* values))))))
+            (t (with-output-to-string (s)
+                 (pprint-logical-block (s values :prefix *echo-area-prefix*)
+                   (format s "~{~S~^, ~}" values))))))))
 
 (defslimefun interactive-eval (string)
   (with-buffer-syntax ()
@@ -2614,11 +2666,17 @@ Return its name and the string to use in the prompt."
   (let ((p (setq *package* (guess-package-from-string package))))
     (list (package-name p) (package-string-for-prompt p))))
 
-(defun make-presentations-result (values)
-  ;; overridden in present.lisp
-  `(:present ,(loop for x in values 
-                    collect (cons (prin1-to-string x) 
-                                  (save-presented-object x)))))
+(defun send-repl-results-to-emacs (values)
+  (flet ((send (value)
+           (let ((id (and *record-repl-results*
+                          (save-presented-object value))))
+             (send-to-emacs `(:write-string ,(prin1-to-string value)
+                              ,id :repl-result))
+             (send-to-emacs `(:write-string ,(string #\Newline) 
+                              nil :repl-result)))))
+    (if (null values)
+        (send-to-emacs `(:write-string "; No value" nil :repl-result))
+        (mapc #'send values))))
 
 (defslimefun listener-eval (string)
   (clear-user-input)
@@ -2631,11 +2689,9 @@ Return its name and the string to use in the prompt."
 	  (setq *** **  ** *  * (car values)
 		/// //  // /  / values))
 	(setq +++ ++  ++ +  + last-form)
-        (cond ((eq *slime-repl-suppress-output* t) '(:suppress-output))
-              (*record-repl-results*
-               (make-presentations-result values))
-              (t 
-               `(:values ,(mapcar #'prin1-to-string values))))))))
+        (unless (eq *slime-repl-suppress-output* t)
+          (send-repl-results-to-emacs values)))))
+  nil)
 
 (defslimefun ed-in-emacs (&optional what)
   "Edit WHAT in Emacs.
@@ -2663,6 +2719,20 @@ Returns true if it actually called emacs, or NIL if not."
          (with-connection ((default-connection))
            (send-oob-to-emacs `(:ed ,target))))
         (t nil)))))
+
+(defslimefun inspect-in-emacs (what)
+  "Inspect WHAT in Emacs."
+  (flet ((send-it ()
+           (with-buffer-syntax ()
+             (reset-inspector)
+             (send-oob-to-emacs `(:inspect ,(inspect-object what))))))
+    (cond 
+      (*emacs-connection*
+       (send-it))
+      ((default-connection)
+       (with-connection ((default-connection))
+         (send-it))))
+    what))
 
 (defslimefun value-for-editing (form)
   "Return a readable value of FORM for editing in Emacs.
@@ -2731,9 +2801,6 @@ after Emacs causes a restart to be invoked."
 (defvar *sldb-stepping-p* nil
   "True during execution of a step command.")
 
-(defvar *sldb-quit-restart* 'abort-request
-  "What restart should swank attempt to invoke when the user sldb-quits.")
-
 (defun debug-in-emacs (condition)
   (let ((*swank-debugger-condition* condition)
         (*sldb-restarts* (compute-restarts condition))
@@ -2744,9 +2811,10 @@ after Emacs causes a restart to be invoked."
         (*sldb-stepping-p* nil)
         (*swank-state-stack* (cons :swank-debugger-hook *swank-state-stack*)))
     (force-user-output)
-    (with-bindings *sldb-printer-bindings*
-      (call-with-debugging-environment
-       (lambda () (sldb-loop *sldb-level*))))))
+    (call-with-debugging-environment
+     (lambda () 
+       (with-bindings *sldb-printer-bindings*
+         (sldb-loop *sldb-level*))))))
 
 (defun sldb-loop (level)
   (unwind-protect
@@ -2794,16 +2862,11 @@ printing."
 (defun format-restarts-for-emacs ()
   "Return a list of restarts for *swank-debugger-condition* in a
 format suitable for Emacs."
-  (loop for restart in *sldb-restarts*
-	collect (list (princ-to-string (restart-name restart))
-		      (princ-to-string restart))))
+  (let ((*print-right-margin* most-positive-fixnum))
+    (loop for restart in *sldb-restarts*
+          collect (list (princ-to-string (restart-name restart))
+                        (princ-to-string restart)))))
 
-(defun frame-for-emacs (n frame)
-  (let* ((label (format nil " ~2D: " n))
-         (string (with-output-to-string (stream) 
-                     (princ label stream) 
-                     (print-frame frame stream))))
-    (subseq string (length label))))
 
 ;;;;; SLDB entry points
 
@@ -2816,7 +2879,8 @@ format suitable for Emacs."
 I is an integer describing and FRAME a string."
   (loop for frame in (compute-backtrace start end)
         for i from start
-        collect (list i (frame-for-emacs i frame))))
+        collect (list i (with-output-to-string (stream)
+                          (print-frame frame stream)))))
 
 (defslimefun debugger-info-for-emacs (start end)
   "Return debugger state, with stack frames from START to END.
@@ -2850,8 +2914,8 @@ Operation was KERNEL::DIVISION, operands (1 0).\"
   ((0 \"(KERNEL::INTEGER-/-INTEGER 1 0)\"))
   (4))"
   (list (debugger-condition-for-emacs)
-	(format-restarts-for-emacs)
-	(backtrace start end)
+        (format-restarts-for-emacs)
+        (backtrace start end)
         *pending-continuations*))
 
 (defun nth-restart (index)
@@ -3018,18 +3082,36 @@ Record compiler notes signalled as `compiler-condition's."
 
 (defslimefun list-all-systems-in-central-registry ()
   "Returns a list of all systems in ASDF's central registry."
-  (delete-duplicates
-    (loop for dir in (asdf-central-registry)
-          for defaults = (eval dir)
-          when defaults
-            nconc (mapcar #'file-namestring
-                            (directory
-                              (make-pathname :defaults defaults
-                                             :version :newest
-                                             :type "asd"
-                                             :name :wild
-                                             :case :local))))
-    :test #'string=))
+  (mapcar #'pathname-name
+          (delete-duplicates
+           (loop for dir in (asdf-central-registry)
+                 for defaults = (eval dir)
+                 when defaults
+                   nconc (mapcar #'file-namestring
+                                   (directory
+                                     (make-pathname :defaults defaults
+                                          :version :newest
+                                          :type "asd"
+                                          :name :wild
+                                          :case :local))))
+           :test #'string=)))
+
+(defslimefun list-all-systems-known-to-asdf ()
+  "Returns a list of all systems ASDF knows already."
+  (unless (find-package :asdf)
+    (error "ASDF not loaded"))
+  ;; ugh, yeah, it's unexported - but do we really expect this to
+  ;; change anytime soon?
+  (loop for name being the hash-keys of (read-from-string 
+                                         "#.asdf::*defined-systems*")
+        collect name))
+
+(defslimefun list-asdf-systems ()
+  "Returns the systems in ASDF's central registry and those which ASDF
+already knows."
+  (nunion (list-all-systems-known-to-asdf)
+          (list-all-systems-in-central-registry)
+          :test #'string=))
   
 (defun file-newer-p (new-file old-file)
   "Returns true if NEW-FILE is newer than OLD-FILE."
@@ -3237,7 +3319,7 @@ Returns a list of completions with package qualifiers if needed."
 INPUT is used to guess the preferred case."
   (ecase (readtable-case *readtable*)
     (:upcase (cond ((or with-escaping-p
-                        (every #'upper-case-p input))
+                        (not (some #'lower-case-p input)))
                     #'identity)
                    (t #'string-downcase)))
     (:invert (lambda (output)
@@ -3247,7 +3329,7 @@ INPUT is used to guess the preferred case."
                        (upper (string-downcase output))
                        (t output)))))
     (:downcase (cond ((or with-escaping-p
-                          (every #'lower-case-p input))
+                          (not (some #'upper-case-p input)))
                       #'identity)
                      (t #'string-upcase)))
     (:preserve #'identity)))
@@ -3264,7 +3346,7 @@ INPUT is used to guess the preferred case. Escape symbols when needed."
         (case-converter-with-escaping (completion-output-case-converter input t)))
     (lambda (str)
       (if (some (lambda (el)
-                  (member el '(#\: #\. #\  #\Newline #\Tab)))
+                  (member el '(#\: #\, #\  #\Newline #\Tab)))
                 str)
           (concatenate 'string "|" (funcall case-converter-with-escaping str) "|")
           (funcall case-converter str)))))
@@ -3611,7 +3693,7 @@ this call will also recurse.
 
 Once a word has been completely matched, the chunks are pushed
 onto the special variable *ALL-CHUNKS* and the function returns."
-  (declare ;;(optimize speed)
+  (declare ;(optimize speed)
            (fixnum short-index initial-full-index)
            (simple-string short full)
            (special *all-chunks*))
@@ -3722,7 +3804,8 @@ matches, all other things being equal."
              (if (zerop chunk-pos) 
                  base-score 
                  (max base-score 
-                      (* (score-char (1- pos) (1- chunk-pos)) 0.85))))
+                      (+ (* (score-char (1- pos) (1- chunk-pos)) 0.85)
+                         (expt 1.2 chunk-pos)))))
            (score-char (pos chunk-pos)
              (score-or-percentage-of-previous
               (cond ((at-beginning-p pos)         10)
@@ -4169,15 +4252,24 @@ NIL is returned if the list is circular."
             ("Test" (hash-table-test ht))
             ("Rehash size" (hash-table-rehash-size ht))
             ("Rehash threshold" (hash-table-rehash-threshold ht)))
-           '("Contents: " (:newline))
+           (let ((weakness (hash-table-weakness ht)))
+             (when weakness
+               `("Weakness: " (:value ,weakness) (:newline))))
+           (unless (zerop (hash-table-count ht))
+             `((:action "[clear hashtable]" ,(lambda () (clrhash ht))) (:newline)
+               "Contents: " (:newline)))
 	   (if (and *slime-inspect-contents-limit*
 		    (>= (hash-table-count ht) *slime-inspect-contents-limit*))
 	       (inspect-bigger-piece-actions ht (hash-table-count ht))
 	       nil)
            (loop for key being the hash-keys of ht
-	      for value being the hash-values of ht
-	      repeat (or *slime-inspect-contents-limit* most-positive-fixnum)
-	      append `((:value ,key) " = " (:value ,value) (:newline))))))
+                 for value being the hash-values of ht
+                 repeat (or *slime-inspect-contents-limit* most-positive-fixnum)
+                 append `((:value ,key) " = " (:value ,value)
+                          " " (:action "[remove entry]"
+                               ,(let ((key key))
+                                  (lambda () (remhash key ht))))
+                          (:newline))))))
 
 (defmethod inspect-bigger-piece-actions (thing size)
   (append 
@@ -4357,21 +4449,11 @@ NIL is returned if the list is circular."
 	  (swank-mop:method-qualifiers method)
 	  (method-specializers-for-inspect method)))
 
-(defmethod inspect-for-emacs ((o standard-object) inspector)
-  (declare (ignore inspector))
-  (let ((c (class-of o)))
+(defmethod inspect-for-emacs ((object standard-object) inspector)
+  (let ((class (class-of object)))
     (values "An object."
-            `("Class: " (:value ,c) (:newline)
-              "Slots:" (:newline)
-              ,@(loop for slotd in (swank-mop:class-slots c)
-                      for name = (swank-mop:slot-definition-name slotd)
-                      collect `(:value ,slotd ,(string name))
-                      collect " = "
-                      collect (if (slot-boundp-using-class-for-inspector c o slotd)
-                                  `(:value ,(slot-value-using-class-for-inspector 
-                                             c o slotd))
-                                  "#<unbound>")
-                      collect '(:newline))))))
+            `("Class: " (:value ,class) (:newline)
+              ,@(all-slots-for-inspector object inspector)))))
 
 (defvar *gf-method-getter* 'methods-by-applicability
   "This function is called to get the methods of a generic function.
@@ -4394,13 +4476,12 @@ See `methods-by-applicability'.")
 
 `method-specializer<' is used for sorting."
   ;; FIXME: argument-precedence-order and qualifiers are ignored.  
-  (let ((methods (copy-list (swank-mop:generic-function-methods gf))))
-    (labels ((method< (meth1 meth2)
-	       (loop for s1 in (swank-mop:method-specializers meth1)
-		     for s2 in (swank-mop:method-specializers meth2) 
-		     do (cond ((specializer< s2 s1) (return nil))
-			      ((specializer< s1 s2) (return t))))))
-      (stable-sort methods #'method<))))
+  (labels ((method< (meth1 meth2)
+             (loop for s1 in (swank-mop:method-specializers meth1)
+                   for s2 in (swank-mop:method-specializers meth2)
+                   do (cond ((specializer< s2 s1) (return nil))
+                            ((specializer< s1 s2) (return t))))))
+    (stable-sort (copy-seq (swank-mop:generic-function-methods gf)) #'method<)))
 
 (defun abbrev-doc (doc &optional (maxlen 80))
   "Return the first sentence of DOC, but not more than MAXLAN characters."
@@ -4408,40 +4489,67 @@ See `methods-by-applicability'.")
 		     maxlen
 		     (length doc))))
 
-(defgeneric slot-value-using-class-for-inspector (class object slot)
+(defgeneric inspect-slot-for-emacs (class object slot)
   (:method (class object slot)
-           (swank-mop:slot-value-using-class class object slot)))
-
-(defgeneric slot-boundp-using-class-for-inspector (class object slot)
-  (:method (class object slot)
-           (swank-mop:slot-boundp-using-class class object slot)))
+           (let ((slot-name (swank-mop:slot-definition-name slot))
+                 (boundp (swank-mop:slot-boundp-using-class class object slot)))
+             `(,@(if boundp
+                     `((:value ,(swank-mop:slot-value-using-class class object slot)))
+                     `("#<unbound>"))
+               " "
+               (:action "[set value]"
+                ,(lambda () (with-simple-restart
+                                (abort "Abort setting slot ~S" slot-name)
+                              (let ((value-string (eval-in-emacs
+                                                   `(condition-case c
+                                                     (slime-read-object
+                                                      ,(format nil "Set slot ~S to (evaluated) : " slot-name))
+                                                     (quit nil)))))
+                                (when (and value-string
+                                           (not (string= value-string "")))
+                                  (setf (swank-mop:slot-value-using-class class object slot)
+                                        (eval (read-from-string value-string))))))))
+               ,@(when boundp
+                   `(" " (:action "[make unbound]"
+                          ,(lambda () (swank-mop:slot-makunbound-using-class class object slot)))))))))
 
 (defgeneric all-slots-for-inspector (object inspector)
   (:method ((object standard-object) inspector)
     (declare (ignore inspector))
-    (append '("------------------------------" (:newline)
+    (append '("--------------------" (:newline)
               "All Slots:" (:newline))
-            (loop
-               with class = (class-of object)
-               with direct-slots = (swank-mop:class-direct-slots (class-of object))
-               for slot in (swank-mop:class-slots (class-of object))
-               for slot-def = (or (find-if (lambda (a)
-                                             ;; find the direct slot
-                                             ;; with the same name
-                                             ;; as SLOT (an
-                                             ;; effective slot).
-                                             (eql (swank-mop:slot-definition-name a)
-                                                  (swank-mop:slot-definition-name slot)))
-                                           direct-slots)
-                                  slot)
-               collect `(:value ,slot-def ,(inspector-princ (swank-mop:slot-definition-name slot-def)))
-               collect " = "
-               if (slot-boundp-using-class-for-inspector class object slot)
-               collect `(:value ,(slot-value-using-class-for-inspector
-                                  (class-of object) object slot))
-               else
-               collect "#<unbound>"
-               collect '(:newline)))))
+            (let* ((class (class-of object))
+                   (direct-slots (swank-mop:class-direct-slots class))
+                   (effective-slots (sort (copy-seq (swank-mop:class-slots class))
+                                          #'string< :key #'swank-mop:slot-definition-name))
+                   (slot-presentations (loop for effective-slot :in effective-slots
+                                             collect (inspect-slot-for-emacs
+                                                      class object effective-slot)))
+                   (longest-slot-name-length
+                    (loop for slot :in effective-slots
+                          maximize (length (symbol-name
+                                            (swank-mop:slot-definition-name slot))))))
+              (loop
+                  for effective-slot :in effective-slots
+                  for slot-presentation :in slot-presentations
+                  for direct-slot = (find (swank-mop:slot-definition-name effective-slot)
+                                          direct-slots :key #'swank-mop:slot-definition-name)
+                  for slot-name = (inspector-princ
+                                   (swank-mop:slot-definition-name effective-slot))
+                  for padding-length = (- longest-slot-name-length
+                                          (length (symbol-name
+                                                   (swank-mop:slot-definition-name
+                                                    effective-slot))))
+                  collect `(:value ,(if direct-slot
+                                        (list direct-slot effective-slot)
+                                        effective-slot)
+                            ,slot-name)
+                  collect (make-array padding-length
+                                      :element-type 'character
+                                      :initial-element #\Space)
+                  collect " = "
+                  append slot-presentation
+                  collect '(:newline))))))
 
 (defmethod inspect-for-emacs ((gf standard-generic-function) inspector)
   (flet ((lv (label value) (label-value-line label value)))
@@ -4528,7 +4636,7 @@ See `methods-by-applicability'.")
             ,@(when (swank-mop:specializer-direct-methods class)
                `("It is used as a direct specializer in the following methods:" (:newline)
                  ,@(loop
-                      for method in (sort (copy-list (swank-mop:specializer-direct-methods class))
+                      for method in (sort (copy-seq (swank-mop:specializer-direct-methods class))
                                           #'string< :key (lambda (x)
                                                            (symbol-name
                                                             (let ((name (swank-mop::generic-function-name
@@ -4580,16 +4688,17 @@ See `methods-by-applicability'.")
     (values "A package."
             `("Name: " (:value ,(package-name package))
               (:newline)
-              "Nick names: " ,@(common-seperated-spec (sort (package-nicknames package) #'string-lessp))
+              "Nick names: " ,@(common-seperated-spec (sort (copy-seq (package-nicknames package))
+                                                            #'string-lessp))
               (:newline)
               ,@(when (documentation package t)
                   `("Documentation:" (:newline)
                     ,(documentation package t) (:newline)))
-              "Use list: " ,@(common-seperated-spec (sort (package-use-list package) #'string-lessp :key #'package-name)
+              "Use list: " ,@(common-seperated-spec (sort (copy-seq (package-use-list package)) #'string-lessp :key #'package-name)
                                                     (lambda (pack)
                                                       `(:value ,pack ,(inspector-princ (package-name pack)))))
               (:newline)
-              "Used by list: " ,@(common-seperated-spec (sort (package-used-by-list package) #'string-lessp :key #'package-name)
+              "Used by list: " ,@(common-seperated-spec (sort (copy-seq (package-used-by-list package)) #'string-lessp :key #'package-name)
                                                         (lambda (pack)
                                                           `(:value ,pack ,(inspector-princ (package-name pack)))))
               (:newline)
@@ -4671,16 +4780,15 @@ See `methods-by-applicability'.")
 (defmethod inspect-for-emacs ((i integer) inspector)
   (declare (ignore inspector))
   (values "A number."
-          (append 
-           `(,(format nil "Value: ~D = #x~X = #o~O = #b~,,' ,8:B = ~E"
-                      i i i i i)
+          (append
+           `(,(format nil "Value: ~D = #x~8,'0X = #o~O = #b~,,' ,8:B~@[ = ~E~]"
+                      i i i i (ignore-errors (coerce i 'float)))
               (:newline))
-           (if (< -1 i char-code-limit)
-               (label-value-line "Corresponding character" (code-char i)))
-           (label-value-line "Length" (integer-length i))
+           (when (< -1 i char-code-limit)
+             (label-value-line "Code-char" (code-char i)))
+           (label-value-line "Integer-length" (integer-length i))           
            (ignore-errors
-             (list "As time: " 
-                   (format-iso8601-time i t))))))
+             (label-value-line "Universal-time" (format-iso8601-time i t))))))
 
 (defmethod inspect-for-emacs ((c complex) inspector)
   (declare (ignore inspector))
@@ -4763,12 +4871,72 @@ See `methods-by-applicability'.")
         *inspectee-actions* (make-array 10 :adjustable t :fill-pointer 0)
         *inspector-history* (make-array 10 :adjustable t :fill-pointer 0)))
 
-(defslimefun init-inspector (string &optional (reset t))
+(defun valid-function-name-p (form)
+  (or (and (not (null form))
+           (not (eq form t))
+           (symbolp form))
+      (and (consp form)
+           (second form)
+           (not (third form))
+           (eq (first form) 'setf))))
+
+(defvar *inspector-dwim-lookup-hooks* '(default-dwim-inspector-lookup-hook)
+  "A list of funcallables with one argument. It can be used to register user hooks that look up various things when inspecting in dwim mode.")
+
+(defun default-dwim-inspector-lookup-hook (form)
+  (let ((result '()))
+    (when (and (symbolp form)
+               (boundp form))
+      (push (symbol-value form) result))
+    (when (and (valid-function-name-p form)
+               (fboundp form))
+      (push (fdefinition form) result))
+    (when (and (symbolp form)
+               (find-class form nil))
+      (push (find-class form) result))
+    (when (and (consp form)
+               (valid-function-name-p (first form))
+               (fboundp (first form)))
+      (push (eval form) result))
+    (values result (not (null result)))))
+
+(defslimefun init-inspector (string &key (reset t) (eval t) (dwim-mode nil))
   (with-buffer-syntax ()
     (when reset
       (reset-inspector))
-    (inspect-object (eval (read-from-string string)))))
-  
+    (let* ((form (block reading
+                   (handler-bind
+                       ((error (lambda (e)
+                                 (declare (ignore e))
+                                 (when dwim-mode
+                                   (return-from reading 'nothing)))))
+                     (read-from-string string nil 'nothing))))
+           (value))
+      (unless (eq form 'nothing)
+        (setf value (cond
+                      (dwim-mode
+                       (let ((things (loop for hook :in *inspector-dwim-lookup-hooks*
+                                           for (result foundp) = (multiple-value-list
+                                                                     (funcall hook form))
+                                           when foundp
+                                           append (if (consp result)
+                                                      result
+                                                      (list result)))))
+                         (if (rest things)
+                             things
+                             (first things))))
+                      (eval (eval form))
+                      (t form)))
+        (when (and dwim-mode
+                   form
+                   value)
+          ;; push the form to the inspector stack, so you can go back to it
+          ;; with slime-inspector-pop if dwim missed the intention
+          (push form *inspector-stack*))
+        (inspect-object (if dwim-mode
+                            (or value form)
+                            value))))))
+
 (defun print-part-to-string (value)
   (let ((string (to-string value))
         (pos (position value *inspector-history*)))
@@ -4813,7 +4981,7 @@ See `methods-by-applicability'.")
     (multiple-value-bind (title content)
         (inspect-for-emacs object inspector)
       (list :title title
-            :type (to-string (type-of object))
+            :type (to-string (type-for-emacs object))
             :content (inspector-content-for-emacs content)
             :id (assign-index object *inspectee-parts*)))))
 

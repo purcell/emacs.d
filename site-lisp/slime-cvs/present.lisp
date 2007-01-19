@@ -96,7 +96,8 @@ don't want to present anything"
 			  thereis (or (eq stream (connection.dedicated-output connection))
 				      (eq stream (connection.socket-io connection))
 				      (eq stream (connection.user-output connection))
-				      (eq stream (connection.user-io connection))))))))))
+				      (eq stream (connection.user-io connection))
+				      (eq stream (connection.repl-results connection))))))))))
 
 (defun can-present-readable-objects (&optional stream)
   (declare (ignore stream))
@@ -168,20 +169,20 @@ says that I am starting to print an object with this id. The second says I am fi
 	  (write-annotation stream #'presentation-end record)))
       (funcall continue)))
 
-(defun make-presentations-result (values)
+(defun send-repl-results-to-emacs (values)
   ;; Override a function in swank.lisp, so that 
   ;; nested presentations work in the REPL result.
-  (cond 
-    ((null values)
-     '(:values ()))
-    (t
-     ;; Do the output ourselves.
-     (fresh-line)
-     (dolist (o values)
-       (presenting-object o *standard-output*
-	 (prin1 o))
-       (terpri))
-     '(:suppress-output))))
+  (let ((repl-results (connection.repl-results *emacs-connection*)))
+    (flet ((send (value)
+	     (presenting-object value repl-results
+	       (prin1 value repl-results))
+	     (terpri repl-results)))
+      (if (null values)
+	  (progn 
+	    (princ "; No value" repl-results)
+	    (terpri repl-results))
+	  (mapc #'send values)))
+    (finish-output repl-results)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

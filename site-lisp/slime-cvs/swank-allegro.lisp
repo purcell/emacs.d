@@ -764,6 +764,11 @@
 (defimplementation make-weak-value-hash-table (&rest args)
   (apply #'make-hash-table :values :weak args))
 
+(defimplementation hash-table-weakness (hashtable)
+  (cond ((excl:hash-table-weak-keys hashtable) :key)
+        ((eq (excl:hash-table-values hashtable) :weak) :value)))
+
+
 
 ;;;; Character names
 

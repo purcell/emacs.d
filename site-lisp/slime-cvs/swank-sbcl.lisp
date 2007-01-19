@@ -29,18 +29,23 @@
   ;; with #+.
   (defun sbcl-with-new-stepper-p ()
     (if (find-symbol "ENABLE-STEPPING" "SB-IMPL")
-        '(and)
-        '(or)))
+        '(:and)
+        '(:or)))
   ;; Ditto for weak hash-tables
   (defun sbcl-with-weak-hash-tables ()
     (if (find-symbol "HASH-TABLE-WEAKNESS" "SB-EXT")
-        '(and)
-        '(or)))
+        '(:and)
+        '(:or)))
   ;; And for xref support (1.0.1)
   (defun sbcl-with-xref-p ()
     (if (find-symbol "WHO-CALLS" "SB-INTROSPECT")
-        '(and)
-        '(or))))
+        '(:and)
+        '(:or)))
+  ;; ... for restart-frame support (1.0.2)
+  (defun sbcl-with-restart-frame ()
+    (if (find-symbol "FRAME-HAS-DEBUG-TAG-P" "SB-DEBUG")
+        '(:and)
+        '(:or))))
 
 ;;; swank-mop
 
@@ -675,7 +680,7 @@ Return a list of the form (NAME LOCATION)."
 #+#.(swank-backend::sbcl-with-new-stepper-p)
 (defimplementation condition-extras (condition)
   (when (typep condition 'sb-impl::step-form-condition)
-    `((:short-frame-source 0))))
+    `((:show-frame-source 0))))
 
 (defimplementation call-with-debugging-environment (debugger-loop-fn)
   (declare (type function debugger-loop-fn))
@@ -875,24 +880,49 @@ stack."
                                           (sb-di:frame-code-location frame)))
              frame)))
 
-(defun sb-debug-catch-tag-p (tag)
-  (and (symbolp tag)
-       (not (symbol-package tag))
-       (string= tag :sb-debug-catch-tag)))
-
-(defimplementation return-from-frame (index form)
-  (let* ((frame (nth-frame index))
-         (probe (assoc-if #'sb-debug-catch-tag-p
-                          (sb-di::frame-catches frame))))
-    (cond (probe (throw (car probe) (eval-in-frame form index)))
-          (t (format nil "Cannot return from frame: ~S" frame)))))
+#+#.(swank-backend::sbcl-with-restart-frame)
+(progn
+  (defimplementation return-from-frame (index form)
+    (let* ((frame (nth-frame index)))
+      (cond ((sb-debug:frame-has-debug-tag-p frame)
+             (let ((values (multiple-value-list (eval-in-frame form index))))
+               (sb-debug:unwind-to-frame-and-call frame
+                                                   (lambda ()
+                                                     (values-list values)))))
+            (t (format nil "Cannot return from frame: ~S" frame)))))
+  
+  (defimplementation restart-frame (index)
+    (let* ((frame (nth-frame index)))
+      (cond ((sb-debug:frame-has-debug-tag-p frame)
+             (let* ((call-list (sb-debug::frame-call-as-list frame))
+                    (fun (fdefinition (car call-list)))
+                    (thunk (lambda () 
+                             ;; Ensure that the thunk gets tail-call-optimized
+                             (declare (optimize (debug 1)))
+                             (apply fun (cdr call-list)))))
+               (sb-debug:unwind-to-frame-and-call frame thunk)))
+            (t (format nil "Cannot restart frame: ~S" frame))))))
 
 ;; FIXME: this implementation doesn't unwind the stack before
 ;; re-invoking the function, but it's better than no implementation at
 ;; all.
-(defimplementation restart-frame (index)
-  (let ((frame (nth-frame index)))
-    (return-from-frame index (sb-debug::frame-call-as-list frame))))
+#-#.(swank-backend::sbcl-with-restart-frame)
+(progn
+  (defun sb-debug-catch-tag-p (tag)
+    (and (symbolp tag)
+         (not (symbol-package tag))
+         (string= tag :sb-debug-catch-tag)))
+  
+  (defimplementation return-from-frame (index form)
+    (let* ((frame (nth-frame index))
+           (probe (assoc-if #'sb-debug-catch-tag-p
+                            (sb-di::frame-catches frame))))
+      (cond (probe (throw (car probe) (eval-in-frame form index)))
+            (t (format nil "Cannot return from frame: ~S" frame)))))
+  
+  (defimplementation restart-frame (index)
+    (let ((frame (nth-frame index)))
+      (return-from-frame index (sb-debug::frame-call-as-list frame)))))
 
 ;;;;; reference-conditions
 
@@ -1245,3 +1275,7 @@ stack."
   (apply #'make-hash-table :weakness :value args)
   #-#.(swank-backend::sbcl-with-weak-hash-tables)
   (apply #'make-hash-table args))
+
+(defimplementation hash-table-weakness (hashtable)
+  #+#.(swank-backend::sbcl-with-weak-hash-tables)
+  (sb-ext:hash-table-weakness hashtable))

@@ -788,3 +788,11 @@ function names like \(SETF GET)."
 (defmethod env-internals:confirm-p ((e slime-env) &optional msg &rest args)
   (apply (swank-sym :y-or-n-p-in-emacs) msg args))
       
+
+;;;; Weak hashtables
+
+(defimplementation make-weak-key-hash-table (&rest args)
+  (apply #'make-hash-table :weak-kind :key args))
+
+(defimplementation make-weak-value-hash-table (&rest args)
+  (apply #'make-hash-table :weak-kind :value args))

@@ -38,6 +38,7 @@
            #:fancy-inspection
            #:label-value-line
            #:label-value-line*
+           #:type-for-emacs
            ))
 
 (defpackage :swank-mop
@@ -88,6 +89,7 @@
    #:slot-definition-writers
    #:slot-boundp-using-class
    #:slot-value-using-class
+   #:slot-makunbound-using-class
    ;; generic function protocol
    #:compute-applicable-methods-using-classes
    #:finalize-inheritance))
@@ -879,6 +881,20 @@ output of CL:DESCRIBE."
   ` (append ,@(loop for (label value) in label-values
                     collect `(label-value-line ,label ,value))))
 
+(defgeneric type-for-emacs (object)
+  (:documentation
+   "Return a type specifier suitable for display in the Emacs inspector.")
+  (:method (object)
+    (type-of object))
+  (:method ((object integer))
+    ;; Some lisps report integer types as (MOD ...), which while nice
+    ;; in a sense doesn't answer the often more immediate question of
+    ;; fixnumness.
+    (if (typep object 'fixnum)
+        'fixnum
+        'bignum)))
+
+
 (definterface describe-primitive-type (object)
   "Return a string describing the primitive type of object."
   (declare (ignore object))
@@ -998,6 +1014,11 @@ SPEC can be:
 (definterface make-weak-value-hash-table (&rest args)
   "Like MAKE-HASH-TABLE, but weak w.r.t. the values."
   (apply #'make-hash-table args))
+
+(definterface hash-table-weakness (hashtable)
+  "Return nil or one of :key :value :key-or-value :key-and-value"
+  (declare (ignore hashtable))
+  nil)
 
 
 ;;;; Character names

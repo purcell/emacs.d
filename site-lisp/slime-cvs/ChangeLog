@@ -1,3 +1,505 @@
+2007-01-17  Christian Lynbech <christian.lynbech@ericsson.com>
+
+	* slime.el (slime-init-command): Use expanded files when writing
+	the LOAD form for swank.
+
+2007-01-14  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el: Cleanups for the repl history code.
+	(slime-repl-mode-map): Don't shadow M-C-d.
+	(slime-repl-history-replace): Simplified.
+	(slime-repl-history-search-in-progress-p): New.
+	(slime-repl-position-in-history): If there's no match return
+	out-of-bound positions instead of nil.
+	(slime-repl-add-to-input-history): Never modify the argument.
+	(slime-repl-previous-input): Renamed from
+	slime-repl-previous-input-starting-with-current-input.
+	(slime-repl-next-input): Renamed from
+	slime-repl-next-input-starting-with-current-input
+	(slime-repl-forward-input): Renamed from slime-repl-next-input.
+	(slime-repl-backward-input): Renamed from
+	slime-repl-previous-input.
+	(slime-repl-history-pattern): Renamed from
+	slime-repl-matching-input-regexp.
+	(slime-repl-delete-from-input-history): Simplified.
+
+	(slime-repl-history-map)
+	(slime-repl-history-navigation-neutral-commands)
+	(slime-repl-jump-to-history-item)
+	(slime-repl-previous-or-next-input)
+	(slime-repl-starting-with-current-input-regexp)
+	(slime-repl-continue-search-with-last-pattern)
+	(slime-repl-previous-or-next-matching-input): Deleted.
+
+	(sldb-list-locals, sldb-list-catch-tags): Deleted. Aren't of much
+	use anymore.
+
+2007-01-12  Helmut Eller  <heller@common-lisp.net>
+
+	* swank-clisp.lisp: Better classification on frames on the stack.
+	Make variables in eval frames accessible to the debugger.
+	(frame-type, *frame-prefixes*, frame-to-string, is-prefix-p)
+	(frame-string-type, boring-frame-p): New.
+	(%frame-count-vars, %frame-var-name, %frame-var-value)
+	(frame-venv, next-venv, venv-ref, %parse-stack-values): Replaces 
+	old frame-do-venv.
+	(extract-frame-line, extract-function-name, split-frame-string)
+	(string-match): New code to print frames.
+	(frame-locals, frame-var-value): Use the new stuff.
+
+	(inspect-for-emacs): Fix various bugs.
+
+	* swank-loader.lisp (compile-files-if-needed-serially): Don't wrap
+	everything in a compilation unit.  If we abort on load errors and
+	it is confusing to see compiler warnings after the abort message.
+	(handle-loadtime-error): CLISP's format implements ~< differently
+	as everybody else, so use a explicit pprint-logical-block instead.
+
+	* swank.lisp (list-all-systems-in-central-registry): Don't
+	reference asdf directly, that leads to read errors in some
+	systems.
+
+2007-01-12  Juho Snellman  <jsnell@iki.fi>
+
+	* slime.el (slime-read-expression-map): Switch the slime-mode-map
+	and minibuffer-local-map back the way they were. The previous change
+	was made due to a misunderstanding, caused by a keybinding for
+	[(return)] apparently being more specific than one for (kbd "RET"),
+	even when the former is in a parent keymap and the latter in the
+	child.
+	
+2007-01-12  Helmut Eller  <heller@common-lisp.net>
+
+	* swank.lisp (handle-request): Use 'abort as restart name, but
+	bind *sldb-quit-restart* to the restart returned by find-restart.
+	Also use a slighly friendlier message, because newbies seem to
+	invoke the ABORT restart instead of pressing q in the debugger.
+	
+2007-01-12  Edi Weitz  <edi@agharta.de>
+
+	* slime.el (slime-find-asd): Remove file extension.
+
+	(slime-read-system-name): Use SWANK:LIST-ASDF-SYSTEMS.
+
+	* swank.lisp (list-all-systems-in-central-registry): Use only
+	pathname name.
+
+	(list-all-systems-known-to-asdf): New function.
+
+	(list-asdf-systems): New function.
+
+2007-01-12  Marco Baringer  <mb@bese.it>
+
+	* slime.el (slime-keys): Remove binding of M-*, restore binding of
+	M-,.
+
+2007-01-11  Edi Weitz  <edi@agharta.de>
+
+	* slime.el (slime-repl-test-system, slime-repl-test/force-system):
+	New REPL shortcuts.  Patch by Kevin Rosenberg
+	<kevin@rosenberg.net>.
+
+2007-01-11  Juho Snellman  <jsnell@iki.fi>
+
+	* slime.el (slime-read-expression-map): restore tab completion in
+	the minibuffer. Switch the slime-mode-map and minibuffer-local-map
+	around, so that the minibuffer binding for return takes precedence
+	over the slime-mode one.
+	
+2007-01-11  Marco Baringer  <mb@bese.it>
+
+	* swank.lisp (inspect-for-emacs integer): Don't die if the integer
+	can't be expressed as a float.  Patch by Ariel Badichi
+	<abadichi@bezeqint.net>.
+ 
+	* slime.el (slime-keys): Removed binding of M-,
+	
+2007-01-11  Helmut Eller  <heller@common-lisp.net>
+	
+	* slime.el: Some cleanups for the debugger code: add some outline
+	sections and docstrings.
+	
+	(sldb-setup): Always display the beginning of the condition
+	text. Previously, we always showed the beginning of the backtrace.
+
+	(sldb-prune-initial-frames): Do what the docstring says. Reverted
+	to Luke's version.
+
+	(sldb-dispatch-extras): Fix typo.
+
+	(sldb-insert-restarts, sldb-insert-frames)
+	(sldb-insert-frame, sldb-fetch-more-frames)
+	(sldb-toggle-details, sldb-show-frame-details)
+	(sldb-insert-locals): Simplified.
+	(sldb-frame-details): New.
+
+	(slime-save-coordinates, slime-coordinates)
+	(slime-restore-coordinate, slime-count-lines): New macro and its
+	helpers.
+	(sldb-recenter-region): Renamed from slime-maybe-recenter-region.
+	
+	(sldb-enable-styled-backtrace, sldb-show-catch-tags)
+	(sldb-highlight): Deleted. Seem to be obsolete.
+	(sldb-add-face): Removed, because it is now the same as
+	slime-add-face.
+
+	(sldb-help-summary): Deleted. The docstring for sldb-mode is
+	already pretty terse.
+	(define-sldb-face): Renamed from def-sldb-face.
+
+	* swank-sbcl.lisp, swank-cmucl.lisp (condition-extras): Fix typo
+	
+2007-01-10  Helmut Eller  <heller@common-lisp.net>
+
+	* swank.lisp (*sldb-printer-bindings*): Add *print-right-margin*.
+	(debug-in-emacs): Bind *sldb-printer-bindings* here ...
+	(backtrace, debugger-info-for-emacs, frame-locals-for-emacs): 
+	... and remove redundant bindings here.
+
+2007-01-10  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* slime.el: FIX: set-keymap-parents for GNU Emacs was bogus, fixed
+	by Ariel Badichi.
+
+2007-01-09  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-repl-merge-histories): Use (setf (gethash ...)
+	instead of puthash, for Emacs 20.
+
+2007-01-09  Juho Snellman  <jsnell@iki.fi>
+
+	SBCL 1.0.1.15 supports restart-frame natively, and uses a different
+	debug catch tag interface than earlier versions.
+	
+	* swank-sbcl (sbcl-with-restart-frame): New function, detects SBCL
+	1.0.1.15 or later.
+	(return-from-frame): Another version for 1.0.1.15, using
+	sb-debug:unwind-to-frame-and-call
+	(restart-frame): Another version for 1.0.1.15, using
+	sb-debug:unwind-to-frame-and-call
+	
+2007-01-07  Helmut Eller  <heller@common-lisp.net>
+
+	* swank.lisp (open-streams): Don't pass nil to make-fn-streams;
+	use a dummy function as workaround.  Both arguments must be
+	functions and CMUCL checks the types.
+
+2007-01-06  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* slime.el: Added set-keymap-parents when not available (GNU
+	Emacs). Result: slime bindings while reading expressions from the
+	minibuffer.
+
+	* slime.el, swank.lisp: FIX: slime-insert-possibly-as-rectange and
+	sldb stuff on newer emacsen
+
+2007-01-04  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* slime.el: Added slime-insert-possibly-as-rectangle and use it
+	when inserting things here and there. The effect of this is that
+	multi-line strings coming from swank (e.g. stuff in sldb) are
+	inserted with insert-rectangle, so they are properly indented.
+
+	* swank.lisp: FIX: sort is destructive, call copy-seq at a few
+	places. FIX: bind *sldb-printer-bindings* also in
+	frame-locals-for-emacs.
+
+2007-01-03  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* swank.lisp: FIX: drop extra "Slots: " from standard-object's
+	inspector presentation
+
+	* swank.lisp: FIX: keyword symbols keep their : when travelling
+	from swank to slime
+
+	* slime.el: FIX: older Emacsen have no line-number-at-pos.
+
+	* slime.el: Convert some minibuffer reading defun's to defun* and
+	use keywords. Support extra arguments.
+
+	* slime.el: Use set-parent-keymaps when available (xemacs only for
+	now) when setting up slime-read-expression-map. The effect of this
+	is that the minibuffer will have all the slime-mode-map keys where
+	minibuffer-local-map is not overriding.
+
+	* slime.el, swank.lisp: Handle better the case when swank can not
+	read anything from the string sent to be inspected. Only bring up
+	the debugger when the inspect command is prefixed.
+
+2006-12-31  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	Restore the nested-presentations feature.
+	
+	* present.lisp (slime-stream-p): Allow sending presentations to
+	the repl-results stream.
+	(make-presentations-result): Removed.
+	(send-repl-results-to-emacs): New.
+
+	* swank.lisp (connection): New slot repl-results (a stream).
+	(make-output-function-for-target): New.
+	(open-streams): Use it here to also create a stream for REPL results.
+	(initialize-streams-for-connection): Store the stream.
+
+2006-12-29  Edi Weitz  <edi@agharta.de>
+
+	* slime.el (slime-find-asd, slime-read-system-name): Only offer
+	initial input if system is really in central registry.
+
+2006-12-29  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	Simplify the REPL-results protocol.  The results are now printed
+	using special :WRITE-STRING events from the Lisp side. 
+	
+	* slime.el (slime-repl-insert-prompt): Don't insert a result, only
+	the prompt.
+	(slime-repl-insert-result): Removed.
+	(slime-repl-eval-string, slime-repl-show-abort) 
+	(slime-repl-set-package, slime-output-buffer)
+	(slime-repl-update-banner): Change all callers.
+	(slime-dispatch-event): Event :WRITE-STRING gets an
+	optional argument TARGET, which controls where the string is
+	inserted.
+	(slime-write-string): Handle targets NIL (regular process output)
+	and :REPL-RESULT. 
+
+	* swank.lisp (make-presentations-result): Removed.
+	(send-repl-results-to-emacs): New function, sends :WRITE-STRING events.
+	(listener-eval): Use it here instead of make-presentations-result.
+
+2006-12-28  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	Performance improvement for slime-autodoc-mode, in particular when
+	there are REPL results that are long lists.
+	
+	* slime.el (slime-repl-mode-beginning-of-defun)
+	(slime-repl-mode-end-of-defun): New.
+	(slime-repl-mode): Use them as beginning-of-defun-function and
+	end-of-defun-function.
+	(slime-enclosing-operator-names): Bind
+	parse-sexp-lookup-properties to nil, don't parse more than 20000
+	characters before point, don't determine exact argument positions
+	larger than 64.  Byte-compile this function.
+
+2006-12-24  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* slime.el, swank.lisp: Added customizable dwim lookup hook
+	support for inspect
+
+	* doc/slime.texi: Small doc fixes by Alfredo Beaumont
+
+	* swank.lisp: Change the order to [set value] [make unbound]. Sort
+	slot names in the inspector
+
+2006-12-23  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* swank-clisp.lisp (make-weak-key-hash-table)
+	(make-weak-value-hash-table): Implement for CLISP, so that the
+	REPL results history does not cause "memory leaks".
+
+	* slime.el (slime-inspect): Add a dwim-mode keyword argument, move
+	all input handling into the interactive spec.  Restore the
+	behavior of slime-inspect when point is within a presentation (no
+	prompting, no DWIM).
+	(slime-inspect-presentation-at-mouse): Don't do DWIM here, so the
+	presentation-retrieval expression does not end up on the inspector
+	stack. 
+	(slime-inspector-position): New.
+	(slime-inspector-operate-on-point, slime-inspector-reinspect): Use
+	it here to make it work on GNU Emacs too.
+	(slime-open-inspector): Fix row-col addressing at end of buffer.
+
+2006-12-20  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* slime.el: FIX: inspecting presentations from the right click
+	menu broke in the inspect refactor
+
+	* slime.el: FIX: slime-fuzzy-target-buffer-completions-mode's
+	keymap must always precede other keymaps
+
+	* slime.el, swank.lisp: Extend :write-string with and &optional
+	presentation id and use this in present-in-emacs
+
+	* swank.lisp: Added present-in-emacs that prints a presentation of
+	the given object in the repl
+
+	* swank.lisp: Return the inspected object when inspecting from the
+	lisp side.
+
+	* swank.lisp: Turn off right margin for restart printing, too
+
+2006-12-19  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* HACKING: Added useful init.el piece into HACKING about
+	update-change-log
+
+	* swank.lisp: In all-slots-for-inspector pad slot names to be
+	equal length, so the result is more readable
+
+	* slime.el: Fix slime-insert-presentation to handle multi-line
+	presentations better (use insert-rectangle)
+
+	* swank.lisp: Properly bind *sldb-printer-bindings* and turn off
+	right margin while printing stuff in sldb
+
+	* slime.el: Smarten up the sldb heuristic that drops swank frames
+
+	* swank-allegro.lisp, swank-backend.lisp, swank-openmcl.lisp,
+	swank-sbcl.lisp, swank.lisp: Added hash-table-weakness and use it
+	in hash-table-inspecting
+
+	* swank.lisp: Hashtable inspecting: added [clear hashtable]
+	and [remove entry] actions
+
+	* slime.el, swank.lisp: FIX dwim inspecting to handle (setf
+	some-fun) functions, too
+
+	* slime.el: FIX: slime-sexp-at-point for foo::|bar::baz|
+
+	* slime.el: FIX: Properly keep track of slime-buffer-package in
+	the inspector
+
+	* swank.lisp: Small: get rid of notes and warnings
+
+	* slime.el, swank.lisp: Added dwim-mode to slime-inspect that
+	tries to be smart unless prefixed
+
+	* slime.el: Make slime-fuzzy-complete-symbol the default in the
+	belife that it's better for new users
+
+	* swank.lisp: Add (expt 1.2 length) higher scores for longer
+	matches in fuzzy completion. A good example: puts "make-instance"
+	before "make-string-input-stream" while completing "make-ins"
+
+	* slime.el: Set slime-fuzzy-completion-in-place enabled by default
+
+	* slime.el: Added (cons row col) addressing to
+	slime-open-inspector, use in slime-inspector-operate-on-point
+
+	* slime.el: FIX: operate the inspector in the debug thread when
+	started from sldb
+
+	* slime.el: Convert some inspector defuns to defun* and use
+	keywords. Other minor cleanups.
+
+2006-12-18  Marco Baringer  <mb@bese.it>
+
+	* slime.el (slime-region-for-defun-at-point): end-of-defun and
+	beginning-of-defun modify match-data, added a save-match-data to
+	prevent this from affecting callers of
+	slime-region-for-defun-at-point.
+
+2006-12-15  Edi Weitz  <edi@agharta.de>
+
+	* swank-lispworks.lisp (make-weak-key-hash-table): Weak hash
+	tables for Lispworks.
+	(make-weak-value-hash-table): Ditto.
+
+2006-12-14  Helmut Eller  <heller@common-lisp.net>
+
+	* swank.lisp (*sldb-printer-bindings*): *PRINT-LINES* is in
+	effect only if *PRINT-PRETTY* is non-NIL, so it better to enable
+	the pretty printer.  Suggested by Madhu <enometh@meer.net>.
+
+	* slime.el (slime-expand-abbreviations-and-complete): Emacs
+	`choose-completion' (choosing a completion from the *Completions*
+	buffer) always replaces text upto (point). So the code which
+	figures out an `unambiguous-completion-length' and places the
+	point there in `slime-expand-abbreviations-and-complete' causes
+	problems: the replacement text gets garbled.  Get rid of the bogus
+	`unambiguous-completion-length'.  Patch by Madhu <enometh@meer.net>
+
+	* swank-cmucl.lisp (remove-gc-hooks): The variables
+	EXT:*GC-NOTIFY-AFTER* and EXT:*NOTIFY-BEFORE* should hold
+	functions and should be NIL. This affects the function
+	REMOVE-GC-HOOKS in swank-cmucl.lisp which sets them to
+	NIL, (should one happen to use it).  Set them back to the original
+	parameters.  Patch by Madhu <enometh@meer.net>
+
+	* slime.el (slime-repl-output-mouseover-face): Fix a pair of extra
+	parens.  Patch by Madhu <enometh@meer.net>
+
+2006-12-14  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-search-buffer-package): Remove Xemacs special
+	casing.  There's already a compatibility defun for
+	match-string-no-properties.
+
+2006-12-13  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* swank.lisp: FIX: fuzzy completion for M-V-B. Fix by Madhu.
+
+2006-12-12  Nikodemus Siivola <nikodemus@random-state.net>
+
+	* swank.lisp (inspect-for-emacs integer): Pad the hex formatted
+	value to eight digits, "Code-char:" instead of "Corresponding
+	character:", "Integer-length:" instead of "Length:",
+	"Universal-time:" instead of "As time".
+	(inspect-object): Use TYPE-FOR-EMACS instead of TYPE-OF.
+	(inspect-in-emacs): New function, analogous to ED-IN-EMACS.
+
+	* swank-backend.lisp (type-for-emacs): New generic function,
+	defaults to TYPE-OF for non-integers, and returns FIXNUM or BIGNUM
+	for integers.
+
+	* slime.el (destructure-case): Indicate in the error message that
+	it was the Elisp destructure-case that failed to avoid confusion.
+	(slime-check-eval-in-emacs-enabled): More verbose error message.
+
+2006-12-11  Attila Lendvai  <attila.lendvai@gmail.com>
+
+	* swank.lisp: Added [set value] command for slot inspecting
+
+	* slime.el: Work on repl history navigation, restore old M-p/M-n
+	behaviour due to #lisp demand
+
+	Also print the current regexp in the minibuffer messages.  M-p/M-n
+	takes the repl input up to the point not the entire input as it
+	did before.
+	slime-repl-previous/next-input-starting-with-current-input: new
+	names for the old M-p/M-n commands History navigation commands
+	jump to the end of buffer when point is before the prompt.
+
+	* slime.el: Fix/smarten up temp-buffer-quit
+
+	Now it tries its best to remember the original window config and
+	restore it at slime-temp-buffer-quit unless it was changed
+	meanwhile. IOW, fix "q" after macroexpand in a macroexpand buffer
+	not closing the temp window.
+	Also fix the compiler notes usage of the temp buffer.
+
+	* swank-backend.lisp, swank.lisp:
+	Added inspect-slot-for-emacs to let users customize it.
+
+	Use all-slots-for-inspector everywhere, render link to both the
+	effective and direct slots when both are available.  Dropped
+	slot-value-using-class-for-inspector and friends.  Added
+	slot-makunbound-using-class to the swank-mop package and added
+	a [make-unbound] action to the standard slot presentation.
+
+	* slime.el: FIX: slime-symbol-name-at-point for symbols like
+	foo::|bar::baz|
+
+	* .cvsignore, swank.lisp: FIX: Drop #\. and add #\, to escaped
+	symbol chars
+
+	* slime.el: Added slime-repl-delete-from-input-history that
+	deletes the current history entry when no input is supplied
+
+	* slime.el: slime-repl-kill-input kills the entire input when
+	point is at the prompt and resets the history navigation state
+
+	* slime.el:
+	Use a hashtable to remove duplicates in slime-repl-merge-histories
+
+2006-12-07  Marco Baringer  <mb@bese.it>
+
+	* swank.lisp (init-inspector): Added eval parameter. If NIL we
+	don't eval FORM but limit our selves to cl:read'ing it and
+	inspecting that value.
+
+	* slime.el (slime-inspect): If a prefix argument is provided pass
+	:eval nil to swank:init-inspector.
+
 2006-12-07  Paul Collins <paul@briny.ondioline.org>
 
 	* hyperspec.el (common-lisp-hyperspec): Strip all text properties

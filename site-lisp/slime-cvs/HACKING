@@ -35,6 +35,18 @@ and `Change Logs and VC' nodes of the Emacs manual:
   http://www.gnu.org/software/emacs/manual/html_node/emacs_333.html#SEC333
   http://www.gnu.org/software/emacs/manual/html_node/emacs_156.html#SEC156
 
+** You may want to add this to your init.el
+
+(defun update-change-log ()
+  (interactive)
+  (vc-update-change-log "-u" "alendvai	Attila Lendvai	attila.lendvai@gmail.com"
+                        "-u" "mbaringer	Marco Baringer	mb@bese.it"
+                        "-u" "heller	Helmut Eller	heller@common-lisp.net"))
+
+(add-hook 'change-log-mode-hook
+          (lambda ()
+            (define-key change-log-mode-map (kbd "C-M-u") 'update-change-log)))
+
 * Sending Patches
 
 If you would like to send us improvements you can create a patch with
