@@ -34,23 +34,22 @@ MESSAGE-FORMAT to format the output."
    (root)
    (let ((default-directory root))
      (rails-logged-shell-command
-      (format "ruby %s %s"
         (format "script/%s " script)
         (apply #'concat
-         (mapcar #'(lambda (str)
-         (if str (concat str " ") ""))
-           parameters)))
+               (mapcar #'(lambda (str)
+                           (if str (concat str " ") ""))
+                       parameters)))
       buffer))
    (when message-format
      (message message-format (capitalize (first parameters))
-        (second parameters)))))
+              (second parameters))))
 
 ;;;;;;;;;; Destroy stuff ;;;;;;;;;;
 
 (defun rails-destroy (&rest parameters)
   "Run the destroy script."
   (rails-run-script "destroy" rails-generation-buffer-name parameters
-        "%s %s destroyed."))
+                    "%s %s destroyed."))
 
 (defun rails-destroy-controller (&optional controller-name)
   "Run the destroy script for controllers."
@@ -72,22 +71,19 @@ MESSAGE-FORMAT to format the output."
   (when (string-not-empty scaffold-name)
     (rails-destroy "scaffold" scaffold-name)))
 
-
 ;;;;;;;;;; Generators stuff ;;;;;;;;;;
 
 (defun rails-generate (&rest parameters)
   "Run the generate script using PARAMETERS."
   (rails-run-script "generate" rails-generation-buffer-name parameters
-        "%s %s generated.")
-                                        ;(switch-to-buffer-other-window rails-generation-buffer-name)
-  )
+                    "%s %s generated."))
 
 (defun rails-generate-controller (&optional controller-name actions)
   "Generate a controller and open the controller file."
   (interactive (list
-    (completing-read "Controller name (use autocomplete) : "
-         (list->alist (rails-core:controllers-ancestors)))
-    (read-string "Actions (or return to skip): ")))
+                (completing-read "Controller name (use autocomplete) : "
+                                 (list->alist (rails-core:controllers-ancestors)))
+                (read-string "Actions (or return to skip): ")))
   (when (string-not-empty controller-name)
     (rails-generate "controller" controller-name actions)
     (rails-core:find-file (rails-core:controller-file controller-name))))
@@ -100,19 +96,18 @@ MESSAGE-FORMAT to format the output."
     (rails-generate "model" model-name)
     (rails-core:find-file (rails-core:model-file model-name))))
 
-
 (defun rails-generate-scaffold (&optional model-name controller-name actions)
   "Generate a scaffold and open the controller file."
   (interactive
    "MModel name: \nMController (or return to skip): \nMActions (or return to skip): ")
   (when (string-not-empty model-name)
     (if (string-not-empty controller-name)
-  (progn
-    (rails-generate "scaffold" model-name controller-name actions)
-    (rails-core:find-file (rails-core:controller-file controller-name)))
+        (progn
+          (rails-generate "scaffold" model-name controller-name actions)
+          (rails-core:find-file (rails-core:controller-file controller-name)))
       (progn
-  (rails-generate "scaffold" model-name)
-  (rails-core:find-file (rails-core:controller-file model-name))))))
+        (rails-generate "scaffold" model-name)
+        (rails-core:find-file (rails-core:controller-file model-name))))))
 
 (defun rails-generate-migration (migration-name)
   "Generate a migration and open the migration file."
@@ -132,13 +127,12 @@ MESSAGE-FORMAT to format the output."
   "Create a new project in a directory named DIR."
   (interactive "FNew project directory: ")
   (shell-command (concat "rails " dir)
-     rails-generation-buffer-name)
+                 rails-generation-buffer-name)
   (flet ((rails-core:root () (concat dir "/") ))
     (rails-log-add
      (format "\nCreating project %s\n%s"
-       dir (buffer-string-by-name rails-generation-buffer-name))))
+             dir (buffer-string-by-name rails-generation-buffer-name))))
   (find-file dir))
-
 
 ;;;;;;;;;; Shells ;;;;;;;;;;
 
@@ -146,9 +140,13 @@ MESSAGE-FORMAT to format the output."
   "Run CMD as a ruby process in BUF if BUF does not exist."
   (let ((abuf (concat "*" buf "*")))
     (if (not (comint-check-proc abuf))
-  (set-buffer (make-comint buf cmd)))
-    (pop-to-buffer abuf)
-    (inferior-ruby-mode)))
+  (set-buffer (make-comint buf rails-ruby-command nil cmd)))
+    (inferior-ruby-mode)
+    (make-local-variable 'inferior-ruby-first-prompt-pattern)
+    (make-local-variable 'inferior-ruby-prompt-pattern)
+    (setq inferior-ruby-first-prompt-pattern "^>> "
+          inferior-ruby-prompt-pattern "^>> ")
+    (pop-to-buffer abuf)))
 
 (defun rails-interactive-buffer-name (name)
   "Return a buffer name in the format
@@ -161,7 +159,7 @@ MESSAGE-FORMAT to format the output."
   (rails-core:with-root
    (root)
    (run-ruby-in-buffer (rails-core:file script)
-           (rails-interactive-buffer-name name))
+                       (rails-interactive-buffer-name name))
    (rails-minor-mode t)))
 
 (defun rails-run-console ()
@@ -173,7 +171,6 @@ MESSAGE-FORMAT to format the output."
   "Run script/breakpointer."
   (interactive)
   (rails-run-interactive "breakpointer" "script/breakpointer"))
-
 
 ;;;; Rake ;;;;
 
@@ -195,35 +192,36 @@ MESSAGE-FORMAT to format the output."
        (rails-rake-create-cache cache-file))
      (read-from-file cache-file))))
 
-(defun rails-rake (&optional task)
+(defun rails-rake (&optional task message)
   "Run a Rake task in RAILS_ROOT."
   (interactive (list (completing-read "Rake task: " (list->alist (rails-rake-tasks)))))
   (rails-core:in-root
-   (shell-command (concat "rake " task) "*Rails Rake Output*" "*Rails Rake Errors*" )))
+   (message (or message (format "Running rake task \"%s\"" task)))
+   (shell-command (concat "rake " task) "*Rails Rake Output*" "*Rails Rake Errors*")))
 
 (defun rails-rake-tests ()
   "Run Rake tests in RAILS_ROOT."
   (interactive)
-  (rails-rake "test"))
+  (rails-rake "test" "Running all tests"))
 
 (defun rails-rake-integration-tests ()
   "Run Rake integration tests in RAILS_ROOT."
   (interactive)
-  (rails-rake "test:integration"))
+  (rails-rake "test:integration" "Running integration tests"))
 
 (defun rails-rake-unit-tests ()
   "Run Rake unit tests in RAILS_ROOT."
   (interactive)
-  (rails-rake "test:units"))
+  (rails-rake "test:units" "Running unit tests"))
 
 (defun rails-rake-functional-tests ()
   "Run Rake functional tests in RAILS_ROOT."
   (interactive)
-  (rails-rake "test:functionals"))
+  (rails-rake "test:functionals" "Running functional tests"))
 
 (defun rails-rake-recent-tests ()
   "Run Rake recent tests in RAILS_ROOT."
   (interactive)
-  (rails-rake "test:recent"))
+  (rails-rake "test:recent" "Running recent tests"))
 
 (provide 'rails-scripts)

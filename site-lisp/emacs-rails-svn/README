@@ -17,7 +17,7 @@
 * Automatic browsing on current action (from view or controller)
 * Integration with script/console and script/breakpointer
 * Fast navigation in Rails root hierarchy (rails finds - C-c f <Key>)
-* Fast running of Rake with autocomplete
+* Fast running of Rake with auto-complete
 
 
 == Install ==
@@ -46,7 +46,7 @@ If you want to use CHM file for help (by default used ri), add this to your .ema
 (setq rails-chm-file "<full_path_to_rails_chm_manual>")
 Download and install KeyHH.exe from http://www.keyworks.net/keyhh.htm
 
-Oficial documentation:
+Official documentation:
 http://rubyforge.org/docman/?group_id=1484
 
 For more howtos, see

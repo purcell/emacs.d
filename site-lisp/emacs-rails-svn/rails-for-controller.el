@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-for-controller.el $
-;; $Id: rails-for-controller.el 58 2006-12-17 21:47:39Z dimaexe $
+;; $Id: rails-for-controller.el 60 2007-01-13 20:01:21Z dimaexe $
 
 ;;; License
 
@@ -33,9 +33,9 @@
     (let (action controller)
       (goto-char (line-end-position))
       (if (search-backward-regexp "^[ ]*def \\([a-z0-9_]+\\)" nil t)
-    (setq action (match-string-no-properties 1)))
+          (setq action (match-string-no-properties 1)))
       (if (search-backward-regexp "^[ ]*class \\([a-zA-Z0-9_:]+\\)[ ]+<" nil t)
-    (setq controller (match-string-no-properties 1)))
+          (setq controller (match-string-no-properties 1)))
       (list controller action))))
 
 (defun rails-controller:switch-to-view()
@@ -124,10 +124,10 @@ menu."
   "Return a list of views for the current action."
   (mapcar (lambda (view-file)
       (list (replace-regexp-in-string "\\(.*/\\)\\([^/]+\\)$" "View\: \\2" view-file)
-      (lexical-let ((file view-file))
-        (lambda () (interactive) (find-file file)))))
-    (rails-core:get-view-files (rails-core:current-controller)
-             (rails-core:current-action))))
+            (lexical-let ((file view-file))
+              (lambda () (interactive) (find-file file)))))
+          (rails-core:get-view-files (rails-core:current-controller)
+                                     (rails-core:current-action))))
 
 (defun rails-for-controller:switch-by-current-controller (to-what file-func)
   "Switch by the current controller position."

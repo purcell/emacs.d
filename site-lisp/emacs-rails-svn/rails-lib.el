@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
-;; $Id: rails-lib.el 59 2006-12-25 01:13:37Z dimaexe $
+;; $Id: rails-lib.el 60 2007-01-13 20:01:21Z dimaexe $
 
 ;;; License
 
@@ -65,7 +65,7 @@ If EXPR is not nil exeutes BODY.
   (let ((result '()))
     (dolist (elem list)
       (when (not (member elem result))
-  (push elem result)))
+        (push elem result)))
     (nreverse result)))
 
 ;; Strings
@@ -74,16 +74,23 @@ If EXPR is not nil exeutes BODY.
   "Return t if string STR is not empty."
   (and (stringp str) (not (string-equal str ""))))
 
-(defun yml-next-value (name)
-  "Return the value of the next parameter named NAME."
+(defun yml-value (name)
+  "Return the value of the parameter named NAME in the current
+buffer or an empty string."
   (if (search-forward-regexp (format "%s:[ ]*\\(.*\\)[ ]*$" name) nil t)
-      (match-string 1)))
+      (match-string 1)
+    ""))
 
 (defun current-line-string ()
   "Return the string value of the current line."
   (buffer-substring-no-properties
    (progn (beginning-of-line) (point))
    (progn (end-of-line) (point))))
+
+(defun remove-prefix (word prefix)
+  "Remove the PREFIX string in WORD if it exists.
+PrefixBla -> Bla."
+  (replace-regexp-in-string (format "^%s" prefix) "" word))
 
 (defun remove-postfix (word postfix)
   "Remove the POSTFIX string in WORD if it exists.
@@ -216,5 +223,21 @@ it."
   (save-excursion
     (set-buffer buffer-name)
     (buffer-string)))
+
+;; Misc
+
+(defun rails-browse-api-url (url)
+  "Browse preferentially with Emacs w3m browser."
+  (if rails-browse-api-with-w3m
+      (w3m-find-file (remove-prefix url "file://"))
+    (rails-alternative-browse-url url)))
+
+(defun rails-alternative-browse-url (url &rest args)
+  "Fix a problem with Internet Explorer not being able to load
+URLs with anchors via ShellExecute. It will only be invoked it
+the user explicit sets `rails-use-alternative-browse-url'."
+  (if (and (eq system-type 'windows-nt) rails-use-alternative-browse-url)
+      (w32-shell-execute "open" "iexplore" url)
+    (browse-url url args)))
 
 (provide 'rails-lib)

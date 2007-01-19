@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 59 2006-12-25 01:13:37Z dimaexe $
+;; $Id: rails.el 60 2007-01-13 20:01:21Z dimaexe $
 
 ;;; License
 
@@ -29,6 +29,7 @@
 
 (eval-when-compile
   (require 'speedbar)
+  (require 'inf-ruby)
   (require 'ruby-mode))
 
 (require 'ansi-color)
@@ -56,8 +57,27 @@
   :group 'rails
   :type 'string)
 
+(defcustom rails-use-alternative-browse-url nil
+  "Indicates an alternative way of loading URLs on Windows.
+Try using the normal method before. If URLs invoked by the
+program don't end up in the right place, set this option to
+true."
+  :group 'rails
+  :type 'boolean)
+
+(defcustom rails-browse-api-with-w3m nil
+  "Indicates that the user wants to browse the Rails API using
+Emacs w3m browser."
+  :group 'rails
+  :type 'boolean)
+
 (defcustom rails-tags-command "ctags -e -a --Ruby-kinds=-f -o %s -R %s"
   "Command used to generate TAGS in Rails root"
+  :group 'rails
+  :type 'string)
+
+(defcustom rails-ri-command "ri"
+  "Command used to invoke the ri utility."
   :group 'rails
   :type 'string)
 
@@ -67,9 +87,19 @@
   :type 'boolean)
 
 (defcustom rails-ask-when-reload-tags nil
-  "When t, every reloading of TAGS table you must confirm it."
+  "Indicates whether the user should confirm reload a TAGS table or not."
   :group 'rails
   :type 'boolean)
+
+(defcustom rails-chm-file nil
+  "Path to CHM documentation file on Windows, or nil."
+  :group 'rails
+  :type 'string)
+
+(defcustom rails-ruby-command "ruby"
+  "Ruby preferred command line invocation."
+  :group 'rails
+  :type 'string)
 
 (defcustom rails-layout-template
   "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"
@@ -83,6 +113,7 @@
   </head>
 
   <body>
+    <%= yield %>
   </body>
 </html>"
   "Default html template for new rails layout"
@@ -90,19 +121,16 @@
   :type 'string)
 
 (defvar rails-version "0.4")
-(defvar rails-ruby-command "ruby")
 (defvar rails-templates-list '("rhtml" "rxml" "rjs"))
-(defvar rails-chm-file nil "Path to CHM file or nil")
 (defvar rails-use-another-define-key nil)
 (defvar rails-primary-switch-func nil)
 (defvar rails-secondary-switch-func nil)
 
 (defvar rails-for-alist
-  '(
+  '(("rb" rails-for-helper (lambda (root) (string-match (concat root "app/helpers") buffer-file-name)))
     ("rb" rails-for-controller (lambda (root) (string-match (concat root "app/controllers") buffer-file-name)))
     ("rhtml" rails-for-layout (lambda (root) (string-match (concat root "app/views/layouts") buffer-file-name)))
-    ("rhtml" rails-for-rhtml)
-    ))
+    ("rhtml" rails-for-rhtml)))
 
 (defvar rails-enviroments '("development" "production" "test"))
 
@@ -167,7 +195,7 @@
          (setq auto-revert-interval 0.5)
          (auto-revert-set-timer)
          (setq auto-window-vscroll t)
-   (make-local-variable 'rails-api-root)
+         (make-local-variable 'rails-api-root)
          (auto-revert-tail-mode t)))))
 
 (defun rails-search-doc (&optional item)
@@ -180,15 +208,16 @@
                (file-exists-p rails-chm-file))
           (start-process "keyhh" "*keyhh*" "keyhh.exe" "-#klink"
                          (format "'%s'" item)  rails-chm-file)
-        (let ((buf (buffer-file-name)))
+        (let ((buf (buffer-name)))
           (unless (string= buf "*ri*")
             (switch-to-buffer-other-window "*ri*"))
           (setq buffer-read-only nil)
           (kill-region (point-min) (point-max))
           (message (concat "Please wait..."))
-          (call-process "ri" nil "*ri*" t item)
-          (setq buffer-read-only t)
+          (call-process rails-ri-command nil "*ri*" t item)
           (local-set-key [return] 'rails-search-doc)
+          (ansi-color-apply-on-region (point-min) (point-max))
+          (setq buffer-read-only t)
           (goto-char (point-min))))))
 
 (defun rails-create-tags()
@@ -233,117 +262,107 @@
 
 ;;;;;;;;;; Database integration ;;;;;;;;;;
 
-(defstruct rails-db-conf adapter database username password)
+(defstruct rails-db-conf adapter host database username password)
 
 (defun rails-db-parameters (env)
   "Return database parameters for enviroment ENV"
-  (rails-core:with-root
-   (root)
-   (save-excursion
-     (rails-core:find-file "config/database.yml")
-     ;; The influence of automatic preservation is not received separating from the file.
-     (set-visited-file-name nil)
-     ;; It is the same as the following execution result.
-     ;; cat database.yml | ruby -r yaml -r erb -e 'YAML.load(ERB.new(ARGF.read).result).to_yaml.display'
-     (shell-command-on-region
-      (point-min) (point-max)
-      "ruby -r yaml -r erb -e 'YAML.load(ERB.new(ARGF.read).result).to_yaml.display'"
-      (current-buffer) t)
-     (goto-line 1)
-     (search-forward-regexp (format "^%s:" env))
-     (let ((ans
-            (make-rails-db-conf
-             :adapter  (yml-next-value "adapter")
-             :database (yml-next-value "database")
-             :username (yml-next-value "username")
-             :password (yml-next-value "password"))))
-       (kill-buffer (current-buffer))
-       ans))))
+  (with-temp-buffer
+    (shell-command
+     (format "ruby -r yaml -e 'YAML.load_file(%s)[\"%s\"].to_yaml.display'"
+             (rails-core:quoted-file "config/database.yml")
+             env)
+     (current-buffer))
+    (let ((answer
+           (make-rails-db-conf
+            :adapter  (yml-value "adapter")
+            :host     (yml-value "host")
+            :database (yml-value "database")
+            :username (yml-value "username")
+            :password (yml-value "password"))))
+      answer)))
 
 (defun rails-database-emacs-func (adapter)
-  "Return emacs function, that running sql buffer by rails adapter name"
+  "Return the Emacs function for ADAPTER that, when run, will
++invoke the appropriate database server console."
   (cdr (assoc adapter rails-adapters-alist)))
 
 (defun rails-read-enviroment-name (&optional default)
-  "Read rails enviroment with autocomplete"
+  "Read Rails enviroment with auto-completion."
   (completing-read "Environment name: " (list->alist rails-enviroments) nil nil default))
 
 (defun* rails-run-sql (&optional env)
-  "Run SQL process for current rails project."
+  "Run a SQL process for the current Rails project."
   (interactive (list (rails-read-enviroment-name "development")))
   (require 'sql)
-  (if (bufferp (sql-find-sqli-buffer))
-      (switch-to-buffer-other-window (sql-find-sqli-buffer))
-    (let ((conf (rails-db-parameters env)))
-      (let ((sql-server "localhost")
-            (sql-user (rails-db-conf-username conf))
-            (sql-database (rails-db-conf-database conf))
-            (sql-password (rails-db-conf-password conf))
-            (default-process-coding-system '(utf-8 . utf-8)))
-        ;; Reload localy sql-get-login to avoid asking of confirmation of DB login parameters
-        (flet ((sql-get-login (&rest pars) () t))
-          (funcall (rails-database-emacs-func (rails-db-conf-adapter conf))))))))
+  (rails-core:with-root (root)
+    (cd root)
+    (if (bufferp (sql-find-sqli-buffer))
+        (switch-to-buffer-other-window (sql-find-sqli-buffer))
+      (let ((conf (rails-db-parameters env)))
+        (let ((sql-database (rails-db-conf-database conf))
+              (default-process-coding-system '(utf-8 . utf-8))
+              (sql-server (rails-db-conf-host conf))
+              (sql-user (rails-db-conf-username conf))
+              (sql-password (rails-db-conf-password conf)))
+          ;; Reload localy sql-get-login to avoid asking of confirmation of DB login parameters
+          (flet ((sql-get-login (&rest pars) () t))
+            (funcall (rails-database-emacs-func (rails-db-conf-adapter conf)))))))))
 
-(defun rails-configured-api-root ()
+(defun rails-has-api-root ()
   "Test whether `rails-api-root' is configured or not, and offer to configure
 it in case it's still empty for the project."
-  (if (and rails-api-root (/= (length rails-api-root) 0))
-      t
-    (if (file-exists-p (concat (rails-core:root) "doc/api/index.html"))
-  (setq rails-api-root (concat (rails-core:root) "doc/api"))
-      t
-      (progn
-  (if (yes-or-no-p "This project has no API documentation. Would you like to configure it now? ")
-      (progn
-        (message "This may take a while. Please wait...")
-              (rails-core:in-root
-               (let (clobber-gems)
-                 (unless (file-exists-p (concat (rails-core:root) "vendor/rails"))
-                   (setq clobber-gems t)
-                   (message "Freezing gems...")
-                   (shell-command "rake rails:freeze:gems")
-                   ;; Hack to allow generation of the documentation if Rails 1.0 and 1.1
-                   ;; See http://dev.rubyonrails.org/ticket/4459
-                   (shell-command (concat "touch "
-                                          (rails-core:root)
-                                          "vendor/rails/activesupport/README")))
-                 (message "Generating documentation...")
-                 (shell-command "rake doc:rails")
-                 (if clobber-gems
-                     (progn
-                       (message "Unfreezing gems...")
-                       (shell-command "rake rails:unfreeze"))))
-               (kill-buffer "*Shell Command Output*")
-               (message "Done...")
-               (if (file-exists-p (concat (rails-core:root) "doc/api/index.html"))
-                   (setq rails-api-root (concat (rails-core:root) "doc/api")))
-               t))
-    nil)))))
+  (rails-core:with-root
+   (root)
+   (unless (or (file-exists-p (rails-core:file "doc/api/index.html"))
+         (not (yes-or-no-p (concat "This project has no API documentation. "
+           "Would you like to configure it now? "))))
+     (let (clobber-gems)
+       (message "This may take a while. Please wait...")
+       (unless (file-exists-p (rails-core:file "vendor/rails"))
+   (setq clobber-gems t)
+   (message "Freezing gems...")
+   (shell-command-to-string "rake rails:freeze:gems"))
+       ;; Hack to allow generation of the documentation for Rails 1.0 and 1.1
+       ;; See http://dev.rubyonrails.org/ticket/4459
+       (unless (file-exists-p (rails-core:file "vendor/rails/activesupport/README"))
+   (write-string-to-file (rails-core:file "vendor/rails/activesupport/README")
+             "Placeholder"))
+       (message "Generating documentation...")
+       (shell-command-to-string "rake doc:rails")
+       (if clobber-gems
+     (progn
+       (message "Unfreezing gems...")
+       (shell-command-to-string "rake rails:unfreeze")))
+       (message "Done...")))
+   (if (file-exists-p (rails-core:file "doc/api/index.html"))
+       (setq rails-api-root (rails-core:file "doc/api")))))
 
 (defun rails-browse-api ()
-  "Browse Rails API on RAILS-API-ROOT"
+  "Browse Rails API on RAILS-API-ROOT."
   (interactive)
-  (if (rails-configured-api-root)
-      (browse-url (concat rails-api-root "/index.html"))
+  (if (rails-has-api-root)
+      (rails-browse-api-url (concat rails-api-root "/index.html"))
     (message "Please configure variable rails-api-root.")))
 
 (defun rails-get-api-entries (name file sexp get-file-func)
+  "Return all API entries named NAME in file FILE using SEXP to
+find matches, and GET-FILE-FUNC to process the matches found."
   (if (file-exists-p (concat rails-api-root "/" file))
       (save-current-buffer
-  (save-match-data
-    (find-file (concat rails-api-root "/" file))
-    (let* ((result
-      (loop for line in (split-string (buffer-string) "\n")
-      when (string-match (format sexp (regexp-quote name)) line)
-      collect (cons (match-string 2 line)
-              (match-string 1 line)))))
-      (kill-buffer (current-buffer))
-      (when-bind (api-file (funcall get-file-func result))
-           (browse-url (concat "file://" rails-api-root "/" api-file))))))
+        (save-match-data
+          (find-file (concat rails-api-root "/" file))
+          (let* ((result
+                  (loop for line in (split-string (buffer-string) "\n")
+                        when (string-match (format sexp (regexp-quote name)) line)
+                        collect (cons (match-string-no-properties 2 line)
+                                      (match-string-no-properties 1 line)))))
+            (kill-buffer (current-buffer))
+            (when-bind (api-file (funcall get-file-func result))
+                       (rails-browse-api-url (concat "file://" rails-api-root "/" api-file))))))
     (message "There are no API docs.")))
 
 (defun rails-browse-api-class (class)
-  "Browse documentation in Rails API for CLASS."
+  "Browse the Rails API documentation for CLASS."
   (rails-get-api-entries
    class "fr_class_index.html" "<a href=\"\\(.*\\)\">%s<"
    (lambda (entries)
@@ -351,7 +370,7 @@ it in case it's still empty for the project."
            ((= 1 (length entries)) (cdar entries))))))
 
 (defun rails-browse-api-method (method)
-  "Browse documentation in Rails API for METHOD."
+  "Browse the Rails API documentation for METHOD."
   (rails-get-api-entries
    method "fr_method_index.html" "<a href=\"\\(.*\\)\">%s[ ]+(\\(.*\\))"
    (lambda (entries)
@@ -361,10 +380,13 @@ it in case it's still empty for the project."
                           entries)))))))
 
 (defun rails-browse-api-at-point ()
-  "Open html documentaion on class or method at point.
-Please set variable rails-api-root to path for your local(!) Rails API directory"
+  "Open the Rails API documentation on the class or method at the current point.
+The variable `rails-api-root' must be pointing to a local path
+either in your project or elsewhere in the filesystem. The
+function will also offer to build the documentation locally if
+necessary."
   (interactive)
-  (if (rails-configured-api-root)
+  (if (rails-has-api-root)
       (let ((current-symbol (prog2
                                 (modify-syntax-entry ?: "w")
                                 (thing-at-point 'sexp)
@@ -373,7 +395,7 @@ Please set variable rails-api-root to path for your local(!) Rails API directory
             (if (capital-word-p current-symbol)
                 (rails-browse-api-class current-symbol)
               (rails-browse-api-method current-symbol))))
-    (message "Please configure variable rails-api-root.")))
+    (message "Please configure \"rails-api-root\".")))
 
 ;;; Rails minor mode
 
@@ -382,13 +404,10 @@ Please set variable rails-api-root to path for your local(!) Rails API directory
   nil
   " RoR"
   rails-minor-mode-map
-
   (abbrev-mode -1)
   (make-local-variable 'tags-file-name)
   (make-local-variable 'rails-primary-switch-func)
-  (make-local-variable 'rails-secondary-switch-func)
-  ;(setq tags-file-name (concat (rails-core:root) "TAGS"))
-  )
+  (make-local-variable 'rails-secondary-switch-func))
 
 (add-hook 'ruby-mode-hook
           (lambda()
@@ -431,6 +450,7 @@ Please set variable rails-api-root to path for your local(!) Rails API directory
                                    (if (looking-at "\\>")
                                        (hippie-expand nil)
                                      (indent-according-to-mode)))))))))
+
 ;;; Run rails-minor-mode in dired
 (add-hook 'dired-mode-hook
           (lambda ()

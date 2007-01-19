@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-webrick.el $
-;; $Id: rails-webrick.el 56 2006-12-03 08:54:34Z dimaexe $
+;; $Id: rails-webrick.el 60 2007-01-13 20:01:21Z dimaexe $
 
 ;;; License
 
@@ -31,7 +31,7 @@
   "Default WEBrick environment"
   :group 'rails
   :type 'string
-  :tag "Rails WEBRick Default Environment")
+  :tag "Rails Default WEBRick Port")
 
 (defcustom rails-webrick:port "3000"
   "Default WEBrick port"
@@ -40,10 +40,10 @@
   :tag "Rails WEBRick Default Port")
 
 (defcustom rails-webrick:use-mongrel nil
-  "Use Mongrel by default, instead of WEBrick"
+  "Use Mongrel by default, instead of WEBrick."
   :group 'rails
   :type 'boolean
-  :tag "Rails WEBRick Use Mongrel")
+  :tag "Rails Use Mongrel")
 
 (defcustom rails-webrick:server-name "http://localhost"
   "Protocol and the hostname for WEBrick or other rails server"
@@ -138,7 +138,7 @@ file."
   (interactive
    (list
     (completing-read "Controller name: "
-         (list->alist (rails-core:controllers t)))
+                     (list->alist (rails-core:controllers t)))
     (read-from-minibuffer "Action name: ")
     (read-from-minibuffer "Params: ")))
   (rails-core:with-root
@@ -146,7 +146,7 @@ file."
    (when (string-not-empty controller)
      (rails-webrick:open-browser
       (concat (rails-core:file-by-class controller t) "/"
-        (if (string-not-empty action) (concat action "/")) params)))))
+              (if (string-not-empty action) (concat action "/")) params)))))
 
 (defun rails-webrick:auto-open-browser (ask-parameters?)
   "Autodetect the current action and open browser on it with.
@@ -156,10 +156,10 @@ Prefix the command to ask parameters for action."
    (root)
    (if (find (rails-core:buffer-type) '(:view :controller))
        (when-bind (controller (rails-core:current-controller))
-      (rails-webrick:open-browser-on-controller
-       controller (rails-core:current-action)
-       (when ask-parameters?
-         (read-from-minibuffer "Parameters: "))))
+                  (rails-webrick:open-browser-on-controller
+                   controller (rails-core:current-action)
+                   (when ask-parameters?
+                     (read-from-minibuffer "Parameters: "))))
      (message "You can auto-open browser only in view or controller"))))
 
 (provide 'rails-webrick)

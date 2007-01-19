@@ -1,3 +1,20 @@
+2007-01-13  dima  <dima.exe@gmail.com>
+  * rails-core.el: apply patch #7342
+
+2007-01-09  ronaldo  <ronaldo@reflectivesurface.com>
+  * rails.el: 
+	added a host parameter to the rails-db-conf struct
+	fixed problems with YAML parameter parsing in (rails-db-parameters)
+	simplified (rails-db-parameters) to avoid using database.yml directly
+	(rails-run-sql) now changes directory to the root for the benefit of sqlite3
+  * rails-lib.el: 
+	changed yml-next-value to yml-value and added a broader search scope
+
+2007-01-08  ronaldo  <ronaldo@reflectivesurface.com>
+  * rails.el: 
+	added support for other ri utilities (fast-ri, for example)
+	added support for coloring on ri buffer
+			
 2006-12-25  dima  <dima.exe@gmail.com>
   * rails-lib.el (yml-next-value): return nil if key not found
   * rails.el: add sqlite support
@@ -9,6 +26,18 @@
   * rails.el: apply patch #7301, #7295
   * rails-lib.el (rails-lib:run-secondary-switch): apply patch #7314
 
+2006-12-11 ronaldo <ronaldo@reflectivesurface.com>
+  * rails-scripts.el: fixed problems with prompt patterns in the inferior
+	ruby mode call
+	
+2006-12-05 ronaldo <ronaldo@refletivesurface.com>
+  * rails.el: added support for minimal helper switching
+  * rails-for-helper.el: added support for minimal helper switching
+
+2006-12-03 ronaldo <ronaldo@reflectivesurface.com>
+  * rails.el: added a customization option to use Emacs w3m for API browsing 
+  * rails-lib.el: added a function to aid in browsing the API with Emacs w3m
+			
 2006-12-03  dima  <dima.exe@gmail.com>
   * rails-ruby.el (ruby-indent-command): using around filter
   * rails.el (ruby-mode-hook): symbols _ and : interpreted as word
@@ -16,6 +45,25 @@
   * rails-webrick.el: 
 	Apply patch from Ray Baxter: remove rails-webrick:open-url and add rails-webrick:server-name
 
+2006-12-01 ronaldo <ronaldo@reflectivesurface.com>
+  * rails.el:
+	fixed to load needed ruby inferior mode (inf-ruby)
+	added a couple of new customization options
+  * rails-ui.el
+	reordered the snippets menu alphabetically
+	changed the key sequences for the tests scripts to use a more intuitive set
+  * rails.el: 
+	refactored and renamed rails-configured-api-root to rails-has-api-root
+	added a minor customization to the default layout template
+	minor documentation fixes
+  * rails-lib.el:
+	add (rails-alternative-browse-url)
+  * rails-scripts.el:
+	added an indication of the task being run on rake calls
+	fixed the inferior-mode call in (run-ruby-in-buffer) to work on w32
+	added an alternative way to browse API URLs on Windows in case the primary way fails
+	added messages to the test scripts
+	
 2006-12-01  dima  <dima.exe@gmail.com>
   * rails-navigation.el: 
 	add "go to action"
@@ -23,17 +71,19 @@
   * rails-core.el: add rails-core:view-name
 
 2006-11-30 ronaldo <ronaldo@reflectivesurface.com>
-  * *.el: fixed documentation string to better reflected Emacs conventions
-  * rails-ui.el: 
+  * *.el: 
+	fixed documentation strings to better reflect Emacs conventions	
+  * rails-ruby.el:
+	changed ruby-indent-or-complete into an advice (it works in text-only terminals now)	  * rails-ui.el: 
 	added a bunch of new snippets
 	refactored key sequences to follow proper mode conventions
 	added new menus (rake tests, customize, start default webrick)
 	changed switch menu to use a richer set of options
   * rails-scripts.el:
-	to-added rake tasks for tests (all, integration, functional, unit and recent tests)
+	added rake tasks for tests (all, integration, functional, unit and recent tests)	
   * rails-core.el:
-	added a check for the API docs, allowing the user to generate them if wanted
-	added a check for the existence of API files to avoid unnecessary messages
+	added a check for the API docs, allowing the user to generate them if needed
+	added a check for the existence of the API files to avoid unnecessary messages
   * rails.el:
 	changed the default layout template and moved it to a customization variable
 	
@@ -41,7 +91,7 @@
   * rails-for-controller.el: fixed to use rails-core:menu
   * rails-core.el: added a way to automatically recognize if it's running under a 
 	text-only terminal to avoid crashing Emacs when using x-popup-menu
-  * rails-for-rhtml: changed to use rails-core:menu instead of x-popup-menu directory
+  * rails-for-rhtml: changed to use rails-core:menu instead of x-popup-menu
 
 2006-11-28 ronaldo <ronaldo@reflectivesurface.com>
   * rails-core.el: created a set of customization options
