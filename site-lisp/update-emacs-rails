@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+if [ -d emacs-rails-svn/.svn ]; then
+  exec svn up emacs-rails-svn
+fi
+
 if [ -d emacs-rails-svn ]; then
   mv emacs-rails-svn emacs-rails-svn-orig
 fi
