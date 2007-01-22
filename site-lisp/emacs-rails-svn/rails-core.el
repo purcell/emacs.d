@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-core.el 60 2007-01-13 20:01:21Z dimaexe $
+;; $Id: rails-core.el 61 2007-01-21 17:26:12Z dimaexe $
 
 ;;; License
 
@@ -97,27 +97,6 @@ will not append \".rb\" to result."
     (concat (downcase path)
             (unless do-not-append-ext ".rb"))))
 
-(defun rails-core:get-view-files (controller-class &optional action)
-  "Retun a list containing the view file for CONTROLLER-CLASS#ACTION.
-If the action is nil, return all views for the controller."
-    (rails-core:with-root
-     (root)
-     (directory-files
-      (rails-core:file
-       (rails-core:views-dir
-        (rails-core:short-controller-name controller-class))) t
-        (if action
-            (concat "^" action (rails-core:regex-for-match-view))
-          (rails-core:regex-for-match-view)))))
-
-(defun rails-core:regex-for-match-view ()
-  "Return a regex to match Rails view templates.
-The file extensions used for views are defined in
-`rails-templates-list'."
-  (let ((reg-string "\\.\\("))
-    (mapcar (lambda (it) (setq reg-string (concat reg-string it "\\|"))) rails-templates-list)
-    (concat (substring reg-string 0 -1) ")$")))
-
 (defmacro rails-core:add-to-rails-menubar (item &rest prefix)
   "Add ITEM to the local Rails menubar, where ITEM is (cons
 \"Menu title\" 'function)"
@@ -168,7 +147,8 @@ it does not exist, ask to create it using QUESTION as a prompt."
   (concat "app/controllers/"
     (rails-core:file-by-class
      (rails-core:short-controller-name controller-name) t)
-    "_controller.rb"))
+    (unless (string-equal controller-name "Application") "_controller")
+    ".rb"))
 
 (defun rails-core:layout-file (layout)
   "Return the path to the layout file named LAYOUT."
@@ -252,6 +232,27 @@ suffix if CUT-CONTOLLER-SUFFIX is non nil."
    #'rails-core:class-by-file
    (find-recursive-files "\\.rb$" (rails-core:file "app/models/"))))
 
+(defun rails-core:regex-for-match-view ()
+  "Return a regex to match Rails view templates.
+The file extensions used for views are defined in
+`rails-templates-list'."
+  (let ((reg-string "\\.\\("))
+    (mapcar (lambda (it) (setq reg-string (concat reg-string it "\\|"))) rails-templates-list)
+    (concat (substring reg-string 0 -1) ")$")))
+
+(defun rails-core:get-view-files (controller-class &optional action)
+  "Retun a list containing the view file for CONTROLLER-CLASS#ACTION.
+If the action is nil, return all views for the controller."
+    (rails-core:with-root
+     (root)
+     (directory-files
+      (rails-core:file
+       (rails-core:views-dir
+        (rails-core:short-controller-name controller-class))) t
+        (if action
+            (concat "^" action (rails-core:regex-for-match-view))
+          (rails-core:regex-for-match-view)))))
+
 (defun rails-core:extract-ancestors (classes)
   "Return the parent classes from a list of classes named CLASSES."
   (delete ""
@@ -278,7 +279,7 @@ suffix if CUT-CONTOLLER-SUFFIX is non nil."
     (case (rails-core:buffer-type)
       (:controller (rails-core:short-controller-name file-class))
       (:view (rails-core:class-by-file
-        (directory-file-name (directory-of-file (buffer-file-name)))))
+              (directory-file-name (directory-of-file (buffer-file-name)))))
       (:helper (remove-postfix file-class "Helper"))
       (:functional-test (remove-postfix file-class "ControllerTest")))))
 
@@ -300,6 +301,10 @@ suffix if CUT-CONTOLLER-SUFFIX is non nil."
     (:view (string-match "/\\([a-z0-9_]+\\)\.[a-z]+$" (buffer-file-name))
      (match-string 1 (buffer-file-name)))))
 
+(defun rails-core:current-helper ()
+  "Return the current helper"
+  (concat (rails-core:current-controller) "Helper"))
+
 ;;;;;;;;;; Determination of buffer type ;;;;;;;;;;
 
 (defun rails-core:buffer-file-match (regexp)
@@ -307,21 +312,10 @@ suffix if CUT-CONTOLLER-SUFFIX is non nil."
   (string-match (rails-core:file regexp)
     (buffer-file-name (current-buffer))))
 
-(defvar rails-core:directroy<-->types
-  '((:controller       "app/controllers/")
-    (:layout           "app/layouts/")
-    (:view             "app/views/")
-    (:model            "app/models/")
-    (:helper           "app/helpers/")
-    (:unit-test        "test/unit/")
-    (:functional-test  "test/functional/")
-    (:fixtures         "test/fixtures/"))
-  "Rails file types -- rails directories map")
-
 (defun rails-core:buffer-type ()
   "Return the type of the current Rails file or nil if the type
 cannot be determinated."
-  (loop for (type dir) in rails-core:directroy<-->types
+  (loop for (type dir) in rails-directory<-->types
         when (rails-core:buffer-file-match dir)
         do (return type)))
 
@@ -355,7 +349,7 @@ cannot be determinated."
       (progn
         (goto-char (point-min))
         (when action
-          (if (search-forward-regexp (concat "^[ ]*def[ ]*" action))
+          (if (search-forward-regexp (concat "^[ ]*def[ ]*" action) nil t)
               (recenter)))
         t)
     (error "Controller %s does not exist" controller)))
@@ -380,24 +374,41 @@ cannot be determinated."
 (defun rails-logged-shell-command (command buffer)
   "Execute a shell command in the buffer and write the results to
 the Rails minor mode log."
-  (shell-command command buffer)
+  (shell-command (format "%s %s" rails-ruby-command command) buffer)
   (rails-log-add
    (format "\n%s> %s\n%s" (rails-core:project-name)
-     command (buffer-string-by-name buffer))))
+           command (buffer-string-by-name buffer))))
 
 ;;;;;;;;;; Rails menu ;;;;;;;;;;
+
+(defun rails-core:menu-separator ()
+  (unless (rails-use-text-menu) 'menu (list "--" "--")))
+
+(defun rails-core:menu-of-views(controller &optional add-separator)
+  "Make menu of view for CONTROLLER.
+If optional parameter ADD_SEPARATOR is present, then add separator to menu."
+  (let (menu)
+    (setq menu
+          (mapcar (lambda(i)
+                    (list (concat (if (string-match "^_" (file-name-nondirectory i))
+                                      "Partial" "View")
+                                  ": "
+                                  (file-name-nondirectory i))
+                          i))
+                  (rails-core:get-view-files controller nil)))
+    (if (zerop (length menu))
+        (setq menu (list))
+      (if add-separator
+          (add-to-list 'menu (rails-core:menu-separator))))
+    menu))
 
 (defun rails-core:menu (menu)
   "Show a menu."
   (let ((result
-   (if (rails-use-text-menu)
-       (tmm-prompt menu)
-     (x-popup-menu (list (if (functionp 'posn-at-point) ; mouse position at point
-                             (destructuring-bind (x . y)
-                                 (nth 2 (posn-at-point)) (list x y))
-                           '(200 100))
-                         (selected-window))
-                   menu))))
+         (if (rails-use-text-menu)
+             (tmm-prompt menu)
+           (x-popup-menu (list '(200 100) (selected-window))
+                         menu))))
     (if (listp result)
         (first result)
       result)))
@@ -419,12 +430,12 @@ the Rails minor mode log."
   (save-excursion
     (save-match-data
       (let ((start (point)))
-  (search-backward-regexp "<%[=]?")
-  (let ((from (match-end 0)))
-    (search-forward "%>")
-    (let ((to (match-beginning 0)))
-      (when (>= to start)
-        (buffer-substring-no-properties from to))))))))
+        (search-backward-regexp "<%[=]?")
+        (let ((from (match-end 0)))
+          (search-forward "%>")
+          (let ((to (match-beginning 0)))
+            (when (>= to start)
+              (buffer-substring-no-properties from to))))))))
 
 (defun rails-core:rhtml-buffer-p ()
   "Return non nil if the current buffer is rhtml file."

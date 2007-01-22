@@ -1,13 +1,13 @@
 ;;; rails-for-controller.el ---
 
-;; Copyright (C) 2006 Galinsky Dmitry <dima dot exe at gmail dot com>
+;; Copyright (C) 2006-2007 Galinsky Dmitry <dima dot exe at gmail dot com>
 
 ;; Authors: Galinsky Dmitry <dima dot exe at gmail dot com>,
 ;;          Rezikov Peter <crazypit13 (at) gmail.com>
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-for-controller.el $
-;; $Id: rails-for-controller.el 60 2007-01-13 20:01:21Z dimaexe $
+;; $Id: rails-for-controller.el 61 2007-01-21 17:26:12Z dimaexe $
 
 ;;; License
 
@@ -27,27 +27,14 @@
 
 ;;; Code:
 
-(defun rails-controller:get-current-controller-and-action ()
-  "Return a list containing the current controller and action."
-  (save-excursion
-    (let (action controller)
-      (goto-char (line-end-position))
-      (if (search-backward-regexp "^[ ]*def \\([a-z0-9_]+\\)" nil t)
-          (setq action (match-string-no-properties 1)))
-      (if (search-backward-regexp "^[ ]*class \\([a-zA-Z0-9_:]+\\)[ ]+<" nil t)
-          (setq controller (match-string-no-properties 1)))
-      (list controller action))))
-
 (defun rails-controller:switch-to-view()
   "Switch to the view corresponding to the current action."
   (interactive)
-  (let* ((calist (rails-controller:get-current-controller-and-action))
-         (controller (nth 0 calist))
-         (action (nth 1 calist))
+  (let* ((controller (rails-core:current-controller))
+         (action (rails-core:current-action))
          file tmp)
     (if action
-        (let ((root (rails-core:root))
-              (files (rails-core:get-view-files controller action)))
+        (let ((files (rails-core:get-view-files controller action)))
 ;;
 ;; DO NOT UNCOMMENT AND DELETE, WAIT FIXING BUG IN CVS EMACS
 ;;
@@ -71,7 +58,7 @@
                 (message (concat controller "#" action))))
           (if (= 0 (list-length files)) ;; view not found
               (if (y-or-n-p (format "View for %s#%s not found, create %s.rhtml? " controller action action))
-                  (let ((file (concat root "app/views/"
+                  (let ((file (concat (rails-core:root) "app/views/"
                                       (replace-regexp-in-string "_controller" ""
                                                                 (rails-core:file-by-class controller t)))))
                     (make-directory file t)
@@ -82,35 +69,24 @@
 menu."
   (interactive)
   (let* ((root (rails-core:root))
-         (menu (list))
+         (controller (rails-core:current-controller))
+         (action (rails-core:current-action))
+         (menu (rails-core:menu-of-views controller t))
          (views (list))
-         (calist (rails-controller:get-current-controller-and-action))
-         (controller (nth 0 calist))
-         (action (nth 1 calist))
-         (files (rails-core:get-view-files controller nil))
-         (helper (rails-core:helper-file controller))
-         (test (rails-core:functional-test-file controller))
+         (helper (rails-core:file (rails-core:helper-file controller)))
+         (test (rails-core:file (rails-core:functional-test-file controller)))
          file)
-    (while (car files)
-      (add-to-list 'menu
-                   (list
-                    (replace-regexp-in-string
-                     "\\(.*/\\)\\([^/]+\\)$"
-                     (concat
-                      (if (string-match "^\_" (file-name-nondirectory (car files))) "Partial" "View") "\: \\2")
-                     (car files)) (car files)))
-      (setq files (cdr files)))
-    (unless (rails-use-text-menu)
-      (add-to-list 'menu (list "--" "--")))
-    (add-to-list 'menu (list "Functional test" (concat root test)))
-    (if action
-        (add-to-list 'menu (list "Current action" (car (rails-core:get-view-files controller action)))))
-    (add-to-list 'menu (list "Helper" (concat root helper)))
+    (when test
+      (add-to-list 'menu (list "Functional test" test)))
+    (when action
+      (add-to-list 'menu (list "Current action" (car (rails-core:get-view-files controller action)))))
+    (when helper
+      (add-to-list 'menu (list "Helper" helper)))
     (setq file
           (rails-core:menu
            (list "Please select.." (cons "Please select.." menu))))
-    (if file
-        (find-file file))))
+    (when (and file (file-exists-p file))
+      (find-file file))))
 
 (defun rails-for-controller ()
   "Enable controller configurations."

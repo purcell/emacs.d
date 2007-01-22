@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
-;; $Id: rails-lib.el 60 2007-01-13 20:01:21Z dimaexe $
+;; $Id: rails-lib.el 62 2007-01-21 17:33:24Z dimaexe $
 
 ;;; License
 
@@ -72,14 +72,17 @@ If EXPR is not nil exeutes BODY.
 
 (defun string-not-empty (str) ;(+)
   "Return t if string STR is not empty."
-  (and (stringp str) (not (string-equal str ""))))
+  (and (stringp str) (not (or (string-equal "" str)
+                              (string-match "^ +$" str)))))
 
 (defun yml-value (name)
   "Return the value of the parameter named NAME in the current
 buffer or an empty string."
-  (if (search-forward-regexp (format "%s:[ ]*\\(.*\\)[ ]*$" name) nil t)
-      (match-string 1)
-    ""))
+  (save-excursion
+    (goto-char (point-min))
+    (if (search-forward-regexp (format "%s:[ ]*\\(.*\\)[ ]*$" name) nil t)
+        (match-string 1)
+      "")))
 
 (defun current-line-string ()
   "Return the string value of the current line."

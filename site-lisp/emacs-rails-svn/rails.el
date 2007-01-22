@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 60 2007-01-13 20:01:21Z dimaexe $
+;; $Id: rails.el 64 2007-01-21 17:35:59Z dimaexe $
 
 ;;; License
 
@@ -30,7 +30,8 @@
 (eval-when-compile
   (require 'speedbar)
   (require 'inf-ruby)
-  (require 'ruby-mode))
+  (require 'ruby-mode)
+  (require 'ruby-electric))
 
 (require 'ansi-color)
 (require 'snippet)
@@ -120,24 +121,29 @@ Emacs w3m browser."
   :group 'rails
   :type 'string)
 
-(defvar rails-version "0.4")
+(defvar rails-version "0.5")
 (defvar rails-templates-list '("rhtml" "rxml" "rjs"))
 (defvar rails-use-another-define-key nil)
 (defvar rails-primary-switch-func nil)
 (defvar rails-secondary-switch-func nil)
 
-(defvar rails-for-alist
-  '(("rb" rails-for-helper (lambda (root) (string-match (concat root "app/helpers") buffer-file-name)))
-    ("rb" rails-for-controller (lambda (root) (string-match (concat root "app/controllers") buffer-file-name)))
-    ("rhtml" rails-for-layout (lambda (root) (string-match (concat root "app/views/layouts") buffer-file-name)))
-    ("rhtml" rails-for-rhtml)))
+(defvar rails-directory<-->types
+  '((:controller       "app/controllers/")
+    (:layout           "app/layouts/")
+    (:view             "app/views/")
+    (:model            "app/models/")
+    (:helper           "app/helpers/")
+    (:unit-test        "test/unit/")
+    (:functional-test  "test/functional/")
+    (:fixtures         "test/fixtures/"))
+  "Rails file types -- rails directories map")
 
 (defvar rails-enviroments '("development" "production" "test"))
 
 (defvar rails-adapters-alist
   '(("mysql"      . sql-mysql)
     ("postgresql" . sql-postgres)
-    ("sqlite3" . sql-sqlite))
+    ("sqlite3"    . sql-sqlite))
   "Sets emacs sql function for rails adapter names.")
 
 (defvar rails-tags-dirs '("app" "lib" "test" "db")
@@ -234,31 +240,13 @@ Emacs w3m browser."
              t)))
        (visit-tags-table tags-file-name)))))
 
-(defun rails-run-for-alist(root)
-  (let ((ret nil)
-        (alist rails-for-alist))
-    (while (car alist)
-      (let* ((it (car alist))
-             (ext (concat "\\." (nth 0 it) "$"))
-             (for-func (nth 1 it))
-             (for-lambda (nth 2 it)))
-        (if (string-match ext buffer-file-name)
-            (progn
-              (if (and for-lambda
-                       (apply for-lambda (list root)))
-                  (progn
-                    (setq alist nil)
-                    (require for-func)
-                    (apply for-func nil)
-                    (setq ret t)))
-              (unless for-lambda
-                (progn
-                  (setq alist nil)
-                  (require for-func)
-                  (apply for-func nil)
-                  (setq ret t))))))
-      (setq alist (cdr alist)))
-    ret))
+(defun rails-apply-for-buffer-type ()
+ (let* ((type (rails-core:buffer-type))
+        (name (substring (symbol-name type) 1))
+        (name (concat "rails-for-" name)))
+   (when (require (intern name) nil t)
+     (when (fboundp (intern name))
+       (apply (intern name) (list))))))
 
 ;;;;;;;;;; Database integration ;;;;;;;;;;
 
@@ -412,6 +400,9 @@ necessary."
 (add-hook 'ruby-mode-hook
           (lambda()
             (require 'rails-ruby)
+            (set (make-local-variable 'indent-tabs-mode) 'nil)
+            (require 'ruby-electric)
+            (ruby-electric-mode t)
             (syntax-table)
             (capitalize "AA/addd_aaa")
             (modify-syntax-entry ?! "w" (syntax-table))
@@ -442,7 +433,7 @@ necessary."
                                   (untabify (point-min) (point-max))
                                   (delete-trailing-whitespace))))))
                (rails-minor-mode t)
-               (rails-run-for-alist root)
+               (rails-apply-for-buffer-type)
                (local-set-key (if rails-use-another-define-key "TAB" (kbd "<tab>"))
                               '(lambda() (interactive)
                                  (if snippet
@@ -456,5 +447,13 @@ necessary."
           (lambda ()
             (if (rails-core:root)
                 (rails-minor-mode t))))
+
+(setq auto-mode-alist  (cons '("\\.rb$" . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rjs$" . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rxml$" . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rhtml$" . html-mode) auto-mode-alist))
+
+(modify-coding-system-alist 'file "\\.rb$" 'utf-8)
+(modify-coding-system-alist 'file (rails-core:regex-for-match-view) 'utf-8)
 
 (provide 'rails)

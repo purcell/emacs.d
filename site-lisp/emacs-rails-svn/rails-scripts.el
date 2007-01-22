@@ -34,15 +34,14 @@ MESSAGE-FORMAT to format the output."
    (root)
    (let ((default-directory root))
      (rails-logged-shell-command
-        (format "script/%s " script)
-        (apply #'concat
-               (mapcar #'(lambda (str)
-                           (if str (concat str " ") ""))
-                       parameters)))
+      (apply #'concat (format "script/%s " script)
+             (mapcar #'(lambda (str)
+                         (if str (concat str " ") ""))
+                     parameters))
       buffer))
-   (when message-format
-     (message message-format (capitalize (first parameters))
-              (second parameters))))
+  (when message-format
+    (message message-format (capitalize (first parameters))
+             (second parameters)))))
 
 ;;;;;;;;;; Destroy stuff ;;;;;;;;;;
 

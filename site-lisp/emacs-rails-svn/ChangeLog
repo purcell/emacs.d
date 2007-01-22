@@ -1,3 +1,14 @@
+2007-01-21  dima  <dima.exe@gmail.com>	
+  rename rails-for-rhtml to rails-for-view
+  add rails-for-helper functionaly
+  add *:switch-with-menu for helpers, functional-test
+  cleanup rails-for-controller, rails-for-view
+  * rails.el: 
+	remove rails-for-alist
+	using rails-directory<-->type for match current type and apply specific mode
+  * rails-scripts.el (rails-run-script): fix #8035
+  * rails-lib.el (yml-value): fix #8037
+
 2007-01-13  dima  <dima.exe@gmail.com>
   * rails-core.el: apply patch #7342
 
