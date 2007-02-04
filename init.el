@@ -44,7 +44,7 @@
 ;;----------------------------------------------------------------------------
 (when *macbook-pro-support-enabled*
   (dolist (dir '("/usr/local/bin" "/opt/local/bin"
-                 "/opt/local/lib/postgresql81/bin" "~/bin"))
+                 "/opt/local/lib/postgresql82/bin" "~/bin"))
     (setenv "PATH" (concat (expand-file-name dir) ":" (getenv "PATH")))
     (setq exec-path (append (list (expand-file-name dir)) exec-path))))
 
