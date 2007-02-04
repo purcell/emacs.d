@@ -159,11 +159,11 @@ This is done with a text-search that runs on an idle timer."
 This applies to the *inferior-lisp* buffer and the network connections."
   :type 'boolean
   :group 'slime-ui)
-
-(defcustom slime-startup-animation t
-  "Enable the startup animation."
-  :type '(choice (const :tag "Enable" t) (const :tag "Disable" nil))
-  :group 'slime-ui)
+ 
+(defcustom slime-startup-animation t 	 
+   "Enable the startup animation." 	 
+   :type '(choice (const :tag "Enable" t) (const :tag "Disable" nil)) 	 
+   :group 'slime-ui) 	 
 
 ;;;;; slime-lisp
 
@@ -260,7 +260,7 @@ final, no matter where the point is."
   :group 'slime-mode
   :type 'boolean)
 
-(defcustom slime-complete-symbol-function 'slime-fuzzy-complete-symbol
+(defcustom slime-complete-symbol-function 'slime-complete-symbol*
   "*Function to perform symbol completion."
   :group 'slime-mode
   :type '(choice (const :tag "Simple" slime-simple-complete-symbol)
@@ -276,23 +276,6 @@ final, no matter where the point is."
   "Use information from argument lists for DWIM'ish symbol completion."
   :group 'slime-mode
   :type 'boolean)
-
-(defcustom slime-fuzzy-completion-in-place t
-  "When non-NIL the fuzzy symbol completion is done in place as
-opposed to moving the point to the completion buffer."
-  :group 'slime-mode
-  :type 'boolean)
-
-(defcustom slime-fuzzy-completion-limit 300
-  "Only return and present this many symbols from swank."
-  :group 'slime-mode
-  :type 'integer)
-
-(defcustom slime-fuzzy-completion-time-limit-in-msec 1500
-  "Limit the time spent (given in msec) in swank while gathering comletitions.
-\(NOTE: currently it's rounded up the nearest second)"
-  :group 'slime-mode
-  :type 'integer)
 
 (defcustom slime-space-information-p t
   "Have the SPC key offer arglist information."
@@ -527,64 +510,9 @@ is inserted."
 
 
 ;;;; Minor modes
-;;;; slime-target-buffer-fuzzy-completions-mode
-;;;; NOTE: this mode has to be able to override key mappings in slime-mode
-
-(defun mimic-key-bindings (from-keymap to-keymap bindings-or-operation operation)
-  "Iterate on BINDINGS-OR-OPERATION. If an element is a symbol then
-try to look it up (as an operation) in FROM-KEYMAP. Non symbols are taken
-as default key bindings when none to be mimiced was found in FROM-KEYMAP.
-Set the resulting list of keys in TO-KEYMAP to OPERATION."
-  (let ((mimic-keys nil)
-        (direct-keys nil))
-    (dolist (key-or-operation bindings-or-operation)
-      (if (symbolp key-or-operation)
-          (setf mimic-keys (append mimic-keys (where-is-internal key-or-operation from-keymap nil t)))
-          (push key-or-operation direct-keys)))
-    (dolist (key (or mimic-keys direct-keys))
-      (define-key to-keymap key operation))))
-
-(defvar slime-target-buffer-fuzzy-completions-map
-  (let* ((map (make-sparse-keymap)))
-    (flet ((remap (keys to)
-             (mimic-key-bindings global-map map keys to)))
-      
-      (remap (list 'keyboard-quit (kbd "C-g")) 'slime-fuzzy-abort)
-
-      (remap (list 'slime-fuzzy-indent-and-complete-symbol
-                   'slime-indent-and-complete-symbol
-                   (kbd "<tab>"))
-             'slime-fuzzy-select-or-update-completions)
-      (remap (list 'previous-line (kbd "<up>")) 'slime-fuzzy-prev)
-      (remap (list 'next-line (kbd "<down>")) 'slime-fuzzy-next)
-      (remap (list 'isearch-forward (kbd "C-s"))
-             (lambda ()
-               (interactive)
-               (select-window (get-buffer-window (slime-get-fuzzy-buffer)))
-               (call-interactively 'isearch-forward)))
-
-      ;; some unconditional direct bindings
-      (dolist (key (list (kbd "<return>") (kbd "RET") (kbd "<SPC>") "(" ")" "[" "]"))
-        (define-key map key 'slime-fuzzy-select-and-process-event-in-target-buffer)))
-    map
-    )
-  "Keymap for slime-target-buffer-fuzzy-completions-mode. This will override the key
-bindings in the target buffer temporarily during completion.")
-
-(define-minor-mode slime-fuzzy-target-buffer-completions-mode
-  "This minor mode is intented to override key bindings during fuzzy
-completions in the target buffer. Most of the bindings will do an implicit select
-in the completion window and let the keypress be processed in the target buffer."
-  nil
-  nil
-  slime-target-buffer-fuzzy-completions-map)
-
-(add-to-list 'minor-mode-alist
-             '(slime-fuzzy-target-buffer-completions-mode
-               " Fuzzy Target Buffer Completions"))
-
 
 ;;;;; slime-mode
+
 (define-minor-mode slime-mode
   "\\<slime-mode-map>\
 SLIME: The Superior Lisp Interaction Mode for Emacs (minor-mode).
@@ -625,14 +553,6 @@ Full set of commands:
  (defvar slime-modeline-package nil
    "The Lisp package to show in the modeline.
 This is automatically updated based on the buffer/point."))
-
-;; Make sure slime-fuzzy-target-buffer-completions-mode's map is
-;; before everything else.
-(setf minor-mode-map-alist
-      (stable-sort minor-mode-map-alist
-                   (lambda (a b)
-                     (eq a 'slime-fuzzy-target-buffer-completions-mode))
-                   :key #'car))
 
 (defun slime-update-modeline-package ()
   (ignore-errors
@@ -1028,30 +948,6 @@ If INFERIOR is non-nil, the key is also bound for `inferior-slime-mode'."
             (easy-menu-add slime-sldb-easy-menu 'sldb-mode-map)))
 
 
-;;;; Emacs compatibility
-
-;;; Stuff only available in XEmacs
-(or (fboundp 'add-local-hook)
-    (defun add-local-hook (hook function &optional append)
-      (make-local-hook hook)
-      (add-hook hook function append t)))
-
-(or (fboundp 'remove-local-hook)
-    (defun remove-local-hook (hook function)
-      (if (local-variable-p hook (current-buffer))
-          (remove-hook hook function t))))
-
-(or (fboundp 'set-keymap-parents)
-    (defun set-keymap-parents (m parents)
-      (set-keymap-parent
-       m
-       (cond
-         ((or (keymapp parents) (not (consp parents))) parents)
-         ((not (cdr parents)) (car parents))
-         (t (let ((m (copy-keymap (pop parents))))
-              (set-keymap-parents m parents)
-              m))))))
-
 ;;;; Setup initial `slime-mode' hooks
 
 (make-variable-buffer-local
@@ -1244,7 +1140,7 @@ symbol at point, or if QUERY is non-nil.
 
 This function avoids mistaking the REPL prompt for a symbol."
   (cond ((or current-prefix-arg query (not (slime-symbol-name-at-point)))
-         (slime-read-from-minibuffer prompt :initial-value (slime-symbol-name-at-point)))
+         (slime-read-from-minibuffer prompt (slime-symbol-name-at-point)))
         (t (slime-symbol-name-at-point))))
 
 ;; Interface
@@ -1484,7 +1380,9 @@ The functions created here expect your tramp-default-method or
 (defun slime (&optional command coding-system)
   "Start an inferior^_superior Lisp and connect to its Swank server."
   (interactive)
-  (apply #'slime-start (slime-read-interactive-args)))
+  (let ((inferior-lisp-program (or command inferior-lisp-program))
+        (slime-net-coding-system (or coding-system slime-net-coding-system)))
+    (apply #'slime-start (slime-read-interactive-args))))
 
 (defun slime-read-interactive-args ()
   "Return the list of args which should be passed to `slime-start'.
@@ -1547,11 +1445,11 @@ The rules for selecting the arguments are rather complicated:
                     :coding-system coding-system :init init :name name
                     :init-function init-function)))
     (slime-check-coding-system coding-system)
-    (when (or (not (slime-bytecode-stale-p))
-              (slime-urge-bytecode-recompile))
-      (let ((proc (slime-maybe-start-lisp program program-args buffer)))
-        (slime-inferior-connect proc args)
-        (pop-to-buffer (process-buffer proc))))))
+    (when (slime-bytecode-stale-p)
+      (slime-urge-bytecode-recompile))
+    (let ((proc (slime-maybe-start-lisp program program-args buffer)))
+      (slime-inferior-connect proc args)
+      (pop-to-buffer (process-buffer proc)))))
 
 (defun slime-connect (host port &optional coding-system)
   "Connect to a running Swank server."
@@ -1640,21 +1538,20 @@ HOOK is function which is run before the process is started."
 Warning: don't use this in XEmacs, it seems to crash it!"
   (interactive)
   (let ((sourcefile (concat (file-name-sans-extension (locate-library "slime"))
-                            ".el"))
-        (byte-compile-warning-types (remove 'cl-functions 
-                                            byte-compile-warning-types)))
+                            ".el")))
     (byte-compile-file sourcefile t)))
 
 (defun slime-urge-bytecode-recompile ()
   "Urge the user to recompile slime.elc.
 Return true if we have been given permission to continue."
-  (if (featurep 'xemacs)
-      ;; My XEmacs crashes and burns if I recompile/reload an elisp
-      ;; file from itself. So they have to do it themself.
-      (y-or-n-p "slime.elc is older than slime.el. Continue? ")
-    (if (y-or-n-p "slime.elc is older than slime.el. Recompile/reload first? ")
-        (progn (slime-recompile-bytecode) t)
-      nil)))
+  (cond ((featurep 'xemacs)
+         ;; My XEmacs crashes and burns if I recompile/reload an elisp
+         ;; file from itself. So they have to do it themself.
+         (or (y-or-n-p "slime.elc is older than source.  Continue? ")
+             (signal 'quit nil)))
+        ((y-or-n-p "slime.elc is older than source.  Recompile first? ")
+         (slime-recompile-bytecode))
+        (t)))
 
 (defun slime-abort-connection ()
   "Abort connection the current connection attempt."
@@ -1698,8 +1595,7 @@ Return the created process."
 
 (defun slime-inferior-connect (process args)
   "Start a Swank server in the inferior Lisp and connect."
-  (when (file-regular-p (slime-swank-port-file))
-    (delete-file (slime-swank-port-file)))
+  (slime-delete-swank-port-file)
   (slime-start-swank-server process args)
   (slime-read-port-and-connect process nil))
 
@@ -1744,6 +1640,15 @@ Return the created process."
                  (t "/tmp/")))
           (format "slime.%S" (emacs-pid))))
 
+(defun slime-delete-swank-port-file ()
+  (when (file-regular-p (slime-swank-port-file))
+    (condition-case nil
+        (delete-file (slime-swank-port-file))
+      (error
+       (display-warning 'slime
+                        (format "Unable to delete swank port file located at %s"
+                                (slime-swank-port-file)))))))
+
 (defun slime-read-port-and-connect (inferior-process retries)
   (lexical-let ((process inferior-process)
                 (retries retries)
@@ -1765,7 +1670,7 @@ Polling %S.. (Abort with `M-x slime-abort-connection'.)"
           (cond ((file-exists-p (slime-swank-port-file))
                  (let ((port (slime-read-swank-port))
                        (args (slime-inferior-lisp-args process)))
-                   (delete-file (slime-swank-port-file))
+		   (slime-delete-swank-port-file)
                    (let ((c (slime-connect slime-lisp-host port
                                            (plist-get args :coding-system))))
                      (slime-set-inferior-process c process))))
@@ -2823,17 +2728,19 @@ Debugged requests are ignored."
          ;; Emacs21 has the fancy persistent header-line.
          (use-header-p (and slime-header-line-p
                             (boundp 'header-line-format)))
-         ;; and dancing text
-         (animantep (and (fboundp 'animate-string)
-                         slime-startup-animation
+         ;; and dancing text 	 
+         (animantep (and (fboundp 'animate-string) 	 
+                         slime-startup-animation 	 
                          (zerop (buffer-size)))))
     (when use-header-p
       (setq header-line-format banner))
-    (when animantep
-      (pop-to-buffer (current-buffer))
-      (animate-string (format "; SLIME %s" (or (slime-changelog-date) 
-                                               "- ChangeLog file not found"))
-                      0 0))
+    (pop-to-buffer (current-buffer))
+    (let ((slime-hello-message (concat "; SLIME " 
+                                       (or (slime-changelog-date) 
+                                           "- ChangeLog file not found"))))
+      (if animantep
+          (animate-string slime-hello-message 0 0)
+          (insert slime-hello-message)))
     (slime-repl-insert-prompt)))
 
 (defun slime-init-output-buffer (connection)
@@ -4030,7 +3937,7 @@ remember the repl results so some memory leaking is possible."
 ;;;;; History
 
 (defcustom slime-repl-wrap-history nil
-  "T to wrap history around when the end is reached."
+  "*T to wrap history around when the end is reached."
   :type 'boolean
   :group 'slime-repl)
 
@@ -4092,6 +3999,9 @@ history is reached."
 (defun slime-repl-history-search-in-progress-p ()
   (eq last-command 'slime-repl-history-replace))
 
+(defun slime-repl-terminate-history-search ()
+  (setq last-command this-command))
+
 (defun slime-repl-position-in-history (start-pos direction regexp)
   "Return the position of the history item matching regexp.
 Return -1 resp. the length of the history if no item matches"
@@ -4108,7 +4018,9 @@ Return -1 resp. the length of the history if no item matches"
 
 (defun slime-repl-previous-input ()
   "Cycle backwards through input history.
-Use the current input as search pattern. (The input is not saved.)"
+If the `last-command' was a history navigation command use the
+same search pattern for this command.
+Otherwise use the current input as search pattern."
   (interactive)
   (slime-repl-history-replace 'backward (slime-repl-history-pattern t) t))
 
@@ -4130,10 +4042,12 @@ See `slime-repl-previous-input'."
 
 (defun slime-repl-previous-matching-input (regexp)
   (interactive "sPrevious element matching (regexp): ")
+  (slime-repl-terminate-history-search)
   (slime-repl-history-replace 'backward regexp))
 
 (defun slime-repl-next-matching-input (regexp)
   (interactive "sNext element matching (regexp): ")
+  (slime-repl-terminate-history-search)
   (slime-repl-history-replace 'forward regexp))
 
 (defun slime-repl-history-pattern (&optional use-current-input)
@@ -4476,7 +4390,7 @@ The handler will use qeuery to ask the use if the error should be ingored."
                                  (slime-read-from-minibuffer "Value: " "*")))
               (insert "(cl:defparameter " name " " value 
                       " \"REPL generated global variable.\")")
-              (slime-repl-send-input)))
+              (slime-repl-send-input t)))
   (:one-liner "Define a new global, special, variable."))
 
 (defslime-repl-shortcut slime-repl-compile-and-load ("compile-and-load" "cl")
@@ -4581,7 +4495,7 @@ Also rearrange windows."
 
 (defvar slime-scratch-mode-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map slime-mode-map)
+    (set-keymap-parent map lisp-mode-map)
     map))
 
 (defun slime-scratch-buffer ()
@@ -6197,7 +6111,7 @@ Return nil iff if point is not at filename."
 
 (defvar slime-read-expression-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parents map (list minibuffer-local-map slime-mode-map))
+    (set-keymap-parent map minibuffer-local-map)
     (define-key map "\t" 'slime-complete-symbol)
     (define-key map "\M-\t" 'slime-complete-symbol)
     map)
@@ -6206,8 +6120,7 @@ Return nil iff if point is not at filename."
 (defvar slime-read-expression-history '()
   "History list of expressions read from the minibuffer.")
  
-(defun* slime-read-from-minibuffer (prompt &key initial-value keymap
-                                           (history 'slime-read-expression-history))
+(defun slime-read-from-minibuffer (prompt &optional initial-value)
   "Read a string from the minibuffer, prompting with PROMPT.  
 If INITIAL-VALUE is non-nil, it is inserted into the minibuffer before
 reading input.  The result is a string (\"\" if no input was given)."
@@ -6219,9 +6132,8 @@ reading input.  The result is a string (\"\" if no input was given)."
                    (setq slime-buffer-connection connection)
                    (set-syntax-table lisp-mode-syntax-table)))
 	       minibuffer-setup-hook)))
-    (read-from-minibuffer prompt initial-value
-                          (or keymap slime-read-expression-map)
-			  nil history)))
+    (read-from-minibuffer prompt initial-value slime-read-expression-map
+			  nil 'slime-read-expression-history)))
 
 (defun slime-bogus-completion-alist (list)
   "Make an alist out of list.
@@ -6277,6 +6189,23 @@ current buffer."
 
 ;;;; Fuzzy completion
 
+(defcustom slime-fuzzy-completion-in-place t
+  "When non-NIL the fuzzy symbol completion is done in place as
+opposed to moving the point to the completion buffer."
+  :group 'slime-mode
+  :type 'boolean)
+
+(defcustom slime-fuzzy-completion-limit 300
+  "Only return and present this many symbols from swank."
+  :group 'slime-mode
+  :type 'integer)
+
+(defcustom slime-fuzzy-completion-time-limit-in-msec 1500
+  "Limit the time spent (given in msec) in swank while gathering comletitions.
+\(NOTE: currently it's rounded up the nearest second)"
+  :group 'slime-mode
+  :type 'integer)
+
 (defvar slime-fuzzy-target-buffer nil
   "The buffer that is the target of the completion activities.")
 (defvar slime-fuzzy-saved-window-configuration nil
@@ -6306,6 +6235,73 @@ replaced in the target for efficiency.")
 (defvar slime-fuzzy-current-completion-overlay nil
   "The overlay representing the current completion in the completion
 buffer. This is used to hightlight the text.")
+
+;;;;;;; slime-target-buffer-fuzzy-completions-mode
+;; NOTE: this mode has to be able to override key mappings in slime-mode
+
+;; FIXME: clean this up
+
+(defun mimic-key-bindings (from-keymap to-keymap bindings-or-operation operation)
+  "Iterate on BINDINGS-OR-OPERATION. If an element is a symbol then
+try to look it up (as an operation) in FROM-KEYMAP. Non symbols are taken
+as default key bindings when none to be mimiced was found in FROM-KEYMAP.
+Set the resulting list of keys in TO-KEYMAP to OPERATION."
+  (let ((mimic-keys nil)
+        (direct-keys nil))
+    (dolist (key-or-operation bindings-or-operation)
+      (if (symbolp key-or-operation)
+          (setf mimic-keys (append mimic-keys (where-is-internal key-or-operation from-keymap nil t)))
+          (push key-or-operation direct-keys)))
+    (dolist (key (or mimic-keys direct-keys))
+      (define-key to-keymap key operation))))
+
+(defvar slime-target-buffer-fuzzy-completions-map
+  (let* ((map (make-sparse-keymap)))
+    (flet ((remap (keys to)
+             (mimic-key-bindings global-map map keys to)))
+      
+      (remap (list 'keyboard-quit (kbd "C-g")) 'slime-fuzzy-abort)
+
+      (remap (list 'slime-fuzzy-indent-and-complete-symbol
+                   'slime-indent-and-complete-symbol
+                   (kbd "<tab>"))
+             'slime-fuzzy-select-or-update-completions)
+      (remap (list 'previous-line (kbd "<up>")) 'slime-fuzzy-prev)
+      (remap (list 'next-line (kbd "<down>")) 'slime-fuzzy-next)
+      (remap (list 'isearch-forward (kbd "C-s"))
+             (lambda ()
+               (interactive)
+               (select-window (get-buffer-window (slime-get-fuzzy-buffer)))
+               (call-interactively 'isearch-forward)))
+
+      ;; some unconditional direct bindings
+      (dolist (key (list (kbd "<return>") (kbd "RET") (kbd "<SPC>") "(" ")" "[" "]"))
+        (define-key map key 'slime-fuzzy-select-and-process-event-in-target-buffer)))
+    map
+    )
+  "Keymap for slime-target-buffer-fuzzy-completions-mode. This will override the key
+bindings in the target buffer temporarily during completion.")
+
+;; Make sure slime-fuzzy-target-buffer-completions-mode's map is
+;; before everything else.
+(setf minor-mode-map-alist
+      (stable-sort minor-mode-map-alist
+                   (lambda (a b)
+                     (eq a 'slime-fuzzy-target-buffer-completions-mode))
+                   :key #'car))
+
+
+(define-minor-mode slime-fuzzy-target-buffer-completions-mode
+  "This minor mode is intented to override key bindings during fuzzy
+completions in the target buffer. Most of the bindings will do an implicit select
+in the completion window and let the keypress be processed in the target buffer."
+  nil
+  nil
+  slime-target-buffer-fuzzy-completions-map)
+
+(add-to-list 'minor-mode-alist
+             '(slime-fuzzy-target-buffer-completions-mode
+               " Fuzzy Target Buffer Completions"))
 
 (define-derived-mode slime-fuzzy-completions-mode 
   fundamental-mode "Fuzzy Completions"
@@ -7074,8 +7070,8 @@ First make the variable unbound, then evaluate the entire form."
   (slime-eval-print string))
 
 (defun slime-call-defun ()
-  (interactive)
   "Insert a call to the function defined around point into the REPL."
+  (interactive)
   (let ((toplevel (slime-parse-toplevel-form)))
     (unless (and (consp toplevel)
                  (member (car toplevel) '(:defun :defmethod :defgeneric))
@@ -7097,12 +7093,13 @@ The value is inserted into a temporary buffer for editing and then set
 in Lisp when committed with \\[slime-edit-value-commit]."
   (interactive 
    (list (slime-read-from-minibuffer "Edit value (evaluated): "
-				     :initial-value (slime-sexp-at-point))))
+				     (slime-sexp-at-point))))
   (slime-eval-async `(swank:value-for-editing ,form-string)
                     (lexical-let ((form-string form-string)
                                   (package (slime-current-package)))
                       (lambda (result)
-                        (slime-edit-value-callback form-string result package)))))
+                        (slime-edit-value-callback form-string result 
+                                                   package)))))
 
 (make-variable-buffer-local
  (defvar slime-edit-form-string nil
@@ -7161,16 +7158,16 @@ The result is a string."
   (cond ((null spec)
          (slime-read-from-minibuffer "(Un)trace: "))
         ((symbolp spec)
-         (slime-read-from-minibuffer "(Un)trace: " :initial-value (symbol-name spec)))
+         (slime-read-from-minibuffer "(Un)trace: " (symbol-name spec)))
         (t
          (destructure-case spec
            ((setf n)
-            (slime-read-from-minibuffer "(Un)trace: " :initial-value (prin1-to-string spec)))
+            (slime-read-from-minibuffer "(Un)trace: " (prin1-to-string spec)))
            (((:defun :defmacro) n)
-            (slime-read-from-minibuffer "(Un)trace: " :initial-value (prin1-to-string n)))
+            (slime-read-from-minibuffer "(Un)trace: " (prin1-to-string n)))
            ((:defgeneric n)
             (let* ((name (prin1-to-string n))
-                   (answer (slime-read-from-minibuffer "(Un)trace: " :initial-value name)))
+                   (answer (slime-read-from-minibuffer "(Un)trace: " name)))
               (cond ((and (string= name answer)
                           (y-or-n-p (concat "(Un)trace also all " 
                                             "methods implementing " 
@@ -7179,12 +7176,12 @@ The result is a string."
                     (t
                      answer))))
            ((:defmethod &rest _)
-            (slime-read-from-minibuffer "(Un)trace: " :initial-value (prin1-to-string spec)))
+            (slime-read-from-minibuffer "(Un)trace: " (prin1-to-string spec)))
            ((:call caller callee)
             (let* ((callerstr (prin1-to-string caller))
                    (calleestr (prin1-to-string callee))
                    (answer (slime-read-from-minibuffer "(Un)trace: " 
-                                                       :initial-value calleestr)))
+                                                       calleestr)))
               (cond ((and (string= calleestr answer)
                           (y-or-n-p (concat "(Un)trace only when " calleestr
                                             " is called by " callerstr "? ")))
@@ -7193,7 +7190,7 @@ The result is a string."
                      answer))))
            (((:labels :flet) &rest _)
             (slime-read-from-minibuffer "(Un)trace local function: "
-                                        :initial-value (prin1-to-string spec)))))))
+                                        (prin1-to-string spec)))))))
 
 (defun slime-extract-context ()
   "Parse the context for the symbol at point.  
@@ -7336,9 +7333,9 @@ Point is placed before the first expression in the list."
 
 (defun slime-toggle-profile-fdefinition (fname-string)
   "Toggle profiling for FNAME-STRING."
-  (interactive (list (slime-read-from-minibuffer
-		      "(Un)Profile: "
-                      :initial-value (slime-symbol-name-at-point))))
+  (interactive (list (slime-read-from-minibuffer 
+                      "(Un)Profile: "
+                      (slime-symbol-name-at-point))))
   (slime-eval-async `(swank:toggle-profile-fdefinition ,fname-string)
                     (lambda (r) (message "%s" r))))
 
@@ -8368,7 +8365,6 @@ Called on the `point-entered' text-property hook."
   (interactive)
   (goto-char sldb-backtrace-start-marker))
 
-
 
 ;;;;;; SLDB recenter & redisplay
 
@@ -8402,7 +8398,7 @@ Called on the `point-entered' text-property hook."
 Avoid point motions, if possible.
 Minimize scrolling, if CENTER is nil.
 If CENTER is true, scroll enough to center the region in the window."
-  (let ((pos (point))  (lines (count-lines start end)))
+  (let ((pos (point))  (lines (count-screen-lines start end t)))
     (assert (and (<= start pos) (<= pos end)))
     ;;(sit-for 0)
     (cond ((and (pos-visible-in-window-p start)
@@ -8411,11 +8407,13 @@ If CENTER is true, scroll enough to center the region in the window."
            (cond (center (recenter (+ (/ (- (window-height) 1 lines)
                                          2)
                                       (slime-count-lines start pos))))
-                 (t (recenter (+ (- (window-height) 2 lines)
+                 (t (recenter (+ (- (window-height) 1 lines)
                                  (slime-count-lines start pos))))))
           (t
-           (set-window-start (selected-window) start)
-           (cond ((pos-visible-in-window-p pos))
+           (goto-char start)
+           (recenter 0)
+           (cond ((pos-visible-in-window-p pos)
+                  (goto-char pos))
                  (t
                   (goto-char start)
                   (next-line (- (window-height) 2))))))))
@@ -8564,15 +8562,14 @@ The details include local variable bindings and CATCH-tags."
         (let ((indent1 "      ")
               (indent2 "        "))
           (insert indent1 (in-sldb-face section
-                            (if locals "Locals:" "[No Locals]"))
-                  "\n")
+                            (if locals "Locals:" "[No Locals]")) "\n")
           (sldb-insert-locals locals indent2 frame)
           (when catches
-            (insert indent1 (in-sldb-face section "Catch-tags:\n"))
+            (insert indent1 (in-sldb-face section "Catch-tags:") "\n")
             (dolist (tag catches)
               (slime-propertize-region `(catch-tag ,tag)
-                (insert indent2 (in-sldb-face catch-tag
-                                  (format "%s\n" tag))))))
+                (insert indent2 (in-sldb-face catch-tag (format "%s" tag))
+                        "\n"))))
           (setq end (point)))))
     (sldb-recenter-region start end)))
 
@@ -9152,9 +9149,8 @@ presentation, don't prompt, just return the presentation."
                    (and (string-match "\\([-|.:0-9a-zA-Z]*\\)" sexp)
                         (= (match-end 0) (length sexp))))
               sexp
-              (slime-read-from-minibuffer prompt
-                                          :initial-value (or initial-value sexp)
-                                          :history history))))))
+            (slime-read-from-minibuffer prompt
+                                         (or initial-value sexp)))))))
 
 (define-derived-mode slime-inspector-mode fundamental-mode "Slime-Inspector"
   (set-syntax-table lisp-mode-syntax-table)
@@ -9465,7 +9461,7 @@ DSPEC can be used to expand the node."
   "Show the xref graph of a function in a tree widget."
   (interactive 
    (list (slime-read-from-minibuffer "Name: "
-                                     :initial-value (slime-symbol-name-at-point))
+                                     (slime-symbol-name-at-point))
          (read (completing-read "Type: " (slime-bogus-completion-alist
                                           '(":callers" ":callees" ":calls"))
                                 nil t ":"))))
@@ -10944,7 +10940,7 @@ levels of parens."
      (nreverse arg-indices))))
 
 
-;;;;; Portability library
+;;;; Portability library
 
 (when (featurep 'xemacs)
   (require 'overlay))
@@ -11231,6 +11227,15 @@ If they are not, position point at the first syntax error found."
 (defun sldb-xemacs-post-command-hook ()
   (when (get-text-property (point) 'point-entered)
     (funcall (get-text-property (point) 'point-entered))))
+
+;;; Stuff only available in XEmacs
+(slime-defun-if-undefined add-local-hook (hook function &optional append)
+  (make-local-hook hook)
+  (add-hook hook function append t))
+
+(slime-defun-if-undefined remove-local-hook (hook function)
+  (if (local-variable-p hook (current-buffer))
+      (remove-hook hook function t)))
 
 
 ;;;; Finishing up

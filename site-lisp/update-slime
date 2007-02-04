@@ -1,8 +1,8 @@
 #!/bin/sh -e
 export CVSROOT=:pserver:anonymous@common-lisp.net:/project/slime/cvsroot
-cvs login
 if [ -d slime-cvs ]; then
-  mv slime-cvs slime-cvs-orig
+  cvs up -dP slime-cvs
+else
+  cvs login
+  cvs export -rHEAD -d slime-cvs slime
 fi
-cvs export -rHEAD -d slime-cvs slime
-rm -r slime-cvs-orig

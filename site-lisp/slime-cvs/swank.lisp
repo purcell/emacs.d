@@ -1441,6 +1441,11 @@ Return the package or nil."
          (= (length string) pos)
          (find-package name))))
 
+(defun unparse-name (string)
+  "Print the name STRING according to the current printer settings."
+  ;; this is intended for package or symbol names
+  (subseq (prin1-to-string (make-symbol string)) 2))
+
 (defun guess-package-from-string (name &optional (default-package *package*))
   (or (and name
            (or (parse-package name)
@@ -2510,7 +2515,7 @@ Errors are trapped and invoke our debugger."
                (format nil "~A~D (#x~X, #o~O, #b~B)" 
                        *echo-area-prefix* i i i i)))
             (t (with-output-to-string (s)
-                 (pprint-logical-block (s values :prefix *echo-area-prefix*)
+                 (pprint-logical-block (s () :prefix *echo-area-prefix*)
                    (format s "~{~S~^, ~}" values))))))))
 
 (defslimefun interactive-eval (string)
@@ -2595,11 +2600,10 @@ change, then send Emacs an update."
 
 (defun package-string-for-prompt (package)
   "Return the shortest nickname (or canonical name) of PACKAGE."
-  (princ-to-string 
-   (make-symbol
-    (or (canonical-package-nickname package)
-        (auto-abbreviated-package-name package)
-        (shortest-package-nickname package)))))
+  (unparse-name
+   (or (canonical-package-nickname package)
+       (auto-abbreviated-package-name package)
+       (shortest-package-nickname package))))
 
 (defun canonical-package-nickname (package)
   "Return the canonical package nickname, if any, of PACKAGE."
@@ -2663,7 +2667,8 @@ Used by pprint-eval.")
 (defslimefun set-package (package)
   "Set *package* to PACKAGE.
 Return its name and the string to use in the prompt."
-  (let ((p (setq *package* (guess-package-from-string package))))
+  (let ((p (parse-package package)))
+    (setq *package* p)
     (list (package-name p) (package-string-for-prompt p))))
 
 (defun send-repl-results-to-emacs (values)
@@ -3898,18 +3903,12 @@ COMPLETIONS is a list of strings."
   "Make an apropos search for Emacs.
 The result is a list of property lists."
   (let ((package (if package
-                     (or (find-package (string-to-package-designator package))
+                     (or (parse-package package)
                          (error "No such package: ~S" package)))))
     (mapcan (listify #'briefly-describe-symbol-for-emacs)
             (sort (remove-duplicates
                    (apropos-symbols name external-only case-sensitive package))
                   #'present-symbol-before-p))))
-
-(defun string-to-package-designator (string)
-  "Return a package designator made from STRING.
-Uses READ to case-convert STRING."
-  (let ((*package* *swank-io-package*))
-    (read-from-string string)))
 
 (defun briefly-describe-symbol-for-emacs (symbol)
   "Return a property list describing SYMBOL.
@@ -4030,12 +4029,13 @@ that symbols accessible in the current package go first."
 
 ;;;; Package Commands
 
-(defslimefun list-all-package-names (&optional include-nicknames)
+(defslimefun list-all-package-names (&optional nicknames)
   "Return a list of all package names.
-Include the nicknames if INCLUDE-NICKNAMES is true."
-  (loop for package in (list-all-packages)
-        collect (package-name package)
-        when include-nicknames append (package-nicknames package)))
+Include the nicknames if NICKNAMES is true."
+  (mapcar #'unparse-name
+          (loop for package in (list-all-packages)
+                collect (package-name package)
+                when nicknames append (package-nicknames package))))
 
 
 ;;;; Tracing

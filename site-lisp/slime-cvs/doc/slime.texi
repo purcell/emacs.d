@@ -10,7 +10,7 @@
 
 @set EDITION 2.0
 @c @set UPDATED @today{}
-@set UPDATED @code{$Date: 2007/01/16 02:01:26 $}
+@set UPDATED @code{$Date: 2007/01/27 18:42:35 $}
 @set TITLE SLIME User Manual
 @settitle @value{TITLE}, version @value{EDITION}
 
@@ -25,9 +25,10 @@
 
 @c Written by Luke Gorrie.
 @c 
-@c This file has been placed in the public domain.
+@c Additional contributions: Jeff Cunningham,
 @c 
-@c Modified by Jeff Cunningham.
+@c This file has been placed in the public domain.
+
 
 @macro SLIME
 @acronym{SLIME}
@@ -54,6 +55,13 @@
 @anchor{\command\}
 @item \key\
 @code{\command\}@*
+@end macro
+
+@macro kbdanchorc{key, command, comment}
+@anchor{\command\}
+@item \key\
+@code{\command\}
+@i{\comment\}@*
 @end macro
 
 @macro kbdindex{key, command}
@@ -95,7 +103,6 @@ the manual for version 1.2.
 * Customization::               
 * Tips and Tricks::             
 * Credits::                     
-* Index to Key Bindings::
 * Index to Functions::                     
 @end menu
 
@@ -299,7 +306,8 @@ You can restart the @code{inferior-lisp} process using the function:
 
 @c ----------------------- 
 @node slime-mode, REPL, Getting started, Top
-@chapter @code{slime-mode}
+@c @chapter @code{slime-mode}
+@chapter Using slime-mode
 
 @SLIME{}'s commands are provided via @code{slime-mode}, a minor-mode
 used in conjunction with Emacs's @code{lisp-mode}. This chapter
@@ -307,13 +315,14 @@ describes the @code{slime-mode} and its relatives.
 
 @menu
 * User-interface conventions::  
+* Key bindings::                
 * Commands::                    
 * Semantic indentation::        
 * Reader conditionals::         
 @end menu
 
 @c ----------------------- 
-@node User-interface conventions, Commands, slime-mode, slime-mode
+@node User-interface conventions, Key bindings, slime-mode, slime-mode
 @section User-interface conventions
 
 To use @SLIME{} comfortably it is important to understand a few
@@ -322,13 +331,12 @@ principles are described in this section.
 
 @menu
 * Temporary buffers::           
-* About key bindings::                
-* inferior-lisp::               
+* Inferior-lisp::               
 * Multithreading::              
 @end menu
 
 @c ----------------------- 
-@node Temporary buffers, About key bindings, User-interface conventions, User-interface conventions
+@node Temporary buffers, Inferior-lisp, User-interface conventions, User-interface conventions
 @subsection Temporary buffers
 
 Some @SLIME{} commands create temporary buffers to display their
@@ -354,12 +362,99 @@ addition to any special mode of their own. This makes the usual
 function definitions, and so on.
 
 @c ----------------------- 
-@node About key bindings, inferior-lisp, Temporary buffers, User-interface conventions
-@subsection About key bindings
+@node Inferior-lisp, Multithreading, Temporary buffers, User-interface conventions
+@subsection @code{*inferior-lisp*} buffer
 
-A (near) complete list of the default keybindings set by @SLIME{} is
-given in an appendix (@pxref{Index to Key Bindings}), with links to
-their descriptions.
+@SLIME{} internally uses the @code{inferior-lisp} package to start
+Lisp processes. This has a few user-visible consequences, some good
+and some not-so-terribly. To avoid confusion it is useful to
+understand the interactions.
+
+The buffer @code{*inferior-lisp*} contains the Lisp process's own
+top-level. This direct access to Lisp is useful for troubleshooting,
+and some degree of @SLIME{} integration is available using the
+@code{inferior-slime-mode}. However, in normal use we recommend using
+the fully-integrated @SLIME{} @REPL{} and ignoring the
+@code{*inferior-lisp*} buffer.
+
+An unfortunate property of @code{inferior-lisp} is it inserts some
+commands of its own directly into the @code{lisp-mode} keymap, such
+that they aren't easily disabled. This makes Lisp source buffers
+slightly schizophrenic, having both @SLIME{} and @code{inferior-lisp}
+commands bound to keys and operating independently.
+
+@SLIME{} overrides most key bindings, so in practice you are unlikely
+to accidentally use an @code{inferior-lisp} command. If you do find a
+command that pops up the @code{*inferior-lisp*} buffer, that command
+doesn't belong to @SLIME{}, and you should probably lookup our
+equivalent.
+
+@c ----------------------- 
+@node Multithreading,  , Inferior-lisp, User-interface conventions
+@subsection Multithreading
+
+If the Lisp system supports multithreading, SLIME spawns a new thread
+for each request, e.g., @kbd{C-x C-e} creates a new thread to evaluate
+the expression.  An exception to this rule are requests from the
+@REPL{}: all commands entered in the @REPL{} buffer are evaluated in a
+dedicated @REPL{} thread.
+
+Some complications arise with multithreading and special variables.
+Non-global special bindings are thread-local, e.g., changing the value
+of a let bound special variable in one thread has no effect on the
+binding of the variables with the same name in other threads.  This
+makes it sometimes difficult to change the printer or reader behaviour
+for new threads.  The variable
+@code{swank:*default-worker-thread-bindings*} was introduced for such
+situtuations: instead of modifying the global value of a variable, add a
+binding the @code{swank:*default-worker-thread-bindings*}.  E.g., with
+the following code, new threads will read floating point values as
+doubles by default:
+
+@example
+(push '(*read-default-float-format* . double-float)
+       swank:*default-worker-thread-bindings*).
+@end example
+
+@c ----------------------- 
+@node Key bindings, Commands, User-interface conventions, slime-mode
+@section Key bindings
+
+@quotation
+@i{``Are you deliberately spiting Emacs's brilliant online help facilities? The gods will be angry!''}
+@end quotation
+
+@noindent This is a brilliant piece of advice. The Emacs online help facilities
+are your most immediate, up-to-date and complete resource for keybinding
+information. They are your friends:
+
+@table @kbd
+@kbdanchorc{C-h k <key>, describe-key, ``What does this key do?''} 
+Describes current function bound to @kbd{<key>} for focus buffer. 
+
+@kbdanchorc{C-h b, describe-bindings, ``Exactly what bindings are available?''} 
+Lists the current key-bindings for the focus buffer. 
+
+@kbdanchorc{C-h m, describe-mode, ``Tell me all about this mode''}
+Shows all the available major mode keys, then the minor mode keys, for
+the modes of the focus buffer.
+
+@kbdanchorc{C-h l, view-lossage, ``Woah@comma{} what key chord did I just do?''} 
+Shows you the literal sequence of keys you've pressed in order. 
+
+@kbdanchorc{<key> l, , ``What starts with?''} 
+Lists all keybindings that begin with @code{<key>} for the focus buffer mode. 
+
+@end table
+
+@emph{Note:} In this documentation the designation @kbd{C-h} is a @dfn{cannonical key} which might actually mean Ctrl-h, or F1, or whatever you have @code{help-command} bound to in your @code{.emacs}. Here is a common situation:
+
+@example
+(global-set-key [f1]   'help-command)
+(global-set-key "\C-h" 'delete-backward-char)
+@end example
+
+@noindent In this situation everywhere you see @kbd{C-h} in the documentation you would substitute @kbd{F1}.
 
 In general we try to make our key bindings fit with the overall Emacs
 style. We also have the following somewhat unusual convention of our
@@ -391,76 +486,22 @@ Alternatively, if you want to assign or change a key binding in just a
 particular slime mode, you can use the @code{global-set-key} function in
 your @file{~/.emacs} file like this:
 @example
-(define-key slime-repl-mode-map (kbd "C-c ;") 'slime-insert-balanced-comments)
+(define-key slime-repl-mode-map (kbd "C-c ;") 
+            'slime-insert-balanced-comments)
 @end example
 @noindent
 which binds @kbd{C-c ;} to the function
 @code{slime-insert-balanced-comments} in the REPL buffer.
 
 @c ----------------------- 
-@node inferior-lisp, Multithreading, About key bindings, User-interface conventions
-@subsection @code{*inferior-lisp*} buffer
-
-@SLIME{} internally uses the @code{inferior-lisp} package to start
-Lisp processes. This has a few user-visible consequences, some good
-and some not-so-terribly. To avoid confusion it is useful to
-understand the interactions.
-
-The buffer @code{*inferior-lisp*} contains the Lisp process's own
-top-level. This direct access to Lisp is useful for troubleshooting,
-and some degree of @SLIME{} integration is available using the
-@code{inferior-slime-mode}. However, in normal use we recommend using
-the fully-integrated @SLIME{} @REPL{} and ignoring the
-@code{*inferior-lisp*} buffer.
-
-An unfortunate property of @code{inferior-lisp} is it inserts some
-commands of its own directly into the @code{lisp-mode} keymap, such
-that they aren't easily disabled. This makes Lisp source buffers
-slightly schizophrenic, having both @SLIME{} and @code{inferior-lisp}
-commands bound to keys and operating independently.
-
-@SLIME{} overrides most key bindings, so in practice you are unlikely
-to accidentally use an @code{inferior-lisp} command. If you do find a
-command that pops up the @code{*inferior-lisp*} buffer, that command
-doesn't belong to @SLIME{}, and you should probably lookup our
-equivalent.
-
-@c ----------------------- 
-@node Multithreading,  , inferior-lisp, User-interface conventions
-@subsection Multithreading
-
-If the Lisp system supports multithreading, SLIME spawns a new thread
-for each request, e.g., @kbd{C-x C-e} creates a new thread to evaluate
-the expression.  An exception to this rule are requests from the
-@REPL{}: all commands entered in the @REPL{} buffer are evaluated in a
-dedicated @REPL{} thread.
-
-Some complications arise with multithreading and special variables.
-Non-global special bindings are thread-local, e.g., changing the value
-of a let bound special variable in one thread has no effect on the
-binding of the variables with the same name in other threads.  This
-makes it sometimes difficult to change the printer or reader behaviour
-for new threads.  The variable
-@code{swank:*default-worker-thread-bindings*} was introduced for such
-situtuations: instead of modifying the global value of a variable, add a
-binding the @code{swank:*default-worker-thread-bindings*}.  E.g., with
-the following code, new threads will read floating point values as
-doubles by default:
-
-@example
-(push '(*read-default-float-format* . double-float)
-       swank:*default-worker-thread-bindings*).
-@end example
-
-@c ----------------------- 
-@node Commands, Semantic indentation, User-interface conventions, slime-mode
+@node Commands, Semantic indentation, Key bindings, slime-mode
 @section Commands
 
 @acronym{SLIME} commands are divided into the following general
 categories: @strong{Programming, Compilation, Evaluation, Recovery,
 Inspector, and Profiling}, discussed in separate sections below. There
 are also comprehensive indices to commands by function (@pxref{Index
-to Functions}) and by key binding (@pxref{Index to Key Bindings}).
+to Functions}).
 
 @menu
 * Programming::         
@@ -592,6 +633,9 @@ Otherwise, it will be treated as Lisp code, and the current defun
 will be reindented.  If the current defun has unbalanced parens,
 an attempt will be made to fix it before reindenting.
 
+@kbdanchor{C-M-q, indent-sexp}
+Indents the list immediately following point to match the level at point. 
+
 When given a prefix argument, the text around point will always
 be treated as a paragraph.  This is useful for filling docstrings."
 @end table
@@ -603,7 +647,7 @@ be treated as a paragraph.  This is useful for filling docstrings."
 
 @SLIME{}'s online documentation commands follow the example of Emacs
 Lisp. The commands all share the common prefix @kbd{C-c C-d} and allow
-the final key to be modified or unmodified (@pxref{About key bindings}.)
+the final key to be modified or unmodified (@pxref{Key bindings}.)
 
 @table @kbd
 
@@ -659,7 +703,7 @@ Repository} and bundled with @SLIME{}.
 Each command operates on the symbol at point, or prompts if there is
 none. With a prefix argument they always prompt. You can either enter
 the key bindings as shown here or with the control modified on the
-last key, @xref{About key bindings}.
+last key, @xref{Key bindings}.
 
 @table @kbd
 @kbdanchor{C-c C-w c, slime-who-calls}
@@ -1827,7 +1871,7 @@ using the default settings.
 Since we're going to be tunneling our connection via
 ssh@footnote{there is a way to connect without an ssh tunnel, but it
 has the side-effect of giving the entire world access to your lisp
-image, se we're not gonig to talk about it} and we'll only have one
+image, so we're not going to talk about it} and we'll only have one
 port open we want to tell swank to not use an extra connection for
 output:
 
@@ -1968,7 +2012,7 @@ just add this to your @file{.emacs}:
 
 
 @c ----------------------- 
-@node Credits, Index to Key Bindings, Tips and Tricks, Top
+@node Credits, Index to Functions, Tips and Tricks, Top
 @chapter Credits
 
 @emph{The soppy ending...}
@@ -2006,67 +2050,7 @@ Martin's initial work on the LispWorks backend!
 
 
 @c ----------------------- 
-@node Index to Key Bindings, Index to Functions, Credits, Top
-@appendix Index to Key Bindings
-These are the keybindings set by default in Slime. 
-
-@table @kbd
-@kbdindex{SPC, slime-space}
-@kbdindex{C-c RET, slime-macroexpand-1}
-@kbdindex{C-c :, slime-interactive-eval}
-@kbdindex{C-c <, slime-list-callers}
-@kbdindex{C-c >, slime-list-callees}
-@kbdindex{C-c E, slime-edit-value}
-@kbdindex{C-c I, slime-inspect}
-@kbdindex{C-c u, slime-undefine-function}
-@kbdindex{C-c ~, slime-sync-package-and-default-directory}
-@kbdindex{C-c C-], slime-close-all-sexp}
-@kbdindex{C-c C-a, slime-nop} 
-@kbdindex{C-c C-b, slime-interrupt}
-@kbdindex{C-c C-c, slime-compile-defun}
-@kbdindex{C-c C-d d, slime-describe-symbol}
-@kbdindex{C-c C-d ~, common-lisp-hyperspec-format}
-@kbdindex{C-c C-e, slime-interactive-eval}
-@kbdindex{C-c C-f, slime-describe-function}
-@kbdindex{C-c C-i, slime-complete-symbol}
-@kbdindex{C-c C-k, slime-compile-and-load-file}
-@kbdindex{C-c C-l, slime-load-file}
-@kbdindex{C-c C-m, slime-macroexpand-1}
-@kbdindex{C-c C-p, slime-pprint-eval-last-expression}
-@kbdindex{C-c C-q, slime-close-parens-at-point}
-@kbdindex{C-c C-r, slime-eval-region}
-@kbdindex{C-c C-s, slime-complete-form}
-@kbdindex{C-c C-t, slime-toggle-trace-fdefinition}
-@kbdindex{C-c C-v, slime-nop} 
-@kbdindex{C-c C-w s, slime-who-sets}
-@kbdindex{C-c C-x c, slime-list-connections}
-@kbdindex{C-c C-x t, slime-list-threads}
-@kbdindex{C-c C-y, slime-call-defun}
-@kbdindex{C-c C-z, slime-switch-to-output-buffer}
-@kbdindex{C-c M-c, slime-remove-notes}.
-@kbdindex{C-c M-d, slime-disassemble-symbol}
-@kbdindex{C-c M-i, slime-fuzzy-complete-symbol}
-@kbdindex{C-c M-g, slime-quit}
-@kbdindex{C-c M-k, slime-compile-file}
-@kbdindex{C-c M-m, slime-macroexpand-all}
-@kbdindex{C-c M-p, slime-repl-set-package}
-@kbdindex{C-c M-q, slime-reindent-defun}
-@kbdindex{C-x 4 ., slime-edit-definition-other-window}
-@kbdindex{C-x 5 ., slime-edit-definition-other-frame}
-@kbdindex{C-x C-e, slime-eval-last-expression}
-@kbdindex{C-x M-e, slime-eval-last-expression-display-output}
-@kbdindex{M-TAB, slime-complete-symbol}
-@kbdindex{M-*, slime-pop-find-definition-stack}
-@kbdindex{M-., slime-edit-definition}
-@kbdindex{M-@comma{}, slime-pop-find-definition-stack}
-@kbdindex{M-n, slime-next-note}
-@kbdindex{M-p, slime-previous-note}
-@kbdindex{C-M-i, slime-complete-symbol}
-@kbdindex{C-M-x, slime-eval-defun}
-@end table
-
-@c ----------------------- 
-@node Index to Functions,  , Index to Key Bindings, Top
+@node Index to Functions,  , Credits, Top
 @appendix Index to Functions
 
 These functions are all available (when relevant). To find the

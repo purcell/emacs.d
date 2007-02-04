@@ -1,3 +1,69 @@
+2007-02-03  Marco Baringer  <mb@bese.it>
+
+	* slime.el (slime-delete-swank-port-file): Fix typo in
+	warning message.
+
+2007-02-02  Marco Baringer  <mb@bese.it>
+
+	Warn, as oposed to bailing out with an error, when deleting the
+	port file fails. Patch by: Samium Gromoff
+	<_deepfire@feelingofgreen.ru>
+	
+	* slime.el (slime-delete-swank-port-file): New function.
+	(slime-inferior-connect): Use slime-delete-swank-port-file.
+	(slime-read-port-and-connect): Use slime-delete-swank-port-file.
+ 
+2007-01-31  Marco Baringer  <mb@bese.it>
+
+	* slime.el (slime-repl-update-banner): Restore animation.
+	(slime-startup-animation): restore.
+
+2007-01-30  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-complete-symbol-function): Restore old default.
+	(set-keymap-parents): Deleted.
+	(slime-startup-animation): Deleted.
+	(slime-read-from-minibuffer): Don't use defun*.
+	(slime-repl-terminate-history-search): New.
+	(slime-repl-next-matching-input): Use it.
+
+	* slime-autoloads.el: New file.
+	
+2007-01-29  Sean O'Rourke <sorourke@cs.ucsd.edu>
+
+	* slime.el (slime-start): Continue even if the user, after
+	prompting, didn't recompile the stale .elc file.
+	(slime-urge-bytecode-recompile) [xemacs]: Abort immediately if the
+	user doesn't want to continue.
+	(slime-recompile-bytecode): Don't use byte-compile-warning-types;
+	it may not exist in XEmacs.
+	
+2007-01-24  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (sldb-recenter-region): Use count-screen-lines instead
+	of count-lines.
+
+	* swank.lisp (unparse-name): New function.
+	(list-all-package-names): Use it.  This fixes a bug related to
+	readtable-case and makes package name completions look prettier.
+	Suggested by Harald Hanche-Olsen <hanche@math.ntnu.no>.
+
+2007-01-24  Bill Clementson <billclem@gmail.com>
+
+	* slime.el (slime-call-defun): Put the docstring before
+	the (interactive) form so that "C-h f slime-call-defun" will
+	return it.
+
+	* slime.el (slime-scratch-mode-map): Changed parent keymap to
+	lisp-mode-map to prevent unnecessary duplication of slime-mode-map
+	bindings and so that lisp-mode-map key bindings are present in the
+	slime scratch buffer. Change identified by Ariel Badichi.
+ 
+2007-01-20  Luke Gorrie  <luke@synap.se>
+
+	* slime.el (slime): Use COMMAND and CODING-SYSTEM parameters
+	Previously they were ignored.
+
 2007-01-17  Christian Lynbech <christian.lynbech@ericsson.com>
 
 	* slime.el (slime-init-command): Use expanded files when writing
