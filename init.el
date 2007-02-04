@@ -248,7 +248,7 @@
 (require 'ruby-electric)
 (setq ruby-electric-expand-delimiters-list nil)  ; Only use ruby-electric for adding 'end'
 (add-hook 'ruby-mode-hook
-          (lambda () (ruby-electric-mode)))
+          (lambda () (ruby-electric-mode t)))
 (when *vi-emulation-support-enabled*
   (add-hook 'ruby-mode-hook (lambda () (viper-change-state-to-vi))))
 
