@@ -292,6 +292,7 @@
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f8] 'ruby-test-function)))
 
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f7] 'recompile)))
+(add-hook 'rails-minor-mode-hook (lambda () (local-set-key [f7] 'recompile)))
 
 
 (require 'find-func)
