@@ -5,7 +5,7 @@
 (setq *ecb-support-enabled* t) ; Emacs code browser (IDE)
 (setq *haskell-support-enabled* t)
 (setq *ocaml-support-enabled* t)
-(setq *slime-support-enabled* t)
+(setq *common-lisp-support-enabled* t)
 (setq *macbook-pro-support-enabled* t)
 (setq *erlang-support-enabled* t)
 (setq *darcs-support-enabled* t) ; You can use darcs to update these conf files
@@ -383,7 +383,7 @@
 (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
 (add-hook 'emacs-lisp-mode-hook (lambda () (enable-paredit emacs-lisp-mode-map)))
 
-(when *slime-support-enabled*
+(when *common-lisp-support-enabled*
   (setf slime-lisp-implementations
         '((sbcl ("sbcl") :coding-system utf-8-unix)
           (cmucl ("cmucl") :coding-system iso-latin-1-unix)))
