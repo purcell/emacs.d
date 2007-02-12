@@ -6,6 +6,7 @@
 (setq *haskell-support-enabled* t)
 (setq *ocaml-support-enabled* t)
 (setq *common-lisp-support-enabled* t)
+(setq *scheme-support-enabled* t)
 (setq *macbook-pro-support-enabled* t)
 (setq *erlang-support-enabled* t)
 (setq *darcs-support-enabled* t) ; You can use darcs to update these conf files
@@ -360,7 +361,7 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Lisp / Slime
+;; Lisp / Scheme / Slime
 ;;----------------------------------------------------------------------------
 ;; pretty lambda (see also slime) ->  "λ"
 ;;  'greek small letter lambda' / utf8 cebb / unicode 03bb -> \u03BB / mule?!
@@ -396,6 +397,9 @@
   (add-hook 'slime-mode-hook (lambda () (enable-paredit slime-mode-map)))
   (global-set-key [f4] 'slime-selector))
 
+(when *scheme-support-enabled*
+  ; See http://bc.tech.coop/scheme/scheme-emacs.htm
+  (require 'quack))
     
 
 ;;----------------------------------------------------------------------------
