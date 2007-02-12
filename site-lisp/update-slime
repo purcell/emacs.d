@@ -4,5 +4,5 @@ if [ -d slime-cvs ]; then
   cvs up -dP slime-cvs
 else
   cvs login
-  cvs export -rHEAD -d slime-cvs slime
+  cvs co -rHEAD -d slime-cvs slime
 fi
