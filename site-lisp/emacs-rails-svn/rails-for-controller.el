@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-for-controller.el $
-;; $Id: rails-for-controller.el 61 2007-01-21 17:26:12Z dimaexe $
+;; $Id: rails-for-controller.el 85 2007-01-28 20:35:48Z dimaexe $
 
 ;;; License
 
@@ -27,7 +27,7 @@
 
 ;;; Code:
 
-(defun rails-controller:switch-to-view()
+(defun rails-controller:switch-to-view ()
   "Switch to the view corresponding to the current action."
   (interactive)
   (let* ((controller (rails-core:current-controller))
@@ -75,18 +75,22 @@ menu."
          (views (list))
          (helper (rails-core:file (rails-core:helper-file controller)))
          (test (rails-core:file (rails-core:functional-test-file controller)))
-         file)
+         item)
     (when test
       (add-to-list 'menu (list "Functional test" test)))
     (when action
-      (add-to-list 'menu (list "Current action" (car (rails-core:get-view-files controller action)))))
+      (add-to-list 'menu (list "Current view" 'rails-controller:switch-to-view)))
     (when helper
       (add-to-list 'menu (list "Helper" helper)))
-    (setq file
+    (setq item
           (rails-core:menu
-           (list "Please select.." (cons "Please select.." menu))))
-    (when (and file (file-exists-p file))
-      (find-file file))))
+           (list (concat "Controller " controller)
+                 (cons "Please select.." menu))))
+    (when item
+      (if (symbolp item)
+          (apply item nil)
+        (when (file-exists-p item)
+          (find-file item))))))
 
 (defun rails-for-controller ()
   "Enable controller configurations."

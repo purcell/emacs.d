@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
-;; $Id: rails-lib.el 62 2007-01-21 17:33:24Z dimaexe $
+;; $Id: rails-lib.el 88 2007-01-29 21:21:06Z dimaexe $
 
 ;;; License
 
@@ -56,9 +56,11 @@ If EXPR is not nil exeutes BODY.
 ;; Lists
 
 (defun list->alist (list)
-  "Convert (a b c) to ((a . a) (b . b) (c . c))."
-  (mapcar #'(lambda (el) (cons el el))
-    list))
+  "Convert ((a . b) c d) to ((a . b) (c . c) (d . d))."
+  (mapcar
+   #'(lambda (el)
+       (if (listp el) el(cons el el)))
+   list))
 
 (defun uniq-list (list)
   "Return a list of unique elements."
@@ -136,14 +138,14 @@ ABBREV-TABLE for the abbreviation ABBREV-NAME."
 "
   `(progn
      ,@(loop for table in abbrev-tables
-       collect
-       `(snippet-with-abbrev-table ',table
-    ,@(loop for (name template desc) in snips collect
-      `(,name . ,template)))
-       append
-       (loop for (name template desc) in snips collect
-       `(setf ,(snippet-menu-description-variable table name)
-        ,desc)))))
+             collect
+             `(snippet-with-abbrev-table ',table
+                                         ,@(loop for (name template desc) in snips collect
+                                                 `(,name . ,template)))
+             append
+             (loop for (name template desc) in snips collect
+                   `(setf ,(snippet-menu-description-variable table name)
+                          ,desc)))))
 
 (defun snippet-menu-description (abbrev-table name)
   "Return the menu descripton for the snippet named NAME in
@@ -232,7 +234,8 @@ it."
 (defun rails-browse-api-url (url)
   "Browse preferentially with Emacs w3m browser."
   (if rails-browse-api-with-w3m
-      (w3m-find-file (remove-prefix url "file://"))
+      (when (fboundp 'w3m-find-file)
+        (w3m-find-file (remove-prefix url "file://")))
     (rails-alternative-browse-url url)))
 
 (defun rails-alternative-browse-url (url &rest args)
@@ -242,5 +245,155 @@ the user explicit sets `rails-use-alternative-browse-url'."
   (if (and (eq system-type 'windows-nt) rails-use-alternative-browse-url)
       (w32-shell-execute "open" "iexplore" url)
     (browse-url url args)))
+
+;; snippets related
+
+;; (setq pp (create-snippets-and-menumap-from-dsl rails-snippets-menu-list))
+
+;; ;; (symbol-value 'lisp-mode-abbrev-table)
+;; (setq mm (make-sparse-keymap "test3"))
+;; (local-set-key [menu-bar test3] (cons "Test3" pp))
+
+(defmacro compile-snippet(expand)
+  `(lambda () (interactive) (snippet-insert ,(symbol-value expand))))
+
+;; (setq b "for")
+;; (macroexpand '(compile-snippet b))
+
+;; ([rails] (cons "RubyOnRails" (make-sparse-keymap "RubyOnRails")))
+
+(defun create-snippets-and-menumap-from-dsl (body &optional path menu keymap abbrev-table)
+  (unless path (setq path (list)))
+  (unless menu (setq menu (list)))
+  (unless abbrev-table (setq abbrev-table (list)))
+  (unless keymap (setq keymap (make-sparse-keymap "Snippets")))
+  (dolist (tail body)
+    (let ((p path)
+          (a (nth 0 tail))
+          (b (nth 1 tail))
+          (c (cddr tail))
+          (abbr abbrev-table))
+      (if (eq a :m)
+          (progn
+            (while (not (listp (car c)))
+              (add-to-list 'abbr (car c))
+              (setq c (cdr c)))
+            (add-to-list 'p b t)
+            (define-key keymap
+              (vconcat (mapcar #'make-symbol p))
+              (cons b (make-sparse-keymap b)))
+            (setq keymap (create-snippets-and-menumap-from-dsl c p menu keymap abbr)))
+        (let ((c (car c)))
+          (while (car abbr)
+            (define-abbrev (symbol-value (car abbr)) a "" (compile-snippet b))
+            (setq abbr (cdr abbr)))
+          (define-key keymap
+            (vconcat (mapcar #'make-symbol (add-to-list 'p a t)))
+            (cons (concat a " \t" c) (compile-snippet b)))))))
+  keymap)
+
+;; Colorize
+
+(defun apply-colorize-to-buffer (name)
+  (let ((buffer (current-buffer)))
+    (set-buffer name)
+    (make-local-variable 'after-change-functions)
+    (add-hook 'after-change-functions
+              '(lambda (start end len)
+                 (ansi-color-apply-on-region start end)))
+    (set-buffer buffer)))
+
+;; MMM
+
+;; (defvar mmm-indent-sandbox-finish-position nil)
+
+;; (defun mmm-run-indent-with-sandbox (indent-func)
+;;   (interactive)
+;;   (let* ((fragment-name "*mmm-indent-sandbox*")
+;;          (ovl (mmm-overlay-at (point)))
+;;          (current (when ovl (overlay-buffer ovl)))
+;;          (start (when ovl (overlay-start ovl)))
+;;          (end (when ovl (overlay-end ovl)))
+;;          (current-pos (when ovl (point)))
+;;          (ovl-line-start (when start
+;;                            (progn (goto-char start)
+;;                                   (line-beginning-position))))
+;;          (current-line-start (when current-pos
+;;                                (progn (goto-char current-pos)
+;;                                       (line-beginning-position))))
+;;          (fragment-pos (when (and start end) (- (point) (- start 1))))
+;;          (ovl-offset (when ovl (- (progn
+;;                                     (goto-char start)
+;;                                     (while (not (looking-at "<"))
+;;                                       (goto-char (- (point) 1)))
+;;                                     (point))
+;;                                   ovl-line-start)))
+;;          (content (when (and start end) (buffer-substring-no-properties start end)))
+;;          (fragment (when content (get-buffer-create fragment-name))))
+;;     (when fragment
+;;       (setq mmm-indent-sandbox-finish-position nil)
+;;       (save-excursion
+;;         (set-buffer fragment-name)
+;;         (beginning-of-buffer)
+;;         (insert content)
+;;         (goto-char fragment-pos)
+;;         (funcall indent-func t)
+;;         (let ((start-line)
+;;               (end-line)
+;;               (kill-after-start)
+;;               (finish-pos (- (+ start (point)) 1))
+;;               (indented (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+;;           (set-buffer current)
+;;           (kill-buffer fragment-name)
+;;           (princ ovl-offset)
+;;           (goto-char current-pos)
+;;           (setq start-line (line-beginning-position))
+;;           (setq end-line (line-end-position))
+;;           (when (> start start-line)
+;;             (setq start-line (+ start 1))
+;;             (setq kill-after-start t))
+;;           (when (> end-line end)
+;;             (setq end-line end))
+;;           (kill-region start-line end-line)
+;;           (goto-char start-line)
+;;           (unless (= ovl-line-start current-line-start)
+;;             (dotimes (i ovl-offset)
+;;               (setq indented (concat " " indented))))
+;; ;;           (insert-char (string-to-char " ") ovl-offset))
+;;           (insert indented)
+;;           (when kill-after-start
+;;             (goto-char (+ start 1))
+;;             (backward-delete-char 1))
+;; ;;           (setq mmm-indent-sandbox-finish-position finish-pos)))
+;;           (if (= ovl-line-start current-line-start)
+;;               (setq mmm-indent-sandbox-finish-position finish-pos)
+;;             (setq mmm-indent-sandbox-finish-position (+ finish-pos ovl-offset)))))
+;;       (goto-char mmm-indent-sandbox-finish-position))))
+
+;; (defadvice ruby-indent-line (around mmm-sandbox-ruby-indent-line)
+;;   (if (and (fboundp 'mmm-overlay-at)
+;;            (mmm-overlay-at (point)))
+;;       (mmm-run-indent-with-sandbox 'ruby-indent-line)
+;;     ad-do-it))
+;; (ad-activate 'ruby-indent-line)
+
+
+;; Cross define functions from my rc files
+
+(unless (fboundp 'indent-or-complete)
+  (defun indent-or-complete ()
+    "Complete if point is at end of a word, otherwise indent line."
+    (interactive)
+    (unless
+        (when (and (boundp 'snippet)
+                   snippet)
+          (progn
+            (snippet-next-field)))
+      (if (looking-at "\\>")
+          (progn
+            (hippie-expand nil)
+            (message ""))
+        (indent-for-tab-command)))))
+
 
 (provide 'rails-lib)

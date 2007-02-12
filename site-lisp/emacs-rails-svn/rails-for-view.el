@@ -4,7 +4,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-for-view.el $
-;; $Id: rails-for-view.el 61 2007-01-21 17:26:12Z dimaexe $
+;; $Id: rails-for-view.el 77 2007-01-27 17:44:21Z dimaexe $
 
 ;;; License
 
@@ -117,7 +117,11 @@
     (add-to-list 'menu (list "Controller" 'rails-view:switch-to-action))
     (setq item
           (rails-core:menu
-           (list "Please select.." (cons "Please select.." menu))))
+           (list (concat "View "
+                         (rails-core:current-controller)
+                         "#"
+                         (rails-core:current-action))
+                 (cons "Please select.." menu))))
 
     (when item
       (if (symbolp item)
@@ -130,7 +134,7 @@
   (interactive)
   (setq rails-primary-switch-func 'rails-view:switch-to-action)
   (setq rails-secondary-switch-func 'rails-view:switch-with-menu)
-  (if (fboundp mmm-primary-mode)
+  (if (boundp 'mmm-mode-map)
       (progn
         (define-key mmm-mode-map (kbd "\C-c p") 'rails-view:create-partial-from-selection)
         (define-key mmm-mode-map (kbd "\C-c b") 'rails-view:create-helper-from-block))

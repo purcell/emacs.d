@@ -1,0 +1,18 @@
+0.5.3
+* create separate menubar entry "Snippets"
+* allow web server selection auto-save
+* fix errors at work with sql
+* fix byte-compile warnings
+
+0.5.2
+* Bug fixes: #8221, #8223
+* Using system `tail` program for display log files
+
+0.5.1 at 27.01.2007
+
+* Support plugin: quick menu "Go to plugins" and navigate inside plugin
+* Update Web Server support, add Lighttd to list of supported servers 
+* Automatic apply ruby-mode to *.rake files and setup utf-8 encoding
+* Add more targets to generate/destroy
+* Add autocomplete in generate/destroy/rake/test commands
+* Small fixes indentation in snippets

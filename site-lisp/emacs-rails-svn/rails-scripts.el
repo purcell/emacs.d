@@ -26,6 +26,31 @@
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 (defvar rails-generation-buffer-name "*RailsGeneration*")
+(defvar rails-rake-tests-alist
+  '(("all" . "test")
+    ("recent" . "test:recent")
+    ("unit" . "test:unit")
+    ("functionals" . "test:functionals")
+    ("integraion" . "test:integration")))
+
+(defvar rails-rake-recent-test-alist
+  nil)
+
+(defvar rails-generators-list
+  '("controller" "model" "scaffold" "migration" "plugin" "mailer" "observer" "resource"))
+
+(defvar rails-destroy-list
+  '("controller" "model" "scaffold" "migration" "plugin" "mailer" "observer" "resource"))
+
+(defvar rails-generate-params-list
+  '("-f")
+  "Add parameters to script/generate.
+For example -s to keep existing files and -c to add new files into svn.")
+
+(defvar rails-destroy-params-list
+  '("-f")
+  "Add parameters to script/destroy.
+For example -c to remove files from svn.")
 
 (defun rails-run-script (script buffer parameters &optional message-format)
   "Run a Rails script with PARAMETERS in BUFFER using
@@ -45,37 +70,84 @@ MESSAGE-FORMAT to format the output."
 
 ;;;;;;;;;; Destroy stuff ;;;;;;;;;;
 
-(defun rails-destroy (&rest parameters)
+(defun rails-destroy-run (&rest parameters)
   "Run the destroy script."
-  (rails-run-script "destroy" rails-generation-buffer-name parameters
+  (rails-run-script "destroy" rails-generation-buffer-name
+                    (append parameters rails-destroy-params-list)
                     "%s %s destroyed."))
+
+(defun rails-destroy (&optional what)
+  "Run destroy WHAT"
+  (interactive (list (completing-read "What destroy? (use autocomplete): " rails-destroy-list)))
+  (let ((name (intern (concat "rails-destroy-" what))))
+    (when (fboundp name)
+      (call-interactively name))))
 
 (defun rails-destroy-controller (&optional controller-name)
   "Run the destroy script for controllers."
   (interactive
    (list (completing-read "Destroy controller: " (list->alist (rails-core:controllers t)))))
   (when (string-not-empty controller-name)
-    (rails-destroy "controller" controller-name)))
+    (rails-destroy-run "controller" controller-name)))
 
 (defun rails-destroy-model (&optional model-name)
   "Run the destroy script for models."
   (interactive (list (completing-read "Destroy model: " (list->alist (rails-core:models)))))
   (when (string-not-empty model-name)
-    (rails-destroy "model" model-name)))
+    (rails-destroy-run "model" model-name)))
 
 (defun rails-destroy-scaffold (&optional scaffold-name)
   "Run the destroy script for scaffolds."
   ;; buggy
   (interactive "MDestroy scaffold: ")
   (when (string-not-empty scaffold-name)
-    (rails-destroy "scaffold" scaffold-name)))
+    (rails-destroy-run "scaffold" scaffold-name)))
+
+(defun rails-destroy-migration (&optional migration-name)
+  "Run the destroy script for migration"
+  (interactive (list (completing-read "Destroy migration: " (list->alist (rails-core:migrations)))))
+  (when (string-not-empty migration-name)
+    (rails-destroy-run "migration" migration-name)))
+
+(defun rails-destroy-mailer (&optional mailer-name)
+  "Run the destroy script for mailer"
+  (interactive "MDestroy mailer: ")
+  (when (string-not-empty mailer-name)
+    (rails-destroy-run "mailer" mailer-name)))
+
+(defun rails-destroy-plugin (&optional plugin-name)
+  "Run the destroy script for plugin"
+  (interactive (list (completing-read "Destroy plugin: " (list->alist (rails-core:plugins)))))
+  (when (string-not-empty plugin-name)
+    (rails-destroy-run "plugin" plugin-name)))
+
+(defun rails-destroy-observer (&optional observer-name)
+  "Run the destroy script for observer"
+  (interactive "MDestroy observer: ")
+  (when (string-not-empty observer-name)
+    (rails-destroy-run "observer" observer-name)))
+
+(defun rails-destroy-resource (&optional resource-name)
+  "Run the destroy script for resource"
+  (interactive "MDestroy resource: ")
+  (when (string-not-empty resource-name)
+    (rails-destroy-run "resource" resource-name)))
 
 ;;;;;;;;;; Generators stuff ;;;;;;;;;;
 
-(defun rails-generate (&rest parameters)
+(defun rails-generate-run (&rest parameters)
   "Run the generate script using PARAMETERS."
-  (rails-run-script "generate" rails-generation-buffer-name parameters
+  (rails-run-script "generate"
+                    rails-generation-buffer-name
+                    (append parameters rails-generate-params-list)
                     "%s %s generated."))
+
+(defun rails-generate (&optional what)
+  "Run generate WHAT"
+  (interactive (list (completing-read "What generate? (use autocomplete): " rails-generators-list)))
+  (let ((name (intern (concat "rails-generate-" what))))
+    (when (fboundp name)
+      (call-interactively name))))
 
 (defun rails-generate-controller (&optional controller-name actions)
   "Generate a controller and open the controller file."
@@ -84,16 +156,16 @@ MESSAGE-FORMAT to format the output."
                                  (list->alist (rails-core:controllers-ancestors)))
                 (read-string "Actions (or return to skip): ")))
   (when (string-not-empty controller-name)
-    (rails-generate "controller" controller-name actions)
-    (rails-core:find-file (rails-core:controller-file controller-name))))
+    (rails-generate-run "controller" controller-name actions)
+    (rails-core:find-file-if-exist (rails-core:controller-file controller-name))))
 
 (defun rails-generate-model (&optional model-name)
   "Generate a model and open the model file."
   (interactive
    (list (completing-read "Model name: " (list->alist (rails-core:models-ancestors)))))
   (when (string-not-empty model-name)
-    (rails-generate "model" model-name)
-    (rails-core:find-file (rails-core:model-file model-name))))
+    (rails-generate-run "model" model-name)
+    (rails-core:find-file-if-exist (rails-core:model-file model-name))))
 
 (defun rails-generate-scaffold (&optional model-name controller-name actions)
   "Generate a scaffold and open the controller file."
@@ -102,23 +174,54 @@ MESSAGE-FORMAT to format the output."
   (when (string-not-empty model-name)
     (if (string-not-empty controller-name)
         (progn
-          (rails-generate "scaffold" model-name controller-name actions)
-          (rails-core:find-file (rails-core:controller-file controller-name)))
+          (rails-generate-run "scaffold" model-name controller-name actions)
+          (rails-core:find-file-if-exist (rails-core:controller-file controller-name)))
       (progn
-        (rails-generate "scaffold" model-name)
-        (rails-core:find-file (rails-core:controller-file model-name))))))
+        (rails-generate-run "scaffold" model-name)
+        (rails-core:find-file-if-exist (rails-core:controller-file model-name))))))
 
 (defun rails-generate-migration (migration-name)
   "Generate a migration and open the migration file."
   (interactive "MMigration name: ")
   (when (string-not-empty migration-name)
-    (rails-generate "migration" migration-name)
-    (rails-core:find-file
+    (rails-generate-run "migration" migration-name)
+    (rails-core:find-file-if-exist
      (save-excursion
        (set-buffer rails-generation-buffer-name)
        (goto-line 2)
        (search-forward-regexp "\\(db/migrate/[0-9a-z_]+.rb\\)")
        (match-string 1)))))
+
+(defun rails-generate-plugin (plugin-name)
+  "Generate a plugin and open the init.rb file."
+  (interactive "MPlugin name: ")
+  (when (string-not-empty plugin-name)
+    (rails-generate-run "plugin" plugin-name)
+    (rails-core:find-file-if-exist (concat "vendor/plugins/" plugin-name "/init.rb"))))
+
+(defun rails-generate-mailer (mailer-name)
+  "Generate a mailer and open the mailer file"
+  (interactive "MMailer name: ")
+  (when (string-not-empty mailer-name)
+    (rails-generate-run "mailer" mailer-name)
+    (rails-core:find-file-if-exist (concat (rails-core:model-file mailer-name)))))
+
+(defun rails-generate-observer (observer-name)
+  "Generate a observer and open the observer file"
+  (interactive "MObserver name: ")
+  (when (string-not-empty observer-name)
+    (rails-generate-run "observer" observer-name)
+    (unless (string-match "[Oo]bserver$" observer-name)
+      (setq observer-name (concat observer-name "_observer")))
+    (rails-core:find-file-if-exist (concat (rails-core:model-file observer-name)))))
+
+(defun rails-generate-resource (resource-name)
+  "Generate a resource and open the resource file"
+  (interactive "MResource name: ")
+  (when (string-not-empty resource-name)
+    (rails-generate-run "resource" resource-name)
+    ;; pluralize bug
+    (rails-core:find-file-if-exist (concat (rails-core:controller-file resource-name)))))
 
 ;;;;;;;;;; Rails create project ;;;;;;;;;;
 
@@ -193,34 +296,25 @@ MESSAGE-FORMAT to format the output."
 
 (defun rails-rake (&optional task message)
   "Run a Rake task in RAILS_ROOT."
-  (interactive (list (completing-read "Rake task: " (list->alist (rails-rake-tasks)))))
+  (interactive (list (completing-read "Rake task (use autocomplete): " (list->alist (rails-rake-tasks)))))
   (rails-core:in-root
    (message (or message (format "Running rake task \"%s\"" task)))
    (shell-command (concat "rake " task) "*Rails Rake Output*" "*Rails Rake Errors*")))
 
-(defun rails-rake-tests ()
+(defun rails-rake-tests (&optional what)
   "Run Rake tests in RAILS_ROOT."
-  (interactive)
-  (rails-rake "test" "Running all tests"))
-
-(defun rails-rake-integration-tests ()
-  "Run Rake integration tests in RAILS_ROOT."
-  (interactive)
-  (rails-rake "test:integration" "Running integration tests"))
-
-(defun rails-rake-unit-tests ()
-  "Run Rake unit tests in RAILS_ROOT."
-  (interactive)
-  (rails-rake "test:units" "Running unit tests"))
-
-(defun rails-rake-functional-tests ()
-  "Run Rake functional tests in RAILS_ROOT."
-  (interactive)
-  (rails-rake "test:functionals" "Running functional tests"))
-
-(defun rails-rake-recent-tests ()
-  "Run Rake recent tests in RAILS_ROOT."
-  (interactive)
-  (rails-rake "test:recent" "Running recent tests"))
+  (interactive (list (completing-read (concat "What test run?"
+                                              (when rails-rake-recent-test-alist
+                                                (concat " (" rails-rake-recent-test-alist  ")") )
+                                              ": ")
+                                      rails-rake-tests-alist
+                                      nil nil nil nil
+                                      (caar rails-rake-tests-alist))))
+  (unless what
+    (setq what rails-rake-recent-test-alist))
+  (when what
+    (let ((task (cdr (assoc what rails-rake-tests-alist))))
+      (setq rails-rake-recent-test-alist what)
+      (rails-rake task (concat "Running " what " tests")))))
 
 (provide 'rails-scripts)

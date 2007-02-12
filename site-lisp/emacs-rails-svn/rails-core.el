@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-core.el 61 2007-01-21 17:26:12Z dimaexe $
+;; $Id: rails-core.el 85 2007-01-28 20:35:48Z dimaexe $
 
 ;;; License
 
@@ -24,6 +24,9 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+(eval-when-compile
+  (require 'rails-lib))
 
 (defun rails-core:root ()
   "Return RAILS_ROOT if this file is a part of a Rails application,
@@ -113,8 +116,11 @@ will not append \".rb\" to result."
 
 (defun rails-core:file (file-name)
   "Return the full path for FILE-NAME in a Rails directory."
-  (when-bind (root (rails-core:root))
-       (concat root file-name)))
+  (if (file-name-absolute-p file-name)
+      file-name
+    (when-bind
+     (root (rails-core:root))
+     (concat root file-name))))
 
 (defun rails-core:quoted-file (file-name)
   "Return the quoted full path for FILE-NAME in a Rails directory."
@@ -129,7 +135,7 @@ will not append \".rb\" to result."
   "Open the file named FILE-NAME in a Rails directory only if the file exists."
   (let ((file-name (rails-core:file file-name)))
     (when (file-exists-p file-name)
-  (find-file file-name))))
+      (find-file file-name))))
 
 (defun rails-core:find-or-ask-to-create (question file)
   "Open the file named FILE in a Rails directory if it exists. If
@@ -139,7 +145,7 @@ it does not exist, ask to create it using QUESTION as a prompt."
 ;; Funtions, that retrun Rails objects full pathes
 
 (defun rails-core:model-file (model-name)
-  "Return teh model file from the model name."
+  "Return the model file from the model name."
   (concat "app/models/" (rails-core:file-by-class model-name)))
 
 (defun rails-core:controller-file (controller-name)
@@ -149,6 +155,20 @@ it does not exist, ask to create it using QUESTION as a prompt."
      (rails-core:short-controller-name controller-name) t)
     (unless (string-equal controller-name "Application") "_controller")
     ".rb"))
+
+(defun rails-core:observer-file (observer-name)
+  "Return the path to the observer OBSERVER-NAME."
+  (rails-core:model-file (concat observer-name "Observer")))
+
+(defun rails-core:migrate-file (migrate-name)
+  "Return the model file from the MIGRATE-NAME."
+  (concat "db/migrate/" (replace-regexp-in-string
+                         " " "_"
+                         (rails-core:file-by-class migrate-name))))
+
+(defun rails-core:plugin-file (plugin file)
+  "Return the path to the FILE in Rails PLUGIN."
+  (concat "vendor/plugins/" plugin "/" file))
 
 (defun rails-core:layout-file (layout)
   "Return the path to the layout file named LAYOUT."
@@ -214,23 +234,77 @@ CONTROLLER."
    controller)))))
 
 ;;;;;;;;;; Functions that return collection of Rails objects  ;;;;;;;;;;
+(defun rails-core:observer-p (name)
+  (if (string-match "\\(Observer\\|_observer\\(\\.rb\\)?\\)$" name)
+      t nil))
 
 (defun rails-core:controllers (&optional cut-contoller-suffix)
   "Return a list of Rails controllers. Remove the '_controller'
 suffix if CUT-CONTOLLER-SUFFIX is non nil."
   (mapcar
-   (lambda (controller)
-     (rails-core:class-by-file
-      (if cut-contoller-suffix
-    (replace-regexp-in-string "_controller\." "\." controller)
-  controller)))
-   (find-recursive-files "_controller\\.rb$" (rails-core:file "app/controllers/"))))
+   #'(lambda (controller)
+       (rails-core:class-by-file
+        (if cut-contoller-suffix
+            (replace-regexp-in-string "_controller\\." "." controller)
+          controller)))
+   (delete-if-not
+    #'(lambda (controller)
+        (string-match "\\(application\\|[a-z0-9_]+_controller\\)\\.rb$"
+                      controller))
+    (find-recursive-files "\\.rb$" (rails-core:file "app/controllers/")))))
 
 (defun rails-core:models ()
   "Return a list of Rails models."
   (mapcar
    #'rails-core:class-by-file
-   (find-recursive-files "\\.rb$" (rails-core:file "app/models/"))))
+   (delete-if
+    #'rails-core:observer-p
+    (find-recursive-files "\\.rb$" (rails-core:file "app/models/")))))
+
+(defun rails-core:observers ()
+  "Return a list of Rails observers."
+  (mapcar
+   #'(lambda (observer) (replace-regexp-in-string "Observer$" "" observer))
+   (mapcar
+    #'rails-core:class-by-file
+    (find-recursive-files "\\(_observer\\)\\.rb$" (rails-core:file "app/models/")))))
+
+(defun rails-core:helpers ()
+  "Return a list of Rails helpers."
+  (mapcar
+   #'(lambda (helper) (replace-regexp-in-string "Helper$" "" helper))
+   (mapcar
+    #'rails-core:class-by-file
+    (find-recursive-files "_helper\\.rb$" (rails-core:file "app/helpers/")))))
+
+(defun rails-core:migrations ()
+  "Return a list of Rails migrations."
+  (reverse
+   (mapcar
+    #'(lambda (migration)
+        (replace-regexp-in-string "^\\([0-9]+\\)" "\\1 " migration))
+    (mapcar
+     #'rails-core:class-by-file
+     (find-recursive-files "^[0-9]+_.*\\.rb$" (rails-core:file "db/migrate/"))))))
+
+(defun rails-core:plugins ()
+  "Return a list of Rails plugins."
+  (mapcar
+   #'file-name-nondirectory
+   (delete-if-not
+    #'file-directory-p
+    (directory-files (rails-core:file "vendor/plugins") t "^[^\\.]"))))
+
+(defun rails-core:plugin-files (plugin)
+  "Return a list of files in specific Rails plugin."
+  (find-recursive-files  "^[^.]" (rails-core:file (concat "vendor/plugins/" plugin))))
+
+(defun rails-core:layouts ()
+  "Return a list of Rails layouts."
+  (mapcar
+   #'(lambda (l)
+       (replace-regexp-in-string "\\.[^.]+$" "" l))
+   (find-recursive-files "\\.rhtml" (rails-core:file "app/views/layouts"))))
 
 (defun rails-core:regex-for-match-view ()
   "Return a regex to match Rails view templates.
@@ -303,7 +377,13 @@ If the action is nil, return all views for the controller."
 
 (defun rails-core:current-helper ()
   "Return the current helper"
-  (concat (rails-core:current-controller) "Helper"))
+  (rails-core:current-controller))
+
+(defun rails-core:current-plugin ()
+  "Return the current plugin name."
+  (let ((name (buffer-file-name)))
+    (when (string-match "vendor\\/plugins\\/\\([^\\/]+\\)" name)
+      (match-string 1 name))))
 
 ;;;;;;;;;; Determination of buffer type ;;;;;;;;;;
 
@@ -407,7 +487,7 @@ If optional parameter ADD_SEPARATOR is present, then add separator to menu."
   (let ((result
          (if (rails-use-text-menu)
              (tmm-prompt menu)
-           (x-popup-menu (list '(200 100) (selected-window))
+           (x-popup-menu (list '(300 50) (selected-window))
                          menu))))
     (if (listp result)
         (first result)

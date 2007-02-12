@@ -4,7 +4,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 57 2006-12-03 11:21:30Z dimaexe $
+;; $Id: rails-ruby.el 70 2007-01-25 01:26:43Z dimaexe $
 
 ;;; License
 
@@ -24,16 +24,15 @@
 
 ;;; Code:
 
-(defadvice ruby-indent-command (around ruby-indent-or-complete activate)
-  "Complete if point is at the end of a word; otherwise, indent
-line."
-  (interactive)
-  (unless
-      (when snippet (snippet-next-field))
-    (if (looking-at "\\>")
-        (hippie-expand nil)
-      ad-do-it)))
-
+;; (defadvice ruby-indent-command (around ruby-indent-or-complete activate)
+;;   "Complete if point is at the end of a word; otherwise, indent
+;; line."
+;;   (interactive)
+;;   (unless
+;;       (when snippet (snippet-next-field))
+;;     (if (looking-at "\\>")
+;;         (hippie-expand nil)
+;;       ad-do-it)))
 (defun ruby-newline-and-indent ()
   (interactive)
   (newline)

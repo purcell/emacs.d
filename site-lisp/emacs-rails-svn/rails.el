@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 64 2007-01-21 17:35:59Z dimaexe $
+;; $Id: rails.el 88 2007-01-29 21:21:06Z dimaexe $
 
 ;;; License
 
@@ -33,6 +33,7 @@
   (require 'ruby-mode)
   (require 'ruby-electric))
 
+(require 'sql)
 (require 'ansi-color)
 (require 'snippet)
 (require 'etags)
@@ -41,9 +42,11 @@
 
 (require 'rails-core)
 (require 'rails-lib)
-(require 'rails-webrick)
 (require 'rails-navigation)
 (require 'rails-scripts)
+(require 'rails-ws)
+(require 'rails-log)
+(require 'rails-snippets)
 (require 'rails-ui)
 
 ;;;;;;;;;; Variable definition ;;;;;;;;;;
@@ -133,12 +136,14 @@ Emacs w3m browser."
     (:view             "app/views/")
     (:model            "app/models/")
     (:helper           "app/helpers/")
+    (:plugin           "vendor/plugins/")
     (:unit-test        "test/unit/")
     (:functional-test  "test/functional/")
     (:fixtures         "test/fixtures/"))
   "Rails file types -- rails directories map")
 
 (defvar rails-enviroments '("development" "production" "test"))
+(defvar rails-default-environment (first rails-enviroments))
 
 (defvar rails-adapters-alist
   '(("mysql"      . sql-mysql)
@@ -157,53 +162,12 @@ Emacs w3m browser."
   "Function witch called by rails finds")
 
 ;;;;;;;; hack ;;;;
-
-;; replace in autorevert.el
-(defun auto-revert-tail-handler ()
-  (let ((size (nth 7 (file-attributes buffer-file-name)))
-        (modified (buffer-modified-p))
-        buffer-read-only    ; ignore
-        (file buffer-file-name)
-        buffer-file-name)   ; ignore that file has changed
-    (when (> size auto-revert-tail-pos)
-      (undo-boundary)
-      (save-restriction
-        (widen)
-        (save-excursion
-          (let ((cur-point (point-max)))
-            (goto-char (point-max))
-            (insert-file-contents file nil auto-revert-tail-pos size)
-            (ansi-color-apply-on-region cur-point (point-max)))))
-      (undo-boundary)
-      (setq auto-revert-tail-pos size)
-      (set-buffer-modified-p modified)))
-  (set-visited-file-modtime))
-
 (defun rails-svn-status-into-root ()
   (interactive)
   (rails-core:with-root (root)
                         (svn-status root)))
 
 ;; helper functions/macros
-(defun rails-open-log (env)
-  "Open Rails log file for environment ENV (development, production, test)"
-  (interactive (list (rails-read-enviroment-name)))
-  (rails-core:with-root
-   (root)
-   (let ((log-file (rails-core:file (concat "/log/" env ".log"))))
-     (when (file-exists-p log-file)
-         (find-file log-file)
-         (set-buffer-file-coding-system 'utf-8)
-         (ansi-color-apply-on-region (point-min) (point-max))
-         (set-buffer-modified-p nil)
-         (rails-minor-mode t)
-         (goto-char (point-max))
-         (setq auto-revert-interval 0.5)
-         (auto-revert-set-timer)
-         (setq auto-window-vscroll t)
-         (make-local-variable 'rails-api-root)
-         (auto-revert-tail-mode t)))))
-
 (defun rails-search-doc (&optional item)
   (interactive)
   (setq item (if item item (thing-at-point 'sexp)))
@@ -256,9 +220,9 @@ Emacs w3m browser."
   "Return database parameters for enviroment ENV"
   (with-temp-buffer
     (shell-command
-     (format "ruby -r yaml -e 'YAML.load_file(%s)[\"%s\"].to_yaml.display'"
-             (rails-core:quoted-file "config/database.yml")
-             env)
+     (format "ruby -r yaml -r erb -e 'YAML.load(ERB.new(ARGF.read).result)[\"%s\"].to_yaml.display' %s"
+             env
+             (rails-core:file "config/database.yml"))
      (current-buffer))
     (let ((answer
            (make-rails-db-conf
@@ -281,7 +245,6 @@ Emacs w3m browser."
 (defun* rails-run-sql (&optional env)
   "Run a SQL process for the current Rails project."
   (interactive (list (rails-read-enviroment-name "development")))
-  (require 'sql)
   (rails-core:with-root (root)
     (cd root)
     (if (bufferp (sql-find-sqli-buffer))
@@ -400,18 +363,16 @@ necessary."
 (add-hook 'ruby-mode-hook
           (lambda()
             (require 'rails-ruby)
-            (set (make-local-variable 'indent-tabs-mode) 'nil)
             (require 'ruby-electric)
             (ruby-electric-mode t)
-            (syntax-table)
-            (capitalize "AA/addd_aaa")
+            (imenu-add-to-menubar "IMENU")
             (modify-syntax-entry ?! "w" (syntax-table))
             (modify-syntax-entry ?: "w" (syntax-table))
             (modify-syntax-entry ?_ "w" (syntax-table))
             (local-set-key (kbd "C-.") 'complete-tag)
             (local-set-key (if rails-use-another-define-key
                                (kbd "TAB") (kbd "<tab>"))
-                           'ruby-indent-command)
+                           'indent-or-complete)
             (local-set-key (if rails-use-another-define-key
                                (kbd "RET") (kbd "<return>"))
                            'ruby-newline-and-indent)))
@@ -432,15 +393,11 @@ necessary."
                                 (save-excursion
                                   (untabify (point-min) (point-max))
                                   (delete-trailing-whitespace))))))
+               (local-set-key (if rails-use-another-define-key
+                                  (kbd "TAB") (kbd "<tab>"))
+                              'indent-or-complete)
                (rails-minor-mode t)
-               (rails-apply-for-buffer-type)
-               (local-set-key (if rails-use-another-define-key "TAB" (kbd "<tab>"))
-                              '(lambda() (interactive)
-                                 (if snippet
-                                     (snippet-next-field)
-                                   (if (looking-at "\\>")
-                                       (hippie-expand nil)
-                                     (indent-according-to-mode)))))))))
+               (rails-apply-for-buffer-type)))))
 
 ;;; Run rails-minor-mode in dired
 (add-hook 'dired-mode-hook
@@ -449,11 +406,13 @@ necessary."
                 (rails-minor-mode t))))
 
 (setq auto-mode-alist  (cons '("\\.rb$" . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rake$" . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rjs$" . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rxml$" . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rhtml$" . html-mode) auto-mode-alist))
 
 (modify-coding-system-alist 'file "\\.rb$" 'utf-8)
+(modify-coding-system-alist 'file "\\.rake$" 'utf-8)
 (modify-coding-system-alist 'file (rails-core:regex-for-match-view) 'utf-8)
 
 (provide 'rails)

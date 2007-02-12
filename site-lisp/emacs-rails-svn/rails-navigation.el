@@ -25,69 +25,114 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+(defun rails-nav:create-goto-menu (items title &optional append-to-menu)
+  (when append-to-menu
+    (dolist (l append-to-menu items)
+      (add-to-list 'items l t)))
+  (let ((selected
+         (when items
+           (rails-core:menu
+            (list title (cons title items))))))
+    (if selected selected (message "No files found"))))
+
 (defun rails-nav:goto-file-with-menu (dir title &optional ext no-inflector append-to-menu)
   "Make a menu to choose files from and find-file it."
   (let* (file
          files
          (ext (if ext ext "rb"))
          (ext (concat "\\." ext "$"))
-         (root (rails-core:root))
-         (dir (concat root dir))
-         (mouse-coord (if (functionp 'posn-at-point) ; mouse position at point
-                          (nth 2 (posn-at-point))
-                        (cons 200 100))))
+         (dir (rails-core:file dir)))
     (setq files (find-recursive-directory-relative-files dir "" ext))
     (setq files (sort files 'string<))
-    (setq files (reverse files))
     (setq files (mapcar
-                 (lambda(f)
-                   (list (if no-inflector
-                             f
-                           (rails-core:class-by-file f)) f))
+                 #'(lambda(f)
+                     (list
+                      (if no-inflector f (rails-core:class-by-file f))
+                      f))
                  files))
-    (if append-to-menu
-        (add-to-list 'files append-to-menu t))
+    (when-bind
+     (selected (rails-nav:create-goto-menu files title append-to-menu))
+     (if (symbolp selected)
+         (apply selected (list))
+       (rails-core:find-file-if-exist (concat dir selected))))))
 
-    (if files
-  (progn
-    (setq file (rails-core:menu
-          (list title (cons title files))))
-    (if file
-        (if (symbolp file)
-      (apply file nil)
-    (find-file (concat dir file)))))
-      (message "No files found"))))
+(defun rails-nav:goto-file-with-menu-from-list (items title func &optional append-to-menu)
+  (when-bind
+   (selected (rails-nav:create-goto-menu (list->alist items) title append-to-menu))
+   (when-bind
+    (file (apply func (list selected)))
+    (rails-core:find-file-if-exist file))))
 
 (defun rails-nav:goto-controllers ()
   "Go to controllers."
   (interactive)
-  (rails-nav:goto-file-with-menu "app/controllers/" "Go to controller.."))
+  (rails-nav:goto-file-with-menu-from-list
+   (rails-core:controllers t)
+   "Go to controller"
+   'rails-core:controller-file))
 
 (defun rails-nav:goto-models ()
   "Go to models."
   (interactive)
-  (rails-nav:goto-file-with-menu "app/models/" "Go to model.."))
+  (rails-nav:goto-file-with-menu-from-list
+   (rails-core:models)
+   "Go to model.."
+   'rails-core:model-file))
+
+(defun rails-nav:goto-observers ()
+  "Go to observers."
+  (interactive)
+  (rails-nav:goto-file-with-menu-from-list
+   (rails-core:observers)
+   "Go to observer.."
+   'rails-core:observer-file))
+
+(defun rails-nav:goto-migrate ()
+  "Go to migrations."
+  (interactive)
+  (rails-nav:goto-file-with-menu-from-list
+   (rails-core:migrations)
+   "Go to migrate.."
+   'rails-core:migrate-file))
 
 (defun rails-nav:goto-helpers ()
   "Go to helpers."
   (interactive)
-  (rails-nav:goto-file-with-menu "app/helpers/" "Go to helper.."))
+  (rails-nav:goto-file-with-menu-from-list
+   (rails-core:helpers)
+   "Go to helper.."
+   'rails-core:helper-file))
+
+(defun rails-nav:goto-plugins ()
+  "Go to plugins."
+  (interactive)
+  (rails-nav:goto-file-with-menu-from-list
+   (rails-core:plugins)
+   "Go to plugin.."
+   (lambda(plugin)
+     (concat "vendor/plugins/" plugin "/init.rb"))))
 
 (defun rails-nav:create-new-layout (&optional name)
   "Create a new layout."
-  (let ((name (or name (read-string "Layout name? ")))
-        (root (rails-core:root)))
-    (rails-core:find-file (rails-core:layout-file name))
-    (if (y-or-n-p "Insert initial template? ")
-        (insert rails-layout-template))))
+  (let ((name (or name (read-string "Layout name? "))))
+    (when name
+      (rails-core:find-file (rails-core:layout-file name))
+      (if (y-or-n-p "Insert initial template? ")
+          (insert rails-layout-template)))))
 
 (defun rails-nav:goto-layouts ()
   "Go to layouts."
   (interactive)
-  (let ((path "app/views/layouts/")
-        item)
-    (setq item (cons "Create new layout" 'rails-nav:create-new-layout))
-    (rails-nav:goto-file-with-menu path "Go to layout.." "rhtml" t item)))
+  (let ((items (list (cons "--" "--")
+                     (cons "Create new layout" 'rails-nav:create-new-layout))))
+    (rails-nav:goto-file-with-menu-from-list
+     (rails-core:layouts)
+     "Go to layout.."
+     (lambda (l)
+       (if (stringp l)
+           (rails-core:layout-file l)
+         (apply l (list))))
+     items)))
 
 (defun rails-nav:goto-stylesheets ()
   "Go to stylesheets."
@@ -98,11 +143,6 @@
   "Go tto JavaScripts."
   (interactive)
   (rails-nav:goto-file-with-menu "public/javascripts/" "Go to stylesheet.." "js" t))
-
-(defun rails-nav:goto-migrate ()
-  "Go to migrations."
-  (interactive)
-  (rails-nav:goto-file-with-menu "db/migrate/" "Go to migrate.." "rb" t))
 
 ;;;;;;;;;; Goto file on current line ;;;;;;;;;;
 
@@ -248,7 +288,7 @@ rails-goto-file-on-current-line is run.")
      ("Helper"          rails-for-controller:switch-to-helper)
      ("Functional test" rails-for-controller:switch-to-functional-test))
     (:view
-     ("Controller"      rails-for-rhtml:switch-to-controller-action)
+     ("Controller"      rails-view:switch-to-action)
      ("Helper"          rails-for-controller:switch-to-helper)
      ("Functional test" rails-for-controller:switch-to-functional-test))
     (:helper

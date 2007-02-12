@@ -1,3 +1,134 @@
+2007-02-02  dima  <dima.exe@gmail.com>
+
+	* rails-snippets.el (rails-snippets-menu-list): bug #8381 (bag "ff" snippet)
+
+2007-01-30  dima  <dima.exe@gmail.com>
+
+	* rails-snippets.el: create and place into it all snippets code
+
+	* rails-ui.el: drop snippets declaration, make separate menu "Snippets"
+
+2007-01-29  dima  <dima.exe@gmail.com>
+
+	* rails-lib.el: create function compile-snippet and create-snippets-and-menumap-from-dsl
+
+	* rails-ui.el (ruby-mode-abbrev-table): add mai snippet (add_index in migrations)
+
+	* rails.el (rails-db-parameters): patch #8232 (by Ronaldo Ferraz)
+	Console is not starting because env is not quoted in the function
+	call, resulting in a Ruby error
+
+	* rails-ws.el, rails-wi.el: patch #8233 (by Ronaldo Ferraz) Fixes
+	a couple of UI messages and allows web server selection auto-save
+
+2007-01-28  dima  <dima.exe@gmail.com>
+
+	* *.el: fix bytecompile warnings
+	
+	* rails-core.el: remove dublicate of fucntion rails-core:helper-file
+
+	* rails-navigation.el: patch #8228
+
+	* rails.el (ruby-mode-hook): remove variables tab-width and indent-tabs
+
+	* rails-ws.el: make variable  rails-ws:default-server-type are customized (to fix #8223)
+
+	* rails-lib.el: add cross declaration indent-or-complete (to fix #8221)
+
+2007-01-27  dima  <dima.exe@gmail.com>
+
+	* rails-for-controller.el (rails-controller:switch-with-menu):
+	call rails-controller:switch-to-view for "Current view" 
+
+	* rails-log.el (rails-log:open-file): run rails-minor-mode in log buffer
+
+	* rails-ui.el: update "Open log" menu
+
+	* rails.el: relete function rails-open-log, and place all log
+	related fuction to rails-log.el
+
+	* rails-log.el: create
+
+	* rails-lib.el (apply-colorize-to-buffer): create
+
+	* rails-ws.el: update rails-ws:*browser* functions
+
+	* rails.el (rails-directory<-->types): add plugin directory
+
+	* rails-for-view.el (rails-view:switch-with-menu): update menu title
+
+	* rails-for-plugin.el: create
+
+	* rails-for-helper.el (rails-helper:switch-with-menu): update menu title
+
+	* rails-for-functional-test.el (rails-for-functional-test:switch-with-menu): update-menu-title
+
+	* rails-for-controller.el (rails-controller:switch-with-menu): update menu title
+
+	* rails-core.el (rails-core:menu): fix menu position 
+	add new functions rails-core:plugin-files, rails-core:plugin-file,
+	rails-core:current-plugin
+
+2007-01-26  dima  <dima.exe@gmail.com>
+
+	* rails-ui.el (rails-minor-mode-menu-bar-map): rename menu item WEBrick to Web Server.
+	Update menu group Web Server
+
+	* rails.el (rails-ws): add variable rails-default-environment
+
+	* rails-ws.el: rename from rails-webrick, complete rewrite and cleanup
+
+	* rails-navigation.el (rails-nav:create-goto-menu): now support
+	nested lists in append-to-menu (ex. (list (cons) (cons)))
+	(rails-nav:create-new-layout): cleanup
+	(rails-nav:goto-layouts): cleanup
+
+	* rails-core.el
+	(rails-core:plugins): fix invalid path passed into directory-files
+	(rails-core:layouts): new function
+
+	* rails-for-view.el (rails-for-view): remove detect mmm-mode, always apply hotkeys to mmm-mode-map (if exist)
+
+	* rails.el: apply ruby-mode to *.rake files and setup utf8 encoding
+
+	* rails-lib.el (list->alist): skip if LIST entry is list	
+
+2007-01-25  dima  <dima.exe@gmail.com>
+  * rails-navigation.el, rails-ui.el: add rails-nav:goto-plugins
+  * rails-ruby.el: remove advice for ruby-indent-command
+  * rails-lib.el (def-snips): fix indentation
+  * rails-core.el: 
+	fix list ordered in rails-core:*
+	add rails-core:observer-p
+  * rails.el (rails-open-log): fix path to log file
+  * rails.el: cleanup initialization code
+
+2007-01-24  dima  <dima.exe@gmail.com>
+  * rails-ui.el: create key bindings and menu items to latest changes
+  * rails-scripts.el: 
+	add more targets to generate and destroy
+	cleanup targets
+	create variables: rails-generate-params-list, rails-destroy-params-list
+  * rails-navigation.el: 
+	create another implementation menu: rails-nav:goto-file-with-menu-from-list,
+	rewrite rails:nav:goto-* to use this
+  * rails-core.el: 
+	rewrite rails-core:(controllers,models,etc),
+	add more functions to lookup plugins, migrations, etc
+
+2007-01-23  dima  <dima.exe@gmail.com>
+  * rails-scripts.el (rails-rake-tests): store selected value, set it to default
+  * rails-webrick.el (rails-webrick:start): fix #8088 (Akira Ikeda)
+  * rails-core.el: add rails-core to eval-when-compile
+  * rails-ui.el (rails-minor-mode-map): 
+	rebind some hotkeys
+	fix snippents (bad indent after end ruby keyword)
+  * rails-scripts.el: complete rewrite all script functions to using autocomplete
+  * rails.el (rails-db-parameters): apply patch #8065 (thanks Akira Ikeda)
+
+2007-01-22  dima  <dima.exe@gmail.com>
+  * rails-ui.el (ruby-mode-abbrev-table): fix indentation for `end' ruby keyword
+
 2007-01-21  dima  <dima.exe@gmail.com>	
   rename rails-for-rhtml to rails-for-view
   add rails-for-helper functionaly

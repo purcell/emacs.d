@@ -40,7 +40,10 @@
       (add-to-list 'menu (list "Controller" controller)))
     (setq item
           (rails-core:menu
-           (list "Please select.." (cons "Please select.." menu))))
+           (list (concat "Functional Test "
+                         (rails-core:current-controller)
+                         "Test")
+                 (cons "Please select.." menu))))
     (when (and item (file-exists-p item))
       (find-file item))))
 

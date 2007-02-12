@@ -40,7 +40,8 @@
       (add-to-list 'menu (list "Controller" controller)))
     (setq item
           (rails-core:menu
-           (list "Please select.." (cons "Please select.." menu))))
+           (list (concat "Helper " (rails-core:current-helper))
+                 (cons "Please select.." menu))))
     (when (and item (file-exists-p item))
       (find-file item))))
 
