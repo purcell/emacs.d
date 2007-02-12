@@ -3020,11 +3020,15 @@ evaluation."
     (:repl-result                       
      (with-current-buffer (slime-output-buffer)
        (goto-char (point-max))
-       ;;(unless (bolp) (insert "\n"))
-       (if id             
-           (slime-insert-presentation string id)
-         (slime-propertize-region `(face slime-repl-result-face)
-           (insert string)))))))
+       (let ((result-start (point)))
+         (if id             
+             (slime-insert-presentation string id)
+           (slime-propertize-region `(face slime-repl-result-face)
+             (insert string)))
+         (if (>= (marker-position slime-output-end) (point))
+             ;; If the output-end marker was moved by our insertion,
+             ;; set it back to the beginning of the REPL result.
+             (set-marker slime-output-end result-start)))))))
 
 (defun slime-switch-to-output-buffer (&optional connection)
   "Select the output buffer, preferably in a different window."
@@ -8596,7 +8600,7 @@ VAR should be a plist with the keys :name, :id, and :value."
                     " = ")
             (slime-insert-presentation
              (in-sldb-face local-value value)
-             `(:frame-var ,frame ,i))
+             `(:frame-var ,(car frame) ,i))
             (insert "\n")))))
 
 (defun sldb-hide-frame-details ()

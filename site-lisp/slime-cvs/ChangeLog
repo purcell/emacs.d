@@ -1,3 +1,21 @@
+2007-02-05  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* slime.el (sldb-insert-locals): Repair presentation markup of
+	frame locals.
+
+2007-02-04  Antonio Menezes Leitao <aml@gia.ist.utl.pt>
+
+	* swank-lispworks.lisp (dspec-file-position): Bind
+	*compile-file-pathname*, *compile-file-truename*, *load-pathname*
+	and *load-truename* in dspec-file-position.
+
+2007-02-04  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* slime.el (slime-write-string): When writing a :repl-result,
+	update the slime-output-end marker for the purpose of asynchronous
+	output (when *use-dedicated-output-stream* is true). 
+	Reported by Madhu <enometh@meer.net>.
+
 2007-02-03  Marco Baringer  <mb@bese.it>
 
 	* slime.el (slime-delete-swank-port-file): Fix typo in

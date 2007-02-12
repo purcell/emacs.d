@@ -485,13 +485,17 @@ Return NIL if the symbol is unbound."
               (check-dspec form))))))
 
 (defun dspec-file-position (file dspec)
-  (with-open-file (stream file)
-    (let ((pos 
-           #-(or lispworks4.1 lispworks4.2)
-           (dspec-stream-position stream dspec)))
-      (if pos
-          (list :position (1+ pos) t)
-          (dspec-buffer-position dspec 1)))))
+  (let* ((*compile-file-pathname* (pathname file))
+         (*compile-file-truename* (truename *compile-file-pathname*))
+         (*load-pathname* *compile-file-pathname*)
+         (*load-truename* *compile-file-truename*))
+    (with-open-file (stream file)
+      (let ((pos 
+             #-(or lispworks4.1 lispworks4.2)
+             (dspec-stream-position stream dspec)))
+        (if pos
+            (list :position (1+ pos) t)
+            (dspec-buffer-position dspec 1))))))
 
 (defun emacs-buffer-location-p (location)
   (and (consp location)
