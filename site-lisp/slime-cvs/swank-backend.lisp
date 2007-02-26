@@ -837,9 +837,6 @@ The argument INSPECTOR is an object representing how to get at
 the internals of OBJECT, it is usually an implementation specific
 class used simply for dispatching to the proper method.
 
-The orgument INSPECTION-MODE is an object specifying how, and
-what, to show to the user.
-
 Returns two values: a string which will be used as the title of
 the inspector buffer and a list specifying how to render the
 object for inspection.

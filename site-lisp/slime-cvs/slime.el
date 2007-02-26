@@ -71,7 +71,8 @@
   "When non-nil always enable slime-highlight-edits-mode in slime-mode")
 
 (defvar slime-highlight-compiler-notes t
-  "When non-nil highlight buffers with compilation notes, warnings and errors.")
+  "When non-nil highlight buffers with compilation notes, warnings and errors."
+  )
 
 (defun* slime-setup (&key autodoc typeout-frame highlight-edits)
   "Setup Emacs so that lisp-mode buffers always use SLIME."
@@ -238,12 +239,14 @@ The default is nil, as this feature can be a security risk."
   "Function to call when edit-definition fails to find the source itself.
 The function is called with the definition name, a string, as its argument.
 
-If you want to fallback on TAGS you can set this to `find-tag' or
+If you want to fallback on TAGS you can set this to `find-tag',
+`slime-find-tag-if-tags-table-visited', or
 `slime-edit-definition-with-etags'."
   :type 'symbol
   :group 'slime-mode-mode
   :options '(nil 
              slime-edit-definition-with-etags
+             slime-find-tag-if-tags-table-visited
              find-tag))
 
 (defcustom slime-compilation-finished-hook 'slime-maybe-list-compiler-notes
@@ -1436,6 +1439,7 @@ The rules for selecting the arguments are rather complicated:
     (list* :name name :program prog :program-args args keys)))
 
 (defun* slime-start (&key (program inferior-lisp-program) program-args 
+                          directory
                           (coding-system slime-net-coding-system)
                           (init 'slime-init-command)
                           name
@@ -1447,7 +1451,8 @@ The rules for selecting the arguments are rather complicated:
     (slime-check-coding-system coding-system)
     (when (slime-bytecode-stale-p)
       (slime-urge-bytecode-recompile))
-    (let ((proc (slime-maybe-start-lisp program program-args buffer)))
+    (let ((proc (slime-maybe-start-lisp program program-args 
+                                        directory buffer)))
       (slime-inferior-connect proc args)
       (pop-to-buffer (process-buffer proc)))))
 
@@ -1563,16 +1568,17 @@ Return true if we have been given permission to continue."
 
 ;;; Starting the inferior Lisp and loading Swank:
 
-(defun slime-maybe-start-lisp (program program-args buffer)
+(defun slime-maybe-start-lisp (program program-args directory buffer)
   "Return a new or existing inferior lisp process."
   (cond ((not (comint-check-proc buffer))
-         (slime-start-lisp program program-args buffer))
+         (slime-start-lisp program program-args directory buffer))
         ((slime-reinitialize-inferior-lisp-p program program-args buffer)
          (when-let (conn (find (get-buffer-process buffer) slime-net-processes 
                                :key #'slime-inferior-process))
            (slime-net-close conn))
          (get-buffer-process buffer))
-        (t (slime-start-lisp program program-args 
+        (t (slime-start-lisp program program-args
+                             directory
                              (generate-new-buffer-name buffer)))))
 
 (defun slime-reinitialize-inferior-lisp-p (program program-args buffer)
@@ -1581,16 +1587,17 @@ Return true if we have been given permission to continue."
          (equal (plist-get args :program-args) program-args)
          (not (y-or-n-p "Create an additional *inferior-lisp*? ")))))
 
-(defun slime-start-lisp (program program-args buffer)
+(defun slime-start-lisp (program program-args directory buffer)
   "Does the same as `inferior-lisp' but less ugly.
 Return the created process."
   (with-current-buffer (get-buffer-create buffer)
+    (when directory
+      (cd (expand-file-name directory)))
     (comint-mode)
     (comint-exec (current-buffer) "inferior-lisp" program nil program-args)
     (lisp-mode-variables t)
     (let ((proc (get-buffer-process (current-buffer))))
-      (when slime-kill-without-query-p
-        (process-kill-without-query proc))
+      (slime-set-query-on-exit-flag proc)
       proc)))
 
 (defun slime-inferior-connect (process args)
@@ -1641,13 +1648,10 @@ Return the created process."
           (format "slime.%S" (emacs-pid))))
 
 (defun slime-delete-swank-port-file ()
-  (when (file-regular-p (slime-swank-port-file))
-    (condition-case nil
-        (delete-file (slime-swank-port-file))
-      (error
-       (display-warning 'slime
-                        (format "Unable to delete swank port file located at %s"
-                                (slime-swank-port-file)))))))
+  (condition-case nil
+      (delete-file (slime-swank-port-file))
+    (error (message "Unable to delete swank port file located at %s"
+                    (slime-swank-port-file)))))
 
 (defun slime-read-port-and-connect (inferior-process retries)
   (lexical-let ((process inferior-process)
@@ -1782,8 +1786,7 @@ line of the file."
     (set-process-buffer proc buffer)
     (set-process-filter proc 'slime-net-filter)
     (set-process-sentinel proc 'slime-net-sentinel)
-    (when slime-kill-without-query-p
-      (process-kill-without-query proc))
+    (slime-set-query-on-exit-flag proc)
     (when (fboundp 'set-process-coding-system)
       (slime-check-coding-system coding-system)
       (set-process-coding-system proc coding-system coding-system))
@@ -1797,6 +1800,15 @@ line of the file."
     (with-current-buffer buffer
       (buffer-disable-undo))
     buffer))
+
+(defun slime-set-query-on-exit-flag (process)
+  "Set PROCESS's query-on-exit-flag to `slime-kill-without-query-p'."
+  (when slime-kill-without-query-p
+    ;; avoid byte-compiler warnings
+    (let ((fun (if (fboundp 'set-process-query-on-exit-flag)
+                   'set-process-query-on-exit-flag
+                 'process-kill-without-query)))
+      (funcall fun process nil))))
 
 ;;;;; Coding system madness
 
@@ -2730,17 +2742,17 @@ Debugged requests are ignored."
                             (boundp 'header-line-format)))
          ;; and dancing text 	 
          (animantep (and (fboundp 'animate-string) 	 
-                         slime-startup-animation 	 
-                         (zerop (buffer-size)))))
+                         slime-startup-animation)))
     (when use-header-p
       (setq header-line-format banner))
+    (when (zerop (buffer-size))
+      (let ((hello-message (concat "; SLIME " 
+                                   (or (slime-changelog-date) 
+                                       "- ChangeLog file not found"))))
+        (if animantep
+            (animate-string hello-message 0 0) 
+          (insert hello-message))))
     (pop-to-buffer (current-buffer))
-    (let ((slime-hello-message (concat "; SLIME " 
-                                       (or (slime-changelog-date) 
-                                           "- ChangeLog file not found"))))
-      (if animantep
-          (animate-string slime-hello-message 0 0)
-          (insert slime-hello-message)))
     (slime-repl-insert-prompt)))
 
 (defun slime-init-output-buffer (connection)
@@ -2952,8 +2964,7 @@ RESULT-P decides whether a face for a return value or output text is used."
                                      (slime-with-connection-buffer ()
                                        (current-buffer))
 				     slime-lisp-host port)))
-    (when slime-kill-without-query-p
-      (process-kill-without-query stream))
+    (slime-set-query-on-exit-flag stream)
     (set-process-filter stream 'slime-output-filter)
     (when slime-repl-enable-presentations
       (require 'bridge)
@@ -4466,6 +4477,7 @@ Also rearrange windows."
          (buffer-window (get-buffer-window buffer))
          (new-proc (slime-start-lisp (plist-get args :program)
                                      (plist-get args :program-args)
+                                     nil
                                      buffer))
          (repl-buffer (slime-repl-buffer nil process))
          (repl-window (and repl-buffer (get-buffer-window repl-buffer))))
@@ -4801,23 +4813,22 @@ The order of the input list is preserved."
   (unless (every #'slime-note-has-location-p notes)
     (slime-list-compiler-notes notes)))
 
-(defun slime-list-compiler-notes (&optional notes)
+(defun slime-list-compiler-notes (notes)
   "Show the compiler notes NOTES in tree view."
-  (interactive)
+  (interactive (list (slime-compiler-notes)))
   (with-temp-message "Preparing compiler note tree..."
-    (let ((notes (or notes (slime-compiler-notes))))
-      (with-current-buffer
-          (slime-get-temp-buffer-create "*compiler notes*"
-                                        :mode 'slime-compiler-notes-mode)
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (when (null notes)
-            (insert "[no notes]"))
-          (dolist (tree (slime-compiler-notes-to-tree notes))
-            (slime-tree-insert tree "")
-            (insert "\n")))
-        (setq buffer-read-only t)
-        (goto-char (point-min))))))
+    (with-current-buffer
+        (slime-get-temp-buffer-create "*compiler notes*"
+                                      :mode 'slime-compiler-notes-mode)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (when (null notes)
+          (insert "[no notes]"))
+        (dolist (tree (slime-compiler-notes-to-tree notes))
+          (slime-tree-insert tree "")
+          (insert "\n")))
+      (setq buffer-read-only t)
+      (goto-char (point-min)))))
 
 (defun slime-alistify (list key test)
   "Partition the elements of LIST into an alist.  KEY extracts the key
@@ -6763,6 +6774,14 @@ function name is prompted."
      (t 
       (slime-goto-definition name definitions where)))))
 
+(defun slime-find-tag-if-tags-table-visited (name)
+  "Find tag (in current tags table) whose name contains NAME.
+If no tags table is visited, don't offer to visit one;
+just signal that no definition is known."
+  (if tags-table-list
+      (find-tag name)
+    (error "No known definition for: %s; use M-x visit-tags-table RET" name)))
+
 (defun slime-goto-definition (name definitions &optional where)
   (slime-push-definition-stack)
   (let ((all-locations-equal
@@ -7471,7 +7490,8 @@ With prefix argument include internal symbols."
 (defun slime-show-apropos (plists string package summary)
   (if (null plists)
       (message "No apropos matches for %S" string)
-    (slime-with-output-to-temp-buffer ("*SLIME Apropos*" :mode apropos-mode) package
+    (slime-with-output-to-temp-buffer ("*SLIME Apropos*" :mode apropos-mode)
+        package
       (set-syntax-table lisp-mode-syntax-table)
       (slime-mode t)
       (if (boundp 'header-line-format)
@@ -7486,7 +7506,7 @@ With prefix argument include internal symbols."
     (cond ((and (boundp 'apropos-label-properties) 
                 (symbol-value 'apropos-label-properties)))
           ((boundp 'apropos-label-face)
-           (typecase (symbol-value 'apropos-label-face)
+           (etypecase (symbol-value 'apropos-label-face)
              (symbol `(face ,(or (symbol-value 'apropos-label-face)
                                  'italic)
                             mouse-face highlight))
@@ -10267,7 +10287,7 @@ BODY returns true if the check succeeds."
     "Lookup the argument list for FUNCTION-NAME.
 Confirm that EXPECTED-ARGLIST is displayed."
     '(("swank:start-server"
-       "(swank:start-server port-file &key \\((style swank:\\*communication-style\\*)\\|style\\)[ \n]+dont-close[ \n]+(external-format swank::\\*coding-system\\*))")
+       "(swank:start-server port-file &key \\((style swank:\\*communication-style\\*)\\|style\\)[ \n]+dont-close[ \n]+(coding-system swank::\\*coding-system\\*))")
       ("swank::compound-prefix-match"
        "(swank::compound-prefix-match prefix target)")
       ("swank::create-socket"
@@ -10665,7 +10685,7 @@ SWANK> " t))
   (slime-accept-process-output nil 1)
   (slime-sync-to-top-level 5))
 
-(def-slime-test user-interrupt
+(def-slime-test interrupt-at-toplevel
     ()
     "Let's see what happens if we send a user interrupt at toplevel."
     '(())
@@ -10679,6 +10699,37 @@ SWANK> " t))
   (with-current-buffer (sldb-get-default-buffer)
     (sldb-quit))
   (slime-sync-to-top-level 5))
+
+(def-slime-test interrupt-in-blocking-read
+    ()
+    "Let's see what happens if we interrupt a blocking read operation."
+    '(())
+  (slime-check-top-level)
+  (when (slime-output-buffer)
+    (setf (slime-lisp-package-prompt-string) "SWANK")
+    (kill-buffer (slime-output-buffer)))
+  (with-current-buffer (slime-output-buffer)
+    (insert "(read-char)")
+    (call-interactively 'slime-repl-return))
+  (slime-wait-condition "reading" #'slime-reading-p 5)
+  (slime-interrupt)
+  (slime-wait-condition "Debugger visible" 
+                        (lambda () 
+                          (and (slime-sldb-level= 1)
+                               (get-buffer-window (sldb-get-default-buffer))))
+                        5)
+  (with-current-buffer (sldb-get-default-buffer)
+    (sldb-continue))
+  (slime-wait-condition "reading" #'slime-reading-p 5)
+  (with-current-buffer (slime-output-buffer)
+    (insert "X")
+    (call-interactively 'slime-repl-return)
+    (slime-sync-to-top-level 5)
+    (slime-test-expect "Buffer contains result" 
+                       "SWANK> (read-char)
+X
+#\\X
+SWANK> " (buffer-string))))
 
 (def-slime-test disconnect
     ()
@@ -10950,8 +11001,11 @@ levels of parens."
   (require 'overlay))
 
 (defmacro slime-defun-if-undefined (name &rest rest)
-  (unless (fboundp name)
-    `(defun ,name ,@rest)))
+  ;; We can't decide at compile time whether NAME is properly
+  ;; bound. So we delay the decision to runtime to ensure some
+  ;; definition
+  `(unless (fboundp ',name)
+     (defun ,name ,@rest)))
 
 (put 'slime-defun-if-undefined 'lisp-indent-function 2)
 

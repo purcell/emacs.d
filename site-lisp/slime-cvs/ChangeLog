@@ -1,3 +1,52 @@
+2007-02-26  Nikodemus Siivola <nikodemus@random-state.net>
+
+	* swank.lisp (inspect-for-emacs): Add support for inspecting
+	non-decodable float entities like NaNs and infinities.
+
+2007-02-25  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank-backend.lisp (inspect-for-emacs): Remove reference to
+	inexistent argument from docstring.
+
+2007-02-25  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-delete-swank-port-file): Don't use
+	display-warning; that's not available everywhere.
+	(slime-repl-update-banner): Insert the date only if the buffer is
+	empty.
+	(slime-list-compiler-notes): Fetch the notes only if called
+	interactively.
+	(slime-set-query-on-exit-flag): New function, to avoid compiler
+	warnings about obsolete function process-kill-without-query.
+	(slime-defun-if-undefined): Perform the test at runtime not at
+	compile time.  Reported by Lennart Staflin.
+	
+	* swank.lisp (guess-package): Renamed from
+	guess-package-from-string.
+	(set-package): Use it.
+
+2007-02-22  Juho Snellman  <jsnell@iki.fi>
+
+	* slime.el (slime-start-lisp): Don't cd if no directory was specified.
+	(slime-maybe-start-lisp): Pass directory argument to slime-start-lisp
+	also in other cond branch.
+	(slime-restart-sentinel): Pass a NIL directory to slime-start-lisp.
+
+2007-02-21  Marco Baringer  <mb@bese.it>
+
+	* slime.el (slime-start): Added :directory argument and pass it to
+	slime-maybe-start-lisp.
+	(slime-maybe-start-lisp): Added directory argument and pass it to
+	slime-start-lisp (but not slime-reinitialize-inferior-lisp-p)
+	(slime-start-lisp): Added directory argument. Used to set buffer's
+	directory before starting the inferior lisp.
+
+2007-02-17  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* slime.el (slime-find-tag-if-tags-table-visited): New function.
+	(slime-edit-definition-fallback-function): Offer it as a value
+	for customization.
+
 2007-02-05  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
 
 	* slime.el (sldb-insert-locals): Repair presentation markup of
@@ -23,7 +72,7 @@
 
 2007-02-02  Marco Baringer  <mb@bese.it>
 
-	Warn, as oposed to bailing out with an error, when deleting the
+	Warn, as opposed to bailing out with an error, when deleting the
 	port file fails. Patch by: Samium Gromoff
 	<_deepfire@feelingofgreen.ru>
 	

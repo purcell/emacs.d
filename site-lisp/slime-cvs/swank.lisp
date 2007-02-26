@@ -1446,32 +1446,32 @@ Return the package or nil."
   ;; this is intended for package or symbol names
   (subseq (prin1-to-string (make-symbol string)) 2))
 
-(defun guess-package-from-string (name &optional (default-package *package*))
-  (or (and name
-           (or (parse-package name)
-               (find-package (string-upcase name))
-               (parse-package (substitute #\- #\! name))))
-      default-package))
+(defun guess-package (string)
+  "Guess which package corresponds to STRING.
+Return nil if no package matches."
+  (or (find-package string)
+      (parse-package string)
+      (if (find #\! string) ; for SBCL
+          (guess-package (substitute #\- #\! string)))))
 
 (defvar *readtable-alist* (default-readtable-alist)
   "An alist mapping package names to readtables.")
 
-(defun guess-buffer-readtable (package-name &optional (default *readtable*))
-  (let ((package (guess-package-from-string package-name)))
-    (if package 
-        (or (cdr (assoc (package-name package) *readtable-alist* 
-                        :test #'string=))
-            default)
-        default)))
+(defun guess-buffer-readtable (package-name)
+  (let ((package (guess-package package-name)))
+    (or (and package 
+             (cdr (assoc (package-name package) *readtable-alist* 
+                         :test #'string=)))
+        *readtable*)))
 
 (defun valid-operator-symbol-p (symbol)
-  "Test if SYMBOL names a function, macro, or special-operator."
+  "Is SYMBOL the name of a function, a macro, or a special-operator?"
   (or (fboundp symbol)
       (macro-function symbol)
       (special-operator-p symbol)))
   
 (defun valid-operator-name-p (string)
-  "Test if STRING names a function, macro, or special-operator."
+  "Is STRING the name of a function, macro, or special-operator?"
   (let ((symbol (parse-symbol string)))
     (valid-operator-symbol-p symbol)))
 
@@ -2468,7 +2468,7 @@ The secondary value indicates the absence of an entry."
 (defun guess-buffer-package (string)
   "Return a package for STRING. 
 Fall back to the the current if no such package exists."
-  (or (guess-package-from-string string nil)
+  (or (and string (guess-package string))
       *package*))
 
 (defun eval-for-emacs (form buffer-package id)
@@ -2664,10 +2664,11 @@ Used by pprint-eval.")
   (with-buffer-syntax ()
     (swank-pprint (multiple-value-list (eval (read-from-string string))))))
 
-(defslimefun set-package (package)
-  "Set *package* to PACKAGE.
-Return its name and the string to use in the prompt."
-  (let ((p (parse-package package)))
+(defslimefun set-package (name)
+  "Set *package* to the package named NAME.
+Return the full package-name and the string to use in the prompt."
+  (let ((p (guess-package name)))
+    (assert (packagep p))
     (setq *package* p)
     (list (package-name p) (package-string-for-prompt p))))
 
@@ -3295,8 +3296,7 @@ Return these values:
 *buffer-package*.  NAME and DEFAULT-PACKAGE-NAME can be nil."
   (let ((string (cond ((equal name "") "KEYWORD")
                       (t (or name default-package-name)))))
-    (if string
-        (guess-package-from-string string nil)
+    (or (and string (guess-package string))
         *buffer-package*)))
 
 ;;;;; Format completion results
@@ -3613,7 +3613,7 @@ symbols are returned."
 completion algorithm."
   (let ((converter (completion-output-package-converter name))
         (completions (make-array 32 :adjustable t :fill-pointer 0)))
-    (declare (optimize (speed 3))
+    (declare ;;(optimize (speed 3))
              (type function converter))  
     (loop for package in (list-all-packages)
           for package-name = (concatenate 'string 
@@ -4807,16 +4807,24 @@ See `methods-by-applicability'.")
 
 (defmethod inspect-for-emacs ((f float) inspector)
   (declare (ignore inspector))
-  (multiple-value-bind (significand exponent sign) (decode-float f)
-    (values "A floating point number."
-            (append 
-             `("Scientific: " ,(format nil "~E" f) (:newline)
-               "Decoded: " 
-               (:value ,sign) " * " 
-               (:value ,significand) " * " 
-               (:value ,(float-radix f)) "^" (:value ,exponent) (:newline))
-             (label-value-line "Digits" (float-digits f))
-             (label-value-line "Precision" (float-precision f))))))
+  (values "A floating point number."
+          (cond
+            ((> f most-positive-long-float)
+             (list "Positive infinity."))
+            ((< f most-negative-long-float)
+             (list "Negative infinity."))
+            ((not (= f f))
+             (list "Not a Number."))
+            (t
+             (multiple-value-bind (significand exponent sign) (decode-float f)
+               (append 
+                `("Scientific: " ,(format nil "~E" f) (:newline)
+                                 "Decoded: " 
+                                 (:value ,sign) " * " 
+                                 (:value ,significand) " * " 
+                                 (:value ,(float-radix f)) "^" (:value ,exponent) (:newline))
+                (label-value-line "Digits" (float-digits f))
+                (label-value-line "Precision" (float-precision f))))))))
 
 (defmethod inspect-for-emacs ((stream file-stream) inspector)
   (declare (ignore inspector))
