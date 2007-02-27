@@ -68,7 +68,7 @@
 ;; - Interface to darcs changes
 ;; - Changes from "replace" aren't shown
 ;; - Interface to darcs replace
-;; - Interface to darcs changes / darcs unrecord / darcs amend
+;; - Interface to darcs unrecord
 
 ;;; Code:
 
@@ -713,14 +713,14 @@ non-nil, in which case return all visible changes."
     (save-excursion
       (goto-char (point-min))
       (cond
-       ((looking-at "\n*Finished recording patch")
+       ((looking-at "\n*Finished \\(recording\\|amending\\) patch")
 	(message "Changes recorded.")
 	(darcsum-changes-handled)
-	(delete-file darcsum-logfile)
+        (when darcsum-logfile (delete-file darcsum-logfile))
 	(kill-buffer (current-buffer)))
-       ((looking-at "\n*Ok, if you don't want to record anything")
+       ((looking-at "\n*Ok, if you don't want to \\(record\\|amend\\) anything")
 	(message "No changes recorded.")
-	(delete-file darcsum-logfile)
+        (when darcsum-logfile (delete-file darcsum-logfile))
 	(kill-buffer (current-buffer)))
 
        ((looking-at "\n*What is the target email address")
@@ -733,7 +733,7 @@ non-nil, in which case return all visible changes."
 	(message "No changes sent.")
 	(kill-buffer (current-buffer)))
 
-       ((looking-at "\n*Do you really want to .+\\? ")
+       ((looking-at "\n*Do you really want to .+\\? ") ;; Should the last whitespace be there?
 	(process-send-string proc "y\n")
 	(delete-region (point-min) (point-max)))
        ((looking-at "\n*Finished reverting.")
@@ -753,6 +753,10 @@ non-nil, in which case return all visible changes."
 	(let ((waiting (match-string 1)))
 	  (message waiting)
 	  (kill-buffer (current-buffer))))
+
+       ((looking-at "\\(.*\n\\)*Shall I amend this patch\\?.*")
+        (process-send-string proc "y")
+        (delete-region (point-min) (match-end 0)))
 
        ((looking-at "\n*Darcs needs to know what name")
 	(let* ((default-mail (concat user-full-name
@@ -781,7 +785,7 @@ non-nil, in which case return all visible changes."
 	  (while (looking-at "^\\([+-].*\\)")
 	    (forward-line))
 	  (when (looking-at
-		 "^Shall I \\(record\\|send\\|revert\\) this \\(patch\\|change\\)\\?.+[]:] ")
+		 "^Shall I \\(record\\|send\\|revert\\|add\\) this \\(patch\\|change\\)\\?.+[]:] ")
 	    (if (eq kind 'hunk) (setq kind (string-to-number start-line)))
 	    (let ((end (match-end 0))
 		  (record (darcsum-changeset-has-change-p
@@ -841,7 +845,8 @@ Otherwise, only changes which are selected to be displayed in the buffer
     (set (make-local-variable 'darcsum-parent-buffer) parent-buf)
     (message
      "Title of change on first line, long comment after.  \
-C-c C-c to record.")))
+C-c C-c to record.")
+    (run-hooks 'darcsum-comment-hook)))
 
 (defun darcsum-send (recipient)
   "Send selected changeset via email."
@@ -852,6 +857,48 @@ C-c C-c to record.")))
    'darcsum-changeset-to-record (darcsum-selected-changeset t)
    'darcsum-parent-buffer (current-buffer)
    'darcsum-process-arg recipient))
+
+(defun darcsum-changes (&optional how-many)
+  "Show the changes in another buffer"
+  (interactive "P")
+  (let ((proc (darcsum-start-process
+	       "changes" (if how-many
+                             (list "--last" (number-to-string how-many))
+                             (list))
+	       'darcsum-parent-buffer (current-buffer))))
+    (set-process-filter proc nil)
+    (set-process-sentinel proc 'darcsum-changes-sentinel)
+    (switch-to-buffer-other-window (process-buffer proc))
+    (process-buffer proc)))
+
+(defun darcsum-changes-sentinel(process event)
+  (with-current-buffer (process-buffer process)
+    (goto-char (point-min))))
+
+(defun darcsum-amend ()
+  "Amend last patch with selected changeset."
+  (interactive)
+  (let ((changeset (darcsum-selected-changeset t))
+        (parent-buffer (current-buffer)))
+    (if (> (length changeset) 0)
+	(let ((history-buffer (darcsum-changes 1)))
+          (with-current-buffer history-buffer
+            (save-excursion 
+	      (goto-char (point-max))
+	      (insert "
+WARNINGS: You should ONLY use amend-record on patches which only exist in a single repository!
+Also, running amend-record while another user is pulling from the same repository may cause repository corruption."))
+            (sleep-for 2)
+            (goto-char (point-min)))
+	  (setq amend (yes-or-no-p "Amend this latest changeset? (see WARNINGS) "))
+	  (kill-buffer history-buffer)
+	  (when amend
+            (darcsum-start-process
+	     "amend" (list)
+	     'darcsum-logfile nil
+	     'darcsum-changeset-to-record changeset
+	     'darcsum-parent-buffer parent-buffer)))
+	(message "You need to select something first"))))
 
 (defun darcsum-revert ()
   "Revert selected changeset."
@@ -1412,6 +1459,7 @@ Inserts the entry in the darcs comment file instead of the ChangeLog."
     "--"
     ["Re-examine"		darcsum-redo		t]
     ["Record changes"		darcsum-record		t] ; fixme: condition
+    ["Amend last changeset"	darcsum-amend		t] ; fixme: condition
 ;;     ["Tag"			darcsum-tag		t]
     ["Undo changes"		darcsum-revert		t] ; fixme: condition
     ["Add"			darcsum-add		(darcsum-line-is 'new)]
