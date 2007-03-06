@@ -1,6 +1,6 @@
 ;;; haskell-font-lock.el --- Font locking module for Haskell Mode
 
-;; Copyright 2003, 2004, 2005, 2006  Free Software Foundation, Inc.
+;; Copyright 2003, 2004, 2005, 2006, 2007  Free Software Foundation, Inc.
 ;; Copyright 1997-1998 Graeme E Moss, and Tommy Thorn
 
 ;; Authors: 1997-1998 Graeme E Moss <gem@cs.york.ac.uk> and
@@ -103,14 +103,6 @@
   (require 'haskell-mode)
   (require 'cl))
 (require 'font-lock)
-
-;; Version.
-(defconst haskell-font-lock-version "$Revision: 1.23 $"
-  "Version number of haskell-font-lock.")
-(defun haskell-font-lock-version ()
-  "Echo the current version of haskell-font-lock in the minibuffer."
-  (interactive)
-  (message "Using haskell-font-lock version %s" haskell-font-lock-version))
 
 (defcustom haskell-font-lock-symbols nil
   "Display \\ and -> and such using symbols in fonts.
@@ -267,16 +259,15 @@ Returns keywords suitable for `font-lock-keywords'."
          ;; Reserved identifiers
 	 (reservedid
 	  (concat "\\<"
-		  ;; `as' and `qualified' are part of the import spec
-                  ;; syntax, but `as' doesn't seem to be reserved.  Don't
-                  ;; know about `qualified'.
+		  ;; `as', `hiding', and `qualified' are part of the import
+                  ;; spec syntax, but they are not reserved.
 		  ;; `_' can go in here since it has temporary word syntax.
 		  ;; (regexp-opt
 		  ;;  '("case" "class" "data" "default" "deriving" "do"
-		  ;;    "else" "hiding" "if" "import" "in" "infix" "infixl"
-		  ;;    "infixr" "instance" "let" "module" "newtype" "of"
-		  ;;    "qualified" "then" "type" "where" "_") t)
-		  "\\(_\\|c\\(ase\\|lass\\)\\|d\\(ata\\|e\\(fault\\|riving\\)\\|o\\)\\|else\\|hiding\\|i\\(mport\\|n\\(fix[lr]?\\|stance\\)\\|[fn]\\)\\|let\\|module\\|newtype\\|of\\|qualified\\|t\\(hen\\|ype\\)\\|where\\)"
+		  ;;    "else" "if" "import" "in" "infix" "infixl"
+                  ;;    "infixr" "instance" "let" "module" "newtype" "of"
+                  ;;    "then" "type" "where" "_") t)
+		  "\\(_\\|c\\(ase\\|lass\\)\\|d\\(ata\\|e\\(fault\\|riving\\)\\|o\\)\\|else\\|i\\(mport\\|n\\(fix[lr]?\\|stance\\)\\|[fn]\\)\\|let\\|module\\|newtype\\|of\\|t\\(hen\\|ype\\)\\|where\\)"
 		  "\\>"))
 
          ;; This unreadable regexp matches strings and character
@@ -321,6 +312,12 @@ Returns keywords suitable for `font-lock-keywords'."
 
 	    (,reservedid 1 (symbol-value 'haskell-keyword-face))
 	    (,reservedsym 1 (symbol-value 'haskell-operator-face))
+            ;; Special case for `as', `hiding', and `qualified', which are
+            ;; keywords in import statements but are not otherwise reserved.
+            ("\\<import[ \t]+\\(?:\\(qualified\\>\\)[ \t]*\\)?[^ \t\n()]+[ \t]*\\(?:\\(\\<as\\>\\)[ \t]*[^ \t\n()]+[ \t]*\\)?\\(\\<hiding\\>\\)?"
+             (1 (symbol-value 'haskell-keyword-face) nil lax)
+             (2 (symbol-value 'haskell-keyword-face) nil lax)
+             (3 (symbol-value 'haskell-keyword-face) nil lax))
 
 	    ;; Toplevel Declarations.
 	    ;; Place them *before* generic id-and-op highlighting.
@@ -540,9 +537,7 @@ Bird-style literate Haskell scripts are supported: If the value of
 `haskell-literate-bird-style' (automatically set by the Haskell mode
 of Moss&Thorn) is non-nil, a Bird-style literate script is assumed.
 
-Invokes `haskell-font-lock-hook' if not nil.
-
-Use `haskell-font-lock-version' to find out what version this is."
+Invokes `haskell-font-lock-hook' if not nil."
   (haskell-font-lock-defaults-create)
   (run-hooks 'haskell-font-lock-hook)
   (turn-on-font-lock))

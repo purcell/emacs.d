@@ -1,5 +1,9 @@
-Haskell Mode for Emacs: Installation Guide
-------------------------------------------
+Haskell Mode for Emacs
+----------------------
+Version number: v2_3.
+
+This is the Haskell mode package for Emacs.  Its use should be mostly
+self-explanatory if you're accustomed to Emacs.
 
 When Emacs is started up, it normally runs a file called ~/.emacs located in
 your home directory.  This file should contain all of your personal
@@ -10,11 +14,11 @@ adding some commands to the init file.
 Installation
 ------------
 
-- If you are using XEmacs, the haskell-mode package should be available for
+- If you are using XEmacs, the haskell-mode package may be available for
   installation through the XEmacs package UI.
 
-- If you are using Debian, you can install the package haskell-mode with
-  a command like "apt-get install haskell-mode".
+- If you are using Debian, you may be able to install the package
+  haskell-mode with a command like "apt-get install haskell-mode".
 
 Otherwise:
 
@@ -31,7 +35,7 @@ Otherwise:
 
     (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
     (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-    ;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
+    ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 
   Note that the two indentation modules are mutually exclusive - add at
   most one.  Note that the line of code for simple indentation is commented
@@ -50,10 +54,10 @@ The other modules are automatically loaded when needed in the following way:
 - Interaction with inferior Haskell interpreter: just hit C-c C-z  or  C-c C-l.
 
 
-Customisation
+Customization
 -------------
 
-Most customisations are on the functionality of a particular module.
+Most customizations are on the functionality of a particular module.
 See the documentation of that module for information on its
 customisation.
 
@@ -64,8 +68,8 @@ Known problems
 It seems that some version of XEmacs come without the fsf-compat package
 (which provides functions such as `line-end-position') and it seems that
 even if your XEmacs does have the fsf-compat package installed it does not
-autoload its part.  Thus you may have to add (require 'goto-addr)
-in your .emacs.
+autoload its part.  Thus you may have to install the fsf-compat package and
+add (require 'goto-addr) in your .emacs.
 
 
 Support
@@ -73,8 +77,6 @@ Support
 
 Any problems, do mail me <monnier@iro.umontreal.ca> and I will try my best
 to help you!
-
-
 
 
 

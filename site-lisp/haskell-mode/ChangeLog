@@ -1,3 +1,52 @@
+2007-02-14  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-cabal.el: New file.
+
+	* haskell-indent.el (haskell-indent-look-past-empty-line): Typo.
+
+	* inf-haskell.el (with-selected-window): Define while compiling.
+
+2007-02-10  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-font-lock.el (haskell-font-lock-keywords-create):
+	Remove qualified and hiding from the reserved identifiers.
+	Add a special rule for import statements.
+
+	* haskell-doc.el (haskell-doc-get-current-word): Remove.
+	Change all refs to it, to use haskell-ident-at-point instead.
+
+	* inf-haskell.el (inferior-haskell-info-xref-re): New cst.
+	(inferior-haskell-error-regexp-alist): Use it to highlight xref info.
+	(inferior-haskell-type, inferior-haskell-info)
+	(inferior-haskell-find-definition): New funs.
+	Contributed by Matthew Danish <mrd@cs.cmu.edu>.
+
+	* haskell-mode.el (haskell-ident-at-point): New fun.
+	Copy of haskell-doc-get-current-word.
+	(haskell-mode-map): Add bindings for inferior-haskell-(type|info|find).
+
+2007-02-09  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-indent.el (haskell-indent-back-to-indentation): Simplify.
+	(haskell-indent-look-past-empty-line): New var.
+	(haskell-indent-start-of-def): Use it.
+
+	* fontlock.hs: Add test case.
+
+	* haskell-font-lock.el (haskell-font-lock-version): Remove.
+
+	* haskell-doc.el (haskell-doc-version): Remove.
+	(haskell-doc-get-current-word): Correctly distinguish
+	variable identifiers and infix identifiers.
+	(haskell-doc-rescan-files): Avoid switch-to-buffer.
+	(haskell-doc-imported-list): Operate on current buffer.
+	(haskell-doc-make-global-fct-index): Adjust call.
+
+2006-11-20  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-doc.el (haskell-doc-mode-print-current-symbol-info):
+	Fix thinko.
+
 2006-10-19  Stefan Monnier  <monnier@iro.umontreal.ca>
 
 	* inf-haskell.el (inferior-haskell-load-file): Simplify and make more

@@ -129,7 +129,7 @@
 
 (require 'haskell-mode)
 
-(defconst haskell-decl-scan-version "$Revision: 1.11 $"
+(defconst haskell-decl-scan-version "1.11"
   "Version number of haskell-decl-scan.")
 (defun haskell-decl-scan-version ()
   "Echo the current version of haskell-decl-scan in the minibuffer."

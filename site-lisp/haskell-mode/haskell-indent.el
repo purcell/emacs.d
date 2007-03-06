@@ -1,6 +1,6 @@
 ;;; haskell-indent.el --- "semi-intelligent" indentation module for Haskell Mode
 
-;; Copyright 2004, 2005  Free Software Foundation, Inc.
+;; Copyright 2004, 2005, 2007  Free Software Foundation, Inc.
 ;; Copyright 1997-1998  Guy Lapalme
 
 ;; Author: 1997-1998 Guy Lapalme <lapalme@iro.umontreal.ca>
@@ -185,15 +185,11 @@ followed by an OFFSET (if present use its value otherwise use
 
 (defun haskell-indent-back-to-indentation ()
   "`back-to-indentation' function but dealing with Bird-style literate scripts."
-  (if (eq haskell-literate 'bird)
+  (if (and (eq haskell-literate 'bird)
+           (progn (beginning-of-line) (eq (following-char) ?\>)))
       (progn
-        (beginning-of-line)
-        (if (and (not (eolp)) (eq (following-char) ?\>))
-            (progn
-              (forward-char 1)
-              (if (not (eolp))
-                (skip-chars-forward " \t" (line-end-position))))
-          (back-to-indentation)))
+        (forward-char 1)
+        (skip-chars-forward " \t"))
     (back-to-indentation)))
 
 (defun haskell-indent-current-indentation ()
@@ -318,21 +314,29 @@ It deals with both Bird style and non Bird-style scripts."
 
 ;;; Start of indentation code
 
+(defcustom haskell-indent-look-past-empty-line t
+  "If nil, indentation engine will not look past an empty line for layout points."
+  :type 'boolean)
+
 (defun haskell-indent-start-of-def ()
   "Return the position of the start of a definition.
-It is at the first character which is not in a comment after nearest
-preceding non-empty line."
+The start of a def is expected to be recognizable by starting in column 0,
+unless `haskell-indent-look-past-empty-line' is nil, in which case we
+take a coarser approximation and stop at the first empty line."
   (save-excursion
-    (let (start-code
+    (let ((start-code (and haskell-literate
+                           (haskell-indent-within-literate-code)))
+          (top-col (if (eq haskell-literate 'bird) 2 0))
           (save-point (point)))
       ;; determine the starting point of the current piece of code
-      (if (setq start-code (and haskell-literate
-                            (haskell-indent-within-literate-code)))
-          (setq start-code (1+ start-code))
-        (setq start-code (point-min)))
+      (setq start-code (if start-code (1+ start-code) (point-min)))
       ;; go backward until the first preceding empty line
       (haskell-indent-forward-line -1)
-      (while (and (not (haskell-indent-empty-line-p))
+      (while (and (if haskell-indent-look-past-empty-line
+                      (or (> (haskell-indent-current-indentation) top-col)
+                          (haskell-indent-empty-line-p))
+                    (and (> (haskell-indent-current-indentation) top-col)
+                         (not (haskell-indent-empty-line-p))))
                   (> (point) start-code)
                   (= 0 (haskell-indent-forward-line -1))))
       ;; go forward after the empty line

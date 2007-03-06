@@ -1,3 +1,22 @@
+Changes since 2.2:
+
+* Trivial support for Cabal package description files.
+
+* Minor bug fixes.
+
+Changes since 2.1:
+
+* There are now commands to find type and info of identifiers by querying an
+  inferior haskell process.  Available under C-c C-t, C-c C-i, and C-c M-.
+
+* Indentation now looks back further, until a line that has no indentation.
+  To recover the earlier behavior of stopping at the first empty line
+  instead, configure haskell-indent-look-past-empty-line.
+
+* inf-haskell can wait until a file load completes and jump directly to the
+  first error, like haskell-ghci and haskell-hugs used to do.  See the var
+  inferior-haskell-wait-and-jump.
+
 Changes since 2.0:
 
 * inf-haskell uses ghci if hugs is absent.

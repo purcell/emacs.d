@@ -131,5 +131,27 @@ bar = do toto
            then tutu            -- FIXME
            else tata            -- FIXME
 
+insert :: Ord a => a -> b -> TreeMap a b -> TreeMap a b
+insert x v Empty = Node 0 x v Empty Empty
+insert x v (Node d x' v' t1 t2)
+    | x == x'   = Node d x v t1 t2
+    | x < x'    = Node ? x' v' (insert x v t1 Empty) t2
+    |                           -- FIXME: wrong indent *if at EOB*
+
+
+tinsertb x v (Node x' v' d1 t1 d2 t2)
+    | x == x'   = (1 + max d1 d2,  Node x v d1 t1 d2 t2)
+    | x < x' =
+        case () of
+          _ | d1' <= d2 + 1 => (1 + max d1' d2, Node x' v' d1' t1' d2 t2)
+  -- d1' == d2 + 2: Need to rotate to rebalance.    FIXME CRASH
+        else let (Node x'' v'' d1'' t1'' d2'' t2'') = t1'
+
+test = if True then
+           toto
+       else if False then
+           tata                 -- FIXME
+       else                     -- FIXME
+           titi
 
 -- arch-tag: de0069e3-c0a0-495c-b441-d4ff6e0509b1
