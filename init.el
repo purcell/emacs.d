@@ -337,6 +337,14 @@
           try-complete-file-name
           try-expand-dabbrev))
 
+  ; Remove annoying tab completion behaviour enabled by Rails
+  (eval-after-load "rails-lib" '(defun indent-or-complete ()
+                                  (interactive)
+                                  (unless (when (and (boundp 'snippet)
+                                                     snippet)
+                                            (snippet-next-field))
+                                    (indent-for-tab-command))))
+
   (require 'rails)
   (setq rails-webrick:use-mongrel t)
   (setq rails-api-root (expand-file-name "~/Documents/External/rails"))
