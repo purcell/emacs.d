@@ -147,8 +147,8 @@
   (require 'darcsum)
   (setq darcsum-whatsnew-switches "-l")
 
-  (require 'grep)
-  (add-to-list 'grep-find-ignored-directories "_darcs"))
+  (eval-after-load "grep"
+  '(add-to-list 'grep-find-ignored-directories "_darcs")))
 
 
 ;;----------------------------------------------------------------------------
@@ -256,7 +256,7 @@
 ;;----------------------------------------------------------------------------
 ;; Ruby
 ;;----------------------------------------------------------------------------
-(require 'ruby-electric)
+(autoload 'ruby-electric "ruby-electric" "Electric brackes/quotes/keywords for Ruby source" t)
 (setq ruby-electric-expand-delimiters-list nil)  ; Only use ruby-electric for adding 'end'
 (add-hook 'ruby-mode-hook
           (lambda () (ruby-electric-mode t)))
@@ -267,13 +267,14 @@
 (add-auto-mode 'html-mode "\.rhtml$")
 
 
-(require 'compile)
-;; Jump to lines from Ruby Test::Unit stack traces in 'compile' mode
-(add-to-list 'compilation-error-regexp-alist
-             '("test[a-zA-Z0-9_]*([A-Z][a-zA-Z0-9_]*) \\[\\(.*\\):\\([0-9]+\\)\\]:" 1 2))
-;; Jump to lines from Ruby stack traces in 'compile' mode
-(add-to-list 'compilation-error-regexp-alist
-             '("\\(.*?\\)\\([0-9A-Za-z_./\:-]+\\.rb\\):\\([0-9]+\\)" 2 3))
+(eval-after-load "compile"
+  '(progn
+    ;; Jump to lines from Ruby Test::Unit stack traces in 'compile' mode
+    (add-to-list 'compilation-error-regexp-alist
+                 '("test[a-zA-Z0-9_]*([A-Z][a-zA-Z0-9_]*) \\[\\(.*\\):\\([0-9]+\\)\\]:" 1 2))
+    ;; Jump to lines from Ruby stack traces in 'compile' mode
+    (add-to-list 'compilation-error-regexp-alist
+                 '("\\(.*?\\)\\([0-9A-Za-z_./\:-]+\\.rb\\):\\([0-9]+\\)" 2 3))))
 (setq compile-command "rake ")
 
 (mmm-add-classes
