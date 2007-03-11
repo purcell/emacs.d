@@ -239,17 +239,6 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Highlight messy whitespace in red
-;;----------------------------------------------------------------------------
-(defface we-hate-tabs-face
-  '((t (:background "red"))) "Face for tab characters.")
-
-(and standard-display-table (aset standard-display-table ?\C-i  ; Show tabs highlighted
-                                  (vector (+ ?\C-i (* (face-id 'we-hate-tabs-face) 524288) ))))
-(setq show-trailing-whitespace t)
-
-
-;;----------------------------------------------------------------------------
 ;; ECB (Emacs Code Browser)
 ;;----------------------------------------------------------------------------
 (when *ecb-support-enabled*
