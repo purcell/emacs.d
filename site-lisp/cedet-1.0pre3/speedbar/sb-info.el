@@ -247,9 +247,10 @@ BUFFER is the buffer speedbar is requesting buttons for."
   (Info-speedbar-hierarchy-buttons nil 0)
   )
 
+(provide 'sb-info)
+
 ;;; Overriding preinstalled code.
 ;;;###autoload
 (eval-after-load "info" '(require 'sb-info))
 
-(provide 'sb-info)
 ;;; sb-info.el ends here
