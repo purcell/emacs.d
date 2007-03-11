@@ -432,8 +432,6 @@
 
   (setq haskell-program-name (executable-find "ghci"))
   (setq haskell-font-lock-symbols t)
-  ; (setq haskell-hugs-program-args '("-98" "+."))
-  ; (setq haskell-ghci-program-args '("-fglasgow-exts"))
 
   (add-hook 'haskell-mode-hook
             (lambda ()
