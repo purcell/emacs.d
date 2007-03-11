@@ -185,9 +185,6 @@
   (find-file (ido-completing-read "Open file: " recentf-list nil t)))
 (global-set-key [(meta f11)] 'steve-ido-choose-from-recentf)
 
-;; provide some dired goodies and dired-jump at C-x C-j
-(load "dired-x")
-
 
 ;;----------------------------------------------------------------------------
 ;; Desktop saving
