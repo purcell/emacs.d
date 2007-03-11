@@ -239,13 +239,14 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Highlight messy whitespace
+;; Highlight messy whitespace in red
 ;;----------------------------------------------------------------------------
-(require 'show-wspace)
-(add-hook 'font-lock-mode-hook
-          (lambda ()
-            (highlight-tabs)
-            (highlight-trailing-whitespace)))
+(defface we-hate-tabs-face
+  '((t (:background "red"))) "Face for tab characters.")
+
+(and standard-display-table (aset standard-display-table ?\C-i  ; Show tabs highlighted
+                                  (vector (+ ?\C-i (* (face-id 'we-hate-tabs-face) 524288) ))))
+(setq show-trailing-whitespace t)
 
 
 ;;----------------------------------------------------------------------------
