@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-core.el 85 2007-01-28 20:35:48Z dimaexe $
+;; $Id: rails-core.el 92 2007-03-12 21:22:58Z dimaexe $
 
 ;;; License
 
@@ -395,9 +395,11 @@ If the action is nil, return all views for the controller."
 (defun rails-core:buffer-type ()
   "Return the type of the current Rails file or nil if the type
 cannot be determinated."
-  (loop for (type dir) in rails-directory<-->types
-        when (rails-core:buffer-file-match dir)
+  (loop for (type dir func) in rails-directory<-->types
+        when (and (rails-core:buffer-file-match dir)
+                  (if func (apply func) t))
         do (return type)))
+
 
 ;;;;;;;;;; Openning of controller + action in controller and view ;;;;;;;;;;
 

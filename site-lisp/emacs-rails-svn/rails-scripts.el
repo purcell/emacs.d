@@ -27,14 +27,13 @@
 
 (defvar rails-generation-buffer-name "*RailsGeneration*")
 (defvar rails-rake-tests-alist
-  '(("all" . "test")
-    ("recent" . "test:recent")
-    ("unit" . "test:unit")
+  '(("all"         . "test")
+    ("recent"      . "test:recent")
+    ("units"       . "test:units")
     ("functionals" . "test:functionals")
-    ("integraion" . "test:integration")))
+    ("integraion"  . "test:integration")))
 
-(defvar rails-rake-recent-test-alist
-  nil)
+(defvar rails-rake-recent-test-alist nil)
 
 (defvar rails-generators-list
   '("controller" "model" "scaffold" "migration" "plugin" "mailer" "observer" "resource"))
@@ -51,6 +50,9 @@ For example -s to keep existing files and -c to add new files into svn.")
   '("-f")
   "Add parameters to script/destroy.
 For example -c to remove files from svn.")
+
+(defconst rails-rake-test-error-regexp-alist
+  '(("^[ \t]+[0-9]+) \\(Error\\|Failure\\)") 1 2))
 
 (defun rails-run-script (script buffer parameters &optional message-format)
   "Run a Rails script with PARAMETERS in BUFFER using
@@ -297,6 +299,7 @@ MESSAGE-FORMAT to format the output."
 (defun rails-rake (&optional task message)
   "Run a Rake task in RAILS_ROOT."
   (interactive (list (completing-read "Rake task (use autocomplete): " (list->alist (rails-rake-tasks)))))
+  (save-some-buffers)
   (rails-core:in-root
    (message (or message (format "Running rake task \"%s\"" task)))
    (shell-command (concat "rake " task) "*Rails Rake Output*" "*Rails Rake Errors*")))
@@ -315,6 +318,10 @@ MESSAGE-FORMAT to format the output."
   (when what
     (let ((task (cdr (assoc what rails-rake-tests-alist))))
       (setq rails-rake-recent-test-alist what)
-      (rails-rake task (concat "Running " what " tests")))))
+      (make-local-variable 'compilation-error-regexp-alist)
+      (setq compilation-error-regexp-alist rails-rake-test-error-regexp-alist)
+      (save-excursion
+        (setq default-directory (rails-core:root))
+        (compile (format "rake %s" task))))))
 
 (provide 'rails-scripts)

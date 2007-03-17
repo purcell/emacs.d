@@ -111,11 +111,11 @@
 
   ([rails scr tests] (cons "Tests" (make-sparse-keymap "Tests")))
 
-  ([rails scr tests integration] '("Integration tests" . (lambda() (rails-rake-tests "integration"))))
-  ([rails scr tests unit] '("Unit tests" . (lambda() (rails-rake-tests "unit"))))
-  ([rails scr tests functional] '("Functional tests" . (lambda() (rails-rake-tests "functionals"))))
-  ([rails scr tests recent] '("Recent tests" . (lambda() (rails-rake-tests "recent"))))
-  ([rails scr tests tests] '("All" . (lambda() (rails-rake-tests "all"))))
+  ([rails scr tests integration] '("Integration tests" . (lambda() (interactive) (rails-rake-tests "integration"))))
+  ([rails scr tests unit] '("Unit tests" . (lambda() (interactive) (rails-rake-tests "unit"))))
+  ([rails scr tests functional] '("Functional tests" . (lambda() (interactive) (rails-rake-tests "functionals"))))
+  ([rails scr tests recent] '("Recent tests" . (lambda() (interactive) (rails-rake-tests "recent"))))
+  ([rails scr tests tests] '("All" . (lambda() (interactive) (rails-rake-tests "all"))))
   ([rails scr tests separator] '("--"))
   ([rails scr tests run] '("Run tests ..." . rails-rake-tests))
 

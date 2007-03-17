@@ -1,3 +1,19 @@
+2007-03-15  dima  <dima.exe@gmail.com>
+
+	* rails-scripts.el (rails-rake-tests): using `compile`
+
+	* rails-ui.el (rails-minor-mode-menu-bar-map): add (interactive) to lambda functions
+
+2007-03-13  dima  <dima.exe@gmail.com>
+
+	* rails-for-model.el: create
+
+	* rails-for-unit-test.el: create
+
+	* rails-core.el (rails-core:buffer-type): support lambda expression in rails-directory<-->types
+
+	* rails-scripts.el (rails-rake): ask to save modified buffers before run rake test:*
+
 2007-02-02  dima  <dima.exe@gmail.com>
 
 	* rails-snippets.el (rails-snippets-menu-list): bug #8381 (bag "ff" snippet)
