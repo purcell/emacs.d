@@ -69,6 +69,15 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Include buffer name and file path in title bar
+;;----------------------------------------------------------------------------
+(defvar *user*    (user-login-name) "user login name")
+(defvar *hostname*
+  (let ((n (system-name))) (substring n 0 (string-match "\\." n))) "unqualified host name")
+(setq frame-title-format '("%b - " *user* "@" *hostname* " - %f"))
+
+
+;;----------------------------------------------------------------------------
 ;; Make yes-or-no questions answerable with 'y' or 'n'
 ;;----------------------------------------------------------------------------
 (fset 'yes-or-no-p 'y-or-n-p)
