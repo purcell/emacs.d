@@ -681,7 +681,8 @@ non-nil, in which case return all visible changes."
 	    ;; could use `show-trailing-whitespace' in the buffer to highlight
 	    ;; trailing space in the diffs.)
 	    (append (list "DARCS_DONT_ESCAPE_TRAILING_SPACES=1"
-			  "DARCS_DONT_COLOR=1")
+			  "DARCS_DONT_COLOR=1"
+			  "DARCS_DONT_ESCAPE_TRAILING_CR=1")
 		    process-environment))
 	 (process-connection-type nil)
 	 (proc (apply 'start-process "darcs"
@@ -1556,9 +1557,11 @@ When invoked interactively, prompt for the directory to display changes for."
 	(error "Directory `%s' is not under darcs version control"
 	       directory))
       (cd repo))
-    (let* ((process-environment (cons "DARCS_DONT_ESCAPE_TRAILING_SPACES=1"
-				      (cons "DARCS_DONT_COLOR=1"
-					    process-environment)))
+    (let* ((process-environment (append 
+				 (list "DARCS_DONT_ESCAPE_TRAILING_SPACES=1"
+				       "DARCS_DONT_COLOR=1"
+				       "DARCS_DONT_ESCAPE_TRAILING_CR=1")
+				 process-environment))
 	   (args (append
 		  ;; Build a list of arguments for call-process
 		  (list darcsum-program nil t nil)
