@@ -1,3 +1,164 @@
+2007-03-26  dima  <dima.exe@gmail.com>
+
+	* rails-lib.el, rails.el: fix compilation error [#9547]
+	
+	* rails.el (rails-templates-list): added support "erb" and "liquid"
+
+	* rails-lib.el: fixed compilation warnings
+
+	* rails-rake.el: fixed compilation warnings
+
+	* rails-ui.el: updated
+
+	* rails-scripts.el: updated
+	(rails-script:rake-tests-alist): removed
+
+	* rails-ruby.el (run-ruby-in-buffer): moved from rails-scripts.el
+
+	* rails-rake.el: created
+
+	* rails-core.el (rails-core:migrations): added optional parameter to stip numbers
+
+	* rails-cmd-proxy.el (rails-cmd-proxy:start-process): created
+
+	* rails-scripts.el (rails-script:sentinel-proc): updated
+	(rails-script:generation-buffer-name): removed
+	(rails-script:run): updated
+	(rails-script:create-project): updated
+
+	* rails-lib.el (buffer-visible-p): created
+
+	* rails-core.el (rails-core:file): return nil if FILE-NAME is nil
+
+2007-03-25  dima  <dima.exe@gmail.com>
+
+	* rails-log.el (rails-log:buffer-name): renamed from rails-log:get-buffer-name
+
+	* rails-core.el (rails-core:add-to-rails-menubar): removed
+	(rails-core:mailer-file): maked as alias
+	(rails-core:controller-name): renamed from rails-core:full-controller-name
+	(rails-core:regex-for-match-view): cleanup
+	(rails-core:button-action): created
+
+	* rails-find.el: created
+
+	* rails-navigation.el: moved rails-find-* to separate file rails-find.el
+
+	* rails.el (rails-find-file-function): removed variable
+
+	* rails-ui.el (rails-minor-mode-menu-bar-map): update indentation
+
+	* rails-scripts.el: refactored code
+
+2007-03-24  dima  <dima.exe@gmail.com>
+
+	* rails-unit-test-minor-mode.el (rails-unit-test-minor-mode): fixed
+
+	* rails-navigation.el (rails-line-->controller+action): replace
+	call rails-core:open-controller+action to
+	rails-controller-layout:switch-to-action-in-controller
+
+	* rails-snippets.el (snippet-insert): added advice
+	(rails-snippets-menu-list): updated snippets
+
+	* rails-ws.el (rails-ws:sentinel-proc): change format of the message
+	(rails-ws:start): fixed
+
+	* rails-navigation.el: removed old style goto-* functions
+
+	* rails.el (ruby-mode-hook): bind ruby-toggle-string<>symbol to [C-:] in ruby mode
+
+	* rails-ui.el (rails-minor-mode-map): added [M-S-up] & [M-S-down] hotkeys
+
+	* rails-snippets.el (rails-snippets-menu-list): updated, split snippets to separate modes
+
+	* rails-ruby.el (ruby-toggle-string<>simbol): created
+
+	* rails-migration-minor-mode.el (rails-migration-minor-mode): created
+
+2007-03-23  dima  <dima.exe@gmail.com>
+
+	* rails.el (ruby-mode-hook): added [C-:] hotkey to easy switch between strings and symbols
+
+	* rails-ruby.el (ruby-toggle-string<>simbol): created
+
+	* rails.el (ruby-mode-hook): added [C-c f] hotkey to popup `major-menu-mode` menu
+
+	* rails-core.el (rails-core:menu-position): created variable
+	(rails-core:menu): using `rails-core:menu-position`
+
+	* rails-snippets.el (rails-snippets-menu-list): splited snippets into separate modes
+
+	* rails-navigation.el (rails-nav:goto-fixtures): created
+
+	* rails-core.el (rails-core:fixtures): created
+
+	* rails-view-minor-mode.el (rails-view-minor-mode): cleanup and switch to use
+	`rails-controller-layout`, added support mailers
+
+	* rails-unit-test-minor-mode.el (rails-unit-test-minor-mode): added support mailers
+
+	* rails-navigation.el (rails-nav:goto-mailers): created
+
+	* rails-model-layout.el: added support mailers
+
+	* rails-mailer-minor-mode.el: created
+
+	* rails-helper-minor-mode.el: cleanup and switch to use `rails-controller-layout`
+
+	* rails-functional-test-minor-mode.el: cleanup and switch to use
+	`rails-controller-layout`, added support mailers
+
+	* rails-core.el: created functions: rails-core:model-exist-p,
+	rails-core:mailer-file, rails-core:mailer-p, rails-core:mailers,
+	rails-core:current-function-name. Cleanup unsed functions.
+	
+	* rails-controller-minor-mode.el: cleanup and switch to use `rails-controller-layout`
+
+	* rails-controller-layout.el: created
+
+	* rails.el (rails-directory<-->types): rename fixtures to fixture
+
+	* rails-unit-test-minor-mode.el: using functions from `rails-model-layout` to navigate
+
+	* rails-model-minor-mode.el: using functions from `rails-model-layout` to navigate
+
+	* rails-model-layout.el: created
+
+	* rails-lib.el (string=~): created, by Howard Yeh
+
+	* rails-fixture-minor-mode.el: created
+
+	* rails-core.el (rails-core:controller-exist-p): create
+	(rails-core:fixture-file): used `pluralize-string` to match fixture
+	(rails-core:current-model): used `pluralize-string` to match fixture
+
+	* inflections.el: created, by Howard Yeh
+
+	* rails-cmd-proxy.el: created
+
+	* rails-ws.el (rails-ws:stop): stopped server with interrupt-process
+	(rails-ws:start): starting server useing rails-cmd-proxy:start-process-shell-command
+
+	* rails.el (rails-apply-for-buffer-type): added support to load new style submodes
+
+	* rails-lib.el (merge-abbrev-tables): created this function
+
+	* moved all rails-for-* to rails-*-minor-mode
+	
+	* rails-snippets.el (rails-snippets-menu-list): closed bug #9460, incorect indentation in snippets
+
+2007-03-19  dima  <dima.exe@gmail.com>
+
+	* rails-scripts.el (rails-rake): restore ask to save modified buffers before run rake test:*
+
+	* rails-core.el (rails-core:layout-file): support template types on go to layout menu
+
+	* rails-for-controller.el (rails-controller:create-view-for-action): create function
+	(rails-controller:switch-to-view): allow select template type on create
+
+	* rails.el: add support haml template engine
+
 2007-03-15  dima  <dima.exe@gmail.com>
 
 	* rails-scripts.el (rails-rake-tests): using `compile`
@@ -16,7 +177,7 @@
 
 2007-02-02  dima  <dima.exe@gmail.com>
 
-	* rails-snippets.el (rails-snippets-menu-list): bug #8381 (bag "ff" snippet)
+	* rails-snippets.el (rails-snippets-menu-list): bug #8381 (bad "ff" snippet)
 
 2007-01-30  dima  <dima.exe@gmail.com>
 

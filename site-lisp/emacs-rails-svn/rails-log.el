@@ -1,10 +1,12 @@
 ;;; rails-log.el --- provide features for Rails log files
 
-;; Copyright (C) 2006 Galinsky Dmitry <dima dot exe at gmail dot com>
+;; Copyright (C) 2006 Dmitry Galinsky <dima dot exe at gmail dot com>
+
+;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn+ssh://rubyforge/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 70 2007-01-25 01:26:43Z dimaexe $
+;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-log.el $
+;; $Id: rails-log.el 114 2007-03-25 18:15:35Z dimaexe $
 
 ;;; License
 
@@ -29,11 +31,11 @@
 (defun rails-log:files ()
   (directory-files (rails-core:file "log") nil "\\.log$"))
 
-(defun rails-log:get-buffer-name (log-file)
+(defun rails-log:buffer-name (log-file)
   (concat "*" log-file "*"))
 
 (defun rails-log:open-file (log-file)
-  (let ((buffer (rails-log:get-buffer-name log-file))
+  (let ((buffer (rails-log:buffer-name log-file))
         (current (buffer-name)))
     (unless (get-buffer buffer)
       (get-buffer-create buffer)
@@ -56,7 +58,7 @@
                           t
                           rails-log:last-log)))
   (setq rails-log:last-log log-file)
-  (let ((name (rails-log:get-buffer-name log-file)))
+  (let ((name (rails-log:buffer-name log-file)))
     (unless (get-buffer name)
       (rails-log:open-file log-file))
     (switch-to-buffer name)

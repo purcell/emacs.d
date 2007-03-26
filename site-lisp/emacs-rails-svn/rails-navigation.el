@@ -1,13 +1,13 @@
 ;;; rails-navigation.el --- emacs-rails navigation functions
 
-;; Copyright (C) 2006 Galinsky Dmitry <dima dot exe at gmail dot com>
+;; Copyright (C) 2006 Dmitry Galinsky <dima dot exe at gmail dot com>
 
-;; Authors: Galinsky Dmitry <dima dot exe at gmail dot com>,
+;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>,
 ;;          Rezikov Peter <crazypit13 (at) gmail.com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn+ssh://crazypit@rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-navigation.el 23 2006-03-27 21:35:16Z crazypit $
+;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-navigation.el $
+;; $Id: rails-navigation.el 113 2007-03-25 01:28:08Z dimaexe $
 
 ;;; License
 
@@ -87,6 +87,14 @@
    "Go to observer.."
    'rails-core:observer-file))
 
+(defun rails-nav:goto-mailers ()
+  "Go to mailers."
+  (interactive)
+  (rails-nav:goto-file-with-menu-from-list
+   (rails-core:mailers)
+   "Go to mailers.."
+   'rails-core:mailer-file))
+
 (defun rails-nav:goto-migrate ()
   "Go to migrations."
   (interactive)
@@ -109,7 +117,7 @@
   (rails-nav:goto-file-with-menu-from-list
    (rails-core:plugins)
    "Go to plugin.."
-   (lambda(plugin)
+   (lambda (plugin)
      (concat "vendor/plugins/" plugin "/init.rb"))))
 
 (defun rails-nav:create-new-layout (&optional name)
@@ -134,13 +142,21 @@
          (apply l (list))))
      items)))
 
+(defun rails-nav:goto-fixtures ()
+  "Go to fixtures."
+  (interactive)
+  (rails-nav:goto-file-with-menu-from-list
+   (rails-core:fixtures)
+   "Go to fixture.."
+   'rails-core:fixture-file))
+
 (defun rails-nav:goto-stylesheets ()
   "Go to stylesheets."
   (interactive)
   (rails-nav:goto-file-with-menu "public/stylesheets/" "Go to stylesheet.." "css" t))
 
 (defun rails-nav:goto-javascripts ()
-  "Go tto JavaScripts."
+  "Go to JavaScripts."
   (interactive)
   (rails-nav:goto-file-with-menu "public/javascripts/" "Go to stylesheet.." "js" t))
 
@@ -242,143 +258,9 @@ rails-goto-file-on-current-line is run.")
         (setf action (match-string 1 line)))
       (when (string-match ":controller[ ]*=>[ ]*[\"']\\([^\"']*\\)[\"']" line)
         (setf controller (match-string 1 line)))
-      (rails-core:open-controller+action
-       (if (rails-core:rhtml-buffer-p)
-           (if prefix :controller :view)
-         (if prefix :view :controller))
-       (if controller
-           (rails-core:full-controller-name controller)
+      (rails-controller-layout:switch-to-action-in-controller
+       (if controller controller
          (rails-core:current-controller))
        action))))
-
-;;;;;;;;;; Go to file from file ;;;;;;;;;;
-
-;;; For Models
-
-(defun rails-by-model-switch-to (what file-func)
-  (let ((model (rails-core:current-model)))
-    (rails-core:find-or-ask-to-create
-     (format "%s for model %s does not exist, create it? " what model)
-     (funcall file-func  model))))
-
-(defun rails-by-model-switch-to-model ()
-  (rails-by-model-switch-to "Model" 'rails-core:model-file))
-
-;; Plural BUGS!!!
-;; (defun rails-goto-fixtures-->model ()
-;;   (rails-goto-model-->simple
-;;    "Model" 'rails-core:current-model-from-fixtures
-;;    'rails-core:model-file))
-
-;; (defun  rails-goto-fixtures-->unit-test ()
-;;   (rails-goto-model-->simple
-;;    "Unit test" 'rails-core:current-model-from-fixtures
-;;   'rails-core:unit-test-file))
-
-(defun rails-by-model-switch-to-unit-test ()
-  (rails-by-model-switch-to "Unit test" 'rails-core:unit-test-file))
-
-(defun rails-by-model-switch-to-fixtures ()
-  (rails-by-model-switch-to "Fixtures" 'rails-core:fixtures-file))
-
-(defvar rails-goto-file-from-file-actions
-  '((:controller
-     (:invisible        rails-for-controller:switch-to-view2)
-     rails-for-controller:views-for-current-action
-     ("Helper"          rails-for-controller:switch-to-helper)
-     ("Functional test" rails-for-controller:switch-to-functional-test))
-    (:view
-     ("Controller"      rails-view:switch-to-action)
-     ("Helper"          rails-for-controller:switch-to-helper)
-     ("Functional test" rails-for-controller:switch-to-functional-test))
-    (:helper
-     ("Controller"      rails-for-controller:switch-to-controller)
-     ("View"            rails-for-controller:switch-to-views))
-    (:functional-test
-     ("Controller"      rails-for-controller:switch-to-controller))
-;;; For Models
-    (:model
-     ("Unit test" rails-by-model-switch-to-unit-test)
-     ("Fixtures"  rails-by-model-switch-to-fixtures))
-    ;; Plural BUGS!!!
-    ;;     (rails-core:fixtures-buffer-p
-    ;;      (rails-goto-fixtures-->model "Model test")
-    ;;      (rails-goto-fixtures-->unit-test "Unit test"))
-    (:unit-test
-     ("Model"      rails-by-model-switch-to-model)
-     ("Fixtures"   rails-by-model-switch-to-fixtures))))
-
-(defun rails-goto-file-from-file (show-menu)
-  "Deteminate type of file and goto another file.
-  With prefix show menu with variants."
-  (interactive "P")
-  (rails-core:with-root
-   (root)
-   (let ((variants (rest (find (rails-core:buffer-type)
-                               rails-goto-file-from-file-actions
-                               :key #'first))))
-     (if variants
-         (let ((variants
-                (loop for variant in variants
-                      when (symbolp variant)
-                      append (funcall variant)
-                      else collect variant)))
-           (progn
-             ;; Menu
-             (if show-menu
-                 (when-bind
-                  (goto (rails-core:menu
-                         (list "Go To: "
-                               (cons "goto"
-                                     (loop for (title func) in variants
-                                           when (not (eq title :invisible))
-                                           collect `(,title  ,func))))))
-                  (funcall goto))
-               ;;
-               (funcall (second (first variants))))))
-       (message "Can't go to some file from this file.")))))
-
-(defun rails-goto-file-from-file-with-menu ()
-  "Deteminate type of file and goto another file (choose type from menu)"
-  (interactive)
-  (rails-goto-file-from-file t))
-
-;;;;;;;;;; Rails finds ;;;;;;;;;;
-
-(defun rails-find (path)
-  "Open find-file in minbuffer for ``path'' in rails-root"
-  (let ((default-directory (rails-core:file path)))
-    (call-interactively rails-find-file-function)))
-
-(defmacro* def-rails-find (name dir)
-  "Define new rails-find function"
-  `(defun ,name ()
-     ,(format "Run find-file in Rails \"%s\" dir" dir)
-     (interactive)
-     (rails-find ,dir)))
-
-(def-rails-find rails-find-controller "app/controllers/")
-
-(def-rails-find rails-find-view "app/views/")
-
-(def-rails-find rails-find-layout "app/views/layouts/")
-
-(def-rails-find rails-find-db "db/")
-
-(def-rails-find rails-find-public "public/")
-
-(def-rails-find rails-find-helpers "app/helpers/")
-
-(def-rails-find rails-find-models "app/models/")
-
-(def-rails-find rails-find-config "config/")
-
-(def-rails-find rails-find-stylesheets "public/stylesheets/")
-
-(def-rails-find rails-find-javascripts "public/javascripts/")
-
-(def-rails-find rails-find-migrate "db/migrate/")
-
-(def-rails-find rails-find-fixtures "test/fixtures/")
 
 (provide 'rails-navigation)

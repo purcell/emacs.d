@@ -1,13 +1,13 @@
 ;;; rails.el --- minor mode for editing RubyOnRails code
 
-;; Copyright (C) 2006 Galinsky Dmitry <dima dot exe at gmail dot com>
+;; Copyright (C) 2006 Dmitry Galinsky <dima dot exe at gmail dot com>
 
-;; Authors: Galinsky Dmitry <dima dot exe at gmail dot com>,
+;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>,
 ;;          Rezikov Peter <crazypit13 (at) gmail.com>
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 88 2007-01-29 21:21:06Z dimaexe $
+;; $Id: rails.el 123 2007-03-26 14:28:44Z dimaexe $
 
 ;;; License
 
@@ -40,14 +40,22 @@
 (require 'find-recursive)
 (require 'autorevert)
 
+(require 'inflections)
+
 (require 'rails-core)
+(require 'rails-ruby)
 (require 'rails-lib)
+(require 'rails-cmd-proxy)
 (require 'rails-navigation)
+(require 'rails-find)
 (require 'rails-scripts)
+(require 'rails-rake)
 (require 'rails-ws)
 (require 'rails-log)
 (require 'rails-snippets)
 (require 'rails-ui)
+(require 'rails-model-layout)
+(require 'rails-controller-layout)
 
 ;;;;;;;;;; Variable definition ;;;;;;;;;;
 
@@ -125,7 +133,7 @@ Emacs w3m browser."
   :type 'string)
 
 (defvar rails-version "0.5")
-(defvar rails-templates-list '("rhtml" "rxml" "rjs"))
+(defvar rails-templates-list '("erb" "rhtml" "rxml" "rjs" "haml" "liquid"))
 (defvar rails-use-another-define-key nil)
 (defvar rails-primary-switch-func nil)
 (defvar rails-secondary-switch-func nil)
@@ -134,13 +142,20 @@ Emacs w3m browser."
   '((:controller       "app/controllers/")
     (:layout           "app/layouts/")
     (:view             "app/views/")
-    (:model            "app/models/")
+    (:observer         "app/models/" (lambda (file) (rails-core:observer-p file)))
+    (:mailer           "app/models/" (lambda (file) (rails-core:mailer-p file)))
+    (:model            "app/models/" (lambda (file) (and (not (rails-core:mailer-p file))
+                                                         (not (rails-core:observer-p file)))))
     (:helper           "app/helpers/")
     (:plugin           "vendor/plugins/")
     (:unit-test        "test/unit/")
     (:functional-test  "test/functional/")
-    (:fixtures         "test/fixtures/"))
+    (:fixture          "test/fixtures/")
+    (:migration        "db/migrate"))
   "Rails file types -- rails directories map")
+
+(apply
+ (quote (lambda (file) (rails-core:observer-p file))) (list "test"))
 
 (defvar rails-enviroments '("development" "production" "test"))
 (defvar rails-default-environment (first rails-enviroments))
@@ -157,9 +172,6 @@ Emacs w3m browser."
 (defun rails-use-text-menu ()
   "If t use text menu, popup menu otherwise"
   (or (null window-system) rails-always-use-text-menus))
-
-(defvar rails-find-file-function 'find-file
-  "Function witch called by rails finds")
 
 ;;;;;;;; hack ;;;;
 (defun rails-svn-status-into-root ()
@@ -207,10 +219,15 @@ Emacs w3m browser."
 (defun rails-apply-for-buffer-type ()
  (let* ((type (rails-core:buffer-type))
         (name (substring (symbol-name type) 1))
-        (name (concat "rails-for-" name)))
-   (when (require (intern name) nil t)
-     (when (fboundp (intern name))
-       (apply (intern name) (list))))))
+        (minor-mode-name (format "rails-%s-minor-mode" name))
+        (minor-mode-abbrev (concat minor-mode-name "-abbrev-table")))
+   (when (require (intern minor-mode-name) nil t) ;; load new style minor mode rails-*-minor-mode
+     (when (fboundp (intern minor-mode-name))
+       (apply (intern minor-mode-name) (list t))
+       (when (boundp (intern minor-mode-abbrev))
+         (merge-abbrev-tables
+          (symbol-value (intern minor-mode-abbrev))
+          local-abbrev-table))))))
 
 ;;;;;;;;;; Database integration ;;;;;;;;;;
 
@@ -373,6 +390,10 @@ necessary."
             (local-set-key (if rails-use-another-define-key
                                (kbd "TAB") (kbd "<tab>"))
                            'indent-or-complete)
+            (local-set-key (kbd "C-c f") '(lambda()
+                                            (interactive)
+                                            (mouse-major-mode-menu rails-core:menu-position)))
+            (local-set-key (kbd "C-:") 'ruby-toggle-string<>simbol)
             (local-set-key (if rails-use-another-define-key
                                (kbd "RET") (kbd "<return>"))
                            'ruby-newline-and-indent)))
@@ -405,8 +426,11 @@ necessary."
             (if (rails-core:root)
                 (rails-minor-mode t))))
 
+(autoload 'haml-mode "haml-mode" "" t)
+
 (setq auto-mode-alist  (cons '("\\.rb$" . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rake$" . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.haml$" . haml-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rjs$" . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rxml$" . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rhtml$" . html-mode) auto-mode-alist))

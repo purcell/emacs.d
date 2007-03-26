@@ -1,10 +1,12 @@
-;;; rails-for-plugin.el ---
+;;; rails-plugin-minor-mode.el --- minor mode for RubyOnRails plugins
 
-;; Copyright (C) 2006 Galinsky Dmitry <dima dot exe at gmail dot com>
+;; Copyright (C) 2006 Dmitry Galinsky <dima dot exe at gmail dot com>
+
+;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn+ssh://rubyforge/var/svn/emacs-rails/trunk/rails-for-rhtml.el $
-;; $Id: rails-for-rhtml.el 58 2006-12-17 21:47:39Z dimaexe $
+;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-plugin-minor-mode.el $
+;; $Id: rails-plugin-minor-mode.el 112 2007-03-24 22:34:38Z dimaexe $
 
 ;;; License
 
@@ -24,12 +26,12 @@
 
 ;;; Code:
 
-(defun rails-plugin:switch-to-init ()
+(defun rails-plugin-minor-mode:switch-to-init ()
   (interactive)
   (rails-core:find-file-if-exist
    (rails-core:plugin-file (rails-core:current-plugin) "init.rb")))
 
-(defun rails-plugin:switch-with-menu ()
+(defun rails-plugin-minor-mode:switch-with-menu ()
   (interactive)
   (let* ((item)
          (plugin (rails-core:current-plugin))
@@ -42,10 +44,12 @@
       (rails-core:find-file-if-exist
        (rails-core:plugin-file plugin item)))))
 
-(defun rails-for-plugin ()
-  "Enable Rails Plugins Configurations."
-  (interactive)
-  (setq rails-primary-switch-func 'rails-plugin:switch-to-init)
-  (setq rails-secondary-switch-func 'rails-plugin:switch-with-menu))
+(define-minor-mode rails-plugin-minor-mode
+  "Minor mode for RubyOnRails plugins."
+  nil
+  " plugin"
+  nil
+  (setq rails-primary-switch-func 'rails-plugin-minor-mode:switch-to-init)
+  (setq rails-secondary-switch-func 'rails-plugin-minor-mode:switch-with-menu))
 
-(provide 'rails-for-plugin)
+(provide 'rails-plugin-minor-mode)

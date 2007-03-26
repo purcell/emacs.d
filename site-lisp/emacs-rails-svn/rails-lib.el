@@ -1,13 +1,14 @@
 ;;; rails-lib.el ---
 
-;; Copyright (C) 2006 Galinsky Dmitry <dima dot exe at gmail dot com>
+;; Copyright (C) 2006 Dmitry Galinsky <dima dot exe at gmail dot com>
 
-;; Authors: Galinsky Dmitry <dima dot exe at gmail dot com>,
+;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>,
 ;;          Rezikov Peter <crazypit13 (at) gmail.com>
+;;          Howard Yeh <hayeah at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
-;; $Id: rails-lib.el 88 2007-01-29 21:21:06Z dimaexe $
+;; $Id: rails-lib.el 123 2007-03-26 14:28:44Z dimaexe $
 
 ;;; License
 
@@ -71,6 +72,26 @@ If EXPR is not nil exeutes BODY.
     (nreverse result)))
 
 ;; Strings
+
+(defmacro string=~ (regex string &rest body)
+  "regex matching similar to the =~ operator found in other languages."
+  (let ((str (gensym)))
+    `(lexical-let ((,str ,string))
+       ;; Use lexical-let to make closures (in flet).
+       (when (string-match ,regex ,str)
+         (symbol-macrolet ,(loop for i to 9 collect
+                                 (let ((sym (intern (concat "$" (number-to-string i)))))
+                                   `(,sym (match-string ,i ,str))))
+           (flet (($ (i) (match-string i ,str))
+                  (sub (replacement &optional (i 0) &key fixedcase literal-string)
+                       (replace-match replacement fixedcase literal-string ,str i)))
+             (symbol-macrolet ( ;;before
+                               ($b (substring ,str 0 (match-beginning 0)))
+                               ;;match
+                               ($m (match-string 0 ,str))
+                               ;;after
+                               ($a (substring ,str (match-end 0) (length ,str))))
+               ,@body)))))))
 
 (defun string-not-empty (str) ;(+)
   "Return t if string STR is not empty."
@@ -229,6 +250,13 @@ it."
     (set-buffer buffer-name)
     (buffer-string)))
 
+(defun buffer-visible-p (buffer-name)
+  (find nil
+        (mapcar
+         #'(lambda (win) (buffer-name (window-buffer win)))
+         (window-list))
+        :if #'(lambda(buf)(string= buf buffer-name))))
+
 ;; Misc
 
 (defun rails-browse-api-url (url)
@@ -248,19 +276,8 @@ the user explicit sets `rails-use-alternative-browse-url'."
 
 ;; snippets related
 
-;; (setq pp (create-snippets-and-menumap-from-dsl rails-snippets-menu-list))
-
-;; ;; (symbol-value 'lisp-mode-abbrev-table)
-;; (setq mm (make-sparse-keymap "test3"))
-;; (local-set-key [menu-bar test3] (cons "Test3" pp))
-
 (defmacro compile-snippet(expand)
   `(lambda () (interactive) (snippet-insert ,(symbol-value expand))))
-
-;; (setq b "for")
-;; (macroexpand '(compile-snippet b))
-
-;; ([rails] (cons "RubyOnRails" (make-sparse-keymap "RubyOnRails")))
 
 (defun create-snippets-and-menumap-from-dsl (body &optional path menu keymap abbrev-table)
   (unless path (setq path (list)))
@@ -291,6 +308,21 @@ the user explicit sets `rails-use-alternative-browse-url'."
             (vconcat (mapcar #'make-symbol (add-to-list 'p a t)))
             (cons (concat a " \t" c) (compile-snippet b)))))))
   keymap)
+
+;; abbrev
+;; from http://www.opensource.apple.com/darwinsource/Current/emacs-59/emacs/lisp/derived.el
+(defun merge-abbrev-tables (old new)
+  "Merge an old abbrev table into a new one.
+This function requires internal knowledge of how abbrev tables work,
+presuming that they are obarrays with the abbrev as the symbol, the expansion
+as the value of the symbol, and the hook as the function definition."
+  (when old
+    (mapatoms
+     (lambda(it)
+       (or (intern-soft (symbol-name it) new)
+           (define-abbrev new (symbol-name it)
+             (symbol-value it) (symbol-function it))))
+     old)))
 
 ;; Colorize
 
@@ -384,16 +416,13 @@ the user explicit sets `rails-use-alternative-browse-url'."
   (defun indent-or-complete ()
     "Complete if point is at end of a word, otherwise indent line."
     (interactive)
-    (unless
-        (when (and (boundp 'snippet)
-                   snippet)
-          (progn
-            (snippet-next-field)))
+    (if (and (boundp 'snippet)
+             snippet)
+        (snippet-next-field)
       (if (looking-at "\\>")
           (progn
             (hippie-expand nil)
             (message ""))
         (indent-for-tab-command)))))
-
 
 (provide 'rails-lib)

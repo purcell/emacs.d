@@ -1,10 +1,12 @@
-;;; rails-for-rhtml.el ---
+;;; rails-layout-minor-mode.el --- minor mode for RubyOnRails layouts
 
-;; Copyright (C) 2006 Galinsky Dmitry <dima dot exe at gmail dot com>
+;; Copyright (C) 2006 Dmitry Galinsky <dima dot exe at gmail dot com>
+
+;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn+ssh://rubyforge/var/svn/emacs-rails/trunk/rails-for-rhtml.el $
-;; $Id: rails-for-rhtml.el 43 2006-04-11 17:07:11Z dimaexe $
+;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-layout-minor-mode.el $
+;; $Id: rails-layout-minor-mode.el 112 2007-03-24 22:34:38Z dimaexe $
 
 ;;; License
 
@@ -24,8 +26,10 @@
 
 ;;; Code:
 
-(defun rails-for-layout ()
-  "Enable layout configurations."
-  (interactive))
+(define-minor-mode rails-layout-minor-mode
+  "Minor mode for RubyOnRails layouts."
+  nil
+  " layout"
+  nil)
 
-(provide 'rails-for-layout)
+(provide 'rails-layout-minor-mode)

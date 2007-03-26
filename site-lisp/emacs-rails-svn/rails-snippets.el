@@ -1,12 +1,12 @@
 ;;; rails-snippets.el --- snippets for rails related modes
 
-;; Copyright (C) 2006 Galinsky Dmitry <dima dot exe at gmail dot com>
+;; Copyright (C) 2006 Dmitry Galinsky <dima dot exe at gmail dot com>
 
-;; Authors: Galinsky Dmitry <dima dot exe at gmail dot com>,
+;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>,
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn+ssh://crazypit@rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-navigation.el 23 2006-03-27 21:35:16Z crazypit $
+;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-snippets.el $
+;; $Id: rails-snippets.el 111 2007-03-24 22:28:12Z dimaexe $
 
 ;;; License
 
@@ -36,18 +36,39 @@
 (unless (boundp 'nxml-mode-abbrev-table)
   (defvar nxml-mode-abbrev-table)
   (define-abbrev-table 'nxml-mode-abbrev-table ()))
+(unless (boundp 'rails-model-minor-mode-abbrev-table)
+  (defvar rails-model-minor-mode-abbrev-table)
+  (define-abbrev-table 'rails-model-minor-mode-abbrev-table ()))
+(unless (boundp 'rails-functional-test-minor-mode-abbrev-table)
+  (defvar rails-functional-test-minor-mode-abbrev-table)
+  (define-abbrev-table 'rails-functional-test-minor-mode-abbrev-table ()))
+(unless (boundp 'rails-unit-test-minor-mode-abbrev-table)
+  (defvar rails-unit-test-minor-mode-abbrev-table)
+  (define-abbrev-table 'rails-unit-test-minor-mode-abbrev-table ()))
+(unless (boundp 'rails-controller-test-minor-mode-abbrev-table)
+  (defvar rails-controller-minor-mode-abbrev-table)
+  (define-abbrev-table 'rails-controller-minor-mode-abbrev-table ()))
+(unless (boundp 'rails-view-minor-mode-abbrev-table)
+  (defvar rails-view-minor-mode-abbrev-table)
+  (define-abbrev-table 'rails-view-minor-mode-abbrev-table ()))
+(unless (boundp 'rails-helper-minor-mode-abbrev-table)
+  (defvar rails-helper-minor-mode-abbrev-table)
+  (define-abbrev-table 'rails-helper-minor-mode-abbrev-table ()))
+(unless (boundp 'rails-migration-minor-mode-abbrev-table)
+  (defvar rails-migration-minor-mode-abbrev-table)
+  (define-abbrev-table 'rails-migration-minor-mode-abbrev-table ()))
 
 (defvar rails-snippets-menu-list
   (list '(:m "ruby"
              (:m "loops" ruby-mode-abbrev-table
-                 ("while" "while $${condition}\n$>$.\n$>end" "while ... end")
+                 ("while" "while $${condition}\n$>$.\nend$>" "while ... end")
                  ("when" "when $${condition}\n$>$." "when ...")
                  ("w" "attr_writer :$${attr_names}" "attr_writer ...")
                  ("upt" "upto($${0}) { |$${n}|$. }" "upto(1.0/0.0) { |n| ... }")
-                 ("until" "until $${condition}\n$>$.\n$>end" "until ... end")
+                 ("until" "until $${condition}\n$>$.\nend$>" "until ... end")
                  ("tim" "times { |$${n}|$. }" "times { |n| ... }")
                  ("ste" "step($${2}) { |$${n}|$. }" "step(2) { |e| ... }")
-                 ("forin" "for $${element} in $${collection}\n$>$${element}.$.\n$>end" "for ... in ... end")
+                 ("forin" "for $${element} in $${collection}\n$>$${element}.$.\nend$>" "for ... in ... end")
                  ("dow" "downto($${0}) { |$${n}|$. }" "downto(0) { |n| ... }")
                  ) ; loops
              (:m "general" ruby-mode-abbrev-table
@@ -77,46 +98,46 @@
                  ("file" "File.foreach($${file}) { |$${line}| $. }" "File.foreach (\"...\") { |line| ... }")
                  ("dir" "Dir.glob($${glob}) { |$${file}| $. }" "Dir.glob(\"...\") { |file| ... }")
                  ("b" "=begin rdoc\n$>$.\n=end" "New Block")
-                 ("begin" "begin\n$>$${paste}\nrescue $${Exception} => $${e}\n$>$.\n$>end\n" "begin ... rescue ... end")
-                 ("bm" "TESTS = $${10_000}\nBenchmark.bmbm($${10}) do |results|\n  $.\n$>end" "Benchmark.bmbm(...) do ... end")
+                 ("begin" "begin\n$>$${paste}\nrescue $${Exception} => $${e}\n$>$.\nend$>\n" "begin ... rescue ... end")
+                 ("bm" "TESTS = $${10_000}\nBenchmark.bmbm($${10}) do |results|\n  $.\nend$>" "Benchmark.bmbm(...) do ... end")
                  ("am" "alias_method :$${new_name}, :$${old_name}" "alias_method ...")
                  ("amc" "alias_method_chain :$${first_method}, :$${second_method}" "alias_method_chain ...")
                  ) ; general
              (:m "definitions" ruby-mode-abbrev-table
                  ("ts" "require \"test/unit\"\n\nrequire \"tc_$${test_case_file}\"\nrequire \"tc_$${test_case_file}\"\n" "require \"tc_...\" ...")
-                 ("tc" "require \"test/unit\"\n\nrequire \"$${library_file_name}\"\n\nclass Test$${amp} < Test::Unit::TestCase\n$>def test_$${case_name}\n$>$>$.\n$>end\n$>end" "class ... < Test::Unit::TestCase ... end")
+                 ("tc" "require \"test/unit\"\n\nrequire \"$${library_file_name}\"\n\nclass Test$${amp} < Test::Unit::TestCase\n$>def test_$${case_name}\n$>$>$.\nend$>\nend$>" "class ... < Test::Unit::TestCase ... end")
                  ("sin" "class << self; self end" "singleton_class()")
                  ("rw" "attr_accessor :$${attr_names}" "attr_accessor ...")
                  ("req" "require \"$.\"" "require \"...\"")
-                 ("modf" "module $${ModuleName}\n$>module ClassMethods\n$>$>$.\n$>end\n$>\n$>extend ClassMethods\n$>\n$>def self.included(receiver)\n$>$>receiver.extend(ClassMethods)\n$>end\n$>\n$>\n$>end" "module ... ClassMethods ... end")
-                 ("mods" "module $${ModuleName}\n$>$.\n$>end" "module ... end")
-                 ("modu" "module $${ModuleName}\n$>module_function\n$>\n$>$.\n$>end" "module ... module_function ... end")
-                 ("mm" "def method_missing(meth, *args, &block)\n$>$.\n$>end" "def method_missing ... end")
+                 ("modf" "module $${ModuleName}\n$>module ClassMethods\n$>$>$.\nend$>\n$>\n$>extend ClassMethods\n$>\n$>def self.included(receiver)\n$>$>receiver.extend(ClassMethods)\nend$>\n$>\n$>\nend$>" "module ... ClassMethods ... end")
+                 ("mods" "module $${ModuleName}\n$>$.\nend$>" "module ... end")
+                 ("modu" "module $${ModuleName}\n$>module_function\n$>\n$>$.\nend$>" "module ... module_function ... end")
+                 ("mm" "def method_missing(meth, *args, &block)\n$>$.\nend$>" "def method_missing ... end")
                  ("hash" "Hash.new { |$${hash}, $${key}| $${hash}[$${key}] = $. }" "Hash.new { |hash, key| hash[key] = ... }")
                  ("forw" "extend Forwardable" "extend Forwardable")
-                 ("enum" "include Enumerable\n\ndef each(&block)\n$>$.\n$>end" "include Enumerable ...")
+                 ("enum" "include Enumerable\n\ndef each(&block)\n$>$.\nend$>" "include Enumerable ...")
                  ("elsif" "elsif $${condition}\n$>$." "elsif ...")
-                 ("doo" "do |$${object}|\n$>$.\n$>end" "Insert do |object| ... end")
-                 ("do" "do\n$>$.\n$>end" "do ... end")
+                 ("doo" "do |$${object}|\n$>$.\nend$>" "Insert do |object| ... end")
+                 ("do" "do\n$>$.\nend$>" "do ... end")
                  ("defd" "def_delegator :$${del_obj}, :$${del_meth}, :$${new_name}" "def_delegator ...")
                  ("defds" "def_delegators :$${del_obj}, :$${del_methods}" "def_delegators ...")
-                 ("defs" "def self.$${class_method_name}\n$>$.\n$>end" "def self ... end")
-                 ("deft" "def test_$${case_name}\n$>$.\n$>end" "def test_ ... end")
+                 ("defs" "def self.$${class_method_name}\n$>$.\nend$>" "def self ... end")
+                 ("deft" "def test_$${case_name}\n$>$.\nend$>" "def test_ ... end")
                  ("dee" "Marshal.load(Marshal.dump($${obj_to_copy}))" "deep_copy(...)")
-                 ("comp" "include Comparable\n\ndef <=>(other)\n$>$.\n$>end" "include Comparable ...")
-                 ("cladl" "class $${ClassName} < DelegateClass($${ParentClass})\n$>def initialize$${1}\n$>$>super($${del_obj})\n$>$>\n$>$>$.\n$>end\n$>\n$>\n$>end" "class ... < DelegateClass ... initialize ... end")
-                 ("clapr" "class $${ClassName} < $${ParentClass}\n$>def initialize$${1}\n$>$>$.\n$>end\n$>\n$>\n$>end" "class ... < ParentClass ... initialize ... end")
-                 ("clast" "class $${ClassName} < Struct.new(:$${attr_names})\n$>def initialize(*args)\n$>$>super\n$>$>\n$>$>$.\n$>end\n$>\n$>\n$>end" "class ... < Struct ... initialize ... end")
-                 ("class" "class $${ClassName}\n$>$.\n$>end" "class ... end")
-                 ("classi" "class $${ClassName}\n$>def initialize$${1}\n$>$>$.\n$>end\n$>\n$>\n$>end" "class ... initialize ... end")
-                 ("clasf" "class << $${self}\n$>$.\n$>end" "class << self ... end")
+                 ("comp" "include Comparable\n\ndef <=>(other)\n$>$.\nend$>" "include Comparable ...")
+                 ("cladl" "class $${ClassName} < DelegateClass($${ParentClass})\n$>def initialize$${1}\n$>$>super($${del_obj})\n$>$>\n$>$>$.\nend$>\n$>\n$>\nend$>" "class ... < DelegateClass ... initialize ... end")
+                 ("clapr" "class $${ClassName} < $${ParentClass}\n$>def initialize$${1}\n$>$>$.\nend$>\n$>\n$>\nend$>" "class ... < ParentClass ... initialize ... end")
+                 ("clast" "class $${ClassName} < Struct.new(:$${attr_names})\n$>def initialize(*args)\n$>$>super\n$>$>\n$>$>$.\nend$>\n$>\n$>\nend$>" "class ... < Struct ... initialize ... end")
+                 ("class" "class $${ClassName}\n$>$.\nend$>" "class ... end")
+                 ("classi" "class $${ClassName}\n$>def initialize$${1}\n$>$>$.\nend$>\n$>\n$>\nend$>" "class ... initialize ... end")
+                 ("clasf" "class << $${self}\n$>$.\nend$>" "class << self ... end")
                  ) ; definitions
              (:m "conditions" ruby-mode-abbrev-table
                  ("if:" "$${cond} ? $${match} : $${not_match}" "cond ? ... : ...")
-                 ("unless" "unless $${condition}\n$>$.\n$>end" "unless ... end")
-                 ("ife" "if $${condition}\n$>$${2}\nelse\n$>$${3}\n$>end" "if ... else ... end")
-                 ("if" "if $${condition}\n$>$.\n$>end" "if ... end")
-                 ("case" "case $${object}\nwhen $${condition}\n$>$.\n$>end" "case ... end")
+                 ("unless" "unless $${condition}\n$>$.\nend$>" "unless ... end")
+                 ("ife" "if $${condition}\n$>$${2}\nelse\n$>$${3}\nend$>" "if ... else ... end")
+                 ("if" "if $${condition}\n$>$.\nend$>" "if ... end")
+                 ("case" "case $${object}\nwhen $${condition}\n$>$.\nend$>" "case ... end")
                  ) ; conditions
              (:m "collections" ruby-mode-abbrev-table
                  ("zip" "zip($${enums}) { |$${row}| $. }" "zip(enums) { |row| ... }")
@@ -128,7 +149,6 @@
                  ("reject" "reject { |$${element}| $${element}.$. }" "reject element")
                  ("rej" "reject { |$${e}| $. }" "reject { |e| ... }")
                  ("ran" "sort_by { rand }" "randomize()")
-                 ("par" "partition { |$${e}| $. }" "partition { |e| ... }")
                  ("mapwi" "enum_with_index.map { |$${e}, $${i}| $. }" "map_with_index { |e, i| ... }")
                  ("map" "map { |$${e}| $. }" "map { |e| ... }")
                  ("inject" "inject($${object}) { |$${injection}, $${element}| $${4} }$." "inject object")
@@ -198,7 +218,16 @@
              ("%" "<% $. -%>" "<% ... %>")
              ("%%" "<%= $. %>" "<%= ... %>")
              ) ; rhtml
-        '(:m "render" ruby-mode-abbrev-table
+        '(:m "controller" rails-controller-minor-mode-abbrev-table
+             ("rest" "respond_to do |format|\n$>format.html\n$>$.\nend$>" "respond_to ...")
+             ("ru"  "render :update do |page|\n$>$.\nend$>" "render :update ...")
+             ("bf"  "before_filter :$${filter}" "refore_filter")
+             ("af"  "after_filter :$${filter}" "after_filter")
+             ("arf"  "around_filter :$${filter}" "around_filter")
+             ) ; controller
+        '(:m "render" rails-controller-minor-mode-abbrev-table
+                      rails-view-minor-mode-abbrev-table
+                      rails-helper-minor-mode-abbrev-table
              ("rps" "render :partial => \"$${item}\", :status => $${500}" "render (partial, status)")
              ("rt" "render :text => \"$${render}\"" "render (text)")
              ("rtl" "render :text => \"$${render}\", :layout => \"$${layoutname}\"" "render (text, layout)")
@@ -222,37 +251,44 @@
              ("ra" "render :action => \"$${action}\"" "render (action)")
              ("ral" "render :action => \"$${action}\", :layout => \"$${layoutname}\"" "render (action, layout)")
              ) ; render
-        '(:m "redirect_to" ruby-mode-abbrev-table
+        '(:m "redirect_to" rails-controller-minor-mode-abbrev-table
+                           rails-view-minor-mode-abbrev-table
+                           rails-helper-minor-mode-abbrev-table
              ("rea" "redirect_to :action => \"$${index}\"" "redirect_to (action)")
              ("reai" "redirect_to :action => \"$${show}\", :id => $${item}" "redirect_to (action, id)")
              ("rec" "redirect_to :controller => \"$${items}\"" "redirect_to (controller)")
              ("reca" "redirect_to :controller => \"$${items}\", :action => \"$${list}\"" "redirect_to (controller, action)")
              ("recai" "redirect_to :controller => \"$${items}\", :action => \"$${show}\", :id => $${item}" "redirect_to (controller, action, id)")
              ) ; redirect_to
-        '(:m "model" ruby-mode-abbrev-table
+        '(:m "rails" ruby-mode-abbrev-table
              ("nr" "@$${item}.new_record?" "item.new_record?")
+             ) ; rails
+        '(:m "model" rails-model-minor-mode-abbrev-table
              ("va" "validates_associated :$${attribute}" "validates_associated")
              ("vc" "validates_confirmation_of :$${attribute}" "validates_confirmation_of")
              ("ve" "validates_exclusion_of :$${attribute}" "validates_exclusion_of")
-             ("vpif" "validates_presence_of :$${attribute}, :if => proc { |obj| $${condition} }" "validates_presence_of if")
              ("vu" "validates_uniqueness_of :$${attribute}" "validates_uniqueness_of")
              ("vpif" "validates_presence_of :$${attribute}, :if => proc { |obj| $${condition} }" "validates_presence_of if")
              ("vp" "validates_presence_of :$${attribute}" "validates_presence_of")
              ("vl" "validates_length_of :$${attribute}, :within => $${20}" "validates_length_of")
              ("bt" "belongs_to :$${model}" "belongs_to")
              ("hm" "has_many :$${objects}" "has_many")
+             ("hmt" "has_many :$${objects}, :through => :$${,rails-snippets:prev-has-many-table-name}" "has_many :through")
              ("ho" "has_one :$${object}" "has_one")
              ("habtm" "has_and_belongs_to_many :$${object}" "has_and_belongs_to_many")
              ) ; model
-        '(:m "migrations" ruby-mode-abbrev-table
-             ("mtclm" "t.column :$${title}, :$${string}\n$>mtclm$." "create several columns")
-             ("mac" "add_column :$${table}, :$${column}, :$${string}" "add column")
-             ("mai" "add_index :$${table}, $${column}" "add index")
-             ("mtcl" "t.column :$${title}, :$${string}$." "create column")
-             ("mrmc" "remove_column :$${table}, :$${column}" "remove column")
-             ("mrec" "rename_column :$${column}, :$${new_column}" "rename column")
-             ("mdt" "drop_table :$${table}\n$." "drop table")
-             ("mrt" "rename_table :$${table}, :$${new_name}$." "rename table")
+        '(:m "migrations" rails-migration-minor-mode-abbrev-table
+             ("tcls" "t.column :$${title}, :$${string}\n$>tcls$." "create several columns")
+             ("tcl" "t.column :$${title}, :$${string}$." "create column")
+             ("tcln" "t.column :$${title}, :$${string}, :null => false$." "create column :null => false")
+             ("acl" "add_column :$${,rails-snippets:migration-table-name}, :$${column}, :$${string}" "add column")
+             ("ai" "add_index :$${,rails-snippets:migration-table-name}, $${column}" "add index")
+             ("aiu" "add_index :$${,rails-snippets:migration-table-name}, $${column}, :unique => true" "add unique index")
+             ("rmcl" "remove_column :$${,rails-snippets:migration-table-name}, :$${column}" "remove column")
+             ("recl" "rename_column :$${column}, :$${new_column}" "rename column")
+             ("dt" "drop_table :$${,rails-snippets:migration-table-name}\n$." "drop table")
+             ("ct" "create_table :$${,rails-snippets:migration-table-name} do |t|\n$>tcls$.\nend$>" "create_table")
+             ("ret" "rename_table :$${,rails-snippets:migration-table-name}, :$${new_name}$." "rename table")
              ) ; migrations
         '(:m "environment" ruby-mode-abbrev-table
              ("logd" "logger.debug \"$${message}\"$." "logger.debug")
@@ -260,11 +296,11 @@
              ("logf" "logger.fatal \"$${message}\"$." "logger.fatal")
              ("logi" "logger.info \"$${message}\"$." "logger.info")
              ("logw" "logger.warn \"$${message}\"$." "logger.warn")
-             ("params" "params[:$${id}]" "params[...]")
+             ("par" "params[:$${id}]" "params[...]")
              ("session" "session[:$${User}]" "session[...]")
              ("flash" "flash[:$${notice}] = \"$${Successfully}\"$." "flash[...]")
              ) ; environment
-        '(:m "assertions" ruby-mode-abbrev-table
+        '(:m "assertions" rails-functional-test-minor-mode-abbrev-table rails-unit-test-minor-mode-abbrev-table
              ("art" "assert_redirected_to :action => \"$${index}\"" "assert_redirected_to")
              ("as" "assert($${test}, \"$${message}\")" "assert(...)")
              ("ase" "assert_equal($${expected}, $${actual})" "assert_equal(...)")
@@ -289,5 +325,45 @@
              ) ; assertions
         )
   )
+
+;;       (let* ((field (snippet-make-field-overlay (match-string 2)))
+;;              (start (match-beginning 0))
+;;              (snip-str (match-string 2))
+;;              (repl "\\2"))
+;;         (push field (snippet-fields snippet))
+;;         (when (= 44 (car (string-to-list snip-str))) ;; 44 - [,]
+;;           (save-match-data
+;;             (setq repl (apply (intern (substring snip-str 1)) (list)))))
+
+(defadvice snippet-insert (before snippet-insert-before-advice first (template) activate)
+  (let ((pos 0))
+    (while (setq pos (string-match (snippet-field-regexp) template pos))
+      (let ((match (match-string 2 template))
+            (beg (match-beginning 2))
+            (end (match-end 2))
+            (repl))
+        (setq pos end)
+        (when (= 44 (car (string-to-list match))) ;; 44 - [,]
+          (save-match-data
+            (setq repl (apply (intern (substring match 1)) (list)))))
+        (when repl
+          (setq template
+                (concat (substring template 0 beg)
+                        repl
+                        (substring template end (length template))))
+          (setq pos (- pos
+                       (- (length match) (length repl)))))))))
+
+(defun rails-snippets:migration-table-name ()
+  (let (str)
+    (string=~ "[0-9]+_create_\\([^\\.]+\\)\\.rb$" (buffer-name)
+              (setq str $1))
+    (if str str "table")))
+
+(defun rails-snippets:prev-has-many-table-name ()
+  (save-excursion
+    (if (search-backward-regexp "has_many :\\(\\w+\\)" nil t)
+        (match-string-no-properties 1)
+      "table")))
 
 (provide 'rails-snippets)
