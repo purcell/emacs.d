@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-migration-minor-mode.el $
-;; $Id: rails-migration-minor-mode.el 112 2007-03-24 22:34:38Z dimaexe $
+;; $Id: rails-migration-minor-mode.el 130 2007-03-26 20:35:02Z dimaexe $
 
 ;;; License
 
@@ -32,6 +32,6 @@
   " migration"
   nil
   (setq rails-primary-switch-func nil)
-  (setq rails-secondary-switch-func 'rails-nav:goto-migrate))
+  (setq rails-secondary-switch-func 'rails-model-layout:menu))
 
 (provide 'rails-migration-minor-mode)

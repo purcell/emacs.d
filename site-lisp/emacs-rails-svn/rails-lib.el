@@ -8,7 +8,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
-;; $Id: rails-lib.el 123 2007-03-26 14:28:44Z dimaexe $
+;; $Id: rails-lib.el 132 2007-03-27 12:01:43Z dimaexe $
 
 ;;; License
 
@@ -251,11 +251,7 @@ it."
     (buffer-string)))
 
 (defun buffer-visible-p (buffer-name)
-  (find nil
-        (mapcar
-         #'(lambda (win) (buffer-name (window-buffer win)))
-         (window-list))
-        :if #'(lambda(buf)(string= buf buffer-name))))
+  (if (get-buffer-window buffer-name) t nil))
 
 ;; Misc
 

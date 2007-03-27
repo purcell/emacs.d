@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-model-layout.el $
-;; $Id: rails-model-layout.el 112 2007-03-24 22:34:38Z dimaexe $
+;; $Id: rails-model-layout.el 131 2007-03-26 21:01:00Z dimaexe $
 
 ;;; License
 
@@ -33,9 +33,15 @@
                  (:controller (rails-core:controller-file (pluralize-string model)))
                  (:fixture (rails-core:fixture-file model))
                  (:unit-test (rails-core:unit-test-file model))
-                 (:model (rails-core:model-file model)))))
-    (rails-core:find-file-if-exist item)
-    (message (format "%s: %s" (substring (symbol-name type) 1) model))))
+                 (:model (rails-core:model-file model))
+                 (:migration (rails-core:migration-file (concat "Create" (pluralize-string model)))))))
+    (when item
+      (let ((file (rails-core:file item)))
+        (if (file-exists-p file)
+            (progn
+              (find-file file)
+              (message (format "%s: %s" (substring (symbol-name type) 1) model)))
+          (message "File %s not exists" file))))))
 
 (defun rails-model-layout:menu ()
   (interactive)
@@ -45,10 +51,15 @@
          (model (rails-core:current-model))
          (controller (pluralize-string model)))
     (unless (rails-core:mailer-p model)
-      (when (rails-core:controller-exist-p controller)
-        (add-to-list 'item (cons "Controller" :controller)))
+      (when (and (not (eq type :migration))
+                 (rails-core:migration-file (format
+                                             "Create%s"
+                                             (pluralize-string model))))
+        (add-to-list 'item (cons "Migration" :migration)))
       (unless (eq type :fixture)
         (add-to-list 'item (cons "Fixture" :fixture)))
+      (when (rails-core:controller-exist-p controller)
+        (add-to-list 'item (cons "Controller" :controller)))
       (unless (eq type :unit-test)
         (add-to-list 'item (cons "Unit test" :unit-test)))
       (unless (eq type :model)

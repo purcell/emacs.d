@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-navigation.el $
-;; $Id: rails-navigation.el 113 2007-03-25 01:28:08Z dimaexe $
+;; $Id: rails-navigation.el 130 2007-03-26 20:35:02Z dimaexe $
 
 ;;; License
 
@@ -101,7 +101,7 @@
   (rails-nav:goto-file-with-menu-from-list
    (rails-core:migrations)
    "Go to migrate.."
-   'rails-core:migrate-file))
+   'rails-core:migration-file))
 
 (defun rails-nav:goto-helpers ()
   "Go to helpers."

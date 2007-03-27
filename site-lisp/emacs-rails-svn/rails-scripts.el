@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-scripts.el $
-;; $Id: rails-scripts.el 119 2007-03-26 13:05:53Z dimaexe $
+;; $Id: rails-scripts.el 133 2007-03-27 14:59:21Z dimaexe $
 
 ;;; License
 
@@ -59,8 +59,9 @@ For example -c to remove files from svn.")
 (defconst rails-script:output-mode-link-regexp
   " \\(create\\) + \\([^ ]+\\.\\w+\\)")
 
-(defvar rails-script:push-first-button-after-stop t)
-(defvar rails-script:popup-buffer-after-stop-if-ok t)
+(defvar rails-script:popup-buffer-after-stop-if-success t)
+(defvar rails-script:output-mode-ret-value nil)
+(defvar rails-script:output-mode-after-stop-hook nil)
 
 (defun rails-script:output-mode-make-links (start end len)
   (save-excursion
@@ -71,6 +72,29 @@ For example -c to remove files from svn.")
                      :type 'rails-button
                      :rails:file-name (match-string 2))))))
 
+(defun rails-script:output-mode-popup-buffer ()
+  (let* ((ret-val rails-script:output-mode-ret-value)
+         (ret-val (if ret-val ret-val 0))
+         (popup-if-success rails-script:popup-buffer-after-stop-if-success))
+    (when (and (if popup-if-success t (not (zerop ret-val)))
+               (not (get-buffer-process rails-script:buffer-name))
+               (not (buffer-visible-p rails-script:buffer-name)))
+      (display-buffer rails-script:buffer-name t))
+    (let ((win (get-buffer-window-list rails-script:buffer-name)))
+      (when win
+        (mapcar #'(lambda(w)(set-window-point w 0)) win)
+        (shrink-window-if-larger-than-buffer
+         (get-buffer-window rails-script:buffer-name))))))
+
+(defun rails-script:output-mode-push-first-button ()
+  (let (file-name)
+    (with-current-buffer (get-buffer rails-script:buffer-name)
+      (let ((button (next-button 1)))
+        (when button
+          (setq file-name (button-get button :rails:file-name)))))
+    (when file-name
+      (rails-core:find-file-if-exist file-name))))
+
 (define-derived-mode rails-script:output-mode fundamental-mode "Rails Script Output"
   "Major mode to Rails Script Output."
   (set (make-local-variable 'font-lock-keywords-only) t)
@@ -79,8 +103,12 @@ For example -c to remove files from svn.")
   (buffer-disable-undo)
   (rails-script:output-mode-make-links (point-min) (point-max) (point-max))
   (setq buffer-read-only t)
-  (set (make-local-variable 'rails-script:push-first-button-after-stop) t)
-  (set (make-local-variable 'rails-script:popup-buffer-after-stop-if-ok) t)
+  (set (make-local-variable 'rails-script:popup-buffer-after-stop-if-success) t)
+  (set (make-local-variable 'scroll-margin) 0)
+  (set (make-local-variable 'scroll-preserve-screen-position) nil)
+  (make-local-hook 'rails-script:output-mode-after-stop-hook)
+  (add-hook 'rails-script:output-mode-after-stop-hook 'rails-script:output-mode-popup-buffer t t)
+  (add-hook 'rails-script:output-mode-after-stop-hook 'rails-script:output-mode-push-first-button t t)
   (make-local-variable 'after-change-functions)
   (add-hook 'after-change-functions 'rails-script:output-mode-make-links)
   (rails-minor-mode t))
@@ -90,34 +118,23 @@ For example -c to remove files from svn.")
 
 (defun rails-script:sentinel-proc (proc msg)
   (let* ((name rails-script:running-script-name)
-         (buf (current-buffer))
          (ret-val (process-exit-status proc))
-         (ret-message (if (zerop ret-val)
-                          "successful" "failure"))
-         (do-popup (buffer-local-value 'rails-script:popup-buffer-after-stop-if-ok
-                                       (get-buffer rails-script:buffer-name)))
-         (do-popup (if do-popup t (not (zerop ret-val)))))
+         (buf (get-buffer rails-script:buffer-name))
+         (ret-message (if (zerop ret-val) "successful" "failure")))
+    (with-current-buffer buf
+      (set (make-local-variable 'rails-script:output-mode-ret-value) ret-val))
     (when (memq (process-status proc) '(exit signal))
       (setq rails-script:running-script-name nil
             msg (format "%s was stopped (%s)." name ret-message)))
-    (when (and (not rails-script:running-script-name)
-               do-popup)
-      (unless (buffer-visible-p rails-script:buffer-name)
-        (display-buffer rails-script:buffer-name t))
-      (pop-to-buffer (get-buffer rails-script:buffer-name))
-      (goto-char (point-min))
-      (let ((button (next-button 1)))
-        (if (and button
-                 rails-script:push-first-button-after-stop)
-            (push-button (button-start button))
-          (pop-to-buffer buf)))
-      (shrink-window-if-larger-than-buffer (get-buffer-window rails-script:buffer-name)))
-  (message
-   (replace-regexp-in-string "\n" "" msg))))
+    (message (replace-regexp-in-string "\n" "" msg))
+    (with-current-buffer buf
+      (run-hooks 'rails-script:output-mode-after-stop-hook))))
 
 (defun rails-script:run (command parameters &optional buffer-major-mode)
   "Run a Rails script COMMAND with PARAMETERS with
 BUFFER-MAJOR-MODE and process-sentinel SENTINEL."
+  (unless (listp parameters)
+    (error "rails-script:run PARAMETERS must be the list"))
   (rails-core:with-root
    (root)
    (let ((proc (rails-script:running-p)))
@@ -129,7 +146,8 @@ BUFFER-MAJOR-MODE and process-sentinel SENTINEL."
                                                    command
                                                    (strings-join " " parameters))))
          (with-current-buffer (get-buffer rails-script:buffer-name)
-           (let ((buffer-read-only nil))
+           (let ((buffer-read-only nil)
+                 (win (get-buffer-window-list rails-script:buffer-name)))
              (kill-region (point-min) (point-max)))
            (if buffer-major-mode
                (apply buffer-major-mode (list))

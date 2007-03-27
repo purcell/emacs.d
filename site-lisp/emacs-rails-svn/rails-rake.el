@@ -36,17 +36,58 @@
   "^ + \\([0-9]+) +\\(Error\\|Failure\\):\\)"
   "Regexp to match error labels")
 
+(defconst rails-rake:output-mode-result-regexp
+  "\\([0-9]+ tests, [0-9]+ assertions, [0-9]+ failures, [0-9]+ errors\\)")
+
 (defconst rails-rake:output-mode-font-lock-ketwords
   (list
    (list rails-rake:output-mode-error-label-regexp  1 font-lock-warning-face)
    '("^Started$"                                    . font-lock-keyword-face)
    '("^Finished in .* seconds."                     . font-lock-keyword-face)
-   '("[0-9]+ tests, [0-9]+ assertions, [0-9]+ failures, [0-9]+ errors" . font-lock-keyword-face)
+   (list rails-rake:output-mode-result-regexp       1 font-lock-keyword-face)
    '("^[.FE]+$"                                     . font-lock-keyword-face)
    '("\\([a-z09_]+([A-Z][a-zA-Z0-9]+Test)\\)[ :]"   . font-lock-function-name-face)
    '("\\[\\(\\.[^:]+:[0-9]+\\)\\]"                  1 font-lock-constant-face)
    '("^ *\\([\\.]?[^:]+:[0-9]+\\)\\(:in `.*\\)?$"   1 font-lock-constant-face)))
 
+;; output-mode
+
+(defun rails-rake:output-mode-make-links (start end len)
+  )
+
+(defun rails-rake:report-result ()
+  (with-current-buffer (get-buffer rails-script:buffer-name)
+    (let ((msg (list)))
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward rails-rake:output-mode-result-regexp (point-max) t)
+          (add-to-list 'msg (match-string-no-properties 1))))
+      (unless (zerop (length msg))
+        (message (strings-join " || " (reverse msg)))))))
+
+(defun rails-rake:report-progress-of-test (start end len)
+  (let (content)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "^Started" end t)
+        (line-move 1)
+        (save-match-data
+          (let ((progress (string=~ "^[\\.EF]+$" (current-line-string) $m)))
+            (when progress
+              (setq content (concat content progress)))))))
+    (when content
+      (message "Progress of %s: %s" rails-script:running-script-name content))))
+
+(define-derived-mode rails-rake:output-mode rails-script:output-mode "Rails Rake Output"
+  "Major mode to Rails Rake Output."
+  (setq rails-script:popup-buffer-after-stop-if-success nil)
+  (remove-hook 'rails-script:output-mode-push-first-button t)
+  (add-hook 'rails-script:output-mode-after-stop-hook 'rails-rake:report-result nil t)
+  (setq font-lock-defaults
+        '((rails-rake:output-mode-font-lock-ketwords) nil t))
+  (add-hook 'after-change-functions 'rails-rake:report-progress-of-test))
+
+;; tasks
 
 (defun rails-rake:create-tasks-cache (file-name)
   "Create a cache file from rake --tasks output."
@@ -74,31 +115,6 @@
                     (rails-rake:tasks-list))
                    :if #'(lambda (it) (not it)))))
 
-(defun rails-rake:output-mode-make-links (start end len)
-  )
-
-(defun rails-rake:report-progress-of-test (start end len)
-  (let (content)
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward "^Started" end t)
-        (line-move 1)
-        (save-match-data
-          (let ((progress (string=~ "^[\\.EF]+$" (current-line-string) $m)))
-            (when progress
-              (setq content (concat content progress)))))))
-    (when content
-      (message "Progress of %s: %s" rails-script:running-script-name content))))
-
-(define-derived-mode rails-rake:output-mode rails-script:output-mode "Rails Rake Output"
-  "Major mode to Rails Rake Output."
-  (setq rails-script:push-first-button-after-stop nil)
-  (setq rails-script:popup-buffer-after-stop-if-ok nil)
-  (setq font-lock-defaults
-        '((rails-rake:output-mode-font-lock-ketwords) nil t))
-;;   (rails-rake:prepare-buffer-fragment (point-min) (point-max) (point-max))
-  (add-hook 'after-change-functions 'rails-rake:report-progress-of-test))
-
 (defun rails-rake:task (&optional task)
   "Run a Rake task in RAILS_ROOT."
   (interactive (list (completing-read "Rake task (use autocomplete): " (list->alist (rails-rake:tasks-list)))))
@@ -123,5 +139,35 @@
   (let ((task-name (if (string= "all" task) "test"
                      (concat "test:" task))))
     (rails-rake:task task-name)))
+
+(defun rails-rake:run-test-file (file &optional param)
+  (let ((param (if param (append (list file) (list param))
+                 (list file))))
+    (rails-script:run "ruby" param 'rails-rake:output-mode)))
+
+(defun rails-rake:test-current (&optional method)
+  (interactive)
+  (let* ((model (rails-core:current-model))
+         (controller (rails-core:current-controller))
+         (func-test (rails-core:functional-test-file controller))
+         (unit-test (rails-core:unit-test-file model))
+         (mailer-test (rails-core:unit-test-file controller)))
+    (cond
+     ;; model
+     ((and model unit-test)
+      (rails-rake:run-test-file unit-test))
+     ;; controller
+     ((and controller (not (rails-core:mailer-p controller)) func-test)
+      (rails-rake:run-test-file func-test))
+     ;; mailer
+     ((and controller (rails-core:mailer-p controller) unit-test)
+      (rails-rake:run-test-file unit-test)))))
+
+(defun rails-rake:test-current-method ()
+  (interactive)
+  (let ((file (substring (buffer-file-name) (length (rails-core:root))))
+        (method (rails-core:current-method-name)))
+    (when method
+      (rails-rake:run-test-file file (format "--name=%s" method)))))
 
 (provide 'rails-rake)

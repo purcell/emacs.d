@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ui.el $
-;; $Id: rails-ui.el 118 2007-03-26 12:59:43Z dimaexe $
+;; $Id: rails-ui.el 133 2007-03-27 14:59:21Z dimaexe $
 
 ;;; License
 
@@ -114,7 +114,8 @@
   ([rails tests recent]         '("Recent tests"      . (lambda() (interactive) (rails-rake:test "recent"))))
   ([rails tests tests]          '("All"               . (lambda() (interactive) (rails-rake:test "all"))))
   ([rails tests separator]      '("--"))
-  ([rails tests run]            '("Run tests ..."     . rails-rake:test))
+  ([rails tests run-current]    '("Test current model/controller/mailer" . rails-rake:test-current))
+  ([rails tests run]            '("Run tests ..."                        . rails-rake:test))
 
 
 
@@ -183,8 +184,8 @@
   ((kbd "\C-c \C-c g f") 'rails-nav:goto-fixtures)
 
   ;; Switch
-  ((kbd "C-c <up>")      'rails-lib:run-primary-switch)
-  ((kbd "C-c <down>")    'rails-lib:run-secondary-switch)
+  ((kbd "\C-c <up>")      'rails-lib:run-primary-switch)
+  ((kbd "\C-c <down>")    'rails-lib:run-secondary-switch)
   ((kbd "<M-S-up>")      'rails-lib:run-primary-switch)
   ((kbd "<M-S-down>")    'rails-lib:run-secondary-switch)
   ((kbd "<C-return>")    'rails-goto-file-on-current-line)
@@ -221,6 +222,7 @@
   ;; Tests
   ((kbd "\C-c \C-c r")   'rails-rake:task)
   ((kbd "\C-c \C-c t")   'rails-rake:test)
+  ((kbd "\C-c \C-c .")   'rails-rake:test-current)
 
   ;; Navigation
 
@@ -231,7 +233,7 @@
   ;; Documentation
   ([f1]                  'rails-search-doc)
   ((kbd "<C-f1>")        'rails-browse-api-at-point)
-  ((kbd "C-c <f1>")      'rails-browse-api)
+  ((kbd "\C-c <f1>")     'rails-browse-api)
 
   ([f9]                  'rails-svn-status-into-root))
 

@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/inflections.el $
-;; $Id: inflections.el 111 2007-03-24 22:28:12Z dimaexe $
+;; $Id: inflections.el 130 2007-03-26 20:35:02Z dimaexe $
 
 ;;; License
 
@@ -208,19 +208,21 @@
   (:uncountable "equipment" "information" "rice" "money" "species" "series" "fish" "sheep"))
 
 (defun singularize-string (str)
-  (or (car (member str (inflections-struct-uncountables inflections)))
-      (caar (member* str (inflections-struct-irregulars inflections) :key 'cadr :test 'equal))
-      (loop for (from to) in (inflections-struct-singulars inflections)
-            for singular = (string=~ from str (sub to))
-            when singular do (return singular))
-      str))
+  (when (stringp str)
+    (or (car (member str (inflections-struct-uncountables inflections)))
+        (caar (member* str (inflections-struct-irregulars inflections) :key 'cadr :test 'equal))
+        (loop for (from to) in (inflections-struct-singulars inflections)
+              for singular = (string=~ from str (sub to))
+              when singular do (return singular))
+        str)))
 
 (defun pluralize-string (str)
-  (or (car (member str (inflections-struct-uncountables inflections)))
-      (cadar (member* str (inflections-struct-irregulars inflections) :key 'car :test 'equal))
-      (loop for (from to) in (inflections-struct-plurals inflections)
-            for plurals = (string=~ from str (sub to))
-            when plurals do (return plurals))
-      str))
+  (when (stringp str)
+    (or (car (member str (inflections-struct-uncountables inflections)))
+        (cadar (member* str (inflections-struct-irregulars inflections) :key 'car :test 'equal))
+        (loop for (from to) in (inflections-struct-plurals inflections)
+              for plurals = (string=~ from str (sub to))
+              when plurals do (return plurals))
+        str)))
 
 (provide 'inflections)

@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-snippets.el $
-;; $Id: rails-snippets.el 111 2007-03-24 22:28:12Z dimaexe $
+;; $Id: rails-snippets.el 134 2007-03-27 15:27:18Z dimaexe $
 
 ;;; License
 
@@ -81,7 +81,7 @@
                  ("sub" "sub(/$${pattern}/) { |$${match}|$. }" "sub(/.../) { |match| ... }")
                  ("sca" "scan(/$${pattern}/) { |$${match}| $. }" "scan(/.../) { |match| ... }")
                  ("rep" "results.report(\"$${name}:\") { TESTS.times { $. } }" "results.report(...) { ... }")
-                 ("rdb" "RAILS_DEFAULT_LOGGER.debug \"$${message}\"$." "RAILS_DEFAULT_LOGGER.debug")
+                 ("rdb" "RAILS_DEFAULT_LOGGER.debug '$${message}'$." "RAILS_DEFAULT_LOGGER.debug")
                  ("rb" "#!/usr/bin/env ruby -w\n\n" "#!/usr/local/bin/ruby -w")
                  ("r" "attr_reader :$${attr_names}" "attr_reader ...")
                  ("pn" "PStore.new($${file_name})" "PStore.new( ... )")
@@ -94,7 +94,7 @@
                  ("lam" "lambda { |$${args}|$. }" "lambda { |args| ... }")
                  ("gsu" "gsub(/$${pattern}/) { |$${match}|$. }" "gsub(/.../) { |match| ... }")
                  ("gre" "grep($${pattern}) { |$${match}| $. }" "grep(/pattern/) { |match| ... }")
-                 ("fl" "flunk(\"$${message}\")" "flunk(...)")
+                 ("fl" "flunk('$${message}')" "flunk(...)")
                  ("file" "File.foreach($${file}) { |$${line}| $. }" "File.foreach (\"...\") { |line| ... }")
                  ("dir" "Dir.glob($${glob}) { |$${file}| $. }" "Dir.glob(\"...\") { |file| ... }")
                  ("b" "=begin rdoc\n$>$.\n=end" "New Block")
@@ -228,37 +228,37 @@
         '(:m "render" rails-controller-minor-mode-abbrev-table
                       rails-view-minor-mode-abbrev-table
                       rails-helper-minor-mode-abbrev-table
-             ("rps" "render :partial => \"$${item}\", :status => $${500}" "render (partial, status)")
-             ("rt" "render :text => \"$${render}\"" "render (text)")
-             ("rtl" "render :text => \"$${render}\", :layout => \"$${layoutname}\"" "render (text, layout)")
-             ("rtlt" "render :text => \"$${render}\", :layout => $${true}" "render (text, layout => true)")
-             ("rts" "render :text => \"$${render}\", :status => $${401}" "render (text, status)")
-             ("rf" "render :file => \"$${filepath}\"" "render (file)")
-             ("rfu" "render :file => \"$${filepath}\", :use_full_path => $${false}" "render (file, use_full_path)")
-             ("ri" "render :inline => \"$${hello}\"" "render (inline)")
-             ("ril" "render :inline => \"$${hello}\", :locals => { $${name} => \"$${value}\"$${4} }" "render (inline, locals)")
-             ("rit" "render :inline => \"$${hello}\", :type => $${rxml}" "render (inline, type)")
-             ("rl" "render :layout => \"$${layoutname}\"" "render (layout)")
+             ("rps" "render :partial => '$${item}', :status => $${500}" "render (partial, status)")
+             ("rt" "render :text => '$${render}'" "render (text)")
+             ("rtl" "render :text => '$${render}', :layout => '$${layoutname}'" "render (text, layout)")
+             ("rtlt" "render :text => '$${render}', :layout => $${true}" "render (text, layout => true)")
+             ("rts" "render :text => '$${render}', :status => $${401}" "render (text, status)")
+             ("rf" "render :file => '$${filepath}'" "render (file)")
+             ("rfu" "render :file => '$${filepath}', :use_full_path => $${false}" "render (file, use_full_path)")
+             ("ri" "render :inline => '$${hello}'" "render (inline)")
+             ("ril" "render :inline => '$${hello}', :locals => { $${name} => '$${value}'$${4} }" "render (inline, locals)")
+             ("rit" "render :inline => '$${hello}', :type => $${rxml}" "render (inline, type)")
+             ("rl" "render :layout => '$${layoutname}'" "render (layout)")
              ("rn" "render :nothing => $${true}" "render (nothing)")
              ("rns" "render :nothing => $${true}, :status => $${401}" "render (nothing, status)")
-             ("rp" "render :partial => \"$${item}\"" "render (partial)")
-             ("rpc" "render :partial => \"$${item}\", :collection => $${items}" "render (partial, collection)")
-             ("rpl" "render :partial => \"$${item}\", :locals => { :$${name} => \"$${value}\"$${4} }" "render (partial, locals)")
-             ("rpo" "render :partial => \"$${item}\", :object => $${object}" "render (partial, object)")
-             ("rcea" "render_component :action => \"$${index}\"" "render_component (action)")
-             ("rcec" "render_component :controller => \"$${items}\"" "render_component (controller)")
-             ("rceca" "render_component :controller => \"$${items}\", :action => \"$${index}\"" "render_component (controller, action)")
-             ("ra" "render :action => \"$${action}\"" "render (action)")
-             ("ral" "render :action => \"$${action}\", :layout => \"$${layoutname}\"" "render (action, layout)")
+             ("rp" "render :partial => '$${item}'" "render (partial)")
+             ("rpc" "render :partial => '$${item}', :collection => $${items}" "render (partial, collection)")
+             ("rpl" "render :partial => '$${item}', :locals => { :$${name} => '$${value}'$${4} }" "render (partial, locals)")
+             ("rpo" "render :partial => '$${item}', :object => $${object}" "render (partial, object)")
+             ("rcea" "render_component :action => '$${index}'" "render_component (action)")
+             ("rcec" "render_component :controller => '$${items}'" "render_component (controller)")
+             ("rceca" "render_component :controller => '$${items}', :action => '$${index}'" "render_component (controller, action)")
+             ("ra" "render :action => '$${index}'" "render (action)")
+             ("ral" "render :action => '$${index}', :layout => '{default}'" "render (action, layout)")
              ) ; render
         '(:m "redirect_to" rails-controller-minor-mode-abbrev-table
                            rails-view-minor-mode-abbrev-table
                            rails-helper-minor-mode-abbrev-table
-             ("rea" "redirect_to :action => \"$${index}\"" "redirect_to (action)")
-             ("reai" "redirect_to :action => \"$${show}\", :id => $${item}" "redirect_to (action, id)")
-             ("rec" "redirect_to :controller => \"$${items}\"" "redirect_to (controller)")
-             ("reca" "redirect_to :controller => \"$${items}\", :action => \"$${list}\"" "redirect_to (controller, action)")
-             ("recai" "redirect_to :controller => \"$${items}\", :action => \"$${show}\", :id => $${item}" "redirect_to (controller, action, id)")
+             ("rea" "redirect_to :action => '$${index}'" "redirect_to (action)")
+             ("reai" "redirect_to :action => '$${show}', :id => $${item}" "redirect_to (action, id)")
+             ("rec" "redirect_to :controller => '$${items}'" "redirect_to (controller)")
+             ("reca" "redirect_to :controller => '$${items}', :action => '$${list}'" "redirect_to (controller, action)")
+             ("recai" "redirect_to :controller => '$${items}', :action => '$${show}', :id => $${item}" "redirect_to (controller, action, id)")
              ) ; redirect_to
         '(:m "rails" ruby-mode-abbrev-table
              ("nr" "@$${item}.new_record?" "item.new_record?")
@@ -291,18 +291,18 @@
              ("ret" "rename_table :$${,rails-snippets:migration-table-name}, :$${new_name}$." "rename table")
              ) ; migrations
         '(:m "environment" ruby-mode-abbrev-table
-             ("logd" "logger.debug \"$${message}\"$." "logger.debug")
-             ("loge" "logger.error \"$${message}\"$." "logger.error")
-             ("logf" "logger.fatal \"$${message}\"$." "logger.fatal")
-             ("logi" "logger.info \"$${message}\"$." "logger.info")
-             ("logw" "logger.warn \"$${message}\"$." "logger.warn")
+             ("logd" "logger.debug '$${message}'$." "logger.debug")
+             ("loge" "logger.error '$${message}'$." "logger.error")
+             ("logf" "logger.fatal '$${message}'$." "logger.fatal")
+             ("logi" "logger.info '$${message}'$." "logger.info")
+             ("logw" "logger.warn '$${message}'$." "logger.warn")
              ("par" "params[:$${id}]" "params[...]")
              ("session" "session[:$${User}]" "session[...]")
-             ("flash" "flash[:$${notice}] = \"$${Successfully}\"$." "flash[...]")
+             ("flash" "flash[:$${notice}] = '$${Successfully}'$." "flash[...]")
              ) ; environment
         '(:m "assertions" rails-functional-test-minor-mode-abbrev-table rails-unit-test-minor-mode-abbrev-table
-             ("art" "assert_redirected_to :action => \"$${index}\"" "assert_redirected_to")
-             ("as" "assert($${test}, \"$${message}\")" "assert(...)")
+             ("art" "assert_redirected_to :action => '$${index}'" "assert_redirected_to")
+             ("as" "assert($${test}, '$${message}')" "assert(...)")
              ("ase" "assert_equal($${expected}, $${actual})" "assert_equal(...)")
              ("asid" "assert_in_delta($${expected_float}, $${actual_float}, $${20})" "assert_in_delta(...)")
              ("asio" "assert_instance_of($${ExpectedClass}, $${actual_instance})" "assert_instance_of(...)")
@@ -322,6 +322,7 @@
              ("ass" "assert_same($${expected}, $${actual})" "assert_same(...)")
              ("ass" "assert_send([$${object}, :$${message}, $${args}])" "assert_send(...)")
              ("ast" "assert_throws(:$${expected}) { $. }" "assert_throws(...) { ... }")
+             ("astm" "assert_template '$${expected}'" "assert_template")
              ) ; assertions
         )
   )

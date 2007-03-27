@@ -32,7 +32,9 @@
        ,(format "Run find-file in Rails \"%s\" dir" dir)
        (interactive)
        (let ((default-directory (rails-core:file ,dir)))
-         (call-interactively 'find-file)))))
+         (call-interactively ',(if (fboundp 'ido-find-file)
+                                   'ido-find-file
+                                 'find-file))))))
 
 (rails-find:gen "controller"  "app/controllers")
 (rails-find:gen "view"        "app/views")

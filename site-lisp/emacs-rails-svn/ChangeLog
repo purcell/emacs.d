@@ -1,4 +1,63 @@
+2007-03-27  dima  <dima.exe@gmail.com>
+
+	* rails-snippets.el (rails-snippets-menu-list): updated snippets,
+	add the "assert_template" snippet
+
+	* rails-rake.el (rails-rake:test-current): created
+	(rails-rake:run-test-file): created
+	(rails-rake:test-current-method): created
+
+	* rails-unit-test-minor-mode.el (rails-unit-test-minor-mode):
+	added hotkey [C-c .] to run test of current method
+
+	* rails-functional-test-minor-mode.el (rails-functional-test-minor-mode): 
+	added hotkey [C-c .] to run test of current method
+
+	* rails-core.el (rails-core:functional-test-file)
+	(rails-core:unit-test-file, rails-core:observer-p)
+	(rails-core:mailer-p): allow passing nil
+	(rails-core:current-method-name): renamed from rails-core:current-function-name
+
+	* rails-scripts.el (rails-script:output-mode-popup-buffer,
+	rails-script:output-mode-push-first-button): created
+	(rails-script:output-mode): using hooks instead local-variables
+
+	* rails-rake.el (rails-rake:output-mode): using hooks instead local-variables
+
+	* rails-lib.el (buffer-visible-p): optimization, using `get-buffer-window'
+
+	* rails-model-layout.el (rails-model-layout:switch-to): 
+	display message if file not exists
+
+	* rails-controller-layout.el (rails-controller-layout:switch-to):
+	display message if file not exists
+
+	* rails-model-layout.el (rails-model-layout:switch-to)
+	(rails-model-layout:menu): added migrations support
+
+	* rails-migration-minor-mode.el (rails-migration-minor-mode): popup menu entry
+
+	* rails-core.el (rails-core:model-exist-p): return nil if observer
+	or mailer
+	(rails-core:migration-file): allow passing a migration name
+	without number (ex. "CreateUsers")
+	(rails-core:current-model): added migrations support
+	(rails-core:migration-file): renamed from migrate-file
+
+	* rails-controller-layout.el (rails-controller-layout:switch-to):
+	added migration support
+
+	* inflections.el (singularize-string, pluralize-string): allow passing nil
+
 2007-03-26  dima  <dima.exe@gmail.com>
+
+	* rails-find.el (rails-find:gen): call ido-find-file if possible
+
+	* rails-rake.el (rails-rake:report-result): prints results of all tests
+
+	* rails-ruby.el: fixed compilation warnning
+
+	* rails-rake.el, rails-scripts.el: updated, printed result of tests
 
 	* rails-lib.el, rails.el: fix compilation error [#9547]
 	

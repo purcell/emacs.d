@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 118 2007-03-26 12:59:43Z dimaexe $
+;; $Id: rails-ruby.el 125 2007-03-26 15:39:03Z dimaexe $
 
 ;;; License
 
@@ -35,6 +35,9 @@
 ;;     (if (looking-at "\\>")
 ;;         (hippie-expand nil)
 ;;       ad-do-it)))
+
+(eval-when-compile
+  (require 'inf-ruby))
 
 (defun ruby-newline-and-indent ()
   (interactive)

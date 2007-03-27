@@ -1,3 +1,11 @@
+SVN
+* Added hotkeys for tests:
+  - [C-c C-c .] running a test for current model/controller (global)
+  - [C-c .] running a test for current method (in a functional/unit test)
+* Prints total of tests, asertions, failures, errors after end of
+  tests running
+* Fixed recursive "require" error after compilation [#9547]
+
 0.5.99
 * Improvement of tests and rails scripts output; run async, colorize
   output, etc.
@@ -19,7 +27,7 @@
 0.5.3
 * create separate menubar entry "Snippets"
 * allow web server selection auto-save
-* fixed errors at work with sql
+* corrected errors at work with sql
 * fixed byte-compile warnings
 
 0.5.2
