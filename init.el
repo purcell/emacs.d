@@ -365,7 +365,8 @@
 
   (when *ecb-support-enabled*
     (require 'ecb)
-    (add-to-list 'ecb-compilation-buffer-names '("\\(development\\|test\\|production\\).log" . t))))
+    (add-to-list 'ecb-compilation-buffer-names '("\\(development\\|test\\|production\\).log" . t))
+    (add-to-list 'ecb-compilation-buffer-names '("\\*Rails" . t))))
 
 
 ;;----------------------------------------------------------------------------
