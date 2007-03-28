@@ -282,7 +282,7 @@
 ;;----------------------------------------------------------------------------
 ;; Ruby
 ;;----------------------------------------------------------------------------
-(autoload 'ruby-electric "ruby-electric" "Electric brackes/quotes/keywords for Ruby source" t)
+(autoload 'ruby-electric-mode "ruby-electric" "Electric brackes/quotes/keywords for Ruby source" t)
 (setq ruby-electric-expand-delimiters-list nil)  ; Only use ruby-electric for adding 'end'
 (add-hook 'ruby-mode-hook
           (lambda () (ruby-electric-mode t)))
@@ -291,8 +291,6 @@
 
 (add-auto-mode 'ruby-mode "Rakefile$" "\.rake$" "\.rxml$" "\.rjs" ".irbrc")
 (add-auto-mode 'html-mode "\.rhtml$")
-
-
 (eval-after-load "compile"
   '(progn
     ;; Jump to lines from Ruby Test::Unit stack traces in 'compile' mode
