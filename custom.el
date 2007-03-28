@@ -15,7 +15,7 @@
  '(ecb-compile-window-height 0.2)
  '(ecb-create-layout-file "~/.emacs.d/.ecb-user-layouts.el")
  '(ecb-grep-find-function (quote rgrep))
- '(ecb-layout-name "left2")
+ '(ecb-layout-name "right-nav")
  '(ecb-layout-window-sizes (quote (("left-analyse" (0.20297029702970298 . 0.33962264150943394) (0.20297029702970298 . 0.20754716981132076) (0.20297029702970298 . 0.20754716981132076) (0.20297029702970298 . 0.22641509433962265)))))
  '(ecb-options-version "2.33beta1")
  '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
