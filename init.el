@@ -277,6 +277,10 @@
 (setq magic-mode-alist (cons '("<＼＼?xml " . nxml-mode) magic-mode-alist))
 (fset 'html-mode 'nxml-mode)
 (fset 'xml-mode 'nxml-mode)
+(add-hook 'nxml-mode
+          (lambda ()
+            (flyspell-mode)
+            (add-to-list 'flyspell-prog-text-faces 'nxml-text-face)))
 
 
 ;;----------------------------------------------------------------------------
