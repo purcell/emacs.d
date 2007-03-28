@@ -1,0 +1,852 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<section>
+<title>nXML Mode</title>
+
+<para>This manual documents nxml-mode, an Emacs major mode for editing
+XML with RELAX NG support.  This manual is not yet complete.</para>
+
+<section>
+<title>Completion</title>
+
+<para>Apart from real-time validation, the most important feature that
+nxml-mode provides for assisting in document creation is "completion".
+Completion assists the user in inserting characters at point, based on
+knowledge of the schema and on the contents of the buffer before
+point.</para>
+
+<para>The traditional GNU Emacs key combination for completion in a
+buffer is <kbd>M-<key>TAB</key></kbd>. However, many window systems
+and window managers use this key combination themselves (typically for
+switching between windows) and do not pass it to applications. It's
+hard to find key combinations in GNU Emacs that are both easy to type
+and not taken by something else.  <kbd>C-<key>RET</key></kbd> (i.e.
+pressing the Enter or Return key, while the Ctrl key is held down) is
+available.  It won't be available on a traditional terminal (because
+it is indistinguishable from Return), but it will work with a window
+system.  Therefore we adopt the following solution by default: use
+<kbd>C-<key>RET</key></kbd> when there's a window system and
+<kbd>M-<key>TAB</key></kbd> when there's not.  In the following, I
+will assume that a window system is being used and will therefore
+refer to <kbd>C-<key>RET</key></kbd>.</para>
+
+<para>Completion works by examining the symbol preceding point.  This
+is the symbol to be completed. The symbol to be completed may be the
+empty. Completion considers what symbols starting with the symbol to
+be completed would be valid replacements for the symbol to be
+completed, given the schema and the contents of the buffer before
+point.  These symbols are the possible completions.  An example may
+make this clearer.  Suppose the buffer looks like this (where <point/>
+indicates point):
+
+<example>
+&lt;html xmlns="http://www.w3.org/1999/xhtml">
+&lt;h<point/>
+</example>
+
+and the schema is XHTML.  In this context, the symbol to be completed
+is <samp>h</samp>.  The possible completions consist of just
+<samp>head</samp>.  Another example, is
+
+<example>
+&lt;html xmlns="http://www.w3.org/1999/xhtml">
+&lt;head>
+&lt;<point/>
+</example>
+
+In this case, the symbol to be completed is empty, and the possible
+completions are <samp>base</samp>, <samp>isindex</samp>,
+<samp>link</samp>, <samp>meta</samp>, <samp>script</samp>,
+<samp>style</samp>, <samp>title</samp>.  Another example is:
+
+<example>
+&lt;html xmlns="<point/>
+</example>
+
+In this case, the symbol to be completed is empty, and the possible
+completions are just <samp>http://www.w3.org/1999/xhtml</samp>.</para>
+
+<para>When you type <kbd>C-<key>RET</key></kbd>, what happens depends
+on what the set of possible completions are.</para>
+
+<ulist>
+
+<item><para>If the set of completions is empty, nothing
+happens.</para></item>
+
+<item><para>If there is one possible completion, then that completion is
+inserted, together with any following characters that are
+required. For example, in this case:
+
+<example>
+&lt;html xmlns="http://www.w3.org/1999/xhtml">
+&lt;<point/>
+</example>
+
+<kbd>C-<key>RET</key></kbd> will yield
+
+<example>
+&lt;html xmlns="http://www.w3.org/1999/xhtml">
+&lt;head<point/>
+</example>
+</para>
+</item>
+
+<item><para>If there is more than one possible completion, but all
+possible completions share a common non-empty prefix, then that prefix
+is inserted. For example, suppose the buffer is:
+
+<example>
+&lt;html x<point/>
+</example>
+
+The symbol to be completed is <samp>x</samp>. The possible completions
+are <samp>xmlns</samp> and <samp>xml:lang</samp>.  These share a
+common prefix of <samp>xml</samp>.  Thus, <kbd>C-<key>RET</key></kbd>
+will yield:
+
+<example>
+&lt;html xml<point/>
+</example>
+
+Typically, you would do <kbd>C-<key>RET</key></kbd> again, which would
+have the result described in the next item.</para></item>
+
+<item><para>If there is more than one possible completion, but the
+possible completions do not share a non-empty prefix, then Emacs will
+prompt you to input the symbol in the minibuffer, initializing the
+minibuffer with the symbol to be completed, and popping up a buffer
+showing the possible completions.  You can now input the symbol to be
+inserted.  The symbol you input will be inserted in the buffer instead
+of the symbol to be completed.  Emacs will then insert any required
+characters after the symbol.  For example, if it contains:
+
+<example>
+&lt;html xml<point/>
+</example>
+
+Emacs will prompt you in the minibuffer with
+
+<example>
+Attribute: xml<point/>
+</example>
+
+and the buffer showing possible completions will contain
+
+<example>
+Possible completions are:
+xml:lang			   xmlns
+</example>
+
+If you input <kbd>xmlns</kbd>, the result will be:
+
+<example>
+&lt;html xmlns="<point/>
+</example>
+
+(If you do <kbd>C-<key>RET</key></kbd> again, the namespace URI will
+be inserted. Should that happen automatically?)</para>
+</item>
+</ulist>
+
+</section>
+
+<section>
+<title>Inserting end-tags</title>
+
+<para>The main redundancy in XML syntax is end-tags.  nxml-mode provides
+several ways to make it easier to enter end-tags.  You can use all of
+these without a schema.</para>
+
+<para>You can use <kbd>C-<key>RET</key></kbd> after <samp>&lt;/</samp>
+to complete the rest of the end-tag.</para>
+
+<para><kbd>C-c C-f</kbd> inserts an end-tag for the element containing
+point. This command is useful when you want to input the start-tag,
+then input the content and finally input the end-tag. The <samp>f</samp>
+is mnemonic for finish.</para>
+
+<para>If you want to keep tags balanced and input the end-tag at the
+same time as the start-tag, before inputting the content, then you can
+use <kbd>C-c C-i</kbd>. This inserts a <samp>&gt;</samp>, then inserts
+the end-tag and leaves point before the end-tag.  <kbd>C-c C-b</kbd>
+is similar but more convenient for block-level elements: it puts the
+start-tag, point and the end-tag on successive lines, appropriately
+indented. The <samp>i</samp> is mnemonic for inline and the
+<samp>b</samp> is mnemonic for block.</para>
+
+<para>Finally, you can customize nxml-mode so that <kbd>/</kbd>
+automatically inserts the rest of the end-tag when it occurs after
+<samp>&lt;</samp>, by doing
+
+<display>
+<kbd>M-x customize-variable <key>RET</key> nxml-slash-auto-complete-flag <key>RET</key></kbd>
+</display>
+
+and then following the instructions in the displayed buffer.</para>
+
+</section>
+
+<section>
+<title>Paragraphs</title>
+
+<para>Emacs has several commands that operate on paragraphs, most
+notably <kbd>M-q</kbd>. nXML mode redefines these to work in a way
+that is useful for XML.  The exact rules that are used to find the
+beginning and end of a paragraph are complicated; they are designed
+mainly to ensure that <kbd>M-q</kbd> does the right thing.</para>
+
+<para>A paragraph consists of one or more complete, consecutive lines.
+A group of lines is not considered a paragraph unless it contains some
+non-whitespace characters between tags or inside comments.  A blank
+line separates paragraphs.  A single tag on a line by itself also
+separates paragraphs.  More precisely, if one tag together with any
+leading and trailing whitespace completely occupy one or more lines,
+then those lines will not be included in any paragraph.</para>
+
+<para>A start-tag at the beginning of the line (possibly indented) may
+be treated as starting a paragraph.  Similarly, an end-tag at the end
+of the line may be treated as ending a paragraph. The following rules
+are used to determine whether such a tag is in fact treated as a
+paragraph boundary:
+<ulist>
+<item><para>If the schema does not allow text at that point, then it
+is a paragraph boundary.</para></item>
+<item><para>If the end-tag corresponding to the start-tag is not at
+the end of its line, or the start-tag corresponding to the end-tag is
+not at the beginning of its line, then it is not a paragraph
+boundary. For example, in
+<example>
+<![CDATA[<p>This is a paragraph with an
+<emph>emphasized</emph> phrase.]]>
+</example>
+the <samp>&lt;emph&gt;</samp> start-tag would not be considered as
+starting a paragraph, because its corresponding end-tag is not at the
+end of the line.</para></item>
+<item><para>If there is text that is a sibling in element tree, then
+it is not a paragraph boundary.  For example, in
+<example>
+<![CDATA[<p>This is a paragraph with an
+<emph>emphasized phrase that takes one source line</emph>]]>
+</example>
+the <samp>&lt;emph&gt;</samp> start-tag would not be considered as
+starting a paragraph, even though its end-tag is at the end of its
+line, because there the text <samp>This is a paragraph with an</samp>
+is a sibling of the <samp>emph</samp> element.</para></item>
+<item><para>Otherwise, it is a paragraph boundary.</para></item>
+</ulist>
+</para>
+
+</section>
+
+<section>
+<title>Outlining</title>
+
+<para>nXML mode allows you to display all or part of a buffer as an
+outline, in a similar way to Emacs' outline mode.  An outline in nXML
+mode is based on recognizing two kinds of element: sections and
+headings.  There is one heading for every section and one section for
+every heading.  A section contains its heading as or within its first
+child element.  A section also contains its subordinate sections (its
+subsections).  The text content of a section consists of anything in a
+section that is neither a subsection nor a heading.</para>
+
+<para>Note that this is a different model from that used by XHTML.
+nXML mode's outline support will not be useful for XHTML unless you
+adopt a convention of adding a <code>div</code> to enclose each
+section, rather than having sections implicitly delimited by different
+<code>h<var>n</var></code> elements.  This limitation may be removed
+in a future version.</para>
+
+<para>The variable <code>nxml-section-element-name-regexp</code> gives
+a regexp for the local names (i.e. the part of the name following any
+prefix) of section elements. The variable
+<code>nxml-heading-element-name-regexp</code> gives a regexp for the
+local names of heading elements. For an element to be recognized
+as a section
+<ulist>
+<item><para>its start-tag must occur at the beginning of a line
+(possibly indented);</para></item>
+<item><para>its local name must match
+<code>nxml-section-element-name-regexp</code>;</para></item>
+<item><para>either its first child element or a descendant of that
+first child element must have a local name that matches
+<code>nxml-heading-element-name-regexp</code>; the first such element
+is treated as the section's heading.</para></item>
+</ulist>
+You can customize these variables using <kbd>M-x
+customize-variable</kbd>.</para>
+
+<para>There are three possible outline states for a section:
+<ulist>
+<item><para>normal, showing everything, including its heading, text
+content and subsections; each subsection is displayed according to the
+state of that subsection;</para></item>
+<item><para>showing just its heading, with both its text content and
+its subsections hidden; all subsections are hidden regardless of their
+state;</para></item>
+<item><para>showing its heading and its subsections, with its text
+content hidden; each subsection is displayed according to the state of
+that subsection.</para></item>
+</ulist>
+</para>
+
+<para>In the last two states, where the text content is hidden, the
+heading is displayed specially, in an abbreviated form. An element
+like this:
+<example>
+<![CDATA[<section>
+<title>Food</title>
+<para>There are many kinds of food.</para>
+</section>]]>
+</example>
+would be displayed on a single line like this:
+<example>
+<![CDATA[<-section>Food...</>]]>
+</example>
+If there are hidden subsections, then a <code>+</code> will be used
+instead of a <code>-</code> like this:
+<example>
+<![CDATA[<+section>Food...</>]]>
+</example>
+If there are non-hidden subsections, then the section will instead be
+displayed like this:
+<example>
+<![CDATA[<-section>Food...
+  <-section>Delicious Food...</>
+  <-section>Distasteful Food...</>
+</-section>]]>
+</example>
+The heading is always displayed with an indent that corresponds to its
+depth in the outline, even it is not actually indented in the buffer.
+The variable <code>nxml-outline-child-indent</code> controls how much
+a subheading is indented with respect to its parent heading when the
+heading is being displayed specially.</para>
+
+<para>Commands to change the outline state of sections are bound to
+key sequences that start with <kbd>C-c C-o</kbd> (<kbd>o</kbd> is
+mnemonic for outline).  The third and final key has been chosen to be
+consistent with outline mode.  In the following descriptions
+current section means the section containing point, or, more precisely,
+the innermost section containing the character immediately following
+point.</para>
+<ulist>
+<item><para><kbd>C-c C-o C-a</kbd> shows all sections in the buffer
+normally.</para></item>
+<item><para><kbd>C-c C-o C-t</kbd> hides the text content
+of all sections in the buffer.</para></item>
+<item><para><kbd>C-c C-o C-c</kbd> hides the text content
+of the current section.</para></item>
+<item><para><kbd>C-c C-o C-e</kbd> shows the text content
+of the current section.</para></item>
+<item><para><kbd>C-c C-o C-d</kbd> hides the text content
+and subsections of the current section.</para></item>
+<item><para><kbd>C-c C-o C-s</kbd> shows the current section 
+and all its direct and indirect subsections normally.</para></item>
+<item><para><kbd>C-c C-o C-k</kbd> shows the headings of the
+direct and indirect subsections of the current section.</para></item>
+<item><para><kbd>C-c C-o C-l</kbd> hides the text content of the
+current section and of its direct and indirect
+subsections.</para></item>
+<item><para><kbd>C-c C-o C-i</kbd> shows the headings of the
+direct subsections of the current section.</para></item>
+<item><para><kbd>C-c C-o C-o</kbd> hides as much as possible without
+hiding the current section's text content; the headings of ancestor
+sections of the current section and their child section sections will
+not be hidden.</para></item>
+<!--
+<item><para><kbd>C-c C-o C-q</kbd></para></item>
+-->
+</ulist>
+
+<para>When a heading is displayed specially, you can use
+<key>RET</key> in that heading to show the text content of the section
+in the same way as <kbd>C-c C-o C-e</kbd>.</para>
+
+<para>You can also use the mouse to change the outline state:
+<kbd>S-mouse-2</kbd> hides the text content of a section in the same
+way as<kbd>C-c C-o C-c</kbd>; <kbd>mouse-2</kbd> on a specially
+displayed heading shows the text content of the section in the same
+way as <kbd>C-c C-o C-e</kbd>; <kbd>mouse-1</kbd> on a specially
+displayed start-tag toggles the display of subheadings on and
+off.</para>
+
+<para>The outline state for each section is stored with the first
+character of the section (as a text property). Every command that
+changes the outline state of any section updates the display of the
+buffer so that each section is displayed correctly according to its
+outline state.  If the section structure is subsequently changed, then
+it is possible for the display to no longer correctly reflect the
+stored outline state. <kbd>C-c C-o C-r</kbd> can be used to refresh
+the display so it is correct again.</para>
+
+</section>
+
+<section>
+<title>Locating a schema</title>
+
+<para>nXML mode has a configurable set of rules to locate a schema for
+the file being edited.  The rules are contained in one or more schema
+locating files, which are XML documents.</para>
+
+<para>The variable <samp>rng-schema-locating-files</samp> specifies
+the list of the file-names of schema locating files that nXML mode
+should use.  The order of the list is significant: when file
+<var>x</var> occurs in the list before file <var>y</var> then rules
+from file <var>x</var> have precedence over rules from file
+<var>y</var>.  A filename specified in
+<samp>rng-schema-locating-files</samp> may be relative. If so, it will
+be resolved relative to the document for which a schema is being
+located. It is not an error if relative file-names in
+<samp>rng-schema-locating-files</samp> do not not exist. You can use
+<kbd>M-x customize-variable <key>RET</key> rng-schema-locating-files
+<key>RET</key></kbd> to customize the list of schema locating
+files.</para>
+
+<para>By default, <samp>rng-schema-locating-files</samp> list has two
+members: <samp>schemas.xml</samp>, and
+<samp><var>dist-dir</var>/schema/schemas.xml</samp> where
+<samp><var>dist-dir</var></samp> is the directory containing the nXML
+distribution. The first member will cause nXML mode to use a file
+<samp>schemas.xml</samp> in the same directory as the document being
+edited if such a file exist.  The second member contains rules for the
+schemas that are included with the nXML distribution.</para>
+
+<section>
+<title>Commands for locating a schema</title>
+
+<para>The command <kbd>C-c C-s C-w</kbd> will tell you what schema
+is currently being used.</para>
+
+<para>The rules for locating a schema are applied automatically when
+you visit a file in nXML mode. However, if you have just created a new
+file and the schema cannot be inferred from the file-name, then this
+will not locate the right schema.  In this case, you should insert the
+start-tag of the root element and then use the command <kbd>C-c
+C-a</kbd>, which reapplies the rules based on the current content of
+the document.  It is usually not necessary to insert the complete
+start-tag; often just <samp>&lt;<var>name</var></samp> is
+enough.</para>
+
+<para>If you want to use a schema that has not yet been added to the
+schema locating files, you can use the command <kbd>C-c C-s C-f</kbd>
+to manually select the file contaiing the schema for the document in
+current buffer.  Emacs will read the file-name of the schema from the
+minibuffer. After reading the file-name, Emacs will ask whether you
+wish to add a rule to a schema locating file that persistently
+associates the document with the selected schema.  The rule will be
+added to the first file in the list specified
+<samp>rng-schema-locating-files</samp>; it will create the file if
+necessary, but will not create a directory. If the variable
+<samp>rng-schema-locating-files</samp> has not been customized, this
+means that the rule will be added to the file <samp>schemas.xml</samp>
+in the same directory as the document being edited.</para>
+
+<para>The command <kbd>C-c C-s C-t</kbd> allows you to select a schema by
+specifying an identifier for the type of the document.  The schema
+locating files determine the available type identifiers and what
+schema is used for each type identifier. This is useful when it is
+impossible to infer the right schema from either the file-name or the
+content of the document, even though the schema is already in the
+schema locating file.  A situation in which this can occur is when
+there are multiple variants of a schema where all valid documents have
+the same document element.  For example, XHTML has Strict and
+Transitional variants.  In a situation like this, a schema locating file
+can define a type identifier for each variant. As with <kbd>C-c
+C-s C-f</kbd>, Emacs will ask whether you wish to add a rule to a schema
+locating file that persistently associates the document with the
+specified type identifier.</para>
+
+<para>The command <kbd>C-c C-s C-l</kbd> adds a rule to a schema
+locating file that persistently associates the document with
+the schema that is currently being used.</para>
+
+</section>
+
+<section>
+<title>Schema locating files</title>
+
+<para>Each schema locating file specifies a list of rules.  The rules
+from each file are appended in order. To locate a schema each rule is
+applied in turn until a rule matches.  The first matching rule is then
+used to determine the schema.</para>
+
+<para>Schema locating files are designed to be useful for other
+applications that need to locate a schema for a document. In fact,
+there is nothing specific to locating schemas in the design; it could
+equally well be used for locating a stylesheet.</para>
+
+<section>
+<title>Schema locating file syntax basics</title>
+
+<para>There is a schema for schema locating files in the file
+<samp>locate.rnc</samp> in the schema directory.  Schema locating
+files must be valid with respect to this schema.</para>
+
+<para>The document element of a schema locating file must be
+<samp>locatingRules</samp> and the namespace URI must be
+<samp>http://thaiopensource.com/ns/locating-rules/1.0</samp>.  The
+children of the document element specify rules. The order of the
+children is the same as the order of the rules.  Here's a complete
+example of a schema locating file:
+
+<example>
+<![CDATA[<?xml version="1.0"?>
+<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <namespace ns="http://www.w3.org/1999/xhtml" uri="xhtml.rnc"/>
+  <documentElement localName="book" uri="docbook.rnc"/>
+</locatingRules>]]>
+</example>
+
+This says to use the schema <samp>xhtml.rnc</samp> for a document with
+namespace <samp>http://www.w3.org/1999/xhtml</samp>, and to use the
+schema <samp>docbook.rnc</samp> for a document whose local name is
+<samp>book</samp>.  If the document element had both a namespace URI
+of <samp>http://www.w3.org/1999/xhtml</samp> and a local name of
+<samp>book</samp>, then the matching rule that comes first will be
+used and so the schema <samp>xhtml.rnc</samp> would be used.  There is
+no precedence between different types of rule; the first matching rule
+of any type is used.</para>
+
+<para>As usual with XML-related technologies, resources are identified
+by URIs.  The <samp>uri</samp> attribute identifies the schema by
+specifying the URI.  The URI may be relative.  If so, it is resolved
+relative to the URI of the schema locating file that contains
+attribute. This means that if the value of <samp>uri</samp> attribute
+does not contain a <samp>/</samp>, then it will refer to a filename in
+the same directory as the schema locating file.<!--  The
+<samp>xml:base</samp> attribute may be used to change the base URI
+used for resolving relative URIs.--></para>
+
+</section>
+
+<section>
+<title>Using the document's URI to locate a schema</title>
+
+<para>A <samp>uri</samp> rule locates a schema based on the URI of the
+document.  The <samp>uri</samp> attribute specifies the URI of the
+schema.  The <samp>resource</samp> attribute can be used to specify
+the schema for a particular document.  For example,
+
+<example>
+<![CDATA[<uri resource="spec.xml" uri="docbook.rnc"/>]]>
+</example>
+
+specifies that that the schema for <samp>spec.xml</samp> is
+<samp>docbook.rnc</samp>.</para>
+
+<para>The <samp>pattern</samp> attribute can be used instead of the
+<samp>resource</samp> attribute to specify the schema for any document
+whose URI matches a pattern.  The pattern has the same syntax as an
+absolute or relative URI except that the path component of the URI can
+use a <samp>*</samp> character to stand for zero or more characters
+within a path segment (i.e. any character other <samp>/</samp>).
+Typically, the URI pattern looks like a relative URI, but, whereas a
+relative URI in the <samp>resource</samp> attribute is resolved into a
+particular absolute URI using the base URI of the schema locating
+file, a relative URI pattern matches if it matches some number of
+complete path segments of the document's URI ending with the last path
+segment of the document's URI. For example,
+
+<example>
+<![CDATA[<uri pattern="*.xsl" uri="xslt.rnc"/>]]>
+</example>
+
+specifies that the schema for documents with a URI whose path ends
+with <samp>.xsl</samp> is <samp>xslt.rnc</samp>.</para>
+
+<para>A <samp>transformURI</samp> rule locates a schema by
+transforming the URI of the document. The <samp>fromPattern</samp>
+attribute specifies a URI pattern with the same meaning as the
+<samp>pattern</samp> attribute of the <samp>uri</samp> element.  The
+<samp>toPattern</samp> attribute is a URI pattern that is used to
+generate the URI of the schema.  Each <samp>*</samp> in the
+<samp>toPattern</samp> is replaced by the string that matched the
+corresponding <samp>*</samp> in the <samp>fromPattern</samp>.  The
+resulting string is appended to the initial part of the document's URI
+that was not explicitly matched by the <samp>fromPattern</samp>.  The
+rule matches only if the transformed URI identifies an existing
+resource.  For example, the rule
+
+<example>
+<![CDATA[<transformURI fromPattern="*.xml" toPattern="*.rnc"/>]]>
+</example>
+
+would transform the URI <samp>file:///home/jjc/docs/spec.xml</samp>
+into the URI <samp>file:///home/jjc/docs/spec.rnc</samp>.  Thus, this
+rule specifies that to locate a schema for a document
+<samp><var>foo</var>.xml</samp>, Emacs should test whether a file
+<samp><var>foo</var>.rnc</samp> exists in the same directory as
+<samp><var>foo</var>.xml</samp>, and, if so, should use it as the
+schema.</para>
+
+</section>
+
+<section>
+<title>Using the document element to locate a schema</title>
+
+<para>A <samp>documentElement</samp> rule locates a schema based on
+the local name and prefix of the document element. For example, a rule
+
+<example>
+<![CDATA[<documentElement prefix="xsl" localName="stylesheet" uri="xslt.rnc"/>]]>
+</example>
+
+specifies that when the name of the document element is
+<samp>xsl:stylesheet</samp>, then <samp>xslt.rnc</samp> should be used
+as the schema. Either the <samp>prefix</samp> or
+<samp>localName</samp> attribute may be omitted to allow any prefix or
+local name.</para>
+
+<para>A <samp>namespace</samp> rule locates a schema based on the
+namespace URI of the document element. For example, a rule
+
+<example>
+<![CDATA[<namespace ns="http://www.w3.org/1999/XSL/Transform" uri="xslt.rnc"/>]]>
+</example>
+
+specifies that when the namespace URI of the document is
+<samp>http://www.w3.org/1999/XSL/Transform</samp>, then
+<samp>xslt.rnc</samp> should be used as the schema.</para>
+
+</section>
+
+<!--
+<section>
+<title>Using the DOCTYPE declaration to locate a schema</title>
+
+<para>A <samp>doctypePublicId</samp> rule locates a schema based on
+the public identifier specified in the <samp>DOCTYPE</samp>
+declaration. For example, a rule
+
+<example>
+<![CDATA[<doctypePublicId publicId="-//W3C//DTD XHTML 1.0 Transitional//EN"
+  uri="xhtml1-transitional.rnc"/>]]>
+</example>
+
+specifies that when the document has a <samp>DOCTYPE</samp>
+declaration with a public identifier <samp>-//W3C//DTD XHTML 1.0
+Transitional//EN</samp>, then <samp>xhtml1-transitional.rnc</samp>
+should be used as the schema.</para>
+
+</section>
+
+<section>
+<title>Specifying a default schema</title>
+
+<para>A <samp>default</samp> rule specifies a default schema. This
+rule always matches.  For example,
+
+<example>
+<![CDATA[<default uri="docbook.rnc"/>]]>
+</example>
+
+says to use the schema <samp>docbook.rnc</samp>.</para>
+
+</section>
+-->
+<section>
+<title>Using type identifiers in schema locating files</title>
+
+<para>Type identifiers allow a level of indirection in locating the
+schema for a document.  Instead of associating the document directly
+with a schema URI, the document is associated with a type identifier,
+which is in turn associated with a schema URI. nXML mode does not
+constrain the format of type identifiers.  They can be simply strings
+without any formal structure or they can be public identifiers or
+URIs.  Note that these type identifiers have nothing to do with the
+DOCTYPE declaration.  When comparing type identifiers, whitespace is
+normalized in the same way as with the <samp>xsd:token</samp>
+datatype: leading and trailing whitespace is stripped; other sequences
+of whitespace are normalized to a single space character.</para>
+
+<para>Each of the rules described in previous sections that uses a
+<samp>uri</samp> attribute to specify a schema, can instead use a
+<samp>typeId</samp> attribute to specify a type identifier.  The type
+identifier can be associated with a URI using a <samp>typeId</samp>
+element. For example,
+
+<example>
+<![CDATA[<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <namespace ns="http://www.w3.org/1999/xhtml" typeId="XHTML"/>
+  <typeId id="XHTML" typeId="XHTML Strict"/>
+  <typeId id="XHTML Strict" uri="xhtml-strict.rnc"/>
+  <typeId id="XHTML Transitional" uri="xhtml-transitional.rnc"/>
+</locatingRules>]]>
+</example>
+
+declares three type identifiers <samp>XHTML</samp> (representing the
+default variant of XHTML to be used), <samp>XHTML Strict</samp> and
+<samp>XHTML Transitional</samp>.  Such a schema locating file would
+use <samp>xhtml-strict.rnc</samp> for a document whose namespace is
+<samp>http://www.w3.org/1999/xhtml</samp>.  But it is considerably
+more flexible than a schema locating file that simply specified
+
+<example>
+<![CDATA[<namespace ns="http://www.w3.org/1999/xhtml" uri="xhtml-strict.rnc"/>]]>
+</example>
+
+A user can easily use <kbd>C-c C-s C-t</kbd> to select between XHTML
+Strict and XHTML Transitional. Also, a user can easily add a catalog
+
+<example>
+<![CDATA[<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <typeId id="XHTML" typeId="XHTML Transitional"/>
+</locatingRules>]]>
+</example>
+
+that makes the default variant of XHTML be XHTML Transitional.</para>
+
+<!--
+<para>A <samp>typeIdProcessingInstruction</samp> rule allows a
+document to specify its own typeId with a processing instruction.  The
+<samp>target</samp> attribute specifies the processing instruction
+target that should be recognized as specifying a typeId in its
+value. For example, with an additional rule
+
+<example>
+<![CDATA[<typeIdProcessingInstruction target="my-doctype"/>]]>
+</example>
+
+a document that started
+
+<example>
+<![CDATA[<?my-doctype XHTML Transitional?>
+<html xmlns="http://www.w3.org/1999/xhtml">]]>
+</example>
+
+would be validated against <samp>xhtml-transitional.rnc</samp>.</para>
+-->
+<!--
+<para>A <samp>typeIdBase</samp> rule makes it possible to avoid having
+to add an explicit rule for every typeId. For example, a rule
+
+<example>
+<![CDATA[<typeIdBase append=".rnc"/>]]>
+</example>
+
+occuring in a schema locating file
+<samp>/home/jjc/schema/schemas.xml</samp> would make Emacs try to use
+file <samp>/home/jjc/schema/DocBook.rnc</samp> for a type identifier
+of <samp>DocBook</samp>; it would test whether that file existed, and
+if it did, it would use it.  In terms of URIs, Emacs appends the value
+of the <samp>append</samp> attribute to the typeId; it then %-escapes
+all URI-significant characters; this is then treated as a relative URI
+and resolved relative to the base URI applicable to the
+<samp>typeIdBased</samp> element.  The typeId will be mapped to this
+URI, provided that the URI identifies an existing resource.</para>
+-->
+</section>
+
+<section>
+<title>Using multiple schema locating files</title>
+
+<para>The <samp>include</samp> element includes rules from another
+schema locating file.  The behavior is exactly as if the rules from
+that file were included in place of the <samp>include</samp> element.
+Relative URIs are resolved into absolute URIs before the inclusion is
+performed. For example,
+
+<example>
+<![CDATA[<include rules="../rules.xml"/>]]>
+</example>
+
+includes the rules from <samp>rules.xml</samp>.</para>
+
+<para>The process of locating a schema takes as input a list of schema
+locating files.  The rules in all these files and in the files they
+include are resolved into a single list of rules, which are applied
+strictly in order.  Sometimes this order is not what is needed.
+For example, suppose you have two schema locating files, a private
+file
+
+<example>
+<![CDATA[<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <namespace ns="http://www.w3.org/1999/xhtml" uri="xhtml.rnc"/>
+</locatingRules>]]>
+</example>
+
+followed by a public file
+
+<example>
+<![CDATA[<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <transformURI pathSuffix=".xml" replacePathSuffix=".rnc"/>
+  <namespace ns="http://www.w3.org/1999/XSL/Transform" typeId="XSLT"/>
+</locatingRules>]]>
+</example>
+
+The effect of these two files is that the XHTML <samp>namespace</samp>
+rule takes precedence over the <samp>transformURI</samp> rule, which
+is almost certainly not what is needed.  This can be solved by adding
+an <samp>applyFollowingRules</samp> to the private file.
+
+<example>
+<![CDATA[<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <applyFollowingRules ruleType="transformURI"/>
+  <namespace ns="http://www.w3.org/1999/xhtml" uri="xhtml.rnc"/>
+</locatingRules>]]>
+</example>
+</para>
+
+</section>
+
+</section>
+
+</section>
+
+<section>
+<title>DTDs</title>
+
+<para>nxml-mode is designed to support the creation of standalone XML
+documents that do not depend on a DTD.  Although it is common practice
+to insert a DOCTYPE declaration referencing an external DTD, this has
+undesirable side-effects.  It means that the document is no longer
+self-contained. It also means that different XML parsers may interpret
+the document in different ways, since the XML Recommendation does not
+require XML parsers to read the DTD.  With DTDs, it was impractical to
+get validation without using an external DTD or reference to an
+parameter entity.  With RELAX NG and other schema languages, you can
+simulataneously get the benefits of validation and standalone XML
+documents.  Therefore, I recommend that you do not reference an
+external DOCTYPE in your XML documents.</para>
+
+<para>One problem is entities for characters. Typically, as well as
+providing validation, DTDs also provide a set of character entities
+for documents to use. Schemas cannot provide this functionality,
+because schema validation happens after XML parsing.  The recommended
+solution is to either use the Unicode characters directly, or, if this
+is impractical, use character references.  nXML mode supports this by
+providing commands for entering characters and character references
+using the Unicode names, and can display the glyph corresponding to a
+character reference.</para>
+
+</section>
+
+<section>
+<title>Limitations</title>
+
+<para>nXML mode has some limitations:
+
+<ulist>
+<item>
+<para>DTD support is limited.  Internal parsed general entities declared
+in the internal subset are supported provided they do not contain
+elements. Other usage of DTDs is ignored.</para>
+</item>
+
+<item>
+<para>The restrictions on RELAX NG schemas in section 7 of the RELAX NG
+specification are not enforced.</para>
+</item>
+
+<item>
+<para>Unicode support has problems. This stems mostly from the fact that
+the XML (and RELAX NG) character model is based squarely on Unicode,
+whereas the Emacs character model is not.  Emacs 22 is slated to have
+full Unicode support, which should improve the situation here.</para>
+</item>
+</ulist>
+</para>
+
+</section>
+
+</section>

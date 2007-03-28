@@ -1,0 +1,468 @@
+* High priority
+
+** Command to insert an element template, including all required
+attributes and child elements.  When there's a choice of elements
+possible, we could insert a comment, and put an overlay on that
+comment that makes it behave like a button with a pop-up menu to
+select the appropriate choice.
+
+** Command to tag a region.  With a schema should complete using legal
+tags, but should work without a schema as well.
+
+** Provide a way to conveniently rename an element. With a schema should
+complete using legal tags, but should work without a schema as well.
+
+* Outlining
+
+** Implement C-c C-o C-q.
+
+** Install pre/post command hook for moving out of invisible section.
+
+** Put a modify hook on invisible sections that expands them.
+
+** Integrate dumb folding somehow.
+
+** An element should be able to be its own heading.
+
+** Optimize to avoid complete buffer scan on each command.
+
+** Make it work with HTML-style headings (i.e. level indicated by
+name of heading element rather than depth of section nesting).
+
+** Recognize root element as a section provided it has a title, even
+if it doesn't match section-element-name-regex.
+
+** Support for incremental search automatically making hidden text
+visible.
+
+** Allow title to be an attribute.
+
+** Command that says to recognize the tag at point as a section/heading.
+
+** Explore better ways to determine when an element is a section
+or a heading.
+
+** rng-next-error needs to either ignore invisible portion or reveal it
+(maybe use isearch oriented text properties).
+
+** Errors within hidden section should be highlighted by underlining the
+ellipsis.
+
+** Make indirect buffers work.
+
+** How should nxml-refresh outline recover from non well-formed tags?
+
+** Hide tags in title elements?
+
+** Use overlays instead of text properties for holding outline state?
+Necessary for indirect buffers to work?
+
+** Allow an outline to go in the speedbar.
+
+** Split up outlining manual section into subsections.
+
+** More detail in the manual about each outlining command.
+
+** More menu entries for hiding/showing?
+
+** Indication of many lines have been hidden?
+
+* Locating schemas
+
+** Should rng-validate-mode give the user an opportunity to specify a
+schema if there is currently none? Or should it at least give a hint
+to the user how to specify a non-vacuous schema?
+
+** Support for adding new schemas to schema-locating files. Add
+documentElement and namespace elements.
+
+** C-c C-w should be able to report current type id.
+
+** Implement doctypePublicId.
+
+** Implement typeIdBase.
+
+** Implement typeIdProcessingInstruction.
+
+** Support xml:base.
+
+** Implement group.
+
+** Find preferred prefix from schema-locating files.  Get rid of
+rng-preferred-prefix-alist.
+
+** Inserting document element with vacuous schema should complete using
+document elements declared in schema locating files, and set schema
+appropriately.
+
+** Add a ruleType attribute to the <include> element?
+
+** Allow processing instruction in prolog to contain the compact syntax
+schema directly.
+
+** Use RDDL to locate a schema based on the namespace URI.
+
+** Should not prompt to add redundant association to schema locating
+file.
+
+** Command to reload current schema.
+
+* Schema-sensitive features
+
+** Should filter dynamic markup possibilities using schema validity, by
+adding hook to nxml-mode.
+
+** Dynamic markup word should (at least optionally) be able to look in
+other buffers that are using nxml-mode.
+
+** Should clicking on Invalid move to next error if already on an error?
+
+** Take advantage of a:documentation. Needs change to schema format.
+
+** Provide feasible validation (as in Jing) toggle.
+
+** Save the validation state as a property on the error overlay to enable
+more detailed diagnosis.
+
+** Provide an Error Summary buffer showing all the validation errors.
+
+** Pop-up menu.  What is useful?  Tag a region (should be greyed out if
+the region is not balanced).  Suggestions based on error messages.
+
+** Have configurable list of namespace URIs so that we can provide
+namespace URI completion on extension elements or with schema-less
+documents.
+
+** Allow validation to handle XInclude.
+
+** ID/IDREF support.
+
+* Completion
+
+** Make it work with icomplete.  Only use a function to complete when
+some of the possible names have undeclared namespaces.
+
+** How should C-return in mixed text work?
+
+** When there's a vacuous schema, C-return after < will insert the
+end-tag.  Is this a bug or a feature?
+
+** After completing start-tag, ensure we don't get unhelpful message
+from validation
+
+** Syntax table for completion.
+
+** Should complete start-tag name with a space if namespace attributes
+are required.
+
+** When completing start-tag name with no prefix and it doesn't match
+should try to infer namespace from local name.
+
+** Should completion pay attention to characters after point?  If so,
+how?
+
+** When completing start-tag name, add required atts if only one required
+attribute.
+
+** When completing attribute name, add attribute value if only one value
+is possible.
+
+** After attribute-value completion, insert space after close delimiter
+if more attributes are required.
+
+** Complete on enumerated data values in elements.
+
+** When in context that allows only elements, should get tag
+completion without having to type < first.
+
+** When immediately after start-tag name, and name is valid and not
+prefix of any other name, should C-return complete on attribute names?
+
+** When completing attributes, more consistent to ignore all attributes
+after point.
+
+** Inserting attribute value completions needs to be sensitive to what
+delimiter is used so that it quotes the correct character.
+
+** Complete on encoding-names in XML decl.
+
+** Complete namespace declarations by searching for all namespaces
+mentioned in the schema.
+
+* Well-formed XML support
+
+** Deal better with Mule-UCS
+
+** Deal with UTF-8 BOM when reading.
+
+** Complete entity names.
+
+** Provide some support for entity names for MathML.
+
+** Command to repeat the last tag.
+
+** Support for changing between character references and characters.
+Need to check that context is one in which character references are
+allowed.  xmltok prolog parsing will need to distinguish parameter
+literals from other kinds of literal.
+
+** Provide a comment command to bind to M-; that works better than the
+normal one.
+
+** Make indenting in a multi-line comment work.
+
+** Structure view.  Separate buffer displaying element tree. Be able to
+navigate from structure view to document and vice-versa.
+
+** Flash matching >.
+
+** Smart selection command that selects increasingly large syntactically
+coherent chunks of XML.  If point is in an attribute value, first
+select complete value; then if command is repeated, select value plus
+delimiters, then select attribute name as well, then complete
+start-tag, then complete element, then enclosing element, etc.
+
+** ispell integration.
+
+** Block-level items in mixed content should be indented, e.g:
+  <para>This is list:
+    <ul>
+      <li>item</li>
+
+** Provide option to indent like this:
+
+**   <para>This is a paragraph
+    occupying multiple lines.</para>
+
+** Option to add make a / that closes a start-tag electrically insert a
+space for the XHTML guys.
+
+** C-M-q should work.
+
+* Datatypes
+
+** Figure out workaround for CJK characters with regexps.
+
+** Does category C contain Cn?
+
+** Do ENTITY datatype properly.
+
+* XML Parsing Library
+
+** Parameter entity parsing option, nil (never), t (always),
+unless-standalone (unless standalone="yes" in XML declaration).
+
+** When a file is currently being edited, there should be an option to
+use its buffer instead of the on-disk copy.
+
+* Handling all XML features
+
+** Provide better support for editing external general parsed entities.
+Perhaps provide a way to force ignoring undefined entities; maybe turn
+this on automatically with <?xml encoding=""?> (with no version
+pseudo-att).
+
+** Handle internal general entity declarations containing elements.
+
+** Handle external general entity declarations.
+
+** Handle default attribute declarations in internal subset.
+
+** Handle parameter entities (including DTD).
+
+* RELAX NG
+
+** Do complete schema checking, at least optionally.
+
+** Detect include/external loops during schema parse.
+
+** Coding system detection for schemas.  Should use utf-8/utf-16 per the
+spec. But also need to allow encodings other than UTF-8/16 to support
+CJK charsets that Emacs cannot represent in Unicode.
+
+* Catching XML errors
+
+** Check public identifiers.
+
+** Check default attribute values.
+
+* Performance
+
+** Explore whether overlay-recenter can cure overlays performance
+problems.
+
+** Cache schemas. Need to have list of files and mtimes.
+
+** Make it possible to reduce rng-validate-chunk-size significantly,
+perhaps to 500 bytes, without bad performance impact: don't do
+redisplay on every chunk; pass continue functions on other uses of
+rng-do-some-validation.
+
+** Cache after first tag.
+
+** Introduce a new name class that is a choice between names (so that
+we can use member)
+
+** intern-choice should simplify after patterns with same 1st/2nd args
+
+** Large numbers of overlays slow things down dramatically.  Represent
+errors using text properties.  This implies we cannot incrementally
+keep track of the number of errors, in order to determine validity.
+Instead, when validation completes, scan for any characters with an
+error text property; this seems to be fast enough even with large
+buffers. Problem with error at end of buffer, where there's no
+character; need special variable for this.  Need to merge face from
+font-lock with the error face: use :inherit attribute with list of two
+faces.  How do we avoid making rng-valid depend on nxml-mode?
+
+* Error recovery
+
+** Don't stop at newline in looking for close of start-tag.
+
+** Use indentation to guide recovery from mismatched end-tags
+
+** Don't keep parsing when currently not well-formed but previously
+well-formed
+
+** Try to recover from a bad start-tag by popping an open element if
+there was a mismatched end-tag unaccounted for.
+
+** Try to recover from a bad start-tag open on the hypothesis that there
+was an error in the namespace URI.
+
+** Better recovery from ill-formed XML declarations.
+
+* Useability improvements
+
+** Should print a "Parsing..." message during long movements.
+
+** Provide better position for reference to undefined pattern error.
+
+** Put Well-formed in the mode-line when validating against any-content.
+
+** Trim marking of illegal data for leading and trailing whitespace.
+
+** Show Invalid status as soon as we are sure it's invalid, rather than
+waiting for everything to be completely up to date.
+
+** When narrowed, Valid or Invalid status should probably consider only
+validity of narrowed region.
+
+* Bug fixes
+
+** Need to give an error for a document like: <foo/><![CDATA[  ]]>
+
+** Make nxml-forward-balanced-item work better for the prolog.
+
+** Make filling and indenting comments work in the prolog.
+
+** Should delete RNC Input buffers.
+
+** Figure out what regex use for NCName and use it consistently,
+
+** Should have not-well-formed tokens in ref.
+
+** Require version in XML declaration? Probably not because prevents
+use for external parsed entities. At least forbid standalone
+without version.
+
+** Reject schema that compiles to rng-not-allowed-ipattern.
+
+** Move point backwards on schema parse error so that it's on the right token.
+
+* Internal
+
+** Use rng-quote-string consistently.
+
+** Use parsing library for XML to texinfo conversion.
+
+** Rename xmltok.el to nxml-token.el.  Use nxml-t- prefix instead of
+xmltok-. Change nxml-t-type to nxml-t-token-type, nxml-t-start to
+nxml-t-token-start.
+
+** Can we set fill-prefix to nil and rely on indenting?
+
+** xmltok should make available replacement text of entities containing
+elements
+
+** In rng-valid, instead of using modification-hooks and
+insert-behind-hooks on dependent overlays, use same technique as
+nxml-mode.
+
+** Port to XEmacs.  Issues include: Unicode (XEmacs seems to be based on
+Mule-UCS); overlays/text properties vs extents; absence of
+fontification-functions hook.
+
+* Fontification
+
+** Allow face to depend on element qname, attribute qname, attribute
+value.  Use list with pairs of (R . F), where R specifies regexps and
+F specifies faces.  How can this list be made to depend on the
+document type?
+
+* Other
+
+** Support RELAX NG XML syntax (use XML parsing library).
+
+** Support W3C XML Schema (use XML parsing library).
+
+** Command to infer schema from current document (like trang).
+
+* Schemas
+
+** XSLT schema should take advantage of RELAX NG to express cooccurrence
+constraints on attributes (e.g. xsl:template).
+
+* Documentation
+
+** Move material from README to manual.
+
+** Document encodings.
+
+* Notes
+
+** How can we allow an error to be displayed on a different token from
+where it is detected?  In particular, for a missing closing ">" we
+will need to display it at the beginning of the following token.  At
+the moment, when we parse the following token the error overlay will
+get cleared.
+
+** How should rng-goto-next-error deal with narrowing?
+
+** Perhaps should merge errors having same start position even if they
+have different ends.
+
+** How to handle surrogates? One possibility is to be compatible with
+utf8.e: represent as sequence of 4 chars.  But utf-16 is incompatible
+with this.
+
+** Should we distinguish well-formedness errors from invalidity errors?
+(I think not: we may want to recover from a bad start-tag by implying
+an end-tag.)
+
+** Seems to be a bug with Emacs, where a mouse movement that causes
+help-echo text to appear counts as pending input but does not cause
+idle timer to be restarted.
+
+** Use XML to represent this file.
+
+** I had a TODO which said simply "split-string". What did I mean?
+
+** Investigate performance on large files all on one line.
+
+* CVS emacs issues
+
+** Take advantage of UTF-8 CJK support.
+
+** Supply a next-error-function.
+
+** Investigate this NEWS item "Emacs now tries to set up buffer coding
+systems for HTML/XML files automatically."
+
+** Take advantage of the pointer text property.
+
+** Leverage char-displayable-p.
+
+Local variables:
+mode: outline
+end:

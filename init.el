@@ -267,6 +267,19 @@
 
 
 ;;----------------------------------------------------------------------------
+;; NXML
+;;----------------------------------------------------------------------------
+(load-library "rng-auto")
+(add-to-list 'auto-mode-alist
+              (cons (concat "\\." (regexp-opt '("xml" "xsd" "sch" "rng" "xslt" "svg" "rss") t) "\\'")
+                    'nxml-mode))
+(unify-8859-on-decoding-mode)
+(setq magic-mode-alist (cons '("<＼＼?xml " . nxml-mode) magic-mode-alist))
+(fset 'html-mode 'nxml-mode)
+(fset 'xml-mode 'nxml-mode)
+
+
+;;----------------------------------------------------------------------------
 ;; Ruby
 ;;----------------------------------------------------------------------------
 (autoload 'ruby-electric "ruby-electric" "Electric brackes/quotes/keywords for Ruby source" t)
@@ -293,7 +306,7 @@
 (mmm-add-classes
  '((eruby :submode ruby-mode :front "<%=?" :back  "-?%>")))
 
-(mmm-add-mode-ext-class 'html-mode "\\.rhtml$" 'eruby)
+(mmm-add-mode-ext-class 'nxml-mode "\\.rhtml$" 'eruby)
 (mmm-add-mode-ext-class 'yaml-mode "\\.yml$" 'eruby)
 
 (require 'which-func)

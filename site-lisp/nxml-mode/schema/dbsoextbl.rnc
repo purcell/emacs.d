@@ -1,0 +1,30 @@
+# Definitions specific to the OASIS XML Exchange Table Model.
+
+# Reference OASIS Exchange Table Model
+include "soextbl.rnc" {
+  # Override definition of start
+  start |= notAllowed
+  # Add common attributes and the Label attribute to Table and
+  # InformalTable.
+  bodyatt = common.attrib, label.attrib, tables.role.attrib
+  # Add common attributes to TGroup, ColSpec, TBody, THead, Row, Entry
+  tbl.tgroup.att = common.attrib
+  tbl.colspec.att = common.attrib
+  tbl.tbody.att = common.attrib
+  tbl.thead.att = common.attrib
+  tbl.row.att = common.attrib
+  tbl.entry.att = common.attrib
+  # Content model for Table.
+  tbl.table.mdl =
+    blockinfo?,
+    formalobject.title.content,
+    ndxterm.class*,
+    textobject*,
+    (graphic+ | mediaobject+ | tgroup+)
+  # Allow either objects or inlines; beware of REs between elements.
+  tbl.entry.mdl = (para.char.mix | tabentry.mix)*
+}
+
+common.table.attribs = bodyatt
+
+# end of table.module
