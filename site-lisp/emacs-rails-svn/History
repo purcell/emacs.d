@@ -1,10 +1,14 @@
 SVN
+* new [C-c /] hotkey to toggle output window
+
+0.5.99.1
+* Fixed bug #9619, script/server fails to start with [C-c C-c w s]
 * Added hotkeys for tests:
   - [C-c C-c .] running a test for current model/controller (global)
   - [C-c .] running a test for current method (in a functional/unit test)
 * Prints total of tests, asertions, failures, errors after end of
   tests running
-* Fixed recursive "require" error after compilation [#9547]
+* Fixed recursive "require" error after compilation #9547
 
 0.5.99
 * Improvement of tests and rails scripts output; run async, colorize

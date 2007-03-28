@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-scripts.el $
-;; $Id: rails-scripts.el 133 2007-03-27 14:59:21Z dimaexe $
+;; $Id: rails-scripts.el 139 2007-03-27 23:19:10Z dimaexe $
 
 ;;; License
 
@@ -82,7 +82,7 @@ For example -c to remove files from svn.")
       (display-buffer rails-script:buffer-name t))
     (let ((win (get-buffer-window-list rails-script:buffer-name)))
       (when win
-        (mapcar #'(lambda(w)(set-window-point w 0)) win)
+        (mapcar #'(lambda(w) (set-window-point w 0)) win)
         (shrink-window-if-larger-than-buffer
          (get-buffer-window rails-script:buffer-name))))))
 
@@ -94,6 +94,20 @@ For example -c to remove files from svn.")
           (setq file-name (button-get button :rails:file-name)))))
     (when file-name
       (rails-core:find-file-if-exist file-name))))
+
+(defun rails-script:toggle-output-window ()
+  (interactive)
+  (let ((current (current-buffer))
+        (buf (get-buffer rails-script:buffer-name)))
+    (if buf
+      (if (buffer-visible-p rails-script:buffer-name)
+          (delete-windows-on buf)
+        (progn
+          (pop-to-buffer rails-script:buffer-name t t)
+          (pop-to-buffer current t t)
+          (shrink-window-if-larger-than-buffer
+           (get-buffer-window rails-script:buffer-name))))
+      (message "No output window found. Try running a script or a rake task before."))))
 
 (define-derived-mode rails-script:output-mode fundamental-mode "Rails Script Output"
   "Major mode to Rails Script Output."

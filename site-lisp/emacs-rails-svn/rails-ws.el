@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ws.el $
-;; $Id: rails-ws.el 114 2007-03-25 18:15:35Z dimaexe $
+;; $Id: rails-ws.el 140 2007-03-27 23:33:36Z dimaexe $
 
 ;;; License
 
@@ -78,29 +78,29 @@
                                      msg)))))
 
 (defun rails-ws:start(&optional env)
-  "Start a WEBrick process with ENV environment if ENV is not set
+  "Start a server process with ENV environment if ENV is not set
 using `rails-default-environment'."
   (interactive (list (rails-read-enviroment-name)))
   (rails-core:with-root
    (root)
-   (let ((proc (get-buffer-process rails-ws:buffer-name))
-         (dir default-directory))
+   (let ((proc (get-buffer-process rails-ws:buffer-name)))
      (if proc
          (message "Only one instance rails-ws allowed")
-       (let ((default-direct root))
-         (unless env
-           (setq env rails-default-environment))
-         (let* ((process
-                 (rails-cmd-proxy:start-process rails-ruby-command
-                                                rails-ws:buffer-name
-                                                rails-ruby-command
-                                                (format "script/server -p %s -e %s" rails-ws:port env))))
-           (set-process-sentinel process 'rails-ws:sentinel-proc)
+       (let* ((default-directory root)
+              (env (if env env rails-default-environment))
+              (proc
+               (rails-cmd-proxy:start-process rails-ruby-command
+                                              rails-ws:buffer-name
+                                              rails-ruby-command
+                                              (format "script/server %s -p %s -e %s"
+                                                      rails-ws:default-server-type
+                                                      rails-ws:port env))))
+           (set-process-sentinel proc 'rails-ws:sentinel-proc)
            (setq rails-ws:process-environment env)
            (message (format "%s (%s) starting with port %s"
                             (capitalize rails-ws:default-server-type)
                             env
-                            rails-ws:port))))))))
+                            rails-ws:port)))))))
 
 (defun rails-ws:stop ()
   "Stop the WebServer process."

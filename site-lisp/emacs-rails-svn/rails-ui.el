@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ui.el $
-;; $Id: rails-ui.el 133 2007-03-27 14:59:21Z dimaexe $
+;; $Id: rails-ui.el 139 2007-03-27 23:19:10Z dimaexe $
 
 ;;; License
 
@@ -80,11 +80,21 @@
                                       (rails-core:find-file "config/environments/development.rb"))))
 
   ([rails scr] (cons "Scripts" (make-sparse-keymap "Scripts")))
-  ([rails scr rake]    '("Rake..."        . rails-rake:task))
-  ([rails scr console] '("Console"        . rails-script:console))
-  ([rails scr break]   '("Breakpointer"   . rails-script:breakpointer))
 
   ([rails scr gen] (cons "Generate" (make-sparse-keymap "Generate")))
+  ([rails scr destr] (cons "Destroy" (make-sparse-keymap "Generators")))
+
+  ([rails scr destr resource]   '("Resource"        . rails-script:destroy-resource))
+  ([rails scr destr observer]   '("Observer"        . rails-script:destroy-observer))
+  ([rails scr destr mailer]     '("Mailer"          . rails-script:destroy-mailer))
+  ([rails scr destr plugin]     '("Plugin"          . rails-script:destroy-plugin))
+  ([rails scr destr migration]  '("Migration"       . rails-script:destroy-migration))
+  ([rails scr destr scaffold]   '("Scaffold"        . rails-script:destroy-scaffold))
+  ([rails scr destr model]      '("Model"           . rails-script:destroy-model))
+  ([rails scr destr controller] '("Controller"      . rails-script:destroy-controller))
+  ([rails scr destr separator]  '("--"))
+  ([rails scr destr run]        '("Run destroy ..." . rails-script:destroy))
+
   ([rails scr gen resource]   '("Resource"         . rails-script:generate-resource))
   ([rails scr gen observer]   '("Observer"         . rails-script:generate-observer))
   ([rails scr gen mailer]     '("Mailer"           . rails-script:generate-mailer))
@@ -96,16 +106,10 @@
   ([rails scr gen separator]  '("--"))
   ([rails scr gen run]        '("Run generate ..." . rails-script:generate))
 
-  ([rails scr destr] (cons "Destroy" (make-sparse-keymap "Generators")))
-  ([rails scr destr resource]   '("Resource"        . rails-script:destroy-resource))
-  ([rails scr destr observer]   '("Observer"        . rails-script:destroy-observer))
-  ([rails scr destr mailer]     '("Mailer"          . rails-script:destroy-mailer))
-  ([rails scr destr migration]  '("Migration"       . rails-script:destroy-migration))
-  ([rails scr destr scaffold]   '("Scaffold"        . rails-script:destroy-scaffold))
-  ([rails scr destr model]      '("Model"           . rails-script:destroy-model))
-  ([rails scr destr controller] '("Controller"      . rails-script:destroy-controller))
-  ([rails scr destr separator]  '("--"))
-  ([rails scr destr run]        '("Run destroy ..." . rails-script:destroy))
+  ([rails scr break]   '("Breakpointer"         . rails-script:breakpointer))
+  ([rails scr console] '("Console"              . rails-script:console))
+  ([rails scr rake]    '("Rake..."              . rails-rake:task))
+
 
   ([rails tests] (cons "Tests" (make-sparse-keymap "Tests")))
   ([rails tests integration]    '("Integration tests" . (lambda() (interactive) (rails-rake:test "integration"))))
@@ -114,6 +118,7 @@
   ([rails tests recent]         '("Recent tests"      . (lambda() (interactive) (rails-rake:test "recent"))))
   ([rails tests tests]          '("All"               . (lambda() (interactive) (rails-rake:test "all"))))
   ([rails tests separator]      '("--"))
+  ([rails tests toggle]         '("Toggle output window"                 . rails-script:toggle-output-window))
   ([rails tests run-current]    '("Test current model/controller/mailer" . rails-rake:test-current))
   ([rails tests run]            '("Run tests ..."                        . rails-rake:test))
 
@@ -169,7 +174,7 @@
 
 (define-keys rails-minor-mode-map
   ([menu-bar] rails-minor-mode-menu-bar-map)
-  ([menu-bar snippets] (cons "Snippets" (create-snippets-and-menumap-from-dsl rails-snippets-menu-list)))
+  ([menu-bar snippets] (cons "Snippets" (rails-snippets:create-keymap)))
   ;; Goto
   ((kbd "\C-c \C-c g m") 'rails-nav:goto-models)
   ((kbd "\C-c \C-c g c") 'rails-nav:goto-controllers)
@@ -234,6 +239,7 @@
   ([f1]                  'rails-search-doc)
   ((kbd "<C-f1>")        'rails-browse-api-at-point)
   ((kbd "\C-c <f1>")     'rails-browse-api)
+  ((kbd "\C-c /")        'rails-script:toggle-output-window)
 
   ([f9]                  'rails-svn-status-into-root))
 

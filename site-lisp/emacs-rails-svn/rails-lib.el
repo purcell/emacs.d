@@ -8,7 +8,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
-;; $Id: rails-lib.el 132 2007-03-27 12:01:43Z dimaexe $
+;; $Id: rails-lib.el 135 2007-03-27 21:08:08Z dimaexe $
 
 ;;; License
 
@@ -269,41 +269,6 @@ the user explicit sets `rails-use-alternative-browse-url'."
   (if (and (eq system-type 'windows-nt) rails-use-alternative-browse-url)
       (w32-shell-execute "open" "iexplore" url)
     (browse-url url args)))
-
-;; snippets related
-
-(defmacro compile-snippet(expand)
-  `(lambda () (interactive) (snippet-insert ,(symbol-value expand))))
-
-(defun create-snippets-and-menumap-from-dsl (body &optional path menu keymap abbrev-table)
-  (unless path (setq path (list)))
-  (unless menu (setq menu (list)))
-  (unless abbrev-table (setq abbrev-table (list)))
-  (unless keymap (setq keymap (make-sparse-keymap "Snippets")))
-  (dolist (tail body)
-    (let ((p path)
-          (a (nth 0 tail))
-          (b (nth 1 tail))
-          (c (cddr tail))
-          (abbr abbrev-table))
-      (if (eq a :m)
-          (progn
-            (while (not (listp (car c)))
-              (add-to-list 'abbr (car c))
-              (setq c (cdr c)))
-            (add-to-list 'p b t)
-            (define-key keymap
-              (vconcat (mapcar #'make-symbol p))
-              (cons b (make-sparse-keymap b)))
-            (setq keymap (create-snippets-and-menumap-from-dsl c p menu keymap abbr)))
-        (let ((c (car c)))
-          (while (car abbr)
-            (define-abbrev (symbol-value (car abbr)) a "" (compile-snippet b))
-            (setq abbr (cdr abbr)))
-          (define-key keymap
-            (vconcat (mapcar #'make-symbol (add-to-list 'p a t)))
-            (cons (concat a " \t" c) (compile-snippet b)))))))
-  keymap)
 
 ;; abbrev
 ;; from http://www.opensource.apple.com/darwinsource/Current/emacs-59/emacs/lisp/derived.el

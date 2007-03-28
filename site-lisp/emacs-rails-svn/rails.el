@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 123 2007-03-26 14:28:44Z dimaexe $
+;; $Id: rails.el 135 2007-03-27 21:08:08Z dimaexe $
 
 ;;; License
 
