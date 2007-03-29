@@ -305,8 +305,17 @@
                  '("\\(.*?\\)\\([0-9A-Za-z_./\:-]+\\.rb\\):\\([0-9]+\\)" 2 3))))
 (setq compile-command "rake ")
 
+(set-face-background 'mmm-output-submode-face  "cornsilk")
+(set-face-background 'mmm-code-submode-face    "snow2")
+(set-face-background 'mmm-comment-submode-face "moccasin")
 (mmm-add-classes
- '((eruby :submode ruby-mode :front "<%=?" :back  "-?%>")))
+ '((eruby :submode ruby-mode :front "<%[#=]?" :back "-?%>"
+    :match-face (("<%#" . mmm-comment-submode-face)
+                 ("<%=" . mmm-output-submode-face)
+                 ("<%"  . mmm-code-submode-face))
+    :insert ((?% erb-code       nil @ "<%"  @ " " _ " " @ "%>" @)
+             (?# erb-comment    nil @ "<%#" @ " " _ " " @ "%>" @)
+             (?= erb-expression nil @ "<%=" @ " " _ " " @ "%>" @)))))
 
 (mmm-add-mode-ext-class 'nxml-mode "\\.rhtml$" 'eruby)
 (mmm-add-mode-ext-class 'yaml-mode "\\.yml$" 'eruby)
