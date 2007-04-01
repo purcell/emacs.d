@@ -1,5 +1,17 @@
-SVN
-* new [C-c /] hotkey to toggle output window
+0.5.99.2
+* Added new dynamic snippets for RESTful, 
+    for instance: in controller UsersController type "rshow<TAB>" 
+    will be expand to "user_url(@user)" and display tooltip "GET /users/1"
+* Added migration support - migrate, migrate to previous version,
+  migrate to version
+* Created separate menubar entries named "Navigate", "Database", "Tests"
+* Fixed bug #9721: Emacs 21.4.x can't load rails-core.el with error "Wrong
+  number of arguments: #<subr defalias>"
+* Added support pcompletion in ruby-mode (if possible)
+* Added new "Go to unit tests" and "Go to functional tests" hotkeys
+  and menu entries
+* Added tests integration with the compile library
+* New [C-c /] hotkey to toggle output window
 
 0.5.99.1
 * Fixed bug #9619, script/server fails to start with [C-c C-c w s]
@@ -11,28 +23,28 @@ SVN
 * Fixed recursive "require" error after compilation #9547
 
 0.5.99
-* Improvement of tests and rails scripts output; run async, colorize
-  output, etc.
-* new [C-:] hotkey to easy switch between strings and symbols at point
+* Improvement of tests and rails scripts output; run asynchronous,
+  colorize output, etc.
+* New [C-:] hotkey to easy switch between strings and symbols at point
   in ruby-mode
-* new [C-c f] hotkey to popup a menu with list of functions in
+* New [C-c f] hotkey to popup a menu with list of functions in
   ruby-mode
 
 0.5.4
-* added mailers support
-* added fixtures support
-* fixed incorrect indentation in snippets [#9460]
-* added support template types in layouts menu
-* added support haml template engine
-* use `compile` to run `rake tests`
-* ask to save modified buffers before run rake
-* added "quick switch" to support models and unit tests
+* Added mailers support
+* Added fixtures support
+* Fixed incorrect indentation in snippets [#9460]
+* Added support template types in layouts menu
+* Added support haml template engine
+* Use `compile` to run `rake tests`
+* Ask to save modified buffers before run rake
+* Added "quick switch" to support models and unit tests
 
 0.5.3
-* create separate menubar entry "Snippets"
-* allow web server selection auto-save
-* corrected errors at work with sql
-* fixed byte-compile warnings
+* Create separate menubar entry "Snippets"
+* Allow web server selection auto-save
+* Corrected errors at work with sql
+* Fixed byte-compile warnings
 
 0.5.2
 * Fixed bugs: #8221, #8223

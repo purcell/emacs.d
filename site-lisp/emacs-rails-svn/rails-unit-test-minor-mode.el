@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-unit-test-minor-mode.el $
-;; $Id: rails-unit-test-minor-mode.el 133 2007-03-27 14:59:21Z dimaexe $
+;; $Id: rails-unit-test-minor-mode.el 145 2007-03-28 21:07:21Z dimaexe $
 
 ;;; License
 
@@ -37,6 +37,6 @@
                                         (rails-model-layout:switch-to :mailer)
                                       (rails-model-layout:switch-to :model))))
   (setq rails-secondary-switch-func 'rails-model-layout:menu)
-  (local-set-key (kbd "\C-c .") 'rails-rake:test-current-method))
+  (local-set-key (kbd "\C-c .") 'rails-test:run-current-method))
 
 (provide 'rails-unit-test-minor-mode)

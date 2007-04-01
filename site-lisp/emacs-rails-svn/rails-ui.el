@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ui.el $
-;; $Id: rails-ui.el 139 2007-03-27 23:19:10Z dimaexe $
+;; $Id: rails-ui.el 153 2007-03-31 20:30:51Z dimaexe $
 
 ;;; License
 
@@ -28,16 +28,88 @@
 
 ;;;;;;;;;; Some init code ;;;;;;;;;;
 
+(defconst rails-minor-mode-nav-menu-bar-map
+  (let ((map (make-sparse-keymap)))
+    (define-keys map
+      ([log] (cons "Open log files" (make-sparse-keymap "Open log files")))
+      ([log test]      '("test.log"         . rails-log:open-test))
+      ([log pro]       '("production.log"   . rails-log:open-production))
+      ([log dev]       '("development.log"  . rails-log:open-development))
+      ([log separator] '("---"))
+      ([log open]      '("Open log file..." . rails-log:open))
+
+      ([config] (cons "Configuration" (make-sparse-keymap "Configuration")))
+      ([config routes]      '("routes.rb" .
+                              (lambda () (interactive)
+                                (rails-core:find-file "config/routes.rb"))))
+      ([config environment] '("environment.rb" .
+                              (lambda() (interactive)
+                                (rails-core:find-file "config/environment.rb"))))
+      ([config database]    '("database.yml" .
+                              (lambda() (interactive)
+                                (rails-core:find-file "config/database.yml"))))
+      ([config boot]        '("boot.rb" .
+                              (lambda() (interactive)
+                                (rails-core:find-file "config/boot.rb"))))
+      ([config env] (cons "environments" (make-sparse-keymap "environments")))
+      ([config env test]        '("test.rb" .
+                                  (lambda() (interactive)
+                                    (rails-core:find-file "config/environments/test.rb"))))
+      ([config env production]  '("production.rb" .
+                                  (lambda() (interactive)
+                                    (rails-core:find-file "config/environments/production.rb"))))
+      ([config env development] '("development.rb" .
+                                  (lambda()(interactive)
+                                    (rails-core:find-file "config/environments/development.rb"))))
+
+      ([separator]        '("---"))
+      ([goto-fixtures]    '("Go to fixtures"         . rails-nav:goto-fixtures))
+      ([goto-plugins]     '("Go to plugins"          . rails-nav:goto-plugins))
+      ([goto-migrate]     '("Go to migrations"       . rails-nav:goto-migrate))
+      ([goto-layouts]     '("Go to layouts"          . rails-nav:goto-layouts))
+      ([goto-stylesheets] '("Go to stylesheets"      . rails-nav:goto-stylesheets))
+      ([goto-javascripts] '("Go to javascripts"      . rails-nav:goto-javascripts))
+      ([goto-helpers]     '("Go to helpers"          . rails-nav:goto-helpers))
+      ([goto-mailers]     '("Go to mailers"          . rails-nav:goto-mailers))
+      ([goto-observers]   '("Go to observers"        . rails-nav:goto-observers))
+      ([goto-unit-tests]  '("Go to unit tests"       . rails-nav:goto-unit-tests))
+      ([goto-func-tests]  '("Go to functional tests" . rails-nav:goto-functional-tests))
+      ([goto-models]      '("Go to models"           . rails-nav:goto-models))
+      ([goto-controllers] '("Go to controllers"      . rails-nav:goto-controllers)))
+    map))
+
+(defconst rails-minor-mode-tests-menu-bar-map
+  (let ((map (make-sparse-keymap)))
+    (define-keys map
+      ([integration] '("Integration tests" . (lambda() (interactive) (rails-test:run "integration"))))
+      ([unit]        '("Unit tests"        . (lambda() (interactive) (rails-test:run "units"))))
+      ([functional]  '("Functional tests"  . (lambda() (interactive) (rails-test:run "functionals"))))
+      ([recent]      '("Recent tests"      . (lambda() (interactive) (rails-test:run "recent"))))
+      ([tests]       '("All"               . (lambda() (interactive) (rails-test:run "all"))))
+      ([separator]   '("--"))
+      ([method]      '(menu-item "Test current method" rails-test:run-current-method
+                                 :enable (find (rails-core:buffer-type) '(:unit-test :functional-test))))
+      ([toggle]      '(menu-item "Toggle output window" rails-script:toggle-output-window
+                                 :enable (get-buffer rails-script:buffer-name)))
+      ([run-current] '("Test current model/controller/mailer" . rails-test:run-current))
+      ([run]         '("Run tests ..."                        . rails-test:run)))
+    map))
+
+(defconst rails-minor-mode-db-menu-bar-map
+  (let ((map (make-sparse-keymap)))
+    (define-keys map
+      ([migrate] '("Migrate"                     . rails-rake:migrate))
+      ([version] '("Migrate to version ..."      . rails-rake:migrate-to-version))
+      ([prev]    '("Migrate to previous version" . rails-rake:migrate-to-prev-version)))
+    map))
+
 (define-keys rails-minor-mode-menu-bar-map
 
   ([rails] (cons "RubyOnRails" (make-sparse-keymap "RubyOnRails")))
 
-  ([rails rails-customize] '(menu-item "Customize"
-                                       (lambda () (interactive) (customize-group 'rails))
-                                       :enable (rails-core:root)))
+  ([rails rails-customize] '("Customize" . (lambda () (interactive) (customize-group 'rails))))
   ([rails separator0] '("--"))
-  ([rails svn-status] '(menu-item "SVN status" rails-svn-status-into-root
-                                  :enable (rails-core:root)))
+  ([rails svn-status] '("SVN status" . rails-svn-status-into-root))
   ([rails api-doc]           '("Rails API doc at point" . rails-browse-api-at-point))
   ([rails sql]               '("SQL Rails buffer"       . rails-run-sql))
   ([rails tag]               '("Update TAGS file"       . rails-create-tags))
@@ -46,38 +118,6 @@
   ([rails switch-file-menu]  '("Switch file menu..."    . rails-lib:run-secondary-switch))
   ([rails switch-file]       '("Switch file"            . rails-lib:run-primary-switch))
   ([rails separator1]        '("--"))
-
-  ([rails log] (cons "Open log files" (make-sparse-keymap "Open log files")))
-  ([rails log test]      '("test.log"         . rails-log:open-test))
-  ([rails log pro]       '("production.log"   . rails-log:open-production))
-  ([rails log dev]       '("development.log"  . rails-log:open-development))
-  ([rails log separator] '("---"))
-  ([rails log open]      '("Open log file..." . rails-log:open))
-
-  ([rails config] (cons "Configuration" (make-sparse-keymap "Configuration")))
-  ([rails config routes]      '("routes.rb" .
-                                (lambda () (interactive)
-                                  (rails-core:find-file "config/routes.rb"))))
-  ([rails config environment] '("environment.rb" .
-                                (lambda() (interactive)
-                                  (rails-core:find-file "config/environment.rb"))))
-  ([rails config database]    '("database.yml" .
-                                (lambda() (interactive)
-                                  (rails-core:find-file "config/database.yml"))))
-  ([rails config boot]        '("boot.rb" .
-                                (lambda() (interactive)
-                                  (rails-core:find-file "config/boot.rb"))))
-
-  ([rails config env] (cons "environments" (make-sparse-keymap "environments")))
-  ([rails config env test]        '("test.rb" .
-                                    (lambda() (interactive)
-                                      (rails-core:find-file "config/environments/test.rb"))))
-  ([rails config env production]  '("production.rb" .
-                                    (lambda() (interactive)
-                                      (rails-core:find-file "config/environments/production.rb"))))
-  ([rails config env development] '("development.rb" .
-                                    (lambda()(interactive)
-                                      (rails-core:find-file "config/environments/development.rb"))))
 
   ([rails scr] (cons "Scripts" (make-sparse-keymap "Scripts")))
 
@@ -110,20 +150,6 @@
   ([rails scr console] '("Console"              . rails-script:console))
   ([rails scr rake]    '("Rake..."              . rails-rake:task))
 
-
-  ([rails tests] (cons "Tests" (make-sparse-keymap "Tests")))
-  ([rails tests integration]    '("Integration tests" . (lambda() (interactive) (rails-rake:test "integration"))))
-  ([rails tests unit]           '("Unit tests"        . (lambda() (interactive) (rails-rake:test "units"))))
-  ([rails tests functional]     '("Functional tests"  . (lambda() (interactive) (rails-rake:test "functionals"))))
-  ([rails tests recent]         '("Recent tests"      . (lambda() (interactive) (rails-rake:test "recent"))))
-  ([rails tests tests]          '("All"               . (lambda() (interactive) (rails-rake:test "all"))))
-  ([rails tests separator]      '("--"))
-  ([rails tests toggle]         '("Toggle output window"                 . rails-script:toggle-output-window))
-  ([rails tests run-current]    '("Test current model/controller/mailer" . rails-rake:test-current))
-  ([rails tests run]            '("Run tests ..."                        . rails-rake:test))
-
-
-
   ([rails ws] (cons "Web Server" (make-sparse-keymap "WebServer")))
 
   ([rails ws use-webrick]  '(menu-item "Use WEBrick" (lambda() (interactive)
@@ -155,26 +181,17 @@
 
   ([rails ws status]  '(menu-item "Print status"                                     rails-ws:print-status))
   ([rails ws default] '(menu-item "Start/stop web server (with default environment)" rails-ws:toggle-start-stop))
+  )
 
-  ([rails separator2] '("--"))
-
-  ([rails goto-fixtures]    '("Go to fixtures"    . rails-nav:goto-fixtures))
-  ([rails goto-plugins]     '("Go to plugins"     . rails-nav:goto-plugins))
-  ([rails goto-migrate]     '("Go to migrations"  . rails-nav:goto-migrate))
-  ([rails goto-layouts]     '("Go to layouts"     . rails-nav:goto-layouts))
-  ([rails goto-stylesheets] '("Go to stylesheets" . rails-nav:goto-stylesheets))
-  ([rails goto-javascripts] '("Go to javascripts" . rails-nav:goto-javascripts))
-  ([rails goto-helpers]     '("Go to helpers"     . rails-nav:goto-helpers))
-  ([rails goto-mailers]     '("Go to mailers"     . rails-nav:goto-mailers))
-  ([rails goto-observers]   '("Go to observers"   . rails-nav:goto-observers))
-  ([rails goto-models]      '("Go to models"      . rails-nav:goto-models))
-  ([rails goto-controllers] '("Go to controllers" . rails-nav:goto-controllers)))
-
-(setq rails-minor-mode-map (make-sparse-keymap))
+(defvar rails-minor-mode-map (make-sparse-keymap))
 
 (define-keys rails-minor-mode-map
   ([menu-bar] rails-minor-mode-menu-bar-map)
+  ([menu-bar rails-tests] (cons "Tests" rails-minor-mode-tests-menu-bar-map))
   ([menu-bar snippets] (cons "Snippets" (rails-snippets:create-keymap)))
+  ([menu-bar rails-db] (cons "Database" rails-minor-mode-db-menu-bar-map))
+  ([menu-bar rails-nav] (cons "Navigate" rails-minor-mode-nav-menu-bar-map))
+
   ;; Goto
   ((kbd "\C-c \C-c g m") 'rails-nav:goto-models)
   ((kbd "\C-c \C-c g c") 'rails-nav:goto-controllers)
@@ -186,18 +203,20 @@
   ((kbd "\C-c \C-c g j") 'rails-nav:goto-javascripts)
   ((kbd "\C-c \C-c g g") 'rails-nav:goto-migrate)
   ((kbd "\C-c \C-c g p") 'rails-nav:goto-plugins)
-  ((kbd "\C-c \C-c g f") 'rails-nav:goto-fixtures)
+  ((kbd "\C-c \C-c g x") 'rails-nav:goto-fixtures)
+  ((kbd "\C-c \C-c g f") 'rails-nav:goto-functional-tests)
+  ((kbd "\C-c \C-c g u") 'rails-nav:goto-unit-tests)
 
   ;; Switch
-  ((kbd "\C-c <up>")      'rails-lib:run-primary-switch)
-  ((kbd "\C-c <down>")    'rails-lib:run-secondary-switch)
+  ((kbd "\C-c <up>")     'rails-lib:run-primary-switch)
+  ((kbd "\C-c <down>")   'rails-lib:run-secondary-switch)
   ((kbd "<M-S-up>")      'rails-lib:run-primary-switch)
   ((kbd "<M-S-down>")    'rails-lib:run-secondary-switch)
   ((kbd "<C-return>")    'rails-goto-file-on-current-line)
 
   ;; Scripts & SQL
   ((kbd "\C-c \C-c e")   'rails-script:generate)
-  ((kbd "\C-c \C-c d")   'rails-script:destroy)
+  ((kbd "\C-c \C-c x")   'rails-script:destroy)
   ((kbd "\C-c \C-c s c") 'rails-script:console)
   ((kbd "\C-c \C-c s b") 'rails-script:breakpointer)
   ((kbd "\C-c \C-c s s") 'rails-run-sql)
@@ -224,10 +243,14 @@
   ((kbd "\C-c \C-c f f") 'rails-find:fixtures)
   ((kbd "\C-c \C-c f o") 'rails-find:config)
 
+  ((kbd "\C-c \C-c d m") 'rails-rake:migrate)
+  ((kbd "\C-c \C-c d v") 'rails-rake:migrate-to-version)
+  ((kbd "\C-c \C-c d p") 'rails-rake:migrate-to-prev-version)
+
   ;; Tests
   ((kbd "\C-c \C-c r")   'rails-rake:task)
-  ((kbd "\C-c \C-c t")   'rails-rake:test)
-  ((kbd "\C-c \C-c .")   'rails-rake:test-current)
+  ((kbd "\C-c \C-c t")   'rails-test:run)
+  ((kbd "\C-c \C-c .")   'rails-test:run-current)
 
   ;; Navigation
 
@@ -247,9 +270,9 @@
 
 (global-set-key (kbd "\C-c \C-c j") 'rails-script:create-project)
 
-(when (lookup-key global-map  [menu-bar file])
+(when-bind (map (lookup-key global-map  [menu-bar file]))
   (define-key-after
-    (lookup-key global-map  [menu-bar file])
+    map
     [create-rails-project]
     '("Create Rails Project" . rails-script:create-project) 'insert-file))
 

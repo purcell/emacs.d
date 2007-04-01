@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-snippets.el $
-;; $Id: rails-snippets.el 135 2007-03-27 21:08:08Z dimaexe $
+;; $Id: rails-snippets.el 153 2007-03-31 20:30:51Z dimaexe $
 
 ;;; License
 
@@ -71,6 +71,8 @@
        ("forin" "for $${element} in $${collection}\n$>$${element}.$.\nend$>" "for ... in ... end")
        ("dow" "downto($${0}) { |$${n}|$. }" "downto(0) { |n| ... }")) ; loops
     (1 "general" ruby-mode-abbrev-table
+       ("ha" "{ $>:$. }" "{ :key => 'value' }")
+       (":"  ":$${key} => '$${value}'" ":key => 'value'")
        ("yl" "File.open($${yaml}) { |$${file}| YAML.load($${file}) }" "YAML.load(file)")
        ("yd" "File.open($${yaml}, \"w\") { |$${file}| YAML.dump($${obj}, $${file}) }" "YAML.dump(..., file)")
        ("y" " :yields: $${arguments}" ":yields:")
@@ -80,7 +82,6 @@
        ("sub" "sub(/$${pattern}/) { |$${match}|$. }" "sub(/.../) { |match| ... }")
        ("sca" "scan(/$${pattern}/) { |$${match}| $. }" "scan(/.../) { |match| ... }")
        ("rep" "results.report(\"$${name}:\") { TESTS.times { $. } }" "results.report(...) { ... }")
-       ("rdb" "RAILS_DEFAULT_LOGGER.debug '$${message}'$." "RAILS_DEFAULT_LOGGER.debug")
        ("rb" "#!/usr/bin/env ruby -w\n\n" "#!/usr/local/bin/ruby -w")
        ("r" "attr_reader :$${attr_names}" "attr_reader ...")
        ("pn" "PStore.new($${file_name})" "PStore.new( ... )")
@@ -206,11 +207,23 @@
        ("%" "<% $. -%>" "<% ... %>")
        ("%%" "<%= $. %>" "<%= ... %>")) ; erb
     (0 "controller" rails-controller-minor-mode-abbrev-table
-       ("rest" "respond_to do |format|\n$>format.html\n$>$.\nend$>" "respond_to ...")
+       ("rest" "respond_to do |format|\n$>format.html$>$.\nend$>" "respond_to ...")
        ("ru"  "render :update do |page|\n$>$.\nend$>" "render :update ...")
        ("bf"  "before_filter :$${filter}" "refore_filter")
        ("af"  "after_filter :$${filter}" "after_filter")
        ("arf"  "around_filter :$${filter}" "around_filter")) ; controller
+    (0 "RESTful" rails-controller-minor-mode-abbrev-table
+       rails-view-minor-mode-abbrev-table
+       rails-helper-minor-mode-abbrev-table
+       rails-functional-test-minor-mode-abbrev-table
+       ("rest" "respond_to do |format|\n$>format.html$>$.\nend$>" "respond_to ..." rails-controller-minor-mode-abbrev-table)
+       ("rindex" "$${,rails-snippets:rest-index}" "models_url")
+       ("rshow" "$${,rails-snippets:rest-show}" "model_url(@model)")
+       ("rnew" "$${,rails-snippets:rest-new}" "new_model_url")
+       ("redit" "$${,rails-snippets:rest-edit}" "edit_model_url(@model)")
+       ("rcreate" "$${,rails-snippets:rest-create}" "models_url")
+       ("rupdate" "$${,rails-snippets:rest-update}" "model_url(@model)")
+       ("rdestroy" "$${,rails-snippets:rest-destroy}" "model_url(@model)")) ; RESTFul
     (0 "render" rails-controller-minor-mode-abbrev-table
        rails-view-minor-mode-abbrev-table
        rails-helper-minor-mode-abbrev-table
@@ -245,6 +258,7 @@
        ("reca" "redirect_to :controller => '$${items}', :action => '$${list}'" "redirect_to (controller, action)")
        ("recai" "redirect_to :controller => '$${items}', :action => '$${show}', :id => $${item}" "redirect_to (controller, action, id)")) ; redirecto_to
     (0 "rails" ruby-mode-abbrev-table
+       ("rdl" "RAILS_DEFAULT_LOGGER.debug '$${message}'$." "RAILS_DEFAULT_LOGGER.debug")
        ("nr" "@$${item}.new_record?" "item.new_record?")) ; rails
     (0 "model" rails-model-minor-mode-abbrev-table
        ("va" "validates_associated :$${attribute}" "validates_associated")
@@ -342,6 +356,10 @@
               (let* ((abbr (nth 0 snip-line))
                      (snip (nth 1 snip-line))
                      (desc (nth 2 snip-line))
+                     (loc-abbrev-table (nth 3 snip-line))
+                     (abbrev-tables (if loc-abbrev-table
+                                        (list loc-abbrev-table)
+                                      abbrev-tables))
                      (compiled-snip (rails-snippets:create-lambda snip)))
                 ;; create a menu entry for a snippet
                 (define-key keymap (vconcat cur-keymap (list (make-symbol abbr)))
@@ -381,5 +399,55 @@
     (if (search-backward-regexp "has_many :\\(\\w+\\)" nil t)
         (match-string-no-properties 1)
       "table")))
+
+(defun rails-snippets:rest (action)
+  (when-bind
+   (controller (rails-core:current-controller))
+   (let* ((plural (downcase (pluralize-string controller)))
+          (singular (downcase (singularize-string controller)))
+          (model (concat "@" singular)))
+     (case action
+       (:index
+        (tooltip-show (format "GET /%s" plural))
+        (format "%s_url" plural))
+       (:show
+        (tooltip-show (format "GET /%s/1" plural))
+        (format "%s_url(%s)" singular model))
+       (:new
+        (tooltip-show (format "GET /%s/new" plural))
+        (format "new_%s_url" singular))
+       (:edit
+        (tooltip-show (format "GET /%s/1;edit" plural))
+        (format "edit_%s_url(%s)" singular model))
+       (:create
+        (tooltip-show (format "POST /%s" plural))
+        (format "%s_url" plural))
+       (:update
+        (tooltip-show (format "PUT /%s/1" plural))
+        (format "%s_url(%s)" singular model))
+       (:destroy
+        (tooltip-show (format "DELETE /%s/1" plural))
+        (format "%s_url(%s)" singular model))))))
+
+(defun rails-snippets:rest-index ()
+  (rails-snippets:rest :index))
+
+(defun rails-snippets:rest-show ()
+  (rails-snippets:rest :show))
+
+(defun rails-snippets:rest-new ()
+  (rails-snippets:rest :new))
+
+(defun rails-snippets:rest-edit ()
+  (rails-snippets:rest :edit))
+
+(defun rails-snippets:rest-create ()
+  (rails-snippets:rest :create))
+
+(defun rails-snippets:rest-update ()
+  (rails-snippets:rest :update))
+
+(defun rails-snippets:rest-destroy ()
+  (rails-snippets:rest :destroy))
 
 (provide 'rails-snippets)

@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-view-minor-mode.el $
-;; $Id: rails-view-minor-mode.el 112 2007-03-24 22:34:38Z dimaexe $
+;; $Id: rails-view-minor-mode.el 150 2007-03-29 20:48:17Z dimaexe $
 
 ;;; License
 
@@ -67,7 +67,7 @@
              end-pos
              (> current-pos begin-pos)
              (< current-pos end-pos))
-        (let* ((helper-file (concat (rails-core:root) (rails-core:helper-file (rails-core:current-controller))))
+        (let* ((helper-file (concat (rails-project:root) (rails-core:helper-file (rails-core:current-controller))))
                (content (replace-regexp-in-string "\\(<%=?\\|-?%>\\)" ""
                                                   (buffer-substring-no-properties begin-pos end-pos)))
                (helper-defination (if helper-name helper-name

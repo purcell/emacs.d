@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 135 2007-03-27 21:08:08Z dimaexe $
+;; $Id: rails.el 150 2007-03-29 20:48:17Z dimaexe $
 
 ;;; License
 
@@ -42,6 +42,9 @@
 
 (require 'inflections)
 
+(require 'rails-compat)
+(require 'rails-project)
+
 (require 'rails-core)
 (require 'rails-ruby)
 (require 'rails-lib)
@@ -50,6 +53,7 @@
 (require 'rails-find)
 (require 'rails-scripts)
 (require 'rails-rake)
+(require 'rails-test)
 (require 'rails-ws)
 (require 'rails-log)
 (require 'rails-snippets)
@@ -132,7 +136,7 @@ Emacs w3m browser."
   :group 'rails
   :type 'string)
 
-(defvar rails-version "0.5")
+(defvar rails-version "0.5.99.1")
 (defvar rails-templates-list '("erb" "rhtml" "rxml" "rjs" "haml" "liquid"))
 (defvar rails-use-another-define-key nil)
 (defvar rails-primary-switch-func nil)
@@ -176,8 +180,8 @@ Emacs w3m browser."
 ;;;;;;;; hack ;;;;
 (defun rails-svn-status-into-root ()
   (interactive)
-  (rails-core:with-root (root)
-                        (svn-status root)))
+  (rails-project:with-root (root)
+                           (svn-status root)))
 
 ;; helper functions/macros
 (defun rails-search-doc (&optional item)
@@ -205,7 +209,7 @@ Emacs w3m browser."
 (defun rails-create-tags()
   "Create tags file"
   (interactive)
-  (rails-core:in-root
+  (rails-project:in-root
    (message "Creating TAGS, please wait...")
    (let ((tags-file-name (rails-core:file "TAGS")))
      (shell-command
@@ -262,7 +266,7 @@ Emacs w3m browser."
 (defun* rails-run-sql (&optional env)
   "Run a SQL process for the current Rails project."
   (interactive (list (rails-read-enviroment-name "development")))
-  (rails-core:with-root (root)
+  (rails-project:with-root (root)
     (cd root)
     (if (bufferp (sql-find-sqli-buffer))
         (switch-to-buffer-other-window (sql-find-sqli-buffer))
@@ -279,7 +283,7 @@ Emacs w3m browser."
 (defun rails-has-api-root ()
   "Test whether `rails-api-root' is configured or not, and offer to configure
 it in case it's still empty for the project."
-  (rails-core:with-root
+  (rails-project:with-root
    (root)
    (unless (or (file-exists-p (rails-core:file "doc/api/index.html"))
          (not (yes-or-no-p (concat "This project has no API documentation. "
@@ -377,6 +381,8 @@ necessary."
   (make-local-variable 'rails-primary-switch-func)
   (make-local-variable 'rails-secondary-switch-func))
 
+;; hooks
+
 (add-hook 'ruby-mode-hook
           (lambda()
             (require 'rails-ruby)
@@ -392,11 +398,12 @@ necessary."
                            'indent-or-complete)
             (local-set-key (kbd "C-c f") '(lambda()
                                             (interactive)
-                                            (mouse-major-mode-menu rails-core:menu-position)))
+                                            (mouse-major-mode-menu (rails-core:menu-position))))
             (local-set-key (kbd "C-:") 'ruby-toggle-string<>simbol)
             (local-set-key (if rails-use-another-define-key
                                (kbd "RET") (kbd "<return>"))
-                           'ruby-newline-and-indent)))
+                           'ruby-newline-and-indent)
+            (predictive-prog-mode)))
 
 (add-hook 'speedbar-mode-hook
           (lambda()
@@ -404,35 +411,33 @@ necessary."
 
 (add-hook 'find-file-hooks
           (lambda()
-            (rails-core:with-root
+            (rails-project:with-root
              (root)
              (progn
                (unless (string-match "[Mm]akefile" mode-name)
-                 (add-hook 'local-write-file-hooks
-                           '(lambda()
-                              (when (eq this-command 'save-buffer)
-                                (save-excursion
-                                  (untabify (point-min) (point-max))
-                                  (delete-trailing-whitespace))))))
+                 (untabify-before-save))
                (local-set-key (if rails-use-another-define-key
                                   (kbd "TAB") (kbd "<tab>"))
                               'indent-or-complete)
                (rails-minor-mode t)
                (rails-apply-for-buffer-type)))))
 
-;;; Run rails-minor-mode in dired
+;; Run rails-minor-mode in dired
+
 (add-hook 'dired-mode-hook
           (lambda ()
-            (if (rails-core:root)
+            (if (rails-project:root)
                 (rails-minor-mode t))))
+
+;; helpers
 
 (autoload 'haml-mode "haml-mode" "" t)
 
-(setq auto-mode-alist  (cons '("\\.rb$" . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rake$" . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.haml$" . haml-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rjs$" . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rxml$" . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rb$"    . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rake$"  . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.haml$"  . haml-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rjs$"   . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rxml$"  . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rhtml$" . html-mode) auto-mode-alist))
 
 (modify-coding-system-alist 'file "\\.rb$" 'utf-8)

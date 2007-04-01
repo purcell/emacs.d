@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-cmd-proxy.el $
-;; $Id: rails-cmd-proxy.el 118 2007-03-26 12:59:43Z dimaexe $
+;; $Id: rails-cmd-proxy.el 152 2007-03-30 15:03:14Z dimaexe $
 
 ;;; License
 
@@ -26,56 +26,94 @@
 
 ;;; Code:
 
+(defstruct rails-cmd-proxy:struct local remote args)
+
 (defvar rails-cmd-proxy:directories-list
-  (list
-   (list "^y:" "/mnt/www" "-t @server-cmd")))
+  '(("y:" "/mnt/www" "-t @server-cmd")))
 
 (defvar rails-cmd-proxy:remote-cmd
   "plink")
 
-(defun rails-cmd-proxy:get-remote ()
-  (rails-core:with-root
-   (root)
-   (loop for (local remote args) in rails-cmd-proxy:directories-list
-         when (string-match local root)
-         do (return
-             (list (replace-regexp-in-string local remote root)
-                   args)))))
+(defun rails-cmd-proxy:lookup (root &optional lookup-local)
+  "Lookup ROOT using `rails-cmd-proxy:directories-list' and
+return the `rails-cmd-proxy:struct'. If not found ROOT return
+nil."
+  (loop for (local remote args) in rails-cmd-proxy:directories-list
+        when (string-match (concat "^" (if lookup-local remote local)) root)
+        do (return
+            (make-rails-cmd-proxy:struct
+             :local local
+             :remote remote
+             :args args))))
 
-(defun rails-cmd-proxy:apply-remote (path command &optional command-args)
-  (if command-args
-      (format "\"cd %s && %s %s\"" path command command-args)
-    (format "\"cd %s && %s\"" path command)))
+(defun rails-cmd-proxy:convert (proxy-struct path &optional reverse)
+  "Convert PATH from local to remote using PROXY-STRUCT,
+otherwise if set REVERSE convert from remote to local."
+  (let* ((local (rails-cmd-proxy:struct-local proxy-struct))
+         (remote (rails-cmd-proxy:struct-remote proxy-struct))
+         (regexp (concat "^" (if reverse remote local)))
+         (replacement (if reverse local remote)))
+    (when (string-match regexp path)
+      (replace-regexp-in-string regexp replacement path))))
+
+(defun rails-cmd-proxy:construct-remote-cmd (proxy-struct root command &optional command-args)
+  (let ((root (rails-cmd-proxy:convert proxy-struct root))
+        (args (rails-cmd-proxy:struct-args proxy-struct)))
+    (if command-args
+        (format "%s \"cd %s && %s %s\"" args root command command-args)
+      (format "%s \"cd %s && %s\"" args root command))))
 
 ;; remote wrappers
 
 (defun rails-cmd-proxy:start-process (name buffer command command-args)
-  (let ((remote (rails-cmd-proxy:get-remote)))
-    (if remote
-        (let* ((remote-path (car remote))
-               (remote-args (car (cdr remote)))
-               (remote-cmd-args (format "%s %s"
-                                        remote-args
-                                        (rails-cmd-proxy:apply-remote remote-path command command-args))))
-           (start-process-shell-command name
-                                        buffer
-                                        rails-cmd-proxy:remote-cmd
-                                        remote-cmd-args))
-      (start-process-shell-command name
-                                   buffer
-                                   command
-                                   command-args))))
+  ""
+  (rails-project:with-root
+   (root)
+   (let ((proxy-struct (rails-cmd-proxy:lookup root))
+         (command command)
+         (command-args command-args))
+     (when proxy-struct
+       (setq command-args
+             (rails-cmd-proxy:construct-remote-cmd proxy-struct
+                                                   root
+                                                   command
+                                                   command-args))
+       (setq command rails-cmd-proxy:remote-cmd))
+     (start-process-shell-command name
+                                  buffer
+                                  command
+                                  command-args))))
 
 (defun rails-cmd-proxy:shell-command-to-string (command)
-  (let ((remote (rails-cmd-proxy:get-remote)))
-    (if remote
-        (let* ((remote-path (car remote))
-               (remote-args (car (cdr remote)))
-               (command (format "%s %s %s"
-                                rails-cmd-proxy:remote-cmd
-                                remote-args
-                                (rails-cmd-proxy:apply-remote remote-path command))))
-          (shell-command-to-string command))
-      (shell-command-to-string command))))
+  (rails-project:with-root
+   (root)
+   (let ((proxy-struct (rails-cmd-proxy:lookup root))
+         (command command))
+     (when proxy-struct
+       (setq command
+             (format "%s %s"
+                     rails-cmd-proxy:remote-cmd
+                     (rails-cmd-proxy:construct-remote-cmd proxy-struct
+                                                           root
+                                                           command))))
+     (shell-command-to-string command))))
+
+;; helper functions
+
+(defun rails-cmd-proxy:convert-buffer-from-remote (start end len)
+  (when-bind
+   (struct (rails-cmd-proxy:lookup default-directory))
+   (save-excursion
+     (goto-char start)
+     (let* ((local (rails-cmd-proxy:struct-local struct))
+            (remote (rails-cmd-proxy:struct-remote struct))
+            (root default-directory)
+            (remote-with-root (concat remote (substring root (length local))))
+            (buffer-read-only nil))
+       (while (setq point (re-search-forward (format "^\\s-*\\(%s\\)"
+                                                     remote-with-root) end t))
+         (replace-match (format "%s "
+                                (string-repeat " " (- (length (match-string 1)) 1)))
+                        nil t nil 1))))))
 
 (provide 'rails-cmd-proxy)

@@ -8,7 +8,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
-;; $Id: rails-lib.el 135 2007-03-27 21:08:08Z dimaexe $
+;; $Id: rails-lib.el 153 2007-03-31 20:30:51Z dimaexe $
 
 ;;; License
 
@@ -73,6 +73,15 @@ If EXPR is not nil exeutes BODY.
 
 ;; Strings
 
+(defun string-repeat (char num)
+  (let ((len num)
+        (str ""))
+  (while (not (zerop len))
+    (setq len (- len 1))
+    (setq str (concat char str)))
+  str))
+
+
 (defmacro string=~ (regex string &rest body)
   "regex matching similar to the =~ operator found in other languages."
   (let ((str (gensym)))
@@ -126,6 +135,8 @@ BlaPostfix -> Bla."
 (defun strings-join (separator strings)
   "Join all STRINGS using a SEPARATOR."
   (mapconcat 'identity strings separator))
+
+(defalias 'string-join 'strings-join)
 
 (defun capital-word-p (word)
   "Return t if first letter of WORD is uppercased."
@@ -296,6 +307,22 @@ as the value of the symbol, and the hook as the function definition."
                  (ansi-color-apply-on-region start end)))
     (set-buffer buffer)))
 
+;; completion-read
+(defun rails-completing-read (prompt table history require-match)
+  (let ((history-value (symbol-value history)))
+  (list (completing-read
+         (format "%s?%s: "
+                 prompt
+                 (if (car history-value)
+                     (format " (%s)" (car history-value))
+                   ""))
+         (list->alist table) ; table
+         nil ; predicate
+         require-match ; require-match
+         nil ; initial input
+         history ; hist
+         (car history-value))))) ;def
+
 ;; MMM
 
 ;; (defvar mmm-indent-sandbox-finish-position nil)
@@ -372,18 +399,5 @@ as the value of the symbol, and the hook as the function definition."
 
 
 ;; Cross define functions from my rc files
-
-(unless (fboundp 'indent-or-complete)
-  (defun indent-or-complete ()
-    "Complete if point is at end of a word, otherwise indent line."
-    (interactive)
-    (if (and (boundp 'snippet)
-             snippet)
-        (snippet-next-field)
-      (if (looking-at "\\>")
-          (progn
-            (hippie-expand nil)
-            (message ""))
-        (indent-for-tab-command)))))
 
 (provide 'rails-lib)

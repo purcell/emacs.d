@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ws.el $
-;; $Id: rails-ws.el 140 2007-03-27 23:33:36Z dimaexe $
+;; $Id: rails-ws.el 150 2007-03-29 20:48:17Z dimaexe $
 
 ;;; License
 
@@ -46,7 +46,7 @@
   :tag "Rails Server Type")
 
 (defvar rails-ws:available-servers-list (list "mongrel" "lighttpd" "webrick"))
-(defvar rails-ws:buffer-name "*RailsWebServer*")
+(defvar rails-ws:buffer-name "*RWebServer*")
 (defvar rails-ws:process-environment nil)
 
 (defun rails-ws:default-server-type-p (type)
@@ -81,7 +81,7 @@
   "Start a server process with ENV environment if ENV is not set
 using `rails-default-environment'."
   (interactive (list (rails-read-enviroment-name)))
-  (rails-core:with-root
+  (rails-project:with-root
    (root)
    (let ((proc (get-buffer-process rails-ws:buffer-name)))
      (if proc
@@ -178,7 +178,7 @@ file."
   "Autodetect the current action and open browser on it with.
 Prefix the command to ask parameters for action."
   (interactive "P")
-  (rails-core:with-root
+  (rails-project:with-root
    (root)
    (if (find (rails-core:buffer-type) '(:view :controller))
        (when-bind (controller (rails-core:current-controller))

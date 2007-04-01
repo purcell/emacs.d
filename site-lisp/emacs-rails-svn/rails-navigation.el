@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-navigation.el $
-;; $Id: rails-navigation.el 130 2007-03-26 20:35:02Z dimaexe $
+;; $Id: rails-navigation.el 150 2007-03-29 20:48:17Z dimaexe $
 
 ;;; License
 
@@ -78,6 +78,22 @@
    (rails-core:models)
    "Go to model.."
    'rails-core:model-file))
+
+(defun rails-nav:goto-functional-tests ()
+  "Go to functional tests."
+  (interactive)
+  (rails-nav:goto-file-with-menu-from-list
+   (rails-core:functional-tests)
+   "Go to functional test."
+   'rails-core:functional-test-file))
+
+(defun rails-nav:goto-unit-tests ()
+  "Go to functional tests."
+  (interactive)
+  (rails-nav:goto-file-with-menu-from-list
+   (rails-core:unit-tests)
+   "Go to unit test."
+   'rails-core:unit-test-file))
 
 (defun rails-nav:goto-observers ()
   "Go to observers."
@@ -193,7 +209,7 @@ Rules for actions/controllers:
  If you in view, the view file related to the action will be opened.
  Use prefix before the command to change this navigation direction."
   (interactive "P")
-  (rails-core:with-root
+  (rails-project:with-root
    (root)
    (save-match-data
      (unless

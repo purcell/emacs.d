@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-controller-layout.el $
-;; $Id: rails-controller-layout.el 131 2007-03-26 21:01:00Z dimaexe $
+;; $Id: rails-controller-layout.el 150 2007-03-29 20:48:17Z dimaexe $
 
 ;;; License
 
@@ -85,7 +85,7 @@
 (defun rails-controller-layout:view-files (controller-name &optional action)
   "Retun a list containing the view file for CONTROLLER-NAME#ACTION.
 If the action is nil, return all views for the controller."
-  (rails-core:with-root
+  (rails-project:with-root
    (root)
    (directory-files
     (rails-core:file

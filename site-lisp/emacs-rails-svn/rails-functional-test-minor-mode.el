@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-functional-test-minor-mode.el $
-;; $Id: rails-functional-test-minor-mode.el 133 2007-03-27 14:59:21Z dimaexe $
+;; $Id: rails-functional-test-minor-mode.el 145 2007-03-28 21:07:21Z dimaexe $
 
 ;;; License
 
@@ -33,6 +33,6 @@
   nil
   (setq rails-primary-switch-func (lambda() (interactive) (rails-controller-layout:switch-to :controller)))
   (setq rails-secondary-switch-func 'rails-controller-layout:menu)
-  (local-set-key (kbd "\C-c .") 'rails-rake:test-current-method))
+  (local-set-key (kbd "\C-c .") 'rails-test:run-current-method))
 
 (provide 'rails-functional-test-minor-mode)

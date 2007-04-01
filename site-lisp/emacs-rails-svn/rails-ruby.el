@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 125 2007-03-26 15:39:03Z dimaexe $
+;; $Id: rails-ruby.el 153 2007-03-31 20:30:51Z dimaexe $
 
 ;;; License
 
@@ -26,18 +26,32 @@
 
 ;;; Code:
 
-;; (defadvice ruby-indent-command (around ruby-indent-or-complete activate)
-;;   "Complete if point is at the end of a word; otherwise, indent
-;; line."
-;;   (interactive)
-;;   (unless
-;;       (when snippet (snippet-next-field))
-;;     (if (looking-at "\\>")
-;;         (hippie-expand nil)
-;;       ad-do-it)))
-
 (eval-when-compile
   (require 'inf-ruby))
+
+;; setup align for ruby-mode
+(require 'align)
+
+(defconst align-ruby-modes '(ruby-mode)
+  "align-perl-modes is a variable defined in `align.el'.")
+
+(defconst ruby-align-rules-list
+  '((ruby-comma-delimiter
+     (regexp . ",\\(\\s-*\\)[^/ \t\n]")
+     (modes  . align-ruby-modes)
+     (repeat . t))
+    (ruby-symbol-after-func
+     (regexp . "^\\s-*\\w+\\(\\s-+\\):\\w+")
+     (modes  . align-ruby-modes)))
+  "Alignment rules specific to the ruby mode.
+See the variable `align-rules-list' for more details.")
+
+(add-to-list 'align-perl-modes 'ruby-mode)
+(add-to-list 'align-dq-string-modes 'ruby-mode)
+(add-to-list 'align-sq-string-modes 'ruby-mode)
+(add-to-list 'align-open-comment-modes 'ruby-mode)
+(dolist (it ruby-align-rules-list)
+  (add-to-list 'align-rules-list it))
 
 (defun ruby-newline-and-indent ()
   (interactive)
