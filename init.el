@@ -412,8 +412,16 @@
 
   (when *ecb-support-enabled*
     (require 'ecb)
-    (add-to-list 'ecb-compilation-buffer-names '("\\(development\\|test\\|production\\).log" . t))
-    (add-to-list 'ecb-compilation-buffer-names '("\\*Rails" . t))))
+    ; Flymake confuses ecb's idea of which buffers are compilation buffers
+    (defun comint-but-not-flymake-p (buf)
+      (and (comint-check-proc buf)
+           (not (buffer-local-value 'flymake-mode-line buf))))
+    (setq ecb-compilation-predicates '(comint-but-not-flymake-p))
+
+    (setq ecb-compilation-buffer-names
+          (append ecb-compilation-buffer-names
+                  '(("\\(development\\|test\\|production\\).log" . t)
+                    ("\\*Rails" . t))))))
 
 
 ;;----------------------------------------------------------------------------
