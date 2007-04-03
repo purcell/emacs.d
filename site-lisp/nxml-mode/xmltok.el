@@ -496,6 +496,9 @@ as special.  Return the type of the token."
 	  (xmltok+ (xmltok-g markup-declaration "!")
 		   (xmltok-g comment-first-dash "-"
 			     (xmltok-g comment-open "-") opt) opt))
+         (erb-section
+          (xmltok+ "%"
+                   (xmltok-g erb-section-open "[^%]") opt))
 	 (cdata-section
 	  (xmltok+ "!"
 		  (xmltok-g marked-section-open "\\[")
@@ -526,6 +529,7 @@ as special.  Return the type of the token."
 			       ;; by default
 			       or cdata-section
 			       or comment
+                               or erb-section
 			       or processing-instruction))
     (xmltok-defregexp
      xmltok-attribute
@@ -692,6 +696,16 @@ as special.  Return the type of the token."
 					      nil
 					      nil
 					      "]]>")
+			'not-well-formed)))
+               ((xmltok-after-lt start erb-section-open)
+		(setq xmltok-type
+		      (if (re-search-forward "[^%]%>" nil t)
+			  'erb-section
+			(xmltok-add-error "No closing %>")
+			(xmltok-add-dependent 'xmltok-unclosed-reparse-p
+					      nil
+					      nil
+					      "%>")
 			'not-well-formed)))
 	       ((xmltok-after-lt start processing-instruction-question)
 		(xmltok-scan-after-processing-instruction-open))
