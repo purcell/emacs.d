@@ -530,7 +530,30 @@
   (autoload 'run-caml "inf-caml" "Run an inferior Caml process." t)
   (if window-system (require 'caml-font)))
 
-  
+
+;;----------------------------------------------------------------------------
+;; Add spell-checking in comments for all programming language modes
+;;----------------------------------------------------------------------------
+(dolist (hook '(lisp-mode-hook
+                emacs-lisp-mode-hook
+                scheme-mode-hook
+                ruby-mode-hook
+                yaml-mode
+                python-mode-hook
+                shell-mode-hook
+                php-mode-hook
+                css-mode-hook
+                haskell-mode-hook
+                caml-mode-hook
+                nxml-mode-hook
+                crontab-mode-hook
+                perl-mode-hook
+                tcl-mode-hook
+                ecmascript-mode-hook))
+  (add-hook hook 'flyspell-prog-mode))
+
+
+
 ;;----------------------------------------------------------------------------
 ;; Conversion of line endings
 ;;----------------------------------------------------------------------------
