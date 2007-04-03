@@ -416,7 +416,6 @@ compiler state."
   (concatenate 'string (tmpnam nil) ".lisp"))
 
 (defimplementation swank-compile-string (string &key buffer position directory)
-  (declare (ignore directory))
   (let ((*buffer-name* buffer)
         (*buffer-offset* position)
         (*buffer-substring* string)
@@ -425,6 +424,7 @@ compiler state."
              (with-compilation-hooks ()
                (with-compilation-unit
                    (:source-plist (list :emacs-buffer buffer
+                                        :emacs-directory directory
                                         :emacs-string string
                                         :emacs-position position))
                  (funcall fn (compile-file filename))))))
@@ -480,22 +480,23 @@ This is useful when debugging the definition-finding code.")
                (sb-introspect::definition-source-description source-location))
         (if *debug-definition-finding*
             (make-definition-source-location source-location type name)
-            (handler-case (make-definition-source-location source-location
-                                                           type name)
+            (handler-case
+                (make-definition-source-location source-location type name)
               (error (e)
-                     (list :error (format nil "Error: ~A" e)))))))
+                (list :error (format nil "Error: ~A" e)))))))
 
 (defun make-definition-source-location (definition-source type name)
   (with-struct (sb-introspect::definition-source-
                    pathname form-path character-offset plist
                    file-write-date)
       definition-source
-    (destructuring-bind (&key emacs-buffer emacs-position
+    (destructuring-bind (&key emacs-buffer emacs-position emacs-directory
                               emacs-string &allow-other-keys)
         plist
       (cond
         (emacs-buffer
-         (let* ((pos (if form-path
+         (let* ((*readtable* (guess-readtable-for-filename emacs-directory))
+                (pos (if form-path
                          (with-debootstrapping
                            (source-path-string-position form-path emacs-string))
                          character-offset))

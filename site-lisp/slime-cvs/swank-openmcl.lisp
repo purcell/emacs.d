@@ -931,4 +931,4 @@ out IDs for.")
   (apply #'make-hash-table :weak :value args))
 
 (defimplementation hash-table-weakness (hashtable)
-  (ccl::hash-table-weak-p ht))
+  (ccl::hash-table-weak-p hashtable))

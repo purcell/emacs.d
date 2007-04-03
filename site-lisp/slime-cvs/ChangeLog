@@ -1,3 +1,91 @@
+2007-03-29  Nikodemus Siivola <nikodemus@random-state.net>
+
+	* swank-sbcl.lisp (swank-compile-string): save the original
+	directory into the source plist as :emacs-directory.
+	(make-definition-source-location): use the :emacs-directory from
+	the source plist and guess-readtable-for-filename to determine the
+	correct readtable for string-compiled definitions.
+
+2007-03-29  Nikodemus Siivola <nikodemus@random-state.net>
+
+	* swank.lisp (*macroexpand-printer-bindings*): add *print-lines*
+	to defaults (NIL).
+	(find-definitions-for-emacs): use unless instead of cond.
+
+2007-03-25  Douglas Crosher <dcrosher@common-lisp.net>
+
+	* slime.el (with-selected-window): define for compatibility with
+	Emacs 21.
+
+2007-03-24  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* swank.lisp (menu-choices-for-presentation): Offer a
+	"disassemble" menu item for functions.
+
+2007-03-24  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-read-port-and-connect): Fix race condition:
+	retry one more time if the port file is empty. Pop up the debugger
+	on other errors.
+	(slime-attempt-connection): Moved to toplevel.
+	(slime-timer-call): New. Used by slime-attempt-connection.
+	(slime-cancel-connect-retry-timer): New.
+	(slime-abort-connection): Use it.
+	(slime-repl-insert-prompt): Use insert-before-markers. This fixes
+	some redisplay problems, but I don't know why.  Also: remove the
+	timer for async output.
+	(slime-repl-move-output-mark-before-prompt): Removed.
+	(slime-repl-save-merged-history): Use with-temp-message.
+	(slime-goto-location-buffer): Support Zip files.
+	(sldb-quit): Don't print "Evaluation aborted".
+
+2007-03-22  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* slime.el (slime-scratch-buffer): Respect the syntax text
+	properties of presentations. 
+
+2007-03-21  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* swank.lisp (lookup-presented-object): The presentation id of
+	frame locals now includes the thread id; ignore it for now.
+
+	* slime.el (slime-copy-presentation-at-mouse-to-point): Manually
+	invoke the after-change function, so that the presentation overlay
+	is created even if we paste to non-REPL buffers.
+	(slime-menu-choices-for-presentation): Evaluate
+	menu-choices-for-presentation-id in the right buffer, thus in the
+	right Lisp thread.  Reported by Attila Lendvai.
+	(slime-menu-choices-for-presentation): Show the id of the presentation.
+	(sldb-insert-locals): Include the thread id in the presentation id.
+
+2007-03-21  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-repl-eval-string, slime-repl-insert-result):
+	Support the presentation-less old protocol.
+	(slime-goto-location-position): Use column number if available.
+
+2007-03-20  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* swank.lisp (completion-output-symbol-converter): Fix completion
+	for mixed-case symbols that need escaping in readtable-case
+	:upcase or :downcase.
+
+	* slime.el (slime-copy-presentation-at-mouse-to-point) 
+	(slime-copy-presentation-at-mouse-to-kill-ring): New commands.
+	(slime-menu-choices-for-presentation): Change interface.  New
+	menu options, Copy to kill-ring, Copy to point.
+	(slime-presentation-menu): Change call to
+	slime-menu-choices-for-presentation. 
+
+2007-03-20  Takehiko Abe  <keke@gol.com>
+
+	* swank-openmcl.lisp (hash-table-weakness): fix typo
+
+2007-03-14  Christophe Rhodes  <csr21@cantab.net>
+
+	* slime.el (slime-search-suppressed-forms): handle multiple
+	conditionals on the same line.
+
 2007-02-26  Nikodemus Siivola <nikodemus@random-state.net>
 
 	* swank.lisp (inspect-for-emacs): Add support for inspecting
@@ -7,6 +95,12 @@
 
 	* swank-backend.lisp (inspect-for-emacs): Remove reference to
 	inexistent argument from docstring.
+
+2007-02-25  Harald Hanche-Olsen <hanche@math.ntnu.no>
+
+	* slime.el (slime-init-keymaps): Use vectors when defining keys,
+	because e.g. (define-key (string ?\C-c) ...) doesn't work in the
+	emacs-unicode-2 branch.  Some strings are still there.
 
 2007-02-25  Helmut Eller  <heller@common-lisp.net>
 

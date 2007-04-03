@@ -2434,7 +2434,8 @@ The secondary value indicates the absence of an entry."
           (values object foundp)))))
     (cons
      (destructure-case id
-       ((:frame-var frame index)
+       ((:frame-var thread-id frame index)
+        (declare (ignore thread-id)) ; later 
         (handler-case 
             (frame-var-value frame index)
           (t (condition)
@@ -3153,6 +3154,7 @@ already knows."
   '((*print-circle* . nil)
     (*print-pretty* . t)
     (*print-escape* . t)
+    (*print-lines* . nil)
     (*print-level* . nil)
     (*print-length* . nil)))
 
@@ -3350,9 +3352,21 @@ INPUT is used to guess the preferred case. Escape symbols when needed."
   (let ((case-converter (completion-output-case-converter input))
         (case-converter-with-escaping (completion-output-case-converter input t)))
     (lambda (str)
-      (if (some (lambda (el)
-                  (member el '(#\: #\, #\  #\Newline #\Tab)))
-                str)
+      (if (or (multiple-value-bind (lowercase uppercase)
+                  (determine-case str)
+                ;; In these readtable cases, symbols with letters from
+                ;; the wrong case need escaping
+                (case (readtable-case *readtable*)
+                  (:upcase   lowercase)
+                  (:downcase uppercase)
+                  (t         nil)))
+              (some (lambda (el)
+                      (or (member el '(#\: #\Space #\Newline #\Tab))
+                          (multiple-value-bind (macrofun nonterminating)
+                              (get-macro-character el)
+                            (and macrofun
+                                 (not nonterminating)))))
+                    str))
           (concatenate 'string "|" (funcall case-converter-with-escaping str) "|")
           (funcall case-converter str)))))
 
@@ -4088,9 +4102,9 @@ Include the nicknames if NICKNAMES is true."
 DSPEC is a string and LOCATION a source location. NAME is a string."
   (multiple-value-bind (sexp error)
       (ignore-errors (values (from-string name)))
-    (cond (error '())
-          (t (loop for (dspec loc) in (find-definitions sexp)
-                   collect (list (to-string dspec) loc))))))
+    (unless error
+      (loop for (dspec loc) in (find-definitions sexp)
+         collect (list (to-string dspec) loc)))))
 
 (defun alistify (list key test)
   "Partition the elements of LIST into an alist.  KEY extracts the key
@@ -5373,5 +5387,11 @@ Collisions are caused because package information is ignored."
 			  (load source-file)
 			  nil)))
 	     (and (next-method-p) (call-next-method))))))
+
+(defmethod menu-choices-for-presentation ((ob function))
+  (list (list "Disassemble"
+              (lambda (choice object id) 
+                (declare (ignore choice id)) 
+                (disassemble object)))))
 
 ;;; swank.lisp ends here
