@@ -1,4 +1,21 @@
 SVN
+* New hotkeys, to easy switch without a popup menu between a
+  controller or a model related files
+  In model layout:
+    - "C-c m" go to model
+    - "C-c u" go to unit test
+    - "C-c g" go to migration
+    - "C-c c" go to controller
+    - "C-c x" go to fixture
+    - "C-c n" go to mailer
+  In controller layout:
+    - "C-c g" go to migration
+    - "C-c m" go to model
+    - "C-c h" go to helper
+    - "C-c f" go to functional test
+    - "C-c c" go to controller
+    - "C-c u" go to unit test
+* Fixed bug #9783 (remove-postfix: Wrong type argument: arrayp, nil)
 * Updated the compilation output, for better highlight of error and warnings
 * Added the flymake support to on the fly syntax checked in the ruby-mode
 

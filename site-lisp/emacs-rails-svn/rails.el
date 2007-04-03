@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 150 2007-03-29 20:48:17Z dimaexe $
+;; $Id: rails.el 161 2007-04-03 15:17:46Z dimaexe $
 
 ;;; License
 
@@ -402,8 +402,7 @@ necessary."
             (local-set-key (kbd "C-:") 'ruby-toggle-string<>simbol)
             (local-set-key (if rails-use-another-define-key
                                (kbd "RET") (kbd "<return>"))
-                           'ruby-newline-and-indent)
-            (predictive-prog-mode)))
+                           'ruby-newline-and-indent)))
 
 (add-hook 'speedbar-mode-hook
           (lambda()

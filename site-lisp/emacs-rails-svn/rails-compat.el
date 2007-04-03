@@ -84,12 +84,12 @@
 (unless (find 'try-complete-abbrev hippie-expand-try-functions-list)
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-abbrev))
 
-(defun activate-predictive-inside-strings (start end len)
+(defun activate-predictive-inside-comments (start end len)
   "Looking at symbol at point and activate the `predictive-mode'
 if there a string or a comment."
   (save-excursion
     (let ((f (get-text-property (point) 'face)))
-      (if (memq f flyspell-prog-text-faces)
+      (if (memq f '(font-lock-comment-face font-lock-doc-face))
           (predictive-mode 1)
         (predictive-mode -1)))))
 
@@ -101,22 +101,22 @@ only, like `flyspell-prog-mode'."
     ;; load flyspell before
     (unless (featurep 'flyspell)
       (require 'flyspell))
-    (if (find 'activate-predictive-inside-strings after-change-functions)
+    (if (find 'activate-predictive-inside-comments after-change-functions)
         (progn
-          (remove-hook 'after-change-functions 'activate-predictive-inside-strings t)
+          (remove-hook 'after-change-functions 'activate-predictive-inside-comments t)
           (predictive-mode -1))
       (progn
         (set (make-local-variable 'predictive-use-auto-learn-cache) nil)
-        (add-hook 'after-change-functions 'activate-predictive-inside-strings nil t)))))
+        (add-hook 'after-change-functions 'activate-predictive-inside-comments nil t)))))
 
 (when (fboundp 'predictive-mode)
   (defadvice ruby-electric-space (around ruby-electric-space-with-completion-ui first (arg) activate)
     "Override the ruby <space> command if predictive-mode enabled."
-    (if (find 'predictive-mode
-              minor-mode-alist
-              :key (lambda(i) (car i)))
+    (if (memq (get-text-property (point) 'face) '(font-lock-comment-face font-lock-doc-face))
         (completion-self-insert)
-      ad-do-it)))
+      ad-do-it))
+
+  (add-hook 'ruby-mode-hook 'predictive-prog-mode))
 
 (defvar untabify-before-save-enabled nil)
 

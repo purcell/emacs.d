@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-model-layout.el $
-;; $Id: rails-model-layout.el 158 2007-04-03 08:45:46Z dimaexe $
+;; $Id: rails-model-layout.el 162 2007-04-03 19:10:59Z dimaexe $
 
 ;;; License
 
@@ -29,55 +29,63 @@
 (defun rails-model-layout:keymap (type)
   (let* ((name (capitalize (substring (symbol-name type) 1)))
          (map (make-sparse-keymap))
-         (menubar (make-sparse-keymap))
-         (model (rails-core:current-model))
-         (controller (pluralize-string model)))
+         (menu (make-sparse-keymap)))
     (when type
-      (unless (rails-core:mailer-p model)
-        (unless (eq type :model)
-          (define-key menubar [go-to-model]      '("Go to Model" . rails-model-layout:switch-to-model))
-          (define-key map (kbd "\C-c m")         'rails-model-layout:switch-to-model))
-        (unless (eq type :unit-test)
-          (define-key menubar [go-to-unit-test]  '("Go to Unit Test" . rails-model-layout:switch-to-unit-test))
-          (define-key map (kbd "\C-c u")         'rails-model-layout:switch-to-unit-test))
-        (when (and (not (eq type :migration))
-                   (rails-core:migration-file (format "Create%s" controller)))
-          (define-key menubar [go-to-migration]  '("Go to Migration" . rails-model-layout:switch-to-migration))
-          (define-key map (kbd "\C-c g")         'rails-model-layout:switch-to-migration))
-        (when (and (not (eq type :controller))
-                   (rails-core:controller-exist-p controller))
-          (define-key menubar [go-to-controller] '("Go to Controller" . rails-model-layout:switch-to-controller))
-          (define-key map (kbd "\C-c c")         'rails-model-layout:switch-to-controller))
-        (unless (eq type :fixture)
-          (define-key menubar [go-to-fixture]    '("Go to Fixture" . rails-model-layout:switch-to-fixture))
-          (define-key map (kbd "\C-c x")         'rails-model-layout:switch-to-fixture)))
-      (when (rails-core:mailer-p model)
-        (define-key menubar [go-to-mailer] '("Go to Mailer" . rails-model-layout:switch-to-mailer))
-        (define-key map (kbd "\C-c n")         'rails-model-layout:switch-to-mailer))
-      (define-key menubar [sep] (rails-core:menu-separator))
-      (define-key menubar [primary-switch] '("Switch to related" . rails-lib:run-primary-switch))
-      (define-key menubar [secondary-switch] '("Switch to related with menu" . rails-lib:run-secondary-switch))
-      (define-key map [menu-bar rails-model-layout] (cons name menubar)))
+      (define-keys menu
+        ([goto-model]      '(menu-item "Go to Model"
+                                       rails-model-layout:switch-to-model
+                                       :enable (and (not (eq (rails-core:buffer-type) :model))
+                                                    (rails-core:model-exist-p (rails-core:current-model)))))
+        ([goto-utest]      '(menu-item "Go to Unit Test"
+                                       rails-model-layout:switch-to-unit-test
+                                       :enable (and (not (eq (rails-core:buffer-type) :unit-test))
+                                                    (rails-core:unit-test-exist-p (or (rails-core:current-model)
+                                                                                      (rails-core:current-mailer))))))
+        ([goto-migration]  '(menu-item "Go to Migration"
+                                       rails-model-layout:switch-to-migration
+                                       :enable (and (not (eq (rails-core:buffer-type) :migration))
+                                                    (rails-core:migration-file-by-model (rails-core:current-model)))))
+        ([goto-controller] '(menu-item "Go to Controller"
+                                       rails-model-layout:switch-to-controller
+                                       :enable (rails-core:controller-file-by-model (rails-core:current-model))))
+        ([goto-fixture]    '(menu-item "Go to Fixture"
+                                       rails-model-layout:switch-to-fixture
+                                       :enable (and (not (eq (rails-core:buffer-type) :fixture))
+                                                    (rails-core:fixture-exist-p (rails-core:current-model)))))
+        ([goto-mailer]     '(menu-item "Go to Mailer"
+                                       rails-model-layout:switch-to-mailer
+                                       :enable (rails-core:mailer-exist-p (rails-core:current-mailer)))))
+      (define-keys map
+        ((kbd "\C-c m")         'rails-model-layout:switch-to-model)
+        ((kbd "\C-c u")         'rails-model-layout:switch-to-unit-test)
+        ((kbd "\C-c g")         'rails-model-layout:switch-to-migration)
+        ((kbd "\C-c c")         'rails-model-layout:switch-to-controller)
+        ((kbd "\C-c x")         'rails-model-layout:switch-to-fixture)
+        ((kbd "\C-c n")         'rails-model-layout:switch-to-mailer)
+        ([menu-bar rails-model-layout] (cons name menu))))
     map))
 
 (defun rails-model-layout:switch-to (type)
-  (let* ((model (rails-core:current-model))
+  (let* ((name (capitalize (substring (symbol-name type) 1)))
+         (model (rails-core:current-model))
          (controller (rails-core:current-controller))
+         (mailer (rails-core:current-mailer))
          (item (if controller controller model))
          (item (case type
-                 (:mailer (rails-core:mailer-file model))
-                 (:controller (rails-core:controller-file (pluralize-string model)))
+                 (:mailer (rails-core:mailer-file mailer))
+                 (:controller (rails-core:controller-file-by-model model))
                  (:fixture (rails-core:fixture-file model))
                  (:unit-test (rails-core:unit-test-file item))
                  (:model (rails-core:model-file model))
-                 (:migration (rails-core:migration-file (concat "Create" (pluralize-string model)))))))
-    (when item
-      (let ((file (rails-core:file item)))
-        (if (file-exists-p file)
-            (progn
-              (find-file file)
-              (message (format "%s: %s" (substring (symbol-name type) 1) item)))
-          (message "File %s not exists" file))))))
+                 (:migration (rails-core:migration-file-by-model model)))))
+    (if item
+        (let ((file (rails-core:file item)))
+          (if (file-exists-p file)
+              (progn
+                (find-file file)
+                (message (format "%s: %s" (substring (symbol-name type) 1) item)))
+            (message "File %s not exists" file)))
+      (message "%s not found" name))))
 
 (defun rails-model-layout:switch-to-mailer () (interactive) (rails-model-layout:switch-to :mailer))
 (defun rails-model-layout:switch-to-controller () (interactive) (rails-model-layout:switch-to :controller))
@@ -92,32 +100,32 @@
          (type (rails-core:buffer-type))
          (title (capitalize (substring (symbol-name type) 1)))
          (model (rails-core:current-model))
-         (controller (pluralize-string model)))
-    (unless (rails-core:mailer-p model)
+         (controller (pluralize-string model))
+         (mailer (rails-core:current-mailer)))
+    (when model
       (when (and (not (eq type :migration))
-                 (rails-core:migration-file (format
-                                             "Create%s"
-                                             (pluralize-string model))))
+                 (rails-core:migration-file-by-model model))
         (add-to-list 'item (cons "Migration" :migration)))
       (unless (eq type :fixture)
         (add-to-list 'item (cons "Fixture" :fixture)))
       (when (rails-core:controller-exist-p controller)
         (add-to-list 'item (cons "Controller" :controller)))
       (unless (eq type :unit-test)
-        (add-to-list 'item (cons "Unit test" :unit-test)))
+        (add-to-list 'item (cons "Unit Test" :unit-test)))
       (unless (eq type :model)
         (add-to-list 'item (cons "Model" :model))))
-    (when (rails-core:mailer-p model)
-      (setq item (rails-controller-layout:views-menu model))
-      (add-to-list 'item (rails-core:menu-separator))
-      (add-to-list 'item (cons "Mailer" :mailer)))
-    (setq item
-          (rails-core:menu
-           (list (concat title " " model)
-                 (cons "Please select.."
-                       item))))
-    (typecase item
-      (symbol (rails-model-layout:switch-to item))
-      (string (rails-core:find-file-if-exist item)))))
+    (when mailer
+        (setq item (rails-controller-layout:views-menu model))
+        (add-to-list 'item (rails-core:menu-separator))
+        (add-to-list 'item (cons "Mailer" :mailer)))
+    (when item
+      (setq item
+            (rails-core:menu
+             (list (concat title " " model)
+                   (cons "Please select.."
+                         item))))
+      (typecase item
+        (symbol (rails-model-layout:switch-to item))
+        (string (rails-core:find-file-if-exist item))))))
 
 (provide 'rails-model-layout)

@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 157 2007-04-02 21:35:49Z dimaexe $
+;; $Id: rails-ruby.el 161 2007-04-03 15:17:46Z dimaexe $
 
 ;;; License
 
@@ -57,9 +57,9 @@ See the variable `align-rules-list' for more details.")
 (require 'flymake)
 
 (defconst flymake-allowed-ruby-file-name-masks
-  '((".rb" flymake-ruby-init)
+  '((".rb"   flymake-ruby-init)
     (".rxml" flymake-ruby-init)
-    (".rjs" flymake-ruby-init))
+    (".rjs"  flymake-ruby-init))
   "Filename extensions that switch on flymake-ruby mode syntax checks.")
 
 (defconst flymake-ruby-error-line-pattern-regexp
@@ -80,7 +80,7 @@ See the variable `align-rules-list' for more details.")
   (flymake-mode t)
   (local-set-key (kbd "\C-c d") 'flymake-display-err-menu-for-current-line))
 
-(add-hook 'ruby-mode-hook 'flymake-ruby-load)
+;;[SP] (add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
 ;; other stuff
 
