@@ -316,7 +316,6 @@
 (fset 'xml-mode 'nxml-mode)
 (add-hook 'nxml-mode-hook
 	  (lambda ()
-	    (flyspell-mode)
 	    (add-to-list 'flyspell-prog-text-faces 'nxml-text-face)))
 
 
