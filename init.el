@@ -342,9 +342,6 @@
                  '("\\(.*?\\)\\([0-9A-Za-z_./\:-]+\\.rb\\):\\([0-9]+\\)" 2 3))))
 (setq compile-command "rake ")
 
-(set-face-background 'mmm-output-submode-face  "cornsilk")
-(set-face-background 'mmm-code-submode-face    "snow2")
-(set-face-background 'mmm-comment-submode-face "moccasin")
 (mmm-add-classes
  '((eruby :submode ruby-mode :front "<%[#=]?" :back "-?%>"
     :match-face (("<%#" . mmm-comment-submode-face)
