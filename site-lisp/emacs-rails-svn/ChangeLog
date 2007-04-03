@@ -1,4 +1,10 @@
+2007-04-04  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-ui.el: reduced the menu length
+
 2007-04-03  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-ruby.el (flymake-ruby-load): updated
 
 	* rails-controller-layout.el (rails-controller-layout:keymap):
 	created menu group for current minor-mode

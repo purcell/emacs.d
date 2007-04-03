@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 161 2007-04-03 15:17:46Z dimaexe $
+;; $Id: rails-ruby.el 163 2007-04-03 19:33:25Z dimaexe $
 
 ;;; License
 
@@ -57,9 +57,9 @@ See the variable `align-rules-list' for more details.")
 (require 'flymake)
 
 (defconst flymake-allowed-ruby-file-name-masks
-  '((".rb"   flymake-ruby-init)
-    (".rxml" flymake-ruby-init)
-    (".rjs"  flymake-ruby-init))
+  '(("\\.rb\\'"   flymake-ruby-init)
+    ("\\.rxml\\'" flymake-ruby-init)
+    ("\\.rjs\\'"  flymake-ruby-init))
   "Filename extensions that switch on flymake-ruby mode syntax checks.")
 
 (defconst flymake-ruby-error-line-pattern-regexp
@@ -75,10 +75,16 @@ See the variable `align-rules-list' for more details.")
     (list rails-ruby-command (list "-c" local-file))))
 
 (defun flymake-ruby-load ()
-  (setq flymake-allowed-file-name-masks (append flymake-allowed-file-name-masks flymake-allowed-ruby-file-name-masks))
-  (setq flymake-err-line-patterns (cons flymake-ruby-error-line-pattern-regexp flymake-err-line-patterns))
-  (flymake-mode t)
-  (local-set-key (kbd "\C-c d") 'flymake-display-err-menu-for-current-line))
+  (when (string-match
+         (format "\\(%s\\)"
+                 (string-join
+                  "\\|"
+                  (mapcar 'car flymake-allowed-ruby-file-name-masks)))
+         (buffer-file-name))
+    (setq flymake-allowed-file-name-masks (append flymake-allowed-file-name-masks flymake-allowed-ruby-file-name-masks))
+    (setq flymake-err-line-patterns (cons flymake-ruby-error-line-pattern-regexp flymake-err-line-patterns))
+    (flymake-mode t)
+    (local-set-key (kbd "\C-c d") 'flymake-display-err-menu-for-current-line)))
 
 ;;[SP] (add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
