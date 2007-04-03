@@ -8,7 +8,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
-;; $Id: rails-lib.el 153 2007-03-31 20:30:51Z dimaexe $
+;; $Id: rails-lib.el 156 2007-04-01 22:56:43Z dimaexe $
 
 ;;; License
 
@@ -292,8 +292,12 @@ as the value of the symbol, and the hook as the function definition."
     (mapatoms
      (lambda(it)
        (or (intern-soft (symbol-name it) new)
-           (define-abbrev new (symbol-name it)
-             (symbol-value it) (symbol-function it))))
+           (define-abbrev new
+             (symbol-name it)
+             (symbol-value it)
+             (symbol-function it)
+             nil
+             t)))
      old)))
 
 ;; Colorize

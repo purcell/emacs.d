@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 153 2007-03-31 20:30:51Z dimaexe $
+;; $Id: rails-ruby.el 157 2007-04-02 21:35:49Z dimaexe $
 
 ;;; License
 
@@ -52,6 +52,37 @@ See the variable `align-rules-list' for more details.")
 (add-to-list 'align-open-comment-modes 'ruby-mode)
 (dolist (it ruby-align-rules-list)
   (add-to-list 'align-rules-list it))
+
+;; setup flymake for ruby
+(require 'flymake)
+
+(defconst flymake-allowed-ruby-file-name-masks
+  '((".rb" flymake-ruby-init)
+    (".rxml" flymake-ruby-init)
+    (".rjs" flymake-ruby-init))
+  "Filename extensions that switch on flymake-ruby mode syntax checks.")
+
+(defconst flymake-ruby-error-line-pattern-regexp
+  '("^\\([^:]+\\):\\([0-9]+\\): *\\([\n]+\\)" 1 2 nil 3)
+  "Regexp matching ruby error messages.")
+
+(defun flymake-ruby-init ()
+  (let* ((temp-file  (flymake-init-create-temp-buffer-copy
+                      'flymake-create-temp-inplace))
+         (local-file  (file-relative-name
+                       temp-file
+                       (file-name-directory buffer-file-name))))
+    (list rails-ruby-command (list "-c" local-file))))
+
+(defun flymake-ruby-load ()
+  (setq flymake-allowed-file-name-masks (append flymake-allowed-file-name-masks flymake-allowed-ruby-file-name-masks))
+  (setq flymake-err-line-patterns (cons flymake-ruby-error-line-pattern-regexp flymake-err-line-patterns))
+  (flymake-mode t)
+  (local-set-key (kbd "\C-c d") 'flymake-display-err-menu-for-current-line))
+
+(add-hook 'ruby-mode-hook 'flymake-ruby-load)
+
+;; other stuff
 
 (defun ruby-newline-and-indent ()
   (interactive)

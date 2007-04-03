@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-snippets.el $
-;; $Id: rails-snippets.el 153 2007-03-31 20:30:51Z dimaexe $
+;; $Id: rails-snippets.el 155 2007-04-01 17:37:48Z dimaexe $
 
 ;;; License
 
@@ -207,7 +207,6 @@
        ("%" "<% $. -%>" "<% ... %>")
        ("%%" "<%= $. %>" "<%= ... %>")) ; erb
     (0 "controller" rails-controller-minor-mode-abbrev-table
-       ("rest" "respond_to do |format|\n$>format.html$>$.\nend$>" "respond_to ...")
        ("ru"  "render :update do |page|\n$>$.\nend$>" "render :update ...")
        ("bf"  "before_filter :$${filter}" "refore_filter")
        ("af"  "after_filter :$${filter}" "after_filter")
@@ -282,7 +281,7 @@
        ("aiu" "add_index :$${,rails-snippets:migration-table-name}, $${column}, :unique => true" "add unique index")
        ("rmcl" "remove_column :$${,rails-snippets:migration-table-name}, :$${column}" "remove column")
        ("recl" "rename_column :$${column}, :$${new_column}" "rename column")
-       ("dt" "drop_table :$${,rails-snippets:migration-table-name}\n$." "drop table")
+       ("dt" "drop_table :$${,rails-snippets:migration-table-name}$." "drop table")
        ("ct" "create_table :$${,rails-snippets:migration-table-name} do |t|\n$>tcls$.\nend$>" "create_table")
        ("ret" "rename_table :$${,rails-snippets:migration-table-name}, :$${new_name}$." "rename table")) ; migrations
     (0 "environment" ruby-mode-abbrev-table
@@ -294,29 +293,32 @@
        ("par" "params[:$${id}]" "params[...]")
        ("session" "session[:$${User}]" "session[...]")
        ("flash" "flash[:$${notice}] = '$${Successfully}'$." "flash[...]")) ; environment
+    (0 "functional test" rails-functional-test-minor-mode-abbrev-table
+       ("fix" "$${,rails-snippets:fixture}(:$${one})$${.id}" "models(:name)")) ; functional tests
     (0 "assertions" rails-functional-test-minor-mode-abbrev-table rails-unit-test-minor-mode-abbrev-table
        ("art" "assert_redirected_to :action => '$${index}'" "assert_redirected_to")
-       ("as" "assert($${test}, '$${message}')" "assert(...)")
-       ("ase" "assert_equal($${expected}, $${actual})" "assert_equal(...)")
-       ("asid" "assert_in_delta($${expected_float}, $${actual_float}, $${20})" "assert_in_delta(...)")
-       ("asio" "assert_instance_of($${ExpectedClass}, $${actual_instance})" "assert_instance_of(...)")
-       ("asko" "assert_kind_of($${ExpectedKind}, $${actual_instance})" "assert_kind_of(...)")
+       ("as" "assert $${test}" "assert(...)")
+       ("asa" "assert assigns(:$${,rails-snippets:model-name})" "assert assigns(...)")
+       ("ase" "assert_equal $${expected}, $${actual}" "assert_equal(...)")
+       ("asid" "assert_in_delta $${expected_float}, $${actual_float}, $${20}" "assert_in_delta(...)")
+       ("asio" "assert_instance_of $${ExpectedClass}, $${actual_instance}" "assert_instance_of(...)")
+       ("asko" "assert_kind_of $${ExpectedKind}, $${actual_instance}" "assert_kind_of(...)")
        ("asm" "assert_match(/$${expected_pattern}/, $${actual_string})" "assert_match(...)")
-       ("asn" "assert_nil($${instance})" "assert_nil(...)")
-       ("asne" "assert_not_equal($${unexpected}, $${actual})" "assert_not_equal(...)")
+       ("asn" "assert_nil $${instance}" "assert_nil(...)")
+       ("asne" "assert_not_equal $${unexpected}, $${actual}" "assert_not_equal(...)")
        ("asnm" "assert_no_match(/$${unexpected_pattern}/, $${actual_string})" "assert_no_match(...)")
-       ("asnn" "assert_not_nil($${instance})" "assert_not_nil(...)")
-       ("asnr" "assert_nothing_raised($${Exception}) { $. }" "assert_nothing_raised(...) { ... }")
-       ("asns" "assert_not_same($${unexpected}, $${actual})" "assert_not_same(...)")
+       ("asnn" "assert_not_nil $${instance}" "assert_not_nil(...)")
+       ("asnr" "assert_nothing_raised $${Exception}  { $. }" "assert_nothing_raised(...) { ... }")
+       ("asns" "assert_not_same $${unexpected}, $${actual}" "assert_not_same(...)")
        ("asnt" "assert_nothing_thrown { $. }" "assert_nothing_thrown { ... }")
-       ("aso" "assert_operator($${left}, :$${operator}, $${right})" "assert_operator(...)")
-       ("asr" "assert_raise($${Exception}) { $. }" "assert_raise(...) { ... }")
+       ("aso" "assert_operator $${left}, :$${operator}, $${right}" "assert_operator(...)")
+       ("asr" "assert_raise $${Exception} { $. }" "assert_raise(...) { ... }")
        ("asre" "assert_response :$${success}" "assert_response")
-       ("asrt" "assert_respond_to($${object}, :$${method})" "assert_respond_to(...)")
-       ("ass" "assert_same($${expected}, $${actual})" "assert_same(...)")
-       ("ass" "assert_send([$${object}, :$${message}, $${args}])" "assert_send(...)")
-       ("ast" "assert_throws(:$${expected}) { $. }" "assert_throws(...) { ... }")
-       ("astm" "assert_template '$${expected}'" "assert_template"))))
+       ("asrt" "assert_respond_to $${object}, :$${method}" "assert_respond_to(...)")
+       ("ass" "assert_same $${expected}, $${actual}" "assert_same(...)")
+       ("assd" "assert_send [$${object}, :$${message}, $${args}]" "assert_send(...)")
+       ("ast" "assert_throws :$${expected} { $. }" "assert_throws(...) { ... }")
+       ("astm" "assert_template '$${index}'" "assert_template"))))
 
 (defmacro rails-snippets:create-lambda (str)
   `(lambda () (interactive) (snippet-insert ,(symbol-value str))))
@@ -399,6 +401,18 @@
     (if (search-backward-regexp "has_many :\\(\\w+\\)" nil t)
         (match-string-no-properties 1)
       "table")))
+
+(defun rails-snippets:fixture ()
+  (let ((controller (rails-core:current-controller)))
+    (if controller
+        (downcase controller)
+      "fixture")))
+
+(defun rails-snippets:model-name ()
+  (let ((controller (rails-core:current-controller)))
+    (if controller
+        (singularize-string (downcase controller))
+      "model")))
 
 (defun rails-snippets:rest (action)
   (when-bind

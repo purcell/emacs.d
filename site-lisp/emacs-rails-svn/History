@@ -1,3 +1,7 @@
+SVN
+* Updated the compilation output, for better highlight of error and warnings
+* Added the flymake support to on the fly syntax checked in the ruby-mode
+
 0.5.99.2
 * Added new dynamic snippets for RESTful, 
     for instance: in controller UsersController type "rshow<TAB>" 

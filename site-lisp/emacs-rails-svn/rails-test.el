@@ -35,12 +35,10 @@
   "^[\\.EF]+$")
 
 (defconst rails-test:error-regexp-alist
-  '((rails-test-failure
-     " \\[\\([^:\n]+\\):\\([0-9]+\\)\\]:" 1 2)
-    (rails-test-trace
-     " \\(\\(\\w:\\)?[^: \n]+\\):\\([0-9]+\\):in " 1 3 nil 0)
+  '((rails-test-trace
+     "\\(\\(\\.\\|[A-Za-z]:\\)?\\([a-z0-9_\/\\.]+\\.rb\\)\\):\\([0-9]+\\)" 1 4 nil 0)
     (rails-test-error
-     " \\(\\(\\w:\\)?[^: \n]+\\):\\([0-9]+\\)\\(:in .+\\)?\n$" 1 2)))
+     "\\(\\(\\.\\|[A-Za-z]:\\)?\\([a-z0-9_\/\\.]+\\.rb\\)\\):\\([0-9]+\\).*\n$" 1 4 nil 2)))
 
 (defun rails-test:print-result ()
   (with-current-buffer (get-buffer rails-script:buffer-name)
@@ -81,8 +79,7 @@
   (set (make-local-variable 'compilation-error-regexp-alist-alist)
        rails-test:error-regexp-alist)
   (set (make-local-variable 'compilation-error-regexp-alist)
-       '(rails-test-failure
-         rails-test-error
+       '(rails-test-error
          rails-test-trace))
   (add-hook 'after-change-functions 'rails-test:print-progress nil t)
   (add-hook 'rails-script:run-after-stop-hook 'rails-test:print-result nil t)
