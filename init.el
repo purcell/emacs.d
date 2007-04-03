@@ -554,6 +554,7 @@
 ;; Locales (setting them earlier in this file doesn't work in X)
 ;;----------------------------------------------------------------------------
 (when (or window-system (string-match "UTF-8" (shell-command-to-string "locale")))
+  (setq utf-translate-cjk-mode nil) ; disable CJK coding/encoding (Chinese/Japanese/Korean characters)
   (set-language-environment 'utf-8)
   (set-keyboard-coding-system 'utf-8-mac)
   (setq locale-coding-system 'utf-8)
