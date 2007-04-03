@@ -390,14 +390,6 @@
 ; Rails (http://rubyforge.org/projects/emacs-rails/)
 ;;----------------------------------------------------------------------------
 (when *rails-support-enabled*
-  (defun try-complete-abbrev (old)
-    (if (expand-abbrev) t nil))
-
-  (setq hippie-expand-try-functions-list
-        '(try-complete-abbrev
-          try-complete-file-name
-          try-expand-dabbrev))
-
   ; Remove annoying tab completion behaviour enabled by Rails
   (eval-after-load "rails-lib" '(defun indent-or-complete ()
                                   (interactive)
