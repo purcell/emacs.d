@@ -1,5 +1,17 @@
 2007-04-03  Dmitry Galinsky  <dima.exe@gmail.com>
 
+	* rails-core.el: using completion-posn-at-point-as-event instead custom function
+
+	* rails-ui.el (rails-minor-mode-db-menu-bar-map): updated
+
+	* rails-model-layout.el (rails-model-layout:keymap): created
+
+	* rails-core.el (rails-core:buffer-file-match): allow passing nil
+
+	* rails-controller-layout.el (rails-controller-layout:keymap): created
+
+	* rails-cmd-proxy.el (rails-cmd-proxy:convert-buffer-from-remote): fixed compilation warning 
+
 	* rails-ruby.el: added flymake support to on the fly syntax check in ruby-mode
 
 	* rails-test.el (rails-test:error-regexp-alist): updated

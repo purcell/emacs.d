@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-cmd-proxy.el $
-;; $Id: rails-cmd-proxy.el 152 2007-03-30 15:03:14Z dimaexe $
+;; $Id: rails-cmd-proxy.el 158 2007-04-03 08:45:46Z dimaexe $
 
 ;;; License
 
@@ -109,7 +109,8 @@ otherwise if set REVERSE convert from remote to local."
             (remote (rails-cmd-proxy:struct-remote struct))
             (root default-directory)
             (remote-with-root (concat remote (substring root (length local))))
-            (buffer-read-only nil))
+            (buffer-read-only nil)
+            point)
        (while (setq point (re-search-forward (format "^\\s-*\\(%s\\)"
                                                      remote-with-root) end t))
          (replace-match (format "%s "

@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-functional-test-minor-mode.el $
-;; $Id: rails-functional-test-minor-mode.el 145 2007-03-28 21:07:21Z dimaexe $
+;; $Id: rails-functional-test-minor-mode.el 158 2007-04-03 08:45:46Z dimaexe $
 
 ;;; License
 
@@ -28,11 +28,12 @@
 
 (define-minor-mode rails-functional-test-minor-mode
   "Minor mode for RubyOnRails functional tests."
-  nil
-  " func-test"
-  nil
-  (setq rails-primary-switch-func (lambda() (interactive) (rails-controller-layout:switch-to :controller)))
-  (setq rails-secondary-switch-func 'rails-controller-layout:menu)
-  (local-set-key (kbd "\C-c .") 'rails-test:run-current-method))
+  :lighter " FTest"
+  :keymap (let ((map (rails-controller-layout:keymap :functional-test)))
+            (define-key map (kbd "\C-c .") 'rails-test:run-current-method)
+            (define-key map [menu-bar rails-controller-layout run] '("Test current method" . rails-test:run-current-method))
+            map)
+  (setq rails-primary-switch-func 'rails-controller-layout:switch-to-controller)
+  (setq rails-secondary-switch-func 'rails-controller-layout:menu))
 
 (provide 'rails-functional-test-minor-mode)

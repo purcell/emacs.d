@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-controller-layout.el $
-;; $Id: rails-controller-layout.el 150 2007-03-29 20:48:17Z dimaexe $
+;; $Id: rails-controller-layout.el 160 2007-04-03 10:37:49Z dimaexe $
 
 ;;; License
 
@@ -109,6 +109,38 @@ If the action is nil, return all views for the controller."
       (setq menu (list)))
     menu))
 
+(defun rails-controller-layout:keymap (type)
+  (let* ((name (capitalize (substring (symbol-name type) 1)))
+         (map (make-sparse-keymap))
+         (menubar (make-sparse-keymap))
+         (controller (rails-core:current-controller))
+         (model (singularize-string controller)))
+    (when type
+      (unless (eq type :mailer)
+        (when (rails-core:model-exist-p model)
+          (when (rails-core:migration-file (concat "Create" controller))
+            (define-key menubar [go-to-migration]     '("Go to Migration" . rails-controller-layout:switch-to-migration))
+            (define-key map (kbd "\C-c g")            'rails-controller-layout:switch-to-migration))
+          (define-key menubar [go-to-model]           '("Go to Model" . rails-controller-layout:switch-to-model))
+          (define-key map (kbd "\C-c m")              'rails-controller-layout:switch-to-model))
+        (unless (eq type :helper)
+          (define-key menubar [go-to-helper]          '("Go to Helper" . rails-controller-layout:switch-to-helper))
+          (define-key map (kbd "\C-c h")              'rails-controller-layout:switch-to-helper))
+        (unless (eq type :functional-test)
+          (define-key menubar [go-to-functional-test] '("Go to Functional Test" . rails-controller-layout:switch-to-functional-test))
+          (define-key map (kbd "\C-c f")              'rails-controller-layout:switch-to-functional-test))
+        (unless (eq type :controller)
+          (define-key menubar [go-to-controller]      '("Go to Controller" . rails-controller-layout:switch-to-controller))
+          (define-key map (kbd "\C-c c")              'rails-controller-layout:switch-to-controller)))
+      (when (eq type :mailer)
+        (define-key menubar [go-to-unit-test] '("Go to Unit Test" . rails-model-layout:switch-to-unit-test))
+        (define-key map (kbd "\C-c u")        'rails-model-layout:switch-to-unit-test))
+      (define-key menubar [sep] (rails-core:menu-separator))
+      (define-key menubar [primary-switch] '("Switch to related" . rails-lib:run-primary-switch))
+      (define-key menubar [secondary-switch] '("Switch to related with menu" . rails-lib:run-secondary-switch))
+      (define-key map [menu-bar rails-controller-layout] (cons name menubar)))
+    map))
+
 (defun rails-controller-layout:switch-to (type)
   (let* ((controller (rails-core:current-controller))
          (model (singularize-string controller))
@@ -123,8 +155,14 @@ If the action is nil, return all views for the controller."
         (if (file-exists-p file)
             (progn
               (find-file file)
-              (message (format "%s: %s" (substring (symbol-name type) 1) controller)))
+              (message (format "%s: %s" (substring (symbol-name type) 1) item)))
           (message "File %s not exists" file))))))
+
+(defun rails-controller-layout:switch-to-helper () (interactive) (rails-controller-layout:switch-to :helper))
+(defun rails-controller-layout:switch-to-functional-test () (interactive) (rails-controller-layout:switch-to :functional-test))
+(defun rails-controller-layout:switch-to-controller () (interactive) (rails-controller-layout:switch-to :controller))
+(defun rails-controller-layout:switch-to-model () (interactive) (rails-controller-layout:switch-to :model))
+(defun rails-controller-layout:switch-to-migration () (interactive) (rails-controller-layout:switch-to :migration))
 
 (defun rails-controller-layout:menu ()
   (interactive)

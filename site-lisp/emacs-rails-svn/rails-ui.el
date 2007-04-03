@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ui.el $
-;; $Id: rails-ui.el 153 2007-03-31 20:30:51Z dimaexe $
+;; $Id: rails-ui.el 159 2007-04-03 09:45:14Z dimaexe $
 
 ;;; License
 
@@ -87,8 +87,6 @@
       ([recent]      '("Recent tests"      . (lambda() (interactive) (rails-test:run "recent"))))
       ([tests]       '("All"               . (lambda() (interactive) (rails-test:run "all"))))
       ([separator]   '("--"))
-      ([method]      '(menu-item "Test current method" rails-test:run-current-method
-                                 :enable (find (rails-core:buffer-type) '(:unit-test :functional-test))))
       ([toggle]      '(menu-item "Toggle output window" rails-script:toggle-output-window
                                  :enable (get-buffer rails-script:buffer-name)))
       ([run-current] '("Test current model/controller/mailer" . rails-test:run-current))
@@ -98,9 +96,13 @@
 (defconst rails-minor-mode-db-menu-bar-map
   (let ((map (make-sparse-keymap)))
     (define-keys map
-      ([migrate] '("Migrate"                     . rails-rake:migrate))
-      ([version] '("Migrate to version ..."      . rails-rake:migrate-to-version))
-      ([prev]    '("Migrate to previous version" . rails-rake:migrate-to-prev-version)))
+      ([clone-db]    '("Clone Development DB to Test DB" . (lambda() (interactive) (rails-rake:task "db:test:clone"))))
+      ([load-schema] '("Load schema to DB"               . (lambda() (interactive) (rails-rake:task "db:schema:load"))))
+      ([dump-schema] '("Dump DB to schema"               . (lambda() (interactive) (rails-rake:task "db:schema:dump"))))
+      ([sep]         '("--"))
+      ([prev]        '("Migrate to previous version" . rails-rake:migrate-to-prev-version))
+      ([version]     '("Migrate to version ..."      . rails-rake:migrate-to-version))
+      ([migrate]     '("Migrate"                     . rails-rake:migrate)))
     map))
 
 (define-keys rails-minor-mode-menu-bar-map
@@ -208,10 +210,10 @@
   ((kbd "\C-c \C-c g u") 'rails-nav:goto-unit-tests)
 
   ;; Switch
-  ((kbd "\C-c <up>")     'rails-lib:run-primary-switch)
-  ((kbd "\C-c <down>")   'rails-lib:run-secondary-switch)
   ((kbd "<M-S-up>")      'rails-lib:run-primary-switch)
   ((kbd "<M-S-down>")    'rails-lib:run-secondary-switch)
+  ((kbd "\C-c <up>")     'rails-lib:run-primary-switch)
+  ((kbd "\C-c <down>")   'rails-lib:run-secondary-switch)
   ((kbd "<C-return>")    'rails-goto-file-on-current-line)
 
   ;; Scripts & SQL

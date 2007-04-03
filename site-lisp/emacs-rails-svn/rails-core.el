@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-core.el 153 2007-03-31 20:30:51Z dimaexe $
+;; $Id: rails-core.el 160 2007-04-03 10:37:49Z dimaexe $
 
 ;;; License
 
@@ -447,8 +447,9 @@ If the action is nil, return all views for the controller."
 
 (defun rails-core:buffer-file-match (regexp)
   "Match the current buffer file name to RAILS_ROOT + REGEXP."
-  (string-match (rails-core:file regexp)
-                (buffer-file-name (current-buffer))))
+  (when-bind (file (rails-core:file regexp))
+             (string-match file
+                           (buffer-file-name (current-buffer)))))
 
 (defun rails-core:buffer-type ()
   "Return the type of the current Rails file or nil if the type
@@ -501,8 +502,11 @@ the Rails minor mode log."
 (defun rails-core:menu-separator ()
   (unless (rails-use-text-menu) 'menu (list "--" "--")))
 
-(defun rails-core:menu-position ()
-  (list '(300 50) (get-buffer-window (current-buffer))))
+(if (fboundp 'completion-posn-at-point-as-event)
+    (defun rails-core:menu-position ()
+      (completion-posn-at-point-as-event nil nil nil (+ (frame-char-height) 2)))
+  (defun rails-core:menu-position ()
+    (list '(300 50) (get-buffer-window (current-buffer)))))
 
 (defun rails-core:menu (menu)
   "Show a menu."

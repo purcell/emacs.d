@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-model-minor-mode.el $
-;; $Id: rails-model-minor-mode.el 112 2007-03-24 22:34:38Z dimaexe $
+;; $Id: rails-model-minor-mode.el 158 2007-04-03 08:45:46Z dimaexe $
 
 ;;; License
 
@@ -28,10 +28,9 @@
 
 (define-minor-mode rails-model-minor-mode
   "Minor mode for RubyOnRails models."
-  nil
-  " model"
-  nil
-  (setq rails-primary-switch-func (lambda() (interactive) (rails-model-layout:switch-to :unit-test)))
+  :lighter " Model"
+  :keymap (rails-model-layout:keymap :model)
+  (setq rails-primary-switch-func 'rails-model-layout:switch-to-unit-test)
   (setq rails-secondary-switch-func 'rails-model-layout:menu))
 
 (provide 'rails-model-minor-mode)

@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-view-minor-mode.el $
-;; $Id: rails-view-minor-mode.el 150 2007-03-29 20:48:17Z dimaexe $
+;; $Id: rails-view-minor-mode.el 158 2007-04-03 08:45:46Z dimaexe $
 
 ;;; License
 
@@ -100,9 +100,8 @@
 
 (define-minor-mode rails-view-minor-mode
   "Minor mode for RubyOnRails views."
-  nil
-  " view"
-  nil
+  :lighter " View"
+  :keymap (rails-controller-layout:keymap :view)
   (setq rails-primary-switch-func 'rails-controller-layout:toggle-action-view)
   (setq rails-secondary-switch-func 'rails-controller-layout:menu)
   (if (boundp 'mmm-mode-map)

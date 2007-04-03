@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-mailer-minor-mode.el $
-;; $Id: rails-mailer-minor-mode.el 111 2007-03-24 22:28:12Z dimaexe $
+;; $Id: rails-mailer-minor-mode.el 158 2007-04-03 08:45:46Z dimaexe $
 
 ;;; License
 
@@ -29,9 +29,8 @@
 
 (define-minor-mode rails-mailer-minor-mode
   "Minor mode for RubyOnRails mailers."
-  nil
-  " mailer"
-  nil
+  :lighter " Mailer"
+  :keymap (rails-controller-layout:keymap :mailer)
   (setq rails-secondary-switch-func 'rails-controller-layout:menu)
   (setq rails-primary-switch-func 'rails-controller-layout:toggle-action-view))
 

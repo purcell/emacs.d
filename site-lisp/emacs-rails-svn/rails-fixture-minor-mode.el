@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-fixture-minor-mode.el $
-;; $Id: rails-fixture-minor-mode.el 112 2007-03-24 22:34:38Z dimaexe $
+;; $Id: rails-fixture-minor-mode.el 158 2007-04-03 08:45:46Z dimaexe $
 
 ;;; License
 
@@ -28,10 +28,9 @@
 
 (define-minor-mode rails-fixture-minor-mode
   "Minor mode for RubyOnRails fixtures."
-  nil
-  " fixture"
-  nil
-  (setq rails-primary-switch-func (lambda() (interactive) (rails-model-layout:switch-to :unit-test)))
+  :lighter " Fixture"
+  :keymap (rails-model-layout:keymap :fixture)
+  (setq rails-primary-switch-func 'rails-model-layout:switch-to-unit-test)
   (setq rails-secondary-switch-func 'rails-model-layout:menu))
 
 (provide 'rails-fixture-minor-mode)
