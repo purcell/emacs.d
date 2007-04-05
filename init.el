@@ -349,12 +349,9 @@
 (add-auto-mode 'html-mode "\.rhtml$")
 (eval-after-load "compile"
   '(progn
-    ;; Jump to lines from Ruby Test::Unit stack traces in 'compile' mode
-    (add-to-list 'compilation-error-regexp-alist
-                 '("test[a-zA-Z0-9_]*([A-Z][a-zA-Z0-9_]*) \\[\\(.*\\):\\([0-9]+\\)\\]:" 1 2))
-    ;; Jump to lines from Ruby stack traces in 'compile' mode
-    (add-to-list 'compilation-error-regexp-alist
-                 '("\\(.*?\\)\\([0-9A-Za-z_./\:-]+\\.rb\\):\\([0-9]+\\)" 2 3))))
+     ;; Jump to lines from Ruby stack traces in 'compile' mode
+     (add-to-list 'compilation-error-regexp-alist-alist
+                  '(ruby "\\([0-9A-Za-z_./\:-]+\\.rb\\):\\([0-9]+\\):in `" 1 2))))
 (setq compile-command "rake ")
 
 (mmm-add-classes
