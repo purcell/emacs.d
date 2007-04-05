@@ -366,6 +366,16 @@
 (mmm-add-mode-ext-class 'nxml-mode "\\.rhtml$" 'eruby)
 (mmm-add-mode-ext-class 'yaml-mode "\\.yml$" 'eruby)
 
+
+(define-derived-mode ruby-compilation-mode compilation-mode "Compilation[ruby]"
+  "Major mode for running ruby scripts and tests."
+  (set (make-local-variable 'compilation-error-regexp-alist) '(ruby)))
+
+(defun ruby-compile (command)
+  (compile command)
+  (with-current-buffer "*compilation*" (ruby-compilation-mode)))
+
+
 (require 'which-func)
 (add-to-list 'which-func-modes 'ruby-mode)
 (setq imenu-auto-rescan t)       ; ensure function names auto-refresh
@@ -373,13 +383,13 @@
 (defun ruby-execute-current-file ()
   "Execute the current ruby file (e.g. to execute all tests)."
   (interactive)
-  (compile (concat "ruby " (file-name-nondirectory (buffer-file-name)))))
+  (ruby-compile (concat "ruby " (file-name-nondirectory (buffer-file-name)))))
 (defun ruby-test-function ()
   "Test the current ruby function (must be runnable via ruby <buffer> --name <test>)."
   (interactive)
   (let* ((funname (which-function))
          (fn (and funname (and (string-match "\\(#\\|::\\)\\(test.*\\)" funname) (match-string 2 funname)))))
-    (compile (concat "ruby " (file-name-nondirectory (buffer-file-name)) (and fn (concat " --name " fn))))))
+    (ruby-compile (concat "ruby " (file-name-nondirectory (buffer-file-name)) (and fn (concat " --name " fn))))))
 
 ; run the current buffer using Shift-F8
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [S-f8] 'ruby-execute-current-file)))
