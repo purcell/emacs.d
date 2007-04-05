@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 161 2007-04-03 15:17:46Z dimaexe $
+;; $Id: rails.el 166 2007-04-05 17:44:57Z dimaexe $
 
 ;;; License
 
@@ -428,19 +428,20 @@ necessary."
             (if (rails-project:root)
                 (rails-minor-mode t))))
 
-;; helpers
 
 (autoload 'haml-mode "haml-mode" "" t)
 
-(setq auto-mode-alist  (cons '("\\.rb$"    . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rake$"  . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.haml$"  . haml-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rjs$"   . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rxml$"  . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rhtml$" . html-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rb$"     . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rake$"   . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("Rakefile$"  . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.haml$"   . haml-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rjs$"    . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rxml$"   . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rhtml$"  . html-mode) auto-mode-alist))
 
-(modify-coding-system-alist 'file "\\.rb$" 'utf-8)
-(modify-coding-system-alist 'file "\\.rake$" 'utf-8)
+(modify-coding-system-alist 'file "\\.rb$"     'utf-8)
+(modify-coding-system-alist 'file "\\.rake$"   'utf-8)
+(modify-coding-system-alist 'file "Rakefile$" 'utf-8)
 (modify-coding-system-alist 'file (rails-core:regex-for-match-view) 'utf-8)
 
 (provide 'rails)

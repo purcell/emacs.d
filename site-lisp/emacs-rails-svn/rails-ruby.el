@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 163 2007-04-03 19:33:25Z dimaexe $
+;; $Id: rails-ruby.el 166 2007-04-05 17:44:57Z dimaexe $
 
 ;;; License
 
@@ -75,14 +75,17 @@ See the variable `align-rules-list' for more details.")
     (list rails-ruby-command (list "-c" local-file))))
 
 (defun flymake-ruby-load ()
-  (when (string-match
-         (format "\\(%s\\)"
-                 (string-join
-                  "\\|"
-                  (mapcar 'car flymake-allowed-ruby-file-name-masks)))
-         (buffer-file-name))
-    (setq flymake-allowed-file-name-masks (append flymake-allowed-file-name-masks flymake-allowed-ruby-file-name-masks))
-    (setq flymake-err-line-patterns (cons flymake-ruby-error-line-pattern-regexp flymake-err-line-patterns))
+  (when (and (buffer-file-name)
+             (string-match
+              (format "\\(%s\\)"
+                      (string-join
+                       "\\|"
+                       (mapcar 'car flymake-allowed-ruby-file-name-masks)))
+              (buffer-file-name)))
+    (setq flymake-allowed-file-name-masks
+          (append flymake-allowed-file-name-masks flymake-allowed-ruby-file-name-masks))
+    (setq flymake-err-line-patterns
+          (cons flymake-ruby-error-line-pattern-regexp flymake-err-line-patterns))
     (flymake-mode t)
     (local-set-key (kbd "\C-c d") 'flymake-display-err-menu-for-current-line)))
 

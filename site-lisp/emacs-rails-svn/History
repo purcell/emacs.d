@@ -1,4 +1,6 @@
 SVN
+* Fixed #9880: the hotkey "C-c ." conflicted with ECB, changed to "C-c C-c ,"
+
 * New hotkeys, to easy switch without a popup menu between a
   controller or a model related files
   In model layout:

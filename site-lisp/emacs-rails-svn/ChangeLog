@@ -1,4 +1,18 @@
+2007-04-05  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails.el (auto-mode-alist): added Rakefile to auto-mode-alist
+
+	* rails-ui.el (rails-minor-mode-test-current-method-key): created
+
+	* rails-*-test-minor-mode (rails-unit-test-minor-mode rails-functional-test-minor-mode): 
+	changed hotkey "C-c ." to "C-c C-c ,", the old conflicted with ECB
+
+	* rails-ruby.el (flymake-ruby-load): apply flymake-mode only if
+	buffer-file-name matched flymake-allowed-file-name-masks
+
 2007-04-04  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-ruby.el (flymake-ruby-load): updated
 
 	* rails-ui.el: reduced the menu length
 

@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-unit-test-minor-mode.el $
-;; $Id: rails-unit-test-minor-mode.el 158 2007-04-03 08:45:46Z dimaexe $
+;; $Id: rails-unit-test-minor-mode.el 166 2007-04-05 17:44:57Z dimaexe $
 
 ;;; License
 
@@ -30,7 +30,7 @@
   "Minor mode for RubyOnRails unit tests."
   :lighter " UTest"
   :keymap (let ((map (rails-model-layout:keymap :unit-test)))
-            (define-key map (kbd "\C-c .") 'rails-test:run-current-method)
+            (define-key map rails-minor-mode-test-current-method-key 'rails-test:run-current-method)
             (define-key map [menu-bar rails-model-layout run] '("Test current method" . rails-test:run-current-method))
             map)
   (setq rails-primary-switch-func (lambda()

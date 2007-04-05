@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ui.el $
-;; $Id: rails-ui.el 164 2007-04-03 20:36:36Z dimaexe $
+;; $Id: rails-ui.el 166 2007-04-05 17:44:57Z dimaexe $
 
 ;;; License
 
@@ -193,6 +193,8 @@
   ([rails ws status]  '(menu-item "Print Status"                                     rails-ws:print-status))
   ([rails ws default] '(menu-item "Start/Stop Web Server (With Default Environment)" rails-ws:toggle-start-stop))
   )
+
+(defconst rails-minor-mode-test-current-method-key (kbd "\C-c \C-c ,"))
 
 (defvar rails-minor-mode-map (make-sparse-keymap))
 
