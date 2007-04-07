@@ -1,3 +1,25 @@
+2007-04-06  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-lib.el (capital-word-p): better word comparsion
+
+	* predictive-prog-mode.el, untabify-file.el: created separate minor-mode
+ 
+	* rails-compat.el: removed predictive-prog-mode declaration
+ 
+	* rails-features.el: created
+
+	* rails-predictive-prog-mode-feature.el: created and place into it
+	predictive-program-mode
+
+	* rails-snippets-feature.el: created
+
+	* rails-ui.el (rails-minor-mode-map): removed snippets menu
+
+	* rails-untabify-feature.el: created and place into it untabify
+	hook
+
+	* rails.el (find-file-hooks): cleanup
+
 2007-04-05  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails.el (auto-mode-alist): added Rakefile to auto-mode-alist

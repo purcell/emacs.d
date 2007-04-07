@@ -8,7 +8,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
-;; $Id: rails-lib.el 156 2007-04-01 22:56:43Z dimaexe $
+;; $Id: rails-lib.el 168 2007-04-06 19:10:55Z dimaexe $
 
 ;;; License
 
@@ -140,8 +140,8 @@ BlaPostfix -> Bla."
 
 (defun capital-word-p (word)
   "Return t if first letter of WORD is uppercased."
-  (and (>= (elt word 0) 65)
-       (<= (elt word 0) 90)))
+  (= (elt word 0)
+     (elt (capitalize word) 0)))
 
 ;;;;;;;; def-snips stuff ;;;;
 

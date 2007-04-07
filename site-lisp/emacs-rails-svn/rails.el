@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 166 2007-04-05 17:44:57Z dimaexe $
+;; $Id: rails.el 168 2007-04-06 19:10:55Z dimaexe $
 
 ;;; License
 
@@ -35,10 +35,11 @@
 
 (require 'sql)
 (require 'ansi-color)
-(require 'snippet)
 (require 'etags)
 (require 'find-recursive)
-(require 'autorevert)
+
+(require 'untabify-file)
+(require 'predictive-prog-mode)
 
 (require 'inflections)
 
@@ -48,6 +49,7 @@
 (require 'rails-core)
 (require 'rails-ruby)
 (require 'rails-lib)
+
 (require 'rails-cmd-proxy)
 (require 'rails-navigation)
 (require 'rails-find)
@@ -56,10 +58,11 @@
 (require 'rails-test)
 (require 'rails-ws)
 (require 'rails-log)
-(require 'rails-snippets)
 (require 'rails-ui)
 (require 'rails-model-layout)
 (require 'rails-controller-layout)
+(require 'rails-features)
+
 
 ;;;;;;;;;; Variable definition ;;;;;;;;;;
 
@@ -379,7 +382,8 @@ necessary."
   (abbrev-mode -1)
   (make-local-variable 'tags-file-name)
   (make-local-variable 'rails-primary-switch-func)
-  (make-local-variable 'rails-secondary-switch-func))
+  (make-local-variable 'rails-secondary-switch-func)
+  (rails-features:install))
 
 ;; hooks
 
@@ -388,6 +392,7 @@ necessary."
             (require 'rails-ruby)
             (require 'ruby-electric)
             (ruby-electric-mode t)
+            (predictive-prog-mode)
             (imenu-add-to-menubar "IMENU")
             (modify-syntax-entry ?! "w" (syntax-table))
             (modify-syntax-entry ?: "w" (syntax-table))
@@ -413,8 +418,6 @@ necessary."
             (rails-project:with-root
              (root)
              (progn
-               (unless (string-match "[Mm]akefile" mode-name)
-                 (untabify-before-save))
                (local-set-key (if rails-use-another-define-key
                                   (kbd "TAB") (kbd "<tab>"))
                               'indent-or-complete)

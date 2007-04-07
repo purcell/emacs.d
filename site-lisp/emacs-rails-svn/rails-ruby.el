@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 166 2007-04-05 17:44:57Z dimaexe $
+;; $Id: rails-ruby.el 168 2007-04-06 19:10:55Z dimaexe $
 
 ;;; License
 
@@ -52,44 +52,6 @@ See the variable `align-rules-list' for more details.")
 (add-to-list 'align-open-comment-modes 'ruby-mode)
 (dolist (it ruby-align-rules-list)
   (add-to-list 'align-rules-list it))
-
-;; setup flymake for ruby
-(require 'flymake)
-
-(defconst flymake-allowed-ruby-file-name-masks
-  '(("\\.rb\\'"   flymake-ruby-init)
-    ("\\.rxml\\'" flymake-ruby-init)
-    ("\\.rjs\\'"  flymake-ruby-init))
-  "Filename extensions that switch on flymake-ruby mode syntax checks.")
-
-(defconst flymake-ruby-error-line-pattern-regexp
-  '("^\\([^:]+\\):\\([0-9]+\\): *\\([\n]+\\)" 1 2 nil 3)
-  "Regexp matching ruby error messages.")
-
-(defun flymake-ruby-init ()
-  (let* ((temp-file  (flymake-init-create-temp-buffer-copy
-                      'flymake-create-temp-inplace))
-         (local-file  (file-relative-name
-                       temp-file
-                       (file-name-directory buffer-file-name))))
-    (list rails-ruby-command (list "-c" local-file))))
-
-(defun flymake-ruby-load ()
-  (when (and (buffer-file-name)
-             (string-match
-              (format "\\(%s\\)"
-                      (string-join
-                       "\\|"
-                       (mapcar 'car flymake-allowed-ruby-file-name-masks)))
-              (buffer-file-name)))
-    (setq flymake-allowed-file-name-masks
-          (append flymake-allowed-file-name-masks flymake-allowed-ruby-file-name-masks))
-    (setq flymake-err-line-patterns
-          (cons flymake-ruby-error-line-pattern-regexp flymake-err-line-patterns))
-    (flymake-mode t)
-    (local-set-key (kbd "\C-c d") 'flymake-display-err-menu-for-current-line)))
-
-;;[SP] (add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
 ;; other stuff
 
@@ -141,5 +103,70 @@ See the variable `align-rules-list' for more details.")
     (setq inferior-ruby-first-prompt-pattern "^>> "
           inferior-ruby-prompt-pattern "^>> ")
     (pop-to-buffer abuf)))
+
+(defun complete-ruby-method (prefix &optional maxnum)
+  (if (capital-word-p prefix)
+      (let* ((cmd "x = []; ObjectSpace.each_object(Class){|i| x << i.to_s}; x.map{|i| i.match(/^%s/) ? i.gsub(/^%s/, '') : nil }.compact.sort{|x,y| x.size <=> y.size}")
+             (cmd (if maxnum (concat cmd (format "[0...%s]" maxnum)) cmd)))
+        (el4r-ruby-eval (format cmd prefix prefix)))
+    (save-excursion
+      (goto-char (- (point) (+ 1 (length prefix))))
+      (when (and (looking-at "\\.")
+                 (capital-word-p (word-at-point))
+                 (el4r-ruby-eval (format "::%s rescue nil" (word-at-point))))
+        (let* ((cmd "%s.public_methods.map{|i| i.match(/^%s/) ? i.gsub(/^%s/, '') : nil }.compact.sort{|x,y| x.size <=> y.size}")
+               (cmd (if maxnum (concat cmd (format "[0...%s]" maxnum)) cmd)))
+          (el4r-ruby-eval (format cmd (word-at-point) prefix prefix)))))))
+
+(setq completion-dynamic-syntax-alist
+  '(
+    ;; word constituents add to current completion
+    (?w . (add t word))
+    (?_ . (accept t none))
+    ;; whitespace and punctuation chars accept current completion
+    (?  . (accept t none))
+    (?. . (accept t none))
+    ;; anything else rejects the current completion
+    (t  . (reject t none))))
+
+
+;; flymake ruby support
+
+(require 'flymake)
+
+(defconst flymake-allowed-ruby-file-name-masks
+  '(("\\.rb\\'"   flymake-ruby-init)
+    ("\\.rxml\\'" flymake-ruby-init)
+    ("\\.rjs\\'"  flymake-ruby-init))
+  "Filename extensions that switch on flymake-ruby mode syntax checks.")
+
+(defconst flymake-ruby-error-line-pattern-regexp
+  '("^\\([^:]+\\):\\([0-9]+\\): *\\([\n]+\\)" 1 2 nil 3)
+  "Regexp matching ruby error messages.")
+
+(defun flymake-ruby-init ()
+  (let* ((temp-file  (flymake-init-create-temp-buffer-copy
+                      'flymake-create-temp-inplace))
+         (local-file  (file-relative-name
+                       temp-file
+                       (file-name-directory buffer-file-name))))
+    (list rails-ruby-command (list "-c" local-file))))
+
+(defun flymake-ruby-load ()
+  (when (and (buffer-file-name)
+             (string-match
+              (format "\\(%s\\)"
+                      (string-join
+                       "\\|"
+                       (mapcar 'car flymake-allowed-ruby-file-name-masks)))
+              (buffer-file-name)))
+    (setq flymake-allowed-file-name-masks
+          (append flymake-allowed-file-name-masks flymake-allowed-ruby-file-name-masks))
+    (setq flymake-err-line-patterns
+          (cons flymake-ruby-error-line-pattern-regexp flymake-err-line-patterns))
+    (flymake-mode t)
+    (local-set-key (kbd "\C-c d") 'flymake-display-err-menu-for-current-line)))
+
+(add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
 (provide 'rails-ruby)

@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/inflections.el $
-;; $Id: inflections.el 130 2007-03-26 20:35:02Z dimaexe $
+;; $Id: inflections.el 169 2007-04-06 19:37:11Z dimaexe $
 
 ;;; License
 
@@ -27,114 +27,7 @@
 
 ;;; Code:
 
-;; From activesupport/lib/active_support/inflections.rb
-
-;; Inflector.inflections do |inflect|
-
-;;   inflect.plural(/$/, 's')
-;;   inflect.plural(/s$/i, 's')
-;;   inflect.plural(/(ax|test)is$/i, '\1es')
-;;   inflect.plural(/(octop|vir)us$/i, '\1i')
-;;   inflect.plural(/(alias|status)$/i, '\1es')
-;;   inflect.plural(/(bu)s$/i, '\1ses')
-;;   inflect.plural(/(buffal|tomat)o$/i, '\1oes')
-;;   inflect.plural(/([ti])um$/i, '\1a')
-;;   inflect.plural(/sis$/i, 'ses')
-;;   inflect.plural(/(?:([^f])fe|([lr])f)$/i, '\1\2ves')
-;;   inflect.plural(/(hive)$/i, '\1s')
-;;   inflect.plural(/([^aeiouy]|qu)y$/i, '\1ies')
-;;   inflect.plural(/(x|ch|ss|sh)$/i, '\1es')
-;;   inflect.plural(/(matr|vert|ind)ix|ex$/i, '\1ices')
-;;   inflect.plural(/([m|l])ouse$/i, '\1ice')
-;;   inflect.plural(/^(ox)$/i, '\1en')
-;;   inflect.plural(/(quiz)$/i, '\1zes')
-
-;;   inflect.singular(/s$/i, '')
-;;   inflect.singular(/(n)ews$/i, '\1ews')
-;;   inflect.singular(/([ti])a$/i, '\1um')
-;;   inflect.singular(/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/i, '\1\2sis')
-;;   inflect.singular(/(^analy)ses$/i, '\1sis')
-;;   inflect.singular(/([^f])ves$/i, '\1fe')
-;;   inflect.singular(/(hive)s$/i, '\1')
-;;   inflect.singular(/(tive)s$/i, '\1')
-;;   inflect.singular(/([lr])ves$/i, '\1f')
-;;   inflect.singular(/([^aeiouy]|qu)ies$/i, '\1y')
-;;   inflect.singular(/(s)eries$/i, '\1eries')
-;;   inflect.singular(/(m)ovies$/i, '\1ovie')
-;;   inflect.singular(/(x|ch|ss|sh)es$/i, '\1')
-;;   inflect.singular(/([m|l])ice$/i, '\1ouse')
-;;   inflect.singular(/(bus)es$/i, '\1')
-;;   inflect.singular(/(o)es$/i, '\1')
-;;   inflect.singular(/(shoe)s$/i, '\1')
-;;   inflect.singular(/(cris|ax|test)es$/i, '\1is')
-;;   inflect.singular(/(octop|vir)i$/i, '\1us')
-;;   inflect.singular(/(alias|status)es$/i, '\1')
-;;   inflect.singular(/^(ox)en/i, '\1')
-;;   inflect.singular(/(vert|ind)ices$/i, '\1ex')
-;;   inflect.singular(/(matr)ices$/i, '\1ix')
-;;   inflect.singular(/(quiz)zes$/i, '\1')
-
-;;   inflect.irregular('person', 'people')
-;;   inflect.irregular('man', 'men')
-;;   inflect.irregular('child', 'children')
-;;   inflect.irregular('sex', 'sexes')
-;;   inflect.irregular('move', 'moves')
-
-;;   inflect.uncountable(%w(equipment information rice money species series fish sheep))
-
-;; end
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Use the following three functions to translate the above into lisp.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (defun transform-inflectors ()
-;;   "Mark a region, and turn specs in inflections.rb into emacs specs"
-;;   (interactive)
-;;   (let ((beg (mark))
-;;  (end (point-marker)))
-;;     (goto-char beg)
-;;     (while (< (point) end)
-;;       (let ((a (and (search-forward "inflect.")
-;;        (backward-word)
-;;        (point)))
-;;      (b (progn (end-of-line) (point))))
-;;  (when (< b end)
-;;    (let ((spec (inflector-spec (buffer-substring-no-properties a b))))
-;;      (delete-region a b)
-;;      (insert spec)
-;;      ))))
-;;     (goto-char end)))
-
-;; (defun inflector-spec (str)
-;;   "Transofmr a line of ruby inflector spec to one emacs spec"
-;;   (format "%S"
-;;    (rails=~ "inflect\\.\\([^(]*\\)(\\(.*\\)).*" str
-;;       (let ((type (intern (concat ":" $1)))
-;;       (content $2))
-;;         (case type
-;;           (:plural (cons type
-;;              (rails=~ "/\\(.*\\)/i?, *'\\(.*\\)'" content
-;;                 (list (emacs-regex $1)
-;;                 (emacs-regex $2)))))
-;;           (:singular (cons type
-;;          (rails=~ "/\\(.*\\)/i?, *'\\(.*\\)'" content
-;;             (list (emacs-regex $1)
-;;                   (emacs-regex $2)))))
-;;           (:irregular (cons type
-;;           (rails=~ "'\\(.*\\)', *'\\(.*\\)'" content
-;;              (list (emacs-regex $1)
-;;              (emacs-regex $2)))))
-;;           (:uncountable
-;;      (cons type
-;;            (rails=~ "%w(\\(.*\\))" (print content)
-;;               (split-string $1 " ")))))))))
-
-
-;; (defun emacs-regex (regex)
-;;   (let ((non-special-chars '("\\" "(" ")" "|")))
-;;     (loop for char in non-special-chars
-;;    for result = regex then (replace-regexp-in-string char (concat "\\\\" char) result)
-;;    finally return result)))
+(require 'cl)
 
 (defstruct inflections-struct singulars plurals irregulars uncountables)
 

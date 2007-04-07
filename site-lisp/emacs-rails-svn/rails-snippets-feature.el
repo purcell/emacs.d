@@ -1,11 +1,11 @@
-;;; rails-snippets.el --- snippets for rails related modes
+;;; rails-snippets-feature.el --- snippets for rails related modes
 
 ;; Copyright (C) 2006 Dmitry Galinsky <dima dot exe at gmail dot com>
 
 ;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>,
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-snippets.el $
+;; $URL: svn+ssh://rubyforge/var/svn/emacs-rails/trunk/rails-snippets.el $
 ;; $Id: rails-snippets.el 155 2007-04-01 17:37:48Z dimaexe $
 
 ;;; License
@@ -24,41 +24,9 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-(unless (boundp 'ruby-mode-abbrev-table)
-  (defvar ruby-mode-abbrev-table)
-  (define-abbrev-table 'ruby-mode-abbrev-table ()))
-(unless (boundp 'html-mode-abbrev-table)
-  (defvar html-mode-abbrev-table)
-  (define-abbrev-table 'html-mode-abbrev-table ()))
-(unless (boundp 'html-helper-mode-abbrev-table)
-  (defvar html-helper-mode-abbrev-table)
-  (define-abbrev-table 'html-helper-mode-abbrev-table ()))
-(unless (boundp 'nxml-mode-abbrev-table)
-  (defvar nxml-mode-abbrev-table)
-  (define-abbrev-table 'nxml-mode-abbrev-table ()))
-(unless (boundp 'rails-model-minor-mode-abbrev-table)
-  (defvar rails-model-minor-mode-abbrev-table)
-  (define-abbrev-table 'rails-model-minor-mode-abbrev-table ()))
-(unless (boundp 'rails-functional-test-minor-mode-abbrev-table)
-  (defvar rails-functional-test-minor-mode-abbrev-table)
-  (define-abbrev-table 'rails-functional-test-minor-mode-abbrev-table ()))
-(unless (boundp 'rails-unit-test-minor-mode-abbrev-table)
-  (defvar rails-unit-test-minor-mode-abbrev-table)
-  (define-abbrev-table 'rails-unit-test-minor-mode-abbrev-table ()))
-(unless (boundp 'rails-controller-test-minor-mode-abbrev-table)
-  (defvar rails-controller-minor-mode-abbrev-table)
-  (define-abbrev-table 'rails-controller-minor-mode-abbrev-table ()))
-(unless (boundp 'rails-view-minor-mode-abbrev-table)
-  (defvar rails-view-minor-mode-abbrev-table)
-  (define-abbrev-table 'rails-view-minor-mode-abbrev-table ()))
-(unless (boundp 'rails-helper-minor-mode-abbrev-table)
-  (defvar rails-helper-minor-mode-abbrev-table)
-  (define-abbrev-table 'rails-helper-minor-mode-abbrev-table ()))
-(unless (boundp 'rails-migration-minor-mode-abbrev-table)
-  (defvar rails-migration-minor-mode-abbrev-table)
-  (define-abbrev-table 'rails-migration-minor-mode-abbrev-table ()))
+(require 'snippet)
 
-(defvar rails-snippets:list
+(defconst rails-snippets-feature:list
   '((0 "ruby")
     (1 "loops" ruby-mode-abbrev-table
        ("while" "while $${condition}\n$>$.\nend$>" "while ... end")
@@ -216,13 +184,13 @@
        rails-helper-minor-mode-abbrev-table
        rails-functional-test-minor-mode-abbrev-table
        ("rest" "respond_to do |format|\n$>format.html$>$.\nend$>" "respond_to ..." rails-controller-minor-mode-abbrev-table)
-       ("rindex" "$${,rails-snippets:rest-index}" "models_url")
-       ("rshow" "$${,rails-snippets:rest-show}" "model_url(@model)")
-       ("rnew" "$${,rails-snippets:rest-new}" "new_model_url")
-       ("redit" "$${,rails-snippets:rest-edit}" "edit_model_url(@model)")
-       ("rcreate" "$${,rails-snippets:rest-create}" "models_url")
-       ("rupdate" "$${,rails-snippets:rest-update}" "model_url(@model)")
-       ("rdestroy" "$${,rails-snippets:rest-destroy}" "model_url(@model)")) ; RESTFul
+       ("rindex" "$${,rails-snippets-feature:rest-index}" "models_url")
+       ("rshow" "$${,rails-snippets-feature:rest-show}" "model_url(@model)")
+       ("rnew" "$${,rails-snippets-feature:rest-new}" "new_model_url")
+       ("redit" "$${,rails-snippets-feature:rest-edit}" "edit_model_url(@model)")
+       ("rcreate" "$${,rails-snippets-feature:rest-create}" "models_url")
+       ("rupdate" "$${,rails-snippets-feature:rest-update}" "model_url(@model)")
+       ("rdestroy" "$${,rails-snippets-feature:rest-destroy}" "model_url(@model)")) ; RESTFul
     (0 "render" rails-controller-minor-mode-abbrev-table
        rails-view-minor-mode-abbrev-table
        rails-helper-minor-mode-abbrev-table
@@ -269,21 +237,21 @@
        ("vl" "validates_length_of :$${attribute}, :within => $${20}" "validates_length_of")
        ("bt" "belongs_to :$${model}" "belongs_to")
        ("hm" "has_many :$${objects}" "has_many")
-       ("hmt" "has_many :$${objects}, :through => :$${,rails-snippets:prev-has-many-table-name}" "has_many :through")
+       ("hmt" "has_many :$${objects}, :through => :$${,rails-snippets-feature:prev-has-many-table-name}" "has_many :through")
        ("ho" "has_one :$${object}" "has_one")
        ("habtm" "has_and_belongs_to_many :$${object}" "has_and_belongs_to_many")) ; model
     (0 "migrations" rails-migration-minor-mode-abbrev-table
        ("tcls" "t.column :$${title}, :$${string}\n$>tcls$." "create several columns")
        ("tcl" "t.column :$${title}, :$${string}$." "create column")
        ("tcln" "t.column :$${title}, :$${string}, :null => false$." "create column :null => false")
-       ("acl" "add_column :$${,rails-snippets:migration-table-name}, :$${column}, :$${string}" "add column")
-       ("ai" "add_index :$${,rails-snippets:migration-table-name}, $${column}" "add index")
-       ("aiu" "add_index :$${,rails-snippets:migration-table-name}, $${column}, :unique => true" "add unique index")
-       ("rmcl" "remove_column :$${,rails-snippets:migration-table-name}, :$${column}" "remove column")
+       ("acl" "add_column :$${,rails-snippets-feature:migration-table-name}, :$${column}, :$${string}" "add column")
+       ("ai" "add_index :$${,rails-snippets-feature:migration-table-name}, $${column}" "add index")
+       ("aiu" "add_index :$${,rails-snippets-feature:migration-table-name}, $${column}, :unique => true" "add unique index")
+       ("rmcl" "remove_column :$${,rails-snippets-feature:migration-table-name}, :$${column}" "remove column")
        ("recl" "rename_column :$${column}, :$${new_column}" "rename column")
-       ("dt" "drop_table :$${,rails-snippets:migration-table-name}$." "drop table")
-       ("ct" "create_table :$${,rails-snippets:migration-table-name} do |t|\n$>tcls$.\nend$>" "create_table")
-       ("ret" "rename_table :$${,rails-snippets:migration-table-name}, :$${new_name}$." "rename table")) ; migrations
+       ("dt" "drop_table :$${,rails-snippets-feature:migration-table-name}$." "drop table")
+       ("ct" "create_table :$${,rails-snippets-feature:migration-table-name} do |t|\n$>tcls$.\nend$>" "create_table")
+       ("ret" "rename_table :$${,rails-snippets-feature:migration-table-name}, :$${new_name}$." "rename table")) ; migrations
     (0 "environment" ruby-mode-abbrev-table
        ("logd" "logger.debug '$${message}'$." "logger.debug")
        ("loge" "logger.error '$${message}'$." "logger.error")
@@ -294,11 +262,11 @@
        ("session" "session[:$${User}]" "session[...]")
        ("flash" "flash[:$${notice}] = '$${Successfully}'$." "flash[...]")) ; environment
     (0 "functional test" rails-functional-test-minor-mode-abbrev-table
-       ("fix" "$${,rails-snippets:fixture}(:$${one})$${.id}" "models(:name)")) ; functional tests
+       ("fix" "$${,rails-snippets-feature:fixture}(:$${one})$${.id}" "models(:name)")) ; functional tests
     (0 "assertions" rails-functional-test-minor-mode-abbrev-table rails-unit-test-minor-mode-abbrev-table
        ("art" "assert_redirected_to :action => '$${index}'" "assert_redirected_to")
        ("as" "assert $${test}" "assert(...)")
-       ("asa" "assert assigns(:$${,rails-snippets:model-name})" "assert assigns(...)")
+       ("asa" "assert assigns(:$${,rails-snippets-feature:model-name})" "assert assigns(...)")
        ("ase" "assert_equal $${expected}, $${actual}" "assert_equal(...)")
        ("asid" "assert_in_delta $${expected_float}, $${actual_float}, $${20}" "assert_in_delta(...)")
        ("asio" "assert_instance_of $${ExpectedClass}, $${actual_instance}" "assert_instance_of(...)")
@@ -320,13 +288,18 @@
        ("ast" "assert_throws :$${expected} { $. }" "assert_throws(...) { ... }")
        ("astm" "assert_template '$${index}'" "assert_template"))))
 
-(defmacro rails-snippets:create-lambda (str)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Snippets functions
+;;
+
+(defmacro rails-snippets-feature:create-lambda (str)
   `(lambda () (interactive) (snippet-insert ,(symbol-value str))))
 
-(defun rails-snippets:create-keymap ()
+(defun rails-snippets-feature:create-keymap ()
   (let ((keymap (make-sparse-keymap "Snippets"))
         ret level stack)
-    (dolist (line rails-snippets:list)
+    (dolist (line rails-snippets-feature:list)
       (let ((cur-level (nth 0 line))  ; current the menu livel
             (menu-item (nth 1 line))  ; current the menu item name
             (line (cddr line))        ; skip level and menu name
@@ -362,12 +335,14 @@
                      (abbrev-tables (if loc-abbrev-table
                                         (list loc-abbrev-table)
                                       abbrev-tables))
-                     (compiled-snip (rails-snippets:create-lambda snip)))
+                     (compiled-snip (rails-snippets-feature:create-lambda snip)))
                 ;; create a menu entry for a snippet
                 (define-key keymap (vconcat cur-keymap (list (make-symbol abbr)))
                   (cons (format "%s \t%s" abbr desc) compiled-snip))
                 ;; create abbrevs for a snippet
                 (dolist (table abbrev-tables)
+                  (unless (boundp table)
+                    (define-abbrev-table table ()))
                   (define-abbrev (symbol-value table) abbr "" compiled-snip))))))))
     keymap))
 
@@ -390,31 +365,36 @@
           (setq pos (- pos
                        (- (length match) (length repl)))))))))
 
-(defun rails-snippets:migration-table-name ()
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Functions for dynamic snippets
+;;
+
+(defun rails-snippets-feature:migration-table-name ()
   (let (str)
     (string=~ "[0-9]+_create_\\([^\\.]+\\)\\.rb$" (buffer-name)
               (setq str $1))
     (if str str "table")))
 
-(defun rails-snippets:prev-has-many-table-name ()
+(defun rails-snippets-feature:prev-has-many-table-name ()
   (save-excursion
     (if (search-backward-regexp "has_many :\\(\\w+\\)" nil t)
         (match-string-no-properties 1)
       "table")))
 
-(defun rails-snippets:fixture ()
+(defun rails-snippets-feature:fixture ()
   (let ((controller (rails-core:current-controller)))
     (if controller
         (downcase controller)
       "fixture")))
 
-(defun rails-snippets:model-name ()
+(defun rails-snippets-feature:model-name ()
   (let ((controller (rails-core:current-controller)))
     (if controller
         (singularize-string (downcase controller))
       "model")))
 
-(defun rails-snippets:rest (action)
+(defun rails-snippets-feature:rest (action)
   (when-bind
    (controller (rails-core:current-controller))
    (let* ((plural (downcase (pluralize-string controller)))
@@ -443,25 +423,35 @@
         (tooltip-show (format "DELETE /%s/1" plural))
         (format "%s_url(%s)" singular model))))))
 
-(defun rails-snippets:rest-index ()
-  (rails-snippets:rest :index))
+(defun rails-snippets-feature:rest-index ()
+  (rails-snippets-feature:rest :index))
 
-(defun rails-snippets:rest-show ()
-  (rails-snippets:rest :show))
+(defun rails-snippets-feature:rest-show ()
+  (rails-snippets-feature:rest :show))
 
-(defun rails-snippets:rest-new ()
-  (rails-snippets:rest :new))
+(defun rails-snippets-feature:rest-new ()
+  (rails-snippets-feature:rest :new))
 
-(defun rails-snippets:rest-edit ()
-  (rails-snippets:rest :edit))
+(defun rails-snippets-feature:rest-edit ()
+  (rails-snippets-feature:rest :edit))
 
-(defun rails-snippets:rest-create ()
-  (rails-snippets:rest :create))
+(defun rails-snippets-feature:rest-create ()
+  (rails-snippets-feature:rest :create))
 
-(defun rails-snippets:rest-update ()
-  (rails-snippets:rest :update))
+(defun rails-snippets-feature:rest-update ()
+  (rails-snippets-feature:rest :update))
 
-(defun rails-snippets:rest-destroy ()
-  (rails-snippets:rest :destroy))
+(defun rails-snippets-feature:rest-destroy ()
+  (rails-snippets-feature:rest :destroy))
 
-(provide 'rails-snippets)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Install function
+;;
+
+(defun rails-snippets-feature:install ()
+  (define-key rails-minor-mode-map
+    [menu-bar rails-snippets]
+    (cons "Snippets" (rails-snippets-feature:create-keymap))))
+
+(provide 'rails-snippets-feature)
