@@ -1,4 +1,5 @@
-SVN
+0.5.99.3
+* Added speedbar integration, type [F11] to toogle speedbar
 * Fixed #9880: the hotkey "C-c ." conflicted with ECB, changed to "C-c C-c ,"
 
 * New hotkeys, to easy switch without a popup menu between a
@@ -22,8 +23,8 @@ SVN
 * Added the flymake support to on the fly syntax checked in the ruby-mode
 
 0.5.99.2
-* Added new dynamic snippets for RESTful, 
-    for instance: in controller UsersController type "rshow<TAB>" 
+* Added new dynamic snippets for RESTful,
+    for instance: in controller UsersController type "rshow<TAB>"
     will be expand to "user_url(@user)" and display tooltip "GET /users/1"
 * Added migration support - migrate, migrate to previous version,
   migrate to version

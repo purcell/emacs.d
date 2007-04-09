@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ui.el $
-;; $Id: rails-ui.el 167 2007-04-06 09:50:26Z dimaexe $
+;; $Id: rails-ui.el 170 2007-04-08 16:00:29Z dimaexe $
 
 ;;; License
 
@@ -116,12 +116,12 @@
 
   ([rails rails-customize] '("Customize" . (lambda () (interactive) (customize-group 'rails))))
   ([rails separator0] '("--"))
-  ([rails svn-status] '("SVN Status" . rails-svn-status-into-root))
+  ([rails svn-status]        '("SVN Status"             . rails-svn-status-into-root))
   ([rails api-doc]           '("Rails API Doc at Point" . rails-browse-api-at-point))
   ([rails sql]               '("SQL Rails Buffer"       . rails-run-sql))
   ([rails tag]               '("Update TAGS File"       . rails-create-tags))
   ([rails ri]                '("Search Documentation"   . rails-search-doc))
-  ([rails goto-file-by-line] '("Go to File by Line"      . rails-goto-file-on-current-line))
+  ([rails goto-file-by-line] '("Go to File by Line"     . rails-goto-file-on-current-line))
   ([rails switch-file-menu]  '("Switch file Menu..."    . rails-lib:run-secondary-switch))
   ([rails switch-file]       '("Switch File"            . rails-lib:run-primary-switch))
   ([rails separator1]        '("--"))

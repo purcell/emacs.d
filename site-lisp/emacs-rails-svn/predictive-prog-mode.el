@@ -32,7 +32,7 @@
 
 (require 'flyspell)
 
-(defcustom predictive-prog-text-faces
+(defconst predictive-prog-text-faces
   '(font-lock-comment-face font-lock-doc-face)
   "Faces corresponding to text in programming-mode buffers.")
 
