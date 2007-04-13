@@ -5,14 +5,14 @@ friendly
 
 == Instalation
 
-You need download last release from RubyForge page 
+You need download last release from RubyForge page
 "http://rubyforge.org/projects/emacs-rails" and and unpack
 it to directory containing libraries of Emacs, by default it's
 $HOME/.emacs.d/
 
 You can also use SVN
 
-  cd  $HOME/.emacs.d/ 
+  cd  $HOME/.emacs.d/
   svn co svn://rubyforge/var/svn/emacs-rails/trunk emacs-rails
 
 Download and install required libraries
@@ -26,15 +26,6 @@ Download and install required libraries
 After that you must add this code in $HOME/.emacs
 
   (setq load-path (cons "~/.emacs.d/rails" load-path))
-
-  (defun try-complete-abbrev (old)
-    (if (expand-abbrev) t nil))
-
-  (setq hippie-expand-try-functions-list
-    '(try-complete-abbrev
-      try-complete-file-name
-      try-expand-dabbrev))
-
   (require 'rails)
 
 For Windows users: you can use your help in CHM format (the default
@@ -82,7 +73,7 @@ can find them in the brackets.
 
 === Management of WEBrick/Mongrel
 
-* Your can select Webrick, Mongrel or Lighttpd 
+* Your can select Webrick, Mongrel or Lighttpd
 * Start/stop application server %(key)C-c C-c w s%
 * Automatic browsing on current action (from view or controller)
   %(key)C-c C-c w a%

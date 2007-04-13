@@ -261,8 +261,8 @@
        ("par" "params[:$${id}]" "params[...]")
        ("session" "session[:$${User}]" "session[...]")
        ("flash" "flash[:$${notice}] = '$${Successfully}'$." "flash[...]")) ; environment
-    (0 "functional test" rails-functional-test-minor-mode-abbrev-table
-       ("fix" "$${,rails-snippets-feature:fixture}(:$${one})$${.id}" "models(:name)")) ; functional tests
+    (0 "tests" rails-functional-test-minor-mode-abbrev-table rails-unit-test-minor-mode-abbrev-table
+       ("fix" "$${,rails-snippets-feature:fixture}(:$${one})$." "models(:name)")) ; functional tests
     (0 "assertions" rails-functional-test-minor-mode-abbrev-table rails-unit-test-minor-mode-abbrev-table
        ("art" "assert_redirected_to :action => '$${index}'" "assert_redirected_to")
        ("as" "assert $${test}" "assert(...)")
@@ -383,10 +383,12 @@
       "table")))
 
 (defun rails-snippets-feature:fixture ()
-  (let ((controller (rails-core:current-controller)))
-    (if controller
-        (downcase controller)
-      "fixture")))
+  (let ((controller (rails-core:current-controller))
+        (model (rails-core:current-model)))
+    (cond
+     (controller (downcase controller))
+     (model (pluralize-string (downcase model)))
+     (t "fixture"))))
 
 (defun rails-snippets-feature:model-name ()
   (let ((controller (rails-core:current-controller)))

@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 168 2007-04-06 19:10:55Z dimaexe $
+;; $Id: rails.el 179 2007-04-12 21:02:12Z dimaexe $
 
 ;;; License
 
@@ -160,9 +160,6 @@ Emacs w3m browser."
     (:fixture          "test/fixtures/")
     (:migration        "db/migrate"))
   "Rails file types -- rails directories map")
-
-(apply
- (quote (lambda (file) (rails-core:observer-p file))) (list "test"))
 
 (defvar rails-enviroments '("development" "production" "test"))
 (defvar rails-default-environment (first rails-enviroments))
@@ -401,9 +398,9 @@ necessary."
             (local-set-key (if rails-use-another-define-key
                                (kbd "TAB") (kbd "<tab>"))
                            'indent-or-complete)
-            (local-set-key (kbd "C-c f") '(lambda()
-                                            (interactive)
-                                            (mouse-major-mode-menu (rails-core:menu-position))))
+            (local-set-key (rails-key "f") '(lambda()
+                                              (interactive)
+                                              (mouse-major-mode-menu (rails-core:menu-position))))
             (local-set-key (kbd "C-:") 'ruby-toggle-string<>simbol)
             (local-set-key (if rails-use-another-define-key
                                (kbd "RET") (kbd "<return>"))

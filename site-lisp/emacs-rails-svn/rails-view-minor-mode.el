@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-view-minor-mode.el $
-;; $Id: rails-view-minor-mode.el 158 2007-04-03 08:45:46Z dimaexe $
+;; $Id: rails-view-minor-mode.el 173 2007-04-09 15:15:02Z dimaexe $
 
 ;;; License
 
@@ -106,10 +106,10 @@
   (setq rails-secondary-switch-func 'rails-controller-layout:menu)
   (if (boundp 'mmm-mode-map)
       (progn
-        (define-key mmm-mode-map (kbd "\C-c p") 'rails-view-minor-mode:create-partial-from-selection)
-        (define-key mmm-mode-map (kbd "\C-c b") 'rails-view-minor-mode:create-helper-from-block))
+        (define-key mmm-mode-map (rails-key "p") 'rails-view-minor-mode:create-partial-from-selection)
+        (define-key mmm-mode-map (rails-key "b") 'rails-view-minor-mode:create-helper-from-block))
     (progn
-      (local-set-key (kbd "\C-c p") 'rails-view-minor-mode:create-partial-from-selection)
-      (local-set-key (kbd "\C-c b") 'rails-view-minor-mode:create-helper-from-block))))
+      (local-set-key (rails-key "p") 'rails-view-minor-mode:create-partial-from-selection)
+      (local-set-key (rails-key "b") 'rails-view-minor-mode:create-helper-from-block))))
 
 (provide 'rails-view-minor-mode)

@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-core.el 162 2007-04-03 19:10:59Z dimaexe $
+;; $Id: rails-core.el 178 2007-04-12 20:58:56Z dimaexe $
 
 ;;; License
 
@@ -53,7 +53,9 @@
      " " ""
      (replace-regexp-in-string
       "  " "::"
-      (capitalize path)))))
+      (if (string-match "^[a-zA-Z0-9]*$" path)
+          path
+        (capitalize path))))))
 
 (defun rails-core:file-by-class (classname &optional do-not-append-ext)
   "Return the filename associated with CLASSNAME.

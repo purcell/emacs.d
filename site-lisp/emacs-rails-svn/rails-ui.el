@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ui.el $
-;; $Id: rails-ui.el 170 2007-04-08 16:00:29Z dimaexe $
+;; $Id: rails-ui.el 173 2007-04-09 15:15:02Z dimaexe $
 
 ;;; License
 
@@ -194,9 +194,18 @@
   ([rails ws default] '(menu-item "Start/Stop Web Server (With Default Environment)" rails-ws:toggle-start-stop))
   )
 
-(defconst rails-minor-mode-test-current-method-key (kbd "\C-c \C-c ,"))
+(defcustom rails-minor-mode-prefix-key "\C-c"
+  "Key prefix for rails minor mode."
+  :group 'rails)
 
-(defvar rails-minor-mode-map (make-sparse-keymap))
+(defmacro rails-key (key)
+  `(kbd ,(concat rails-minor-mode-prefix-key " " key)))
+
+(defconst rails-minor-mode-test-current-method-key (rails-key "\C-c ,"))
+
+(defvar rails-minor-mode-map
+  (let ((map (make-keymap)))
+    map))
 
 (define-keys rails-minor-mode-map
   ([menu-bar] rails-minor-mode-menu-bar-map)
@@ -204,82 +213,82 @@
   ([menu-bar rails-db] (cons "Database" rails-minor-mode-db-menu-bar-map))
 
   ;; Goto
-  ((kbd "\C-c \C-c g m") 'rails-nav:goto-models)
-  ((kbd "\C-c \C-c g c") 'rails-nav:goto-controllers)
-  ((kbd "\C-c \C-c g o") 'rails-nav:goto-observers)
-  ((kbd "\C-c \C-c g n") 'rails-nav:goto-mailers)
-  ((kbd "\C-c \C-c g h") 'rails-nav:goto-helpers)
-  ((kbd "\C-c \C-c g l") 'rails-nav:goto-layouts)
-  ((kbd "\C-c \C-c g s") 'rails-nav:goto-stylesheets)
-  ((kbd "\C-c \C-c g j") 'rails-nav:goto-javascripts)
-  ((kbd "\C-c \C-c g g") 'rails-nav:goto-migrate)
-  ((kbd "\C-c \C-c g p") 'rails-nav:goto-plugins)
-  ((kbd "\C-c \C-c g x") 'rails-nav:goto-fixtures)
-  ((kbd "\C-c \C-c g f") 'rails-nav:goto-functional-tests)
-  ((kbd "\C-c \C-c g u") 'rails-nav:goto-unit-tests)
+  ((rails-key "\C-c g m") 'rails-nav:goto-models)
+  ((rails-key "\C-c g c") 'rails-nav:goto-controllers)
+  ((rails-key "\C-c g o") 'rails-nav:goto-observers)
+  ((rails-key "\C-c g n") 'rails-nav:goto-mailers)
+  ((rails-key "\C-c g h") 'rails-nav:goto-helpers)
+  ((rails-key "\C-c g l") 'rails-nav:goto-layouts)
+  ((rails-key "\C-c g s") 'rails-nav:goto-stylesheets)
+  ((rails-key "\C-c g j") 'rails-nav:goto-javascripts)
+  ((rails-key "\C-c g g") 'rails-nav:goto-migrate)
+  ((rails-key "\C-c g p") 'rails-nav:goto-plugins)
+  ((rails-key "\C-c g x") 'rails-nav:goto-fixtures)
+  ((rails-key "\C-c g f") 'rails-nav:goto-functional-tests)
+  ((rails-key "\C-c g u") 'rails-nav:goto-unit-tests)
 
   ;; Switch
   ((kbd "<M-S-up>")      'rails-lib:run-primary-switch)
   ((kbd "<M-S-down>")    'rails-lib:run-secondary-switch)
-  ((kbd "\C-c <up>")     'rails-lib:run-primary-switch)
-  ((kbd "\C-c <down>")   'rails-lib:run-secondary-switch)
+  ((rails-key "<up>")     'rails-lib:run-primary-switch)
+  ((rails-key "<down>")   'rails-lib:run-secondary-switch)
   ((kbd "<C-return>")    'rails-goto-file-on-current-line)
 
   ;; Scripts & SQL
-  ((kbd "\C-c \C-c e")   'rails-script:generate)
-  ((kbd "\C-c \C-c x")   'rails-script:destroy)
-  ((kbd "\C-c \C-c s c") 'rails-script:console)
-  ((kbd "\C-c \C-c s b") 'rails-script:breakpointer)
-  ((kbd "\C-c \C-c s s") 'rails-run-sql)
-  ((kbd "\C-c \C-c w s") 'rails-ws:toggle-start-stop)
-  ((kbd "\C-c \C-c w d") 'rails-ws:start-development)
-  ((kbd "\C-c \C-c w p") 'rails-ws:start-production)
-  ((kbd "\C-c \C-c w t") 'rails-ws:start-test)
-  ((kbd "\C-c \C-c w i") 'rails-ws:print-status)
-  ((kbd "\C-c \C-c w a") 'rails-ws:auto-open-browser)
+  ((rails-key "\C-c e")   'rails-script:generate)
+  ((rails-key "\C-c x")   'rails-script:destroy)
+  ((rails-key "\C-c s c") 'rails-script:console)
+  ((rails-key "\C-c s b") 'rails-script:breakpointer)
+  ((rails-key "\C-c s s") 'rails-run-sql)
+  ((rails-key "\C-c w s") 'rails-ws:toggle-start-stop)
+  ((rails-key "\C-c w d") 'rails-ws:start-development)
+  ((rails-key "\C-c w p") 'rails-ws:start-production)
+  ((rails-key "\C-c w t") 'rails-ws:start-test)
+  ((rails-key "\C-c w i") 'rails-ws:print-status)
+  ((rails-key "\C-c w a") 'rails-ws:auto-open-browser)
 
   ;; Rails finds
-  ((kbd "\C-c \C-c f m") 'rails-find:models)
-  ((kbd "\C-c \C-c f c") 'rails-find:controller)
-  ((kbd "\C-c \C-c f h") 'rails-find:helpers)
-  ((kbd "\C-c \C-c f l") 'rails-find:layout)
-  ((kbd "\C-c \C-c f s") 'rails-find:stylesheets)
-  ((kbd "\C-c \C-c f j") 'rails-find:javascripts)
-  ((kbd "\C-c \C-c f g") 'rails-find:migrate)
-  ((kbd "\C-c \C-c f b") 'rails-find:lib)
-  ((kbd "\C-c \C-c f t") 'rails-find:tasks)
-  ((kbd "\C-c \C-c f v") 'rails-find:view)
-  ((kbd "\C-c \C-c f d") 'rails-find:db)
-  ((kbd "\C-c \C-c f p") 'rails-find:public)
-  ((kbd "\C-c \C-c f f") 'rails-find:fixtures)
-  ((kbd "\C-c \C-c f o") 'rails-find:config)
+  ((rails-key "\C-c f m") 'rails-find:models)
+  ((rails-key "\C-c f c") 'rails-find:controller)
+  ((rails-key "\C-c f h") 'rails-find:helpers)
+  ((rails-key "\C-c f l") 'rails-find:layout)
+  ((rails-key "\C-c f s") 'rails-find:stylesheets)
+  ((rails-key "\C-c f j") 'rails-find:javascripts)
+  ((rails-key "\C-c f g") 'rails-find:migrate)
+  ((rails-key "\C-c f b") 'rails-find:lib)
+  ((rails-key "\C-c f t") 'rails-find:tasks)
+  ((rails-key "\C-c f v") 'rails-find:view)
+  ((rails-key "\C-c f d") 'rails-find:db)
+  ((rails-key "\C-c f p") 'rails-find:public)
+  ((rails-key "\C-c f f") 'rails-find:fixtures)
+  ((rails-key "\C-c f o") 'rails-find:config)
 
-  ((kbd "\C-c \C-c d m") 'rails-rake:migrate)
-  ((kbd "\C-c \C-c d v") 'rails-rake:migrate-to-version)
-  ((kbd "\C-c \C-c d p") 'rails-rake:migrate-to-prev-version)
+  ((rails-key "\C-c d m") 'rails-rake:migrate)
+  ((rails-key "\C-c d v") 'rails-rake:migrate-to-version)
+  ((rails-key "\C-c d p") 'rails-rake:migrate-to-prev-version)
 
   ;; Tests
-  ((kbd "\C-c \C-c r")   'rails-rake:task)
-  ((kbd "\C-c \C-c t")   'rails-test:run)
-  ((kbd "\C-c \C-c .")   'rails-test:run-current)
+  ((rails-key "\C-c r")   'rails-rake:task)
+  ((rails-key "\C-c t")   'rails-test:run)
+  ((rails-key "\C-c .")   'rails-test:run-current)
 
   ;; Navigation
 
-  ((kbd "\C-c \C-c l")    'rails-log:open)
+  ((rails-key "\C-c l")    'rails-log:open)
   ;; Tags
-  ((kbd "\C-c \C-c \C-t") 'rails-create-tags)
+  ((rails-key "\C-c \C-t") 'rails-create-tags)
 
   ;; Documentation
   ([f1]                  'rails-search-doc)
   ((kbd "<C-f1>")        'rails-browse-api-at-point)
-  ((kbd "\C-c <f1>")     'rails-browse-api)
-  ((kbd "\C-c /")        'rails-script:toggle-output-window)
+  ((rails-key "<f1>")     'rails-browse-api)
+  ((rails-key "/")        'rails-script:toggle-output-window)
 
   ([f9]                  'rails-svn-status-into-root))
 
 ;; Global keys and menubar
 
-(global-set-key (kbd "\C-c \C-c j") 'rails-script:create-project)
+(global-set-key (rails-key "\C-c j") 'rails-script:create-project)
 
 (when-bind (map (lookup-key global-map  [menu-bar file]))
   (define-key-after

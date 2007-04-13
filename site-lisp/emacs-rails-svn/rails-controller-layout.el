@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-controller-layout.el $
-;; $Id: rails-controller-layout.el 162 2007-04-03 19:10:59Z dimaexe $
+;; $Id: rails-controller-layout.el 173 2007-04-09 15:15:02Z dimaexe $
 
 ;;; License
 
@@ -141,12 +141,12 @@ If the action is nil, return all views for the controller."
                                        rails-controller-layout:switch-to-unit-test
                                        :enable (rails-core:current-mailer))))
       (define-keys map
-        ((kbd "\C-c g") 'rails-controller-layout:switch-to-migration)
-        ((kbd "\C-c m") 'rails-controller-layout:switch-to-model)
-        ((kbd "\C-c h") 'rails-controller-layout:switch-to-helper)
-        ((kbd "\C-c f") 'rails-controller-layout:switch-to-functional-test)
-        ((kbd "\C-c c") 'rails-controller-layout:switch-to-controller)
-        ((kbd "\C-c u") 'rails-controller-layout:switch-to-unit-test)
+        ((rails-key "g") 'rails-controller-layout:switch-to-migration)
+        ((rails-key "m") 'rails-controller-layout:switch-to-model)
+        ((rails-key "h") 'rails-controller-layout:switch-to-helper)
+        ((rails-key "f") 'rails-controller-layout:switch-to-functional-test)
+        ((rails-key "c") 'rails-controller-layout:switch-to-controller)
+        ((rails-key "u") 'rails-controller-layout:switch-to-unit-test)
         ([menu-bar rails-controller-layout] (cons name menu))))
     map))
 

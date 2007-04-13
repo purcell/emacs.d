@@ -1,4 +1,31 @@
+2007-04-13  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-ruby.el (flymake-ruby-init): apply patch #10056, thanks Rémi Vanicat
+
+	* rails-core.el (rails-core:class-by-file): handle first digit[s] in filename
+
+	* rails-lib.el (capital-word-p): return nil if first char is not 
+
+	* inflections.el: rollback to using separate variables instead of structure
+
+2007-04-12  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-test.el: fixed #10053 bug, added rails-core:regexp-for-match-views to compilation-error-regexp
+
+	* predictive-prog-mode.el (activate-predictive-inside-comments): toggle predictive mode using 'predictive-main-dict variable, looking at previous word 
+
+	* rails-core.el (rails-core:class-by-file): detect already capitalized words
+
+2007-04-10  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-snippets-feature.el (rails-snippets-feature:list): updated
+
+	* rails-test.el (rails-test:error-regexp-alist): updated
+
 2007-04-09  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-ui.el (rails-minor-mode-prefix-key): created
+	(rails-key): created
 
 	* predictive-prog-mode.el (predictive-prog-text-faces): fixed compilation warning 
 

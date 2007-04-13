@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/inflections.el $
-;; $Id: inflections.el 169 2007-04-06 19:37:11Z dimaexe $
+;; $Id: inflections.el 178 2007-04-12 20:58:56Z dimaexe $
 
 ;;; License
 
@@ -27,26 +27,19 @@
 
 ;;; Code:
 
-(require 'cl)
-
-(defstruct inflections-struct singulars plurals irregulars uncountables)
-
-(defvar inflections
-  (make-inflections-struct :singulars nil
-                           :plurals nil
-                           :irregulars nil
-                           :uncountables nil))
+(defvar inflection-singulars    nil)
+(defvar inflection-plurals      nil)
+(defvar inflection-irregulars   nil)
+(defvar inflection-uncountables nil)
 
 (defmacro define-inflectors (&rest specs)
-  ;; TODO really ought to do error checking here to ensure integrity.
-  (let (singulars plurals irregulars uncountables)
-    (loop for (type . rest) in specs do
-          (case type
-            (:singular (push rest (inflections-struct-singulars inflections)))
-            (:plural (push rest (inflections-struct-plurals inflections)))
-            (:irregular (push rest (inflections-struct-irregulars inflections)))
-            (:uncountable (setf (inflections-struct-uncountables inflections)
-                                (append rest (inflections-struct-uncountables inflections))))))))
+  (loop for (type . rest) in specs do
+        (case type
+          (:singular (push rest inflection-singulars))
+          (:plural (push rest inflection-plurals))
+          (:irregular (push rest inflection-irregulars))
+          (:uncountable (setf inflection-uncountables
+                              (append rest inflection-uncountables))))))
 
 (define-inflectors
   (:plural "$" "s")
@@ -102,18 +95,18 @@
 
 (defun singularize-string (str)
   (when (stringp str)
-    (or (car (member str (inflections-struct-uncountables inflections)))
-        (caar (member* str (inflections-struct-irregulars inflections) :key 'cadr :test 'equal))
-        (loop for (from to) in (inflections-struct-singulars inflections)
+    (or (car (member str inflection-uncountables))
+        (caar (member* str inflection-irregulars :key 'cadr :test 'equal))
+        (loop for (from to) in inflection-singulars
               for singular = (string=~ from str (sub to))
               when singular do (return singular))
         str)))
 
 (defun pluralize-string (str)
   (when (stringp str)
-    (or (car (member str (inflections-struct-uncountables inflections)))
-        (cadar (member* str (inflections-struct-irregulars inflections) :key 'car :test 'equal))
-        (loop for (from to) in (inflections-struct-plurals inflections)
+    (or (car (member str inflection-uncountables))
+        (cadar (member* str inflection-irregulars :key 'car :test 'equal))
+        (loop for (from to) in inflection-plurals
               for plurals = (string=~ from str (sub to))
               when plurals do (return plurals))
         str)))

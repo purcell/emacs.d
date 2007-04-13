@@ -34,11 +34,26 @@
 (defconst rails-test:progress-regexp
   "^[\\.EF]+$")
 
-(defconst rails-test:error-regexp-alist
-  '((rails-test-trace
-     "\\(\\(\\.\\|[A-Za-z]:\\)?\\([a-z0-9_\/\\.]+\\.rb\\)\\):\\([0-9]+\\)" 1 4 nil 0)
-    (rails-test-error
-     "\\(\\(\\.\\|[A-Za-z]:\\)?\\([a-z0-9_\/\\.]+\\.rb\\)\\):\\([0-9]+\\).*\n$" 1 4 nil 2)))
+(defun rails-test:file-ext-regexp ()
+  (let ((rails-templates-list (append rails-templates-list (list "rb"))))
+    (substring (rails-core:regex-for-match-view) 0 -1)))
+
+(defun rails-test:line-regexp (&optional append prepend)
+  (concat
+   append
+   (format
+    "\\(#{RAILS_ROOT}\/\\)?\\(\\(\\.\\|[A-Za-z]:\\)?\\([a-z0-9_\/\\.]+%s\\)\\):\\([0-9]+\\)"
+    (rails-test:file-ext-regexp))
+   prepend))
+
+(defun rails-test:error-regexp-alist ()
+  (list
+   (list 'rails-test-trace
+         (rails-test:line-regexp) 2 6 nil 0)
+   (list 'rails-test-failure
+         (rails-test:line-regexp "\\[" "\\]") 2 6 nil 2)
+   (list 'rails-test-error
+         (rails-test:line-regexp nil ".*\n$") 2 6 nil 2)))
 
 (defun rails-test:print-result ()
   (with-current-buffer (get-buffer rails-script:buffer-name)
@@ -77,9 +92,10 @@
   "Major mode for RoR tests."
   (rails-script:setup-output-buffer)
   (set (make-local-variable 'compilation-error-regexp-alist-alist)
-       rails-test:error-regexp-alist)
+       (rails-test:error-regexp-alist))
   (set (make-local-variable 'compilation-error-regexp-alist)
        '(rails-test-error
+         rails-test-failure
          rails-test-trace))
   (add-hook 'after-change-functions 'rails-test:print-progress nil t)
   (add-hook 'rails-script:run-after-stop-hook 'rails-test:print-result nil t)
