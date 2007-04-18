@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 179 2007-04-12 21:02:12Z dimaexe $
+;; $Id: rails.el 181 2007-04-18 14:09:42Z dimaexe $
 
 ;;; License
 
@@ -389,7 +389,6 @@ necessary."
             (require 'rails-ruby)
             (require 'ruby-electric)
             (ruby-electric-mode t)
-            (predictive-prog-mode)
             (imenu-add-to-menubar "IMENU")
             (modify-syntax-entry ?! "w" (syntax-table))
             (modify-syntax-entry ?: "w" (syntax-table))

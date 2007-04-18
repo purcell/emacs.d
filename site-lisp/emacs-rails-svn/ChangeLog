@@ -1,3 +1,7 @@
+2007-04-18  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails.el (ruby-mode-hook): removed predictive-prog-mode, it will incorect work in latest CVS builds of Emacs
+
 2007-04-13  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails-ruby.el (flymake-ruby-init): apply patch #10056, thanks Rémi Vanicat
