@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-core.el 178 2007-04-12 20:58:56Z dimaexe $
+;; $Id: rails-core.el 182 2007-04-19 11:30:42Z dimaexe $
 
 ;;; License
 
@@ -53,7 +53,7 @@
      " " ""
      (replace-regexp-in-string
       "  " "::"
-      (if (string-match "^[a-zA-Z0-9]*$" path)
+      (if (string-match "^ *\\([0-9]+ *\\)?[A-Z]" path)
           path
         (capitalize path))))))
 

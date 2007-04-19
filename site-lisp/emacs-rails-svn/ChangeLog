@@ -1,3 +1,13 @@
+2007-04-19  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-speedbar-feature.el (rails-speedbar:line-directory)
+	(rails-speedbar:root, rails-speedbar:in-root): created
+	(rails-speedbar-feature:install): install speedbar-mode-line-functions
+
+	* rails-ruby.el (completion-dynamic-syntax-alist): removed
+
+	* rails-core.el (rails-core:class-by-file): updated
+
 2007-04-18  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails.el (ruby-mode-hook): removed predictive-prog-mode, it will incorect work in latest CVS builds of Emacs

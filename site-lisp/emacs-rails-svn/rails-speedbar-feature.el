@@ -1,9 +1,9 @@
 (defvar rails-speedbar:roots
-  '(("Controllers" rails-core:controllers rails-core:controller-file)
-    ("Helpers"     rails-core:helpers     rails-core:helper-file)
-    ("Models"      rails-core:models      rails-core:model-file)
-    ("Observers"   rails-core:observers   rails-core:observer-file)
-    ("Mailers"     rails-core:mailers     rails-core:mailer-file)
+  '(("Controllers"      rails-core:controllers       rails-core:controller-file)
+    ("Helpers"          rails-core:helpers           rails-core:helper-file)
+    ("Models"           rails-core:models            rails-core:model-file)
+    ("Observers"        rails-core:observers         rails-core:observer-file)
+    ("Mailers"          rails-core:mailers           rails-core:mailer-file)
     ("Functional Tests" rails-core:functional-tests  rails-core:functional-test-file)
     ("Unit Tests"       rails-core:unit-tests        rails-core:unit-test-file)
     ("Fixtures"         rails-core:fixtures          rails-core:fixture-file)))
@@ -21,6 +21,8 @@
 
 (defun rails-speedbar:display (directory depth)
   (setq speedbar-update-flag nil)
+  (speedbar-with-writable
+    (insert (rails-project:root) "\n"))
   (dolist (i rails-speedbar:roots)
     (speedbar-make-tag-line 'angle
                             ?+
@@ -47,10 +49,10 @@
             (speedbar-make-tag-line 'bracket
                                     ?+
                                     'rails-speedbar:expand-tags
-                                    (rails-core:file (apply find (list i)))
+                                    (rails-speedbar:in-root (rails-core:file (apply find (list i))))
                                     i
                                     'rails-speedbar:find-file
-                                    (rails-core:file (apply find (list i)))
+                                    (rails-speedbar:in-root (rails-core:file (apply find (list i))))
                                     nil
                                     (+ indent 1))
             )))))
@@ -64,21 +66,46 @@
     (let ((lst (speedbar-fetch-dynamic-tags token)))
       (if (not lst)
           (speedbar-change-expand-button-char ??)
-        (speedbar-change-expand-button-char ?-)
-        (speedbar-with-writable
-          (save-excursion
-            (end-of-line) (forward-char 1)
-            (speedbar-insert-generic-list indent
-                                          (cdr lst)
-                                          'rails-speedbar:find-file
-                                          'rails-speedbar:find-file))))))
+        (progn
+          (speedbar-change-expand-button-char ?-)
+          (speedbar-with-writable
+            (save-excursion
+              (end-of-line) (forward-char 1)
+              (speedbar-insert-generic-list indent
+                                            (cdr lst)
+                                            'speedbar-tag-expand
+                                            'speedbar-tag-find))
+            )))))
    ((string-match "-" text)
     (speedbar-change-expand-button-char ?+)
     (speedbar-delete-subblock indent))))
 
+(defun rails-speedbar:line-directory (&optional depth)
+  (save-excursion
+    (end-of-line)
+    (let ((start (point)))
+      (when (search-backward "[-]" nil t)
+        (end-of-line)
+        (skip-syntax-backward "w")
+        (get-text-property (point) 'speedbar-token)))))
+
 (defun rails-speedbar:find-file (text token indent)
+  (message "%S %S" text token)
   (typecase token
     (string (speedbar-find-file-in-frame token))))
+
+(defun rails-speedbar:root ()
+  (save-excursion
+    (goto-char (point-min))
+    (let* ((root (current-line-string))
+           (root (if (file-directory-p root)
+                     root
+                   (rails-project:root))))
+      root)))
+
+(defmacro rails-speedbar:in-root (&rest body)
+  `(flet ((rails-project:root () ,(rails-speedbar:root)))
+     ,@body))
 
 (defun rails-speedbar:get-focus ()
   (interactive)
@@ -87,10 +114,15 @@
     (speedbar-get-focus)))
 
 (defun rails-speedbar-feature:install ()
-  (speedbar-add-expansion-list '("Ruby On Rails"
-                                 rails-speedbar:menu-items
-                                 rails-speedbar:key-map
-                                 rails-speedbar:display))
+  (speedbar-add-expansion-list
+   '("Ruby On Rails"
+     rails-speedbar:menu-items
+     rails-speedbar:key-map
+     rails-speedbar:display))
+  (speedbar-add-mode-functions-list
+   '("Ruby On Rails"
+     (speedbar-line-directory . rails-speedbar:line-directory)))
+
   (define-key rails-minor-mode-map (kbd "<f11>") 'rails-speedbar:get-focus)
   (define-key-after
     (lookup-key rails-minor-mode-map [menu-bar rails])

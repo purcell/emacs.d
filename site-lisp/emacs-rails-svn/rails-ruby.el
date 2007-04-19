@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 178 2007-04-12 20:58:56Z dimaexe $
+;; $Id: rails-ruby.el 182 2007-04-19 11:30:42Z dimaexe $
 
 ;;; License
 
@@ -116,18 +116,6 @@ See the variable `align-rules-list' for more details.")
         (let* ((cmd "%s.public_methods.map{|i| i.match(/^%s/) ? i.gsub(/^%s/, '') : nil }.compact.sort{|x,y| x.size <=> y.size}")
                (cmd (if maxnum (concat cmd (format "[0...%s]" maxnum)) cmd)))
           (el4r-ruby-eval (format cmd (word-at-point) prefix prefix)))))))
-
-(setq completion-dynamic-syntax-alist
-  '(
-    ;; word constituents add to current completion
-    (?w . (add t word))
-    (?_ . (accept t none))
-    ;; whitespace and punctuation chars accept current completion
-    (?  . (accept t none))
-    (?. . (accept t none))
-    ;; anything else rejects the current completion
-    (t  . (reject t none))))
-
 
 ;; flymake ruby support
 
