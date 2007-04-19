@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-core.el 182 2007-04-19 11:30:42Z dimaexe $
+;; $Id: rails-core.el 184 2007-04-19 14:53:08Z dimaexe $
 
 ;;; License
 
@@ -216,10 +216,12 @@ it does not exist, ask to create it using QUESTION as a prompt."
 (defun rails-core:helper-file (controller)
   "Return the helper file name for the controller named
 CONTROLLER."
-  (when controller
-    (format "app/helpers/%s_helper.rb"
-            (replace-regexp-in-string "_controller" ""
-                                      (rails-core:file-by-class controller t)))))
+  (if (string= "Test/TestHelper" controller)
+      (rails-core:file (rails-core:file-by-class "Test/TestHelper"))
+    (when controller
+      (format "app/helpers/%s_helper.rb"
+              (replace-regexp-in-string "_controller" ""
+                                        (rails-core:file-by-class controller t))))))
 
 (defun rails-core:functional-test-file (controller)
   "Return the functional test file name for the controller named
@@ -251,7 +253,7 @@ CONTROLLER."
 
 (defun rails-core:views-dir (controller)
   "Return the view directory name for the controller named CONTROLLER."
-  (format "app/views/%s/" (rails-core:file-by-class controller t)))
+  (format "app/views/%s/" (replace-regexp-in-string "_controller" "" (rails-core:file-by-class controller t))))
 
 (defun rails-core:stylesheet-name (name)
   "Return the file name of the stylesheet named NAME."
@@ -346,11 +348,13 @@ suffix if CUT-CONTOLLER-SUFFIX is non nil."
 
 (defun rails-core:helpers ()
   "Return a list of Rails helpers."
-  (mapcar
-   #'(lambda (helper) (replace-regexp-in-string "Helper$" "" helper))
+  (append
    (mapcar
-    #'rails-core:class-by-file
-    (find-recursive-files "_helper\\.rb$" (rails-core:file "app/helpers/")))))
+    #'(lambda (helper) (replace-regexp-in-string "Helper$" "" helper))
+    (mapcar
+     #'rails-core:class-by-file
+     (find-recursive-files "_helper\\.rb$" (rails-core:file "app/helpers/"))))
+   (list "Test/TestHelper")))
 
 (defun rails-core:migrations (&optional strip-numbers)
   "Return a list of Rails migrations."

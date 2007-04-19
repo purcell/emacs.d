@@ -1,4 +1,6 @@
-SVN
+0.5.99.4
+* Added the test/test_helper in list of helpers.
+* Added list of templates in speedbar.
 * Fixed bug [#10056]: when one open file in a read only directory,
   flymake try to open a new file and failed (thanks Rémi Vanicat).
 * Fixed bug [#9991]: allow setup key prefix for rails-minor-mode.

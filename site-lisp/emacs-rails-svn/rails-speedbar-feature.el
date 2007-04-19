@@ -71,11 +71,46 @@
           (speedbar-with-writable
             (save-excursion
               (end-of-line) (forward-char 1)
+              (when (and (string=~ "/app/controllers/" token t)
+                         (not (string= (rails-core:class-by-file token) "Application")))
+                (speedbar-make-tag-line 'curly
+                                        ?+
+                                        'rails-speedbar:expand-templates
+                                        (rails-core:class-by-file token)
+                                        "templates"
+                                        nil
+                                        nil
+                                        nil
+                                        (+ indent 1)))
               (speedbar-insert-generic-list indent
                                             (cdr lst)
                                             'speedbar-tag-expand
                                             'speedbar-tag-find))
             )))))
+   ((string-match "-" text)
+    (speedbar-change-expand-button-char ?+)
+    (speedbar-delete-subblock indent))))
+
+(defun rails-speedbar:expand-templates (text token indent)
+  (cond
+   ((string-match "+" text)
+    (speedbar-change-expand-button-char ?-)
+    (speedbar-with-writable
+      (save-excursion
+        (end-of-line) (forward-char 1)
+        (let* ((files (rails-core:get-view-files token)))
+          (dolist (i files)
+            (speedbar-make-tag-line 'statictag
+                                    ??
+                                    nil
+                                    nil
+                                    (replace-regexp-in-string
+                                     (concat (rails-speedbar:root) (rails-core:views-dir token))
+                                     "" i)
+                                    'rails-speedbar:find-file
+                                    i
+                                    nil
+                                    (+ indent 1)))))))
    ((string-match "-" text)
     (speedbar-change-expand-button-char ?+)
     (speedbar-delete-subblock indent))))
@@ -90,7 +125,6 @@
         (get-text-property (point) 'speedbar-token)))))
 
 (defun rails-speedbar:find-file (text token indent)
-  (message "%S %S" text token)
   (typecase token
     (string (speedbar-find-file-in-frame token))))
 

@@ -1,5 +1,12 @@
 2007-04-19  Dmitry Galinsky  <dima.exe@gmail.com>
 
+	* rails-speedbar-feature.el (rails-speedbar:expand-tags): append list of templates in controllers
+	(rails-speedbar:line-directory): created
+
+	* rails-core.el (rails-core:helper-file): append the test/test_helper
+	(rails-core:views-dir): strip the "_controller" sufix
+	(rails-core:helpers): added the test/test_helper support
+
 	* rails-speedbar-feature.el (rails-speedbar:line-directory)
 	(rails-speedbar:root, rails-speedbar:in-root): created
 	(rails-speedbar-feature:install): install speedbar-mode-line-functions
