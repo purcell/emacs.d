@@ -41,6 +41,7 @@
            #:*macroexpand-printer-bindings*
            #:*record-repl-results*
            #:*inspector-dwim-lookup-hooks*
+           #:*debug-on-swank-error*
            ;; These are re-exported directly from the backend:
            #:buffer-first-change
            #:frame-source-location-for-emacs
@@ -346,14 +347,18 @@ The package is deleted before returning."
 (defun log-event (format-string &rest args)
   "Write a message to *terminal-io* when *log-events* is non-nil.
 Useful for low level debugging."
-  (when *enable-event-history*
-    (setf (aref *event-history* *event-history-index*) 
-          (format nil "~?" format-string args))
-    (setf *event-history-index* 
-          (mod (1+ *event-history-index*) (length *event-history*))))
-  (when *log-events*
-    (apply #'format *log-output* format-string args)
-    (force-output *log-output*)))
+  (with-standard-io-syntax
+    (let ((*print-readably* nil)
+          (*print-pretty* nil)
+          (*package* *swank-io-package*))
+      (when *enable-event-history*
+        (setf (aref *event-history* *event-history-index*) 
+              (format nil "~?" format-string args))
+        (setf *event-history-index* 
+              (mod (1+ *event-history-index*) (length *event-history*))))
+      (when *log-events*
+        (apply #'format *log-output* format-string args)
+        (force-output *log-output*)))))
 
 (defun event-history-to-list ()
   "Return the list of events (older events first)."
@@ -639,15 +644,25 @@ of the toplevel restart."
             *use-dedicated-output-stream*)
     (finish-output *debug-io*)))
 
+(defvar *debug-on-swank-error* nil
+  "When non-nil internal swank errors will drop to a
+  debugger (not an sldb buffer). Do not set this to T unless you
+  want to debug swank internals.")
+
 (defmacro with-reader-error-handler ((connection) &body body)
-  (let ((con (gensym)))
+  (let ((con (gensym))
+        (block (gensym)))
     `(let ((,con ,connection))
-       (handler-case 
-           (progn ,@body)
-         (swank-error (e)
-           (close-connection ,con 
-                             (swank-error.condition e)
-                             (swank-error.backtrace e)))))))
+       (block ,block
+         (handler-bind ((swank-error
+                         (lambda (e)
+                           (if *debug-on-swank-error*
+                               (invoke-debugger e)
+                               (return-from ,block
+                                 (close-connection ,con 
+                                                   (swank-error.condition e)
+                                                   (swank-error.backtrace e)))))))
+           (progn ,@body))))))
 
 (defslimefun simple-break ()
   (with-simple-restart  (continue "Continue from interrupt.")
@@ -669,10 +684,12 @@ of the toplevel restart."
 
 (defun dispatch-loop (socket-io connection)
   (let ((*emacs-connection* connection))
-    (handler-case
-        (loop (dispatch-event (receive) socket-io))
-      (error (e)
-        (close-connection connection e)))))
+    (handler-bind ((error (lambda (e)
+                            (if *debug-on-swank-error*
+                                (invoke-debugger e)
+                                (return-from dispatch-loop
+                                  (close-connection connection e))))))
+      (loop (dispatch-event (receive) socket-io)))))
 
 (defun repl-thread (connection)
   (let ((thread (connection.repl-thread connection)))
@@ -1362,15 +1379,22 @@ gracefully."
 
 ;; FIXME: deal with #\| etc.  hard to do portably.
 (defun tokenize-symbol (string)
+  "STRING is interpreted as the string representation of a symbol
+and is tokenized accordingly. The result is returned in three
+values: The package identifier part, the actual symbol identifier
+part, and a flag if the STRING represents a symbol that is
+internal to the package identifier part. (Notice that the flag is
+also true with an empty package identifier part, as the STRING is
+considered to represent a symbol internal to some current package.)"
   (let ((package (let ((pos (position #\: string)))
                    (if pos (subseq string 0 pos) nil)))
         (symbol (let ((pos (position #\: string :from-end t)))
                   (if pos (subseq string (1+ pos)) string)))
-        (internp (search "::" string)))
+        (internp (not (= (count #\: string) 1))))
     (values symbol package internp)))
 
 (defun tokenize-symbol-thoroughly (string)
-  "This version of tokenize-symbol handles escape characters."
+  "This version of TOKENIZE-SYMBOL handles escape characters."
   (let ((package nil)
         (token (make-array (length string) :element-type 'character
                            :fill-pointer 0))
@@ -1397,7 +1421,7 @@ gracefully."
                                          :fill-pointer 0))))
             (t
              (vector-push-extend (casify-char char) token))))
-    (values token package internp)))
+    (values token package (or (not package) internp))))
 
 (defun casify-char (char)
   "Convert CHAR accoring to readtable-case."
@@ -2473,7 +2497,7 @@ Fall back to the the current if no such package exists."
       *package*))
 
 (defun eval-for-emacs (form buffer-package id)
-  "Bind *BUFFER-PACKAGE* BUFFER-PACKAGE and evaluate FORM.
+  "Bind *BUFFER-PACKAGE* to BUFFER-PACKAGE and evaluate FORM.
 Return the result to the continuation ID.
 Errors are trapped and invoke our debugger."
   (call-with-debugger-hook
@@ -2810,7 +2834,7 @@ after Emacs causes a restart to be invoked."
 
 (defun debug-in-emacs (condition)
   (let ((*swank-debugger-condition* condition)
-        (*sldb-restarts* (compute-restarts condition))
+        (*sldb-restarts* (compute-sane-restarts condition))
         (*package* (or (and (boundp '*buffer-package*)
                             (symbol-value '*buffer-package*))
                        *package*))
@@ -2819,14 +2843,14 @@ after Emacs causes a restart to be invoked."
         (*swank-state-stack* (cons :swank-debugger-hook *swank-state-stack*)))
     (force-user-output)
     (call-with-debugging-environment
-     (lambda () 
+     (lambda ()
        (with-bindings *sldb-printer-bindings*
          (sldb-loop *sldb-level*))))))
 
 (defun sldb-loop (level)
   (unwind-protect
        (catch 'sldb-enter-default-debugger
-         (send-to-emacs 
+         (send-to-emacs
           (list* :debug (current-thread) level
                  (debugger-info-for-emacs 0 *sldb-initial-frames*)))
          (loop (catch 'sldb-loop-catcher
@@ -3048,12 +3072,17 @@ The time is measured in microseconds."
 
 (defun swank-compiler (function)
   (clear-compiler-notes)
-  (with-simple-restart (abort "Abort SLIME compilation.")
-    (multiple-value-bind (result usecs)
+  (multiple-value-bind (result usecs)
+      (with-simple-restart (abort "Abort SLIME compilation.")
         (handler-bind ((compiler-condition #'record-note-for-condition))
-          (measure-time-interval function))
-      (list (to-string result)
-            (format nil "~,2F" (/ usecs 1000000.0))))))
+          (measure-time-interval function)))
+    ;; WITH-SIMPLE-RESTART returns (values nil t) if its restart is invoked;
+    ;; unfortunately the SWANK protocol doesn't support returning multiple
+    ;; values, so we gotta convert it explicitely to a list in either case.
+    (if (and (not result) (eq usecs 't))
+        (list nil nil)
+        (list (to-string result)
+              (format nil "~,2F" (/ usecs 1000000.0))))))
 
 (defslimefun compile-file-for-emacs (filename load-p)
   "Compile FILENAME and, when LOAD-P, load the result.
@@ -3263,13 +3292,6 @@ TEST is called with two strings."
           (push symbol completions))))
     (remove-duplicates completions)))
 
-(defun symbol-external-p (symbol &optional (package (symbol-package symbol)))
-  "True if SYMBOL is external in PACKAGE.
-If PACKAGE is not specified, the home package of SYMBOL is used."
-  (and package
-       (eq (nth-value 1 (find-symbol (symbol-name symbol) package))
-           :external)))
-
 (defun find-matching-packages (name matcher)
   "Return a list of package names matching NAME with MATCHER.
 MATCHER is a two-argument predicate."
@@ -3281,25 +3303,114 @@ MATCHER is a two-argument predicate."
                                  collect (package-name package)
                                  append (package-nicknames package))))))
 
+
+(defun symbol-status (symbol &optional (package (symbol-package symbol)))
+  "Returns one of 
+
+  :INTERNAL  if the symbol is _present_ in PACKAGE as an _internal_ symbol,
+
+  :EXTERNAL  if the symbol is _present_ in PACKAGE as an _external_ symbol,
+
+  :INHERITED if the symbol is _inherited_ by PACKAGE through USE-PACKAGE,
+             but is not _present_ in PACKAGE,
+
+  or NIL     if SYMBOL is not _accessible_ in PACKAGE.
+
+
+Be aware not to get confused with :INTERNAL and how \"internal
+symbols\" are defined in the spec; there is a slight mismatch of
+definition with the Spec and what's commonly meant when talking
+about internal symbols most times. As the spec says:
+
+  In a package P, a symbol S is
+  
+     _accessible_  if S is either _present_ in P itself or was
+                   inherited from another package Q (which implies
+                   that S is _external_ in Q.)
+  
+        You can check that with: (AND (SYMBOL-STATUS S P) T)
+  
+  
+     _present_     if either P is the /home package/ of S or S has been
+                   imported into P or exported from P by IMPORT, or
+                   EXPORT respectively.
+  
+                   Or more simply, if S is not _inherited_.
+  
+        You can check that with: (NOT (EQ (SYMBOL-STATUS S P) :INHERITED))
+  
+  
+     _external_    if S is going to be inherited into any package that
+                   /uses/ P by means of USE-PACKAGE, MAKE-PACKAGE, or
+                   DEFPACKAGE.
+  
+                   Note that _external_ implies _present_, since to
+                   make a symbol _external_, you'd have to use EXPORT
+                   which will automatically make the symbol _present_.
+  
+        You can check that with: (EQ (SYMBOL-STATUS S P) :EXTERNAL)
+  
+  
+     _internal_    if S is _accessible_ but not _external_.
+  
+Notice that the definition of _internal_ is the definition of the
+respective glossary entry in the spec; *However*, most times,
+when you speak about \"internal symbols\", you're not talking
+about the symbols inherited from other packages, but only about
+the symbols specific to the package in question.
+
+Thus SYMBOL-STATUS splits this up into two explicit pieces: 
+:INTERNAL, and :INHERITED.  Just as CL:FIND-SYMBOL does.
+"
+  (when package     ; may be NIL when symbol is completely uninterned.
+    (check-type symbol symbol) (check-type package package)
+    (multiple-value-bind (present-symbol status)
+        (find-symbol (symbol-name symbol) package)
+      (and (eq symbol present-symbol) status))))
+
+(defun symbol-external-p (symbol &optional (package (symbol-package symbol)))
+  "True if SYMBOL is external in PACKAGE.
+If PACKAGE is not specified, the home package of SYMBOL is used."
+  (eq (symbol-status symbol package) :external))
+
+
+;; PARSE-COMPLETION-ARGUMENTS return table:
+;; 
+;;  user behaviour |  NAME  | PACKAGE-NAME | PACKAGE 
+;; ----------------+--------+--------------+-----------------------------------
+;; asdf     [tab]  | "asdf" |     NIL      | #<PACKAGE "DEFAULT-PACKAGE-NAME">
+;;                 |        |              |      or *BUFFER-PACKAGE*
+;; asdf:    [tab]  |   ""   |    "asdf"    | #<PACKAGE "ASDF">
+;;                 |        |              |
+;; asdf:foo [tab]  | "foo"  |    "asdf"    | #<PACKAGE "ASDF">
+;;                 |        |              |
+;; as:fo    [tab]  |  "fo"  |     "as"     | NIL              
+;;                 |        |              |
+;; :        [tab]  |   ""   |      ""      | #<PACKAGE "KEYWORD">
+;;                 |        |              |
+;; :foo     [tab]  | "foo"  |      ""      | #<PACKAGE "KEYWORD">
+;;
 (defun parse-completion-arguments (string default-package-name)
   "Parse STRING as a symbol designator.
 Return these values:
  SYMBOL-NAME
  PACKAGE-NAME, or nil if the designator does not include an explicit package.
- PACKAGE, the package to complete in
+ PACKAGE, generally the package to complete in. (However, if PACKAGE-NAME is 
+          NIL, return the respective package of DEFAULT-PACKAGE-NAME instead; 
+          if PACKAGE is non-NIL but a package cannot be found under that name,
+          return NIL.)
  INTERNAL-P, if the symbol is qualified with `::'."
   (multiple-value-bind (name package-name internal-p)
       (tokenize-symbol string)
-    (let ((package (carefully-find-package package-name default-package-name)))
-      (values name package-name package internal-p))))
+    (if package-name
+	(let ((package (guess-package (if (equal package-name "")
+					  "KEYWORD"
+					  package-name))))
+	  (values name package-name package internal-p))
+	(let ((package (guess-package default-package-name)))
+	  (values name package-name (or package *buffer-package*) internal-p))
+	)))
 
-(defun carefully-find-package (name default-package-name)
-  "Find the package with name NAME, or DEFAULT-PACKAGE-NAME, or the
-*buffer-package*.  NAME and DEFAULT-PACKAGE-NAME can be nil."
-  (let ((string (cond ((equal name "") "KEYWORD")
-                      (t (or name default-package-name)))))
-    (or (and string (guess-package string))
-        *buffer-package*)))
 
 ;;;;; Format completion results
 ;;;
@@ -3315,9 +3426,9 @@ Returns a list of completions with package qualifiers if needed."
           (sort strings #'string<)))
 
 (defun format-completion-result (string internal-p package-name)
-  (let ((prefix (cond (internal-p (format nil "~A::" package-name))
-                      (package-name (format nil "~A:" package-name))
-                      (t ""))))
+  (let ((prefix (cond ((not package-name) "")
+                      (internal-p (format nil "~A::" package-name))
+                      (t (format nil "~A:" package-name)))))
     (values (concatenate 'string prefix string)
             (length prefix))))
 
@@ -3469,21 +3580,38 @@ For example:
            
 ;;;; Fuzzy completion
 
-(defslimefun fuzzy-completions (string default-package-name &key limit time-limit-in-msec)
-  "Return an (optionally limited to LIMIT best results) list of
-fuzzy completions for a symbol designator STRING.  The list will
-be sorted by score, most likely match first.
+;;; For nomenclature of the fuzzy completion section, please read
+;;; through the following docstring.
 
-The result is a list of completion objects, where a completion
+(defslimefun fuzzy-completions (string default-package-name &key limit time-limit-in-msec)
+"Returns a list of two values:
+
+  An (optionally limited to LIMIT best results) list of fuzzy
+  completions for a symbol designator STRING. The list will be
+  sorted by score, most likely match first.
+
+  A flag that indicates whether or not TIME-LIMIT-IN-MSEC has
+  been exhausted during computation. If that parameter's value is
+  NIL or 0, no time limit is assumed.
+
+The main result is a list of completion objects, where a completion
 object is:
+
     (COMPLETED-STRING SCORE (&rest CHUNKS) FLAGS)
-where a CHUNK is a description of a matched string of characters:
-    (OFFSET STRING)
-and FLAGS is a list of keywords describing properties of the symbol.
-For example, the top result for completing \"mvb\" in a package
-that uses COMMON-LISP would be something like:
-    (\"multiple-value-bind\" 42.391666 ((0 \"mul\") (9 \"v\") (15 \"b\"))
+
+where a CHUNK is a description of a matched substring:
+
+    (OFFSET SUBSTRING)
+
+and FLAGS is a list of keywords describing properties of the 
+symbol (see CLASSIFY-SYMBOL).
+
+E.g., completing \"mvb\" in a package that uses COMMON-LISP would
+return something like:
+
+    ((\"multiple-value-bind\" 26.588236 ((0 \"m\") (9 \"v\") (15 \"b\"))
      (:FBOUNDP :MACRO))
+     ...)
 
 If STRING is package qualified the result list will also be
 qualified.  If string is non-qualified the result strings are
@@ -3495,151 +3623,288 @@ designator's format. The cases are as follows:
   FOO      - Symbols accessible in the buffer package.
   PKG:FOO  - Symbols external in package PKG.
   PKG::FOO - Symbols accessible in package PKG."
-  ;; We may send this as elisp [] arrays to spare a coerce here,
-  ;; but then the network serialization were slower by handling arrays.
-  ;; Instead we limit the number of completions that is transferred
-  ;; (the limit is set from emacs).
-  (coerce (fuzzy-completion-set string default-package-name
-                                :limit limit :time-limit-in-msec time-limit-in-msec)
-          'list))
+  ;; For Emacs we allow both NIL and 0 as value of TIME-LIMIT-IN-MSEC
+  ;; to denote an infinite time limit. Internally, we only use NIL for
+  ;; that purpose, to be able to distinguish between "no time limit
+  ;; alltogether" and "current time limit already exhausted." So we've
+  ;; got to canonicalize its value at first:
+  (let* ((no-time-limit-p (or (not time-limit-in-msec) (zerop time-limit-in-msec)))
+         (time-limit (if no-time-limit-p nil time-limit-in-msec)))
+    (multiple-value-bind (completion-set interrupted-p)
+        (fuzzy-completion-set string default-package-name :limit limit
+                              :time-limit-in-msec time-limit)
+      ;; We may send this as elisp [] arrays to spare a coerce here,
+      ;; but then the network serialization were slower by handling arrays.
+      ;; Instead we limit the number of completions that is transferred
+      ;; (the limit is set from Emacs.)
+      (list (coerce completion-set 'list) interrupted-p))))
 
-(defun convert-fuzzy-completion-result (result converter
-                                        internal-p package-name)
+
+;;; A Fuzzy Matching -- Not to be confused with a fuzzy completion
+;;; object that will be sent back to Emacs, as described above.
+
+(defstruct (fuzzy-matching (:conc-name   fuzzy-matching.)
+			   (:predicate   fuzzy-matching-p)
+			   (:constructor %make-fuzzy-matching))
+  symbol	    ; The symbol that has been found to match. 
+  score	            ; The higher the better symbol is a match.
+  package-chunks    ; Chunks pertaining to the package identifier of the symbol.
+  symbol-chunks)    ; Chunks pertaining to the symbol's name.
+
+(defun make-fuzzy-matching (symbol score package-chunks symbol-chunks)
+  (declare (inline %make-fuzzy-matching))
+  (%make-fuzzy-matching :symbol symbol :score score
+			:package-chunks package-chunks
+			:symbol-chunks symbol-chunks))
+
+
+(defun fuzzy-convert-matching-for-emacs (fuzzy-matching converter
+					 internal-p package-name)
   "Converts a result from the fuzzy completion core into
 something that emacs is expecting.  Converts symbols to strings,
 fixes case issues, and adds information describing if the symbol
 is :bound, :fbound, a :class, a :macro, a :generic-function,
 a :special-operator, or a :package."
-  (destructuring-bind (symbol-or-name score chunks) result
+  (with-struct (fuzzy-matching. symbol score package-chunks symbol-chunks) fuzzy-matching
     (multiple-value-bind (name added-length)
         (format-completion-result
-         (if converter
-             (funcall converter 
-                      (if (symbolp symbol-or-name)
-                          (symbol-name symbol-or-name)
-                          symbol-or-name))
-             symbol-or-name)
-         internal-p package-name)
-      (list name score
-            (mapcar
-             #'(lambda (chunk)
-                 ;; fix up chunk positions to account for possible
-                 ;; added package identifier
-                 (list (+ added-length (first chunk))
-                       (second chunk))) 
-             chunks)
-            (loop for flag in '(:boundp :fboundp :generic-function 
-                                :class :macro :special-operator
-                                :package)
-                  if (if (symbolp symbol-or-name)
-                         (case flag
-                           (:boundp (boundp symbol-or-name))
-                           (:fboundp (fboundp symbol-or-name))
-                           (:class (find-class symbol-or-name nil))
-                           (:macro (macro-function symbol-or-name))
-                           (:special-operator
-                            (special-operator-p symbol-or-name))
-                           (:generic-function
-                            (typep (ignore-errors (fdefinition symbol-or-name))
-                                   'generic-function)))
-                         (case flag
-                           (:package (stringp symbol-or-name)
-                                     ;; KLUDGE: depends on internal
-                                     ;; knowledge that packages are
-                                     ;; brought up from the bowels of
-                                     ;; the completion algorithm as
-                                     ;; strings!
-                                     )))
-                  collect flag)))))
+          (funcall (or converter #'identity) (symbol-name symbol))
+          internal-p package-name)
+      (list name
+            score
+            (append package-chunks
+		    (mapcar #'(lambda (chunk)
+				;; Fix up chunk positions to account for possible
+				;; added package identifier.
+				(let ((offset (first chunk)) (string (second chunk)))
+				  (list (+ added-length offset) string))) 
+			    symbol-chunks))
+            (classify-symbol symbol)))))
+
+(defun classify-symbol (symbol)
+  "Returns a list of classifiers that classify SYMBOL according
+to its underneath objects (e.g. :BOUNDP if SYMBOL constitutes a
+special variable.) The list may contain the following classification
+keywords: :BOUNDP, :FBOUNDP, :GENERIC-FUNCTION, :CLASS, :MACRO, 
+:SPECIAL-OPERATOR, and/or :PACKAGE"
+  (check-type symbol symbol)
+  (let (result)
+    (when (boundp symbol)             (push :boundp result))
+    (when (fboundp symbol)            (push :fboundp result))
+    (when (find-class symbol nil)     (push :class result))
+    (when (macro-function symbol)     (push :macro result))
+    (when (special-operator-p symbol) (push :special-operator result))
+    (when (find-package symbol)       (push :package result))
+    (when (typep (ignore-errors (fdefinition symbol))
+                 'generic-function)
+      (push :generic-function result))
+    result))
+
+(defun symbol-classification->string (flags)
+  (format nil "~A~A~A~A~A~A~A"
+          (if (member :boundp flags) "b" "-")
+          (if (member :fboundp flags) "f" "-")
+          (if (member :generic-function flags) "g" "-")
+          (if (member :class flags) "c" "-")
+          (if (member :macro flags) "m" "-")
+          (if (member :special-operator flags) "s" "-")
+          (if (member :package flags) "p" "-")))
+
 
 (defun fuzzy-completion-set (string default-package-name &key limit time-limit-in-msec)
-  "Prepares list of completion obajects, sorted by SCORE, of fuzzy
-completions of STRING in DEFAULT-PACKAGE-NAME.  If LIMIT is set,
-only the top LIMIT results will be returned."
-  (declare (type (or null (integer 0 #.(1- most-positive-fixnum))) limit time-limit-in-msec))
-  (multiple-value-bind (name package-name package internal-p)
+  "Returns two values: an array of completion objects, sorted by
+their score, that is how well they are a match for STRING
+according to the fuzzy completion algorithm.  If LIMIT is set,
+only the top LIMIT results will be returned. Additionally, a flag
+is returned that indicates whether or not TIME-LIMIT-IN-MSEC was
+exhausted."
+  (check-type limit (or null (integer 0 #.(1- most-positive-fixnum))))
+  (check-type time-limit-in-msec (or null (integer 0 #.(1- most-positive-fixnum))))
+  (multiple-value-bind (completion-set interrupted-p)
+      (fuzzy-create-completion-set string default-package-name
+                                   time-limit-in-msec)
+    (when (and limit
+               (> limit 0)
+               (< limit (length completion-set)))
+      (if (array-has-fill-pointer-p completion-set)
+          (setf (fill-pointer completion-set) limit)
+          (setf completion-set (make-array limit :displaced-to completion-set))))
+    (values completion-set interrupted-p)))
+
+
+(defun fuzzy-create-completion-set (string default-package-name time-limit-in-msec)
+  "Does all the hard work for FUZZY-COMPLETION-SET. If
+TIME-LIMIT-IN-MSEC is NIL, an infinite time limit is assumed."
+  (multiple-value-bind (parsed-name parsed-package-name package internal-p)
       (parse-completion-arguments string default-package-name)
-    (flet ((convert (vector &optional converter)
-             (when vector
-               (loop for idx below (length vector)
-                     for el = (aref vector idx)
-                     do (setf (aref vector idx) (convert-fuzzy-completion-result
-                                                 el converter internal-p package-name))))))
-      (let* ((symbols (and package
-                           (fuzzy-find-matching-symbols name
-                                                        package
-                                                        (and (not internal-p)
-                                                             package-name)
-                                                        :time-limit-in-msec time-limit-in-msec
-                                                        :return-converted-p nil)))
-             (packs (and (not package-name)
-                         (fuzzy-find-matching-packages name)))
-             (results))
-        (convert symbols (completion-output-symbol-converter string))
-        (convert packs)
-        (setf results (sort (concatenate 'vector symbols packs) #'> :key #'second))
-        (when (and limit
-                   (> limit 0)
-                   (< limit (length results)))
-          (if (array-has-fill-pointer-p results)
-              (setf (fill-pointer results) limit)
-              (setf results (make-array limit :displaced-to results))))
-        results))))
+    (flet ((convert (matchings package-name &optional converter)
+	     ;; Converts MATCHINGS to completion objects for Emacs.
+	     ;; PACKAGE-NAME is the package identifier that's used as prefix
+	     ;; during formatting. If NIL, the identifier is omitted.
+	     (map-into matchings
+		       #'(lambda (m)
+			   (fuzzy-convert-matching-for-emacs m converter
+							     internal-p
+							     package-name))
+		       matchings))
+	   (fix-up (matchings parent-package-matching)
+	     ;; The components of each matching in MATCHINGS have been computed
+	     ;; relatively to PARENT-PACKAGE-MATCHING. Make them absolute.
+	     (let* ((p parent-package-matching)
+		    (p.score  (fuzzy-matching.score p))
+		    (p.chunks (fuzzy-matching.package-chunks p)))
+	       (map-into matchings
+			 #'(lambda (m)
+			     (let ((m.score (fuzzy-matching.score m)))
+			       (setf (fuzzy-matching.package-chunks m) p.chunks)
+			       (setf (fuzzy-matching.score m)
+				     (if (string= parsed-name "")
+					 ;; (Make package matchings be sorted before all the
+                                         ;; relative symbol matchings while preserving over
+					 ;; all orderness.)
+					 (/ p.score 100)        
+					 (+ p.score m.score)))
+			       m))
+			 matchings)))
+	   (find-symbols (designator package time-limit)
+	     (fuzzy-find-matching-symbols designator package
+					  :time-limit-in-msec time-limit
+					  :external-only (not internal-p)))
+           (find-packages (designator time-limit)
+             (fuzzy-find-matching-packages designator :time-limit-in-msec time-limit)))
+      (let ((symbol-normalizer  (completion-output-symbol-converter string))
+	    (package-normalizer #'(lambda (package-name)
+				    (let ((converter (completion-output-package-converter string)))
+				      ;; Present packages with a trailing colon for maximum convenience!
+				      (concatenate 'string (funcall converter package-name) ":"))))
+            (time-limit time-limit-in-msec) (symbols) (packages) (results))
+	(cond ((not parsed-package-name)        ; E.g. STRING = "asd"
+	       ;; We don't know if user is searching for a package or a symbol
+	       ;; within his current package. So we try to find either.
+	       (setf (values packages time-limit) (find-packages parsed-name time-limit))
+               (setf (values symbols  time-limit) (find-symbols parsed-name package time-limit))
+               (setf symbols  (convert symbols nil symbol-normalizer))
+               (setf packages (convert packages nil package-normalizer)))
+	      ((string= parsed-package-name "") ; E.g. STRING = ":" or ":foo"
+	       (setf (values symbols time-limit) (find-symbols parsed-name package time-limit))
+               (setf symbols (convert symbols "" symbol-normalizer)))
+	      (t	                        ; E.g. STRING = "asdf:" or "asdf:foo"
+	       ;; Find fuzzy matchings of the denoted package identifier part.
+	       ;; After that, find matchings for the denoted symbol identifier
+	       ;; relative to all the packages found.
+               (multiple-value-bind (found-packages rest-time-limit)
+                   (find-packages parsed-package-name time-limit-in-msec)
+                 (loop
+                    for package-matching across found-packages
+                    for package-sym  = (fuzzy-matching.symbol package-matching)
+                    for package-name = (funcall symbol-normalizer (symbol-name package-sym))
+                    for package      = (find-package package-sym)
+                    while (or (not time-limit) (> rest-time-limit 0)) do
+                      (multiple-value-bind (matchings remaining-time)
+                          (find-symbols parsed-name package rest-time-limit)
+                        (setf matchings (fix-up matchings package-matching))
+                        (setf matchings (convert matchings package-name symbol-normalizer))
+                        (setf symbols   (concatenate 'vector symbols matchings))
+                        (setf rest-time-limit remaining-time))
+                    finally ; CONVERT is destructive. So we have to do this at last.
+                      (setf time-limit rest-time-limit)
+                      (setf packages (when (string= parsed-name "")
+                                       (convert found-packages nil package-normalizer)))))))
+	;; Sort alphabetically before sorting by score. (Especially useful when
+	;; PARSED-NAME is empty, and all possible completions are to be returned.)
+	(setf results (concatenate 'vector symbols packages))
+	(setf results (sort results #'string< :key #'first))  ; SORT + #'STRING-LESSP
+	(setf results (stable-sort results #'> :key #'second));  conses on at least SBCL.
+	(values results (and time-limit (<= time-limit 0)))))))
 
-(defun fuzzy-find-matching-symbols (string package external &key time-limit-in-msec return-converted-p)
-  "Return a list of symbols in PACKAGE matching STRING using the
-fuzzy completion algorithm.  If EXTERNAL is true, only external
-symbols are returned."
-  (let ((completions (make-array 256 :adjustable t :fill-pointer 0))
-        (time-limit (if time-limit-in-msec
-                        (ceiling (/ time-limit-in-msec 1000))
-                        0))
-        (utime-at-start (get-universal-time))
-        (count 0)
-        (converter (completion-output-symbol-converter string)))
-    (declare (type (integer 0 #.(1- most-positive-fixnum)) count time-limit)
-             (type function converter))
-    (flet ((symbol-match (symbol converted)
-             (and (or (not external)
-                      (symbol-external-p symbol package))
-                  (compute-highest-scoring-completion
-                   string converted))))
-      (block loop
-        (do-symbols* (symbol package)
-          (incf count)
-          (when (and (not (zerop time-limit))
-                     (zerop (mod count 256))  ; ease up on calling get-universal-time like crazy
-                     (>= (- (get-universal-time) utime-at-start) time-limit))
-            (return-from loop))
-          (let* ((converted (funcall converter (symbol-name symbol)))
-                 (result (if return-converted-p converted symbol)))
-            (if (string= "" string)
-                (when (or (and external (symbol-external-p symbol package))
-                          (not external))
-                  (vector-push-extend (list result 0.0 (list (list 0 ""))) completions))
-                (multiple-value-bind (match-result score) (symbol-match symbol converted)
-                  (when match-result
-                    (vector-push-extend (list result score match-result) completions)))))))
-      completions)))
 
-(defun fuzzy-find-matching-packages (name)
-  "Return a list of package names matching NAME using the fuzzy
-completion algorithm."
-  (let ((converter (completion-output-package-converter name))
+(defun get-real-time-in-msecs ()
+  (let ((units-per-msec (max 1 (floor internal-time-units-per-second 1000))))
+    (values (floor (get-internal-real-time) units-per-msec)))) ; return just one value!
+
+
+(defun fuzzy-find-matching-symbols (string package &key external-only time-limit-in-msec)
+  "Returns two values: a vector of fuzzy matchings for matching
+symbols in PACKAGE, using the fuzzy completion algorithm; the
+remaining time limit. 
+
+If EXTERNAL-ONLY is true, only external symbols are considered. A
+TIME-LIMIT-IN-MSEC of NIL is considered no limit; if it's zero or
+negative, perform a NOP."
+  (let ((time-limit-p (and time-limit-in-msec t))
+        (time-limit (or time-limit-in-msec 0))
+        (rtime-at-start (get-real-time-in-msecs))
+        (count 0))
+    (declare (type boolean time-limit-p))
+    (declare (type integer time-limit rtime-at-start))
+    (declare (type (integer 0 #.(1- most-positive-fixnum)) count))
+
+    (flet ((recompute-remaining-time (old-remaining-time)
+             (cond ((not time-limit-p)
+                    (values nil nil)) ; propagate NIL back as infinite time limit.
+                   ((> count 0)       ; ease up on getting internal time like crazy.
+                    (setf count (mod (1+ count) 128))
+                    (values nil old-remaining-time))
+                   (t (let* ((elapsed-time (- (get-real-time-in-msecs) rtime-at-start))
+                             (remaining (- time-limit elapsed-time)))
+                        (values (<= remaining 0) remaining)))))
+           (perform-fuzzy-match (string symbol-name)
+             (let* ((converter (completion-output-symbol-converter string))
+                    (converted-symbol-name (funcall converter symbol-name)))
+               (compute-highest-scoring-completion string converted-symbol-name))))
+      (let ((completions (make-array 256 :adjustable t :fill-pointer 0))
+            (rest-time-limit time-limit))
+        (block loop
+          (do-symbols* (symbol package)
+            (multiple-value-bind (exhausted? remaining-time)
+                (recompute-remaining-time rest-time-limit)
+              (setf rest-time-limit remaining-time)
+              (cond (exhausted? (return-from loop))
+                    ((or (not external-only) (symbol-external-p symbol package))
+                     (if (string= "" string) ; "" matchs always
+                         (vector-push-extend (make-fuzzy-matching symbol 0.0 '() '())
+                                             completions)
+                         (multiple-value-bind (match-result score)
+                             (perform-fuzzy-match string (symbol-name symbol))
+                           (when match-result
+                             (vector-push-extend
+                              (make-fuzzy-matching symbol score '() match-result)
+                              completions)))))))))
+        (values completions rest-time-limit)))))
+
+
+(defun fuzzy-find-matching-packages (name &key time-limit-in-msec)
+  "Returns a vector of fuzzy matchings for each package that is
+similiar to NAME, and the remaining time limit. 
+Cf. FUZZY-FIND-MATCHING-SYMBOLS."
+  (let ((time-limit-p (and time-limit-in-msec t))
+        (time-limit (or time-limit-in-msec 0))
+        (rtime-at-start (get-real-time-in-msecs))
+        (converter (completion-output-package-converter name))
         (completions (make-array 32 :adjustable t :fill-pointer 0)))
-    (declare ;;(optimize (speed 3))
-             (type function converter))  
-    (loop for package in (list-all-packages)
-          for package-name = (concatenate 'string 
-                                          (funcall converter
-                                                   (package-name package)) 
-                                          ":")
-          for (result score) = (multiple-value-list
-                                   (compute-highest-scoring-completion
-                                    name package-name))
-          when result do
-          (vector-push-extend (list package-name score result) completions))
-    completions))
+    (declare (type boolean time-limit-p))
+    (declare (type integer time-limit rtime-at-start))
+    (declare (type function converter))
+    (if (and time-limit-p (<= time-limit 0))
+        (values #() time-limit)
+        (loop for package in (list-all-packages)
+              for package-name   = (package-name package)
+              for converted-name = (funcall converter package-name)
+              for package-symbol = (or (find-symbol package-name)
+                                       (make-symbol package-name)) ; INTERN'd be
+              for (result score) = (multiple-value-list            ;  too invasive.
+                                     (compute-highest-scoring-completion
+                                       name converted-name))
+              when result do (vector-push-extend
+                               (make-fuzzy-matching package-symbol score result '())
+                               completions)
+              finally
+                (return
+                  (values completions
+                          (and time-limit-p
+                               (let ((elapsed-time (- (get-real-time-in-msecs) rtime-at-start)))
+                                 (- time-limit elapsed-time)))))))))
+
 
 (defslimefun fuzzy-completion-selected (original-string completion)
   "This function is called by Slime when a fuzzy completion is
@@ -3653,6 +3918,7 @@ SWANK:FUZZY-COMPLETIONS) corresponding to the completion that the
 user selected."
   (declare (ignore original-string completion))
   nil)
+
 
 ;;;;; Fuzzy completion core
 
@@ -3671,7 +3937,7 @@ problem -- this is only here as a safeguard.")
   "Finds the highest scoring way to complete the abbreviation
 SHORT onto the string FULL, using CHAR= as a equality function for
 letters.  Returns two values:  The first being the completion
-chunks of the high scorer, and the second being the score."
+chunks of the highest scorer, and the second being the score."
   (let* ((scored-results
           (mapcar #'(lambda (result)
                       (cons (score-completion result short full) result))
@@ -3764,6 +4030,7 @@ onto the special variable *ALL-CHUNKS* and the function returns."
         (let ((rev-chunks (reverse chunks)))
           (push rev-chunks *all-chunks*)
           rev-chunks))))
+
 
 ;;;;; Fuzzy completion scoring
 
@@ -3858,9 +4125,10 @@ capitalized, while the rest of the string will be lower-case."
                                             (length (second chunk))))))
     highlit))
 
-(defun format-fuzzy-completions (winners)
+(defun format-fuzzy-completion-set (winners)
   "Given a list of completion objects such as on returned by
-FUZZY-COMPLETIONS, format the list into user-readable output."
+FUZZY-COMPLETION-SET, format the list into user-readable output
+for interactive debugging purpose."
   (let ((max-len 
          (loop for winner in winners maximizing (length (first winner)))))
     (loop for (sym score result) in winners do
@@ -4299,9 +4567,7 @@ NIL is returned if the list is circular."
 		      size)
 	    ,(lambda() 
 	       (let ((*slime-inspect-contents-limit* nil))
-		 (values
-		  (swank::inspect-object thing)
-		  :replace)))))
+		 (swank::inspect-object thing)))))
 
 (defmethod inspect-show-more-action (thing)
   `(:action ,(format nil "~a elements shown. Prompt for how many to inspect..." 
@@ -4309,9 +4575,7 @@ NIL is returned if the list is circular."
 	    ,(lambda() 
 	       (let ((*slime-inspect-contents-limit* 
 		      (progn (format t "How many elements should be shown? ") (read))))
-		 (values
-		  (swank::inspect-object thing)
-		  :replace)))))
+		 (swank::inspect-object thing)))))
 
 (defmethod inspect-for-emacs ((array array) inspector)
   (declare (ignore inspector))
@@ -4685,49 +4949,208 @@ See `methods-by-applicability'.")
             (:newline)
             ,@(all-slots-for-inspector slot inspector))))
 
+
+;; Wrapper structure over the list of symbols of a package that should
+;; be displayed with their respective classification flags. This is
+;; because we need a unique type to dispatch on in INSPECT-FOR-EMACS.
+;; Used by the Inspector for packages.
+(defstruct (%package-symbols-container (:conc-name   %container.)
+                                       (:constructor %%make-package-symbols-container))
+  title          ;; A string; the title of the inspector page in Emacs.   
+  description    ;; A list of renderable objects; used as description.
+  symbols        ;; A list of symbols. Supposed to be sorted alphabetically.
+  grouping-kind  ;; Either :SYMBOL or :CLASSIFICATION. Cf. MAKE-SYMBOLS-LISTING.
+  )
+
+(defun %make-package-symbols-container (&key title description symbols)
+  (%%make-package-symbols-container :title title :description description
+                                    :symbols symbols :grouping-kind :symbol))
+
+
+(defmethod make-symbols-listing ((grouping-kind (eql :symbol)) symbols)
+  "Returns an object renderable by Emacs' inspector side that
+alphabetically lists all the symbols in SYMBOLS together with a
+concise string representation of what each symbol
+represents (cf. CLASSIFY-SYMBOL & Fuzzy Completion.)"
+  (let ((max-length (loop for s in symbols maximizing (length (symbol-name s))))
+        (distance 10)) ; empty distance between name and classification
+    (flet ((string-representations (symbol)
+             (let* ((name (symbol-name symbol))
+                    (length (length name))
+                    (padding (- max-length length))                    
+                    (classification (classify-symbol symbol)))
+               (values
+                (concatenate 'string
+                             name
+                             (make-string (+ padding distance) :initial-element #\Space))
+                (symbol-classification->string classification)))))
+      `(""                           ; 8 is (length "Symbols:")
+        "Symbols:" ,(make-string (+ -8 max-length distance) :initial-element #\Space) "Flags:"
+        (:newline)
+        ,(concatenate 'string        ; underlining dashes
+                      (make-string (+ max-length distance -1) :initial-element #\-)
+                      " "
+                      (let* ((dummy (classify-symbol (gensym)))
+                             (dummy (symbol-classification->string dummy))
+                             (classification-length (length dummy)))
+                        (make-string classification-length :initial-element #\-)))
+        (:newline)          
+        ,@(loop for symbol in symbols appending
+               (multiple-value-bind (symbol-string classification-string)
+                   (string-representations symbol)
+                 `((:value ,symbol ,symbol-string) ,classification-string
+                   (:newline)
+                   )))))))
+
+(defmethod make-symbols-listing ((grouping-kind (eql :classification)) symbols)
+  "For each possible classification (cf. CLASSIFY-SYMBOL), group
+all the symbols in SYMBOLS to all of their respective
+classifications. (If a symbol is, for instance, boundp and a
+generic-function, it'll appear both below the BOUNDP group and
+the GENERIC-FUNCTION group.) As macros and special-operators are
+specified to be FBOUNDP, there is no general FBOUNDP group,
+instead there are the three explicit FUNCTION, MACRO and
+SPECIAL-OPERATOR groups."
+  (let ((table (make-hash-table :test #'eq)))
+    (flet ((maybe-convert-fboundps (classifications)
+             ;; Convert an :FBOUNDP in CLASSIFICATION to :FUNCTION if possible.
+             (if (and (member :fboundp classifications)
+                      (not (member :macro classifications))
+                      (not (member :special-operator classifications)))
+                 (substitute :function :fboundp classifications)
+                 (remove :fboundp classifications))))
+      (loop for symbol in symbols do
+            (loop for classification in (maybe-convert-fboundps (classify-symbol symbol))
+                  ;; SYMBOLS are supposed to be sorted alphabetically;
+                  ;; this property is preserved here expect for reversing.
+                  do (push symbol (gethash classification table)))))
+    (let* ((classifications (loop for k being the hash-key in table collect k))
+           (classifications (sort classifications #'string<)))
+      (loop for classification in classifications
+            for symbols = (gethash classification table)
+            appending`(,(symbol-name classification)
+                        (:newline)
+                        ,(make-string 64 :initial-element #\-)
+                        (:newline)
+                        ,@(mapcan #'(lambda (symbol)
+                                      (list `(:value ,symbol ,(symbol-name symbol)) '(:newline)))
+                                  (nreverse symbols)) ; restore alphabetic orderness.
+                        (:newline)
+                        )))))
+
+(defmethod inspect-for-emacs ((%container %package-symbols-container) inspector)
+  (declare (ignore inspector))
+  (with-struct (%container. title description symbols grouping-kind) %container
+    (values title
+            `(,@description
+              (:newline)
+              "  " ,(ecase grouping-kind
+                           (:symbol
+                            `(:action "[Group by classification]"
+                                      ,(lambda () (setf grouping-kind :classification))
+                                      :refreshp t))
+                           (:classification
+                            `(:action "[Group by symbol]"
+                                      ,(lambda () (setf grouping-kind :symbol))
+                                      :refreshp t)))
+              (:newline) (:newline)
+              ,@(make-symbols-listing grouping-kind symbols)))))
+
+
 (defmethod inspect-for-emacs ((package package) inspector)
   (declare (ignore inspector))
-  (let ((internal-symbols '())
-        (external-symbols '()))
-    (do-symbols (sym package)
-      (when (eq package (symbol-package sym))
-        (push sym internal-symbols)
-        (multiple-value-bind (symbol status)
-            (find-symbol (symbol-name sym) package)
-          (declare (ignore symbol))
-          (when (eql :external status)
-            (push sym external-symbols)))))
-    (setf internal-symbols (sort internal-symbols #'string-lessp)
-          external-symbols (sort external-symbols #'string-lessp))
-    (values "A package."
-            `("Name: " (:value ,(package-name package))
-              (:newline)
-              "Nick names: " ,@(common-seperated-spec (sort (copy-seq (package-nicknames package))
-                                                            #'string-lessp))
-              (:newline)
-              ,@(when (documentation package t)
-                  `("Documentation:" (:newline)
-                    ,(documentation package t) (:newline)))
-              "Use list: " ,@(common-seperated-spec (sort (copy-seq (package-use-list package)) #'string-lessp :key #'package-name)
-                                                    (lambda (pack)
-                                                      `(:value ,pack ,(inspector-princ (package-name pack)))))
-              (:newline)
-              "Used by list: " ,@(common-seperated-spec (sort (copy-seq (package-used-by-list package)) #'string-lessp :key #'package-name)
-                                                        (lambda (pack)
-                                                          `(:value ,pack ,(inspector-princ (package-name pack)))))
-              (:newline)
-              ,(if (null external-symbols)
-                   "0 external symbols."
-                   `(:value ,external-symbols ,(format nil "~D external symbol~:P." (length external-symbols))))
-              (:newline)
-              ,(if (null internal-symbols)
-                   "0 internal symbols."
-                   `(:value ,internal-symbols ,(format nil "~D internal symbol~:P." (length internal-symbols))))
-              (:newline)
-              ,(if (null (package-shadowing-symbols package))
-                   "0 shadowed symbols."
-                   `(:value ,(package-shadowing-symbols package)
-                            ,(format nil "~D shadowed symbol~:P." (length (package-shadowing-symbols package)))))))))
+  (let ((package-name         (package-name package))
+        (package-nicknames    (package-nicknames package))
+        (package-use-list     (mapcar #'package-name (package-use-list package)))
+        (package-used-by-list (mapcar #'package-name (package-used-by-list package)))
+        (shadowed-symbols     (package-shadowing-symbols package))
+        (present-symbols      '()) (present-symbols-length  0)
+        (internal-symbols     '()) (internal-symbols-length 0)
+        (external-symbols     '()) (external-symbols-length 0))
+
+    (do-symbols* (sym package)
+      (let ((status (symbol-status sym package)))
+        (when (not (eq status :inherited))
+          (push sym present-symbols) (incf present-symbols-length)
+          (if (eq status :internal)
+              (progn (push sym internal-symbols) (incf internal-symbols-length))                
+              (progn (push sym external-symbols) (incf external-symbols-length))))))
+    
+    (setf package-nicknames    (sort (copy-list package-nicknames)    #'string<)
+          package-use-list     (sort (copy-list package-use-list)     #'string<)
+          package-used-by-list (sort (copy-list package-used-by-list) #'string<)
+          shadowed-symbols     (sort (copy-list shadowed-symbols)     #'string<))
+    
+    (setf present-symbols      (sort present-symbols  #'string<)  ; SORT + STRING-LESSP
+          internal-symbols     (sort internal-symbols #'string<)  ; conses on at least
+          external-symbols     (sort external-symbols #'string<)) ; SBCL 0.9.18.
+
+    
+    (values
+     "A package."
+     `(""                               ; dummy to preserve indentation.
+       "Name: " (:value ,package-name) (:newline)
+                       
+       "Nick names: " ,@(common-seperated-spec package-nicknames) (:newline)
+              
+       ,@(when (documentation package t)
+               `("Documentation:" (:newline) ,(documentation package t) (:newline)))
+              
+       "Use list: " ,@(common-seperated-spec
+                       package-use-list
+                       (lambda (package)
+                         `(:value ,package ,(package-name package))))
+       (:newline)
+              
+       "Used by list: " ,@(common-seperated-spec
+                           package-used-by-list
+                           (lambda (package)
+                             `(:value ,package ,(package-name package))))
+       (:newline)
+
+       ,@     ; ,@(flet ((...)) ...) would break indentation in Emacs.
+       (flet ((display-link (type symbols length &key title description)
+                (if (null symbols)
+                    (format nil "0 ~A symbols." type)
+                    `(:value ,(%make-package-symbols-container :title title
+                                                               :description description
+                                                               :symbols symbols)
+                             ,(format nil "~D ~A symbol~P." length type length)))))
+         
+         `(,(display-link "present" present-symbols  present-symbols-length
+                          :title (format nil "All present symbols of package \"~A\"" package-name)
+                          :description
+                          '("A symbol is considered present in a package if it's" (:newline)
+                            "\"accessible in that package directly, rather than"  (:newline)
+                            "being inherited from another package.\""             (:newline)
+                            "(CLHS glossary entry for `present')"                 (:newline)))
+            
+            (:newline)
+            ,(display-link "external" external-symbols external-symbols-length
+                           :title (format nil "All external symbols of package \"~A\"" package-name)
+                           :description
+                           '("A symbol is considered external of a package if it's"  (:newline)
+                             "\"part of the `external interface' to the package and" (:newline)
+                             "[is] inherited by any other package that uses the"     (:newline)
+                             "package.\" (CLHS glossary entry of `external')"        (:newline)))
+            (:newline)
+            ,(display-link "internal" internal-symbols internal-symbols-length
+                           :title (format nil "All internal symbols of package \"~A\"" package-name)
+                           :description
+                           '("A symbol is considered internal of a package if it's"   (:newline)
+                             "present and not external---that is if the package is"   (:newline)
+                             "the home package of the symbol, or if the symbol has"   (:newline)
+                             "been explicitly imported into the package."             (:newline)
+                             (:newline)
+                             "Notice that inherited symbols will thus not be listed," (:newline)
+                             "which deliberately deviates from the CLHS glossary"     (:newline)
+                             "entry of `internal' because it's assumed to be more"    (:newline)
+                             "useful this way."                                       (:newline)))
+            (:newline)
+            ,(display-link "shadowed" shadowed-symbols (length shadowed-symbols)
+                           :title (format nil "All shadowed symbols of package \"~A\"" package-name)
+                           :description nil)))))))
+
 
 (defmethod inspect-for-emacs ((pathname pathname) inspector)
   (declare (ignore inspector))
@@ -4854,7 +5277,8 @@ See `methods-by-applicability'.")
                         ,(let ((pathname (pathname stream))
                                (position (file-position stream)))
                            (lambda ()
-                             (ed-in-emacs `(,pathname :charpos ,position)))))
+                             (ed-in-emacs `(,pathname :charpos ,position))))
+                        :refresh nil)
                (:newline))
              content))))
 
@@ -4873,7 +5297,8 @@ See `methods-by-applicability'.")
                               ,(let ((pathname (pathname stream))
                                      (position (file-position stream)))
                                     (lambda ()
-                                      (ed-in-emacs `(,pathname :charpos ,position)))))
+                                      (ed-in-emacs `(,pathname :charpos ,position))))
+                              :refresh nil)
                      (:newline))
                    content))
           (values title content)))))
@@ -4977,8 +5402,8 @@ See `methods-by-applicability'.")
                    (string #\newline))
                   ((:value obj &optional str) 
                    (value-part-for-emacs obj str))
-                  ((:action label lambda) 
-                   (action-part-for-emacs label lambda)))))))
+                  ((:action label lambda &key (refreshp t)) 
+                   (action-part-for-emacs label lambda refreshp)))))))
 
 (defun assign-index (object vector)
   (let ((index (fill-pointer vector)))
@@ -4990,8 +5415,9 @@ See `methods-by-applicability'.")
         (or string (print-part-to-string object))
         (assign-index object *inspectee-parts*)))
 
-(defun action-part-for-emacs (label lambda)
-  (list :action label (assign-index lambda *inspectee-actions*)))
+(defun action-part-for-emacs (label lambda refreshp)
+  (list :action label (assign-index (list lambda refreshp)
+                                    *inspectee-actions*)))
   
 (defun inspect-object (object &optional (inspector (make-default-inspector)))
   (push (setq *inspectee* object) *inspector-stack*)
@@ -5015,10 +5441,13 @@ See `methods-by-applicability'.")
     (inspect-object (inspector-nth-part index))))
 
 (defslimefun inspector-call-nth-action (index &rest args)
-  (multiple-value-bind (value replace) (apply (aref *inspectee-actions* index) args)
-      (if (eq replace :replace)
-	  value
-	  (inspect-object (pop *inspector-stack*)))))
+  (destructuring-bind (action-lambda refreshp)
+      (aref *inspectee-actions* index)
+    (apply action-lambda args)
+    (if refreshp
+        (inspect-object (pop *inspector-stack*))
+        ;; tell emacs that we don't want to refresh the inspector buffer
+        nil)))
 
 (defslimefun inspector-pop ()
   "Drop the inspector stack and inspect the second element.  Return

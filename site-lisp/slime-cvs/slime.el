@@ -254,7 +254,7 @@ If you want to fallback on TAGS you can set this to `find-tag',
   :group 'slime-mode
   :type 'hook
   :options '(slime-maybe-list-compiler-notes
-             slime-list-compiler-notes 
+             slime-list-compiler-notes
              slime-maybe-show-xrefs-for-notes))
 
 (defcustom slime-goto-first-note-after-compilation nil
@@ -837,6 +837,7 @@ If INFERIOR is non-nil, the key is also bound for `inferior-slime-mode'."
        [ "Macroexpand Once..."     slime-macroexpand-1 ,C ]
        [ "Macroexpand All..."      slime-macroexpand-all ,C ]
        [ "Toggle Trace..."         slime-toggle-trace-fdefinition ,C ]
+       [ "Untrace All"             slime-untrace-all ,C]
        [ "Disassemble..."          slime-disassemble-symbol ,C ]
        [ "Inspect..."              slime-inspect ,C ])
       ("Compilation"
@@ -1200,7 +1201,8 @@ Buffer local in temp-buffers."))
    "The window config \"fingerprint\" after displaying the buffer."))
 
 ;; Interface
-(defun* slime-get-temp-buffer-create (name &key mode noselectp reusep)
+(defun* slime-get-temp-buffer-create (name &key mode noselectp reusep 
+                                           window-configuration)
   "Return a fresh temporary buffer called NAME in MODE.
 The buffer also uses the minor-mode `slime-temp-buffer-mode'. Pressing
 `q' in the buffer will restore the window configuration to the way it
@@ -1210,8 +1212,14 @@ If NOSELECTP is true, then the buffer is shown by `display-buffer',
 otherwise it is shown and selected by `pop-to-buffer'.
 
 If REUSEP is true and a buffer does already exist with name NAME,
-then the buffer will be reused instead of being killed."
-  (let ((window-config (current-window-configuration))
+then the buffer will be reused instead of being killed.
+
+If WINDOW-CONFIGURATION is non-NIL, it's used to restore the
+original window configuration after closing the temporary
+buffer. Otherwise, the current configuration will be saved and
+that one used for restoration then.
+"
+  (let ((window-config (or window-configuration (current-window-configuration)))
         (buffer (get-buffer name)))
     (when (and buffer (not reusep))
       (kill-buffer name)
@@ -4464,7 +4472,7 @@ The handler will use qeuery to ask the use if the error should be ingored."
               (slime-eval-async 
                `(swank:compile-file-if-needed 
                  ,(slime-to-lisp-filename filename) t)
-               (slime-compilation-finished-continuation))))
+               (slime-make-compilation-finished-continuation (current-buffer)))))
   (:one-liner "Compile (if neccessary) and load a lisp file."))
 
 (defslime-repl-shortcut slime-repl-load/force-system ("force-load-system")
@@ -4620,15 +4628,18 @@ See `slime-compile-and-load-file' for further details."
              (y-or-n-p (format "Save file %s? " (buffer-file-name))))
     (save-buffer))
   (run-hook-with-args 'slime-before-compile-functions (point-min) (point-max))
-  (let ((lisp-filename (slime-to-lisp-filename (buffer-file-name))))
+  (let ((lisp-filename (slime-to-lisp-filename (buffer-file-name)))
+        (window-config (current-window-configuration)))
     (slime-insert-transcript-delimiter
      (format "Compile file %s" lisp-filename))
+    ;; The following may alter the current window-config, so we saved
+    ;; it, to pass it on for it to be restored!
     (when slime-display-compilation-output
       (slime-display-output-buffer))
     (slime-eval-async
      `(swank:compile-file-for-emacs 
        ,lisp-filename ,(if load t nil))
-     (slime-compilation-finished-continuation))
+     (slime-make-compilation-finished-continuation (current-buffer) window-config))
     (message "Compiling %s.." lisp-filename)))
 
 (defun slime-find-asd (system-names)
@@ -4675,7 +4686,7 @@ buffer's working directory"
            system)
   (slime-eval-async
    `(swank:operate-on-system-for-emacs ,system ,operation ,@keyword-args)
-   (slime-compilation-finished-continuation)))
+   (slime-make-compilation-finished-continuation (current-buffer))))
 
 (defun slime-compile-defun ()
   "Compile the current toplevel form."
@@ -4695,7 +4706,7 @@ buffer's working directory"
      ,(buffer-name)
      ,start-offset
      ,(if (buffer-file-name) (file-name-directory (buffer-file-name))))
-   (slime-compilation-finished-continuation)))
+   (slime-make-compilation-finished-continuation (current-buffer))))
 
 (defun slime-note-count-string (severity count &optional suppress-if-zero)
   (cond ((and (zerop count) suppress-if-zero)
@@ -4751,20 +4762,20 @@ Each newlines and following indentation is replaced by a single space."
     (decf n))
   list)
 
-(defun slime-compilation-finished (result buffer)
+(defun slime-compilation-finished (result buffer &optional window-config)
   (let ((notes (slime-compiler-notes)))
     (with-current-buffer buffer
       (setf slime-compilation-just-finished t)
-      (multiple-value-bind (result secs) result
+      (destructuring-bind (result secs) result
         (slime-show-note-counts notes secs)
         (when slime-highlight-compiler-notes
           (slime-highlight-notes notes))))
-    (run-hook-with-args 'slime-compilation-finished-hook notes)))
+    (run-hook-with-args 'slime-compilation-finished-hook notes window-config)))
 
-(defun slime-compilation-finished-continuation ()
-  (lexical-let ((buffer (current-buffer)))
-    (lambda (result) 
-      (slime-compilation-finished result buffer))))
+(defun slime-make-compilation-finished-continuation (current-buffer &optional window-config)
+  (lexical-let ((buffer current-buffer) (config window-config))
+    (lambda (result)
+      (slime-compilation-finished result buffer config))))
 
 (defun slime-highlight-notes (notes)
   "Highlight compiler notes, warnings, and errors in the buffer."
@@ -4846,31 +4857,33 @@ The order of the input list is preserved."
 
 ;;;;; Compiler notes list
 
-(defun slime-maybe-show-xrefs-for-notes (&optional notes)
+(defun slime-maybe-show-xrefs-for-notes (&optional notes window-config)
   "Show the compiler notes NOTES if they come from more than one file."
   (let* ((notes (or notes (slime-compiler-notes))) 
          (xrefs (slime-xrefs-for-notes notes)))
     (when (> (length xrefs) 1)          ; >1 file
       (slime-show-xrefs
-       xrefs 'definition "Compiler notes" (slime-current-package)))))
+       xrefs 'definition "Compiler notes" (slime-current-package)
+       window-config))))
 
 (defun slime-note-has-location-p (note)
   (not (eq ':error (car (slime-note.location note)))))
 
-(defun slime-maybe-list-compiler-notes (notes)
+(defun slime-maybe-list-compiler-notes (notes &optional window-config)
   "Show the compiler notes if appropriate."
   ;; don't pop up a buffer if all notes will are already annotated in
   ;; the buffer itself
   (unless (every #'slime-note-has-location-p notes)
-    (slime-list-compiler-notes notes)))
+    (slime-list-compiler-notes notes window-config)))
 
-(defun slime-list-compiler-notes (notes)
+(defun slime-list-compiler-notes (notes &optional window-config)
   "Show the compiler notes NOTES in tree view."
   (interactive (list (slime-compiler-notes)))
   (with-temp-message "Preparing compiler note tree..."
     (with-current-buffer
         (slime-get-temp-buffer-create "*compiler notes*"
-                                      :mode 'slime-compiler-notes-mode)
+                                      :mode 'slime-compiler-notes-mode
+                                      :window-configuration window-config)
       (let ((inhibit-read-only t))
         (erase-buffer)
         (when (null notes)
@@ -6306,6 +6319,10 @@ been modified and we abort without touching it.")
 (defvar slime-fuzzy-first nil
   "The position of the first completion in the completions buffer.
 The descriptive text and headers are above this.")
+(defvar slime-fuzzy-last nil
+    "The position of the last completion in the completions buffer.
+If the time limit has exhausted during generation possible completion
+choices inside SWANK, an indication is printed below this.")
 (defvar slime-fuzzy-current-completion nil
   "The current completion object.  If this is the same before and
 after point moves in the completions buffer, the text is not
@@ -6384,6 +6401,43 @@ in the completion window and let the keypress be processed in the target buffer.
 (define-derived-mode slime-fuzzy-completions-mode 
   fundamental-mode "Fuzzy Completions"
   "Major mode for presenting fuzzy completion results.
+
+When you run `slime-fuzzy-complete-symbol', the symbol token at
+point is completed using the Fuzzy Completion algorithm; this
+means that the token is taken as a sequence of characters and all
+the various possibilities that this sequence could meaningfully
+represent are offered as selectable choices, sorted by how well
+they deem to be a match for the token. (For instance, the first
+choice of completing on \"mvb\" would be \"multiple-value-bind\".)
+
+Therefore, a new buffer (*Fuzzy Completions*) will pop up that
+contains the different completion choices. Simultaneously, a
+special minor-mode will be temporarily enabled in the original
+buffer where you initiated fuzzy completion (also called the
+``target buffer'') in order to navigate through the *Fuzzy
+Completions* buffer without leaving.
+
+With focus in *Fuzzy Completions*:
+  Type `n' and `p' (`UP', `DOWN') to navigate between completions.
+  Type `RET' or `TAB' to select the completion near point. 
+  Type `q' to abort.
+
+With focus in the target buffer:
+  Type `UP' and `DOWN' to navigate between completions.
+  Type a character that does not constitute a symbol name
+  to insert the current choice and then that character (`(', `)',
+  `SPACE', `RET'.) Use `TAB' to simply insert the current choice.
+  Use C-g to abort.
+
+Alternatively, you can click <mouse-2> on a completion to select it.
+
+
+Complete listing of keybindings within the target buffer:
+
+\\<slime-target-buffer-fuzzy-completions-map>\
+\\{slime-target-buffer-fuzzy-completions-map}
+
+Complete listing of keybindings with *Fuzzy Completions*:
 
 \\<slime-fuzzy-completions-map>\
 \\{slime-fuzzy-completions-map}"
@@ -6466,34 +6520,34 @@ most recently enclosed macro or function."
         (comint-dynamic-complete-as-filename))))
   (let* ((end (move-marker (make-marker) (slime-symbol-end-pos)))
          (beg (move-marker (make-marker) (slime-symbol-start-pos)))
-         (prefix (buffer-substring-no-properties beg end))
-         (completion-set (slime-fuzzy-completions prefix)))
-    (if (null completion-set)
-        (progn (slime-minibuffer-respecting-message
-                "Can't find completion for \"%s\"" prefix)
-               (ding)
-               (slime-fuzzy-done))
-      (goto-char end)
-      (cond ((= (length completion-set) 1)
-             (insert-and-inherit (caar completion-set))
-             (delete-region beg end)
-             (goto-char (+ beg (length (caar completion-set))))
-             (slime-minibuffer-respecting-message "Sole completion")
-             (slime-fuzzy-done))
-            ;; Incomplete
-            (t
-             (slime-minibuffer-respecting-message "Complete but not unique")
-             (slime-fuzzy-choices-buffer completion-set beg end))))))
+         (prefix (buffer-substring-no-properties beg end)))
+    (destructuring-bind (completion-set interrupted-p)
+        (slime-fuzzy-completions prefix)
+      (if (null completion-set)
+          (progn (slime-minibuffer-respecting-message
+                  "Can't find completion for \"%s\"" prefix)
+                 (ding)
+                 (slime-fuzzy-done))
+          (goto-char end)
+          (cond ((null (cdr completion-set)) ; (= (length completion-set) 1)
+                 (insert-and-inherit (caar completion-set)) ; insert completed string
+                 (delete-region beg end)
+                 (goto-char (+ beg (length (caar completion-set))))
+                 (slime-minibuffer-respecting-message "Sole completion")
+                 (slime-fuzzy-done))
+                ;; Incomplete
+                (t
+                 (slime-minibuffer-respecting-message "Complete but not unique")
+                 (slime-fuzzy-choices-buffer completion-set interrupted-p beg end)))))))
 
 
 (defun slime-get-fuzzy-buffer ()
   (get-buffer-create "*Fuzzy Completions*"))
 
 (defvar slime-fuzzy-explanation
-  "Click <mouse-2> on a completion to select it.
-In this buffer, type n and p to navigate between completions.
-Type RET to select the completion near point.  Type q to abort.
-Flags: boundp fboundp generic-function class macro special-operator
+  "For help on how the use this buffer, see `slime-fuzzy-completions-mode'.
+
+Flags: boundp fboundp generic-function class macro special-operator package
 \n"
   "The explanation that gets inserted at the beginning of the
 *Fuzzy Completions* buffer.")
@@ -6503,11 +6557,11 @@ Flags: boundp fboundp generic-function class macro special-operator
 completion choice into the current buffer, and mark it with the
 proper text properties."
   (let ((start (point))
-        (symbol (first completion))
+        (symbol-name (first completion))
         (score (second completion))
         (chunks (third completion))
         (flags (fourth completion)))
-    (insert symbol)
+    (insert symbol-name)
     (let ((end (point)))
       (dolist (chunk chunks)
         (put-text-property (+ start (first chunk)) 
@@ -6517,13 +6571,14 @@ proper text properties."
       (put-text-property start (point) 'mouse-face 'highlight)
       (dotimes (i (- max-length (- end start)))
         (insert " "))
-      (insert (format " %s%s%s%s%s%s %8.2f"
+      (insert (format " %s%s%s%s%s%s%s %8.2f"
                       (if (member :boundp flags) "b" "-")
                       (if (member :fboundp flags) "f" "-")
                       (if (member :generic-function flags) "g" "-")
                       (if (member :class flags) "c" "-")
                       (if (member :macro flags) "m" "-")
                       (if (member :special-operator flags) "s" "-")
+                      (if (member :package flags) "p" "-")
                       score))
       (insert "\n")
       (put-text-property start (point) 'completion completion))))
@@ -6548,7 +6603,7 @@ so that the new text is present."
       (setq slime-fuzzy-text text)
       (goto-char slime-fuzzy-end)))))
 
-(defun slime-fuzzy-choices-buffer (completions start end)
+(defun slime-fuzzy-choices-buffer (completions interrupted-p start end)
   "Creates (if neccessary), populates, and pops up the *Fuzzy
 Completions* buffer with the completions from `completions' and
 the completion slot in the current buffer bounded by `start' and
@@ -6565,15 +6620,16 @@ done."
     (set-marker-insertion-type slime-fuzzy-end t)
     (setq slime-fuzzy-original-text (buffer-substring start end))
     (setq slime-fuzzy-text slime-fuzzy-original-text)
-    (slime-fuzzy-fill-completions-buffer completions)
+    (slime-fuzzy-fill-completions-buffer completions interrupted-p)
     (pop-to-buffer (slime-get-fuzzy-buffer))
     (when new-completion-buffer
-      (add-local-hook 'kill-buffer-hook 'slime-fuzzy-abort))
+      (add-local-hook 'kill-buffer-hook 'slime-fuzzy-abort)
+      (setq buffer-quit-function 'slime-fuzzy-abort)) ; M-Esc Esc
     (when slime-fuzzy-completion-in-place
       ;; switch back to the original buffer
       (switch-to-buffer-other-window slime-fuzzy-target-buffer))))
 
-(defun slime-fuzzy-fill-completions-buffer (completions)
+(defun slime-fuzzy-fill-completions-buffer (completions interrupted-p)
   "Erases and fills the completion buffer with the given completions."
   (with-current-buffer (slime-get-fuzzy-buffer)
     (setq buffer-read-only nil)
@@ -6583,14 +6639,25 @@ done."
     (let ((max-length 12))
       (dolist (completion completions)
         (setf max-length (max max-length (length (first completion)))))
+
       (insert "Completion:")
       (dotimes (i (- max-length 10)) (insert " "))
-      (insert "Flags: Score:\n")
+      ;;     Flags:  Score:
+      ;; ... ------- --------
+      ;;     bfgcmsp 
+      (insert "Flags:  Score:\n")
       (dotimes (i max-length) (insert "-"))
-      (insert " ------ --------\n")
+      (insert " ------- --------\n")
       (setq slime-fuzzy-first (point))
+
       (dolist (completion completions)
+        (setq slime-fuzzy-last (point)) ; will eventually become the last entry
         (slime-fuzzy-insert-completion-choice completion max-length))
+
+      (when interrupted-p
+        (insert "...\n")
+        (insert "[Interrupted: time limit exhausted]"))
+
       (setq buffer-read-only t))
     (setq slime-fuzzy-current-completion
           (caar completions))
@@ -6641,9 +6708,7 @@ buffer."
   (interactive)
   (with-current-buffer (slime-get-fuzzy-buffer)
     (slime-fuzzy-dehighlight-current-completion)
-    (let ((point (next-single-char-property-change (point) 'completion)))
-      (when (= point (point-max))
-        (setf point (previous-single-char-property-change (point-max) 'completion nil slime-fuzzy-first)))
+    (let ((point (next-single-char-property-change (point) 'completion nil slime-fuzzy-last)))
       (set-window-point (get-buffer-window (current-buffer)) point)
       (goto-char point))
     (slime-fuzzy-highlight-current-completion)))
@@ -6667,7 +6732,9 @@ completions buffer."
 (defun slime-fuzzy-highlight-current-completion ()
   "Highlights the current completion, so that the user can see it on the screen."
   (let ((pos (point)))
-    (setq slime-fuzzy-current-completion-overlay (make-overlay (point) (search-forward " ") (current-buffer) t nil))
+    (setq slime-fuzzy-current-completion-overlay 
+          (make-overlay (point) (1- (search-forward " "))
+                        (current-buffer) t nil))
     (overlay-put slime-fuzzy-current-completion-overlay 'face 'secondary-selection)
     (goto-char pos)))
 
@@ -7168,7 +7235,8 @@ First make the variable unbound, then evaluate the entire form."
             (format "(%s " (slime-qualify-cl-symbol-name symbol))))
       (slime-switch-to-output-buffer)
       (goto-char slime-repl-input-start-mark)
-      (insert function-call))))
+      (insert function-call)
+      (save-excursion (insert ")")))))
 
 ;;;; Edit Lisp value
 ;;;
@@ -7685,7 +7753,8 @@ If CREATE is non-nil, create it if necessary."
       (select-window (display-buffer buffer t))
       (shrink-window-if-larger-than-buffer))))
 
-(defmacro* slime-with-xref-buffer ((package ref-type symbol) &body body)
+(defmacro* slime-with-xref-buffer ((package ref-type symbol &key window-configuration) 
+                                   &body body)
   "Execute BODY in a xref buffer, then show that buffer."
   (let ((type (gensym)) (sym (gensym)) (pkg (gensym)))
     `(let ((,type ,ref-type) (,sym ,symbol) (,pkg ,package))
@@ -7695,7 +7764,7 @@ If CREATE is non-nil, create it if necessary."
                   (slime-init-xref-buffer ,pkg ,type ,sym)
                   (make-local-variable 'slime-xref-saved-window-configuration)
                   (setq slime-xref-saved-window-configuration
-                        (current-window-configuration)))
+                        (or ,window-configuration (current-window-configuration))))
              (progn ,@body)
            (setq buffer-read-only t)
            (select-window (or (get-buffer-window (current-buffer) t)
@@ -7727,12 +7796,12 @@ GROUP and LABEL are for decoration purposes.  LOCATION is a source-location."
   (backward-char 1)
   (delete-char 1))
 
-(defun slime-show-xrefs (xrefs type symbol package)
+(defun slime-show-xrefs (xrefs type symbol package &optional window-config)
   "Show the results of an XREF query."
   (if (null xrefs)
       (message "No references found for %s." symbol)
     (setq slime-next-location-function 'slime-goto-next-xref)
-    (slime-with-xref-buffer (package type symbol)
+    (slime-with-xref-buffer (package type symbol :window-configuration window-config)
       (slime-insert-xrefs xrefs)
       (goto-char (point-min))
       (forward-line)
@@ -8152,6 +8221,7 @@ Full list of commands:
   ((kbd "RET") 'sldb-default-action)
   ("\C-m"      'sldb-default-action)
   ([mouse-2]  'sldb-default-action/mouse)
+  ([follow-link] 'mouse-face)
   ("e"    'sldb-eval-in-frame)
   ("d"    'sldb-pprint-eval-in-frame)
   ("D"    'sldb-disassemble)
@@ -8366,7 +8436,8 @@ If MORE is non-nil, more frames are on the Lisp stack."
                sldb-previous-frame-number ,num
                point-entered sldb-fetch-more-frames
                start-open t
-               face sldb-section-face)
+               face sldb-section-face
+               mouse-face highlight)
        " --more--")
       (insert "\n"))))
 
@@ -8376,10 +8447,11 @@ If FACE is nil use `sldb-frame-line-face'."
   (destructuring-bind (number string) frame
     (let ((props `(frame ,frame sldb-default-action sldb-toggle-details)))
       (slime-propertize-region props
-        (insert " " (in-sldb-face frame-label (format "%2d:" number)) " ")
-        (slime-insert-possibly-as-rectangle
-         (slime-add-face (or face 'sldb-frame-line-face)
-                         string))
+        (slime-propertize-region '(mouse-face highlight)
+          (insert " " (in-sldb-face frame-label (format "%2d:" number)) " ")
+          (slime-insert-possibly-as-rectangle
+           (slime-add-face (or face 'sldb-frame-line-face)
+                           string)))
         (insert "\n")))))
 
 (defun sldb-fetch-more-frames (&rest ignore)
@@ -9328,7 +9400,8 @@ position of point in the current buffer."
         (action-number (get-text-property (point) 'slime-action-number))
         (opener (lexical-let ((point (slime-inspector-position)))
                   (lambda (parts)
-                    (slime-open-inspector parts :point point)))))
+                    (when parts
+                      (slime-open-inspector parts :point point))))))
     (cond (part-number
            (slime-eval-async `(swank:inspect-nth-part ,part-number)
                              opener)

@@ -783,7 +783,9 @@ stack."
 
 (defun emacs-buffer-source-location (code-location plist)
   (if (code-location-has-debug-block-info-p code-location)
-      (destructuring-bind (&key emacs-buffer emacs-position emacs-string) plist
+      (destructuring-bind (&key emacs-buffer emacs-position emacs-string
+                                &allow-other-keys)
+          plist
         (let* ((pos (string-source-position code-location emacs-string))
                (snipped (with-input-from-string (s emacs-string)
                           (read-snippet s pos))))

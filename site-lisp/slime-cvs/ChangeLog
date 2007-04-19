@@ -1,3 +1,365 @@
+2007-04-18  Marco Baringer  <mb@bese.it>
+
+	* swank.lisp (log-event): Setup the printer so that, no matter
+	what the global values of the *print-XYZ* variables, this function
+	works as expected.
+	(*debug-on-swank-error*): New variable.
+	(defpackage :swank): Export *debug-on-swank-error*.
+	(with-reader-error-handler): When *debug-on-swank-error* is
+	non-nil drop into a debugger.
+	(dispatch-loop): Idem.
+
+2007-04-17  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp: Instead of just having all the symbols of a package
+	listed alphabetically in the inspector page recently introduced
+	for that purpose, add a button to that page to group them by their
+	classification.
+
+	(%package-symbols-container): New slot GROUPING-KIND.
+	(%make-package-symbols-container): New function; wraps around
+	%%MAKE-PACKAGE-SYMBOLS-CONTAINER, which will actually create the
+	structure. We need this, to make GROUPING-KIND an entirely
+	internal affair.
+
+	(make-symbols-listing): New generic function to dispatch on
+	GROUPING-KIND.
+	(make-symbols-listing :symbol): Just the stuff that was priorly
+	wired into INSPECT-FOR-EMACS (%PACKAGE-SYMBOLS-CONTAINER).
+	(make-symbols-listing :classification): New; returns the passed
+	symbols grouped by their classification.
+	(inspect-for-emacs %package-symbols-container): Most code split
+	off into MAKE-SYMBOLS-LISTING.
+
+2007-04-17  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp (swank-compiler): Fix the return value to always be a
+	list of two elements even if the abort restart is invoked which
+	originally just returned NIL. (Which wouldn't play with the recent
+	change to use DESTRUCTURING-BIND in SLIME-COMPILATION-FINISHED.)
+
+2007-04-17  Tobias C. Rittweiler <tcr@freebits.de>
+
+ 	* swank.lisp (inspect-for-emacs %package-symbols-container):
+	Revert Marco's change from 2007-04-08; he had the good idea of
+	adding a facility to jump to the relevant source line of a symbol,
+	but `M-.' is already bound to SLIME-FIND-DEFINITION in the
+	inspector, which is a nicer way of doing this alltogether.
+	
+2007-04-16  Takehiko Abe <keke@gol.com>
+
+	* swank-openmcl.lisp (accept-connection, find-external-format):
+	utf-8 support.
+
+2007-04-16  Marco Baringer <mb@bese.it>
+
+	* slime.el (slime-with-xref-buffer): Added missing ,
+
+2007-04-16  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* slime.el: Pressing `q' in *compiler notes* after a `C-c C-k' or
+	`C-c M-k' would not probably restore the original window
+	configuration. Fix that.
+
+	(slime-get-temp-buffer-create): New &key arg WINDOW-CONFIGURATION.
+	(slime-with-xref-buffer): Likewise.
+	
+	(slime-compilation-finished): New &optional arg WINDOW-CONFIG.
+	(slime-maybe-show-xrefs-for-notes): Likewise.
+	(slime-show-xrefs) Likewise.
+	(slime-maybe-list-compiler-notes): Likewise.
+	(slime-list-compiler-notes): Likewise.
+
+	(slime-compilation-finished-continuation): Renamed to
+	SLIME-MAKE-COMPILATION-FINISHED-CONTINUATION.
+
+	(slime-make-compilation-finished-continuation): Now takes two
+	args, the current buffer and optionally the current window config
+	to be restored.
+	
+	(slime-compile-file): Save current window configuration before
+	popping up the REPL for compilation output, pass it down.
+	(slime-easy-menu): Add entry for SLIME-UNTRACE-ALL.
+
+2007-04-16  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp (fuzzy-find-matching-packages): Fix a small typo that
+	prevented interpreting NIL as the argument TIME-LIMIT-IN-MEC to
+	mean an infinite time limit. This bug propagated up to explicit
+	calls to FUZZY-COMPLETIONS, like 
+	   (swank:fuzzy-completions "mvb" "COMMON-LISP") => (NIL, T)
+
+	(format-fuzzy-completions): Renamed to FORMAT-FUZZY-COMPLETION-SET
+	
+	(format-fuzzy-completion-set): Accomodated to recent changes of
+	the return value of FUZZY-COMPLETIONS; changed the docstring to
+	make it explicit that this function is supposed to take the return
+	value of FUZZY-COMPLETION-SET.
+
+	* slime.el (slime-compilation-finished): Don't use
+	MULTIPLE-VALUE-BIND for list destructuring, only because multiple
+	values happen to be implemented via lists in elisp!
+	(slime-fuzzy-completions-mode): Added an detailed explanation to
+	the docstring of how Fuzzy Completion works and how it'ss supposed
+	to be worked with.
+	(slime-fuzzy-explanation): Shortened to reference to
+	SLIME-FUZZY-COMPLETIONS-MODE for help on fuzzy completion.
+	(slime-fuzzy-choices-buffer): Set BUFFER-QUIT-FUNCTION to
+	SLIME-FUZZY-ABORT to make it correctly exit fuzzy completion when
+	pressing `Esc Esc Esc' (`M-Esc Esc').
+
+2007-04-12  Nikodemus Siivola <nikodemus@random-state.net>
+
+	* swank-sbcl.lisp (emacs-buffer-source-location): Add &allow-other-keys
+	to the descructuring of the source location plist in order to accept
+	:emacs-directory.
+
+2007-04-09  Marco Baringer  <mb@bese.it>
+
+	* swank.lisp (inspector-content-for-emacs): Look for refresh
+	keyword argument in :action links.
+	(inspect-whole-thing-action, inspect-show-more-action): Update for
+	new :action argument handling.
+	(inspect-for-emacs stream, inspect-for-emacs stream-error): Pass
+	:refresh nil on :action links.
+	(action-part-for-emacs): Set both lambda and refresh in the
+	*inspectee-actions* array.
+	(inspector-call-nth-action): *inspectee-actions* now holds both
+	the function and the boolean specifying whether to refresh or not.
+
+	* swank-backend.lisp (inspect-for-emacs): Docstring update.
+
+	* slime.el (slime-inspector-operate-on-point): Allow the action
+	calls to return nil.
+
+2007-04-08  Marco Baringer  <mb@bese.it>
+	
+	* .cvsignore: Added *.lx64fsl (openmcl on linux fasls).
+
+2007-04-08  Marco Baringer  <mb@bese.it>
+
+	* swank.lisp (inspect-for-emacs): Added 'jump to source' action
+	for symbols in the new package-symbol browser.
+
+2007-04-08  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp: Implemented a new special inspector page for
+	displaying internal (external, &c) symbols that display
+	classification flags additionally to each symbol, similiar to the
+	content of a *Fuzzy Completion* buffer.  Furthermore, added the
+	possibility to display all symbols that are /present/ in a
+	package. Combined with cleanup of the code parts in question.
+
+	(symbol-status): New function. Returns the status of a symbol in a
+	given package (:internal, :external &c.)
+
+	(symbol-external-p): Adapted to use new function SYMBOL-STATUS.
+
+	(symbol-classification->string): New function. Converts a list of
+	classification flags into a concise string representation.
+
+	(%package-symbols-container): New struct. We need a unique type to
+	dispatch in INSPECT-FOR-EMACS for the new inspector page, use this
+	as a wrapper structure.
+
+	(inspect-for-emacs package): Reorganized to not cause too much eye
+	cancer; now with a saner maximum column width. Changed to make use
+	of new SYMBOL-STATUS, for code reuse. Also changed to make use of
+	new %PACKAGE-SYMBOLS-CONTAINER to let a new page pop up in Emacs
+	if the user wants to access the list of symbols of the package.
+	Added such a possibility to access all `present' symbols.
+	
+	(inspect-for-emacs %package-symbols-container): New method.
+	Displays all symbols wrapped up in the container structure
+	combined with their classification flags as determined by
+	CLASSIFY-SYMBOL.
+	
+2007-04-08  Luís Oliveira <loliveira@common-lisp.net>
+
+	* swank-backend.lisp (compute-sane-restarts): New interface.
+	* swank-clisp.lisp: Fix tabs and trailing whitespace.
+	(compute-sane-restarts): Implement new interface.
+
+2007-04-08 Takehiko Abe <keke@gol.com>
+
+	* swank-openmcl.lisp (xref-locations):
+
+2007-04-08  Marco Baringer <mb@bese.it>
+
+	* swank.lisp (fuzzy-completion-set): Use two check-type forms
+	instead of a place like (values limit time-limit-in-msec). While
+	sbcl seems to accept this form openmcl doesn't and it's not clear
+	from the spec that this is allowed.
+	
+2007-04-07 Harald Hanche-Olsen <hanche@math.ntnu.no>
+
+	* slime.el (sldb-mode-map): Added key definition for follow-link.
+
+2007-04-06  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp: Making fuzzy completion regard the time limit
+	correctly. Also make it properly use microseconds as time
+	granularity and inform the Emacs side if the time limit has
+	exhausted. Additionally, over all minor and cosmetic changes:
+
+	(fuzzy-completions, fuzzy-completion-set): Returns now
+	additionally a flag indicating whether the time limit has
+	exhausted under the hood. Accomodated docstring accordingly.
+
+	(fuzzy-create-completion-set): Changed to correctly catch and
+	propagate the remaining time limit to the actual match functions,
+	and return once time limit has exhausted. Some aesthetical code 
+	reorganization.
+
+	(get-real-time-in-msecs): New function. 
+
+	(fuzzy-find-matching-symbols, fuzzy-find-matching-packages):
+	Correctly regard the time limit. Use new function
+	GET-REAL-TIME-IN-MSECS for that purpose. Return the remaining
+	time limit as second value.
+
+	* slime.el (slime-fuzzy-complete-symbol): Accomodated to deal with
+	the additionally returned flag of SWANK:FUZZY-COMPLETIONS. Pass
+	the flag by.
+	(slime-fuzzy-choices-buffer): Pass interruption flag by.
+	(slime-fuzzy-fill-completions-buffer): If time limit has exhausted
+	during completion retrieval, show an informational indication as
+	last entry in *Fuzzy Completion*.
+	(slime-fuzzy-last): New variable. To hold the last real completion
+	choice previous to the (possible) Time Limit Exhausted information.
+	(slime-fuzzy-next): Accomodated to not go beneath SLIME-FUZZY-LAST.
+	
+2007-04-06  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp (tokenize-symbol, tokenize-symbol-thoroughly):
+	Previously these functions said a string representing a symbol is
+	internal exactly if it contained "::" as substring. Now they say
+	additionally so for symbols without any package identifier, as
+	they are internal to am implicit current package. (Otherwise
+	will break fuzzy completion.)
+
+	(tokenize-symbol): Added docstring.
+
+	* swank.lisp (format-completion-result): Fixed formation
+	for the case that PACKAGE-NAME is NIL but INTERNAL-P is T.
+
+2007-04-06  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp: Making fuzzy completion semantically right from a
+	user perspective. As an example on SBCL, "sb:with- C-c M-i" will
+	display all exported "with"-style macros in all sb-* packages from
+	now on. :)
+
+	(parse-completion-arguments): Replacing with a semantically-sound
+	implementation, as the previous one was a bit confused. Clarifying
+	docstring. Adding commentary table of various constellations of
+	returned values for thorough explanation.
+
+	(carefully-find-package): Removed. Obsolete by above change.
+
+	(defstruct fuzzy-matching): Introduced to make internally-used
+	datastructure explicit. Distinguishing ``completion chunks''
+	between those pertaining to the symbol itself and those to the
+	package identifier.
+
+	(convert-fuzzy-completion-result): Renamed to
+	FUZZY-CONVERT-MATCHING-FOR-EMACS.
+
+	(fuzzy-convert-matching-for-emacs): Accomodating for the new
+	datastructure. Only the chunks pertaining to the symbol itself are
+	fixed up positionally, the package-chunks are untouched.
+	Necessary for letting package identifiers be highlighted within
+	*Fuzzy Completions* in cases like "sb:with- C-c M-i."
+
+	(fuzzy-completion-set): Taking out most code to become new
+	function FUZZY-CREATE-COMPLETION-SET.
+
+	(fuzzy-create-completion-set): Doing all the hard work. Crux of
+	this changeset. so to speak. Largly rewritten to accomodate all
+	different cases of PARSE-COMPLETION-ARGUMENT.
+
+	(fuzzy-find-matching-symbols, fuzzy-find-matching-packages):
+	Accomodating to new datatstructure FUZZY-MATCHING. Adapting
+	docstring accordingly.
+
+	* swank-backend.lisp: Export WITH-STRUCT.
+	
+	* swank.lisp (eval-for-emacs, fuzzy-completions): 
+	Various trivia like fixing spelling and indentation.
+
+2007-04-06  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* slime.el (slime-fuzzy-highlight-current-completion): Fix
+	off-by-one error that causes the currently selected 
+	completion in the *Fuzzy Completion* buffer be highlighted
+	one char too far.
+	
+2007-04-06  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp: Cleanup of parts of the fuzzy completion code.
+	Additionally a couple of enhancements. As follows:
+	
+	(fuzzy-completions, fuzzy-completion-selected): Minor 
+	stylistic and clarifying modifications of the docstrings.
+
+	(fuzzy-find-matching-symbols): Huge code reorganization.
+	Organizing relevant code into local function TIME-EXHAUSTED-P,
+	renaming local function SYMBOL-MATCH to PERFORM-FUZZY-MATCH,
+	making previously required argument EXTERNAL to new &key
+	argument :EXTERNAL-ONLY, clarifying docstring.
+
+	(fuzzy-find-matching-packages): Making its return value
+	conformant to that of FUZZY-FIND-MATCHING-SYMBOLS, i.e.
+	instead of returning, among others, a package's name as
+	string, it now returns a symbol representing the package.
+	Accomodates the docstring accordingly. 
+
+	(fuzzy-completion-set): Minor typographical fix in docstring.
+	Changing local function CONVERT to use MAP-INTO instead of
+	doing it essentially manually. Accomodating to changes of
+	FUZZY-FIND-MATCHING-SYMBOLS, resp. -PACKAGES.
+
+	(fuzzy-completion-set):	Additional new feature: 
+	The returned completions are sorted alphabetically by the
+	matched completion string before sorted by its score. 
+	Affects especially the list of all possible completions when 
+	the user hits fuzzy-completion on an empty string within Emacs;
+	also makes the potential limitness of the listed completions
+	clearer to the end user of SLIME.
+
+	(classify-symbol): New function. Returns a list with keywords
+	that classifies a given symbol. (E.g. :BOUNDP, :MACRO &c)
+	Supersedes parts of CONVERT-FUZZY-COMPLETION-RESULT, 
+	implementing them in a more straightforward and proper way;
+	removes prior KLUDGE in that part of the original function.
+
+	(convert-fuzzy-completion-result): The above changes made
+	it possible to simplify this function drastically. Now uses
+	the newly introduced function CLASSIFY-SYMBOL.
+
+	* slime.el: Minor stylistic changes. Additionally:
+	(slime-fuzzy-insert-completion-choice): 
+	(slime-fuzzy-fill-completions-buffer) : Adding use of the 
+	:PACKAGE classification flag returned by SWANK:FUZZY-COMPLETIONS.
+	This flag is called "p".
+
+2007-04-06  Neil Van Dyke  <neil@neilvandyke.org>
+
+	* slime.el (sldb-insert-frame): Added mouse-face to frame label
+	and expression in Backtrace.
+	(sldb-insert-frames): Added mouse-face to "--more--" label in
+	Backtrace.
+
+2007-04-06 Michael Weber <michaelw+slime@foldr.org>
+
+	* slime.el (slime-call-defun): insert the closing parenthesis for
+	the form.
+	
+2007-04-06  Marco Baringer  <mb@bese.it>
+
+	* swank-openmcl.lisp (package swank-mop): Added
+	slot-makunbound-using-class.
+
 2007-03-29  Nikodemus Siivola <nikodemus@random-state.net>
 
 	* swank-sbcl.lisp (swank-compile-string): save the original
