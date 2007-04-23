@@ -1,3 +1,8 @@
+2007-04-20  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-core.el (rails-core:menu-letters-list)
+	(rails-core:prepare-menu): created, append a prefix to each label of menu-item from MENU.
+
 2007-04-19  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails-speedbar-feature.el (rails-speedbar:expand-tags): append list of templates in controllers
