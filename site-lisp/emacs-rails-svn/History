@@ -1,3 +1,6 @@
+SVN
+* Fixed bug [#10357]: code expansion shouldn't occur in comment lines.
+
 0.5.99.4
 * Added the test/test_helper in list of helpers.
 * Added list of templates in speedbar.

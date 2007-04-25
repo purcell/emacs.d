@@ -38,7 +38,8 @@
   (interactive)
   (cond
    ;; snippet
-   ((and (boundp 'snippet) snippet)
+   ((and (boundp 'snippet)
+         snippet)
     (snippet-next-field))
 
    ;; completion-ui
@@ -72,7 +73,10 @@
     (save-excursion
       (while (not (zerop (setq distance (skip-syntax-backward "w"))))
         (setq point-start (+ point-start distance))))
-    (when (not (= point-start point-end))
+    (when (and (not (= point-start point-end))
+               (not (memq
+                     (get-text-property (- point-end 1) 'face)
+                     '(font-lock-string-face font-lock-comment-face font-lock-doc-face))))
       (let ((abbr (buffer-substring-no-properties point-start point-end)))
         (when (and (abbrev-symbol abbr)
                    (expand-abbrev))
