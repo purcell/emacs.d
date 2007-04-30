@@ -1,0 +1,171 @@
+DESCRIPTION :
+
+  Cette archive contient des fichiers permettant de d'assister l'édition du code
+  Caml, de colorer les parties importantes du code, d'exécuter un toplevel Caml
+  et d'exécuter le débogueur Caml avec GNU Emacs/XEmacs. Elle a été conçue pour
+  Objective Caml, mais elle supporte également le code Camllight.
+
+
+CONTENU :
+
+  README             Version anglaise de ce fichier;
+  LISEZMOI           Ce fichier;
+  HISTORY            Changements par rapport à la version précédente;
+  tuareg.el          Un mode majeur pour éditer du code Caml avec Emacs/XEmacs
+  sym-lock.el        Une extension permettant d'afficher les symboles sous
+                     XEmacs;
+  camldebug.el       Permet d'exécuter le débogueur Caml sous Emacs;
+  append-tuareg.el   Fichier de configuration pour une installation rapide;
+  custom-tuareg.el   Exemple de personnalisation de Tuareg.
+
+INSTALLATION :
+
+  Si vous avez les droits d'écriture sur le répertoire «site-lisp» d'Emacs ou
+  d'XEmacs, il vous suffit d'y copier les fichiers «tuareg.el», «camldebug.el»
+  et «sym-lock.el» (Sym-Lock ne fonctionnant qu'avec XEmacs).
+
+  Sinon, choisissez un répertoire, par exemple «toto», et copiez y les trois
+  fichiers «tuareg.el», «camldebug.el» et «sym-lock.el». Ensuite, ajoutez la
+  ligne suivante dans votre «.emacs» en remplaçant «toto» par le chemin complet
+  du répertoire choisi :
+
+  (setq load-path (cons "toto" load-path))
+
+CONFIGURATION RAPIDE :
+
+  Si vous n'êtes pas familier avec Emacs-Lisp, et que voulez utiliser
+  Tuareg sans plus tarder, concaténez (ou copiez) `append-tuareg.el' à
+  votre fichier de configuration `.emacs'. Cela permet à XEmacs de
+  charger automatiquement Tuareg et Sym-Lock.
+
+  Pensez à modifier votre fichier de configuration `.emacs' à la main si vous
+  avez déjà installé Tuareg.
+
+CONFIGURATION MANUELLE :
+
+  Ajoutez les lignes suivantes dans votre fichier `.emacs' :
+
+  (setq auto-mode-alist (cons '("\\.ml\\w?" . tuareg-mode) auto-mode-alist))
+  (autoload 'tuareg-mode "tuareg" "Mode majeur pour éditer du code Caml" t)
+  (autoload 'camldebug "camldebug" "Exécuter le débogueur Caml" t)
+
+  Le mode majeur Tuareg est chargé automatiquement lorsqu'on visite un fichier
+  avec l'extension .ml, .mli, .mly, .mll, .mlp... ou manuellement en tapant 
+  M-x tuareg-mode. Cela permet à Emacs de reconnaître correctement la
+  syntaxe Caml.
+
+  Si vous utilisez XEmacs, le mode mineur Font-Lock est utilisé conformément à
+  vos paramètres de personnalisation.
+
+  Dans Emacs, vous pouvez utiliser Font-Lock en rajoutant les lignes
+  suivantes à votre fichier de configuration :
+
+  (if (and (boundp 'window-system) window-system)
+      (require 'font-lock))
+
+  Avec XEmacs (et plus généralement, si vous avez des polices de
+  taille variable et si la librairie `atomic-extents' est supportée),
+  vous pouvez aussi utiliser Sym-Lock. Attention : les versions MULE
+  (multilingues) de XEmacs ne permettent pas de combiner plusieurs
+  polices avec des encodages différents sur le même buffer, et ne
+  supportent donc pas Sym-Lock. La configuration de Tuareg avec Sym-Lock
+  est la suivante :
+
+  (if (and (boundp 'window-system) window-system)
+      (if (string-match "XEmacs" emacs-version)
+       	  (if (not (and (boundp 'mule-x-win-initted) mule-x-win-initted))
+              (require 'sym-lock))
+       	  (require 'font-lock)))
+
+UTILISATION :
+
+  Tuareg vous permet de compiler du code Caml à partir d'Emacs (en utilisant 
+  M-x compile) et de naviguer dans les erreurs (avec C-x `). En tapant C-x `,
+  vous placez le curseur au début de la partie erronée du programme, et la
+  marque à la fin. Sous Emacs, le code en question est temporairement
+  surligné.
+
+  M-x tuareg-run-caml lance un toplevel Caml dont les entrées/sorties sont dans
+  un buffer Emacs nommé `*caml-toplevel*'. Vous pouvez alors utiliser toute la
+  puissance d'Emacs pour éditer l'entrée du toplevel Caml. Ce mode est basé sur
+  comint, donc vous bénéficiez de toutes les fonctionnalités de comint, y
+  compris l'historique des commandes. Pour la personnalisation de Tuareg, vous
+  pouvez utiliser `tuareg-interactive-mode-hook'.
+
+  En tapant C-c C-e dans un buffer Caml, la fonction courante (contenant le
+  curseur) est envoyée au toplevel Caml, et y est évaluée. Si vous tapez une de
+  ces commandes avant M-x tuareg-run-caml, le toplevel démarrera
+  automatiquement.
+
+  M-x camldebug FICHIER lance le débogueur camldebug sur le fichier exécutable
+  FICHIER, avec des entrées/sorties associées au buffer *camldebug-FICHIER*.
+  Elle est similaire à la version d'avril 1996, avec quelques changements
+  mineurs pour fonctionner avec XEmacs, Tuareg et OCaml. De plus, le paquetage
+  `thingatpt' n'est plus requis.
+
+PERSONNALISATION
+
+  L'outil standard de personnalisation d'Emacs peut-être utilisé pour modifier
+  les options de Tuareg. Il est accessible à partir du menu Options et du
+  sous-menu Customize de Tuareg.
+
+  Vous pouvez également personnaliser l'apparence du code Caml en modifiant les
+  variables listées au début du fichier tuareg.el (il vaut mieux utiliser
+  `tuareg-mode-hook' que d'éditer directement le fichier). Il suffit donc
+  d'ajouter à votre fichier de configuration quelque chose du type :
+
+  (add-hook 'tuareg-mode-hook
+            '(lambda ()
+               ... ; votre personnalisation
+             ))
+
+  `custom-tuareg.el' est un exemple de personnalisation standard. Vous
+  pouvez le rajouter à votre `.emacs' ou l'utiliser comme un tutoriel.
+
+FONCTIONNALITÉS, BOGUES CONNUS :
+
+  Consulter l'aide en ligne.
+
+REMERCIEMENTS
+
+  Ian Zimmerman pour le mode précédent, l'interface de compilation et
+  l'amélioration du débogueur.
+
+  Jacques Garrigue améliora le mode de I. Zimmerman en l'adaptant à la syntaxe
+  Objective Caml (et Labl). Bien que ce travail a été fait indépendamment, ses
+  commentaires et son fichier de configuration ont été d'une grande aide.
+
+  Michel Quercia pour ses remarques pertinentes, ses patches et ses
+  contributions en emacs-lisp (complètes et prêtes à fonctionner),
+  spécialement pour le mode interactif Tuareg et pour les possibilités
+  de navigation.
+
+  Denis Barthou, Pierre Boulet, Jean-Christophe Filliâtre et Rémi Vanicat pour
+  leurs tests intensifs, leurs suggestions et leur aide.
+
+  Ralf Treinen pour la maintenance du paquetage Debian GNU/Linux.
+
+  Toutes les personnes qui m'ont signalé des bogues, envoyé des
+  commentaires et des patches. Le mode s'en serait arrêté à la version
+  0.9.2 sans leur aide. Je remercie particulièrement Eli Barzilay,
+  Josh Berdine, Christian Boos, Carsten Clasohm, Yann Coscoy, Prakash
+  Countcham, Alvarado Cuihtlauac, Erwan David, Gilles Défourneaux,
+  Philippe Esperet, Gilles Falcon, Tim Freeman, Alain Frisch,
+  Christian Lindig, Claude Marché, Charles Martin, Dave Mason, Stefan
+  Monnier, Toby Moth, Jean-Yves Moyen, Alex Ott, Christopher Quinn,
+  Ohad Rodeh, Rauli Ruohonen, Hendrik Tews, Christophe Troestler,
+  Joseph Sudish, Mattias Waldau and John Whitley.
+
+COORDONNÉES :
+
+  Le site officiel de Tuareg se trouve à l'adresse :
+
+  http://www-rocq.inria.fr/~acohen/tuareg
+
+  Vous pouvez signaler vos bogues, envoyer vos suggestions et
+  encouragements, etc. à :
+
+  Albert Cohen
+  Chargé de Recherche - INRIA Futurs
+
+  E-Mail     : Albert.Cohen@inria.fr

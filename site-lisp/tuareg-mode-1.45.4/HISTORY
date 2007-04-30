@@ -1,0 +1,103 @@
+Tuareg Mode is a thoroughly rewritten derivative of Caml Mode 0.9.x:
+--------------------------------------------------------------------
+
+First version -
+        By Xavier Leroy <Xavier.Leroy@inria.fr>
+        and Jerome Vouillon <Jerome.Vouillon@ens.fr>, 1993.
+Compilation interface -
+        By Ian Zimmerman <itz@rahul.net>, 1996;
+        Copyright © 1996 Ian Zimmerman, all rights reserved.
+First Font-Lock and XEmacs support -
+        By Pierre Boulet <Pierre.Boulet@ens-lyon.fr>, 1996.
+First OCaml and OLabl version -
+        By Jacques Garrigue <Jacques.Garrigue@kurims.kyoto-u.ac.jp>, 1996.
+
+New version for Objective Caml
+        Extension to Objective Caml (and Labl) syntax (including literals
+        and preserving compatibility with Camllight syntax) complete
+        rewritting of Zimmerman's mode, especially comment detection
+        and indentation, along with major improvement of
+        indentation capabilities, new Font-Lock and
+        Hilit19, compatibility over Emacs and XEmacs;
+        By Albert Cohen <Albert.Cohen@prism.uvsq.fr>, 1997.
+
+Tuareg Mode history:
+--------------------
+
+1.00  - January 8 1997 -
+        First verion of Tuareg
+        (previously known as Caml-Mode 0.9.2 -> 0.9.8).
+
+1.10  - From March 17 1997 to March 20 1997 -
+ to     First release of Tuareg
+1.12    Speed-up and fixes.
+
+1.20  - From March 23 1997 to July 28 1997 -
+ to     Support for symbol fontifying, adaptation of Font-Lock interface,
+1.27    Rewritting of a new Sym-Lock extension for Font-Lock (more powerful,
+        polyvalent, and fitting dynamic customization). Suggestion and first
+        adaptation by Chrstian Boos <boos@arthur.u-strasbg.fr>.
+	Improved phrase detection. `C-M-h' and `C-c C-e' now detect
+	both beginning and end of phrases ; `;;' is used, if present.
+	Improved `tuareg-interactive' mode. Support for Font-Lock
+	on toplevel inputs. Patchs for many phrase detection bugs.
+	New option for `=' indentation, `match-string' optimized, and
+	indentation of `;' sequences accelerated.
+
+1.30  - April 14 1998 -
+	Major improvement of syntax parsing code (including proper handling
+	of multi-line strings and speed-up). Strong speed-up of parenthesis
+	parsing. A few indentation and phrase-related commands bugs corrected.
+1.31  - June 8 1998 -
+	Lot of bugs corrected, new customization (more flexible and usable,
+        with some examples). Minor Sym-Lock changes, indentation changes in
+        some cases, simplified installation guidelines.
+1.32  - June 26 1998 -
+        Only with XEmacs: Correct string/comment hiliting.
+        A few bugs removed, especially in literal/comment detection.
+        New customization features.
+1.33  - November 24 1998 -
+	New support for OCaml 2.00 syntax (let module X=..., and {r with ...}).
+	Indentation bug corrected for arrays, records and objects.
+1.34  - December 15 1998 -
+	Bugs corrected in OCaml 2.00 syntax, added new indentation options
+	for parentheses and = symbols.
+1.35  - January 13 1999 -
+	Major improvement of interactive mode, thanks to contribution
+	of Michel Quercia. Bug removal in phrase detection and comment
+	indentation (paragraph and lines).
+1.36  - January 22 1999 -
+	Navigation support for OCaml manual, library, and buffer-dependent 
+	definitions (adapted from original code by Michel Quercia). New
+	commands, and next-error in toplevel by Claude Marché.
+1.37  - May 18 2000 -
+	Many improvements and extended support for OCaml 3.00 (like label
+	hiliting). Improved FSF Emacs compatibility thanks to Rémi Vanicat.
+	Corrected bugs in string/comment recognition (the last ones?).
+1.38  - September 19 2000 -
+	Standard Customization interface, removal of most non-standard
+	font-lock faces, string/comment hiliting for FSF Emacs
+	eventually matches XEmacs performances; plus a lot of minor fixes.
+
+1.40  - June 26 2002 -
+	Major update: FSF Emacs 21 compatibility (lazy Font-Lock support),
+        new indentation features (e.g., smart comment justification styles),
+        robust hiliting for declarations, many bugs corrected.
+1.41  - December 8 2003 -
+	Indentation and hiliting features, many intermediate versions
+        with minor bug fixes, support for caml-types.
+1.42  - November 5 2004 -
+	MetaOCaml support, many bug fixes, major rewrite of hiliting code,
+        many improvements and bug fixes to the indentation code,
+        refactoring of some deprecated code (by Stefan Monnier).
+1.43  - November 21 2004 -
+	Improved MetaOCaml support, phrase mark/evaluation fixes,
+	many improvements to module indentation and marking, removed
+	aggresive inlining after `=' and fixed related bugs.
+1.44  - December 29 2004 -
+	Major fontification improvements, largely by Stefan Monnier.
+	Many bug fixes related with the improvements in 1.42 and 1.43.
+1.45  - Planned for release in March 2005 -
+	New symbol fontification, compatible with FSF Emacs, by
+        Stefan Monnier. Initiation of a migration of the syntax cache to
+        PPSS for comments and string.

@@ -534,10 +534,9 @@
 ;; OCaml
 ;;----------------------------------------------------------------------------
 (when *ocaml-support-enabled*
-  (add-auto-mode 'caml-mode "\\.ml[iylp]?$")
-  (autoload 'caml-mode "caml" "Major mode for editing Caml code." t)
-  (autoload 'run-caml "inf-caml" "Run an inferior Caml process." t)
-  (if window-system (require 'caml-font)))
+  (setq auto-mode-alist (cons '("\\.ml\\w?" . tuareg-mode) auto-mode-alist))
+  (autoload 'tuareg-mode "tuareg" "Major mode for editing Caml code" t)
+  (autoload 'camldebug "camldebug" "Run the Caml debugger" t))
 
 
 ;;----------------------------------------------------------------------------
