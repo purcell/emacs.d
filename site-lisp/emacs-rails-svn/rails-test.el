@@ -42,7 +42,7 @@
   (concat
    append
    (format
-    "\\(#{RAILS_ROOT}\/\\)?\\(\\(\\.\\|[A-Za-z]:\\)?\\([a-z0-9_\/\\.]+%s\\)\\):\\([0-9]+\\)"
+    "\\(#{RAILS_ROOT}\/\\)?\\(\\(\\.\\|[A-Za-z]:\\)?\\([a-z0-9_\-\/\\.]+%s\\)\\):\\([0-9]+\\)"
     (rails-test:file-ext-regexp))
    prepend))
 

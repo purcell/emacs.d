@@ -32,7 +32,46 @@
                             nil
                             nil
                             nil
-                            depth)))
+                            depth))
+  (speedbar-make-tag-line 'angle
+                          ?+
+                          'rails-speedbar:expand-directory
+                          (concat (rails-speedbar:root) "app/views")
+                          "Views"
+                          nil
+                          nil
+                          nil
+                          depth))
+
+(defun rails-speedbar:expand-directory (text token indent)
+  (cond
+   ((string-match "+" text)
+    (speedbar-change-expand-button-char ?-)
+    (let ((files (directory-files token nil "^[^.]")))
+      (save-excursion
+        (end-of-line) (forward-char 1)
+        (speedbar-with-writable
+        (dolist (i files)
+          (if (file-directory-p (format "%s/%s" token i))
+              (speedbar-make-tag-line 'curly
+                                      ?+
+                                      'rails-speedbar:expand-directory
+                                      (format "%s/%s" token i)
+                                      i
+                                      nil nil nil
+                                      (+ 1 indent))
+            (speedbar-make-tag-line 'statictag
+                                    ??
+                                    nil
+                                    nil
+                                    i
+                                    'rails-speedbar:find-file
+                                    (format "%s/%s" token i)
+                                    nil
+                                    (+ 1 indent))))))))
+   ((string-match "-" text)
+    (speedbar-change-expand-button-char ?+)
+    (speedbar-delete-subblock indent))))
 
 (defun rails-speedbar:expand-group (text token indent)
   (cond
@@ -54,8 +93,7 @@
                                     'rails-speedbar:find-file
                                     (rails-speedbar:in-root (rails-core:file (apply find (list i))))
                                     nil
-                                    (+ indent 1))
-            )))))
+                                    (+ indent 1)))))))
    ((string-match "-" text)
     (speedbar-change-expand-button-char ?+)
     (speedbar-delete-subblock indent))))
@@ -71,46 +109,10 @@
           (speedbar-with-writable
             (save-excursion
               (end-of-line) (forward-char 1)
-              (when (and (string=~ "/app/controllers/" token t)
-                         (not (string= (rails-core:class-by-file token) "Application")))
-                (speedbar-make-tag-line 'curly
-                                        ?+
-                                        'rails-speedbar:expand-templates
-                                        (rails-core:class-by-file token)
-                                        "templates"
-                                        nil
-                                        nil
-                                        nil
-                                        (+ indent 1)))
               (speedbar-insert-generic-list indent
                                             (cdr lst)
                                             'speedbar-tag-expand
-                                            'speedbar-tag-find))
-            )))))
-   ((string-match "-" text)
-    (speedbar-change-expand-button-char ?+)
-    (speedbar-delete-subblock indent))))
-
-(defun rails-speedbar:expand-templates (text token indent)
-  (cond
-   ((string-match "+" text)
-    (speedbar-change-expand-button-char ?-)
-    (speedbar-with-writable
-      (save-excursion
-        (end-of-line) (forward-char 1)
-        (let* ((files (rails-core:get-view-files token)))
-          (dolist (i files)
-            (speedbar-make-tag-line 'statictag
-                                    ??
-                                    nil
-                                    nil
-                                    (replace-regexp-in-string
-                                     (concat (rails-speedbar:root) (rails-core:views-dir token))
-                                     "" i)
-                                    'rails-speedbar:find-file
-                                    i
-                                    nil
-                                    (+ indent 1)))))))
+                                            'speedbar-tag-find)))))))
    ((string-match "-" text)
     (speedbar-change-expand-button-char ?+)
     (speedbar-delete-subblock indent))))

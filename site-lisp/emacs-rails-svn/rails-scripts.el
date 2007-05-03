@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-scripts.el $
-;; $Id: rails-scripts.el 152 2007-03-30 15:03:14Z dimaexe $
+;; $Id: rails-scripts.el 192 2007-05-03 11:54:30Z dimaexe $
 
 ;;; License
 
@@ -199,7 +199,8 @@ BUFFER-MAJOR-MODE and process-sentinel SENTINEL."
   "Run destroy WHAT"
   (interactive (rails-completing-read "What destroy" rails-script:destroy-list
                                       'rails-script:history-of-destroy nil))
-  (let ((name (intern (concat "rails-script:destroy-" what))))
+  (let ((name (intern (concat "rails-script:destroy-"
+                              (replace-regexp-in-string "_" "-" what)))))
     (when (fboundp name)
       (call-interactively name))))
 
@@ -208,7 +209,9 @@ BUFFER-MAJOR-MODE and process-sentinel SENTINEL."
         (param (intern (concat name "-name"))))
     `(defun ,func (&optional ,param)
        (interactive
-        (list (completing-read ,(concat "Destroy " name ": ")
+        (list (completing-read ,(concat "Destroy "
+                                        (replace-regexp-in-string "[^a-z0-9]" " " name)
+                                        ": ")
                                ,(if completion
                                     `(list->alist
                                       ,(if completion-arg
@@ -216,7 +219,7 @@ BUFFER-MAJOR-MODE and process-sentinel SENTINEL."
                                          `(,completion)))
                                   nil))))
        (when (string-not-empty ,param)
-         (rails-script:run-destroy ,name ,param)))))
+         (rails-script:run-destroy ,(replace-regexp-in-string "-" "_" name) ,param)))))
 
 (rails-script:gen-destroy-function "controller" rails-core:controllers t)
 (rails-script:gen-destroy-function "model"      rails-core:models)
@@ -240,7 +243,8 @@ BUFFER-MAJOR-MODE and process-sentinel SENTINEL."
   "Run generate WHAT"
   (interactive (rails-completing-read "What generate" rails-script:generators-list
                                       'rails-script:history-of-generate nil))
-  (let ((name (intern (concat "rails-script:generate-" what))))
+  (let ((name (intern (concat "rails-script:generate-"
+                              (replace-regexp-in-string "_" "-" what)))))
     (when (fboundp name)
       (call-interactively name))))
 
@@ -249,7 +253,9 @@ BUFFER-MAJOR-MODE and process-sentinel SENTINEL."
         (param (intern (concat name "-name"))))
     `(defun ,func (&optional ,param)
        (interactive
-        (list (completing-read ,(concat "Generate " name ": ")
+        (list (completing-read ,(concat "Generate "
+                                        (replace-regexp-in-string "[^a-z0-9]" " " name)
+                                        ": ")
                                ,(if completion
                                     `(list->alist
                                       ,(if completion-arg
@@ -257,7 +263,7 @@ BUFFER-MAJOR-MODE and process-sentinel SENTINEL."
                                          `(,completion)))
                                   nil))))
        (when (string-not-empty ,param)
-         (rails-script:run-generate ,name ,param)))))
+         (rails-script:run-generate ,(replace-regexp-in-string "-" "_" name) ,param)))))
 
 (defun rails-script:generate-controller (&optional controller-name actions)
   "Generate a controller and open the controller file."
