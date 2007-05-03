@@ -217,13 +217,10 @@
 ;;----------------------------------------------------------------------------
 ;; Use C-f during file selection to switch to regular find-file
 (ido-mode t)  ; use 'buffer rather than t to use only buffer switching
+(ido-everywhere t)
 (setq ido-enable-flex-matching t)
+(setq ido-use-filename-at-point t)
 (setq ido-auto-merge-work-directories-length -1)
-
-(setq ibuffer-shrink-to-minimum-size t
-      ibuffer-always-show-last-buffer nil
-      ibuffer-sorting-mode 'recency
-      ibuffer-use-header-line t)
 
 (require 'recentf)
 (setq recentf-max-saved-items 100)
@@ -265,12 +262,14 @@
 (setq session-save-file (expand-file-name "~/.emacs.d/.session"))
 (add-hook 'after-init-hook 'session-initialize)
 
-
 ;; save a bunch of variables to the desktop file
 ;; for lists specify the len of the maximal saved data also
 (setq desktop-globals-to-save
       (append '((extended-command-history . 30)
                 (file-name-history        . 100)
+                (ido-last-directory-list  . 100)
+                (ido-work-directory-list  . 100)
+                (ido-work-file-list       . 100)
                 (grep-history             . 30)
                 (compile-history          . 30)
                 (minibuffer-history       . 50)
