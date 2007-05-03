@@ -430,8 +430,7 @@
     (setq ecb-compilation-buffer-names
           (append ecb-compilation-buffer-names
                   '(("\\(development\\|test\\|production\\).log" . t)
-                    ("*ROutput*")
-                    ("\\*Rails" . t))))))
+                    ("\\*R" . t))))))
 
 
 ;;----------------------------------------------------------------------------
