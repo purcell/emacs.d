@@ -1,3 +1,7 @@
+2007-05-05  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails.el: fixed #10613, wrong comparsion of emacs major-version
+
 2007-05-03  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails-test.el (rails-test:line-regexp): patch #10532, allows '-' to occur in the errror filepath (thanks Peter Williams)

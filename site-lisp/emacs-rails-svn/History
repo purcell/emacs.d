@@ -1,5 +1,6 @@
 SVN
-* Apply patch [#10532], allows '-' to occur in the errror filepath (thanks Peter Williams)
+* Fixed bug [#10613]: Wrong comparison of emacs-major-version
+* Apply patch [#10532]: allows '-' to occur in the errror filepath (thanks Peter Williams)
 * Fixed bug [#10417]: ruby-flymake had applying only if flymake is
   available.
 * Raise a error if emacs-rails run on old version of Emacs (less 22)

@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 190 2007-04-27 19:04:46Z dimaexe $
+;; $Id: rails.el 193 2007-05-05 18:37:00Z dimaexe $
 
 ;;; License
 
@@ -27,7 +27,7 @@
 
 ;;; Code:
 
-(unless (>= 22 emacs-major-version)
+(unless (<= 22 emacs-major-version)
   (error
    (format "emacs-rails require CVS version of Emacs (future Emacs 22), and not be running on your Emacs %s.%s"
            emacs-major-version
