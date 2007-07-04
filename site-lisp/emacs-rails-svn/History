@@ -1,4 +1,4 @@
-SVN
+0.5.99.5
 * Fixed bug [#10613]: Wrong comparison of emacs-major-version
 * Apply patch [#10532]: allows '-' to occur in the errror filepath (thanks Peter Williams)
 * Fixed bug [#10417]: ruby-flymake had applying only if flymake is

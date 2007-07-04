@@ -1,3 +1,7 @@
+2007-05-23  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-test.el (rails-test:line-regexp): bug #10792: updated regexp
+
 2007-05-05  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails.el: fixed #10613, wrong comparsion of emacs major-version
