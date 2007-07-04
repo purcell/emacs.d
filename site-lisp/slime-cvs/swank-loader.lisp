@@ -37,8 +37,8 @@
    '("nregex")
    #+cmu '("swank-source-path-parser" "swank-source-file-cache" "swank-cmucl")
    #+scl '("swank-source-path-parser" "swank-source-file-cache" "swank-scl")
-   #+sbcl '("swank-sbcl" "swank-source-path-parser"
-            "swank-source-file-cache" "swank-gray")
+   #+sbcl '("swank-source-path-parser" "swank-source-file-cache"
+            "swank-sbcl" "swank-gray")
    #+openmcl '("metering" "swank-openmcl" "swank-gray")
    #+lispworks '("swank-lispworks" "swank-gray")
    #+allegro '("swank-allegro" "swank-gray")

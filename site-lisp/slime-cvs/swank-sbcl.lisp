@@ -1193,29 +1193,40 @@ stack."
                                               mutex))))))))
 
 
-;;; Auto-flush streams
+  ;; Auto-flush streams
 
-  ;; XXX race conditions
-  (defvar *auto-flush-streams* '())
+  (defvar *auto-flush-interval* 0.15
+    "How often to flush interactive streams. This valu is passed
+    directly to cl:sleep.")
+
+  (defvar *auto-flush-lock* (make-recursive-lock :name "auto flush"))
 
   (defvar *auto-flush-thread* nil)
 
+  (defvar *auto-flush-streams* '())
+  
   (defimplementation make-stream-interactive (stream)
-    (setq *auto-flush-streams* (adjoin stream *auto-flush-streams*))
-    (unless *auto-flush-thread*
-      (setq *auto-flush-thread*
-            (sb-thread:make-thread #'flush-streams
-                                   :name "auto-flush-thread"))))
+    (call-with-recursive-lock-held
+     *auto-flush-lock*
+     (lambda ()
+       (pushnew stream *auto-flush-streams*)
+       (unless *auto-flush-thread*
+         (setq *auto-flush-thread*
+               (sb-thread:make-thread #'flush-streams
+                                      :name "auto-flush-thread"))))))
 
   (defun flush-streams ()
     (loop
-     (setq *auto-flush-streams*
-           (remove-if (lambda (x)
-                        (not (and (open-stream-p x)
-                                  (output-stream-p x))))
-                      *auto-flush-streams*))
-     (mapc #'finish-output *auto-flush-streams*)
-     (sleep 0.15)))
+     (call-with-recursive-lock-held
+      *auto-flush-lock*
+      (lambda ()
+        (setq *auto-flush-streams*
+              (remove-if (lambda (x)
+                           (not (and (open-stream-p x)
+                                     (output-stream-p x))))
+                         *auto-flush-streams*))
+        (mapc #'finish-output *auto-flush-streams*)))
+     (sleep *auto-flush-interval*)))
 
   )
 

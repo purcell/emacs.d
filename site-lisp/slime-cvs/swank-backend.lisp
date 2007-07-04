@@ -880,9 +880,11 @@ output of CL:DESCRIBE."
 
 ;;; Utilities for inspector methods.
 ;;; 
-(defun label-value-line (label value)
-  "Create a control list which prints \"LABEL: VALUE\" in the inspector."
-  (list (princ-to-string label) ": " `(:value ,value) '(:newline)))
+(defun label-value-line (label value &key (newline t))
+  "Create a control list which prints \"LABEL: VALUE\" in the inspector.
+If NEWLINE is non-NIL a `(:newline)' is added to the result."
+  (list* (princ-to-string label) ": " `(:value ,value)
+         (if newline '((:newline)) nil)))
 
 (defmacro label-value-line* (&rest label-values)
   ` (append ,@(loop for (label value) in label-values

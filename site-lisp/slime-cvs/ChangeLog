@@ -1,3 +1,276 @@
+2007-06-28  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (def-slime-selector-method): Revert Marco's change from
+	2007-05-23.  BODY can return a buffer name, like "*slime-events*".
+	Handle that and never ignore invalid return values.  Force BODY to
+	abort if there's no suitable buffer.  Why would you want to switch
+	buffers if the desired buffer doesn't exist?
+
+2007-06-27  Tobias C. Rittweiler <tcr@freebits.de>
+
+	Fixing `C-c M-q' at the REPL. Thanks to André Thieme for pointing
+	out that it has been broken since several months.
+	
+	* slime.el (slime-reindent-defun): Use functions
+	`slime-beginning-of-defun' and `slime-end-of-defun' that were
+	introduced in the last changeset. 
+	
+2007-06-16  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* slime.el: Pressing `C-M-a' (beginning-of-defun) in midst of the
+	last REPL prompt directs the cursor to the beginning of the
+	prompt. Pressing it again, would do nothing; now it moves the
+	cursor to the start of the previous prompt (as it's consistent
+	with the behaviour when the cursor was placed midst one of the old
+	prompts.)
+
+	Likewise for `C-M-e' (end-of-defun)
+
+	Additionally fixing `C-c C-s' (slime-complete-form) at the REPL.
+
+	(slime-keys): New bindings for `C-M-a' and `C-M-e' to
+	SLIME-BEGINNING-OF-DEFUN and SLIME-END-OF-DEFUN respectively.
+	(slime-keys): Making `C-c C-q' (slime-close-parens-at-point)
+	obsolete, as it didn't work correctly on the REPL.
+	(slime-repl-mode-map): Removed bindings for `C-M-a' and `C-M-e',
+	as they're now inherited from SLIME-KEYS.
+	(slime-repl-beginning-of-defun, slime-repl-end-of-defun): Jump to
+	the previous (next) prompt if called twice in a row.
+
+	(slime-close-parens-at-point): Commented out.
+	(slime-close-all-sexp): Renamed to SLIME-CLOSE-ALL-PARENS-IN-SEXP.
+	(slime-close-all-parens-in-sexp): Modified to take
+	SLIME-CLOSE-PARENS-LIMIT into account.
+	(slime-complete-form): Use SLIME-CLOSE-ALL-PARENS-IN-SEXP.
+	
+
+2007-05-24  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp: Fixed regression in completion: "swank[TAB]" would
+	previously be completed to "swank-backend:"; "get-internal[TAB]"
+	would be completed to "get-internal-r-time" (instead of simply
+	"get-internal-r"); and "custom:*comp[TAB]" would be completed to
+	"custom:*compiled-" on CLISP, even though there's a
+	"custom:*complile-". 
+
+	Thanks to Ken Causey for helping me find the first two.
+
+	(completions): Revert changes from 2007-05-11.
+	(longest-compound-prefix): Fixed to properly generate a compound
+	_prefix_.
+	
+2007-05-23  Marco Baringer  <mb@bese.it>
+
+	* slime.el (def-slime-selector-method): Allow the selector body to
+	not return a buffer. This means that, instead of being to forced
+	to signal an error when a choosen buffer can't be found (like
+	choosing d when there are no debugger buffers) can simply display
+	a message.
+ 
+	Fix handling of auto-flushing on sbcl:
+	
+	* swank-sbcl.lisp (*auto-flush-interval*): New variable
+	controlling how often streams are flushed.
+	(*auto-flush-lock*): New lock guarding access to the shared
+	variable *auto-flush-streams*.
+	(make-stream-interactive): Wrapped access to *auto-flush-streams*
+	in a call-with-recursive-lock-held.
+	(flush-streams): Wrapped in call-with-recursive-lock-held.
+	
+2007-05-17  Martin Simmons <martin@lispworks.com>
+
+	* swank-lispworks.lisp (lispworks-inspect): Fix hanging caused by
+	mapcan, i.e. nconc, on a constant list returned by
+	label-value-line.
+
+2007-05-17  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* slime.el (slime-complete-form): Only insert a closing
+	parenthesis if the form is not already closed. Reported by and
+	adapted from Mac Chan.
+	
+2007-05-17  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp: Fixed bug in completion as previously "swank:[tab]"
+	would correctly list all the symbols in SWANK, but would
+	simultaneously append a spooky dash to the original
+	string ("swank:-").
+
+	(completions): Strip off the package identifier part, and only
+	compute the longest compound prefix for the actual symbol
+	identifiers.
+	(untokenize-symbol): New function. Inverse of TOKENIZE-SYMBOL.
+	(format-completion-result): Use UNTOKENIZE-SYMBOL.
+	
+2007-05-17  Dustin Long <dlong@stevens.edu>
+
+	* swank-ecl.lisp (compile-from-stream): Fixed typo that prevented
+	`slime-compile-defun' from actually compiling a function.
+
+2007-05-17  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank-loader.lisp (*sysdep-files*): Load the auxiliary files
+	swank-source-*.lisp before swank-sbcl.lisp to avoid
+	undefined-function style warnings.
+	
+2007-05-16  Takehiko Abe <keke@gol.com>
+
+	* swank.lisp (inspect-for-emacs file-stream, stream-error): Fixed
+	typo in keyword arg; it's `:refreshp', not `:refresh'.
+
+2007-05-14  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* slime.el: Fixed proper handling of the abortion of a
+	request. (For instance, when calling (SWANK::ABORT-REQUEST "FOO")
+	from the REPL.)
+
+	(sldb-quit): Updated the DESTRUCTURE-CASE clause for (:abort) to
+	take an argument.
+	(sldb-continue): Likewise.
+	(sldb-invoke-restart): Likewise.
+	(sldb-break-with-default-debugger): Likewise.
+	(sldb-return-from-frame): Likewise.
+	(sldb-restart-frame): Likewise.
+	(slime-repl-eval-string) Likewise.
+	(slime-repl-show-abort): Now also inserts the reason for the abort
+	into the REPL buffer.
+	
+	* swank.lisp (eval-for-emacs): Remove code that would suggest that
+	it's possible to use the rex `(:abort ...)' with more than one
+	argument.
+
+2007-05-14  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp: Liberated from unnecessary style-warnings!
+
+	(eval-for-emacs): Don't use SLOT-VALUE on condition objects!
+	(inspect-bigger-piece-actions): Changed from DEFMETHOD to DEFUN.
+	(inspect-whole-thing-action): Likewise.
+	(inspect-show-more-action): Likewise.
+	(make-symbols-listing): Adds an explicit DEFGENERIC.
+	(menu-choices-for-presentation): Likewise.
+
+	(make-symbols-listing (eql :classification)): Use `(loop for k
+	being EACH hash-key ...)' rather than `(loop for k being THE
+	hash-key)', to omit the justified style-warning from CLISP.
+	
+2007-05-14  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp (package-names): Make sure to return a fresh list.
+	(fuzzy-find-matching-packages): Use PACKAGE-NAMES.
+	(list-all-package-names): Use PACKAGE-NAMES.
+	
+2007-05-13  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* slime.el (slime-pretty-lambdas): Removed. If you really want
+	this, please use one of the external ressources that provide this;
+	for instance, `pretty-lambda.el', `pretty-greek.el', or even
+	`pretty-symbols.el'. For more information, please see
+
+	   http://www.emacswiki.org/cgi-bin/wiki/PrettyLambda
+	
+2007-05-11  Tobias C. Rittweiler <tcr@freebits.de>
+	
+	* swank.lisp (fuzzy-find-matching-symbols): Modified to take
+	package nicknames into account. Previously, fuzzy completing on
+	nicknames did (except for some incidental cases) not work. Thanks
+	to Luís Oliveira and Attila Lendvai for pointing that out.
+
+2007-05-11  Tobias C. Rittweiler <tcr@freebits.de>
+
+	Removed support for completing to the longest compound pre- and
+	suffix with the default completion method (C-c TAB, or just TAB on
+	the REPL), because it has been causing trouble all the time, but
+	didn't offer any real advantage besides niftiness. E.g.:
+
+	    previous behaviour: 
+
+	      asdf:*com TAB => asdf:*compile-file--behaviour*
+
+	    now simply:
+
+	      asdf:*com TAB => asdf:*compile-file-
+
+	For discussing on this subject, please see the mail with
+	message-id <87y7l53lch.fsf@freebits.de> that was posted to
+	slime-devel 2007-04-06, or alternatively:
+
+	http://common-lisp.net/pipermail/slime-devel/2007-April/006087.html
+
+	* swank.lisp (make-compound-prefix-matcher): New function.
+	Abstracted from COMPOUND-PREFIX-MATCH.
+	(compound-prefix-match): Use MAKE-COMPOUND-PREFIX-MATCHER.
+	(compound-prefix-match/ci/underscores): Removed.
+
+	(longest-completion): Renamed to LONGEST-COMPOUND-PREFIX. Changed
+	to only return a compound prefix, instead of a concatenation of a
+	compound prefix and a compound suffix. Added an &optional
+	parameter to specify what delimeter the passed string is
+	compounded with.
+	(tokenize-completion): Takes additional parameter to specify the
+	delimeter for tokenization.
+	(longest-completion/underscores): Removed; not needed anymore.
+	(tokenize-completion/underscores): Likewise.
+	(untokenize-completion/underscores): Likewise.
+
+	(completions): Slight docstring modification, also added an
+	examplary use case; use LONGEST-COMPOUND-PREFIX instead of
+	LONGEST-COMPLETION.
+	(completions-for-character): Use LONGEST-COMPOUND-PREFIX, and
+	MAKE-COMPOUND-PREFIX-MATCHER.
+	(completions-for-keyword): Use LONGEST-COMPOUND-PREFIX.
+	
+2007-05-11  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp (apropos-symbols): Really use MAKE-REGEXP-MATCHER.
+
+2007-05-10  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank.lisp: Previously when using SLIME-APROPOS-PACKAGE, only
+	those symbols were considered whose home package matched the
+	given package; this would, however, prevent all those symbols from
+	being listed that are imported from another package, and then
+	exported again in the package they got imported into. (As an
+	example, SWANK:RESTART-FRAME is actually from SWANK-BACKEND.)
+
+	(apropos-matcher): Renamed to MAKE-REGEXP-MATCHER.
+	(make-regexp-matcher): Changed to only match for a given regexp.
+	(apropos-symbols): Use MAKE-REGEXP-MATCHER.
+
+2007-05-10  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* slime.el: Fix macroexpanding on things like ",(loop ...)".
+
+	(slime-sexp-at-point-for-macroexpansion): New function; like
+	SLIME-SEXP-AT-POINT-OR-ERROR, but fixes up some misbehaviour with
+	respect to macroexpansion.
+	(slime-eval-macroexpand, slime-eval-macroexpand-inplace): Use the
+	new function.
+
+2007-05-10  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* slime.el: Within the Slime Inspector, `S-Tab' will now also work
+	 on X.  Furthermore `Tab' and `S-Tab' will now correctly wrap
+	 around the beginning and end of the buffer; priorly it'd hang on
+	 the beginning with a message "Beginning of buffer", and would
+	 require an additional `S-Tab'.
+
+	(slime-inspector-mode-map): Attached `[backtab]' to
+	SLIME-INSPECTOR-PREVIOUS-INSPECTABLE-OBJECT, as Emacs translates
+	`S-Tab' to `Backtab' on X.
+	(slime-find-inspectable-object): New function; finds next or
+	previous inspectable object.
+	(slime-inspector-next-inspectable-object): Mostly rewritten. Use
+	SLIME-FIND-INSPECTABLE-OBJECT to make the code clearer.
+
+2007-04-19  Tobias C. Rittweiler <tcr@freebits.de>
+
+	* swank-backend.lisp (label-value-line): Add :newline as &key
+	argument; if true (the default) inserts a newline.
+
+	* swank.lisp (inspect-for-emacs-list): Don't add a newline after
+	the last value of the list.
+	
 2007-04-18  Marco Baringer  <mb@bese.it>
 
 	* swank.lisp (log-event): Setup the printer so that, no matter

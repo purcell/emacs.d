@@ -142,7 +142,7 @@
   (let ((file (si::mkstemp "TMP:ECLXXXXXX")))
     (with-open-file (s file :direction :output :if-exists :overwrite)
       (do ((line (read-line stream nil) (read-line stream nil)))
-	  (line)
+	  ((not line))
 	(write-line line s)))
     (unwind-protect
          (apply #'compile-file file args)

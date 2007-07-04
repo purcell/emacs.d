@@ -677,6 +677,8 @@ A prefix argument disables this behaviour."
     ("\C-c" slime-compile-defun :prefixed t)
     ("\C-l" slime-load-file :prefixed t)
     ;; Editing/navigating
+    ("\M-\C-a" slime-beginning-of-defun :inferior t)
+    ("\M-\C-e" slime-end-of-defun :inferior t)
     ("\M-\C-i" slime-complete-symbol :inferior t)
     ("\C-i" slime-complete-symbol :prefixed t :inferior t)
     ("\M-i" slime-fuzzy-complete-symbol :prefixed t :inferior t)
@@ -684,7 +686,8 @@ A prefix argument disables this behaviour."
     ("\C-x4." slime-edit-definition-other-window :inferior t :sldb t)
     ("\C-x5." slime-edit-definition-other-frame :inferior t :sldb t)
     ("\M-," slime-pop-find-definition-stack :inferior t :sldb t)
-    ("\C-q" slime-close-parens-at-point :prefixed t :inferior t)
+    ; Obsolete; see comment at SLIME-CLOSE-PARENS-AT-POINT.
+    ;("\C-q" slime-close-parens-at-point :prefixed t :inferior t)
     ("\C-c\M-q" slime-reindent-defun :inferior t)
     ;; Evaluating
     ("\C-x\C-e" slime-eval-last-expression :inferior t)
@@ -721,7 +724,7 @@ A prefix argument disables this behaviour."
     (">" slime-list-callees :prefixed t :inferior t :sldb t)
     ;; "Other"
     ("\I"  slime-inspect :prefixed t :inferior t :sldb t)
-    ("\C-]" slime-close-all-sexp :prefixed t :inferior t :sldb t)
+    ("\C-]" slime-close-all-parens-in-sexp :prefixed t :inferior t :sldb t)
     ("\C-xt" slime-list-threads :prefixed t :inferior t :sldb t)
     ("\C-xc" slime-list-connections :prefixed t :inferior t :sldb t)
     ;; Shadow unwanted bindings from inf-lisp
@@ -3195,8 +3198,6 @@ joined together."))
   ("\C-c\C-u" 'slime-repl-kill-input)
   ("\C-c\C-n" 'slime-repl-next-prompt)
   ("\C-c\C-p" 'slime-repl-previous-prompt)
-  ("\M-\C-a" 'slime-repl-beginning-of-defun)
-  ("\M-\C-e" 'slime-repl-end-of-defun)
   ("\C-c\C-l" 'slime-load-file)
   ("\C-c\C-k" 'slime-compile-and-load-file)
   ("\C-c\C-z" 'slime-nop))
@@ -3225,7 +3226,9 @@ joined together."))
   (when slime-repl-enable-presentations 
     ;; Respect the syntax text properties of presentations.
     (set (make-local-variable 'parse-sexp-lookup-properties) t))
-  ;; We only want REPL prompts as start of the "defun".
+  ;; At the REPL, we define beginning-of-defun and end-of-defun to be
+  ;; the start of the previous prompt or next prompt respectively.
+  ;; Notice the interplay with SLIME-REPL-BEGINNING-OF-DEFUN.
   (set (make-local-variable 'beginning-of-defun-function) 
        'slime-repl-mode-beginning-of-defun)
   (set (make-local-variable 'end-of-defun-function) 
@@ -3586,8 +3589,8 @@ Also return the start position, end position, and buffer of the presentation."
       ((list 'swank:listener-eval string) (slime-lisp-package))
     ((:ok result)
      (slime-repl-insert-result result))
-    ((:abort)
-     (slime-repl-show-abort))))
+    ((:abort &optional reason)
+     (slime-repl-show-abort reason))))
 
 (defun slime-repl-insert-result (result)
   (with-current-buffer (slime-output-buffer)
@@ -3605,11 +3608,13 @@ Also return the start position, end position, and buffer of the presentation."
                   (insert "\n")))))))
     (slime-repl-insert-prompt)))
 
-(defun slime-repl-show-abort ()
+(defun slime-repl-show-abort (reason)
   (with-current-buffer (slime-output-buffer)
     (slime-with-output-end-mark 
      (unless (bolp) (insert-before-markers "\n"))
-     (insert-before-markers "; Evaluation aborted\n"))
+     (insert-before-markers (if reason
+                                (concat "; Evaluation aborted: " reason "\n")
+                                "; Evaluation aborted.\n")))
     (slime-repl-insert-prompt)))
 
 (defun slime-repl-insert-prompt ()
@@ -3733,21 +3738,35 @@ the presented object."
 (defun slime-repl-in-input-area-p ()
    (and (<= slime-repl-input-start-mark (point))
         (<= (point) slime-repl-input-end-mark)))
-  
+
+(defun slime-repl-at-prompt-start-p ()
+  ;; This will not work on non-current prompts.
+  (= (point) slime-repl-input-start-mark))
+
 (defun slime-repl-beginning-of-defun ()
   "Move to beginning of defun."
   (interactive)
-  (if (slime-repl-in-input-area-p)
+  ;; We call BEGINNING-OF-DEFUN if we're at the start of a prompt
+  ;; already, to trigger SLIME-REPL-MODE-BEGINNING-OF-DEFUN by means
+  ;; of the locally bound BEGINNING-OF-DEFUN-FUNCTION, in order to
+  ;; jump to the start of the previous prompt.
+  (if (and (not (slime-repl-at-prompt-start-p))
+           (slime-repl-in-input-area-p))
       (goto-char slime-repl-input-start-mark)
-    (beginning-of-defun)))
+    (beginning-of-defun))
+  t)
 
 (defun slime-repl-end-of-defun ()
   "Move to next of defun."
   (interactive)
-  (if (slime-repl-in-input-area-p)
+  ;; C.f. SLIME-REPL-BEGINNING-OF-DEFUN.
+  (if (and (not (= (point) slime-repl-input-end-mark)) 
+           (slime-repl-in-input-area-p))
       (goto-char slime-repl-input-end-mark)
-    (end-of-defun)))
+    (end-of-defun))
+  t)
 
+;; FIXME: Shouldn't this be (= (point) slime-repl-input-end-mark)?
 (defun slime-repl-at-prompt-end-p ()
   (and (get-char-property (max 1 (1- (point))) 'slime-repl-prompt)
        (not (get-char-property (point) 'slime-repl-prompt))))
@@ -5650,7 +5669,7 @@ This is a superset of the functionality of `slime-insert-arglist'."
   (interactive)
   ;; Find the (possibly incomplete) form around point.
   (let* ((start (save-excursion (backward-up-list 1) (point)))
-         (end (point)) ; or try to find end (tricky)?
+         (end (point))
          (form-string
           (concat (buffer-substring-no-properties start end) ")")))
     (let ((result (slime-eval `(swank:complete-form ,form-string))))
@@ -5659,7 +5678,12 @@ This is a superset of the functionality of `slime-insert-arglist'."
           (progn
             (just-one-space)
             (save-excursion
-              (insert result))
+              ;; SWANK:COMPLETE-FORM always returns a closing
+              ;; parenthesis; but we only want to insert one if it's
+              ;; really necessary (thinking especially of paredit.el.)
+              (insert (substring result 0 -1))
+              (let ((slime-close-parens-limit 1))
+                (slime-close-all-parens-in-sexp)))
             (save-excursion
               (backward-up-list 1)
               (indent-sexp)))))))
@@ -7953,13 +7977,33 @@ When displaying XREF information, this goes to the next reference."
                      (slime-remove-edits (point-min) (point-max)))
                    (undo arg)))))
 
+(defun slime-sexp-at-point-for-macroexpansion ()
+  "Essentially like SLIME-SEXP-AT-POINT-OR-ERROR, but behaves a
+bit more sanely in situations like ,(loop ...) where you want to
+expand the LOOP form. See comment in the source of this function."
+  (let ((string (slime-sexp-at-point-or-error))
+        (bounds (bounds-of-thing-at-point 'sexp))
+        (char-at-point (substring-no-properties (thing-at-point 'char))))
+    ;; SLIME-SEXP-AT-POINT(-OR-ERROR) uses (THING-AT-POINT 'SEXP)
+    ;; which is quite a bit botched: it returns "'(FOO BAR BAZ)" even
+    ;; when point is placed _at the opening parenthesis_, and hence
+    ;; "(FOO BAR BAZ)" wouldn't get expanded. Likewise for ",(...)",
+    ;; ",@(...)" (would return "@(...)"!!), and "\"(...)".
+    ;; So we better fix this up here:
+    (when (string= char-at-point "(")
+      (let ((char0 (elt string 0)))
+        (when (member char0 '(?\' ?\, ?\" ?\@))
+          (setf string (substring string 1))
+          (incf (car bounds)))))
+    (list string bounds)))
+
 (defvar slime-eval-macroexpand-expression nil
   "Specifies the last macroexpansion preformed. This variable
   specifies both what was expanded and how.")
 
 (defun slime-eval-macroexpand (expander &optional string)
   (unless string
-    (setf string (slime-sexp-at-point-or-error)))
+    (setf string (first (slime-sexp-at-point-for-macroexpansion))))
   (setf slime-eval-macroexpand-expression `(,expander ,string))
   (lexical-let ((package (slime-current-package)))
     (slime-eval-async 
@@ -7978,31 +8022,26 @@ When displaying XREF information, this goes to the next reference."
 
 NB: Does not affect *slime-eval-macroexpand-expression*"
   (interactive)
-  (lexical-let* ((string (slime-sexp-at-point-or-error))
-                 (bounds (bounds-of-thing-at-point 'sexp))
-                 (start (car bounds))
-                 (end (cdr bounds))
-                 (point (point))
-                 (package (slime-current-package))
-                 (buffer (current-buffer)))
-    ;; SLIME-SEXP-AT-POINT returns "'(FOO BAR BAZ)" even when point is
-    ;; placed at the opening parenthesis, which wouldn't get expanded
-    ;; even though FOO was a macro. Hence this workaround:
-    (when (and (eq ?\' (elt string 0)) (eq ?\( (elt string 1)))
-      (setf string (substring string 1)) (incf start))
-    (slime-eval-async 
-     `(,expander ,string)
-     (lambda (expansion)
-       (with-current-buffer buffer
-         (let ((buffer-read-only nil))
-           (when slime-use-highlight-edits-mode
-             (slime-remove-edits (point-min) (point-max)))
-           (goto-char start)
-           (delete-region start end)
-           (insert expansion)
-           (goto-char start)
-           (indent-sexp)
-           (goto-char point)))))))
+  (destructuring-bind (string bounds)
+      (slime-sexp-at-point-for-macroexpansion)
+    (lexical-let* ((start (car bounds))
+                   (end (cdr bounds))
+                   (point (point))
+                   (package (slime-current-package))
+                   (buffer (current-buffer)))
+      (slime-eval-async 
+       `(,expander ,string)
+       (lambda (expansion)
+         (with-current-buffer buffer
+           (let ((buffer-read-only nil))
+             (when slime-use-highlight-edits-mode
+               (slime-remove-edits (point-min) (point-max)))
+             (goto-char start)
+             (delete-region start end)
+             (insert expansion)
+             (goto-char start)
+             (indent-sexp)
+             (goto-char point))))))))
 
 (defun slime-macroexpand-1 (&optional repeatedly)
   "Display the macro expansion of the form at point.  The form is
@@ -8880,7 +8919,7 @@ This way you can still see what the error was after exiting SLDB."
   (interactive)
   (slime-rex () ('(swank:throw-to-toplevel))
     ((:ok _) (error "sldb-quit returned"))
-    ((:abort))))
+    ((:abort &optional _))))
 
 (defun sldb-continue ()
   "Invoke the \"continue\" restart."
@@ -8890,7 +8929,7 @@ This way you can still see what the error was after exiting SLDB."
     ((:ok _)
      (message "No restart named continue")
      (ding))
-    ((:abort) )))
+    ((:abort &optional _))))
 
 (defun sldb-abort ()
   "Invoke the \"abort\" restart."
@@ -8907,14 +8946,14 @@ use the restart at point."
     (slime-rex ()
         ((list 'swank:invoke-nth-restart-for-emacs sldb-level restart))
       ((:ok value) (message "Restart returned: %s" value))
-      ((:abort)))))
+      ((:abort &optional _)))))
 
 (defun sldb-break-with-default-debugger ()
   "Enter default debugger."
   (interactive)
   (slime-rex ()
       ('(swank:sldb-break-with-default-debugger) nil slime-current-thread)
-    ((:abort))))
+    ((:abort &optional _))))
 
 (defun sldb-step ()
   "Select the \"continue\" restart and set a new break point."
@@ -8956,7 +8995,7 @@ return that value, evaluated in the context of the frame."
     (slime-rex ()
         ((list 'swank:sldb-return-from-frame number string))
       ((:ok value) (message "%s" value))
-      ((:abort)))))
+      ((:abort &optional _)))))
 
 (defun sldb-restart-frame ()
   "Causes the frame to restart execution with the same arguments as it
@@ -8966,7 +9005,7 @@ was called originally."
     (slime-rex ()
         ((list 'swank:restart-frame number))
       ((:ok value) (message "%s" value))
-      ((:abort)))))
+      ((:abort &optional _)))))
 
 
 ;;;;; SLDB references (rather SBCL specific)
@@ -9455,53 +9494,57 @@ position of point in the current buffer."
   (set-window-configuration slime-saved-window-config)
   (kill-buffer (current-buffer)))
 
+(defun slime-find-inspectable-object (direction limit)
+  "Finds the next or previous inspectable object within the
+current buffer, depending on whether DIRECTION is 'NEXT or
+'PREV. LIMIT is the maximum or minimum position in the current
+buffer.
+
+Returns a list of two values: If an object could be found, the
+starting position of the found object and T is returned;
+otherwise LIMIT and NIL is returned.
+"
+  (let ((finder (ecase direction
+                  (next 'next-single-property-change)
+                  (prev 'previous-single-property-change))))
+    (let ((prop nil) (curpos (point)))
+      (while (and (not prop) (not (= curpos limit)))
+        (let ((newpos (funcall finder curpos 'slime-part-number nil limit)))
+          (setq prop (get-text-property newpos 'slime-part-number))
+          (setq curpos newpos)))
+      (list curpos (and prop t)))))
+
 (defun slime-inspector-next-inspectable-object (arg)
   "Move point to the next inspectable object.
 With optional ARG, move across that many objects.
 If ARG is negative, move backwards."
   (interactive "p")
-  (or (bobp) (> arg 0) (backward-char))
-  (let ((wrapped 0)
-	(number arg)
-	(old (get-text-property (point) 'slime-part-number))
-	new)
+  (let ((maxpos (point-max)) (minpos (point-min))
+        (previously-wrapped-p nil))
     ;; Forward.
     (while (> arg 0)
-      (cond ((eobp)
-	     (goto-char (point-min))
-	     (setq wrapped (1+ wrapped)))
-	    (t
-	     (goto-char (or (next-single-property-change (point) 
-                                                         'slime-part-number)
-                            (point-max)))))
-      (and (= wrapped 2)
-	   (eq arg number)
-	   (error "No inspectable objects"))
-      (let ((new (get-text-property (point) 'slime-part-number)))
-	(when new
-	  (unless (eq new old)
-	    (setq arg (1- arg))
-	    (setq old new)))))
+      (destructuring-bind (pos foundp)
+          (slime-find-inspectable-object 'next maxpos)
+        (if foundp
+            (progn (goto-char pos) (setq arg (1- arg))
+                   (setq previously-wrapped-p nil))
+            (if (not previously-wrapped-p) ; cycle detection
+                (progn (goto-char minpos) (setq previously-wrapped-p t))
+                (error "No inspectable objects")))))
     ;; Backward.
     (while (< arg 0)
-      (cond ((bobp)
-	     (goto-char (point-max))
-	     (setq wrapped (1+ wrapped)))
-	    (t
-	     (goto-char (or (previous-single-property-change 
-                             (point) 'slime-part-number)
-                            (point-min)))))
-      (and (= wrapped 2)
-	   (eq arg number)
-	   (error "No inspectable objects"))
-      (let ((new (get-text-property (point) 'slime-part-number)))
-	(when new
-	  (unless (eq new old)
-	    (setq arg (1+ arg))))))
-    (let ((new (get-text-property (point) 'slime-part-number)))
-      (while (eq (get-text-property (point) 'slime-part-number) new)
-	(backward-char)))
-    (forward-char)))
+      (destructuring-bind (pos foundp)
+          (slime-find-inspectable-object 'prev minpos)
+        ;; SLIME-OPEN-INSPECTOR inserts the title of an inspector page
+        ;; as a presentation at the beginning of the buffer; skip
+        ;; that.  (Notice how this problem can not arise in ``Forward.'')
+        (if (and foundp (/= pos minpos))
+            (progn (goto-char pos) (setq arg (1+ arg))
+                   (setq previously-wrapped-p nil))
+            (if (not previously-wrapped-p) ; cycle detection
+                (progn (goto-char maxpos) (setq previously-wrapped-p t))
+                (error "No inspectable objects")))))))
+
 
 (defun slime-inspector-previous-inspectable-object (arg)
   "Move point to the previous inspectable object.
@@ -9539,7 +9582,8 @@ If ARG is negative, move forwards."
   ("q" 'slime-inspector-quit)
   ("g" 'slime-inspector-reinspect)
   ("\C-i" 'slime-inspector-next-inspectable-object)
-  ([(shift tab)] 'slime-inspector-previous-inspectable-object)
+  ([(shift tab)] 'slime-inspector-previous-inspectable-object) ; Emacs translates S-TAB
+  ([backtab]     'slime-inspector-previous-inspectable-object) ; to BACKTAB on X.
   ("\M-." 'slime-edit-definition))
 
 
@@ -9665,16 +9709,26 @@ See `def-slime-selector-method' for defining new methods."
 
 (defmacro def-slime-selector-method (key description &rest body)
   "Define a new `slime-select' buffer selection method.
+
 KEY is the key the user will enter to choose this method.
-DESCRIPTION is a one-line sentence describing how the method selects a
-buffer.
-BODY is a series of forms which must return the buffer to be selected."
+
+DESCRIPTION is a one-line sentence describing how the method
+selects a buffer.
+
+BODY is a series of forms which are evaluated when the selector
+is chosen. The returned buffer is selected with
+switch-to-buffer."
   `(setq slime-selector-methods
          (sort* (cons (list ,key ,description
-                            (lambda () (switch-to-buffer (progn ,@body))))
+                            (lambda () 
+                              (let ((buffer (progn ,@body)))
+                                (cond ((get-buffer buffer)
+                                       (switch-to-buffer buffer))
+                                      (t
+                                       (message "No such buffer: %S" buffer)
+                                       (ding))))))
                       (remove* ,key slime-selector-methods :key #'car))
                 #'< :key #'car)))
-
 
 (def-slime-selector-method ?? "Selector help buffer."
   (ignore-errors (kill-buffer "*Select Help*"))
@@ -9717,9 +9771,8 @@ BODY is a series of forms which must return the buffer to be selected."
 
 (def-slime-selector-method ?d
   "*sldb* buffer for the current connection."
-  (unless (sldb-get-default-buffer)
-    (error "No debugger buffer"))
-  (sldb-get-default-buffer))
+  (or (sldb-get-default-buffer)
+      (error "No debugger buffer")))
 
 (def-slime-selector-method ?e
   "most recently visited emacs-lisp-mode buffer."
@@ -9748,6 +9801,21 @@ Only considers buffers that are not already visible."
 
 ;;;; Editing commands
 
+(defun slime-beginning-of-defun ()
+  (interactive)
+  (if (and (boundp 'slime-repl-input-start-mark)
+           slime-repl-input-start-mark)
+      (slime-repl-beginning-of-defun)
+      (beginning-of-defun)))
+
+(defun slime-end-of-defun ()
+  (interactive)
+  (if (and (boundp 'slime-repl-input-end-mark)
+           slime-repl-input-end-mark)
+      (slime-repl-end-of-defun)
+      (end-of-defun)))
+
+
 (defvar slime-comment-start-regexp
   "\\(\\(^\\|[^\n\\\\]\\)\\([\\\\][\\\\]\\)*\\);+[ \t]*"
   "Regexp to match the start of a comment.")
@@ -9763,7 +9831,7 @@ Otherwise leave point unchanged and return NIL."
           (t (goto-char boundary) 
              nil))))
 
-(defun slime-close-all-sexp (&optional region)
+(defun slime-close-all-parens-in-sexp (&optional region)
   "Balance parentheses of open s-expressions at point.
 Insert enough right parentheses to balance unmatched left parentheses.
 Delete extra left parentheses.  Reformat trailing parentheses 
@@ -9797,7 +9865,20 @@ the top-level sexp before point."
       (setq point (point))
       (skip-chars-forward " \t\n)")
       (skip-chars-backward " \t\n")
-      (delete-region point (point)))))
+      (delete-region point (point))
+      ;; We always insert as many parentheses as necessary, and only
+      ;; afterwards delete the superfluously-added parens because of
+      ;; "extra right parens" above (which is done this way, since the
+      ;; code works with regexps and it's hard to keep track of those
+      ;; extra right parentheses this way.)
+      (when slime-close-parens-limit 
+        (dotimes (i (max 0 (- sexp-level slime-close-parens-limit)))
+          (delete-char -1))))))
+
+(defvar slime-close-parens-limit nil
+  "Maxmimum parens for `slime-close-all-sexp' to insert. NIL
+means to insert as many parentheses as necessary to correctly
+close the form.")
 
 (defun slime-insert-balanced-comments (arg)
   "Insert a set of balanced comments around the s-expression
@@ -9833,33 +9914,29 @@ expressions out is enclosed in a set of balanced comments."
       (forward-sexp))
       (replace-match ""))))
 
-(defun slime-pretty-lambdas ()
-  "Show `lambda' as a lambda character, via font-lock.
-This can be called from slime-mode-hook.
 
-Warning: Some people have had this insert funny characters in their
-source files, for reasons unknown."
-  (interactive)
-  (font-lock-add-keywords
-   nil `(("(\\(lambda\\>\\)"
-        (0 (progn (compose-region (match-beginning 1) (match-end 1)
-                            ,(make-char 'greek-iso8859-7 107))
-                nil))))))
+;; SLIME-CLOSE-PARENS-AT-POINT is obsolete:
 
-(defvar slime-close-parens-limit 16
-  "Maxmimum parens for `slime-close-parens-at-point' to insert.")
+;; It doesn't work correctly on the REPL, because there
+;; BEGINNING-OF-DEFUN-FUNCTION and END-OF-DEFUN-FUNCTION is bound to
+;; SLIME-REPL-MODE-BEGINNING-OF-DEFUN (and
+;; SLIME-REPL-MODE-END-OF-DEFUN respectively) which compromises the
+;; way how they're expect to work (i.e. END-OF-DEFUN does not signal
+;; an UNBOUND-PARENTHESES error.)
 
-(defun slime-close-parens-at-point ()
-  "Close parenthesis at point to complete the top-level-form.  Simply
-inserts ')' characters at point until `beginning-of-defun' and
-`end-of-defun' execute without errors, or `slime-close-parens-limit'
-is exceeded."
-  (interactive)
-  (loop for i from 1 to slime-close-parens-limit
-        until (save-excursion
-                (beginning-of-defun)
-                (ignore-errors (end-of-defun) t))
-        do (insert ")")))
+;; Use SLIME-CLOSE-ALL-PARENS-IN-SEXP instead.
+
+;; (defun slime-close-parens-at-point ()
+;;   "Close parenthesis at point to complete the top-level-form.  Simply
+;; inserts ')' characters at point until `beginning-of-defun' and
+;; `end-of-defun' execute without errors, or `slime-close-parens-limit'
+;; is exceeded."
+;;   (interactive)
+;;   (loop for i from 1 to slime-close-parens-limit
+;;         until (save-excursion
+;;                 (slime-beginning-of-defun)
+;;                 (ignore-errors (slime-end-of-defun) t))
+;;         do (insert ")")))
 
 
 ;;;; Font Lock
@@ -9968,18 +10045,16 @@ be treated as a paragraph.  This is useful for filling docstrings."
   (save-excursion
     (if (or force-text-fill (slime-beginning-of-comment))
         (fill-paragraph nil)
-      (let ((start (progn (unless (and (zerop (current-column))
-                                       (eq ?\( (char-after)))
-                            (if (and (boundp 'slime-repl-input-start-mark)
-                                     slime-repl-input-start-mark)
-                                (slime-repl-beginning-of-defun)
-                              (beginning-of-defun)))
+      (let ((start (progn (unless (or (and (zerop (current-column))
+                                           (eq ?\( (char-after)))
+                                      (slime-repl-at-prompt-start-p))
+                            (slime-beginning-of-defun))
                           (point)))
-            (end (ignore-errors (end-of-defun) (point))))
+            (end (ignore-errors (slime-end-of-defun) (point))))
         (unless end
           (forward-paragraph)
           (slime-close-all-sexp)
-          (end-of-defun)
+          (slime-end-of-defun)
           (setf end (point)))
         (indent-region start end nil)))))
 

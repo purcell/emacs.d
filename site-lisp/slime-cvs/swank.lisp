@@ -1423,6 +1423,18 @@ considered to represent a symbol internal to some current package.)"
              (vector-push-extend (casify-char char) token))))
     (values token package (or (not package) internp))))
 
+(defun untokenize-symbol (package-name internal-p symbol-name)
+  "The inverse of TOKENIZE-SYMBOL.
+
+  (untokenize-symbol \"quux\" nil \"foo\") ==> \"quux:foo\"
+  (untokenize-symbol \"quux\" t \"foo\")   ==> \"quux::foo\"
+  (untokenize-symbol nil nil \"foo\")    ==> \"foo\"
+"
+  (let ((prefix (cond ((not package-name) "")
+                      (internal-p (format nil "~A::" package-name))
+                      (t (format nil "~A:" package-name)))))
+    (concatenate 'string prefix symbol-name)))
+
 (defun casify-char (char)
   "Convert CHAR accoring to readtable-case."
   (ecase (readtable-case *readtable*)
@@ -2308,7 +2320,7 @@ by adding a template for the missing arguments."
                               :remove-args nil)))
         (unless (eql form-completion :not-available)
           (return-from format-arglist-for-echo-area
-            (decoded-arglist-to-string 
+            (decoded-arglist-to-string
              form-completion
              *package*
              :operator operator-name
@@ -2376,7 +2388,7 @@ forward keywords to OPERATOR."
                        (completion-set
                         (format-completion-set strings nil "")))
                   (list completion-set
-                        (longest-completion completion-set)))))))))))
+                        (longest-compound-prefix completion-set)))))))))))
            
 
 (defun arglist-to-string (arglist package &key print-right-margin highlight)
@@ -2519,13 +2531,13 @@ Errors are trapped and invoke our debugger."
                     (finish-output)
                     (setq ok t))
                 (request-abort (c)
-                  (setf ok nil
-                        reason (list (slot-value c 'swank-backend::reason))))))
+                  (setf ok nil)
+                  (setf reason (swank-backend::reason c)))))
          (force-user-output)
          (send-to-emacs `(:return ,(current-thread)
                                   ,(if ok
                                        `(:ok ,result)
-                                       `(:abort ,@reason)) 
+                                       `(:abort ,reason)) 
                                   ,id)))))))
 
 (defvar *echo-area-prefix* "=> "
@@ -3219,10 +3231,20 @@ already knows."
 (defslimefun completions (string default-package-name)
   "Return a list of completions for a symbol designator STRING.  
 
-The result is the list (COMPLETION-SET
-COMPLETED-PREFIX). COMPLETION-SET is the list of all matching
-completions, and COMPLETED-PREFIX is the best (partial)
-completion of the input string.
+The result is the list (COMPLETION-SET COMPLETED-PREFIX), where
+COMPLETION-SET is the list of all matching completions, and
+COMPLETED-PREFIX is the best (partial) completion of the input
+string.
+
+Simple compound matching is supported on a per-hyphen basis:
+
+  (completions \"m-v-\" \"COMMON-LISP\")
+    ==> ((\"multiple-value-bind\" \"multiple-value-call\" 
+          \"multiple-value-list\" \"multiple-value-prog1\" 
+          \"multiple-value-setq\" \"multiple-values-limit\")
+         \"multiple-value\")
+
+\(For more advanced compound matching, see FUZZY-COMPLETIONS.)
 
 If STRING is package qualified the result list will also be
 qualified.  If string is non-qualified the result strings are
@@ -3233,10 +3255,13 @@ The way symbols are matched depends on the symbol designator's
 format. The cases are as follows:
   FOO      - Symbols with matching prefix and accessible in the buffer package.
   PKG:FOO  - Symbols with matching prefix and external in package PKG.
-  PKG::FOO - Symbols with matching prefix and accessible in package PKG."
-  (let ((completion-set (completion-set string default-package-name 
+  PKG::FOO - Symbols with matching prefix and accessible in package PKG.
+"
+  (let ((completion-set (completion-set string default-package-name
                                         #'compound-prefix-match)))
-    (list completion-set (longest-completion completion-set))))
+    (when completion-set
+      (list completion-set (longest-compound-prefix completion-set)))))
+
 
 (defslimefun simple-completions (string default-package-name)
   "Return a list of completions for a symbol designator STRING."
@@ -3337,7 +3362,9 @@ about internal symbols most times. As the spec says:
   
                    Or more simply, if S is not _inherited_.
   
-        You can check that with: (NOT (EQ (SYMBOL-STATUS S P) :INHERITED))
+        You can check that with: (LET ((STATUS (SYMBOL-STATUS S P)))
+                                   (AND STATUS 
+                                        (NOT (EQ STATUS :INHERITED))))
   
   
      _external_    if S is going to be inherited into any package that
@@ -3352,15 +3379,22 @@ about internal symbols most times. As the spec says:
   
   
      _internal_    if S is _accessible_ but not _external_.
-  
-Notice that the definition of _internal_ is the definition of the
-respective glossary entry in the spec; *However*, most times,
-when you speak about \"internal symbols\", you're not talking
-about the symbols inherited from other packages, but only about
-the symbols specific to the package in question.
 
-Thus SYMBOL-STATUS splits this up into two explicit pieces: 
-:INTERNAL, and :INHERITED.  Just as CL:FIND-SYMBOL does.
+        You can check that with: (LET ((STATUS (SYMBOL-STATUS S P)))
+                                   (AND STATUS 
+                                        (NOT (EQ STATUS :EXTERNAL))))
+  
+
+        Notice that this is *different* to
+                                 (EQ (SYMBOL-STATUS S P) :INTERNAL)
+        because what the spec considers _internal_ is split up into two
+        explicit pieces: :INTERNAL, and :INHERITED; just as, for instance,
+        CL:FIND-SYMBOL does. 
+
+        The rationale is that most times when you speak about \"internal\"
+        symbols, you're actually not including the symbols inherited 
+        from other packages, but only about the symbols directly specific
+        to the package in question.
 "
   (when package     ; may be NIL when symbol is completely uninterned.
     (check-type symbol symbol) (check-type package package)
@@ -3426,11 +3460,10 @@ Returns a list of completions with package qualifiers if needed."
           (sort strings #'string<)))
 
 (defun format-completion-result (string internal-p package-name)
-  (let ((prefix (cond ((not package-name) "")
-                      (internal-p (format nil "~A::" package-name))
-                      (t (format nil "~A:" package-name)))))
-    (values (concatenate 'string prefix string)
-            (length prefix))))
+  (let ((result (untokenize-symbol package-name internal-p string)))
+    ;; We return the length of the possibly added prefix as second value.
+    (values result (search string result))))
+
 
 (defun completion-output-case-converter (input &optional with-escaping-p)
   "Return a function to convert strings for the completion output.
@@ -3491,25 +3524,32 @@ contains lower or upper case characters."
 
 ;;;;; Compound-prefix matching
 
-(defun compound-prefix-match (prefix target)
-  "Return true if PREFIX is a compound-prefix of TARGET.
-Viewing each of PREFIX and TARGET as a series of substrings delimited
-by hyphens, if each substring of PREFIX is a prefix of the
-corresponding substring in TARGET then we call PREFIX a
-compound-prefix of TARGET.
+(defun make-compound-prefix-matcher (delimeter &key (test #'char=))
+  "Returns a matching function that takes a `prefix' and a
+`target' string and which returns T if `prefix' is a
+compound-prefix of `target', and otherwise NIL.
 
-Examples:
+Viewing each of `prefix' and `target' as a series of substrings
+delimited by DELIMETER, if each substring of `prefix' is a prefix
+of the corresponding substring in `target' then we call `prefix'
+a compound-prefix of `target'."
+  (lambda (prefix target)
+    (declare (type simple-string prefix target))
+    (loop for ch across prefix
+          with tpos = 0
+          always (and (< tpos (length target))
+                      (if (char= ch delimeter)
+                          (setf tpos (position #\- target :start tpos))
+                          (funcall test ch (aref target tpos))))
+          do (incf tpos))))
+
+(defun compound-prefix-match (prefix target)
+  "Examples:
 \(compound-prefix-match \"foo\" \"foobar\") => t
 \(compound-prefix-match \"m--b\" \"multiple-value-bind\") => t
-\(compound-prefix-match \"m-v-c\" \"multiple-value-bind\") => NIL"
-  (declare (type simple-string prefix target))
-  (loop for ch across prefix
-        with tpos = 0
-        always (and (< tpos (length target))
-                    (if (char= ch #\-)
-                        (setf tpos (position #\- target :start tpos))
-                        (char= ch (aref target tpos))))
-        do (incf tpos)))
+\(compound-prefix-match \"m-v-c\" \"multiple-value-bind\") => NIL
+"
+  (funcall (make-compound-prefix-matcher #\-) prefix target))
 
 (defun prefix-match-p (prefix string)
   "Return true if PREFIX is a prefix of STRING."
@@ -3518,32 +3558,26 @@ Examples:
 
 ;;;;; Extending the input string by completion
 
-(defun longest-completion (completions)
-  "Return the longest prefix for all COMPLETIONS.
-COMPLETIONS is a list of strings."
-  (untokenize-completion
-   (mapcar #'longest-common-prefix
-           (transpose-lists (mapcar #'tokenize-completion completions)))))
-
-(defun tokenize-completion (string)
-  "Return all substrings of STRING delimited by #\-."
+(defun longest-compound-prefix (completions &optional (delimeter #\-))
+  "Return the longest compound _prefix_ for all COMPLETIONS."
+  (flet ((tokenizer (string) (tokenize-completion string delimeter)))
+    (untokenize-completion
+     (loop for token-list in (transpose-lists (mapcar #'tokenizer completions))
+           if (notevery #'string= token-list (rest token-list))
+             collect (longest-common-prefix token-list) ; Note that we possibly collect
+             and do (loop-finish)                       ;  the "" here as well, so that
+           else collect (first token-list)))))          ;  UNTOKENIZE-COMPLETION will
+                                                        ;  append a hyphen for us.
+(defun tokenize-completion (string delimeter)
+  "Return all substrings of STRING delimited by DELIMETER."
   (loop with end
         for start = 0 then (1+ end)
         until (> start (length string))
-        do (setq end (or (position #\- string :start start) (length string)))
+        do (setq end (or (position delimeter string :start start) (length string)))
         collect (subseq string start end)))
 
 (defun untokenize-completion (tokens)
   (format nil "~{~A~^-~}" tokens))
-
-(defun longest-common-prefix (strings)
-  "Return the longest string that is a common prefix of STRINGS."
-  (if (null strings)
-      ""
-      (flet ((common-prefix (s1 s2)
-               (let ((diff-pos (mismatch s1 s2)))
-                 (if diff-pos (subseq s1 0 diff-pos) s1))))
-        (reduce #'common-prefix strings))))
 
 (defun transpose-lists (lists)
   "Turn a list-of-lists on its side.
@@ -3556,6 +3590,25 @@ For example:
         ((some #'null lists) '())
         (t (cons (mapcar #'car lists)
                  (transpose-lists (mapcar #'cdr lists))))))
+
+(defun longest-common-prefix (strings)
+  "Return the longest string that is a common prefix of STRINGS."
+  (if (null strings)
+      ""
+      (flet ((common-prefix (s1 s2)
+               (let ((diff-pos (mismatch s1 s2)))
+                 (if diff-pos (subseq s1 0 diff-pos) s1))))
+        (reduce #'common-prefix strings))))
+
+
+;;;; Completion for character names
+
+(defslimefun completions-for-character (prefix)
+  (let* ((matcher (make-compound-prefix-matcher #\_ :test #'char-equal))
+         (completion-set (character-completion-set prefix matcher))
+         (completions (sort completion-set #'string<)))
+    (list completions (longest-compound-prefix completions #\_))))
+
 
 
 ;;;;; Completion Tests
@@ -3577,7 +3630,8 @@ For example:
     (assert (equal '("Foo" "foo") (names "F")))
     (assert (equal '("Foo") (names "Fo")))
     (assert (equal '("foo") (names "FO")))))
-           
+
+
 ;;;; Fuzzy completion
 
 ;;; For nomenclature of the fuzzy completion section, please read
@@ -3788,7 +3842,7 @@ TIME-LIMIT-IN-MSEC is NIL, an infinite time limit is assumed."
 	      ((string= parsed-package-name "") ; E.g. STRING = ":" or ":foo"
 	       (setf (values symbols time-limit) (find-symbols parsed-name package time-limit))
                (setf symbols (convert symbols "" symbol-normalizer)))
-	      (t	                        ; E.g. STRING = "asdf:" or "asdf:foo"
+	      (t	                        ; E.g. STRING = "asd:" or "asd:foo"
 	       ;; Find fuzzy matchings of the denoted package identifier part.
 	       ;; After that, find matchings for the denoted symbol identifier
 	       ;; relative to all the packages found.
@@ -3814,7 +3868,7 @@ TIME-LIMIT-IN-MSEC is NIL, an infinite time limit is assumed."
 	;; PARSED-NAME is empty, and all possible completions are to be returned.)
 	(setf results (concatenate 'vector symbols packages))
 	(setf results (sort results #'string< :key #'first))  ; SORT + #'STRING-LESSP
-	(setf results (stable-sort results #'> :key #'second));  conses on at least SBCL.
+	(setf results (stable-sort results #'> :key #'second));  conses on at least SBCL 0.9.18.
 	(values results (and time-limit (<= time-limit 0)))))))
 
 
@@ -3887,17 +3941,15 @@ Cf. FUZZY-FIND-MATCHING-SYMBOLS."
     (declare (type function converter))
     (if (and time-limit-p (<= time-limit 0))
         (values #() time-limit)
-        (loop for package in (list-all-packages)
-              for package-name   = (package-name package)
+        (loop for package-name in (mapcan #'package-names (list-all-packages))
               for converted-name = (funcall converter package-name)
               for package-symbol = (or (find-symbol package-name)
-                                       (make-symbol package-name)) ; INTERN'd be
-              for (result score) = (multiple-value-list            ;  too invasive.
-                                     (compute-highest-scoring-completion
-                                       name converted-name))
-              when result do (vector-push-extend
-                               (make-fuzzy-matching package-symbol score result '())
-                               completions)
+                                        (make-symbol package-name)) ; no INTERN
+              do (multiple-value-bind (result score)
+                     (compute-highest-scoring-completion name converted-name)
+                   (when result
+                     (vector-push-extend (make-fuzzy-matching package-symbol score result '())
+                                         completions)))
               finally
                 (return
                   (values completions
@@ -4136,48 +4188,6 @@ for interactive debugging purpose."
                   max-len (highlight-completion result sym) score result))))
 
 
-;;;; Completion for character names
-
-(defslimefun completions-for-character (prefix)
-  (let ((completion-set 
-         (sort 
-          (character-completion-set prefix 
-                                    #'compound-prefix-match/ci/underscores)
-          #'string<)))
-    (list completion-set (longest-completion/underscores completion-set))))
-
-(defun compound-prefix-match/ci/underscores (prefix target)
-  "Like compound-prefix-match, but case-insensitive, and using the underscore, 
-not the hyphen, as a delimiter." 
-  (declare (type simple-string prefix target))
-  (loop for ch across prefix
-        with tpos = 0
-        always (and (< tpos (length target))
-                    (if (char= ch #\_)
-                        (setf tpos (position #\_ target :start tpos))
-                        (char-equal ch (aref target tpos))))
-        do (incf tpos)))
-
-(defun longest-completion/underscores (completions)
-  "Return the longest prefix for all COMPLETIONS.
-COMPLETIONS is a list of strings."
-  (untokenize-completion/underscores
-   (mapcar #'longest-common-prefix
-           (transpose-lists (mapcar #'tokenize-completion/underscores 
-                                    completions)))))
-
-(defun tokenize-completion/underscores (string)
-  "Return all substrings of STRING delimited by #\_."
-  (loop with end
-        for start = 0 then (1+ end)
-        until (> start (length string))
-        do (setq end (or (position #\_ string :start start) (length string)))
-        collect (subseq string start end)))
-
-(defun untokenize-completion/underscores (tokens)
-  (format nil "~{~A~^_~}" tokens))
-
-
 ;;;; Documentation
 
 (defslimefun apropos-list-for-emacs  (name &optional external-only 
@@ -4187,6 +4197,8 @@ The result is a list of property lists."
   (let ((package (if package
                      (or (parse-package package)
                          (error "No such package: ~S" package)))))
+    ;; The MAPCAN will filter all uninteresting symbols, i.e. those
+    ;; who cannot be meaningfully described.
     (mapcan (listify #'briefly-describe-symbol-for-emacs)
             (sort (remove-duplicates
                    (apropos-symbols name external-only case-sensitive package))
@@ -4243,26 +4255,23 @@ that symbols accessible in the current package go first."
                   (lambda (s) (check-type s string) t)
                   (compile nil (slime-nregex:regex-compile regex-string)))))))
 
-(defun apropos-matcher (string case-sensitive package external-only)
+(defun make-regexp-matcher (string case-sensitive)
   (let* ((case-modifier (if case-sensitive #'string #'string-upcase))
          (regex (compiled-regex (funcall case-modifier string))))
     (lambda (symbol)
-      (and (not (keywordp symbol))
-           (if package (eq (symbol-package symbol) package) t)
-           (if external-only (symbol-external-p symbol) t)
-           (funcall regex (funcall case-modifier symbol))))))
+      (funcall regex (funcall case-modifier symbol)))))
 
 (defun apropos-symbols (string external-only case-sensitive package)
-  (let ((result '())
-        (matchp (apropos-matcher string case-sensitive package external-only)))
-    (with-package-iterator (next (or package (list-all-packages))
-                                 :external :internal)
-      (loop
-       (multiple-value-bind (morep symbol) (next)
-         (cond ((not morep)
-                (return))
-               ((funcall matchp symbol)
-                (push symbol result))))))
+  (let ((packages (or package (remove (find-package :keyword)
+                                      (list-all-packages))))
+        (matcher  (make-regexp-matcher string case-sensitive))
+        (result))
+    (with-package-iterator (next packages :external :internal)
+      (loop (multiple-value-bind (morep symbol) (next)
+              (cond ((not morep) (return))
+                    ((and (if external-only (symbol-external-p symbol) t)
+                          (funcall matcher symbol))
+                     (push symbol result))))))
     result))
 
 (defun call-with-describe-settings (fn)
@@ -4315,9 +4324,9 @@ that symbols accessible in the current package go first."
   "Return a list of all package names.
 Include the nicknames if NICKNAMES is true."
   (mapcar #'unparse-name
-          (loop for package in (list-all-packages)
-                collect (package-name package)
-                when nicknames append (package-nicknames package))))
+          (if nicknames
+              (mapcan #'package-names (list-all-packages))
+              (mapcar #'package-name  (list-all-packages)))))
 
 
 ;;;; Tracing
@@ -4482,15 +4491,18 @@ Do NOT pass circular lists to this function."
   (let ((maxlen 40))
     (multiple-value-bind (length tail) (safe-length list)
       (flet ((frob (title list)
-               (let ((lines 
-                      (do ((i 0 (1+ i))
-                           (l list (cdr l))
-                           (a '() (cons (label-value-line i (car l)) a)))
-                          ((not (consp l))
-                           (let ((a (if (null l)
-                                        a
-                                        (cons (label-value-line :tail l) a))))
-                             (reduce #'append (reverse a) :from-end t))))))
+               (let (lines)
+                 (loop for i from 0 for rest on list do
+                       (if (consp (cdr rest))     ; e.g. (A . (B . ...))
+                           (push (label-value-line i (car rest)) lines)
+                           (progn                 ; e.g. (A . NIL) or (A . B)
+                             (push (label-value-line i (car rest) :newline nil) lines)
+                             (when (cdr rest)
+                               (push '((:newline)) lines)
+                               (push (label-value-line ':tail () :newline nil) lines))
+                             (loop-finish)))
+                       finally
+                       (setf lines (reduce #'append (nreverse lines) :from-end t)))
                  (values title (append '("Elements:" (:newline)) lines)))))
                                
         (cond ((not length)             ; circular
@@ -4553,7 +4565,7 @@ NIL is returned if the list is circular."
                                   (lambda () (remhash key ht))))
                           (:newline))))))
 
-(defmethod inspect-bigger-piece-actions (thing size)
+(defun inspect-bigger-piece-actions (thing size)
   (append 
    (if (> size *slime-inspect-contents-limit*)
        (list (inspect-show-more-action thing)
@@ -4562,14 +4574,14 @@ NIL is returned if the list is circular."
    (list (inspect-whole-thing-action thing  size)
 	 '(:newline))))
 
-(defmethod inspect-whole-thing-action (thing size)
+(defun inspect-whole-thing-action (thing size)
   `(:action ,(format nil "Inspect all ~a elements." 
 		      size)
 	    ,(lambda() 
 	       (let ((*slime-inspect-contents-limit* nil))
 		 (swank::inspect-object thing)))))
 
-(defmethod inspect-show-more-action (thing)
+(defun inspect-show-more-action (thing)
   `(:action ,(format nil "~a elements shown. Prompt for how many to inspect..." 
 		     *slime-inspect-contents-limit* )
 	    ,(lambda() 
@@ -4966,6 +4978,7 @@ See `methods-by-applicability'.")
   (%%make-package-symbols-container :title title :description description
                                     :symbols symbols :grouping-kind :symbol))
 
+(defgeneric make-symbols-listing (grouping-kind symbols))
 
 (defmethod make-symbols-listing ((grouping-kind (eql :symbol)) symbols)
   "Returns an object renderable by Emacs' inspector side that
@@ -5013,7 +5026,7 @@ instead there are the three explicit FUNCTION, MACRO and
 SPECIAL-OPERATOR groups."
   (let ((table (make-hash-table :test #'eq)))
     (flet ((maybe-convert-fboundps (classifications)
-             ;; Convert an :FBOUNDP in CLASSIFICATION to :FUNCTION if possible.
+             ;; Convert an :FBOUNDP in CLASSIFICATIONS to :FUNCTION if possible.
              (if (and (member :fboundp classifications)
                       (not (member :macro classifications))
                       (not (member :special-operator classifications)))
@@ -5022,9 +5035,9 @@ SPECIAL-OPERATOR groups."
       (loop for symbol in symbols do
             (loop for classification in (maybe-convert-fboundps (classify-symbol symbol))
                   ;; SYMBOLS are supposed to be sorted alphabetically;
-                  ;; this property is preserved here expect for reversing.
+                  ;; this property is preserved here except for reversing.
                   do (push symbol (gethash classification table)))))
-    (let* ((classifications (loop for k being the hash-key in table collect k))
+    (let* ((classifications (loop for k being each hash-key in table collect k))
            (classifications (sort classifications #'string<)))
       (loop for classification in classifications
             for symbols = (gethash classification table)
@@ -5278,7 +5291,7 @@ SPECIAL-OPERATOR groups."
                                (position (file-position stream)))
                            (lambda ()
                              (ed-in-emacs `(,pathname :charpos ,position))))
-                        :refresh nil)
+                        :refreshp nil)
                (:newline))
              content))))
 
@@ -5298,7 +5311,7 @@ SPECIAL-OPERATOR groups."
                                      (position (file-position stream)))
                                     (lambda ()
                                       (ed-in-emacs `(,pathname :charpos ,position))))
-                              :refresh nil)
+                              :refreshp nil)
                      (:newline))
                    content))
           (values title content)))))
@@ -5639,13 +5652,15 @@ belonging to the buffer package."
           (do-all-symbols (symbol)
             (consider symbol))
           (do-symbols (symbol *buffer-package*)
+            ;; We're really just interested in the symbols of *BUFFER-PACKAGE*,
+            ;; and *not* all symbols that are _present_ (cf. SYMBOL-STATUS.)
             (when (eq (symbol-package symbol) *buffer-package*)
               (consider symbol)))))
     alist))
 
 (defun package-names (package)
-  "Return the name and all nicknames of PACKAGE in a list."
-  (cons (package-name package) (package-nicknames package)))
+  "Return the name and all nicknames of PACKAGE in a fresh list."
+  (cons (package-name package) (copy-list (package-nicknames package))))
 
 (defun cl-symbol-p (symbol)
   "Is SYMBOL a symbol in the COMMON-LISP package?"
@@ -5752,10 +5767,9 @@ Collisions are caused because package information is ignored."
     (let ((action (second (nth (1- count) (cdr *presentation-active-menu*)))))
       (swank-ioify (funcall action item ob id)))))
 
-;; Default method
-(defmethod menu-choices-for-presentation (ob)
-  (declare (ignore ob))
-  nil)
+
+(defgeneric menu-choices-for-presentation (object)
+  (:method (ob) (declare (ignore ob)) nil)) ; default method
 
 ;; Pathname
 (defmethod menu-choices-for-presentation ((ob pathname))

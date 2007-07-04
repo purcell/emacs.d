@@ -665,7 +665,9 @@ function names like \(SETF GET)."
     (values "A value."
             (append 
              (label-value-line "Type" type)
-             (mapcan #'label-value-line names values)))))
+             (loop for name in names
+                   for value in values
+                   append (label-value-line name value))))))
 
 ;;; Miscellaneous
 
