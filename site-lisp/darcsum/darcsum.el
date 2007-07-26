@@ -1288,8 +1288,24 @@ the file or the directory at point into the boring file."
      ((eq type 'dir))
      ((or (eq type 'file)
 	  (eq type 'change))
-      (ediff (darcsum-original-path (point))
-	     (darcsum-path (point)))))))
+      (let ( (pristine-filename (darcsum-original-path (point)))
+	     (working-filename (darcsum-path (point)))
+	     (old-window-configuration (current-window-configuration)) ;;Save the current window configuration, before opening ediff
+	     )
+      (progn
+	(save-excursion
+	  (find-file-read-only pristine-filename) ;;Pristine copy should not be modified
+	  (rename-buffer (concat "*darcsum-pristine:" pristine-filename "*")) ;;It should be clear this is not a buffer you want to touch.
+	  )
+	(ediff pristine-filename working-filename
+	       ;;Add this anonymous function as a startup hook in ediff-mode
+	       (lambda () (progn
+			    (make-variable-buffer-local 'pre-darcsum-ediff-window-configuration) ;;make buffer-local variable storing old window configuration, since "let" bindings die before ediff buffers are killed
+			    (setq pre-darcsum-ediff-window-configuration old-window-configuration)
+			    (make-local-hook 'ediff-quit-hook) ;;After we quit THIS PARTICULAR ediff buffer, restore the old window configuration
+			    (add-hook 'ediff-quit-hook (lambda () (set-window-configuration pre-darcsum-ediff-window-configuration)))
+			    )))
+	))))))
 
 (defun darcsum-ediff-merge ()
   "Start an `ediff-merge' session on the current selection."
