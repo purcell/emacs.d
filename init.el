@@ -45,6 +45,8 @@
 ;; Augment search path for external programs (for OSX)
 ;;----------------------------------------------------------------------------
 (when *macbook-pro-support-enabled*
+  (eval-after-load "woman"
+    '(setq woman-manpath (append (list "/opt/local/man") woman-manpath)))
   (dolist (dir '("/usr/local/bin" "/opt/local/bin"
                  "/opt/local/lib/postgresql82/bin" "~/bin"))
     (setenv "PATH" (concat (expand-file-name dir) ":" (getenv "PATH")))
