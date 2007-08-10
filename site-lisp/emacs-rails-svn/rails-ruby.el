@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 190 2007-04-27 19:04:46Z dimaexe $
+;; $Id: rails-ruby.el 200 2007-07-26 18:31:08Z dimaexe $
 
 ;;; License
 
@@ -39,8 +39,12 @@
      (regexp . ",\\(\\s-*\\)[^/ \t\n]")
      (modes  . align-ruby-modes)
      (repeat . t))
+    (ruby-string-after-func
+     (regexp . "^\\s-*[a-zA-Z0-9.:?_]+\\(\\s-+\\)['\"]\\w+['\"]")
+     (modes  . align-ruby-modes)
+     (repeat . t))
     (ruby-symbol-after-func
-     (regexp . "^\\s-*\\w+\\(\\s-+\\):\\w+")
+     (regexp . "^\\s-*[a-zA-Z0-9.:?_]+\\(\\s-+\\):\\w+")
      (modes  . align-ruby-modes)))
   "Alignment rules specific to the ruby mode.
 See the variable `align-rules-list' for more details.")

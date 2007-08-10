@@ -30,12 +30,13 @@
   (require 'snippet nil t)
   (require 'completion-ui nil t))
 
-(when (fboundp 'indent-or-complete)
-  (message "WARNNING: the `indent-or-complete' already defined."))
+(when (fboundp 'indent-and-complete)
+  (message "WARNNING: the `indent-and-complete' already defined."))
 
-(defun indent-or-complete ()
-  "Complete if point is at end of left a leave word, otherwise indent line."
+(defun indent-and-complete ()
+  "Indent line and Complete if point is at end of left a leave word."
   (interactive)
+
   (cond
    ;; snippet
    ((and (boundp 'snippet)
@@ -58,31 +59,36 @@
    ((looking-at "\\_>")
     ;; skip message output
     (flet ((message (format-string &rest args) nil))
-      (hippie-expand nil)))
+      (hippie-expand nil))))
 
-   ;; run default indent command
-   (t (indent-for-tab-command))))
+  ;; always indent line
+  (indent-for-tab-command))
+
 
 (when (fboundp 'try-complete-abbrev)
   (message "WARRNING: the function `try-complete-abbrev' already defined"))
 
 (defun try-complete-abbrev (old)
-  (let ((point-end (point))
-        (point-start (point))
-        distance)
-    (save-excursion
-      (while (not (zerop (setq distance (skip-syntax-backward "w"))))
-        (setq point-start (+ point-start distance))))
-    (when (and (not (= point-start point-end))
-               (not (memq
-                     (get-text-property (- point-end 1) 'face)
-                     '(font-lock-string-face font-lock-comment-face font-lock-doc-face))))
-      (let ((abbr (buffer-substring-no-properties point-start point-end)))
-        (when (and (abbrev-symbol abbr)
-                   (expand-abbrev))
-          t)))))
+  (if (abbrev-expansion-point-p)
+      (progn
+        (expand-abbrev)
+        t)
+    nil))
+
+(defun abbrev-expansion-point-p ()
+  "returns true if point is a place that might be expanded"
+  (if (memq (get-text-property (- (point) 1) 'face)
+            '(font-lock-string-face font-lock-comment-face font-lock-doc-face))
+      (return nil) ;; we never expand inside of string literals or comments
+    (string-not-empty (syntax-word-before-point))))
+
+(defun syntax-word-before-point ()
+  "Yields the word immediately preceding point"
+  (buffer-substring-no-properties
+   (+ (point) (save-excursion (skip-syntax-backward "w")))
+   (point)))
+
 
 (unless (find 'try-complete-abbrev hippie-expand-try-functions-list)
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-abbrev))
-
 (provide 'rails-compat)

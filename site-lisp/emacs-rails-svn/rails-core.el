@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-core.el 186 2007-04-20 15:34:51Z dimaexe $
+;; $Id: rails-core.el 201 2007-08-04 19:20:29Z dimaexe $
 
 ;;; License
 
@@ -601,13 +601,16 @@ the Rails minor mode log."
       (dolist (it line)
         (typecase it
           (cons
-           (rails-core:menu-separator)
            (if (and (string= (car (rails-core:menu-separator)) (car it))
                     (string= (cadr (rails-core:menu-separator)) (cadr it)))
                (add-to-list 'result-line it t)
              (progn
-               (add-to-list 'result-line (cons (format "%s) %s" (nth letter rails-core:menu-letters-list) (car it))
-                                               (cdr it)) t)
+               (add-to-list 'result-line (cons
+                                          (format "%s) %s"
+                                                  (nth letter rails-core:menu-letters-list)
+                                                  (car it))
+                                          (cdr it))
+                            t)
                (setq letter (+ 1 letter)))))
           (t
            (add-to-list 'result-line it t))))

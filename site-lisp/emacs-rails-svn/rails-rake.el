@@ -94,4 +94,10 @@
      (when (< 2  (length versions))
        (nth 1 versions)))))
 
+;; This function was originally defined anonymously in ui. It was defined here so keys
+;; can be added to it dryly
+(defun rails-rake:clone-development-db-to-test-db ()
+  "Clone development DB to test DB."
+  (interactive) (rails-rake:task "db:test:clone"))
+
 (provide 'rails-rake)

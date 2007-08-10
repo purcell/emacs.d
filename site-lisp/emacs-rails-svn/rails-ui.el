@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ui.el $
-;; $Id: rails-ui.el 173 2007-04-09 15:15:02Z dimaexe $
+;; $Id: rails-ui.el 203 2007-08-04 20:31:07Z dimaexe $
 
 ;;; License
 
@@ -86,11 +86,11 @@
 (defconst rails-minor-mode-tests-menu-bar-map
   (let ((map (make-sparse-keymap)))
     (define-keys map
-      ([integration] '("Integration Tests" . (lambda() (interactive) (rails-test:run "integration"))))
-      ([unit]        '("Unit Tests"        . (lambda() (interactive) (rails-test:run "units"))))
-      ([functional]  '("Functional Tests"  . (lambda() (interactive) (rails-test:run "functionals"))))
-      ([recent]      '("Recent Tests"      . (lambda() (interactive) (rails-test:run "recent"))))
-      ([tests]       '("All"               . (lambda() (interactive) (rails-test:run "all"))))
+      ([integration] '("Integration Tests" . rails-test:run-integration))
+      ([unit]        '("Unit Tests"        . rails-test:run-units))
+      ([functional]  '("Functional Tests"  . rails-test:run-functionals))
+      ([recent]      '("Recent Tests"      . rails-test:run-recent))
+      ([tests]       '("All"               . rails-test:run-all))
       ([separator]   '("--"))
       ([toggle]      '(menu-item "Toggle Output Window" rails-script:toggle-output-window
                                  :enable (get-buffer rails-script:buffer-name)))
@@ -101,7 +101,7 @@
 (defconst rails-minor-mode-db-menu-bar-map
   (let ((map (make-sparse-keymap)))
     (define-keys map
-      ([clone-db]    '("Clone Development DB to Test DB" . (lambda() (interactive) (rails-rake:task "db:test:clone"))))
+      ([clone-db]    '("Clone Development DB to Test DB" . rails-rake:clone-development-db-to-test-db))
       ([load-schema] '("Load schema.rb to DB"               . (lambda() (interactive) (rails-rake:task "db:schema:load"))))
       ([dump-schema] '("Dump DB to schema.rb"               . (lambda() (interactive) (rails-rake:task "db:schema:dump"))))
       ([sep]         '("--"))
@@ -266,15 +266,24 @@
   ((rails-key "\C-c d m") 'rails-rake:migrate)
   ((rails-key "\C-c d v") 'rails-rake:migrate-to-version)
   ((rails-key "\C-c d p") 'rails-rake:migrate-to-prev-version)
+  ((rails-key "\C-c d t") 'rails-rake:clone-development-db-to-test-db)
 
   ;; Tests
   ((rails-key "\C-c r")   'rails-rake:task)
   ((rails-key "\C-c t")   'rails-test:run)
   ((rails-key "\C-c .")   'rails-test:run-current)
+  ((rails-key "\C-c y i")   'rails-test:run-integration)
+  ((rails-key "\C-c y u")   'rails-test:run-units)
+  ((rails-key "\C-c y f")   'rails-test:run-functionals)
+  ((rails-key "\C-c #")   'rails-test:run-recent)
+  ((rails-key "\C-c y a")   'rails-test:run-all)
 
-  ;; Navigation
-
+  ;; Log files
   ((rails-key "\C-c l")    'rails-log:open)
+  ((rails-key "\C-c o t")    'rails-log:open-test)
+  ((rails-key "\C-c o p")    'rails-log:open-production)
+  ((rails-key "\C-c o d")    'rails-log:open-development)
+
   ;; Tags
   ((rails-key "\C-c \C-t") 'rails-create-tags)
 

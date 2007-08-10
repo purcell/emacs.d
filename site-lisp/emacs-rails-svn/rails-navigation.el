@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-navigation.el $
-;; $Id: rails-navigation.el 150 2007-03-29 20:48:17Z dimaexe $
+;; $Id: rails-navigation.el 203 2007-08-04 20:31:07Z dimaexe $
 
 ;;; License
 
@@ -147,7 +147,7 @@
 (defun rails-nav:goto-layouts ()
   "Go to layouts."
   (interactive)
-  (let ((items (list (cons "--" "--")
+  (let ((items (list (rails-core:menu-separator)
                      (cons "Create new layout" 'rails-nav:create-new-layout))))
     (rails-nav:goto-file-with-menu-from-list
      (rails-core:layouts)
@@ -200,8 +200,8 @@ current line for a series of patterns."
   "Analyze a string (or ERb block) and open some file related with it.
 For example, on a line with \"render :partial\" runing this
 function will open the partial file.  The function works with
-\"layout 'name'\", \"render/redirect-to [:action => 'name',]
-[controller => 'n']\", stylesheet_link_tag and other common
+\"layout 'name'\", \"render/redirect-to [:action => 'name',] [controller => 'n']\",
+stylesheet_link_tag and other common
 patterns.
 
 Rules for actions/controllers:
@@ -220,7 +220,7 @@ Rules for actions/controllers:
                     (current-line-string))))
           (loop for func in rails-on-current-line-gotos
                 until (when (funcall func line prefix) (return t))))
-       (message "Can't switch to some file form this line.")))))
+       (message "Can't switch to some file from this line.")))))
 
 (defvar rails-on-current-line-gotos
   '(rails-line-->partial

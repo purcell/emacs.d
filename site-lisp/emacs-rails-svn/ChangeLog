@@ -1,3 +1,21 @@
+2007-08-05  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-compat.el: apply patch #12743, replace
+	`indent-or-complete` to `indent-and-complete` (thanks Peter Williams)
+
+2007-08-04  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-navigation.el (rails-nav:goto-layouts): fixed bug #12754,
+	broken `rails-nav:goto-layouts`
+
+2007-07-26  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* inflections.el: more inflections (by Edvard Majakari)
+
+	* rails-ruby.el (ruby-align-rules-list): improved `align` support
+
+	* rails-test.el (rails-test:line-regexp): added support of '-' symbol in file name
+
 2007-05-23  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails-test.el (rails-test:line-regexp): bug #10792: updated regexp

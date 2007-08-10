@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/inflections.el $
-;; $Id: inflections.el 178 2007-04-12 20:58:56Z dimaexe $
+;; $Id: inflections.el 200 2007-07-26 18:31:08Z dimaexe $
 
 ;;; License
 
@@ -85,6 +85,19 @@
   (:singular "\\(matr\\)ices$" "\\1ix")
   (:singular "\\(quiz\\)zes$" "\\1")
 
+  (:irregular "stratum" "strate")
+  (:irregular "syllabus" "syllabi")
+  (:irregular "radius" "radii")
+  (:irregular "addendum" "addenda")
+  (:irregular "cactus" "cacti")
+  (:irregular "child" "children")
+  (:irregular "corpus" "corpora")
+  (:irregular "criterion" "criteria")
+  (:irregular "datum" "data")
+  (:irregular "genus" "genera")
+  (:irregular "man" "men")
+  (:irregular "medium" "media")
+  (:irregular "move" "moves")
   (:irregular "person" "people")
   (:irregular "man" "men")
   (:irregular "child" "children")

@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 193 2007-05-05 18:37:00Z dimaexe $
+;; $Id: rails.el 202 2007-08-04 20:11:13Z dimaexe $
 
 ;;; License
 
@@ -402,7 +402,7 @@ necessary."
             (local-set-key (kbd "C-.") 'complete-tag)
             (local-set-key (if rails-use-another-define-key
                                (kbd "TAB") (kbd "<tab>"))
-                           'indent-or-complete)
+                           'indent-and-complete)
             (local-set-key (rails-key "f") '(lambda()
                                               (interactive)
                                               (mouse-major-mode-menu (rails-core:menu-position))))
@@ -422,7 +422,7 @@ necessary."
              (progn
                (local-set-key (if rails-use-another-define-key
                                   (kbd "TAB") (kbd "<tab>"))
-                              'indent-or-complete)
+                              'indent-and-complete)
                (rails-minor-mode t)
                (rails-apply-for-buffer-type)))))
 
