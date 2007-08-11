@@ -297,10 +297,13 @@
 ;; Window size and features
 ;;----------------------------------------------------------------------------
 (when *macbook-pro-support-enabled*
-  (set-face-attribute 'default nil :family "monaco" :height 120)  
-  ;; Default frame size (perfect for Macbook Pro when scrollbar, dock and toolbar hidden...)
-  (setq initial-frame-alist '((width  . 202) (height . 53) (top . 0) (left . 3) (tool-bar-lines . 0)))
-  (setq default-frame-alist '((width  . 202) (height . 53) (top . 22) (left . 3) (tool-bar-lines . 0))))
+  ; Either 110 and 57 or 120 and 53
+  (let ((font-size 110)
+        (frame-height 57))
+    (set-face-attribute 'default nil :family "monaco" :height font-size)
+    ;; Default frame size (perfect for Macbook Pro when scrollbar, dock and toolbar hidden...)
+    (setq initial-frame-alist `((width  . 202) (height . ,frame-height) (top . 0) (left . 3) (tool-bar-lines . 0)))
+    (setq default-frame-alist `((width  . 202) (height . ,frame-height) (top . 22) (left . 3) (tool-bar-lines . 0)))))
 
 (tool-bar-mode nil)
 (scroll-bar-mode nil)
