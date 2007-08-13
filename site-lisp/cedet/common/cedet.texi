@@ -1,0 +1,554 @@
+\input texinfo  @c -*-texinfo-*-
+@c %**start of header
+@setfilename cedet.info
+@set TITLE  CEDET Manual
+@set AUTHOR Eric M. Ludlam
+@settitle @value{TITLE}
+
+@c *************************************************************************
+@c @ Header
+@c *************************************************************************
+
+@copying
+This manual documents CEDET, a collection of other tools.
+
+Copyright @copyright{} 2007 Eric M. Ludlam
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with the
+Invariant Sections being list their titles, with the Front-Cover Texts
+being list, and with the Back-Cover Texts being list.  A copy of the
+license is included in the section entitled ``GNU Free Documentation
+License''.
+@end quotation
+@end copying
+
+@ifinfo
+@dircategory Emacs
+@direntry
+* CEDET: (cedet).	Collection of Emacs Development Environment Tools
+@end direntry
+@end ifinfo
+
+@iftex
+@finalout
+@end iftex
+
+@ifinfo
+This file documents CEDET.
+@emph{Collection of Emacs Development Environment Tools}
+
+Copyright @copyright{} 2007 @value{AUTHOR}
+@end ifinfo
+
+@titlepage
+@sp 10
+@title @value{TITLE}
+@author by @value{AUTHOR}
+@vskip 0pt plus 1 fill
+Copyright @copyright{} 2007 @value{AUTHOR}
+@page
+@vskip 0pt plus 1 fill
+@insertcopying
+@end titlepage
+@page
+
+@macro cedet{}
+@i{CEDET}
+@end macro
+
+@macro semantic{}
+@i{semantic}
+@end macro
+
+
+@c *************************************************************************
+@c @ Document
+@c *************************************************************************
+@contents
+
+@node top
+@top @value{TITLE}
+
+@cedet{} is a @i{Collection of Emacs Development Environment Tools}
+including core libraries such as @i{EIEIO}, and @i{semantic}, and user
+interface tools such as @i{speedbar}, @i{EDE}, and @i{COGRE}.
+
+While these tools are independent, and all have their own manuals,
+they are also all co-dependent within @cedet{}, and are dependent on
+the @cedet{} common libraries such as @i{inversion} and @i{ezimage}.
+
+This manual describes how to configure the tools as a whole to
+accomplish some tasks.
+
+To send bug reports, or participate in discussions about @cedet{},
+use the mailing list cedet-devel.net via the URL:
+@url{http://lists.sourceforge.net/lists/listinfo/cedet-devel}
+
+@menu
+* Overview::                    
+* Installation/Basic Configuration::                
+* JDEE Target::
+* ECB Target::
+* Project Management::
+* Code Completion::
+* GNU Free Documentation License::  
+* Index::                       
+@end menu
+
+@node Overview
+@chapter Overview
+
+The @cedet{} collection is made up of several tools.  Each tool has
+it's own manual with details for that tool.
+
+At the core of the @cedet{} suite is @i{EIEIO}, which is an
+@i{Implementation of Emacs Interpreted Objects}.  This provides a CLOS
+like interface to writing object-oriented code in Emacs.  @i{EIEIO}
+forms the base of most of the other tools, with the notable exception
+of @i{Speedbar}.
+
+Several other tools form the next layer of @cedet{} functionality.
+For project management, @i{EDE} provides a simple way to create
+projects.  You can create an @i{EDE} centric project, which uses
+either Makefiles, or AutoMakefiles, or it can wrap an automake based
+program you've already developed.  You can also create simple EDE
+wrappers on top of any style of project.  @i{EDE} provides a backgrop
+for any other @cedet{} tool that needs to know the filesystem scope of
+a code base, where include directories might be.
+
+@semantic{} provies another mid-level layer.  @semantic{} provides a
+set of tools for developing parsers for different languages, and an
+API for searching and manipilating tags generated from your source
+code.  @semantic{} also provides a wide range of core tag centric
+utilities such as enhanced tag decoration, code analysis, and the
+coveted ``Smart Completion'' feature.
+
+@i{Speedbar} is a user interface tool that provides a narrow view into
+your filesystem and tags.  Speedbar is also an API for designing other
+tools and is used for displaying EDE project information, Semantic
+smart completion options, Email, Info, and even GDB stack information.
+
+Lastly, @i{COGRE} is a @i{COnnected GRaph Editor}.  The core is an
+object design and library for drawing, saving, and restoring simple
+connected graphs.  Built on this is a UML based tool which interfaces
+with Semantic Tag information to draw simple UML diagrams of your
+code.  As of this writing @i{COGRE} is quite simple.  Longer term
+plans include using @i{COGRE} as a way of manipulating source code
+indirectly.
+
+All these tools depend on a suite of simple library functions, such as
+@i{inversion}, @i{ezimage}, @i{pretty printing}, and @i{mode-local}
+variables.
+
+@menu
+* EIEIO::       Object system for Emacs.
+* Semantic::    Parser generator and tag management tool.
+* Speedbar::    File and tag explorer, plus more.
+* EDE::         Project Management tool.
+* COGRE::       Diagram editor for object design.
+* Other Library Functions::
+@end menu
+
+@node EIEIO
+@section EIEIO
+
+@i{EIEIO} contains the core object library.  You can define classes,
+and methods for those classes using CLOS style syntax.  Objects can be
+customized using the Emacs customization tool, which allows easy
+creation of dialog box style UIs.  A series of bases classes allows
+the creation of Emacs centric tools, wrapping up the details of
+persistence, instance tracking, or instance inheritance.
+
+@i{EIEOI} also includes several stray tools, such as @file{tree.el}
+for drawing tree diagrams, @file{chart.el} for drawing charts,
+@file{linemark.el} for managing visible bookmarks programatically, and
+@file{lmcompile.el}, which is a linemark tool that puts out bookmarks
+for compiler error hits.
+
+Lastly, @i{EIEIO} has baseclasses for writing Speedbar interfaces.
+Take an existing object hierarchy and inherit from these baseclasses
+to be browsable in Speedbar.
+
+For more details on @i{EIEIO}, read the
+@inforef{top, EIEIO Reference Manul, eieio}.
+
+@node Semantic
+@section Semantic
+
+@semantic{} is a parser generator, lexical analyzer, parser
+development environment, parser, tag genration and management system.
+Build on this is a persistent tag management system database and
+search utility.  Code analysis and completion generation is also
+provided.  @semantic{} includes tools such as speedbar interfaces to
+tags, context analysis, and completion options, Popup smart
+completion, tag decoration, and support for a wide range of Emacs
+tools such as Imenu, wich-func, hippie-expand, isearch, and
+cut/copy/paste.
+
+For more details, please read the
+@inforef{top, Semantic Manual, semantic} for high level overviews,
+configuration advice, etc.
+
+If you are an application developer and need to know the functions and
+concepts, 
+@inforef{top, the Application Development Manual, semantic-appdev}.
+
+To support a new language,
+@inforef{top, the Language Support Developer's Guide, semantic-langdev}.
+
+To use the grammar writing environment, and write in the rule based
+language, 
+@inforef{top, the Grammar Framework Manual, grammar-fw}.
+
+For details on the original @semantic{} @acronym{LL} parser,
+@inforef{top, the Bovine Parser Manual, bovine}.
+ 
+For details on the Bison-like @acronym{LALR} parser,
+@inforef{top, the Wisent Parser Manual, wisent}.
+
+@node Speedbar
+@section Speedbar
+
+@i{Speedbar} is an abbreviated everything browser.  If you can
+conceptualize browsable information into 20 columns, then Speedbar can
+display it for you.
+
+Speedbar comes with several interfaces, with the primary one being for
+files and tags.  It can also display buffer lists, RMAIL boxes, and
+Info nodes.  Combined with CEDET, it also provides project tracking,
+smart completion lists, Class browsing, Connected graph browsing.
+
+You can use speedbar to write your own browsers.  Some external tools
+include ERC (Irc client), xslt-process, MH-E (mail reader), and ECB, a
+code browser which embeds Speebar.
+
+@i{Speedbar} has been a part of Emacs for quite a while.  The @cedet{}
+version of speedbar (as of this writing, Jun 07) is identical to the
+version in Emacs 22.
+
+Read the
+@inforef{top, Speedbar Manual, speedbar} for more details.
+
+@node EDE
+@section EDE
+
+@i{EDE} is the @i{Emacs Development Environment}, which means that it
+manages projects, and can build Makefiles, track distribution and web
+sites associated with your GNU project.
+
+@i{EDE} has several types of projects it can manage with varying
+degrees of development support.  An EDE centric project will generate
+Makefiles or Automake files, and provides menus and keybindings for
+compiling any target, debugging programs by providing the arguments to
+your debugger, and will make sure you don't forget to include some
+file in your targets.  It will help you build distribution files, and
+post them to the web (such as with Source Forge).  @i{EDE} will track
+revision numbers and make sure they are updated in multiple places.
+
+Projects that are merely wrapped with @i{EDE} can support a small
+subset of the above.  All project provide an API to other programs
+that need to know the scope of a project, such as which files belong
+together, where include directories might be, how to find
+documentation, and details of that nature.  You can even create
+project-local variables, which are Emacs variables with specific
+values within the scope of an EDE controlled project.
+
+Read more about it in the
+@inforef{top, EDE reference manual, ede}.
+
+@node COGRE
+@section COGRE
+
+@i{COGRE} is a @i{COnnected GRaph Editor}.  You can use it to create
+simple connected graphs and diagrams.  You can also create more
+complex UML class diagrams in it, or even bind UML diagrams directly
+to source code, navigating your source via the UML diagram.
+
+Read more a bout it in
+@inforef{top, the COGRE manual, cogre}.
+
+@node Other Library Functions
+@section Other @cedet{} Library functions
+
+@cedet{} provides several other useful libraries in the
+@file{common/} directory.  These libraries supply most of their
+documentation through the Commentary section of the Emacs Lisp file.
+
+Some of the libraries are:
+
+@itemize @file
+@item cedet-edebug.el
+Collection of extensions to support custom @cedet{} datatypes.
+@item ezimage.el
+Support for covering text in an Emacs buffer with an image.  This is
+based on text patterns, and is portable across most versions of Emacs
+and XEmacs.
+
+Using ezimage allows you to write a text based UI, and then enhance it
+with images afterwards, allowing your UI to work well in a text
+frame, in addition to looking pretty spiff in a graphical frame.
+@item fame.el
+Support for @code{message} channels, allowing a program to provide a
+wide range of messages, and allowing a user to configure which set
+they want to see.
+@item inversion.el
+Revision management system.  Allows you to use @code{require} syntax
+for a specific version of some tool.  If the tool is not compatible
+with your desired version, a signal is thrown.
+@item mode-local.el
+Specify functions that have different behaviors based on major-mode,
+or variables with different local values based on major mode.  Setting
+a value to a specific mode causes the value to change for all buffers
+of that mode.
+
+mode-local is also aware of mode inheritance, such that C++ mode
+inherits some C configurations.  You can also run code, or access
+variables from other modes by with a temorary scoped setting.
+
+mode local is used extensively throughout the @semantic{} package.
+@item pprint.el
+A pretty printer for Emacs Lisp code.  Use it to dump out large
+complex datastructures.
+@item sformat.el
+A Super Format function.  Define lists of associations between letters
+and values, and then create format strings with % tokens for any
+letter.
+
+sformat is used in the semantic document package to construct complex
+documentation strings.
+@item working.el
+Display a working message, or a ``percentage done'' style bar in the
+mini-buffer.  Tasks that take a long time can use working to provide
+user feedback explaining a delay.
+@end itemize
+
+@node Installation/Basic Configuration
+@chapter Installation and Basic Configuration
+
+A complination centric version of the @cedet{} installation is in the
+INSTALL file in the top level CEDET directory.
+
+@enumerate
+@item Compile CEDET
+
+@example
+make
+@end example
+
+or 
+
+@example
+make EMACS=<your favorite emacs> MAKEINFO=<substitute, or echo>
+@end example
+
+@item Install .emacs hooks
+
+Load @cedet{} in your .emacs file.  You do not need to install all of
+cedet into any magic Emacs controlled directories, or modify your
+loadpath.  The cedet bootstrap file will automatically update your
+load path, and load all the autoload files.  The cedet configuration
+will load a minimum set of files in.
+
+@example
+;; Load CEDET
+(load-file "~/cedet-VERSION/common/cedet.el")
+@end example
+
+@item Configuration
+
+You will likely need to configure @cedet{} to your application.  Visit
+the other chapters in this manual for samples to get some ideas on
+possible configuration scenarios.
+
+@item Contribute to CEDET
+
+For general discussions on development of these tools, use the mailing
+list cedet-devel@@sourceforge.net via the URL:
+
+http://lists.sourceforge.net/lists/listinfo/cedet-devel
+
+For @semantic{} development use the mailing list cedet-semantic.net via
+the URL:
+
+http://lists.sourceforge.net/lists/listinfo/cedet-semantic
+
+For EIEIO use the mailing list cedet-eieio@@sourceforge.net via the
+URL:
+
+http://lists.sourceforge.net/lists/listinfo/cedet-eieio
+
+@item Install Additional Tools
+
+You may also need to download some of the following files for more
+obscure features.
+
+To use the JavaScript parser:
+javascript-mode.el : http://www.emacswiki.org/cgi-bin/wiki/JavaScriptMode
+   
+To use the UML chart generation from "M-x semantic-dot":
+graphviz dot programs, including "dotty"
+http://www.graphviz.org/
+
+To use the graphviz dot parser:
+graphviz-dot-mode.el: See the commentary in cogre/wisent-dot.el
+
+@end enumerate
+
+@node JDEE Target
+@chapter JDEE Target
+
+JDEE, or the Java Development Environment, depends on CEDET for both
+EIEIO, the object sytem, and Semantic, for parsing and providing
+tagging information.
+
+In addition to the basic CEDET configuration, you will likely want to
+add the following Semantic configuration to your .emacs file.
+
+@example
+(semantic-load-enable-minimum-features)
+@end example
+
+This provides basic idle-time parsing of files, and persistence to
+support the semantic APIs.
+
+If you would like to use more of the Semantic tools for your coding in
+Java, you may want to enable this instead:
+
+@example
+(semantic-load-enable-code-helpers)
+@end example
+
+or the fancier
+
+@example
+(semantic-load-enable-guady-code-helpers)
+@end example
+
+See the
+@inforef{Canned Configuration, Semantic Configuration, semantic}
+section of the semantic manual for more details about these features.
+
+@node ECB Target
+@chapter ECB Target
+
+ECB, or the Emacs Code Browser depends on CEDET for the @semantic{}
+parsing engine, and several other features.  ECB can display a window
+that shows semantic tag information.
+
+ECB can also be used with JDEE.
+
+In addition to the basic CEDET configuration, you will likely want to
+add the following Semantic configuration to your .emacs file.
+
+@example
+(semantic-load-enable-code-helpers)
+@end example
+
+or the fancier
+
+@example
+(semantic-load-enable-guady-code-helpers)
+@end example
+
+See the
+@inforef{Canned Configuration, Semantic Configuration, semantic}
+section of the semantic manual for more details about these features.
+
+@node Project Management
+@chapter Project Management
+
+If you are looking for @cedet{} to help you manage a project full of
+sourcecode, then you will be using @i{EDE} and @semantic{}.
+
+In addition to the basic CEDET configuration, you will likely want to
+add the following Semantic configuration to your .emacs file.
+
+@example
+(semantic-load-enable-code-helpers)
+@end example
+
+or the fancier
+
+@example
+(semantic-load-enable-guady-code-helpers)
+@end example
+
+See the
+@inforef{Canned Configuration, Semantic Configuration, semantic}
+section of the semantic manual for more details about these features.
+
+
+Once semantic is using your configuation, you can use EDE to define
+your projects.  If you are starting a new project, put a file from
+your new project into a buffer, and type:
+
+@example
+M-x ede-new RET
+@end example
+
+Now select either ``Make'' or ``Automake'', which determines the
+underlying build technology to use for compilation.
+
+Use the menu to add targets.  You can then use either Speedbar or
+dired to populate your targets with files.
+
+See the
+@inforef{Top, EDE reference manual, ede}
+for more details.
+
+@node Code Completion
+@chapter Code Completion
+
+Code Completion, or perhaps ``Intellisense'' is a difficult problem to
+get working in Emacs.  To use the @cedet{} suite to do it, you will
+need to start by autmenting the basic @cedet{} install in your .emacs
+file with:
+
+@example
+(semantic-load-enable-code-helpers)
+@end example
+
+or the fancier
+
+@example
+(semantic-load-enable-guady-code-helpers)
+@end example
+
+See the
+@inforef{Canned Configuration, Semantic Configuration, semantic}
+section of the semantic manual for more details about these features.
+
+This gets the basics working.  Semantic would now be able to parse
+your code, and provide some level of support for help text, and smart
+completion.
+
+To improve the things Semantic can find, and complete with, you then
+need to perform more configurations.  This is done mainly by providing
+details on where Semantic can find the source code where your tag
+definitions are.  Please read the
+@inforef{Semanticdb Search Configuration, Semantic search configuration, semantic-user}
+node for details on these techniques.
+
+Once you've optimized this step, there are several code completion
+options.  Please see the
+@inforef{Analyzer, semantic analyzer, semantic-user}
+section for more details on different completion techniques.
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include ../semantic/doc/fdl.texi
+
+@node Index
+@unnumbered Index
+@printindex cp
+
+@iftex
+@contents
+@summarycontents
+@end iftex
+
+@bye

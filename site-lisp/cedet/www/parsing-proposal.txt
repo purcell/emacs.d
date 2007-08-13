@@ -1,0 +1,77 @@
+Definitions:
+
+syntax-table - Definition of how characters are used in Emacs.
+	       (How Emacs does it now, or extended in some way.)
+lexer        - A function/process for converting text via the syntax
+	       table into tokens.
+mode-chunking - Process by which one buffer is divided into sections.
+		Each section is represented by a different major mode.
+syntax parsing - Convert a lexical token stream into an intermediate
+               token stream.  This should work well `locally'.
+               1) Matched parenthisis handling.
+	       2) symbols created from words and symbol characters
+	       3) Strings
+	       4) comments
+parsing      - Convert a syntax token stream (from a syntax parser)
+               into something else.
+	       (I called these tokens in semantic too.)
+token        - Output from a lexer
+tag          - Output from high level parsing
+
+
+Goals:
+
+* Multiple major modes in one buffer. (like mmm-mode)
+* Reliable font-lock, even if a string or comment has split endings
+  in a merged CVS file.
+* High level detailed tags (such as is output via Semantic)
+* Fault tolerance.
+* Alternative language for defining syntax information
+
+
+Parsing Stages:
+
+  buffer |
+  regexp | -----> mode-chunker -------> mode-boundaries/overlays
+					(more than one line per mode section.)
+
+  syntax-table          | -----> lexer -------> lexical-token-stream
+  buffer-string         |
+
+  mode-boundaries     |
+  lexical-token-stream|----> syntax-parser -> syntax-token-stream
+  buffer              |
+
+  mode-boundaries    |
+  syntax-token-stream| --> parser -----> tags-stream
+  parse-table        |			 (one level of parsing, lower levels
+                                          skipped by the syntax parser)
+
+  mode-boundaries     |
+  syntax-token-stream | --> font-lock  ---> fancy fonts on screen
+  parse-table         |
+  buffer              |
+
+  tags-stream ----> tag-stream-database-engine  ----> tag-database
+
+  tag-database --> UML-layout-engine  ---> fancy-diagram
+
+
+Random Proposed Techniques:
+
+* mode-chunking cache (built in version of mm-mode's overlays?)
+
+* syntax table parse-partial-sexp state cache.
+
+* after-change-function to only relex/reparse those portions of a
+  buffer modified.  (similar to semantic 1.4 for parsing)
+
+* syntactic chunks identified by regexp (such as an open paren in column 1)
+  for fault tolerance when parsing.
+  ie: If a parenthisis matching is incomplete between two open parens
+      in column 1 it is assumed that the intervening space should be
+      one longer parenthisis, and tags following can still be found.
+
+* Special language definition file for Emacs (.eld ?) which is
+  converted to Emacs internal structures.
+

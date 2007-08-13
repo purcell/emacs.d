@@ -1,0 +1,167 @@
+<TITLE>Speedbar Homepage</TITLE>
+
+<!--#include file="pagestart.php"-->
+
+<table width=100% class=BAR>
+<tr><td><h2><font color=black>Speedbar:</font></h2></td>
+<td><font color=black>"Floating Everything Browser."</font></td></tr>
+</table>
+<img src=speedbar-3.jpg align=right>
+
+
+<P>Speedbar is an <B>Emacs Lisp</B> program which allows you to create a
+special skinny frame with a specialized directory listing in it.  This
+listing will have both directories and filtered files in it.  You can
+then load files into your emacs frame, or expand the files to display
+all the tags that are in them and jump to those tags.  You can also
+expand multiple directories into your speedbar frame.</P>
+
+<P>Using Shift with the mouse is considered a "power click" which will
+ignore any cached data that might be related to the navigation
+desired.  When loading a file, a power click will pull that file into
+a new frame.</P>
+
+<P>For PC users with two button mice, a button1 double click acts as
+the mouse-2 click most emacs users are familiar with.</P>
+
+<P>Additional keyboard commands are available for friendly file IO
+functions such as Rename/Copy/Delete, Loading lisp files, and
+compiling lisp files.</P>
+
+<table align=right>
+<td>
+<a href=speedbar-multi-2.jpg>
+<center>
+<img src=speedbar-multi-2.jpg alt=speedbar-multi-2.jpg width=100 height=100>
+</a>
+<br>
+<font size=-2>
+Different Modes for Speedbar
+</font>
+</center>
+</td>
+</table>
+
+<P>Speedbar is more than just file browsing, however.  Speedbar is a
+   generalized browser.  Speedbar supports:
+
+<ul>
+<li> multiple tagging methods for files (such as etags, imenu, and semantic)
+<li> multiple major display modes (such as buffer lists, project lists,
+   and EIEIO class browsing,)
+<li> multiple minor display modes that appear when you view special files,
+     such as Info pages, or read mail with RMAIL.
+</ul>
+</p>
+
+<table width=100% class=BAR><tr><td>
+<h2>About the picture</h2>
+</td></tr></table>
+
+<P>Starting with Speedbar 0.11, images are now supported to represent
+  files and tags.  This screen shot was taken using Emacs 21, using
+ <a href=semantic.shtml>Semantic</a> for tag generation.  Any version
+ of XEmacs should generate a similar picture.
+</p>
+
+<P>Speedbar works with Emacs 19.3x, 20.x without images, and 21.x
+  with images on platforms for which image display is available.
+  It also works with images for XEmacs 20.x, and 21.x.
+</p>
+
+<table width=100% class=BAR><tr><td>
+<h2>Read the docs:</h2>
+</td></tr></table>
+
+<P>You can read the 
+   <a href=info/speedbar.html>html documentation</a>
+   created from the texinfo file.</p>
+
+<table width=100% class=BAR><tr><td>
+<h2>Speedbar Enabled tools:</h2>
+</td></tr></table>
+
+<P>There are several speedbar enabled tools that you can download
+   which may not come with your installed Emacs distribution.</p>
+
+<ul>
+<li><a href="eieio.shtml">EIEIO</a> can use speedbar to display
+    class hierarchies.  It also has a specialized class set to
+    make building custom speedbar displays easy.
+<li><a href="semantic.shtml">Semantic</a> has a tagging mechanism
+    that plugs into speedbar.  It also has two major display modes
+    for displaying class hierarchies, and context analysis.
+<li><a href="ede.shtml">EDE</a> uses the EIEIO classes to display
+    project status.
+<li><a href="http://www.iis.ee.ethz.ch/~zimmi/emacs/vhdl-mode.html">
+    VHDL mode</a> has a very fancy class browser for VHDL files.
+<li><a href="http://xslt-process.sourceforge.net/index.php">
+    XSLT-process</a> for Emacs provides XSLT file browsing.
+<li><a href="http://mh-e.sourceforge.net/">
+    MH-E</a> displays mail folders and message counts.
+<li><a href="http://sourceforge.net/projects/xslide">XSlide</a>
+    uses imenu to display tags from XSL stylesheets.
+<li><a href="http://www.obermuhlner.com/public/Projects/Palm/pilrc-mode">
+    Palm Resource source files mode.</a>
+<li><a href="http://www.obermuhlner.com/public/Projects/Palm/PDBC">
+    Palm DataBase source files mode.</a>
+<li><a href="http://www.emacswiki.org/cgi-bin/wiki.pl?EmacsIRCClient">
+    EIRC</a> has a
+    <a href="http://www.emacswiki.org/cgi-bin/wiki.pl?ErcSpeedbar">
+    speedbar display mode</a>
+    for showing servers and channels.
+<li><a href="http://spice-mode.4t.com/index.html">
+    ELDO & SPICE modes</a> support speedbar tagging through
+    imenu and speedbar configurations.
+<li>Check the <a href="http://ctags.sourceforge.net/faq.html">
+    exuberant ctags FAQ</a> to use that tool with speedbar.
+<li><a href="http://idlwave.org/">IDLWave mode</a> supports
+    speedbar tagging.
+<li><a href="http://libre.act-europe.fr/adamode/main.html">
+    Ada mode</a> has had issues displaying files in speedbar which
+    were fixed.
+<li><a href="http://sourceforge.net/projects/php-mode/">
+    php-mode</a> supports speedbar tagging.
+<li><a href="http://feff.phys.washington.edu/~ravel/software/ease/">
+    EASE</a> analysis mode for emacs.
+<li><a href="http://www.azundris.com/hacks/lisp/">
+    CIOMO - CoBOL mode</a> supports imenu and speedbar.
+</ul>
+
+<p>If you know of others, let me know and I'll add a link.</p>
+
+<br clear=both>
+<!--#include file="download.php"-->
+
+<table width=100% class=BAR><tr><td>
+<h2>Downloading Earlier versions of speedbar</h2>
+</td></tr></table>
+
+<P>
+It was a beta that was stable for a long time.
+<a href="http://sourceforge.net/project/showfiles.php?group_id=17886">
+speedbar 0.14beta4</a>
+</p>
+
+<P>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=17886">
+speedbar-0.13a.tar.gz</A>.  <br>There is a bug in the Makefile of
+speedbar 0.13a.  To build, use the command "make LOADPATH=." to work
+around the problem quickly.
+</P>
+
+<h3>RPMS</h3>
+
+<P>RPMS for speedbar can be downloaded from
+  <a href="http://sourceforge.net/projects/rte">Real Time Enterprises</a>
+  RPM site at sourceforge.</p>
+
+<h3>Even Older releases of Speedbar</h3>
+
+<P><A HREF="ftp/speedbar-0.12.tar.gz">
+speedbar-0.12.tar.gz</A>.</P>
+
+<P><A HREF="ftp/speedbar-0.11.1.tar.gz">
+speedbar-0.11.1.tar.gz</A></P>
+
+<!--#include file="footer.fsf.shtml"-->

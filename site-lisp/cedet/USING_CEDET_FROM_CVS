@@ -1,0 +1,77 @@
+Using CEDET from CVS:
+====================
+
+If you have loaded CEDET from CVS, you will find that the basic
+installation is almost the same as for the regular distribution.
+
+All EDE Project files for CEDET are checked into CVS along with the
+corresponding Makefiles.  Since "Project.ede" comes after "Makefile"
+alphabetically, your CVS checkout command will always leave timestamps
+that indicates that the Makefiles are out of date.
+
+Thus, the first compilation step is:
+
+-----
+touch `find . -name Makefile`
+-----
+
+To compile and install the rest of the released versions of CEDET,
+please read the INSTALL file.
+
+
+
+
+Web Site:
+========
+
+The CEDET CVS repository contains the full source to the CEDET web
+page which is usually found on:
+
+http://cedet.sf.net
+
+
+
+Unreleased Software:
+===================
+
+The CEDET CVS repository sometimes contains new software that has not
+been integrated into the CEDET distribution and build system.  This
+section describes any such tools.
+
+cedet/srecode
+-------------
+
+The SRecode tools stands for "Semantic Recoder".
+SRecode is a template library manager for auto-generating code for any
+language.  Complex code generation is managed through Semantic
+compatible tags.
+
+SRecode has a reasonable manual that will assist you in understanding
+what it is for.  To try it out, add this to your .emacs file:
+
+-------
+(add-to-list 'load-path (expand-file-name "~/cedet/srecode"))
+(require 'srecode-load)
+--------
+
+
+
+Obsolete Software:
+=================
+
+The CEDET CVS repository contains some software that has been
+obsoleted with time as newer tools come online.
+
+You can still use some of these tools if you want, but the bit-rot
+will eventually get you.
+
+cedet/quickpeek
+---------------
+
+Quick Peek was an attempt to get eldoc like behavior using only etags
+files.  It worked pretty well, but it required a clever parser to
+provide smart output.  Eventually I started writing Semantic so I
+could have a parser to do this work.  It was later obsoleted by an
+eldoc interface, and then the `semantic-idle-scheduler-mode'.
+
+

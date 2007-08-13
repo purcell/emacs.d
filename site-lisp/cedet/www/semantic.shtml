@@ -1,0 +1,285 @@
+<title>Semantic</title>
+
+<!--#include file="pagestart.php"-->
+
+<table width=100% class=BAR>
+<tr><td><h2><font color=black>Semantic:</font></h2></td>
+<td><font color=black>"Infrastructure for parser based text analysis in Emacs."</font></td></tr>
+</table>
+
+<table align=right>
+<tr><td><img src=bovine.jpg></td></tr>
+<tr><td align=center><font size=-2>Logo by David Ponce</font></td></tr>
+</table>
+
+<p>Semantic is an infrastructure for parser based text analysis in
+Emacs. It is a lexer, parser-generator, and parser.  It is written
+in <b>Emacs Lisp</b> and is customized to the way Emacs thinks about
+language files, and is optimized to use Emacs' parsing
+capabilities.</p>
+
+<p>Semantic's goal is to provide an intermediate API for
+authors of language agnostic tools who want to deal with languages in
+a generic way.  It also provides a simple way for Mode Authors who are
+expert's in their language, to provide a parser for those tool
+authors, without knowing anything about those tools.</p>
+
+<table width=100% class=BAR><tr><td>
+<h3>Semantic's Core is made up of these important pieces:</h3>
+</td></tr></table>
+<dl>
+<dt><b>Lexical Analyzer</b>
+<dd>Converts a language into a token stream
+<dt><b>Parser</b>
+<dd>Converts a lexical token stream into a table of tags
+    defined by the language.
+<dt><b>Parser Generator</b>
+<dd>Converts a language definition into a table usable by the parser.
+<dt><b>Language Parsers</b>
+<dd>Parsers that have already been implemented:<br>
+    Emacs Lisp, Java, C/C++, C#, Python, Erlang, awk, Makefile, and Scheme.<br>
+    Also: Semantic's own grammar format (.by or .wy)
+<dt><b>Database</b>
+<dd>Persistent storage of parsed information.  Speeds load
+    time and provides standard way of cross referencing files.
+</dl>
+
+<table width=100% class=BAR><tr><td>
+<h3>Semantic 1.4 Contains these additional User Tools:</h3>
+</td></tr></table>
+
+<br clear=both>
+<table align=right>
+<td>
+<a href=semantic-chart.jpg>
+<center>
+<img src=semantic-chart.jpg alt=call-tree.jpg width=100 height=100>
+</a>
+<br>
+<font size=-2>
+Complexity of semantic.el
+</font>
+</center>
+</td>
+</table>
+
+<dl>
+<dt><b>Imenu</b>
+<dd>Create hierarchical imenu menus from parsed files.
+<dt><b>Navigator</b>
+<dd>Senator is a navigator that permits simple navigation
+    through the parsed language.  It also includes token highlighting,
+    and magic cut & paste.
+<dt><b>Analyzer</b>
+<dd>Examines code, and references those names against a
+	database of pre-parsed files to provide detailed information.
+<dt><b>Speedbar Browser</b>
+<dd>Code for browsing tag lists with Speedbar.
+<dt><b>Documentation Generator</b>
+<dd>Identifies inline documentation in source
+            code, and can convert it to texinfo.  It can also create
+	    inline documenation.
+<dt><b>Charting</b>
+<dd>Draw a chart of some things semantic can quantify.
+<dt><b>Highlight bad code</b>
+<dd>text which does not fit the language is underlined.
+</dl>
+
+<table width=100% class=BAR><tr><td>
+<h3>What's in Semantic 2.0?  (A Part of of CEDET 1.0 beta)</h3>
+</td></tr></table>
+
+<table align=right>
+<td>
+<a href=inlinecompletion.png>
+<center>
+<img src=inlinecompletion.png alt=call-tree.jpg width=100 height=100>
+</a>
+<br>
+<font size=-2>
+Intellisense
+</font>
+</center>
+</td>
+</table>
+
+<dl>
+<b>New Grammar framework</b>
+<dd>A new framework for handling parsers, and the rule based language
+  used to generate parsers provides a clean and consistent view into
+  parser writing.
+<dt><b>Bison ported to Emacs</b>
+<dd>David Ponce has ported Bison to Emacs Lisp.  Languages supported
+  via the new <em>wisent</em> parser will run faster.  New languages
+  will be easier to support as you can run a handy script to port
+  directly from <tt>.y</tt>  sources.
+<dt><b>BNF confusion removed.</b>
+<dd>The old Bovine Normal Form pun has been removed.  LL (bovine)
+  parsers are now in .by files.
+<dt><b>Improved incremental parser</b>
+<dd>Fixes the tag cache in more situations than the previous
+  mechanism reducing the frequency a full reparse is needed.
+<dt><b>Improved lex API</b>
+<dd>New programmers interface to the lexical analysis phase produces
+  slightly faster lexers, with more flexibility.
+<dt><b>Language configuration improvements</b>
+<dd>Programmers supporting a language will find the new method for
+  configuring semantic for their language is much improved.
+<dt><b>Database Improvements</b>
+<dd>Tools using semanticdb to query will magically have access to all
+  system libraries as well (when supported.)  More abstractions
+  allows access into pre-compiled libraries using the same old API
+  calls.  (Special support is needed for each such access mechanism.)
+<dt><b>Command Line Database Tools</b>
+<dd>A tool set of shell scripts (sh required) are provided for
+  building semantic databases before starting Emacs.
+<dt><b>More consistent function naming conventions.</b>
+<dd>Tools writing to the Semantic API may need to change when moving
+  from 1.4 to 2.0, but the confusion as to what a token or
+  nonterminal is will now be clear.
+<dt><b>More Languages supported.</b>
+<dd>New parsers such as HTML, Python, C#, Javascript and Erlang.
+<dt><b>Smart Completion</b>
+<dd>Completes using symbols actually available in a
+    given context via the Analyzer.  (Restricted to project files.)
+    Some tools call this <a href="intellisense.shtml"> intellisense.</a>
+</dl>
+
+<table width=100% class=BAR><tr><td>
+<h3>Tools I'd like to see in future versions of Semantic:</h3>
+</td></tr></table>
+<dl>
+<dt><b>dependency analysis</b>
+<dd>Determine if a given dependency is really needed,
+	  or if a dependency is missing.
+<dt><b>comment generation</b>
+<dd>Create comment templates based on the current
+	  context.
+<dt><b>header file manager</b>
+<dd>For languages with header files (c, c++), maintain
+	  them from the originating sources.
+<dt><b>Call tree management</b>
+<dd>Find out where types and functions are used.
+<dt><b>Unit Test generation</b>
+<dd>Analyze an API, and automatically create
+          unit tests for it.
+<dt><b>smart templates</b>
+<dd>Insert code fragments based based intrinsically
+	  upon the language definition, and available variables and types.
+</dl>
+
+<table width=100% class=BAR><tr><td>
+<h2>Read the Semantic 1.4 docs:</h2>
+</td></tr></table>
+
+<P>You can read the 
+   <a href="info/semantic.html">html documentation</a>
+   created from the texinfo file.</p>
+
+<P>Here is a page describing how to get
+ <a href="intellisense.shtml"> intellisense</a> like behavior
+  out of your Semantic install
+
+<table width=100% class=BAR><tr><td>
+<h2>Contribute to Semantic</h2>
+</td></tr></table>
+
+<P>Semantic's potential scope is quite large.  If you would like to help
+   semantic push forward, consider participating in one of these fields:</p>
+
+<ul>
+<li>Write a language agnostic tool that uses semantic.  (See proposed
+      tools above.)
+<li>Write a language definition for an unsupported language.
+<li>Maintain one of the language definitions already in semantic, like
+    scheme or C++.
+<li>Test semantic and send in bugs.
+<li>Help with documentation
+<li>Keep semantic compatible with the many versions of [X]Emacs
+</ul>
+
+<table width=100% class=BAR><tr><td>
+<h2>Join the mailing list</h2>
+</td></tr></table>
+
+<p>Join the
+<a href="http://sourceforge.net/mail/?group_id=17886">
+mailing list</a>
+to ask question, or help develop semantic.
+
+<table width=100% class=BAR><tr><td>
+<h2>Other Tools that use Semantic</h2>
+</td></tr></table>
+
+<P><a href="http://jdee.sunsite.dk/"><b>Java Development Environment (JDE)</b></a>
+   is a full development environment for Java.  It uses Semantic
+   to provide useful Java specific features.</p>
+
+<P><a href="http://ecb.sourceforge.net/">
+   <b>Emacs Code Browser (ECB)</b></a>
+      lets you browse your files' contents.
+      Uses the Semantic package.</p>
+
+<p><a href="cogre.shtml"><b>COGRE</b></a> (pronounced <em>cougar</em>)
+   is a COnnected GRaph Editor for Emacs.
+   As it matures, it will use semantic to reverse-engineer sources
+   into UML diagrams.</p>
+
+<table width=100% class=BAR><tr><td>
+<h2>Notes</h2>
+</td></tr></table>
+
+<P>Semantic works with Emacs 20.x, 21, XEmacs 20.x, and 21.x.
+</p>
+
+<!--#include file="download.php"-->
+
+<table width=100% class=BAR><tr><td>
+<h2>Download the Previous Stable Semantic Bovinator</h2>
+</td></tr></table>
+
+<P>The last stable version of Semantic
+   <a href="http://sourceforge.net/project/showfiles.php?group_id=17886&release_id=154524">
+   Semantic 1.4.4</a><br>
+   This version depends on the recent speedbar release: version 0.14
+   beta 4 and eieio version 0.17.
+</p>
+
+<h3>Bovinator Dependencies</h3>
+
+<P>Semantic's speedbar interface requires the
+<a href="speedbar.shtml">latest version of speedbar.</a></p>
+
+<P>Semantic 1.4 introduces the Semantic Database, Semantic Analysis
+   tool, and semantic charts.  These tools
+   require the latest version of
+   <a href="eieio.shtml">EIEIO</a>.
+</p>
+
+<P>If semantic kills font-lock, you need to get and use
+<a href=http://cedet.sourceforge.net/ftp/overlay-fix.el>
+overlay-fix.el</a>
+Thanks to David Ponce for creating this fix.
+</p>
+
+<h3>RPMS</h3>
+
+<P>RPMS for semantic can be downloaded from
+  <a href="http://sourceforge.net/projects/rte">Real Time Enterprises</a>
+  RPM site at sourceforge.</p>
+
+<h3>Even Older releases of Semantic</h3>
+
+<p><a href=http://sourceforge.net/project/showfiles.php?group_id=17886>
+   semantic-1.3.3.tar.gz</a></p>
+
+<P><a href="http://cedet.sourceforge.net/ftp/semantic-1.2.1.tar.gz">
+   semantic-1.2.1.tar.gz</a>
+</p>
+
+<P><a href="http://cedet.sourceforge.net/ftp/semantic-1.1.tar.gz">
+   semantic-1.1.tar.gz</a>
+</p>
+
+<!--#include file="footer.fsf.shtml"-->
+

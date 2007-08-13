@@ -1,0 +1,89 @@
+<TITLE>Eric's FSF projects</TITLE>
+
+<H2>About free software I have written</H2> <P>
+
+In my anonymous FTP<A HREF="ftp://ftp.ultranet.com/pub/zappo">
+top level directory</A>
+you can currently download several programs I've written.<P>
+
+<P><A HREF="gtalk.shtml">
+<IMG SRC="etalk.gif" ALT="*" ALIGN = "LEFT">
+<B>GNU talk</B></A> The latest version of <B>GNU Talk</B>, a BSD
+compatible unix talk program with interfaces in curses,
+Xt/Athena/Lesstif, Gtk/Gnome, and Emacs.
+<BR CLEAR=LEFT></P>
+
+<P><A HREF="speedbar.shtml"><B>Speedbar</B></A>
+An <B>Emacs Lisp</B> program which allows you to create a special
+skinny frame with a specialized directory listing in it.
+</P>
+
+<P><A HREF="semantic.shtml"><B>The Semantic Bovinator</B></A>
+An <B>Emacs Lisp</B> program which is a parser generator for Emacs
+Lisp parsers.
+</P>
+
+<P><A HREF="checkdoc.shtml"><B>Checkdoc</B></A>
+An <B>Emacs Lisp</B> program which checks the style of your
+documentation strings and comments.  Useful if you want to keep other
+Emacs Lisp gurus from picking on you.
+</P>
+
+<P><A HREF="cparse.shtml">
+<B>C-Parse</B></A>
+An <B>Emacs Lisp</B> program which can parse a c file, and allows searching
+for functions, variables, and types.
+</P>
+
+<P><A href="ede.shtml">
+<B>EDE</b></a>
+Emacs Development Environment implements projects under emacs making
+it easy to maintain programs without learning make.</p>
+
+<P><A HREF="eieio.shtml">
+<B>EIEIO: Enhanced Implementation of Emacs Interpreted Objects</B></A>
+is a package which implements a <B>CLOS</B> subset for Emacs.  It also
+includes examples which can draw simple tree graphs, bar charts.</p>
+
+<P><A HREF="http://www.ultranet.com/~zappo/download/working.el-1.3">
+Working</A> library.  Display eye candy while waiting for emacs to do
+something.</p>
+
+<P><A HREF="http://www.ultranet.com/~zappo/download/X-0.3a.tar.gz">
+X11 lib calls for emacs, V 0.3a</A>  Imagine the binary network interface for
+X windows implemented in emacs lisp.  Is it useful?  Silly?  I dunno,
+but it was fun to play with.  No documentation.  Byte compile it, load
+"xhello.el" and run the function `XX' for the simple demo.<br>
+
+<P><A HREF="http://www.ultranet.com/~zappo/download/hangman.el-0.1">
+Hangman</A> game for emacs.  About as simple as it gets.</p>
+
+<HR>
+<H2> Gratuitous FSF Links </H2>
+
+<P>Here are some linkes to other folks who have inspired or helped me in the past
+in the ways of Emacs, GNU, or whatever.</P>
+
+<P>Projects.</P>
+
+<UL>
+<LI> <A HREF="http://www.gnu.org"> Free Software Foundation </A>
+<LI> <A HREF="http://www.linux.org"> Linux </A>
+<LI> <A HREF="http://www.gnome.org"> Gnome </A>
+<LI> <A HREF="http://www.gimp.org"> Gimp </A>
+<LI> <A HREF="http://www.lesstif.org"> Lesstif </A>
+</UL>
+
+<P>People listed alphabetically by name.</P>
+
+<UL>
+<LI> <A HREF="http://www.dina.kvl.dk/~abraham">Abrahamsen, Per (Custom / AUC TeX)</A>
+<LI> <A HREF="http://www.red-bean.com/people/jimb">Blandy, Jim (Guile)</A>
+<LI> <A HREF="http://www.splode.com/~friedman">Friedman, Noah (eldoc & more)</A>
+<LI> <A HREF="http://www.gnus.org">Ingebrighsen, Lars (Gnus)</A>
+<LI> <A HREF="http://hplbwww.hpl.hp.com/people/ange">Norman, Andy (ange-ftp)</A>
+<LI> <A HREF="http://www.cs.indiana.edu/elisp/w3/docs.html">Perry, William (w3)</A>
+<LI> <A HREF="http://www.netscape.com/people/jwz/index.html">Zawinski, Jamie (BBDB)</A>
+</UL>
+
+<!--#include file="footer.fsf.shtml"-->

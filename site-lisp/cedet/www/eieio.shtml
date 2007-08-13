@@ -1,0 +1,156 @@
+<TITLE>EIEIO Homepage</TITLE>
+
+<!--#include file="pagestart.php"-->
+
+<table width=100% class=BAR>
+<tr><td><h2><font color=black>EIEIO:</font></h2></td>
+<td><font color=black>"Enhanced Implementation of Emacs Interpreted Objects."</font></td></tr>
+</table>
+
+<p>EIEIO is an <B>Emacs lisp</B> program which implements a controlled
+object-oriented programming methodology following the <B>CLOS</B>
+standard.  EIEIO also has object browsing functions, and custom widget
+types.  It has a fairly complete manual describing how to use it.</P>
+
+<P>
+EIEIO also supports the byte compiler for Emacs and XEmacs.  Because
+of the nature of byte compiling, EIEIO is picky about the version of
+Emacs you are running.  It supports Emacs 19.2x+, 20.x, 21.x, XEmacs
+19.1x, and appears to work on XEmacs 20.x and 21.x.  Byte compiling
+EIEIO is VERY IMPORTANT if performance is important. </p>
+
+<P>
+EIEIO supports documentation generation.  If you write an OO API to
+something, the eieio-doc functions will write your texinfo manual for
+you.  (Just make sure you use the documentation features of class
+slots while authoring your software.)
+</p>
+
+<table align=right>
+<td>
+<a href=call-tree.jpg>
+<center>
+<img src=call-tree.jpg alt=call-tree.jpg width=100 height=100>
+</a>
+<br>
+<font size=-2>
+Sample EIEIO driven tree
+</font>
+<br>
+<a href=chart.jpg>
+<img src=chart.jpg alt=chart.jpg width=100 height=100>
+</a>
+<br>
+<font size=-2>
+Sample EIEIO driven chart
+</font>
+</center>
+</td>
+</table>
+
+This version has additional demo programs which are:
+<DL>
+<DT>linemark
+<DD>Maintain colored marks on lines in multiple buffers.<br>
+<a href="visbookmark.shtml">Visual C++ bookmark UI</a> as example code.<br>
+<a href="highlightcompile.shtml">Hilight Compilation hits</a> as example code.
+<DT>tree
+<DD>display trees in emacs buffers.  Includes some examples
+<DT>call-tree
+<DD>display a call tree to an emacs lisp function
+<DT>chart
+<DD>display bar charts in emacs buffers.  Includes several
+useful examples
+</DL>
+<P>
+
+<table width=100% class=BAR><tr><td>
+<h2>Tools using EIEIO</h2>
+</td></tr></table>
+
+<DL>
+<DT><a href="semantic.shtml">Semantic</a>
+<DD>Parser Generator.  The Database which tracks tags between sessions
+    uses EIEIO persistent data classes.
+<DT><a href="ede.shtml">EDE</a>
+<DD>Emacs Development Environment uses EIEIO to track project information,
+    and uses persistend data classes, instance inheritors, and instance
+    trackers.  It also uses speedbar classes to provide a project
+    overview.
+<DT><a href="cogre.shtml">COGRE</a>
+<DD>COnnected GRaph Editor uses EIEIO to track graph elements.
+<DT><a href="http://jdee.sunsite.dk/">JDE</a>
+<DD>Java Development Environment for Emacs uses EIEIO to manage the debugger,
+    dialogs, and more.
+<DT><a href="http://ecb.sourceforge.net/">ECB</a>
+<DD>Emacs Code Browser.  Browse your files and source code.
+<DT><a href="http://xae.sunsite.dk/">XAE</a>
+<DD>XML Authoring tool.
+
+<DT><a href="http://www.neilvandyke.org/jomtool/">jomtool</a>
+<DD>Java code generator.
+</DL>
+
+<table width=100% class=BAR><tr><td>
+<h2>Read the docs:</h2>
+</td></tr></table>
+
+<P>You can read the 
+   <a href="info/eieio.html">html documentation</a>
+   created from the texinfo file.</p>
+
+<table width=100% class=BAR><tr><td>
+<h2>Join the mailing list</h2>
+</td></tr></table>
+
+<p>Join the
+<a href="http://sourceforge.net/mail/?group_id=17886">
+mailing list</a>
+ to ask question, or help develop EIEIO.
+
+<table width=100% class=BAR><tr><td>
+<h2>Notes:</h2>
+</td></tr></table>
+
+<P>EIEIO should work with Emacs 19.3x, 20.x, and 21.x.
+   It should also work (and is usually included with) XEmacs 20.x, and 21.x.
+</p>
+
+<!--#include file="download.php"-->
+
+<table width=100% class=BAR><tr><td>
+<h2>Downloading Earlier releases of EIEIO</h2>
+</td></tr></table>
+
+<P><a href="http://sourceforge.net/project/showfiles.php?group_id=17886">
+    eieio-0.17.tar.gz</A>.
+
+<h3>RPMS</h3>
+
+<P>RPMS for EIEIO can be downloaded from
+  <a href=http://sourceforge.net/projects/rte>Real Time Enterprises</a>
+  RPM site at sourceforge.</p>
+
+<h3>Even Older EIEIO Releases</h3>
+
+<P><a href="http://sourceforge.net/project/showfiles.php?group_id=17886">
+    eieio-0.16.tar.gz</A> has a new set of base classes to build apps from.</p>
+
+<p><A HREF="ftp/eieio-0.15.tar.gz"> eieio-0.15.tar.gz</A> has
+better byte-compiler support, and much better help system support.
+The help support now lets eieio based programs load faster.</p>
+
+<p><A HREF="ftp/eieio-0.14.1.tar.gz"> eieio-0.14.1.tar.gz</A>
+fixes some compile time problems when used with EIEIO using
+packages.</p>
+
+<p><A HREF="ftp/eieio-0.14.tar.gz"> eieio-0.14.tar.gz</A> adds
+multiple inheritance.</p>
+
+<p><A HREF="ftp/eieio-0.13.tar.gz"> eieio-0.13.tar.gz</A> adds
+typechecking.</p>
+
+<p><A HREF="ftp/eieio-0.12.tar.gz"> eieio-0.12.tar.gz</A>.</p>
+
+<!--#include file="footer.fsf.shtml"-->
+

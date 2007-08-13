@@ -1,0 +1,1257 @@
+;;; wisent-csharp.wy -- LALR grammar for C#
+;;
+;; Copyright (C) 2003 David Shilvock
+;; Time-stamp: <2003-12-08 19:11:48 dave>
+;;
+;; Author: David Shilvock <davels@telus.net>
+;; Maintainer: David Shilvock <davels@telus.net>
+;; Created: November 2003
+;; Keywords: syntax
+;;
+;; This file is not part of GNU Emacs.
+;;
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+;;
+;; This software is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to the
+;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+
+;;; Commentary:
+;;
+;; This is a LALR parser for the C# language.  It tries to follow the C#
+;; language definition as closely as possible, but in some cases allows syntax
+;; that the compiler would reject.
+;; A bunch of this is ripped from wisent-java-tags.wy (David Ponce)
+
+;;-----------
+;; * Settings
+;;-----------
+
+;;%package wisent-csharp-wy
+
+%languagemode  csharp-mode
+
+;; The default start symbol
+%start compilation_unit
+;; Alternate entry points -  for partial re-parse
+%start using_directive
+%start namespace_declaration
+%start class_declaration
+%start const_declaration
+%start field_declaration
+%start constructor_declaration
+%start method_declaration
+%start property_declaration
+%start indexer_declaration
+%start event_declaration
+%start fixed_parameter
+%start interface_declaration
+%start delegate_declaration
+;; - Needed by EXPANDFULL clauses
+%start namespace_member_declaration
+%start class_member_declaration
+%start struct_member_declaration
+%start interface_member_declaration
+%start accessor_declaration
+%start event_accessor_declaration
+%start formal_parameters
+%start indexer_parameters
+%start enum_members
+;; - Need for semantic-get-local-variables
+%start local_variable_declaration
+%start local_foreach_declaration
+
+;;------------------------
+;; * Parenthesis terminals
+;;------------------------
+%token <open-paren>  LPAREN           "("
+%token <close-paren> RPAREN           ")"
+%token <open-paren>  LBRACE           "{"
+%token <close-paren> RBRACE           "}"
+%token <open-paren>  LBRACK           "["
+%token <close-paren> RBRACK           "]"
+
+;;------------------
+;; * Block terminals
+;;------------------
+%token <semantic-list> PAREN_BLOCK     "^("
+%token <semantic-list> BRACE_BLOCK     "^{"
+%token <semantic-list> BRACK_BLOCK     "^\\["
+
+;;---------------------
+;; * Operator terminals
+;;---------------------
+%token <punctuation> NOT              "!"
+%token <punctuation> NOTEQ            "!="
+%token <punctuation> MOD              "%"
+%token <punctuation> MODEQ            "%="
+%token <punctuation> AND              "&"
+%token <punctuation> ANDAND           "&&"
+%token <punctuation> ANDEQ            "&="
+%token <punctuation> MULT             "*"
+%token <punctuation> MULTEQ           "*="
+%token <punctuation> PLUS             "+"
+%token <punctuation> PLUSPLUS         "++"
+%token <punctuation> PLUSEQ           "+="
+%token <punctuation> COMMA            ","
+%token <punctuation> MINUS            "-"
+%token <punctuation> MINUSMINUS       "--"
+%token <punctuation> MINUSEQ          "-="
+%token <punctuation> DOT              "."
+%token <punctuation> DIV              "/"
+%token <punctuation> DIVEQ            "/="
+%token <punctuation> COLON            ":"
+%token <punctuation> SEMICOLON        ";"
+%token <punctuation> DEREF            "->"
+%token <punctuation> LT               "<"
+%token <punctuation> LSHIFT           "<<"
+%token <punctuation> LSHIFTEQ         "<<="
+%token <punctuation> LTEQ             "<="
+%token <punctuation> EQ               "="
+%token <punctuation> EQEQ             "=="
+%token <punctuation> GT               ">"
+%token <punctuation> GTEQ             ">="
+%token <punctuation> RSHIFT           ">>"
+%token <punctuation> RSHIFTEQ         ">>="
+%token <punctuation> QUESTION         "?"
+%token <punctuation> XOR              "^"
+%token <punctuation> XOREQ            "^="
+%token <punctuation> OR               "|"
+%token <punctuation> OREQ             "|="
+%token <punctuation> OROR             "||"
+%token <punctuation> COMP             "~"
+
+;;--------------------
+;; * Literal terminals
+;;--------------------
+%token <symbol>      NULL_LITERAL     "null"
+%token <symbol>      BOOLEAN_LITERAL  "false"
+%token <symbol>      BOOLEAN_LITERAL  "true"
+%token <symbol>      IDENTIFIER
+%token <string>      STRING_LITERAL
+%token <number>      NUMBER_LITERAL
+
+;;--------------------
+;; * Keyword terminals
+;;--------------------
+%token ABSTRACT     "abstract"
+%put ABSTRACT summary
+"Class|Method declaration modifier: abstract {class|<type>} <name> ..."
+
+%token ADD          "add"
+%put ADD summary
+""
+
+%token AS           "as"
+%put AS summary
+""
+
+%token BASE         "base"
+%put BASE summary
+""
+
+%token BOOL         "bool"
+%put BOOL summary
+"Primitive logical quantity type (true or false)"
+
+%token BREAK        "break"
+%put BREAK summary
+"break [<label>] ;"
+
+%token BYTE         "byte"
+%put BYTE summary
+"Integral primitive type (-128 to 127)"
+
+%token CASE         "case"
+%put CASE summary
+"switch(<expr>) {case <const-expr>: <stmts> ... }"
+
+%token CATCH        "catch"
+%put CATCH summary
+"try {<stmts>} catch(<parm>) {<stmts>} ... "
+
+%token CHAR         "char"
+%put CHAR summary
+"Integral primitive type ('\u0000' to '\uffff') (0 to 65535)"
+
+%token CHECKED      "checked"
+%put CHECKED summary
+""
+
+%token CLASS        "class"
+%put CLASS summary
+"Class declaration: class <name>"
+
+%token CONST        "const"
+%put CONST summary
+"Unused reserved word"
+
+%token CONTINUE     "continue"
+%put CONTINUE summary
+"continue [<label>] ;"
+
+%token DECIMAL      "decimal"
+%put DECIMAL summary
+""
+
+%token DEFAULT      "default"
+%put DEFAULT summary
+"switch(<expr>) { ... default: <stmts>}"
+
+%token DELEGATE     "delegate"
+%put DELEGATE summary
+""
+
+%token DO           "do"
+%put DO summary
+"do <stmt> while (<expr>);"
+
+%token DOUBLE       "double"
+%put DOUBLE summary
+"Primitive floating-point type (double-precision 64-bit IEEE 754)"
+
+%token ELSE         "else"
+%put ELSE summary
+"if (<expr>) <stmt> else <stmt>"
+
+%token ENUM         "enum"
+%put ENUM summary
+""
+
+%token EVENT        "event"
+%put EVENT summary
+""
+
+%token EXPLICIT     "explicit"
+%put EXPLICIT summary
+""
+
+%token EXTERN       "extern"
+%put EXTERN summary
+""
+
+%token FINALLY      "finally"
+%put FINALLY summary
+"try {<stmts>} ... finally {<stmts>}"
+
+%token FIXED        "fixed"
+%put FIXED summary
+""
+
+%token FLOAT        "float"
+%put FLOAT summary
+"Primitive floating-point type (single-precision 32-bit IEEE 754)"
+
+%token FOR          "for"
+%put FOR summary
+"for ([<init-expr>]; [<expr>]; [<update-expr>]) <stmt>"
+
+%token FOREACH      "foreach"
+%put FOREACH summary
+""
+
+%token GET          "get"
+%put GET summary
+""
+
+%token GOTO         "goto"
+%put GOTO summary
+"Unused reserved word"
+
+%token IF           "if"
+%put IF summary
+"if (<expr>) <stmt> [else <stmt>]"
+
+%token IMPLICIT     "implicit"
+%put IMPLICIT summary
+""
+
+%token IN           "in"
+%put IN summary
+""
+
+%token INT          "int"
+%put INT summary
+"Integral primitive type (-2147483648 to 2147483647)"
+
+%token INTERFACE    "interface"
+%put INTERFACE summary
+"Interface declaration: interface <name>"
+
+%token INTERNAL     "internal"
+%put INTERNAL summary
+""
+
+%token IS           "is"
+%put IS summary
+""
+
+%token LOCK         "lock"
+%put LOCK summary
+""
+
+%token LONG         "long"
+%put LONG summary
+"Integral primitive type (-9223372036854775808 to 9223372036854775807)"
+
+%token NAMESPACE    "namespace"
+%put NAMESPACE summary
+""
+
+%token NEW          "new"
+
+%token OBJECT       "object"
+%put OBJECT summary
+""
+
+%token OPERATOR     "operator"
+%put OPERATOR summary
+""
+
+%token OUT          "out"
+%put OUT summary
+""
+
+%token OVERRIDE     "override"
+%put OVERRIDE summary
+""
+
+%token PARAMS       "params"
+%put PARAMS summary
+""
+
+%token PRIVATE      "private"
+%put PRIVATE summary
+"Access level modifier: private {class|interface|<type>} <name> ..."
+
+%token PROTECTED    "protected"
+%put PROTECTED summary
+"Access level modifier: protected {class|interface|<type>} <name> ..."
+
+%token PUBLIC       "public"
+%put PUBLIC summary
+"Access level modifier: public {class|interface|<type>} <name> ..."
+
+%token READONLY     "readonly"
+%put READONLY summary
+""
+
+%token REF          "ref"
+%put REF summary
+""
+
+%token REMOVE       "remove"
+%put REMOVE summary
+""
+
+%token RETURN       "return"
+%put RETURN summary
+"return [<expr>] ;"
+
+%token SBYTE        "sbyte"
+%put SBYTE summary
+""
+
+%token SEALED       "sealed"
+%put SEALED summary
+""
+
+%token SET          "set"
+%put SET summary
+""
+
+%token SHORT        "short"
+%put SHORT summary
+"Integral primitive type (-32768 to 32767)"
+
+%token SIZEOF       "sizeof"
+%put SIZEOF summary
+""
+
+%token STACKALLOC   "stackalloc"
+%put STACKALLOC summary
+""
+
+%token STATIC       "static"
+%put STATIC summary
+"Declaration modifier: static {class|interface|<type>} <name> ..."
+
+%token STRING       "string"
+%put STRING summary
+""
+
+%token STRUCT       "struct"
+%put STRUCT summary
+""
+
+%token SWITCH       "switch"
+%put SWITCH summary
+"switch(<expr>) {[case <const-expr>: <stmts> ...] [default: <stmts>]}"
+
+%token THIS         "this"
+
+%token THROW        "throw"
+%put THROW summary
+"throw <expr> ;"
+
+%token TRY          "try"
+%put TRY summary
+"try {<stmts>} [catch(<parm>) {<stmts>} ...] [finally {<stmts>}]"
+
+%token TYPEOF       "typeof"
+%put TYPEOF summary
+""
+
+%token UINT         "unit"
+%put UINT summary
+""
+
+%token ULONG        "ulong"
+%put ULONG summary
+""
+
+%token UNCHECKED    "unchecked"
+%put UNCHECKED summary
+""
+
+%token UNSAFE       "unsafe"
+%put UNSAFE summary
+""
+
+%token USHORT       "ushort"
+%put USHORT summary
+""
+
+%token USING        "using"
+%put USING summary
+"Namespace import: using <name> | using <identifier> = <name>;"
+
+%token VIRTUAL      "virtual"
+%put VIRTUAL summary
+""
+
+%token VOID         "void"
+%put VOID summary
+"Method return type: void <name> ..."
+
+%token VOLATILE     "volatile"
+%put VOLATILE summary
+"Field declaration modifier: volatile <type> <name> ..."
+
+%token WHILE        "while"
+%put WHILE summary
+"while (<expr>) <stmt> | do <stmt> while (<expr>);"
+
+%%
+
+;;---------------
+;; * LALR Grammar
+;;---------------
+
+;;--------------------------------------------------
+;; ** Types and Names
+;;--------------------------------------------------
+
+literal
+  : NULL_LITERAL
+  | BOOLEAN_LITERAL
+  | STRING_LITERAL
+  | NUMBER_LITERAL
+  ;
+
+integral_type
+  : SBYTE
+  | BYTE
+  | SHORT
+  | USHORT
+  | INT
+  | UINT
+  | LONG
+  | ULONG
+  | CHAR 
+  ;
+
+predefined_type
+  : BOOL 
+  | BYTE 
+  | CHAR
+  | DECIMAL
+  | DOUBLE
+  | FLOAT
+  | INT
+  | LONG
+  | OBJECT
+  | SBYTE
+  | SHORT
+  | STRING
+  | UINT
+  | ULONG
+  | USHORT
+  ;
+
+type
+  : qualified_name rank_specifiers_opt
+    (concat $1 $2)
+  | predefined_type rank_specifiers_opt
+    (concat $1 $2)
+  ;
+
+array_type
+  : qualified_name rank_specifiers
+    (concat $1 $2)
+  | predefined_type rank_specifiers
+    (concat $1 $2)
+  ;
+
+rank_specifiers_opt
+  : ;; EMPTY
+    (identity "")
+  | rank_specifiers
+  ;
+
+rank_specifiers
+  : rank_specifiers BRACK_BLOCK
+    (concat $1 "[]")
+  | BRACK_BLOCK
+    (identity "[]")
+  ;
+
+qualified_name
+  : qualified_name DOT IDENTIFIER
+    (concat $1 "." $3)
+  | IDENTIFIER
+  ;
+
+qualified_name_list
+  : qualified_name_list COMMA qualified_name
+    (cons $3 $1)
+  | qualified_name
+    (list $1)
+  ;
+
+;;--------------------------------------------------
+;; ** Expressions
+;;--------------------------------------------------
+
+argument_list_opt
+  : ;; EMPTY
+  | argument_list
+  ;
+
+argument_list
+  : argument_list COMMA argument
+  | argument
+  ;
+
+argument
+  : REF expression
+  | OUT expression
+  | expression
+  ;
+
+;; just eat expressions
+expression
+  : expression term
+  | term
+  ;
+
+constant_expression
+  : expression
+  ;
+
+term
+  : literal
+  | operator
+  | predefined_type
+  | IDENTIFIER
+  | BRACK_BLOCK
+  | PAREN_BLOCK
+  | BRACE_BLOCK
+  | NEW
+  | CLASS
+  | THIS
+  | BASE
+  ;
+
+operator
+  : NOT
+  | PLUS
+  | PLUSPLUS
+  | MINUS
+  | MINUSMINUS
+  | NOTEQ
+  | MOD
+  | MODEQ
+  | AND
+  | ANDAND
+  | ANDEQ
+  | MULT
+  | MULTEQ
+  | PLUSEQ
+  | MINUSEQ
+  | DOT
+  | DIV
+  | DIVEQ
+  | COLON
+  | LT
+  | LSHIFT
+  | LSHIFTEQ
+  | LTEQ
+  | EQ
+  | EQEQ
+  | GT
+  | GTEQ
+  | RSHIFT
+  | RSHIFTEQ
+  | QUESTION
+  | XOR
+  | XOREQ
+  | OR
+  | OREQ
+  | OROR
+  | COMP
+  | IS
+  | AS
+  ;
+
+;;--------------------------------------------------
+;; ** top level rules
+;;--------------------------------------------------
+
+compilation_unit
+  : using_directive
+  | namespace_declaration
+  | type_declaration
+  ;
+
+;; alias or namespace using directive
+using_directive
+  : USING IDENTIFIER EQ qualified_name SEMICOLON
+    (INCLUDE-TAG $4 nil 'alias $2)
+  | USING qualified_name SEMICOLON
+    (INCLUDE-TAG $2 nil)
+  ;
+
+namespace_declaration
+  : NAMESPACE qualified_name namespace_body
+    (TYPE-TAG $2 $1 $3 nil)
+  ;
+
+namespace_body
+  : BRACE_BLOCK
+    (EXPANDFULL $1 namespace_member_declaration)
+  ;
+
+namespace_member_declaration
+  : LBRACE
+    ()
+  | RBRACE
+    ()
+  | block
+    ()
+  | using_directive
+  | namespace_declaration
+  | type_declaration
+  ;
+
+type_declaration
+  : SEMICOLON
+    ()
+  | class_declaration
+  | struct_declaration
+  | interface_declaration
+  | enum_declaration
+  | delegate_declaration
+  ;
+
+;;--------------------------------------------------
+;; ** Classes
+;;--------------------------------------------------
+
+modifiers_opt
+  : ;; EMPTY
+  | modifiers
+    (nreverse $1)
+  ;
+
+modifiers
+  : modifiers modifier
+    (cons $2 $1)
+  | modifier
+    (list $1)
+  ;
+
+modifier
+  : NEW
+  | PUBLIC
+  | PROTECTED
+  | INTERNAL
+  | PRIVATE
+  | ABSTRACT
+  | SEALED
+  | STATIC
+  | READONLY
+  | VOLATILE
+  | VIRTUAL
+  | OVERRIDE
+  | EXTERN
+  | IMPLICIT
+  | EXPLICIT
+  ;
+
+class_bases_opt
+  : ;; EMPTY
+  | COLON qualified_name
+    (cons $2 nil)
+  | COLON qualified_name COMMA qualified_name_list
+    (cons $2 (nreverse $4))
+  ;
+
+interfaces_opt
+  : ;; EMPTY
+  | COLON qualified_name_list
+    (nreverse $2)
+  ;
+
+class_declaration
+  : attrs_opt modifiers_opt CLASS IDENTIFIER class_bases_opt class_body
+    (TYPE-TAG $4 $3 $6 $5 'typemodifiers $2)
+  ;
+
+class_body
+  : BRACE_BLOCK
+    (EXPANDFULL $1 class_member_declaration)
+  ;
+
+class_member_declaration
+  : LBRACE
+    ()
+  | RBRACE
+    ()
+  | block
+    ()
+  | const_declaration
+  | field_declaration
+  | method_declaration
+  | property_declaration
+  | event_declaration
+  | indexer_declaration
+  | operator_declaration
+  | constructor_declaration
+ ;;x | destructor_declaration
+  | static_constructor_declaration
+  | type_declaration
+  ;
+
+;;--------------------------------------------------
+;; *** Class body declarations: Const
+;;--------------------------------------------------
+
+const_declaration
+  : attrs_opt modifiers_opt CONST type const_declarators SEMICOLON
+    (VARIABLE-TAG $5 $4 nil 'const t 'typemodifiers $2)
+  ;
+
+const_declarators
+  : const_declarators COMMA const_declarator
+    (cons $3 $1)
+  | const_declarator
+    (list $1)
+  ;
+
+const_declarator
+  : IDENTIFIER EQ constant_expression
+    (list $1 $3 $region)
+  ;
+
+;;--------------------------------------------------
+;; *** Class body declarations: Field
+;;--------------------------------------------------
+
+field_declaration
+  : attrs_opt modifiers_opt type variable_declarators SEMICOLON
+    (VARIABLE-TAG $4 $3 nil 'typemodifiers $2)
+  ;
+
+variable_declarators
+  : variable_declarators COMMA variable_declarator
+    (cons $3 $1)
+  | variable_declarator
+    (list $1)
+  ;
+
+variable_declarator
+  : IDENTIFIER EQ variable_initializer
+    (list $1 nil $region)
+  | IDENTIFIER
+    (list $1 nil $region)
+  ;
+
+variable_initializer
+  : expression
+  ;
+
+;;--------------------------------------------------
+;; *** Class body declarations: Method
+;;--------------------------------------------------
+
+method_declaration
+  : attrs_opt modifiers_opt VOID method_declarator method_body
+    (FUNCTION-TAG (car $4) $3 (cdr $4) 'typemodifiers $2)
+  | attrs_opt modifiers_opt type method_declarator method_body
+    (FUNCTION-TAG (car $4) $3 (cdr $4) 'typemodifiers $2)
+  ;
+
+method_declarator
+  : qualified_name formal_parameter_list
+    (cons $1 $2)
+  ;
+
+method_body
+  : SEMICOLON
+  | block
+  ;
+
+formal_parameter_list
+  : PAREN_BLOCK
+    (EXPANDFULL $1 formal_parameters)
+  ;
+
+formal_parameters
+  : LPAREN
+    ()
+  | RPAREN
+    ()
+  | fixed_parameter COMMA
+  | fixed_parameter RPAREN
+  | parameter_array RPAREN
+  ;
+
+parameter_modifier_opt
+  : ;; EMPTY
+  | REF
+  | OUT
+  ;
+
+fixed_parameter
+  : attrs_opt parameter_modifier_opt type IDENTIFIER
+    (VARIABLE-TAG $4 $3 nil 'typemodifiers (if $2 (list $2)))
+  ;
+
+parameter_array
+  : attrs_opt PARAMS array_type IDENTIFIER
+    (VARIABLE-TAG $4 $3 nil 'typemodifiers (if $2 (list $2)))
+  ;
+
+;;--------------------------------------------------
+;; *** Class body declarations: Property
+;;--------------------------------------------------
+
+property_declaration
+  : attrs_opt modifiers_opt type qualified_name accessor_list
+    (VARIABLE-TAG $4 $3 nil 'typemodifiers $2 'property t 'accessors $5)
+  ;
+
+accessor_list
+  : BRACE_BLOCK
+    (EXPANDFULL $1 accessor_declaration)
+  ;
+
+accessor_declaration
+  : LBRACE
+    ()
+  | RBRACE
+    ()
+  | get_accessor_declaration
+  | set_accessor_declaration
+  ;
+
+get_accessor_declaration
+  : attrs_opt GET block
+    (FUNCTION-TAG $2 nil nil)
+  | attrs_opt GET SEMICOLON
+    (FUNCTION-TAG $2 nil nil 'typemodifiers (list "abstract"))
+  ;
+
+set_accessor_declaration
+  : attrs_opt SET block
+    (FUNCTION-TAG $2 nil nil)
+  | attrs_opt SET SEMICOLON
+    (FUNCTION-TAG $2 nil nil 'typemodifiers (list "abstract"))
+  ;
+
+;;--------------------------------------------------
+;; *** Class body declarations: Event
+;;--------------------------------------------------
+
+event_declaration
+  : attrs_opt modifiers_opt EVENT type variable_declarators SEMICOLON
+    (VARIABLE-TAG $5 $4 nil 'typemodifiers (cons "event" $2))
+  | attrs_opt modifiers_opt EVENT type qualified_name event_accessor_list
+    (FUNCTION-TAG $5 $4 nil 'typemodifiers (cons "event" $2)) 
+  ;
+
+event_accessor_list
+  : BRACE_BLOCK
+    (EXPANDFULL $1 event_accessor_declaration)
+  ;
+
+event_accessor_declaration
+  : LBRACE
+    ()
+  | RBRACE
+    ()
+  | add_accessor_declaration
+  | remove_accessor_declaration
+  ;
+
+add_accessor_declaration
+  : attrs_opt ADD block
+    (identity $2)
+  | attrs_opt ADD SEMICOLON
+    (identity $2)
+  ;
+
+remove_accessor_declaration
+  : attrs_opt REMOVE block
+    (identity $2)
+  | attrs_opt REMOVE SEMICOLON
+    (identity $2)
+  ;
+    
+;;--------------------------------------------------
+;; *** Class body declarations: Indexer
+;;--------------------------------------------------
+
+indexer_declaration
+  : attrs_opt modifiers_opt type indexer_declarator accessor_list
+    (FUNCTION-TAG (car $4) $3 (cdr $4) 'typemodifiers $2 'accessors $5)
+  ;
+
+indexer_declarator
+  : THIS indexer_parameter_list
+    (cons "this[]" $2)
+  | qualified_name DOT THIS indexer_parameter_list
+    (cons (concat $1 ".this[]") $4)
+  ;
+
+indexer_parameter_list
+  : BRACK_BLOCK
+    (EXPANDFULL $1 indexer_parameters)
+  ;
+
+indexer_parameters
+  : LBRACK
+    ()
+  | RBRACK
+    ()
+  | fixed_parameter COMMA
+  | fixed_parameter RBRACK
+  | parameter_array RBRACK
+  ;
+
+;;--------------------------------------------------
+;; *** Class body declarations: Operator
+;;--------------------------------------------------
+
+overloadable_operator
+  : PLUS
+  | MINUS
+  | COMP
+  | PLUSPLUS
+  | MINUSMINUS
+  | BOOLEAN_LITERAL
+  | MULT
+  | DIV
+  | MOD
+  | AND
+  | OR
+  | XOR
+  | LSHIFT
+  | RSHIFT
+  | EQEQ
+  | NOTEQ
+  | GT
+  | LT
+  | GTEQ
+  | LTEQ
+  ;
+
+operator_declaration
+  : attrs_opt modifiers_opt operator_declarator block
+    (FUNCTION-TAG (concat "op" (nth 0 $3)) (nth 1 $3) (nth 2 $3) 'typemodifiers $2)
+  ;
+
+operator_declarator ;; (name type arglist)
+ ;; operator overload
+  : type OPERATOR overloadable_operator formal_parameter_list
+    (list $3 $1 $4) 
+ ;; conversion operators
+  | OPERATOR type formal_parameter_list
+    (list (concat "(" $2 ")") $2 $3)
+  ;
+
+;;--------------------------------------------------
+;; *** Class body declarations: Constructor
+;;--------------------------------------------------
+
+constructor_declaration
+  : attrs_opt modifiers_opt constructor_declarator block
+    (FUNCTION-TAG (car $3) nil (cdr $3) 'typemodifiers $2)
+  ;
+
+constructor_declarator
+  : IDENTIFIER formal_parameter_list constructor_initializer_opt
+    (cons $1 $2)
+  ;
+
+constructor_initializer_opt
+  : ;; EMTPY
+  | COLON BASE LPAREN argument_list_opt RPAREN
+  | COLON THIS LPAREN argument_list_opt RPAREN
+  ;
+
+;;--------------------------------------------------
+;; *** Class body declarations: Static Constructor
+;;--------------------------------------------------
+
+static_constructor_declaration
+  : attrs_opt modifiers_opt IDENTIFIER LPAREN RPAREN block
+    (FUNCTION-TAG $3 nil nil 'typemodifiers $2)
+  ;
+
+;;--------------------------------------------------
+;; *** Class body declarations: Destructor
+;;--------------------------------------------------
+
+extern_opt
+  : ;; EMPTY
+  | EXTERN
+  ;
+
+destructor_declaration
+  : attrs_opt extern_opt COMP IDENTIFIER LPAREN RPAREN block
+    (FUNCTION-TAG (concat $3 $4) nil nil 'typemodifiers $2)
+  ;
+
+;;--------------------------------------------------
+;; ** Structs
+;;--------------------------------------------------
+
+struct_declaration
+  : attrs_opt modifiers_opt STRUCT IDENTIFIER interfaces_opt struct_body
+    (TYPE-TAG $4 $3 $6 (if $5 (cons nil $5)) 'typemodifiers $2)
+  ;
+
+struct_body
+  : BRACE_BLOCK
+    (EXPANDFULL $1 struct_member_declaration)
+  ;
+
+struct_member_declaration
+  : LBRACE
+    ()
+  | RBRACE
+    ()
+  | block
+    ()
+  | const_declaration
+  | field_declaration
+  | method_declaration
+  | property_declaration
+  | event_declaration
+  | indexer_declaration
+  | operator_declaration
+  | constructor_declaration
+  | static_constructor_declaration
+  | type_declaration
+  ;
+
+;;--------------------------------------------------
+;; ** Interfaces
+;;--------------------------------------------------
+
+interface_declaration
+  : attrs_opt modifiers_opt INTERFACE IDENTIFIER interfaces_opt interface_body
+    (TYPE-TAG $4 $3 $6 (if $5 (cons nil $5)) 'typemodifiers $2)
+  ;
+
+interface_body
+  : BRACE_BLOCK
+    (EXPANDFULL $1 interface_member_declaration)
+  ;
+
+interface_member_declaration
+  : LBRACE
+    ()
+  | RBRACE
+    ()
+  | block
+    ()
+  | interface_method_declaration
+  | interface_property_declaration
+  | interface_event_declaration
+  | interface_indexer_declaration
+  ;
+
+new_opt
+  : ;; EMPTY
+  | NEW
+  ;
+
+interface_method_declaration
+  : attrs_opt new_opt type IDENTIFIER formal_parameter_list SEMICOLON
+    (FUNCTION-TAG $4 $3 $5 'typemodifiers $2)
+  | attrs_opt new_opt VOID IDENTIFIER formal_parameter_list SEMICOLON
+    (FUNCTION-TAG $4 $3 $5 'typemodifiers $2)
+  ;
+
+interface_property_declaration
+  : attrs_opt new_opt type IDENTIFIER accessor_list
+    (VARIABLE-TAG $4 $3 nil 'typemodifiers (if $2 (list $2)) 'property t 'accessors $5)
+  ;
+
+interface_event_declaration
+  : attrs_opt new_opt EVENT type IDENTIFIER SEMICOLON
+    (FUNCTION-TAG $5 $4 nil 'typemodifiers (if $2 (list $2 $3) (list $3)))
+  ;
+
+interface_indexer_declaration
+  : attrs_opt new_opt type THIS indexer_parameter_list accessor_list
+    (FUNCTION-TAG "this[]" $3 $5 'typemodifiers $2 'accessors $6)
+  ;
+
+;;--------------------------------------------------
+;; ** Enums
+;;--------------------------------------------------
+
+enum_declaration
+  : attrs_opt modifiers_opt ENUM IDENTIFIER COLON integral_type enum_body
+    (TYPE-TAG $4 $3 $7 (cons $6 nil) 'typemodifiers $2)
+  | attrs_opt modifiers_opt ENUM IDENTIFIER enum_body
+    (TYPE-TAG $4 $3 $5 nil 'typemodifiers $2)
+  ;
+
+enum_body
+  : BRACE_BLOCK
+    (EXPANDFULL $1 enum_members)
+  ;
+
+enum_members
+  : LBRACE
+    ()
+  | RBRACE
+    ()
+  | block
+    ()
+  | enum_member_declaration COMMA
+  | enum_member_declaration RBRACE
+  ;
+
+enum_member_declaration
+  : attrs_opt IDENTIFIER
+    (VARIABLE-TAG $2 nil nil 'const t)
+  | attrs_opt IDENTIFIER EQ constant_expression
+    (VARIABLE-TAG $2 nil $4 'const t)
+  ;
+
+;;--------------------------------------------------
+;; ** Delegates
+;;--------------------------------------------------
+
+;; XXX need a way to set type+formal_parameter_list as the sole type member
+delegate_declaration
+  : attrs_opt modifiers_opt DELEGATE type IDENTIFIER formal_parameter_list SEMICOLON
+    (TYPE-TAG $5 $3 nil nil 'typemodifiers $2)
+  | attrs_opt modifiers_opt DELEGATE VOID IDENTIFIER formal_parameter_list SEMICOLON
+    (TYPE-TAG $5 $3 nil nil 'typemodifiers $2)
+  ;
+
+;;--------------------------------------------------
+;; ** Attributes
+;;--------------------------------------------------
+
+attrs_opt
+  : ;; EMPTY
+  | attr_sections
+    (apply 'nconc (nreverse $1))
+  ;
+
+attr_sections
+  : attr_sections attr_section
+    (cons $2 $1)
+  | attr_section
+    (list $1)
+  ;
+
+;; just eat them for now
+attr_section
+  : BRACK_BLOCK
+    ()
+  ;
+
+;; attr_target_specifier_opt
+;;   : ;; EMPTY
+;;   | IDENTIFIER COLON
+;;   ;
+
+;; attr_list
+;;   : COMMA
+;;     ()
+;;   | attr_list COMMA attr
+;;     (cons $3 $1)
+;;   | attr
+;;     (list $1)
+;;   ;
+
+;; attr
+;;   : qualified_name attr_arguments_opt
+;;     (identity $1)
+;;   ;
+
+;; attr_arguments_opt
+;;   : ;; EMPTY
+;;   | LPAREN error
+;;  ;; we won't bother parsing the attribute arguments
+;;     (wisent-skip-block)
+;;   ;
+
+;;--------------------------------------------------
+;; * Others
+;;--------------------------------------------------
+
+;; this exists only for use by semantic-get-local-variables
+;; (still not sure about this)
+local_variable_declaration
+  : type variable_declarators SEMICOLON
+    (VARIABLE-TAG $2 $1 nil)
+  | CONST type const_declarators SEMICOLON
+    (VARIABLE-TAG $3 $2 nil 'const t)
+ ;; this could include out of scope variables,
+ ;; but it's used to much that I think it's worth it
+  | FOREACH PAREN_BLOCK
+    (EXPANDFULL $2 local_foreach_declaration) 
+  ;
+
+local_foreach_declaration
+  : LPAREN type IDENTIFIER IN expression RPAREN
+    (VARIABLE-TAG $3 $2 nil)
+  ;
+
+;; just eat {...} blocks
+block
+  : BRACE_BLOCK
+  ;
+
+
+;;; wisent-csharp.wy ends here
+

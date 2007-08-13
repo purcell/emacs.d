@@ -1,0 +1,214 @@
+@ignore
+@node Installation
+@chapter Installation and Basic Configuration
+@c This 'ignore' section fools texinfo-all-menus-update into creating
+@c proper menus for this chapter.
+@end ignore
+
+Semantic should be installed as a part of the CEDET distribution.  See
+the cedet/INSTALL file in the cedet distribution for basic
+installation instructions.
+
+@menu
+* Canned Configuration::
+* Search Optimization::
+* Parsing Optimization::
+@end menu
+
+@node Canned Configuration
+@section Canned Configuration
+
+As described briefly in the cedet/INSTALL file, there are several
+canned configurations you can use.  These configuration files just
+turn different semantic modes on and off, but don't change intrinsic
+semantic parsing behaviors.
+
+@deffn Command semantic-load-enable-minimum-features
+@anchor{semantic-load-enable-minimum-features}
+Enable the minimum number of semantic features for basic usage.
+This includes:
+@table @asis
+@item @dfn{semantic-idle-scheduler-mode}
+Keeps a buffer's parse tree up to date.
+(@pxref{(semantic-user)Idle Scheduler}.)
+@item @code{semanticdb-minor-mode}
+Stores tags when a buffer is not in memory.
+(@pxref{(semantic-user)semanticdb}.)
+@item @dfn{semanticdb-load-system-caches}
+Loads any systemdbs created earlier.
+(@pxref{(semantic-user)semanticdb}.)
+@item @dfn{semanticdb-load-ebrowse-caches}
+Loads any ebrowse dbs created earlier.
+(@pxref{(semantic-user)Create System Databases}.)
+@end table
+@end deffn
+
+@deffn Command semantic-load-enable-code-helpers
+@anchor{semantic-load-enable-code-helpers}
+Enable some semantic features that provide coding assistance.
+This includes @dfn{semantic-load-enable-minimum-features} plus:
+@table @dfn
+@item imenu
+Lists Semantic generated tags in the menubar.
+@item semantic-idle-summary-mode
+Show a summary for the tag indicated by
+code under point.  (intellisense)
+(@pxref{(semantic-user)Idle Summary Mode}.)
+@item senator-minor-mode
+Semantic Navigator, and global menu for all features semantic.
+(@pxref{(semantic-user)senator}.)
+@item semantic-mru-bookmark-mode
+Provides a `switch-to-buffer' like keybinding for tag names.
+(@pxref{(semantic-user)MRU Bookmarks Mode}.)
+@end table
+@end deffn
+
+@deffn Command semantic-load-enable-gaudy-code-helpers
+@anchor{semantic-load-enable-gaudy-code-helpers}
+Enable semantic features that provide gaudy coding assistance.
+This includes @dfn{semantic-load-enable-code-helpers}.
+@table @dfn
+@item semantic-stickyfunc-mode
+Tracks current function in header-line (when available).
+(@pxref{(semantic-user)Sticky Function Mode}.)
+@item semantic-idle-completions-mode
+Provide smart symbol completion automatically at idle time.
+(@pxref{(semantic-user)Idle Completions Mode}.)
+@item semantic-decoration-mode
+Decorate tags based on various attributes.
+(@pxref{(semantic-user)Tag Decoration Mode}.)
+@end table
+
+@obsolete{semantic-load-enable-guady-code-helpers,semantic-load-enable-gaudy-code-helpers}
+@end deffn
+
+@deffn Command semantic-load-enable-excessive-code-helpers
+@anchor{semantic-load-enable-excessive-code-helpers}
+Enable all semantic features that provide coding assistance.
+This includes all features of @dfn{semantic-load-enable-code-helpers} plus:
+@table @dfn
+@item which-func-mode
+Display the current function in the mode line.
+@end table
+
+
+@end deffn
+
+@deffn Command semantic-load-enable-semantic-debugging-helpers
+@anchor{semantic-load-enable-semantic-debugging-helpers}
+Enable all semantic features that assist with debugging semantic.
+These modes include:
+@table @dfn
+@item semantic-highlight-edits-mode
+Highlight text that has been edited since the last parse step.
+(@pxref{(semantic-user)Highlight Edits Mode}.)
+@item semantic-show-unmatched-syntax-mode
+Highlight lexical tokens which failed to be parsed.
+(@pxref{(semantic-user)Unmatched Syntax Highlighting}.)
+@item semantic-show-parser-state-mode
+Show the current buffer state via small indicators in the mode line.
+(@pxref{(semantic-user)Parser State}.)
+@end table
+
+@end deffn
+
+
+@node Search Optimization
+@section Search Optimization
+
+A common use of semantic is for smart completion and tag browsing.
+These operations involve searching through the tags of your files.
+For complete documentation on configuring your searches,
+@ref{(semantic-user)Semanticdb Search Configuration}.
+
+The default configuration is for fast searches that may not find your
+symbols all the time.
+
+Searching is controlled with @code{semanticdb-find-default-throttle}.
+To force the search to find and read and tag files not yet in memory,
+you might add code like this for C mode.
+
+@example
+(setq-mode-local c-mode
+		 semanticdb-find-default-throttle
+		 '(project unloaded system recursive))
+@end example
+
+Finding unloaded databases requires knowing the search path.  You can
+find headers on a system or project level search path.
+@xref{(semantic-user)Include paths}.
+
+If using the above tactic doesn't work for your language (something
+other than C/C++), it may be that your language isn't configured
+properly for finding include files.  You would need to refer to the
+@ref{(semantic-langdev)} for details.
+
+If you were to be working on a linux kernel, you might opt to
+configure your search path in your @file{.emacs} file with code like
+this:
+
+@example
+(semantic-reset-system-include 'c-mode)
+(semantic-add-system-include "/usr/src/linux-2.4/include" 'c-mode)
+@end example
+
+It is also useful to find and install extra search engine back-ends,
+such @xref{(semantic-user)Create System Databases}.  Ebrowse is one such back-end for
+C and C++ code.
+
+You might create an ebrowse database for your C include files like
+this:
+
+@example
+M-x semanticdb-create-ebrowse-database RET /usr/include/ RET
+@end example
+
+This will create the database, save it, and add it to the database
+search list for your C and C++ based projects.  These databases will
+be created in your @file{~/.semanticdb} directory to be reloaded in
+future Emacs sessions.
+
+
+@node Parsing Optimization
+@section Parsing Optimization
+
+The semantic parsers generate the tags that form the basis of all the
+semantic based tools, such as browsers and completion.  Keeping those
+tags up to date can have performance implications.
+
+Here are some common tasks you may be interested in:
+
+@subsection Don't parse certain buffers
+
+You can inhibit parsing using the @code{semantic-inhibit-functions}
+variable. 
+
+@defvar semantic-inhibit-functions
+@anchor{semantic-inhibit-functions}
+List of functions to call with no arguments before to setup Semantic.
+If any of these functions returns non-@code{nil}, the current buffer is not
+setup to use Semantic.
+@end defvar
+
+You could have this inihibit parsing in very large files, or files
+which case particular problems to semantic.
+
+
+@subsection Parsing in idle time
+
+Tags are usually kept up to date when Emacs is idle
+@ref{(semantic-user)Idle Scheduler}.  The semantic's idle-scheduler
+automatically updates the tags in various buffers before executing
+specific idle modes, such as summary mode.
+
+You might choose to tune the scheduler with some code like this in
+your @file{.emacs} file:
+
+@example
+;; Increase the delay before activation
+(setq semantic-idle-scheduler-idle-time 10)
+;; Don't reparse really big buffers.
+(setq semantic-idle-scheduler-max-buffer-size 100000)
+@end example
+
+

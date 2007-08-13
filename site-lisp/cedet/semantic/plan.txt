@@ -1,0 +1,50 @@
+Semantic 2.0 plan:	-*- outline -*-
+
+* $Id: plan.txt,v 1.1 2002/02/26 18:14:12 zappo Exp $
+
+* Goals:
+  Brief description of goals for semantic 2.0
+
+** Merge wisent and LL app APIs
+   Enable wisent to use the same application programming APIs as
+   the current LL parser.
+
+** Improve partial reparsing
+
+** More intellisense-like functionality
+
+* Parsing
+  
+** Syntactic Analysis
+
+** Lexical Analysis
+
+** Keywords
+
+** LL Parser
+
+** LARL Parser (wisent)
+
+* Cache
+
+** Auto parsing
+
+** Partial Reparsing
+
+* Application
+
+** Structural analysis
+ Identify symbols by name and structure for tools such as
+ completing only symbols that exist in a class.
+
+** Font lock replacement
+ Mark a buffer with text properties based on a language definition.
+
+*** Can we use one language file to tag and font-lock?
+
+*** Color symbols based on other attributes
+ eg. underline static variables when used, etc.
+
+** Structure browser
+ Browser like access to logical structure, not just file organization.
+ eg. OO-browser

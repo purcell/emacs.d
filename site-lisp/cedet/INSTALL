@@ -1,0 +1,129 @@
+CEDET: Collection of Emacs Development Enviromnent Tools
+
+CEDET is a top-level project containing several individual package for Emacs,
+includeing:
+
+   EIEIO - CLOS layer for Emacs Lisp
+   Semantic - Parser Infrastructure for Emacs
+   Speedbar - Everything browser
+   EDE - File manager/ Makefile generator
+   COGRE - Connected Graph Editor
+
+REQUIREMENTS:
+
+   The CEDET suite requires either Emacs 21.3 or XEmacs 21.3 or better
+   for all features to work.  Older versions of either will also work
+   with fewer CEDET features being available.
+
+   If you use a binary install of Emacs, you may need the .el
+   files for Emacs available for some aspects of the build.
+
+INSTALL:
+
+You can install all these packagees at once with the CEDET build and
+install scripts:
+
+1) Copy source files somewhere.
+
+2) Byte compile
+
+   a) make
+
+   -OR-
+
+   b) make EMACS=<your favorite emacs>
+
+  You might also have trouble with makeinfo.  If you need to upgrade
+  makeinfo, you can do this:
+
+  c) make MAKEINFO=/usr/local/bin/makeinfo
+
+  Note: For speedbar, you may also need to byte-compile the version
+  of INFO and RMAIL that come with your version of emacs.
+
+  d) make MAKEINFO=echo
+
+  To skip making the doc.
+
+2.1) Build Issues
+
+  If running MAKE fails due to other issues such as bad load def
+  files, custom-autoload, incomprehensible run time errors during a byte
+  compilation, try these steps, then go back to step 2.
+
+  a) make clean-autoloads
+  b) make clean-all
+
+3) Install load hooks into your .emacs file.
+
+-----------
+;; Load CEDET
+(load-file "~/cedet-VERSION/common/cedet.el")
+
+;; Enabling various SEMANTIC minor modes.  See semantic/INSTALL for more ideas.
+;; Select one of the following:
+
+;; * This enables the database and idle reparse engines
+;;(semantic-load-enable-minimum-features)
+
+;; * This enables some tools useful for coding, such as summary mode
+;;   imenu support, and the semantic navigator
+(semantic-load-enable-code-helpers)
+
+;; * This enables even more coding tools such as the nascent intellisense mode
+;;   decoration mode, and stickyfunc mode (plus regular code helpers)
+;; (semantic-load-enable-guady-code-helpers)
+
+;; * This turns on which-func support (Plus all other code helpers)
+;; (semantic-load-enable-excessive-code-helpers)
+
+;; This turns on modes that aid in grammar writing and semantic tool
+;; development.  It does not enable any other features such as code
+;; helpers above.
+;; (semantic-load-enable-semantic-debugging-helpers)
+-----------
+
+  Some items in the contrib directory may need additional study or
+  installation.  Read contrib/INSTALL for specifics on those extra
+  packages.
+
+4) Configuration:
+
+   You can configure how the individual packages load in the above example
+   by adding settings in the comment section.  Please read individual
+   INSTALL files for each package for details on configuring them.
+   See the texinfo manuals for details on more specific configurations.
+
+5) To send bug reports, or participate in discussions on these
+   packages, choose a mailing list:
+
+   For Semantic use the mailing list cedet-semantic@sourceforge.net
+   via the URL:
+
+   http://lists.sourceforge.net/lists/listinfo/cedet-semantic
+
+   For EIEIO use the mailing list cedet-eieio@sourceforge.net
+   via the URL:
+
+   http://lists.sourceforge.net/lists/listinfo/cedet-eieio
+
+   For general discussions on development of these tools, use the
+   mailing list cedet-devel@sourceforge.net via the URL:
+
+   http://lists.sourceforge.net/lists/listinfo/cedet-devel
+
+OTHER REQUIREMENTS:
+
+   You may also need to download some of the following files for more
+   obscure features.
+
+   To use the JavaScript parser:
+   javascript-mode.el : http://www.emacswiki.org/cgi-bin/wiki/JavaScriptMode
+   
+   To use the UML chart generation from "M-x semantic-dot":
+   graphviz dot programs, including "dotty"
+   http://www.graphviz.org/
+
+   To use the graphviz dot parser:
+   graphviz-dot-mode.el: See the commentary in cogre/wisent-dot.el
+

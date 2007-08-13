@@ -1,0 +1,35 @@
+<!-- Generic footer for FSF related web pages -->
+<br clear=both>
+<!-- This ends the table start in pagestart.php. -->
+</td></tr></table>
+
+<table width=100% class=BAR><tr><td>
+&nbsp
+</td></tr></table>
+
+<table align=right><tr><td>
+<a href="http://www.sourceforge.net">
+<IMG src="http://sourceforge.net/sflogo.php?group_id=14932&type=1"
+     width="88" height="31" border="0" alt="SourceForge Logo">
+</a><br>
+<a href="http://sourceforge.net/donate/index.php?group_id=17886">
+<IMG src="http://sourceforge.net/images/x-click-but7.gif"
+     width=72 height=29 alt="Donate With Paypal">
+</a>
+</td></tr></table>
+<A HREF="index.shtml"><IMG SRC="minitreb.jpg" ALT="gnu" ALIGN=LEFT></A>
+<A HREF="eric.shtml">Eric's homepage</A><BR>
+<A HREF="index.php">Return to CEDET.</A><BR>
+Send mail to
+<A HREF="mailto:zappo@gnu.org">zappo@gnu.org</A> to contact me.<br>
+Visit
+<A HREF="http://www.siege-engine.com">Siege-engine.com</a>
+to see what I do in analog land.
+<br clear="both">
+<table width=100% class=BAR><tr><td>
+<FONT SIZE=-2>
+Copyright(C) 1997,98,99,2000,01,02,03,04,05,06,07 Eric M. Ludlam<BR>
+Verbatim copying and distribution is permitted in any medium,
+provided this notice is preserved.<BR>
+</FONT>
+</td></tr></table>

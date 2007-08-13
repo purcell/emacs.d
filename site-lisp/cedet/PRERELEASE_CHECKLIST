@@ -1,0 +1,246 @@
+Prerelease Checklist:
+--------------------
+
+  This is a list of things to do/try before posting a release to make sure
+  the release will work as well as can be expected:
+
+Before a dist is made:
+---------------------
+
+Update all version numbers
+
+  * M-x load-file RET ~/cedet/cedet-update-version.el
+  * M-x cuv-update
+    - Answer all questions, updating verion numbers as needed.
+
+Add a CVS tag
+
+  * Create a new copy of CVS TRUNK
+    - mkdir <some dir>
+    - cvs -d <username>@cvs.sourceforge.net:/cvsroot/cedet co cedet
+    - mv cedet cedet-<branchname>  # (such as cedet-1p0beta3)
+    - cd cedet-branchname
+    - cvs tag -b <branchname>     
+
+  * update new sandbox to branch
+    - cvs update -r <branchname>
+
+  * Apply patches to above while resolving other issues.
+
+Update Changelogs
+
+  * Use a fresh emacs
+    - emacs -q
+    - M-x load-file RET common/cedet.el RET
+  * Update the Log from CVS
+    - M-x load-file RET cedet-update-changelog.el RET
+    - M-x cuc-update-all-changelogs RET
+
+Build a DIST file
+
+  * make dist
+
+After a dist is made:
+--------------------
+
+CEDET & Common area
+
+  * Uncompress/Untar release archive.
+  * Compile with Makefile:
+     make
+     make EMACS=xemacs
+  * Build on multiple platforms
+     - Linux
+     - Windows
+     - Other
+
+  * Check version numbers of different tools.
+     - M-x inversion-unit-test RET
+
+     - Verify output of:
+       M-x cedet-version RET
+       - Check the declared version numbers.
+       - Make sure that if changes were made to those modules, the version
+         is updated.
+
+  * Start in a clean Emacs:
+    - Start emacs this way:
+
+      emacs -q
+      -or- 
+      xemacs -q
+
+      M-x load-file RET cedet/common/cedet.el RET
+
+EIEIO
+
+  * In a clean Emacs
+
+    M-x load-file RET eieio/eieio-tests.el RET
+
+    If it loads, the tests pass.
+
+  * M-x eieio-browse RET
+
+    This will list the currently loaded class hierarcies.  After using
+    the test harness, and loading semantic, this should be a long list.
+
+  * Running tests for semantic/semanticdb, and EDE both test
+    other basic EIEIO features.
+
+Semantic
+
+  * Make sure the semanticdb inversion check against persistent file loading
+    is updated if the file-format has changed.
+
+  * In a clean Emacs  
+
+    Visit files for different modes.  Include:
+      All files in cedet/semantic/tests.
+      .html file of your choice.
+      .texi files from the doc directory.
+      A lisp file, such as semantic.el.
+      C# file
+      .js javascript file
+      Makefile
+
+    Start with:
+      M-x toggle-debug-on-error RET - Enable debugging within the
+          parser and incremental parser.  (Usually hidden.)
+
+    Run some unit tests:
+      M-x load-library semantic-utest.el
+      M-x semantic-utest-main RET
+
+      M-x semantic-test-data-cache RET
+      M-x semantic-test-throw-on-input RET
+
+    For each supported mode:
+      M-x bovinate RET - verify tags are accurate.
+      M-x speedbar RET - Open the file and verify tags.
+      - Check the TAGS menu for tags in that file.
+      
+      M-x global-semantic-highlight-edits-mode RET
+      - Edit a file.  See the highlight of newly inserted text.
+      - Customize `semantic-edits-verbose-flag' to be non-nil.
+      - Wait for the idle scheduler, it should clean up the edits.
+        - observe messages from incremental parser.  Do they relate
+	  to the edits?
+      - M-x bovinate RET - verify your changes are reflected.
+
+      Visit the menu Senator->Modes
+      - Enable that mode (if not already enabled) and verify the
+        advertised behavior.
+
+      - Test aspects of the Senator navigation menu.
+
+      M-x semantic-analyze-current-context RET
+       - Do this in different contexts in your language
+         files.   Verify that reasonable results are returned
+         such as identification of assignments, function arguments, etc.
+
+       - Optionally, use `semantic-speedbar-analysis' instead of
+         'semantic-analyze-current-context'.
+
+       - At a location with incomplete syntax (a list of arguments
+         with no close paren for instance: repeat previous step. 
+
+      M-x semanticdb-find-test-translate-path RET
+       - Verify the list matches the include files.
+         You may need to check the value of
+         `semanticdb-find-default-throttle' to determine what should, or
+ 	 should not be on the list.
+
+      - With cursor on different types of declarations:
+      M-x semantic-test-all-format-tag-functions RET
+        - Verify all formats work.
+
+      - Use your favorite semantic-enabled tool.
+
+      M-x semantic-test-data-cache RET
+        - Make sure the cache hasn't been corrupted while working on
+	  all the above
+
+  * Try semantic-regtest.el (from CVS).
+
+Speedbar
+
+  * In a clean Emacs
+
+    M-x speedbar RET
+
+    - browse through directories, expand tags in some files.
+    - Special support files to try:
+      - texinfo files (speedbar.texi)
+      - html files
+      - rmail files (RMAIL)
+
+    M-x Info-speedbar-browser RET
+
+    - browse through the manuals
+
+EDE
+
+   * In a clean Emacs
+
+     - Examine files in the ede directory, such as:
+       ede.el
+       ede.texi
+       NEWS
+
+     - For files in these project, verify the Project menu
+     - Try builds for these files
+     - Try some other menu items
+
+   * Create a new test project.
+     - Create a new directory, and a test file.
+     - M-x ede-new RET Make RET testname RET
+     - M-x ede-proj-regenerate RET
+     - Verify Makefile creation.
+     - Create source files (like main.c, or main.el)
+     - Create targets with those source files.  Verify Makefile.
+
+     - Repeat above with an EDE project of type Automake
+     - Verify construction of all automake support files like AUTHORS
+       file, and running of autoconf.
+
+COGRE
+
+   * In a clean Emacs
+
+     M-x cogre RET mygraph RET
+
+     Create a block diagram.
+
+   * In a clean Emacs
+
+     from cogre.el, put cursor on `cogre-graph-element'
+
+     M-x cogre-uml-quick-class RET RET
+
+     - Verify the grpah.  (on parent, some direct children.)
+     - Move some blocks around (M-f, M-b, M-n, M-p)
+
+GENERAL
+
+   * Run `checkdoc' against various source files to make sure
+     doc strings are conforming.
+
+DEPENDANT TOOLS
+---------------
+
+   * Test this new release against dependent tools, including:
+     - JDEE
+     - ECB
+
+After patches are applied:
+-------------------------
+
+After patches are applied to the release branch, merge them back into
+TRUNK.
+
+  In a sandbox with TRUNK/HEAD active.
+  * cvs update -j <branchname> filename
+
+    - This merges changes from the branch into the trunk.
+    - Use emacs to check these branch merges in.

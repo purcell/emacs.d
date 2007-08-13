@@ -1,0 +1,50 @@
+<TITLE>EDE Homepage</TITLE>
+
+<!--#include file="pagestart.php"-->
+
+<table width=100% class=BAR>
+<tr><td><h2><font color=black>EDE:</font></h2></td>
+<td><font color=black>
+"Emacs Development Environment: A project management system"</font></td></tr>
+</table>
+
+<p>EDE is an <B>Emacs Lisp</B> program which implements an environment
+similar to those found in IDEs (Integrated Development Environment).
+While Emacs is the premier development environment, and has lots of
+support for this activity, EDE brings many divergent commands used for
+debugging, and compiling and sticks them into a simple menu next to
+commands used for maintaining a project file.</p>
+
+<P>What EDE brings to the party is an awareness of how a singular source
+file fits into the overall scheme of an application.  EDE knows what
+target a file belongs to, and will offer the correct options
+automatically when debugging or compiling.</p>
+
+<P>EDE is an object oriented program which defines a set of core
+virtual objects representing a project and target.  Actual
+implementations expound upon these providing the actual
+functionality.</p>
+
+<P>Two project file types are included.  <em>project-am</em> is the
+original project mode which implements these ideas directly on
+pre-existing automake files.  (It cannot create them).
+<em>ede-proj</em> is a different implementation which maintains state
+in a file called <tt>Project.ede</tt>.  This mode autogenerates your
+Makefile whenever you compile so there is no need to learn make.
+Unfortunatly this is only really useful for small projects.</p>
+
+<P>EDE 1.0 will have ede-proj autogenerate automake files
+which will be the default for large projects where the Makefile
+generation is insufficient.</p>
+
+<table width=100% class=BAR><tr><td>
+<h2>Read the docs:</h2>
+</td></tr></table>
+
+<P>You can read the 
+   <a href=info/ede.html>html documentation</a>
+   created from the texinfo file.</p>
+
+<!--#include file="download.php"-->
+
+<!--#include file="footer.fsf.shtml"-->

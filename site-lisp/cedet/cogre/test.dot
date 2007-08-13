@@ -1,0 +1,9 @@
+digraph structs {
+	node [shape=record];
+	class1 [label="{class1|||}"];
+	class2 [shape=record,label="{class2|||}"];
+	class3 [shape=record,label="{class3|||}"];
+	
+	class1 -> class2;
+	class1 -> class3;
+}

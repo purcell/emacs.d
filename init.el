@@ -34,6 +34,14 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Find the directory containing a given library
+;;----------------------------------------------------------------------------
+(require 'find-func)
+(defun directory-of-library (library-name)
+  (file-name-as-directory (file-name-directory (find-library-name library-name))))
+
+
+;;----------------------------------------------------------------------------
 ;; Outboard initialisation files
 ;;----------------------------------------------------------------------------
 (setq load-path (cons (expand-file-name "~/.emacs.d") load-path))
@@ -317,6 +325,10 @@
   (setq semanticdb-default-save-directory (expand-file-name "~/.semanticdb"))
   (unless (file-directory-p semanticdb-default-save-directory)
     (make-directory semanticdb-default-save-directory))
+
+  ;; Force shadowing of the Emacs-bundled speedbar (cedet's "inversion" package tries
+  ;; and fails to handle this)
+  (setq load-path (cons (concat (directory-of-library "cedet") "/../speedbar/") load-path))
   (require 'cedet)
   (require 'ecb-autoloads)
 
@@ -406,10 +418,6 @@
 (when *rails-support-enabled*
   (add-hook 'rails-minor-mode-hook (lambda () (local-set-key [f7] 'recompile))))
 
-
-(require 'find-func)
-(defun directory-of-library (library-name)
-  (file-name-as-directory (file-name-directory (find-library-name library-name))))
 
 (autoload 'ri "ri-ruby" "Show ri documentation for Ruby symbols" t)
 (setq ri-ruby-script (concat (directory-of-library "ri-ruby") "ri-emacs.rb"))

@@ -1,0 +1,76 @@
+;; Object semantic
+;; EDE project file.
+(ede-proj-project "semantic"
+  :name "semantic"
+  :version "2.0pre4"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-elisp-autoloads "autoloads"
+    :name "autoloads"
+    :path ""
+    :autoload-file "semantic-loaddefs.el"
+    :autoload-dirs '("." "bovine" "wisent")
+    )
+   (semantic-ede-proj-target-grammar "metagrammar"
+    :name "metagrammar"
+    :path ""
+    :source '("semantic-grammar.wy")
+    )
+   (ede-proj-target-elisp "maintenance"
+    :name "maintenance"
+    :path ""
+    :source '("semantic-ede-grammar.el")
+    :partofall 'nil
+    :aux-packages '("ede-proj" "eieio")
+    )
+   (ede-proj-target-makefile-miscelaneous "scripts"
+    :name "scripts"
+    :path ""
+    :source '("semanticdb.sh")
+    )
+   (ede-proj-target-makefile-miscelaneous "example"
+    :name "example"
+    :path ""
+    :source '("semantic-example.el" "semanticdb-skel.el")
+    )
+   (ede-proj-target-elisp "init"
+    :name "init"
+    :path ""
+    :source '("semantic-load.el")
+    )
+   (ede-proj-target-elisp "semantic"
+    :name "semantic"
+    :path ""
+    :source '("semantic.el" "semantic-util.el" "semantic-ctxt.el" "semantic-lex.el" "semantic-edit.el" "semantic-fw.el" "semantic-grammar.el" "semantic-tag.el" "semantic-find.el" "semantic-format.el" "semantic-complete.el" "semantic-sort.el" "semantic-decorate.el" "semantic-tag-file.el" "semantic-doc.el" "semantic-tag-ls.el" "semantic-ast.el" "semantic-lex-spp.el" "semantic-dep.el")
+    :versionsource '("semantic.el")
+    :aux-packages '("semantic-bovine" "wisent")
+    )
+   (ede-proj-target-elisp "Languages"
+    :name "Languages"
+    :path ""
+    :source '("semantic-texi.el" "semantic-html.el")
+    )
+   (ede-proj-target-elisp "tools"
+    :name "tools"
+    :path ""
+    :source '("semantic-imenu.el" "semantic-sb.el" "semanticdb.el" "document.el" "document-vars.el" "semantic-chart.el" "semantic-util-modes.el" "semantic-analyze.el" "semantic-ia.el" "semantic-cb.el" "semantic-ia-sb.el" "semanticdb-file.el" "semanticdb-search.el" "semanticdb-mk.el" "semanticdb-el.el" "semanticdb-system.el" "semantic-debug.el" "semanticdb-find.el" "semantic-regtest.el" "semantic-idle.el" "semantic-decorate-mode.el" "semanticdb-ebrowse.el" "semantic-utest.el" "semantic-adebug.el" "semantic-adebug-eieio.el" "semantic-mru-bookmark.el")
+    :aux-packages '("eieio" "ede" "speedbar" "inversion")
+    )
+   (ede-proj-target-elisp "senator"
+    :name "senator"
+    :path ""
+    :source '("senator.el")
+    )
+   (ede-proj-target-aux "misc"
+    :name "misc"
+    :path ""
+    :source '("INSTALL" "NEWS" "ChangeLog" "AUTHORS" "ONEWS" "renamelist.txt")
+    )
+   )
+  :web-site-url "http://cedet.sourceforge.net/semantic.shtml"
+  :web-site-directory "~/cedet/www"
+  :web-site-file "semantic.shtml"
+  :ftp-upload-site "/ftp@upload.sourceforge.net:/incoming"
+  :configuration-variables 'nil
+  :metasubproject 't
+  )

@@ -1,0 +1,61 @@
+<TITLE>Checkdoc Homepage</TITLE>
+
+<!--#include file="pagestart.php"-->
+
+<table width=100% class=BAR>
+<tr><td><h2><font color=black>Checkdoc</font></h2></td>
+<td><font color=black>Emacs Lisp Source Style Checker</font></td></tr>
+</table>
+
+<p>Checkdoc is a utility useful for checking the style of your emacs lisp
+files.  The styles examined were gleaned from the emacs lisp manual
+and logical extensions.</p>
+
+<p>Currently doc strings are the most extensivly checked for style,
+including:</p>
+
+
+<table align=right>
+<td>
+<center>
+<a href=checkdoc.jpg>
+<img src=checkdoc.jpg width=100 height=100>
+<br><font size=-2>
+Running Checkdoc
+</font>
+</a>
+</td>
+</table>
+<ol>
+<li> First line a complete sentence
+<li> Proper user of keyboard nmumonics
+<li> Proper whitespace and formatting
+<li> Proper use of symbol `quoting'
+<li> Proper variable names
+<li> Proper function argument reference.
+<li> Verb tense (for a select group of words)
+<li> Spelling
+</ol>
+
+<p>Checkdoc has extended tests for rogue whitespace (at the end of
+lines), error text style, and comment styles.  (Comment style hooks
+into lisp-mnt.el:lm-verify.)</p>
+
+<p>Checkdoc's style checking engines are all accessible through
+`checkdoc-minor-mode' which provides keybindings to remind you of your
+stylistic errors as you write your code, and preventing long annoying
+sessions of checking all your documentation.</p>
+
+<table width=100% class=BAR><tr><td>
+<h2>Downloading checkdoc</h2>
+</td></tr></table>
+
+<p>You can download the last release at:</p>
+
+<p><A HREF="ftp/checkdoc.el-0.6.1b.gz">checkdoc.el-0.6.1b.gz</A></p>
+
+<p>Checkdoc is now a part of both Emacs and XEmacs.  The most recent
+versions are probably a part of those releases.
+</p>
+
+<!--#include file="footer.fsf.shtml"-->

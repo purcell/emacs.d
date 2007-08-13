@@ -1,0 +1,45 @@
+<title>SRecode: Semantic Recoder</title>
+
+<!--#include file="pagestart.php"-->
+
+<table width=100% class=BAR>
+<tr><td><h2><font color=black>SRecode:</font></h2></td>
+<td><font color=black>"Template Manager and autormatic Code Authoring system."</font></td></tr>
+</table>
+
+<P>SRecode is an infrastructure for managing Emacs based templates
+  which, in turn, are used to write code, possibly based off of
+  <a href="semantic.shtml">Semantic</a> generated tags.
+
+<p>Templates are written in special <tt>.srt</tt> files which are then
+  parsed by Emacs into a hierarchical database of context assocated
+  templates.  Simple templates are extracted by name and context to
+  fill in empty files, add functions, or comments.
+
+<p>More complex application specific templates are a mix of Emacs Lisp
+  code and templates.  Creating a template based application is a
+  breeze in srecode with a system based loosely on 
+  <a href="http://code.google.com/p/google-ctemplate/">Google
+    ctemplate</a> with dictionaries and fancy Emacs specific macro
+  substitution.
+
+<p>SRecode is currently only available via CEDET/CVS and is not yet in
+  releasable form.  SRecode is therefore best suited to the
+  adventurous or to the Emacs developer who has been dissapointed in the
+  other Emacs templating systems.
+</p>
+
+<table width=100% class=BAR><tr><td>
+<h2>I Feel Adventurous!</h2>
+</td></tr></table>
+
+You can get SReocode from the 
+<a href="http://sourceforge.net/cvs/?group_id=17886">
+CEDET CVS repository</a> or you can
+<a href="http://cedet.cvs.sourceforge.net/cedet/cedet/srecode/">
+Browse the sources</a>.
+
+
+
+<!--#include file="footer.fsf.shtml"-->
+

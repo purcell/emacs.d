@@ -1,0 +1,4 @@
+(add-to-list 'load-path nil)
+(add-to-list 'load-path ".")
+(add-to-list 'load-path "../common/")
+(setq debug-on-error t)
