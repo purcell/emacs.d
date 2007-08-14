@@ -205,7 +205,6 @@
 ;; Darcs
 ;;----------------------------------------------------------------------------
 (when *darcs-support-enabled*
-  (require 'darcs)
   (add-to-list 'vc-handled-backends 'DARCS)
   (autoload 'vc-darcs-find-file-hook "vc-darcs")
   (add-hook 'find-file-hooks 'vc-darcs-find-file-hook)
