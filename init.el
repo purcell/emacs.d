@@ -352,6 +352,9 @@
 (setq magic-mode-alist (cons '("<＼＼?xml " . nxml-mode) magic-mode-alist))
 (fset 'html-mode 'nxml-mode)
 (fset 'xml-mode 'nxml-mode)
+(add-hook 'nxml-mode-hook (lambda ()
+                            (make-variable-buffer-local 'ido-use-filename-at-point)
+                            (setq ido-use-filename-at-point nil)))
 (when *spell-check-support-enabled*
   (add-hook 'nxml-mode-hook
             (lambda ()
