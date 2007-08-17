@@ -223,6 +223,17 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Git
+;;----------------------------------------------------------------------------
+;;(setq load-path (cons (expand-file-name "/usr/share/doc/git-core/contrib/emacs") load-path))
+;; Downloaded from http://git.kernel.org/?p=git/git.git ;a=tree;hb=HEAD;f=contrib/emacs
+(require 'vc-git)
+(when (featurep 'vc-git) (add-to-list 'vc-handled-backends 'git))
+(require 'git)
+(autoload 'git-blame-mode "git-blame" "Minor mode for incremental blame for Git." t)
+
+
+;;----------------------------------------------------------------------------
 ;; Multiple major modes
 ;;----------------------------------------------------------------------------
 (require 'mmm-mode)
