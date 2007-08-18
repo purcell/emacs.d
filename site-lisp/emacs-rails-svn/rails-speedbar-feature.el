@@ -4,9 +4,11 @@
     ("Models"           rails-core:models            rails-core:model-file)
     ("Observers"        rails-core:observers         rails-core:observer-file)
     ("Mailers"          rails-core:mailers           rails-core:mailer-file)
+    ("Migrations"       rails-core:migrations        rails-core:migration-file)
     ("Functional Tests" rails-core:functional-tests  rails-core:functional-test-file)
     ("Unit Tests"       rails-core:unit-tests        rails-core:unit-test-file)
-    ("Fixtures"         rails-core:fixtures          rails-core:fixture-file)))
+    ("Fixtures"         rails-core:fixtures          rails-core:fixture-file)
+    ("Configuration"    rails-core:configuration-files rails-core:configuration-file)))
 
 (defvar rails-speedbar:menu-items nil)
 (defvar rails-speedbar:key-map

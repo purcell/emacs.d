@@ -1,4 +1,26 @@
+2007-08-17  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-ruby.el (hs-minor-mode-hook): created, placed in hs-setup-overlay initialization to fix a bug #13162
+
+2007-08-15  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-scripts.el (rails-script:setup-output-buffer): fixed compilation warning
+
+	* rails-ruby.el (ruby-hs-minor-mode): created, support ruby in hs-minor-mode
+
+2007-08-11  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-compat.el (try-complete-abbrev): fixed
+
+	* rails-core.el (rails-core:configuration-file, :rails-core:configuration-files): created functions
+
+	* rails-speedbar-feature.el (rails-speedbar:roots): added
+	migrations and configuration files to speedbar
+
 2007-08-05  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-test.el, rails-ui.el: apply patch #11998, created additional key
+	shortcuts (thanks Tom Ten Thij)
 
 	* rails-compat.el: apply patch #12743, replace
 	`indent-or-complete` to `indent-and-complete` (thanks Peter Williams)

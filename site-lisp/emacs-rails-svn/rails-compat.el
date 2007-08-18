@@ -70,9 +70,8 @@
 
 (defun try-complete-abbrev (old)
   (if (abbrev-expansion-point-p)
-      (progn
-        (expand-abbrev)
-        t)
+      (if (expand-abbrev)
+          t nil)
     nil))
 
 (defun abbrev-expansion-point-p ()

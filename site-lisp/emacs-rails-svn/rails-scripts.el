@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-scripts.el $
-;; $Id: rails-scripts.el 192 2007-05-03 11:54:30Z dimaexe $
+;; $Id: rails-scripts.el 208 2007-08-15 18:45:39Z dimaexe $
 
 ;;; License
 
@@ -120,8 +120,6 @@ For example -c to remove files from svn.")
   (make-local-variable 'font-lock-defaults)
   (set (make-local-variable 'scroll-margin) 0)
   (set (make-local-variable 'scroll-preserve-screen-position) nil)
-  (make-local-hook 'rails-script:run-after-stop-hook)
-  (make-local-hook 'rails-script:show-buffer-hook)
   (make-local-variable 'after-change-functions)
   (rails-minor-mode t))
 

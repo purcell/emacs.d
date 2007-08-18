@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-core.el 201 2007-08-04 19:20:29Z dimaexe $
+;; $Id: rails-core.el 206 2007-08-14 16:16:58Z dimaexe $
 
 ;;; License
 
@@ -180,6 +180,11 @@ it does not exist, ask to create it using QUESTION as a prompt."
       (when (and model-name
                  (rails-core:model-exist-p model-name))
         model-name))))
+
+(defun rails-core:configuration-file (file)
+  "Return the path to the configuration FILE."
+  (when file
+    (concat "config/" file)))
 
 (defun rails-core:plugin-file (plugin file)
   "Return the path to the FILE in Rails PLUGIN."
@@ -409,6 +414,10 @@ of migration."
    #'(lambda (l)
        (replace-regexp-in-string "\\.[^.]+$" "" l))
    (find-recursive-files "\\.yml$" (rails-core:file "test/fixtures/"))))
+
+(defun rails-core:configuration-files ()
+  "Return a files of files from config folder."
+  (find-recursive-files nil (rails-core:file "config/")))
 
 (defun rails-core:regex-for-match-view ()
   "Return a regex to match Rails view templates.

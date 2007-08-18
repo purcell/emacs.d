@@ -32,28 +32,34 @@
   "\\([0-9]+ tests, [0-9]+ assertions, \\([0-9]+\\) failures, \\([0-9]+\\) errors\\)")
 
 (defconst rails-test:progress-regexp
-  "^[\\.EF]+$")
+  "^[.EF]+$")
 
-(defun rails-test:file-ext-regexp ()
-  (let ((rails-templates-list (append rails-templates-list (list "rb"))))
-    (substring (rails-core:regex-for-match-view) 0 -1)))
+(defvar rails-test:font-lock-keywords
+  '(("\\([0-9]+ tests, [0-9]+ assertions, 0 failures, 0 errors\\)"
+     1 compilation-info-face)
+    ("\\([0-9]+ tests, [0-9]+ assertions, [0-9]+ failures, [0-9]+ errors\\)"
+     1 compilation-line-face)
+    ("`\\([a-z0-9_]+\\)'"
+     1 font-lock-function-name-face t)
+    ("^\s+\\([0-9]+)\s+\\(Error\\|Failure\\):\\)"
+     1 compilation-line-face)
+    ("^\\(test_[a-z0-9_]+\\)(\\([a-zA-Z0-9:]+\\)):?$"
+     (1 font-lock-function-name-face)
+     (2 font-lock-type-face))
+    ("^[.EF]+$" . compilation-info-face)))
 
 (defun rails-test:line-regexp (&optional append prepend)
   (concat
    append
-   (format
-    "\\(#{RAILS_ROOT}\/\\)?\\(\\(\\.\\|[A-Za-z]:\\)?\\([a-z/_.-]+%s\\)\\):\\([0-9]+\\)"
-    (rails-test:file-ext-regexp))
+    "^\\(?:\s+\\)\\[?\\([^ \f\n\r\t\v]*?\\):\\([0-9]+\\)\\(?::in\s*`\\(.*?\\)'\\)?"
    prepend))
 
 (defun rails-test:error-regexp-alist ()
   (list
    (list 'rails-test-trace
-         (rails-test:line-regexp) 2 6 nil 0)
-   (list 'rails-test-failure
-         (rails-test:line-regexp "\\[" "\\]") 2 6 nil 2)
+         (rails-test:line-regexp) 1 2 nil 1)
    (list 'rails-test-error
-         (rails-test:line-regexp nil ".*\n$") 2 6 nil 2)))
+         (rails-test:line-regexp nil "\\(?:\]:\\|\n$\\)") 1 2 nil 2))) ; ending of "]:" or next line is blank
 
 (defun rails-test:print-result ()
   (with-current-buffer (get-buffer rails-script:buffer-name)
@@ -63,8 +69,8 @@
       (save-excursion
         (goto-char (point-min))
         (while (re-search-forward rails-test:result-regexp (point-max) t)
-          (setq failures (+ failures (string-to-number (match-string-no-properties 2))))
-          (setq errors (+ errors (string-to-number (match-string-no-properties 3))))
+          (setq failures (+ failures (string-to-number (match-string 2))))
+          (setq errors (+ errors (string-to-number (match-string 3))))
           (add-to-list 'msg (match-string-no-properties 1))))
       (unless (zerop (length msg))
         (message (strings-join " || " (reverse msg))))
@@ -91,11 +97,14 @@
 (define-derived-mode rails-test:compilation-mode compilation-mode "RTest"
   "Major mode for RoR tests."
   (rails-script:setup-output-buffer)
+  ; replace compilation font-lock-keywords
+  (set (make-local-variable 'compilation-mode-font-lock-keywords) rails-test:font-lock-keywords)
+  ; skip anythins less that error
+  (set (make-local-variable 'compilation-skip-threshold) 2)
   (set (make-local-variable 'compilation-error-regexp-alist-alist)
        (rails-test:error-regexp-alist))
   (set (make-local-variable 'compilation-error-regexp-alist)
        '(rails-test-error
-         rails-test-failure
          rails-test-trace))
   (add-hook 'after-change-functions 'rails-test:print-progress nil t)
   (add-hook 'rails-script:run-after-stop-hook 'rails-test:print-result nil t)
