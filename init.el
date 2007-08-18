@@ -666,3 +666,17 @@
   (set-terminal-coding-system 'utf-8)
   (set-selection-coding-system 'utf-8)
   (prefer-coding-system 'utf-8))
+
+
+;;----------------------------------------------------------------------------
+;; Color themes
+;;----------------------------------------------------------------------------
+(require 'color-theme-autoloads)
+(color-theme-initialize)
+(color-theme-pierson)
+;; (color-theme-high-contrast)
+;; (color-theme-marquardt)
+;; (color-theme-oswald) ; dark
+;; (color-theme-standard)
+
+

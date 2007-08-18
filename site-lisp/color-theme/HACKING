@@ -1,0 +1,26 @@
+This file is intented to help any color-theme hacker and particulary
+color-theme release team.
+
+
+To release a new version, please follow these instructions:
+
+1a. Change Makefile.defs (VERSION and LASTUPLOAD)
+
+1b. Verify color-theme.el header file
+
+2. Prepare debian/ directory
+   => control and changelog
+   => check other files
+
+3. Tag the whole source files with:
+
+   cvs tag -c RELEASE-X-X-X
+
+4. Launch the automatic tarball/debian creation:
+
+  make release
+
+5. Pray :)
+
+
+
