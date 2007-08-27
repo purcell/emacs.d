@@ -85,7 +85,15 @@
 (defvar *user*    (user-login-name) "user login name")
 (defvar *hostname*
   (let ((n (system-name))) (substring n 0 (string-match "\\." n))) "unqualified host name")
-(setq frame-title-format '("%b - " *user* "@" *hostname* " - %f"))
+(defun concise-buffer-file-name ()
+  (let ((fn (buffer-file-name)))
+    (when fn
+      (let* ((homedir (getenv "HOME"))
+             (homepos (string-match homedir fn)))
+        (if homepos
+            (concat "~" (substring fn (match-end 0)))
+          (homedir))))))
+(setq frame-title-format '("%b - " *user* "@" *hostname* " - " (:eval (concise-buffer-file-name))))
 
 
 ;;----------------------------------------------------------------------------
