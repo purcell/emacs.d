@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 207 2007-08-15 18:41:32Z dimaexe $
+;; $Id: rails.el 213 2007-08-24 12:57:59Z crazypit $
 
 ;;; License
 
@@ -68,6 +68,7 @@
 (require 'rails-model-layout)
 (require 'rails-controller-layout)
 (require 'rails-features)
+(require 'rails-spec)
 
 
 ;;;;;;;;;; Variable definition ;;;;;;;;;;

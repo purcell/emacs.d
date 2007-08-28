@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-scripts.el $
-;; $Id: rails-scripts.el 208 2007-08-15 18:45:39Z dimaexe $
+;; $Id: rails-scripts.el 212 2007-08-18 17:59:51Z dimaexe $
 
 ;;; License
 
@@ -305,8 +305,10 @@ BUFFER-MAJOR-MODE and process-sentinel SENTINEL."
 *rails-<project-name>-<name>*."
   (rails-project:with-root
    (root)
-   (run-ruby-in-buffer (rails-core:file script)
-                       (format "rails-%s-%s" (rails-project:name) name))
+   (let ((buffer-name (format "rails-%s-%s" (rails-project:name) name)))
+     (run-ruby-in-buffer (rails-core:file script)
+                         buffer-name)
+     (setq ruby-buffer buffer-name))
    (rails-minor-mode t)))
 
 (defun rails-script:console ()

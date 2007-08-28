@@ -1,3 +1,19 @@
+2007-08-18  Peter Rezikov  <crazypit13@gmail.com>
+        * rails-spec.el: base support for rspec. Function
+        `rails-spec:run-all', `rails-spec:run-this-file', `rails-spec:run-last',
+        `rails-spec:run-files'.  Variables: `rails-spec:all-files',
+        `rails-spec:last-files', `rails-spec:runner',
+        `rails-spec:runner-options'.
+        * rails-find.el, rails-ui.el: finds for rspec
+        * rails-project.el: new functions: rails-project:in-root-with-cd, 
+        rails-project:compile-in-root
+        * rails-lib.el: new macro in-directory
+                                         
+2007-08-18  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-scripts.el (rails-script:run-interactive): setup a
+	variable `ruby-buffer' for corect working with `inf-ruby'
+
 2007-08-17  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails-ruby.el (hs-minor-mode-hook): created, placed in hs-setup-overlay initialization to fix a bug #13162

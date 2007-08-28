@@ -51,4 +51,11 @@
 (rails-find:gen "migrate"     "db/migrate")
 (rails-find:gen "fixtures"    "test/fixtures")
 
+;; Rspec
+(rails-find:gen "spec" "spec/")
+(rails-find:gen "spec-controllers" "spec/controllers/")
+(rails-find:gen "spec-models" "spec/models/")
+(rails-find:gen "spec-helpers" "spec/helpers/")
+(rails-find:gen "spec-fixtures" "spec/fixtures/")
+
 (provide 'rails-find)

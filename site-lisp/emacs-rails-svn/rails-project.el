@@ -65,6 +65,15 @@ BODY is executed."
       (let ((default-dir ,root))
         ,@body))))
 
+(defmacro* rails-project:in-root-with-cd (&rest body)
+  (let ((root (gensym)))
+  `(rails-project:with-root (,root)
+    (in-directory (,root) ,@body))))
+
+(defun rails-project:compile-in-root (command)
+  (rails-project:in-root-with-cd
+   (compile command)))
+
 (defun rails-project:name ()
   "Return the name of current Rails project."
   (replace-regexp-in-string "^.*/\\(.*\\)/$" "\\1"
