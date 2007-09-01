@@ -701,4 +701,6 @@
 ;; (color-theme-oswald) ; dark
 ;; (color-theme-standard)
 
-
+;; Set default font size after setting color theme, otherwise wrong size
+;; is used for new frames
+(steve-set-default-font-size)
