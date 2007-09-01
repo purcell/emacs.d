@@ -328,11 +328,25 @@
 ;;----------------------------------------------------------------------------
 ;; Window size and features
 ;;----------------------------------------------------------------------------
-(when *macbook-pro-support-enabled*
-  ; Either 110 and 57 or 120 and 53
-  (let ((font-size 110)
-        (frame-height 57))
-    (set-face-attribute 'default nil :family "monaco" :height font-size)
+(defun steve-set-default-font (name size)
+  (interactive
+   (list (ido-completing-read "font-name: " (mapcar (lambda (n) (list n n)) (mapcar (lambda (p) (car p)) (x-font-family-list))) nil t)
+         (read-number "size: " 12)))
+  (set-face-attribute 'default nil
+                      :family name
+                      :slant  'normal
+                      :weight 'normal
+                      :width  'normal
+                      :height (* 10 size)))
+
+(lexical-let ((font-name "monaco") (font-size 11) (frame-height 57))
+  ;;         ((font-name "monaco") (font-size 12) (frame-height 53))
+  ;;         ((font-name "bitstream vera sans mono") (font-size 120) (frame-height 58))  ; untested
+  (defun steve-set-default-font-size ()
+    (steve-set-default-font font-name font-size))
+
+  (when *macbook-pro-support-enabled*
+    (steve-set-default-font-size)
     ;; Default frame size (perfect for Macbook Pro when scrollbar, dock and toolbar hidden...)
     (setq initial-frame-alist `((width  . 202) (height . ,frame-height) (top . 0) (left . 3) (tool-bar-lines . 0)))
     (setq default-frame-alist `((width  . 202) (height . ,frame-height) (top . 22) (left . 3) (tool-bar-lines . 0)))))
