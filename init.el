@@ -697,8 +697,13 @@
 (color-theme-initialize)
 (color-theme-pierson)
 ;; (color-theme-high-contrast)
+;; (color-theme-snowish)
 ;; (color-theme-marquardt)
+;; (color-theme-clarity) ; dark
+;; (color-theme-dark-laptop) ; dark
+;; (color-theme-billw) ; dark
 ;; (color-theme-oswald) ; dark
+;; (color-theme-taylor) ; dark
 ;; (color-theme-standard)
 
 ;; Set default font size after setting color theme, otherwise wrong size
