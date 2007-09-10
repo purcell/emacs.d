@@ -167,25 +167,25 @@
 (eval-after-load "mmm-mode"
   '(progn
      (mmm-add-group 'ecmascript
-		    '((js-script-cdata
-		       :submode ecmascript-mode
-		       :face mmm-code-submode-face
-		       :front "<script[^>]*>[ \t\n]*<!\\[CDATA\\[[ \t]*\n?"
-		       :back "[ \t]*]]>[ \t\n]*</script>"
-		       :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
-				    @ "\n" _ "\n" @ "</script>" @)))
-		      (js-script
-		       :submode ecmascript-mode
-		       :face mmm-code-submode-face
-		       :front "<script[^>]*>[ \t]*\n?"
-		       :back "[ \t]*</script>"
-		       :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
-				    @ "\n" _ "\n" @ "</script>" @)))
-		      (js-inline
-		       :submode ecmascript-mode
-		       :face mmm-code-submode-face
-		       :front "on\w+=\""
-		       :back "\"")))
+                    '((js-script-cdata
+                       :submode ecmascript-mode
+                       :face mmm-code-submode-face
+                       :front "<script[^>]*>[ \t\n]*<!\\[CDATA\\[[ \t]*\n?"
+                       :back "[ \t]*]]>[ \t\n]*</script>"
+                       :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
+                                    @ "\n" _ "\n" @ "</script>" @)))
+                      (js-script
+                       :submode ecmascript-mode
+                       :face mmm-code-submode-face
+                       :front "<script[^>]*>[ \t]*\n?"
+                       :back "[ \t]*</script>"
+                       :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
+                                    @ "\n" _ "\n" @ "</script>" @)))
+                      (js-inline
+                       :submode ecmascript-mode
+                       :face mmm-code-submode-face
+                       :front "on\w+=\""
+                       :back "\"")))
      (mmm-add-mode-ext-class 'nxml-mode "\\.r?html$" 'ecmascript)))
 
 
@@ -619,7 +619,7 @@
 
   (add-hook 'haskell-mode-hook
             (lambda ()
-	      (define-key haskell-mode-map [?\C-c h] 'hoogle-lookup)
+              (define-key haskell-mode-map [?\C-c h] 'hoogle-lookup)
               (turn-on-haskell-doc-mode)
               (turn-on-haskell-indent))))
 
