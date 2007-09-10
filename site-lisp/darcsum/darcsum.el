@@ -799,7 +799,7 @@ non-nil, in which case return all visible changes."
 	(goto-char (match-end 0))
 	(forward-line)
 	(when (looking-at
-	       "^Shall I \\(record\\|send\\|revert\\) this patch\\?.+[]:] ")
+	       "^Shall I \\(record\\|send\\|revert\\|add\\) this \\(patch\\|change\\)\\?.+[]:] ")
 	  (let ((end (match-end 0)))
 	    (process-send-string proc "n")
 	    (delete-region (point-min) end))))))))
@@ -1436,6 +1436,7 @@ Inserts the entry in the darcs comment file instead of the ChangeLog."
     (define-key map [return] 'darcsum-toggle) ; ??
     (define-key map "\C-m" 'darcsum-toggle)
     (define-key map "\C-c\C-c" 'darcsum-goto)
+    (define-key map [tab] 'darcsum-next-entity)
     (define-key map "?" 'describe-mode)
     (define-key map "f" 'darcsum-find-file)
     (define-key map "=" 'darcsum-diff)
