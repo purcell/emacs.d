@@ -1,8 +1,8 @@
 ;;; git-blame.el --- Minor mode for incremental blame for Git  -*- coding: utf-8 -*-
 ;;
-;; Copyright (C) 2007  David KÃ¥gedal
+;; Copyright (C) 2007  David Kågedal
 ;;
-;; Authors:    David KÃ¥gedal <davidk@lysator.liu.se>
+;; Authors:    David Kågedal <davidk@lysator.liu.se>
 ;; Created:    31 Jan 2007
 ;; Message-ID: <87iren2vqx.fsf@morpheus.local>
 ;; License:    GPL
