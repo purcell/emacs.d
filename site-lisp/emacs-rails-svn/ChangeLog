@@ -1,3 +1,6 @@
+2007-09-11  Peter Rezikov  <crazypit13@gmail.com>
+        * rails.el: basic support of Markaby templates.
+                                         
 2007-08-18  Peter Rezikov  <crazypit13@gmail.com>
         * rails-spec.el: base support for rspec. Function
         `rails-spec:run-all', `rails-spec:run-this-file', `rails-spec:run-last',

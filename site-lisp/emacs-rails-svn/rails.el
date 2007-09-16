@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 213 2007-08-24 12:57:59Z crazypit $
+;; $Id: rails.el 214 2007-09-11 14:37:48Z crazypit $
 
 ;;; License
 
@@ -147,7 +147,7 @@ Emacs w3m browser."
   :type 'string)
 
 (defvar rails-version "0.5.99.1")
-(defvar rails-templates-list '("erb" "rhtml" "rxml" "rjs" "haml" "liquid"))
+(defvar rails-templates-list '("erb" "rhtml" "rxml" "rjs" "haml" "liquid" "mab"))
 (defvar rails-use-another-define-key nil)
 (defvar rails-primary-switch-func nil)
 (defvar rails-secondary-switch-func nil)
@@ -440,6 +440,7 @@ necessary."
 
 (setq auto-mode-alist  (cons '("\\.rb$"     . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rake$"   . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.mab$"    . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("Rakefile$"  . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.haml$"   . haml-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rjs$"    . ruby-mode) auto-mode-alist))
