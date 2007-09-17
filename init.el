@@ -103,9 +103,12 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Use Apple-w to close current buffer on OS-X (is normally bound to kill-ring-save)
+;; OS X usability tweaks
 ;;----------------------------------------------------------------------------
 (when *macbook-pro-support-enabled*
+  ;; Make mouse wheel / trackpad scrolling less jerky
+  (setq mouse-wheel-scroll-amount '(0.001))
+  ;; Use Apple-w to close current buffer on OS-X (is normally bound to kill-ring-save)
   (global-set-key [(meta w)] 'kill-this-buffer))
 
 
