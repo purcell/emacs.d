@@ -872,8 +872,25 @@ C-c C-c to record.")
     (switch-to-buffer-other-window (process-buffer proc))
     (process-buffer proc)))
 
-(defun darcsum-changes-sentinel(process event)
+(defun darcsum-changes-sentinel (process event)
   (with-current-buffer (process-buffer process)
+    (goto-char (point-min))))
+
+(defun darcsum-query-manifest ()
+  "List the version-controlled files in the working copy."
+  (interactive)
+  (let ((proc (darcsum-start-process
+	       "query" '("manifest")
+	       'darcsum-parent-buffer (current-buffer))))
+    (set-process-filter proc nil)
+    (set-process-sentinel proc 'darcsum-query-manifest-sentinel)
+    (switch-to-buffer-other-window (process-buffer proc))
+    (process-buffer proc)))
+
+(defun darcsum-query-manifest-sentinel (process event)
+  (with-current-buffer (process-buffer process)
+    (setq buffer-read-only t)
+    (darcsum-query-mode)
     (goto-char (point-min))))
 
 (defun darcsum-amend ()
@@ -918,10 +935,27 @@ Also, running amend-record while another user is pulling from the same repositor
     (define-key map "\C-c\C-c" 'darcsum-really-record)
     map))
 
+(defun darcsum-query-kill-buffer ()
+  (interactive)
+  (kill-this-buffer)
+  (delete-window))
+
+(defvar darcsum-query-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "q" 'darcsum-query-kill-buffer)
+    map))
+
 (define-derived-mode darcsum-comment-mode indented-text-mode "Darcs Summary"
   "Major mode for output from \\<darcsum-mode-map>\\[darcsum-comment].
 
 \\{darcsum-comment-mode-map}"
+  :group 'darcsum
+  (setq truncate-lines t))
+
+(define-derived-mode darcsum-query-mode indented-text-mode "Darcs Query"
+  "Major mode for output from \\<darcsum-mode-map>\\[darcsum-query].
+
+\\{darcsum-query-mode-map}"
   :group 'darcsum
   (setq truncate-lines t))
 
