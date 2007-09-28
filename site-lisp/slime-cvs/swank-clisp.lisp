@@ -627,12 +627,11 @@ Execute BODY with NAME's function slot set to FUNCTION."
 
 ;;;; Inspecting
 
-(defclass clisp-inspector (inspector) ())
+(defclass clisp-inspector (backend-inspector) ())
 
-(defimplementation make-default-inspector ()
-  (make-instance 'clisp-inspector))
+(defimplementation make-default-inspector () (make-instance 'clisp-inspector))
 
-(defmethod inspect-for-emacs ((o t) (inspector clisp-inspector))
+(defmethod inspect-for-emacs ((o t) (inspector backend-inspector))
   (declare (ignore inspector))
   (let* ((*print-array* nil) (*print-pretty* t)
          (*print-circle* t) (*print-escape* t)

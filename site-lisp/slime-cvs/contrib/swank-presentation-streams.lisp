@@ -1,21 +1,46 @@
+;;; swank-presentation-streams.lisp --- Streams that allow attaching object identities
+;;;                                     to portions of output
+;;;
+;;; Authors: Alan Ruttenberg  <alanr-l@mumble.net>
+;;;          Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+;;;          Helmut Eller  <heller@common-lisp.net>
+;;;
+;;; License: This code has been placed in the Public Domain.  All warranties
+;;;          are disclaimed.
+
 (in-package :swank)
 
-;;; This code has been placed in the Public Domain.  All warranties
-;;; are disclaimed.
+(swank-require :swank-presentations)
 
-;; A mechanism for printing to the slime repl so that the printed
-;; result remembers what object it is associated with. Depends on the
-;; ilisp bridge code being installed and ready to intercept messages
-;; in the printed stream. We encode the information with a message
-;; saying that we are starting to print an object corresponding to a
-;; given id and another when we are done. The process filter notices these
-;; and adds the necessary text properties to the output.
-
+;; This file contains a mechanism for printing to the slime repl so
+;; that the printed result remembers what object it is associated
+;; with.  This extends the recording of REPL results.
+;;
+;; There are two methods:
+;;
+;; 1. Depends on the ilisp bridge code being installed and ready to
+;;    intercept messages in the printed stream. We encode the
+;;    information with a message saying that we are starting to print
+;;    an object corresponding to a given id and another when we are
+;;    done. The process filter notices these and adds the necessary
+;;    text properties to the output.
+;;
+;; 2. Use separate protocol messages :presentation-start and
+;;    :presentation-end for sending presentations.
+;;
 ;; We only do this if we know we are printing to a slime stream,
 ;; checked with the method slime-stream-p. Initially this checks for
-;; the knows slime streams looking at *connections*. In cmucl and
+;; the knows slime streams looking at *connections*. In cmucl, sbcl, and
 ;; openmcl it also checks if it is a pretty-printing stream which
 ;; ultimately prints to a slime stream.
+;;
+;; Method 1 seems to be faster, but the printed escape sequences can 
+;; disturb the column counting, and thus the layout in pretty-printing.
+;; We use method 1 when a dedicated output stream is used.  
+;;
+;; Method 2 is cleaner and works with pretty printing if the pretty
+;; printers support "annotations".  We use method 2 when no dedicated
+;; output stream is used.
 
 ;; Control
 (defvar *enable-presenting-readable-objects* t
@@ -38,9 +63,9 @@ be sensitive and remember what object it is in the repl if predicate is true"
 	(presenting-object-1 ,object ,stream ,continue)
 	(funcall ,continue)))))
 
-;;; Get pretty printer patches for SBCL
+;;; Get pretty printer patches for SBCL at load (not compile) time.
 #+sbcl
-(eval-when (:compile-toplevel :load-toplevel :execute)
+(eval-when (:load-toplevel)
   (handler-bind ((simple-error 
 		  (lambda (c) 
 		    (declare (ignore c))
@@ -57,7 +82,11 @@ be sensitive and remember what object it is in the repl if predicate is true"
       (last-answer nil))
   (defun slime-stream-p (stream)
     "Check if stream is one of the slime streams, since if it isn't we
-don't want to present anything"
+don't want to present anything.
+Two special return values: 
+:DEDICATED -- Output ends up on a dedicated output stream
+:REPL-RESULT -- Output ends up on the :repl-results target.
+"
     (if (eq last-stream stream)
 	last-answer
 	(progn
@@ -74,30 +103,41 @@ don't want to present anything"
 			     (slime-stream-p (lisp::indenting-stream-stream stream)))
 			(and (typep stream 'pretty-print::pretty-stream)
 			     (fboundp 'pretty-print::enqueue-annotation)
-			     (not *use-dedicated-output-stream*)
-			     ;; Printing through CMUCL pretty streams
-			     ;; is only cleanly possible if we are
-			     ;; using the bridge-less protocol with
-			     ;; annotations, because the bridge escape
-			     ;; sequences disturb the pretty printer
-			     ;; layout.
-			     (slime-stream-p (pretty-print::pretty-stream-target  stream))))
+			     (let ((slime-stream-p
+				    (slime-stream-p (pretty-print::pretty-stream-target stream))))
+			       (and ;; Printing through CMUCL pretty
+				    ;; streams is only cleanly
+				    ;; possible if we are using the
+				    ;; bridge-less protocol with
+				    ;; annotations, because the bridge
+				    ;; escape sequences disturb the
+				    ;; pretty printer layout.
+				    (not (eql slime-stream-p :dedicated-output))
+				    ;; If OK, return the return value
+				    ;; we got from slime-stream-p on
+				    ;; the target stream (could be
+				    ;; :repl-result):
+				    slime-stream-p))))
 		    #+sbcl
-		    (or (and (typep stream 'sb-impl::indenting-stream)
-			     (slime-stream-p (sb-impl::indenting-stream-stream stream)))
-			(and (typep stream 'sb-pretty::pretty-stream)
-			     (fboundp 'sb-pretty::enqueue-annotation)
-			     (not *use-dedicated-output-stream*)
-			     (slime-stream-p (sb-pretty::pretty-stream-target  stream))))
+		    (let ()
+		      (declare (notinline sb-pretty::pretty-stream-target))
+		      (or (and (typep stream 'sb-impl::indenting-stream)
+			       (slime-stream-p (sb-impl::indenting-stream-stream stream)))
+			  (and (typep stream (find-symbol "PRETTY-STREAM" 'sb-pretty))
+			       (find-symbol "ENQUEUE-ANNOTATION" 'sb-pretty)
+			       (not *use-dedicated-output-stream*)
+			       (slime-stream-p (sb-pretty::pretty-stream-target stream)))))
 		    #+allegro
 		    (and (typep stream 'excl:xp-simple-stream)
 			 (slime-stream-p (excl::stream-output-handle stream)))
 		    (loop for connection in *connections*
-			  thereis (or (eq stream (connection.dedicated-output connection))
+			  thereis (or (and (eq stream (connection.dedicated-output connection))
+					   :dedicated)
 				      (eq stream (connection.socket-io connection))
 				      (eq stream (connection.user-output connection))
 				      (eq stream (connection.user-io connection))
-				      (eq stream (connection.repl-results connection))))))))))
+				      (and (eq stream (connection.repl-results connection))
+					   :repl-result)))))))))
 
 (defun can-present-readable-objects (&optional stream)
   (declare (ignore stream))
@@ -119,57 +159,72 @@ don't want to present anything"
       (funcall function arg stream nil)))
 #+sbcl
 (defun write-annotation (stream function arg)
-  (if (typep stream 'sb-pretty::pretty-stream)
-      (sb-pretty::enqueue-annotation stream function arg)
-      (funcall function arg stream nil)))
+  (let ((enqueue-annotation
+	 (find-symbol "ENQUEUE-ANNOTATION" 'sb-pretty)))
+    (if (and enqueue-annotation
+	     (typep stream (find-symbol "PRETTY-STREAM" 'sb-pretty)))
+	(funcall enqueue-annotation stream function arg)
+	(funcall function arg stream nil))))
 #-(or allegro cmu sbcl)
 (defun write-annotation (stream function arg)
   (funcall function arg stream nil))
 
 (defstruct presentation-record 
   (id)
-  (printed-p))
+  (printed-p)
+  (target))
 
 (defun presentation-start (record stream truncatep) 
   (unless truncatep
     ;; Don't start new presentations when nothing is going to be
     ;; printed due to *print-lines*.
-    (let ((pid (presentation-record-id record)))
-      (cond (*use-dedicated-output-stream* 
-	     (write-string "<" stream)
-	     (prin1 pid stream)
-	     (write-string "" stream))
-	    (t
-	     (finish-output stream)
-	     (send-to-emacs `(:presentation-start ,pid)))))
+    (let ((pid (presentation-record-id record))
+	  (target (presentation-record-target record)))
+      (case target
+	(:dedicated 
+	 ;; Use bridge protocol
+	 (write-string "<" stream)
+	 (prin1 pid stream)
+	 (write-string "" stream))
+	(t
+	 (finish-output stream)
+	 (send-to-emacs `(:presentation-start ,pid ,target)))))
     (setf (presentation-record-printed-p record) t)))
 	   
 (defun presentation-end (record stream truncatep)
   (declare (ignore truncatep))
   ;; Always end old presentations that were started.
   (when (presentation-record-printed-p record)
-    (let ((pid (presentation-record-id record)))
-      (cond (*use-dedicated-output-stream* 
-	     (write-string ">" stream)
-	     (prin1 pid stream)
-	     (write-string "" stream))
-	    (t
-	     (finish-output stream)
-	     (send-to-emacs `(:presentation-end ,pid)))))))
+    (let ((pid (presentation-record-id record))
+	  (target (presentation-record-target record)))
+      (case target
+	(:dedicated 
+	 ;; Use bridge protocol
+	 (write-string ">" stream)
+	 (prin1 pid stream)
+	 (write-string "" stream))
+	(t
+	 (finish-output stream)
+	 (send-to-emacs `(:presentation-end ,pid ,target)))))))
 
 (defun presenting-object-1 (object stream continue)
   "Uses the bridge mechanism with two messages >id and <id. The first one
 says that I am starting to print an object with this id. The second says I am finished"
-  (if (and *record-repl-results* (slime-stream-p stream))
-      (let* ((pid (swank::save-presented-object object))
-	     (record (make-presentation-record :id pid :printed-p nil)))
-	(write-annotation stream #'presentation-start record)
-	(multiple-value-prog1
-	    (funcall continue)
-	  (write-annotation stream #'presentation-end record)))
-      (funcall continue)))
+  (let ((slime-stream-p 
+	 (and *record-repl-results* (slime-stream-p stream))))
+    (if slime-stream-p
+	(let* ((pid (swank::save-presented-object object))
+	       (record (make-presentation-record :id pid :printed-p nil
+						 :target (if (eq slime-stream-p :repl-result)
+							     :repl-result
+							     nil))))
+	  (write-annotation stream #'presentation-start record)
+	  (multiple-value-prog1
+	      (funcall continue)
+	    (write-annotation stream #'presentation-end record)))
+	(funcall continue))))
 
-(defun send-repl-results-to-emacs (values)
+(defun present-repl-results-via-presentation-streams (values)
   ;; Override a function in swank.lisp, so that 
   ;; nested presentations work in the REPL result.
   (let ((repl-results (connection.repl-results *emacs-connection*)))
@@ -256,3 +311,9 @@ says that I am starting to print an object with this id. The second says I am fi
 	      'print-unreadable-present 'presenting-unreadable-wrapper)
   (excl:fwrap 'excl::pathname-printer 
 	      'print-pathname-present 'presenting-pathname-wrapper))
+
+;; Hook into SWANK.
+
+(setq *send-repl-results-function* 'present-repl-results-via-presentation-streams)
+
+(provide :swank-presentation-streams)

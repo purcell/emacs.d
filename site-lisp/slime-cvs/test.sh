@@ -46,7 +46,7 @@ test -d $testdir && rm -r $testdir
 trap "rm -r $testdir" EXIT	# remove temporary directory on exit
 
 mkdir $testdir
-cp $slimedir/*.el $slimedir/*.lisp ChangeLog $testdir
+cp -r $slimedir/*.{el,lisp} ChangeLog $slimedir/contrib  $testdir
 mkfifo $dribble
 
 session=slime-screen.$$

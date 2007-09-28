@@ -636,25 +636,24 @@ function names like \(SETF GET)."
           append (frob-locs dspec (dspec:dspec-definition-locations dspec)))))
 
 ;;; Inspector
-(defclass lispworks-inspector (inspector)
-  ())
+(defclass lispworks-inspector (backend-inspector) ())
 
 (defimplementation make-default-inspector ()
   (make-instance 'lispworks-inspector))
 
-(defmethod inspect-for-emacs ((o t) (inspector lispworks-inspector))
+(defmethod inspect-for-emacs ((o t) (inspector backend-inspector))
   (declare (ignore inspector))
   (lispworks-inspect o))
 
 (defmethod inspect-for-emacs ((o function) 
-                              (inspector lispworks-inspector))
+                              (inspector backend-inspector))
   (declare (ignore inspector))
   (lispworks-inspect o))
 
 ;; FIXME: slot-boundp-using-class in LW works with names so we can't
 ;; use our method in swank.lisp.
 (defmethod inspect-for-emacs ((o standard-object) 
-                              (inspector lispworks-inspector))
+                              (inspector backend-inspector))
   (declare (ignore inspector))
   (lispworks-inspect o))
 

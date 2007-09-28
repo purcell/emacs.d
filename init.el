@@ -563,16 +563,31 @@
 (add-hook 'emacs-lisp-mode-hook (lambda () (enable-paredit emacs-lisp-mode-map)))
 
 (when *common-lisp-support-enabled*
-  (setf slime-lisp-implementations
+  ;; See http://bc.tech.coop/blog/070927.html
+  (setq slime-lisp-implementations
         '((sbcl ("sbcl") :coding-system utf-8-unix)
           (cmucl ("cmucl") :coding-system iso-latin-1-unix)))
-  (setf slime-default-lisp 'sbcl)
-  (require 'slime)
-  (slime-setup)
+  (require 'slime-autoloads)
   (add-auto-mode 'lisp-mode "\\.cl$")
-  (add-hook 'slime-mode-hook 'pretty-lambdas)
-  (add-hook 'slime-mode-hook (lambda () (enable-paredit slime-mode-map)))
   (global-set-key [f4] 'slime-selector)
+  (add-hook 'lisp-mode-hook (lambda () 
+			      (cond ((not (featurep 'slime)) 
+				     (require 'slime) 
+				     (normal-mode)))))
+
+  (eval-after-load "slime" 
+    '(progn 
+       (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
+       (require 'slime-fancy) 
+       (require 'slime-banner) 
+       (require 'slime-asdf) 
+       (slime-banner-init) 
+       (slime-asdf-init) 
+       (setq slime-complete-symbol*-fancy t) 
+       (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol) 
+       (add-hook 'slime-mode-hook 'pretty-lambdas)
+       (add-hook 'slime-mode-hook (lambda () (enable-paredit slime-mode-map)))
+       (slime-setup)))
 
   ; From http://bc.tech.coop/blog/070515.html
   (defun lispdoc ()

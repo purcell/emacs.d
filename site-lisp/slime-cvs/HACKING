@@ -35,18 +35,6 @@ and `Change Logs and VC' nodes of the Emacs manual:
   http://www.gnu.org/software/emacs/manual/html_node/emacs_333.html#SEC333
   http://www.gnu.org/software/emacs/manual/html_node/emacs_156.html#SEC156
 
-** You may want to add this to your init.el
-
-(defun update-change-log ()
-  (interactive)
-  (vc-update-change-log "-u" "alendvai	Attila Lendvai	attila.lendvai@gmail.com"
-                        "-u" "mbaringer	Marco Baringer	mb@bese.it"
-                        "-u" "heller	Helmut Eller	heller@common-lisp.net"))
-
-(add-hook 'change-log-mode-hook
-          (lambda ()
-            (define-key change-log-mode-map (kbd "C-M-u") 'update-change-log)))
-
 * Sending Patches
 
 If you would like to send us improvements you can create a patch with
@@ -132,14 +120,17 @@ Emacs you can press `C-x n p' to narrow to this page, and then later
 * Coding style
 
 We like the fact that each function in SLIME will fit on a single
-screen, and would like to preserve this property! Beyond that we're
-not dogmatic :-)
+screen (80x20), and would like to preserve this property! Beyond that
+we're not dogmatic :-)
 
 In early discussions we all made happy noises about the advice in
 Norvig and Pitman's _Tutorial on Good Lisp Programming Style_:
   http://www.norvig.com/luv-slides.ps
 
+For Emacs Lisp, we try to follow the _Tips and Conventions_ in
+Appendix D of the GNU Emacs Lisp Reference Manual (see Info file
+`elisp', node `Tips').
+
 Remember that to rewrite a program better is the sincerest form of
 code appreciation. When you can see a way to rewrite a part of SLIME
 better, please do so!
-

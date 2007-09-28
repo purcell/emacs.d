@@ -66,10 +66,6 @@
 (defimplementation format-sldb-condition (c)
   (princ-to-string c))
 
-(defimplementation condition-references (c)
-  (declare (ignore c))
-  '())
-
 (defimplementation call-with-syntax-hooks (fn)
   (funcall fn))
 
@@ -406,7 +402,7 @@
   (cond
    ((and (listp fspec)
          (eql (car fspec) :top-level-form))
-    (destructuring-bind (top-level-form file position) fspec 
+    (destructuring-bind (top-level-form file &optional position) fspec 
       (list
        (list (list nil fspec)
              (make-location (list :buffer file)
@@ -568,8 +564,7 @@
 
 ;;;; Inspecting
 
-(defclass acl-inspector (inspector)
-  ())
+(defclass acl-inspector (backend-inspector) ())
 
 (defimplementation make-default-inspector ()
   (make-instance 'acl-inspector))
@@ -584,15 +579,16 @@
              (when doc
                `("Documentation:" (:newline) ,doc))))))
 
-(defmethod inspect-for-emacs ((o t) (inspector acl-inspector))
+(defmethod inspect-for-emacs ((o t) (inspector backend-inspector))
   inspector
   (values "A value." (allegro-inspect o)))
 
-(defmethod inspect-for-emacs ((o function) (inspector acl-inspector))
+(defmethod inspect-for-emacs ((o function) (inspector backend-inspector))
   inspector
   (values "A function." (allegro-inspect o)))
 
-(defmethod inspect-for-emacs ((o standard-object) (inspector acl-inspector))
+(defmethod inspect-for-emacs ((o standard-object) 
+                              (inspector backend-inspector))
   inspector
   (values (format nil "~A is a standard-object." o) (allegro-inspect o)))
 

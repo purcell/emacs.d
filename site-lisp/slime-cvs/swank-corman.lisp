@@ -387,7 +387,7 @@
 ;; Hack to make swank.lisp load, at least
 (defclass file-stream ())
 
-(defclass corman-inspector (inspector)
+(defclass corman-inspector (backend-inspector)
   ())
 
 (defimplementation make-default-inspector ()
@@ -400,7 +400,7 @@
               collect ", ")))
 
 (defmethod inspect-for-emacs ((class standard-class)
-                              (inspector corman-inspector))
+                              (inspector backend-inspector))
   (declare (ignore inspector))
   (values "A class."
           `("Name: " (:value ,(class-name class))
@@ -438,9 +438,9 @@
                   '("#<N/A (class not finalized)>"))
             (:newline))))
 
-(defmethod inspect-for-emacs ((slot cons) (inspector corman-inspector))
+(defmethod inspect-for-emacs ((slot cons) (inspector backend-inspector))
   ;; Inspects slot definitions
-  (declare (ignore corman-inspector))
+  (declare (ignore inspector))
   (if (eq (car slot) :name)
       (values "A slot." 
               `("Name: " (:value ,(swank-mop:slot-definition-name slot))
@@ -475,7 +475,7 @@
                               (not (probe-file pathname)))
                     (label-value-line "Truename" (truename pathname))))))
 
-(defmethod inspect-for-emacs ((o t) (inspector corman-inspector))
+(defmethod inspect-for-emacs ((o t) (inspector backend-inspector))
   (cond ((cl::structurep o) (inspect-structure o))
 	(t (call-next-method))))
 

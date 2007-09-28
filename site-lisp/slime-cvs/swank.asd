@@ -19,10 +19,30 @@
 ;; This code has been placed in the Public Domain.  All warranties
 ;; are disclaimed.
 
+(defpackage :swank-loader
+  (:use :cl))
+
+(in-package :swank-loader)
+
+(defclass cl-script-file (asdf:source-file) ())
+
+(defmethod asdf:perform ((o asdf:compile-op) (f cl-script-file))
+  t)
+(defmethod asdf:perform ((o asdf:load-op) (f cl-script-file))
+  (mapcar #'load (asdf:input-files o f)))
+(defmethod asdf:output-files ((o asdf:compile-op) (f cl-script-file))
+  nil)
+(defmethod asdf:input-files ((o asdf:load-op) (c cl-script-file))
+  (list (asdf:component-pathname c)))
+(defmethod asdf:operation-done-p ((o asdf:compile-op) (c cl-script-file))
+  t)
+(defmethod asdf:source-file-type ((c cl-script-file) (s asdf:module))
+  "lisp")
+
 (asdf:defsystem :swank
+    :default-component-class cl-script-file
     :components ((:file "swank-loader")))
 
-(defpackage :swank-loader)
-(defparameter swank-loader::*source-directory*
+(defparameter *source-directory*
   (asdf:component-pathname (asdf:find-system :swank)))
 

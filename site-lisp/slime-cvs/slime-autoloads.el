@@ -28,20 +28,22 @@
 
 (defvar slime-lisp-modes '(lisp-mode))
 
-(defun slime-setup (&rest options)
+(defun slime-setup (&optional contribs)
   "Setup Emacs so that lisp-mode buffers always use SLIME.
-OPTIONS is a keyword list (&key AUTODOC TYPEOUT-FRAME HIGHLIGHT-EDITS):
-AUTODOC and HIGHLIGHT-EDITS enable `slime-autodoc-mode' resp.
-`slime-highlight-edits-mode'.
-If TYPEOUT-FRAME is true, the SLIME will use the typeout window."
+CONTRIBS is a list of contrib packages to load."
   (when (member 'lisp-mode slime-lisp-modes)
     (add-hook 'lisp-mode-hook 'slime-lisp-mode-hook))
-  (when (member 'scheme-mode slime-lisp-modes)
-    (add-hook 'scheme-mode-hook 'slime-scheme-mode-hook))
-  (when (plist-get options :typeout-frame)
-    (add-hook 'slime-connected-hook 'slime-ensure-typeout-frame))
-  (setq slime-use-autodoc-mode (plist-get options :autodoc))
-  (setq slime-use-highlight-edits-mode (plist-get options :highlight-edits)))
+  (setq slime-setup-contribs contribs)
+  (add-hook 'slime-load-hook 'slime-setup-contribs))
+
+(defvar slime-setup-contribs nil)
+
+(defun slime-setup-contribs () 
+  (dolist (c slime-setup-contribs)
+    (require c)
+    (let ((init (intern (format "%s-init" c))))
+      (when (fboundp init)
+        (funcall init)))))
 
 (provide 'slime-autoloads)
 

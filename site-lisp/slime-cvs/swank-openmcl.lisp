@@ -784,8 +784,7 @@ at least the filename containing it."
 
 ;;;; Inspection
 
-(defclass openmcl-inspector (inspector)
-  ())
+(defclass openmcl-inspector (backend-inspector) ())
 
 (defimplementation make-default-inspector ()
   (make-instance 'openmcl-inspector))
@@ -796,7 +795,7 @@ at least the filename containing it."
 	(string (gethash typecode *value2tag*))
 	(string (nth typecode '(tag-fixnum tag-list tag-misc tag-imm))))))
 
-(defmethod inspect-for-emacs ((o t) (inspector openmcl-inspector))
+(defmethod inspect-for-emacs ((o t) (inspector backend-inspector))
   (declare (ignore inspector))
   (let* ((i (inspector::make-inspector o))
 	 (count (inspector::compute-line-count i))
@@ -815,7 +814,7 @@ at least the filename containing it."
                 (pprint o s)))
             lines)))
 
-(defmethod inspect-for-emacs :around ((o t) (inspector openmcl-inspector))
+(defmethod inspect-for-emacs :around ((o t) (inspector backend-inspector))
   (if (or (uvector-inspector-p o)
           (not (ccl:uvectorp o)))
       (call-next-method)
@@ -835,7 +834,8 @@ at least the filename containing it."
   (:method ((object t)) nil)
   (:method ((object uvector-inspector)) t))
 
-(defmethod inspect-for-emacs ((uv uvector-inspector) (inspector openmcl-inspector))
+(defmethod inspect-for-emacs ((uv uvector-inspector) 
+                              (inspector backend-inspector))
   (with-slots (object)
       uv
     (values (format nil "The UVECTOR for ~S." object)

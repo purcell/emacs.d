@@ -76,7 +76,7 @@
 (defimplementation preferred-communication-style ()
   :sigio)
 
-#-(or ppc mips)
+#-(or darwin mips)
 (defimplementation create-socket (host port)
   (let* ((addr (resolve-hostname host))
          (addr (if (not (find-symbol "SOCKET-ERROR" :ext))
@@ -85,7 +85,7 @@
     (ext:create-inet-listener port :stream :reuse-address t :host addr)))
 
 ;; There seems to be a bug in create-inet-listener on Mac/OSX and Irix.
-#+(or ppc mips)
+#+(or darwin mips)
 (defimplementation create-socket (host port)
   (declare (ignore host))
   (ext:create-inet-listener port :stream :reuse-address t))
@@ -697,7 +697,11 @@ condition object."
     (if *debug-definition-finding*
         (body)
         (handler-case (values (progn ,@body) nil)
-          (error (c) (values (list :error (princ-to-string c)) c))))))
+          (error (c) (values `(:error ,(trim-whitespace (princ-to-string c)))
+                             c))))))
+
+(defun trim-whitespace (string)
+  (string-trim #(#\newline #\space #\tab) string))
 
 (defun code-location-source-location (code-location)
   "Safe wrapper around `code-location-from-source-location'."
@@ -1817,8 +1821,7 @@ LRA  =  ~X~%" (mapcar #'fixnum
 
 ;;;; Inspecting
 
-(defclass cmucl-inspector (inspector)
-  ())
+(defclass cmucl-inspector (backend-inspector) ())
 
 (defimplementation make-default-inspector ()
   (make-instance 'cmucl-inspector))
@@ -1865,7 +1868,7 @@ The `symbol-value' of each element is a type tag.")
                                   :key #'symbol-value)))
           (format t ", type: ~A" type-symbol))))))
 
-(defmethod inspect-for-emacs ((o t) (inspector cmucl-inspector))
+(defmethod inspect-for-emacs ((o t) (inspector backend-inspector))
   (cond ((di::indirect-value-cell-p o)
          (values (format nil "~A is a value cell." o)
                  `("Value: " (:value ,(c:value-cell-ref o)))))
@@ -1883,7 +1886,7 @@ The `symbol-value' of each element is a type tag.")
                 (loop for value in parts  for i from 0 
                       append (label-value-line i value))))))
 
-(defmethod inspect-for-emacs ((o function) (inspector cmucl-inspector))
+(defmethod inspect-for-emacs ((o function) (inspector backend-inspector))
   (declare (ignore inspector))
   (let ((header (kernel:get-type o)))
     (cond ((= header vm:function-header-type)
@@ -1912,7 +1915,7 @@ The `symbol-value' of each element is a type tag.")
            (call-next-method)))))
 
 (defmethod inspect-for-emacs ((o kernel:funcallable-instance)
-                              (i cmucl-inspector))
+                              (i backend-inspector))
   (declare (ignore i))
   (values 
    (format nil "~A is a funcallable-instance." o)
@@ -1922,7 +1925,7 @@ The `symbol-value' of each element is a type tag.")
             (:layout  (kernel:%funcallable-instance-layout o)))
            (nth-value 1 (cmucl-inspect o)))))
 
-(defmethod inspect-for-emacs ((o kernel:code-component) (_ cmucl-inspector))
+(defmethod inspect-for-emacs ((o kernel:code-component) (_ backend-inspector))
   (declare (ignore _))
   (values (format nil "~A is a code data-block." o)
           (append 
@@ -1950,7 +1953,7 @@ The `symbol-value' of each element is a type tag.")
                          (ash (kernel:%code-code-size o) vm:word-shift)
                          :stream s))))))))
 
-(defmethod inspect-for-emacs ((o kernel:fdefn) (inspector cmucl-inspector))
+(defmethod inspect-for-emacs ((o kernel:fdefn) (inspector backend-inspector))
   (declare (ignore inspector))
   (values (format nil "~A is a fdenf object." o)
           (label-value-line*
@@ -1960,7 +1963,7 @@ The `symbol-value' of each element is a type tag.")
                         (sys:int-sap (kernel:get-lisp-obj-address o))
                         (* vm:fdefn-raw-addr-slot vm:word-bytes))))))
 
-(defmethod inspect-for-emacs ((o array) (inspector cmucl-inspector))
+(defmethod inspect-for-emacs ((o array) (inspector backend-inspector))
   inspector
   (if (typep o 'simple-array)
       (call-next-method)
@@ -1976,7 +1979,7 @@ The `symbol-value' of each element is a type tag.")
                (:displaced-p (kernel:%array-displaced-p o))
                (:dimensions (array-dimensions o))))))
 
-(defmethod inspect-for-emacs ((o simple-vector) (inspector cmucl-inspector))
+(defmethod inspect-for-emacs ((o simple-vector) (inspector backend-inspector))
   inspector
   (values (format nil "~A is a simple-vector." o)
           (append 
@@ -2225,7 +2228,10 @@ The `symbol-value' of each element is a type tag.")
     ((:call)
      (destructuring-bind (caller callee) (cdr spec)
        (toggle-trace-aux (process-fspec callee) 
-                         :wherein (list (process-fspec caller)))))))
+                         :wherein (list (process-fspec caller)))))
+    ;; doesn't work properly
+    ;; ((:labels :flet) (toggle-trace-aux (process-fspec spec)))
+    ))
 
 (defun process-fspec (fspec)
   (cond ((consp fspec)
@@ -2233,9 +2239,8 @@ The `symbol-value' of each element is a type tag.")
            ((:defun :defgeneric) (second fspec))
            ((:defmethod) 
             `(method ,(second fspec) ,@(third fspec) ,(fourth fspec)))
-           ;; this isn't actually supported
-           ((:labels) `(labels ,(process-fspec (second fspec)) ,(third fspec)))
-           ((:flet) `(flet ,(process-fspec (second fspec)) ,(third fspec)))))
+           ((:labels) `(labels ,(third fspec) ,(process-fspec (second fspec))))
+           ((:flet) `(flet ,(third fspec) ,(process-fspec (second fspec))))))
         (t
          fspec)))
 

@@ -16,7 +16,7 @@ infofiles=slime.info
 
 TEXI = slime.texi contributors.texi
 
-all: slime.ps slime.info slime.html slime.pdf
+all: slime.info slime.pdf html/index.html
 
 slime.dvi: $(TEXI)
 	texi2dvi slime.texi
@@ -29,6 +29,9 @@ slime.info: $(TEXI)
 
 slime.html: $(TEXI)
 	texi2html $<
+
+html/index.html: $(TEXI)
+	makeinfo -o html --html $<
 
 slime.pdf: $(TEXI)
 	texi2pdf $<
@@ -89,20 +92,6 @@ uninstall-info:
 
 clean:
 	rm -f contributors.texi
-	rm -f slime.aux
-	rm -f slime.cp
-	rm -f slime.dvi
-	rm -f slime.fn
-	rm -f slime.ky
-	rm -f slime.log
-	rm -f slime.pg
-	rm -f slime.tmp
-	rm -f slime.toc
-	rm -f slime.tp
-	rm -f slime.vr
-
-really_clean: clean
-	rm -f slime.info
-	rm -f slime.pdf
-	rm -f slime.ps
-	rm -f slime.html
+	rm -f slime.{aux,cp,cps,fn,fns,ky,kys,log,pg,tmp,toc,tp,vr,vrs}
+	rm -f slime.{info,pdf,dvi,ps,html}
+	rm -rf html
