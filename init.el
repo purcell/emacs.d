@@ -242,10 +242,9 @@
 ;;----------------------------------------------------------------------------
 ;; Multiple major modes
 ;;----------------------------------------------------------------------------
-(require 'mmm-mode)
+(require 'mmm-auto)
 (setq mmm-global-mode t)
 (setq mmm-submode-decoration-level 2)
-(mmm-add-mode-ext-class nil "\.jsp$" 'jsp)
 (setq-default mmm-never-modes
               (append '(sldb-mode) '(ediff-mode) '(text-mode)
                       '(compilation-mode) '(inferior-haskell-mode)
@@ -425,17 +424,18 @@
                   '(ruby "\\([0-9A-Za-z_./\:-]+\\.rb\\):\\([0-9]+\\):in `" 1 2))))
 (setq compile-command "rake ")
 
-(mmm-add-classes
- '((eruby :submode ruby-mode :front "<%[#=]?" :back "-?%>"
-    :match-face (("<%#" . mmm-comment-submode-face)
-                 ("<%=" . mmm-output-submode-face)
-                 ("<%"  . mmm-code-submode-face))
-    :insert ((?% erb-code       nil @ "<%"  @ " " _ " " @ "%>" @)
-             (?# erb-comment    nil @ "<%#" @ " " _ " " @ "%>" @)
-             (?= erb-expression nil @ "<%=" @ " " _ " " @ "%>" @)))))
-
-(mmm-add-mode-ext-class 'nxml-mode "\\.rhtml$" 'eruby)
-(mmm-add-mode-ext-class 'yaml-mode "\\.yml$" 'eruby)
+(eval-after-load "mmm-mode"
+  '(progn
+     (mmm-add-classes
+      '((eruby :submode ruby-mode :front "<%[#=]?" :back "-?%>"
+               :match-face (("<%#" . mmm-comment-submode-face)
+                            ("<%=" . mmm-output-submode-face)
+                            ("<%"  . mmm-code-submode-face))
+               :insert ((?% erb-code       nil @ "<%"  @ " " _ " " @ "%>" @)
+                        (?# erb-comment    nil @ "<%#" @ " " _ " " @ "%>" @)
+                        (?= erb-expression nil @ "<%=" @ " " _ " " @ "%>" @)))))
+     (mmm-add-mode-ext-class 'nxml-mode "\\.rhtml$" 'eruby)
+     (mmm-add-mode-ext-class 'yaml-mode "\\.yml$" 'eruby)))
 
 
 (define-derived-mode ruby-compilation-mode compilation-mode "Compilation[ruby]"
