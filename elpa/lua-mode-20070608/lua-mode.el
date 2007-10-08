@@ -1,6 +1,6 @@
 ;;; lua-mode.el --- a major-mode for editing Lua scripts
 
-;; Copyright (C) 1997, 2001, 2004, 2006 Free Software Foundation, Inc.
+;; Copyright (C) 1997, 2001, 2004, 2006, 2007 Free Software Foundation, Inc.
 
 ;; Author: 2006 Juergen Hoetzel <juergen@hoetzel.info>
 ;;         2004 various (support for Lua 5 and byte compilation)
@@ -10,7 +10,8 @@
 ;;              with tons of assistance from
 ;;              Paul Du Bois <pld-lua@gelatinous.com> and
 ;;              Aaron Smith <aaron-lua@gelatinous.com>.
-
+;; URL:		http://lua-mode.luaforge.net/
+;; Version:	20070608
 ;; This file is NOT part of Emacs.
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -28,7 +29,7 @@
 ;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 ;; MA 02110-1301, USA.
 
-(defconst lua-version "20061208"
+(defconst lua-version "20070608"
   "Lua Mode version number.")
 
 ;; Keywords: languages, processes, tools
@@ -213,8 +214,8 @@ traceback location."
      ; try (setq font-lock-support-mode 'lazy-lock-mode) in your ~/.emacs
 
      ;; Multi-line comment blocks.
-     `("^[^-]*--\\[\\(=*\\)\\[\\(.\\|\n\\)*?--\\]\\1\\]"
-       (0 font-lock-comment-face t))
+     `("\\(?:^\\|[^-]\\)\\(--\\[\\(=*\\)\\[\\(?:.\\|\n\\)*?--\\]\\2\\]\\)"
+       (1 font-lock-comment-face t))
 
      ;;
      ;; Keywords.
@@ -614,6 +615,20 @@ Returns the point, or nil if it reached the beginning of the buffer"
       (beginning-of-line)
       (if (not (looking-at "\\s *\\(--.*\\)?$")) (throw 'found (point))))))
 
+;;}}}
+;;{{{ lua-goto-nonblank-next-line
+
+(defun lua-goto-nonblank-next-line ()
+  "Puts the point at the first next line that is not blank.
+Returns the point, or nil if it reached the end of the buffer"
+  (catch 'found
+    (end-of-line)
+    (while t
+      (forward-line)
+      (if (eobp) (throw 'found nil))
+      (beginning-of-line)
+      (if (not (looking-at "\\s *\\(--.*\\)?$")) (throw 'found (point))))))
+
 (eval-when-compile
   (defconst lua-operator-class
     "-+*/^.=<>~"))
@@ -694,21 +709,7 @@ The criteria for a continuing statement are:
 * the last token of the previous line is a continuing op,
   OR the first token of the current line is a continuing op
 
-AND
-
-* the indentation modifier of the preceding line is nonpositive.
-
-The latter is sort of a hack, but it is easier to use this criterion, instead
-of reducing the indentation when a continued statement also starts a new
-block. This is for aesthetic reasons: the indentation should be
-
-dosomething(d +
-   e + f + g)
-
-not
-
-dosomething(d +
-      e + f + g)"
+"
   (let ((prev-line nil))
     (save-excursion
       (if parse-start (goto-char parse-start))
@@ -717,8 +718,7 @@ dosomething(d +
 	   (or (lua-first-token-continues-p)
 	       (and (goto-char prev-line)
 		    ;; check last token of previous nonblank line
-		    (lua-last-token-continues-p)))
-	   (<= (lua-calculate-indentation-block-modifier prev-line) 0)))))
+		    (lua-last-token-continues-p)))))))
 
 ;;}}}
 ;;{{{ lua-make-indentation-info-pair
@@ -740,6 +740,14 @@ use standalone."
 	 (cons 'absolute (+ (save-excursion (goto-char found-pos)
 					    (current-column))
 			    1)))
+	((string-equal found-token "{")
+	 (save-excursion 
+	   ;; expression follows -> indent at start of next expression
+	   (if (and (not (search-forward-regexp "[[:space:]]--" (line-end-position) t))
+		    (search-forward-regexp "[^[:space:]]" (line-end-position) t))
+	       	 (cons 'absolute (1- (current-column)))
+	     	 (cons 'relative lua-indent-level))))
+	;; closing tokens follow
 	((string-equal found-token "end")
 	 (save-excursion
 	   (lua-goto-matching-block-token nil found-pos)
@@ -749,7 +757,8 @@ use standalone."
 			(lua-calculate-indentation-block-modifier
 			 nil (point))))
 	     (cons 'relative (- lua-indent-level)))))
-	((string-equal found-token ")")
+	((or (string-equal found-token ")")
+	     (string-equal found-token "}"))
 	 (save-excursion
 	   (lua-goto-matching-block-token nil found-pos)
 	   (cons 'absolute
@@ -822,7 +831,20 @@ one."
 	(indentation-info (lua-accumulate-indentation-info
 			   (lua-calculate-indentation-info nil parse-end))))
     (if (eq (car indentation-info) 'absolute)
-	(- (cdr indentation-info) (current-indentation))
+	(- (cdr indentation-info)
+	   (current-indentation)
+	   ;; reduce indentation if this line also starts new continued statement 
+	   ;; or next line cont. this line
+	   ;;This is for aesthetic reasons: the indentation should be
+	   ;;dosomething(d +
+	   ;;   e + f + g)
+	   ;;not
+	   ;;dosomething(d +
+	   ;;      e + f + g)"
+	   (save-excursion
+	     (or (and (lua-last-token-continues-p) lua-indent-level)
+		 (and (lua-goto-nonblank-next-line) (lua-first-token-continues-p) lua-indent-level)
+		 0)))
       (+ (lua-calculate-indentation-left-shift)
 	 (cdr indentation-info)
 	 (if (lua-is-continuing-statement-p) (- lua-indent-level) 0)))))

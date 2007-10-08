@@ -26,6 +26,14 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Use elisp package manager (http://tromey.com/elpa/)
+;;----------------------------------------------------------------------------
+(setq load-path (cons (expand-file-name "~/.emacs.d/elpa") load-path))
+(load "package")
+(package-initialize)
+
+
+;;----------------------------------------------------------------------------
 ;; Handier way to add modes to auto-mode-alist
 ;;----------------------------------------------------------------------------
 (defun add-auto-mode (mode &rest patterns)
@@ -135,6 +143,12 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Turn on highline mode globally
+;;----------------------------------------------------------------------------
+(highline-mode-on)
+
+
+;;----------------------------------------------------------------------------
 ;; Don't disable case-change functions
 ;;----------------------------------------------------------------------------
 (put 'upcase-region 'disabled nil)
@@ -163,33 +177,14 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Javascript using ecmascript-mode
+;; Javascript
 ;;----------------------------------------------------------------------------
-(autoload 'ecmascript-mode "ecmascript-mode" "Mode for editing javascript files" t)
-(add-auto-mode 'ecmascript-mode "\\.js$")
-(eval-after-load "mmm-mode"
-  '(progn
-     (mmm-add-group 'ecmascript
-                    '((js-script-cdata
-                       :submode ecmascript-mode
-                       :face mmm-code-submode-face
-                       :front "<script[^>]*>[ \t\n]*<!\\[CDATA\\[[ \t]*\n?"
-                       :back "[ \t]*]]>[ \t\n]*</script>"
-                       :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
-                                    @ "\n" _ "\n" @ "</script>" @)))
-                      (js-script
-                       :submode ecmascript-mode
-                       :face mmm-code-submode-face
-                       :front "<script[^>]*>[ \t]*\n?"
-                       :back "[ \t]*</script>"
-                       :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
-                                    @ "\n" _ "\n" @ "</script>" @)))
-                      (js-inline
-                       :submode ecmascript-mode
-                       :face mmm-code-submode-face
-                       :front "on\w+=\""
-                       :back "\"")))
-     (mmm-add-mode-ext-class 'nxml-mode "\\.r?html$" 'ecmascript)))
+;; ;; Can't get this to work...
+;; (eval-after-load "mmm-mode"
+;;   '(progn
+;;      (load-library "javascript")
+;;      (require 'mmm-sample)
+;;      (mmm-add-mode-ext-class 'nxml-mode nil 'html-js)))
 
 
 ;;----------------------------------------------------------------------------
@@ -535,14 +530,7 @@
 ;; PHP
 ;;----------------------------------------------------------------------------
 (autoload 'php-mode "php-mode" "mode for editing php files" t)
-(add-auto-mode 'php-mode "\\.php[345]?\\'\\|\\.phtml\\." "\\.(inc|tpl)$")
-
-
-;;----------------------------------------------------------------------------
-;; LUA
-;;----------------------------------------------------------------------------
-(setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
-(autoload 'lua-mode "lua-mode" "Lua editing mode." t)
+(add-auto-mode 'php-mode "\\.php[345]?\\'\\|\\.phtml\\." "\\.(inc|tpl)$" "\\.module$")
 
 
 ;;----------------------------------------------------------------------------
@@ -676,7 +664,7 @@
                   crontab-mode-hook
                   perl-mode-hook
                   tcl-mode-hook
-                  ecmascript-mode-hook))
+                  javascript-mode-hook))
     (add-hook hook 'flyspell-prog-mode)))
 
 
