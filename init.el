@@ -238,6 +238,13 @@
 (require 'git)
 (autoload 'git-blame-mode "git-blame" "Minor mode for incremental blame for Git." t)
 
+(eval-after-load "compile"
+  '(add-to-list 'compilation-error-regexp-alist-alist
+                '(git-svn "^\\t[A-Z]\\t(.*)$" 1)))
+(defun git-svn ()
+  (interactive)
+  (compile (concat "git-svn " (ido-completing-read "git-svn command: " (list "rebase" "dcommit" "log") nil t))))
+
 
 ;;----------------------------------------------------------------------------
 ;; Multiple major modes
