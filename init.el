@@ -486,7 +486,7 @@
 
   (when *ecb-support-enabled*
     (require 'ecb)
-    ; Flymake confuses ecb's idea of which buffers are compilation buffers
+    ;; Flymake confuses ecb's idea of which buffers are compilation buffers
     (defun comint-but-not-flymake-p (buf)
       (and (comint-check-proc buf)
            (not (buffer-local-value 'flymake-mode-line buf))))
