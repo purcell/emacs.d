@@ -54,6 +54,7 @@
  '(svn-status-hide-unmodified t)
  '(tooltip-delay 1.5)
  '(tooltip-mode t nil (tooltip))
+ '(transient-mark-mode t)
  '(truncate-lines nil)
  '(uniquify-buffer-name-style nil nil (uniquify))
  '(visible-bell t)
