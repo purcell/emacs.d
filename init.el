@@ -189,8 +189,10 @@
 ;; (eval-after-load "mmm-mode"
 ;;   '(progn
 ;;      (load-library "javascript")
+;;      (load-library "css-mode")
 ;;      (require 'mmm-sample)
-;;      (mmm-add-mode-ext-class 'nxml-mode nil 'html-js)))
+;;      (add-to-list 'mmm-mode-ext-classes-alist '(nxml-mode nil html-js))
+;;      (add-to-list 'mmm-mode-ext-classes-alist '(nxml-mode nil embedded-css))))
 
 
 ;;----------------------------------------------------------------------------
