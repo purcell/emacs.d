@@ -59,6 +59,7 @@
  '(visible-bell t)
  '(whitespace-check-indent-whitespace t)
  '(whitespace-display-in-modeline nil)
+ '(whitespace-display-spaces-in-color nil)
  '(whitespace-errbuf "*Messages*")
  '(whitespace-global-mode t)
  '(whitespace-silent t))
@@ -67,4 +68,9 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(whitespace-highlight ((((class color) (background light)) (:background "lightyellow")))))
+ '(default ((t (:stipple nil :background "white" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 110 :width normal :family "apple-monaco"))))
+ '(darcsum-need-action-marked-face ((t (:foreground "forestgreen"))))
+ '(highline-face ((t (:background "floral white"))))
+ '(mmm-code-submode-face ((t (:background "AliceBlue"))))
+ '(mmm-output-submode-face ((t (:background "DarkSeaGreen1"))))
+ '(whitespace-highlight ((((class color) (background light)) (:background "Pink1")))))
