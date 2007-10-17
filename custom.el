@@ -30,7 +30,6 @@
  '(frame-background-mode nil)
  '(global-font-lock-mode t nil (font-lock))
  '(global-hl-line-mode nil)
- '(global-semantic-idle-scheduler-mode nil nil (semantic-idle))
  '(grep-highlight-matches t)
  '(grep-scroll-output t)
  '(highlight-changes-global-changes-existing-buffers t)
