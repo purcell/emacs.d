@@ -41,7 +41,7 @@
  '(make-backup-files nil)
  '(mouse-yank-at-point t)
  '(quack-fontify-style nil)
- '(recentf-exclude (quote ("/tmp/")))
+ '(recentf-exclude (quote ("/tmp/" "/ssh:")))
  '(recentf-mode t)
  '(ruby-electric-expand-delimiters-list nil)
  '(safe-local-variable-values (quote ((Package . LISP-UNIT))))
