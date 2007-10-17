@@ -1,0 +1,8 @@
+/.emacs.desktop
+/auto-save-list
+/.session
+*.elc
+CVS
+.svn
+*~
+.cvsignore
