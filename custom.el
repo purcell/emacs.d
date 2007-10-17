@@ -12,6 +12,7 @@
  '(compilation-scroll-output t)
  '(current-language-environment "UTF-8")
  '(default-input-method "latin-1-prefix")
+ '(desktop-save t)
  '(ecb-compile-window-height 0.2)
  '(ecb-create-layout-file "~/.emacs.d/.ecb-user-layouts.el")
  '(ecb-grep-find-function (quote rgrep))
