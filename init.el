@@ -216,6 +216,13 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Regex-tool
+;;----------------------------------------------------------------------------
+(autoload 'regex-tool "regex-tool" "Mode for exploring regular expressions" t)
+(setq regex-tool-backend 'perl)
+
+
+;;----------------------------------------------------------------------------
 ;; Subversion
 ;;----------------------------------------------------------------------------
 (require 'psvn)
@@ -389,7 +396,7 @@
 ;;----------------------------------------------------------------------------
 ;; Compilation
 ;;----------------------------------------------------------------------------
-(add-hook 'compilation-mode-hook (lambda () (local-set-key [f7] 'recompile)))
+(add-hook 'compilation-mode-hook (lambda () (local-set-key [f6] 'recompile)))
 
 
 ;;----------------------------------------------------------------------------
@@ -477,14 +484,14 @@
          (fn (and funname (and (string-match "\\(#\\|::\\)\\(test.*\\)" funname) (match-string 2 funname)))))
     (ruby-compile (concat "ruby " (file-name-nondirectory (buffer-file-name)) (and fn (concat " --name " fn))))))
 
-; run the current buffer using Shift-F8
-(add-hook 'ruby-mode-hook (lambda () (local-set-key [S-f8] 'ruby-execute-current-file)))
+; run the current buffer using Shift-F7
+(add-hook 'ruby-mode-hook (lambda () (local-set-key [S-f7] 'ruby-execute-current-file)))
 ; run the current test function using F8 key
-(add-hook 'ruby-mode-hook (lambda () (local-set-key [f8] 'ruby-test-function)))
+(add-hook 'ruby-mode-hook (lambda () (local-set-key [f7] 'ruby-test-function)))
 
-(add-hook 'ruby-mode-hook (lambda () (local-set-key [f7] 'recompile)))
+(add-hook 'ruby-mode-hook (lambda () (local-set-key [f6] 'recompile)))
 (when *rails-support-enabled*
-  (add-hook 'rails-minor-mode-hook (lambda () (local-set-key [f7] 'recompile))))
+  (add-hook 'rails-minor-mode-hook (lambda () (local-set-key [f6] 'recompile))))
 
 
 (autoload 'ri "ri-ruby" "Show ri documentation for Ruby symbols" t)
@@ -629,7 +636,7 @@
 (when *scheme-support-enabled*
   ; See http://bc.tech.coop/scheme/scheme-emacs.htm
   (require 'quack))
-    
+
 
 ;;----------------------------------------------------------------------------
 ;; Haskell
