@@ -7,5 +7,5 @@ fi
 if [ -d emacs-rails-svn ]; then
   mv emacs-rails-svn emacs-rails-svn-orig
 fi
-svn co svn://rubyforge.org/var/svn/emacs-rails/trunk emacs-rails-svn
+svn co http://emacs-rails.rubyforge.org/svn/trunk emacs-rails-svn
 rm -rf emacs-rails-svn-orig
