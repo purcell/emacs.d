@@ -7,7 +7,7 @@
 ;;          Howard Yeh <hayeah at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-lib.el $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-lib.el $
 ;; $Id: rails-lib.el 213 2007-08-24 12:57:59Z crazypit $
 
 ;;; License

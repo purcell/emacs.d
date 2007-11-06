@@ -5,7 +5,7 @@
 ;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-functional-test-minor-mode.el $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-functional-test-minor-mode.el $
 ;; $Id: rails-functional-test-minor-mode.el 166 2007-04-05 17:44:57Z dimaexe $
 
 ;;; License

@@ -6,8 +6,8 @@
 ;;          Rezikov Peter <crazypit13 (at) gmail.com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails.el $
-;; $Id: rails.el 214 2007-09-11 14:37:48Z crazypit $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails.el $
+;; $Id: rails.el 217 2007-11-02 21:58:41Z dimaexe $
 
 ;;; License
 
@@ -44,7 +44,6 @@
 (require 'etags)
 (require 'find-recursive)
 
-(require 'untabify-file)
 (require 'predictive-prog-mode)
 
 (require 'inflections)
@@ -146,8 +145,8 @@ Emacs w3m browser."
   :group 'rails
   :type 'string)
 
-(defvar rails-version "0.5.99.1")
-(defvar rails-templates-list '("erb" "rhtml" "rxml" "rjs" "haml" "liquid" "mab"))
+(defvar rails-version "0.5.99.6")
+(defvar rails-templates-list '("html.erb" "erb" "rhtml" "rxml" "rjs" "haml" "liquid" "mab"))
 (defvar rails-use-another-define-key nil)
 (defvar rails-primary-switch-func nil)
 (defvar rails-secondary-switch-func nil)
@@ -446,6 +445,7 @@ necessary."
 (setq auto-mode-alist  (cons '("\\.rjs$"    . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rxml$"   . ruby-mode) auto-mode-alist))
 (setq auto-mode-alist  (cons '("\\.rhtml$"  . html-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.erb$"    . html-mode) auto-mode-alist))
 
 (modify-coding-system-alist 'file "\\.rb$"     'utf-8)
 (modify-coding-system-alist 'file "\\.rake$"   'utf-8)

@@ -5,8 +5,8 @@
 ;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 211 2007-08-17 17:10:08Z dimaexe $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-ruby.el $
+;; $Id: rails-ruby.el 216 2007-11-02 20:48:22Z dimaexe $
 
 ;;; License
 
@@ -60,7 +60,7 @@ See the variable `align-rules-list' for more details.")
   (when (eq 'code (overlay-get ov 'hs))
     (overlay-put ov 'face 'font-lock-comment-face)
     (overlay-put ov 'display
-                 (format " ··· %d lines"
+                 (format " ... %d lines"
                          (count-lines (overlay-start ov)
                                       (overlay-end ov))))))
 

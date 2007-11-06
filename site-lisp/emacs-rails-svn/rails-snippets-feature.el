@@ -405,25 +405,25 @@
      (case action
        (:index
         (tooltip-show (format "GET /%s" plural))
-        (format "%s_url" plural))
+        (format "%s_path" plural))
        (:show
         (tooltip-show (format "GET /%s/1" plural))
-        (format "%s_url(%s)" singular model))
+        (format "%s_path(%s)" singular model))
        (:new
         (tooltip-show (format "GET /%s/new" plural))
-        (format "new_%s_url" singular))
+        (format "new_%s_path" singular))
        (:edit
         (tooltip-show (format "GET /%s/1;edit" plural))
-        (format "edit_%s_url(%s)" singular model))
+        (format "edit_%s_path(%s)" singular model))
        (:create
         (tooltip-show (format "POST /%s" plural))
-        (format "%s_url" plural))
+        (format "%s_path" plural))
        (:update
         (tooltip-show (format "PUT /%s/1" plural))
-        (format "%s_url(%s)" singular model))
+        (format "%s_path(%s)" singular model))
        (:destroy
         (tooltip-show (format "DELETE /%s/1" plural))
-        (format "%s_url(%s)" singular model))))))
+        (format "%s_path(%s)" singular model))))))
 
 (defun rails-snippets-feature:rest-index ()
   (rails-snippets-feature:rest :index))

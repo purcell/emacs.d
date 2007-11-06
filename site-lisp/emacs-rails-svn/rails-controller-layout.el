@@ -5,7 +5,7 @@
 ;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-controller-layout.el $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-controller-layout.el $
 ;; $Id: rails-controller-layout.el 173 2007-04-09 15:15:02Z dimaexe $
 
 ;;; License

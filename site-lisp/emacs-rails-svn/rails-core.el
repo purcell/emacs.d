@@ -6,8 +6,8 @@
 ;;          Rezikov Peter <crazypit13 (at) gmail.com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-core.el $
-;; $Id: rails-core.el 206 2007-08-14 16:16:58Z dimaexe $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-core.el $
+;; $Id: rails-core.el 219 2007-11-03 22:47:45Z dimaexe $
 
 ;;; License
 
@@ -99,21 +99,37 @@ will not append \".rb\" to result."
 it does not exist, ask to create it using QUESTION as a prompt."
   (find-or-ask-to-create question (rails-core:file file)))
 
+(defun rails-core:strip-namespace (class-name)
+  "Strip namespace of CLASS-NAME, eg Foo::Bar -> Bar."
+  (let ((name-list (split-string class-name "::")))
+    (car (last name-list))))
+
 ;; Funtions, that retrun Rails objects full pathes
 
 (defun rails-core:model-file (model-name)
   "Return the model file from the model name."
   (when model-name
-    (concat "app/models/" (rails-core:file-by-class model-name))))
+    (let* ((stripped-model-file
+            (rails-core:file-by-class
+             (rails-core:strip-namespace model-name)))
+           (model-file
+            (rails-core:file-by-class model-name)))
+      (cond
+       ((file-exists-p
+         (rails-core:file (concat "app/models/" model-file)))
+        (concat "app/models/" model-file))
+       ((file-exists-p
+         (rails-core:file (concat "app/models/" stripped-model-file)))
+        (concat "app/models/" stripped-model-file))
+       (t nil)))))
 
 (defun rails-core:model-exist-p (model-name)
-  "Return t if controller CONTROLLER-NAME exist."
-  (when model-name
-    (and (file-exists-p
-          (rails-core:file
-           (rails-core:model-file model-name)))
-         (not (rails-core:observer-p model-name))
-         (not (rails-core:mailer-p model-name)))))
+  "Return t if model MODEL-NAME exist."
+  (let ((model-file (rails-core:model-file model-name)))
+    (when model-file
+      (and (file-exists-p (rails-core:file model-file))
+           (not (rails-core:observer-p model-name))
+           (not (rails-core:mailer-p model-name))))))
 
 (defun rails-core:controller-file (controller-name)
   "Return the path to the controller CONTROLLER-NAME."
@@ -133,8 +149,23 @@ it does not exist, ask to create it using QUESTION as a prompt."
 
 (defun rails-core:controller-file-by-model (model)
   (when model
-    (let ((controller (pluralize-string model)))
-      (when (rails-core:controller-exist-p controller)
+    (let* ((controller (pluralize-string model))
+           (controller (when controller (capitalize controller))))
+      (setq controller
+            (cond
+             ((rails-core:controller-exist-p controller) controller) ;; pluralized
+             ((rails-core:controller-exist-p model) model) ;; singularized
+             (t (let ((controllers (rails-core:controllers t)))
+                  (cond
+                   ;; with namespace
+                   ((find
+                     (list controller model)
+                     controllers
+                     :test #'(lambda(x y)
+                               (or
+                                (string= (car x) (rails-core:strip-namespace y))
+                                (string= (cadr x) (rails-core:strip-namespace y)))))))))))
+      (when controller
         (rails-core:controller-file controller)))))
 
 (defun rails-core:observer-file (observer-name)
@@ -547,7 +578,6 @@ cannot be determinated."
       (find-file-other-window file)
       (when line-number
         (goto-line line-number)))))
-
 
 ;;;;;;;;;; Rails minor mode logs ;;;;;;;;;;
 

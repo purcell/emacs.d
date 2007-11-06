@@ -5,7 +5,7 @@
 ;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-cmd-proxy.el $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-cmd-proxy.el $
 ;; $Id: rails-cmd-proxy.el 158 2007-04-03 08:45:46Z dimaexe $
 
 ;;; License

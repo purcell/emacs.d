@@ -5,7 +5,7 @@
 ;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-log.el $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-log.el $
 ;; $Id: rails-log.el 114 2007-03-25 18:15:35Z dimaexe $
 
 ;;; License

@@ -51,7 +51,7 @@
 (defun rails-test:line-regexp (&optional append prepend)
   (concat
    append
-    "^\\(?:\s+\\)\\[?\\([^ \f\n\r\t\v]*?\\):\\([0-9]+\\)\\(?::in\s*`\\(.*?\\)'\\)?"
+    "\\[?\\([^ \f\n\r\t\v]*?\\):\\([0-9]+\\)\\(?::in\s*`\\(.*?\\)'\\)?"
    prepend))
 
 (defun rails-test:error-regexp-alist ()
@@ -62,6 +62,7 @@
          (rails-test:line-regexp nil "\\(?:\]:\\|\n$\\)") 1 2 nil 2))) ; ending of "]:" or next line is blank
 
 (defun rails-test:print-result ()
+  "Determine if the output buffer needs to be shown"
   (with-current-buffer (get-buffer rails-script:buffer-name)
     (let ((msg (list))
           (failures 0)
@@ -108,14 +109,30 @@
          rails-test-trace))
   (add-hook 'after-change-functions 'rails-test:print-progress nil t)
   (add-hook 'rails-script:run-after-stop-hook 'rails-test:print-result nil t)
-  (add-hook 'rails-script:show-buffer-hook
-            #'(lambda()
-                (let ((win (get-buffer-window (current-buffer))))
-                  (when (window-live-p win)
-                    (set-window-point win 0)
-                    (unless (buffer-visible-p (current-buffer))
-                      (compilation-set-window-height win)))))
-            t t))
+  (add-hook 'rails-script:run-after-stop-hook 'rails-test:hide-rails-project-root t t)
+  (add-hook 'rails-script:show-buffer-hook 'rails-test:reset-point-and-height t t))
+
+(defun rails-test:hide-rails-project-root ()
+  "Show files that are relative to the project root as relative filenames
+As the buffer is read-only this is merely a change in appearance"
+  (rails-project:with-root (root)
+    (save-excursion
+      (beginning-of-buffer)
+      (let ((file-regex (concat (regexp-quote root) "[^:]+")))
+        (while (re-search-forward file-regex nil t)
+          (let* ((orig-filename (match-string 0))
+                 (rel-filename (file-relative-name orig-filename root)))
+            (overlay-put (make-overlay (match-beginning 0) (match-end 0))
+                         'display rel-filename)))))))
+
+(defun rails-test:reset-point-and-height ()
+  "Resets the point and resizes the window for the output buffer.
+Used when it's determined that the output buffer needs to be shown."
+  (let ((win (get-buffer-window (current-buffer))))
+    (when (window-live-p win)
+      (set-window-point win 0)
+      (unless (buffer-visible-p (current-buffer))
+        (compilation-set-window-height win)))))
 
 (defun rails-test:list-of-tasks ()
   "Return a list contains test tasks."
@@ -142,7 +159,10 @@
 
 (defun rails-test:run-single-file (file &optional param)
   "Run test for single file FILE."
-  (let ((param (if param (append (list file) (list param))
+  (when (not (or file param))
+    "Refuse to run ruby without an argument: it would never return")
+  (let ((param (if param
+                   (list file param)
                  (list file))))
     (rails-script:run "ruby" param 'rails-test:compilation-mode)))
 
@@ -161,9 +181,13 @@
       ;; controller
       ((and controller (not (rails-core:mailer-p controller)) func-test)
        func-test)
-     ;; mailer
-     ((and controller (rails-core:mailer-p controller) unit-test)
-      unit-test)))))
+      ;; mailer
+      ((and controller (rails-core:mailer-p controller) unit-test)
+       unit-test)
+      ;; otherwise...
+      (t (if (string-match "test.*\\.rb" (buffer-file-name))
+             (buffer-file-name)
+           (error "Cannot determine whiche test file to run.")))))))
 
 (defun rails-test:run-current-method ()
   "Run a test for the current method."

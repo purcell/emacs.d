@@ -5,7 +5,7 @@
 ;; Authors: Dmitry Galinsky <dima dot exe at gmail dot com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-model-minor-mode.el $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-model-minor-mode.el $
 ;; $Id: rails-model-minor-mode.el 158 2007-04-03 08:45:46Z dimaexe $
 
 ;;; License

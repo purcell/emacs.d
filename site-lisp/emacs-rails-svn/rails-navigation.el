@@ -6,7 +6,7 @@
 ;;          Rezikov Peter <crazypit13 (at) gmail.com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-navigation.el $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-navigation.el $
 ;; $Id: rails-navigation.el 203 2007-08-04 20:31:07Z dimaexe $
 
 ;;; License

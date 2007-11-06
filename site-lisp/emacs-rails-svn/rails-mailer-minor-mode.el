@@ -6,7 +6,7 @@
 ;;          Rezikov Peter <crazypit13 (at) gmail.com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-mailer-minor-mode.el $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-mailer-minor-mode.el $
 ;; $Id: rails-mailer-minor-mode.el 158 2007-04-03 08:45:46Z dimaexe $
 
 ;;; License

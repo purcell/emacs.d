@@ -6,7 +6,7 @@
 ;;          Rezikov Peter <crazypit13 (at) gmail.com>
 
 ;; Keywords: ruby rails languages oop
-;; $URL: svn://rubyforge.org/var/svn/emacs-rails/trunk/rails-ui.el $
+;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-ui.el $
 ;; $Id: rails-ui.el 213 2007-08-24 12:57:59Z crazypit $
 
 ;;; License
