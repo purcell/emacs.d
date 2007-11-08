@@ -97,21 +97,6 @@ if there is already one that displays the same directory."
   :group 'git
   :type 'string)
 
-(defcustom git-show-uptodate nil
-  "Whether to display up-to-date files."
-  :group 'git
-  :type 'boolean)
-
-(defcustom git-show-ignored nil
-  "Whether to display ignored files."
-  :group 'git
-  :type 'boolean)
-
-(defcustom git-show-unknown t
-  "Whether to display unknown files."
-  :group 'git
-  :type 'boolean)
-
 
 (defface git-status-face
   '((((class color) (background light)) (:foreground "purple"))
@@ -494,27 +479,6 @@ and returns the process output as a string."
       (setf (git-fileinfo->orig-name info) nil)
       (setf (git-fileinfo->needs-refresh info) t))))
 
-(defun git-set-filenames-state (status files state)
-  "Set the state of a list of named files."
-  (when files
-    (setq files (sort files #'string-lessp))
-    (let ((file (pop files))
-          (node (ewoc-nth status 0)))
-      (while (and file node)
-        (let ((info (ewoc-data node)))
-          (cond ((string-lessp (git-fileinfo->name info) file)
-                 (setq node (ewoc-next status node)))
-                ((string-equal (git-fileinfo->name info) file)
-                 (unless (eq (git-fileinfo->state info) state)
-                   (setf (git-fileinfo->state info) state)
-                   (setf (git-fileinfo->rename-state info) nil)
-                   (setf (git-fileinfo->orig-name info) nil)
-                   (setf (git-fileinfo->needs-refresh info) t))
-                 (setq file (pop files)))
-                (t (setq file (pop files)))))))
-    (unless state  ;; delete files whose state has been set to nil
-      (ewoc-filter status (lambda (info) (git-fileinfo->state info))))))
-
 (defun git-state-code (code)
   "Convert from a string to a added/deleted/modified state."
   (case (string-to-char code)
@@ -568,36 +532,19 @@ and returns the process output as a string."
                   "  " (git-escape-file-name (git-fileinfo->name info))
                   (git-rename-as-string info))))
 
-(defun git-insert-info-list (status infolist)
-  "Insert a list of file infos in the status buffer, replacing existing ones if any."
-  (setq infolist (sort infolist
-                       (lambda (info1 info2)
-                         (string-lessp (git-fileinfo->name info1)
-                                       (git-fileinfo->name info2)))))
-  (let ((info (pop infolist))
-        (node (ewoc-nth status 0)))
-    (while info
-      (setf (git-fileinfo->needs-refresh info) t)
-      (cond ((not node)
-             (ewoc-enter-last status info)
-             (setq info (pop infolist)))
-            ((string-lessp (git-fileinfo->name (ewoc-data node))
-                           (git-fileinfo->name info))
-             (setq node (ewoc-next status node)))
-            ((string-equal (git-fileinfo->name (ewoc-data node))
-                           (git-fileinfo->name info))
-              ;; preserve the marked flag
-              (setf (git-fileinfo->marked info) (git-fileinfo->marked (ewoc-data node)))
-              (setf (ewoc-data node) info)
-              (setq info (pop infolist)))
-            (t
-             (ewoc-enter-before status node info)
-             (setq info (pop infolist)))))))
+(defun git-insert-fileinfo (status info &optional refresh)
+  "Insert INFO in the status buffer, optionally refreshing an existing one."
+  (let ((node (and refresh
+                   (git-find-status-file status (git-fileinfo->name info)))))
+    (setf (git-fileinfo->needs-refresh info) t)
+    (when node   ;preserve the marked flag
+      (setf (git-fileinfo->marked info) (git-fileinfo->marked (ewoc-data node))))
+    (if node (setf (ewoc-data node) info) (ewoc-enter-last status info))))
 
 (defun git-run-diff-index (status files)
   "Run git-diff-index on FILES and parse the results into STATUS.
 Return the list of files that haven't been handled."
-  (let (infolist)
+  (let ((refresh files))
     (with-temp-buffer
       (apply #'git-run-command t nil "diff-index" "-z" "-M" "HEAD" "--" files)
       (goto-char (point-min))
@@ -611,14 +558,13 @@ Return the list of files that haven't been handled."
               (new-name (match-string 8)))
           (if new-name  ; copy or rename
               (if (eq ?C (string-to-char state))
-                  (push (git-create-fileinfo 'added new-name old-perm new-perm 'copy name) infolist)
-                (push (git-create-fileinfo 'deleted name 0 0 'rename new-name) infolist)
-                (push (git-create-fileinfo 'added new-name old-perm new-perm 'rename name) infolist))
-            (push (git-create-fileinfo (git-state-code state) name old-perm new-perm) infolist))
+                  (git-insert-fileinfo status (git-create-fileinfo 'added new-name old-perm new-perm 'copy name) refresh)
+                (git-insert-fileinfo status (git-create-fileinfo 'deleted name 0 0 'rename new-name) refresh)
+                (git-insert-fileinfo status (git-create-fileinfo 'added new-name old-perm new-perm 'rename name)) refresh)
+            (git-insert-fileinfo status (git-create-fileinfo (git-state-code state) name old-perm new-perm) refresh))
           (setq files (delete name files))
-          (when new-name (setq files (delete new-name files))))))
-    (git-insert-info-list status infolist)
-    files))
+          (when new-name (setq files (delete new-name files)))))))
+  files)
 
 (defun git-find-status-file (status file)
   "Find a given file in the status ewoc and return its node."
@@ -630,16 +576,16 @@ Return the list of files that haven't been handled."
 (defun git-run-ls-files (status files default-state &rest options)
   "Run git-ls-files on FILES and parse the results into STATUS.
 Return the list of files that haven't been handled."
-  (let (infolist)
+  (let ((refresh files))
     (with-temp-buffer
-      (apply #'git-run-command t nil "ls-files" "-z" (append options (list "--") files))
+      (apply #'git-run-command t nil "ls-files" "-z" "-t" (append options (list "--") files))
       (goto-char (point-min))
-      (while (re-search-forward "\\([^\0]*\\)\0" nil t 1)
-        (let ((name (match-string 1)))
-          (push (git-create-fileinfo default-state name) infolist)
-          (setq files (delete name files)))))
-    (git-insert-info-list status infolist)
-    files))
+      (while (re-search-forward "\\([HMRCK?]\\) \\([^\0]*\\)\0" nil t 1)
+        (let ((state (match-string 1))
+              (name (match-string 2)))
+          (git-insert-fileinfo status (git-create-fileinfo (or (git-state-code state) default-state) name) refresh)
+          (setq files (delete name files))))))
+  files)
 
 (defun git-run-ls-unmerged (status files)
   "Run git-ls-files -u on FILES and parse the results into STATUS."
@@ -648,8 +594,9 @@ Return the list of files that haven't been handled."
     (goto-char (point-min))
     (let (unmerged-files)
       (while (re-search-forward "[0-7]\\{6\\} [0-9a-f]\\{40\\} [123]\t\\([^\0]+\\)\0" nil t)
-        (push (match-string 1) unmerged-files))
-      (git-set-filenames-state status unmerged-files 'unmerged))))
+        (let ((node (git-find-status-file status (match-string 1))))
+          (when node (push (ewoc-data node) unmerged-files))))
+      (git-set-files-state unmerged-files 'unmerged))))
 
 (defun git-get-exclude-files ()
   "Get the list of exclude files to pass to git-ls-files."
@@ -661,30 +608,34 @@ Return the list of files that haven't been handled."
       (push config files))
     files))
 
-(defun git-run-ls-files-with-excludes (status files default-state &rest options)
-  "Run git-ls-files on FILES with appropriate --exclude-from options."
-  (let ((exclude-files (git-get-exclude-files)))
-    (apply #'git-run-ls-files status files default-state
-           (concat "--exclude-per-directory=" git-per-dir-ignore-file)
-           (append options (mapcar (lambda (f) (concat "--exclude-from=" f)) exclude-files)))))
-
 (defun git-update-status-files (files &optional default-state)
   "Update the status of FILES from the index."
   (unless git-status (error "Not in git-status buffer."))
-  (unless files
-    (when git-show-uptodate (git-run-ls-files git-status nil 'uptodate "-c")))
-  (let* ((remaining-files
+  (let* ((status git-status)
+         (remaining-files
           (if (git-empty-db-p) ; we need some special handling for an empty db
-              (git-run-ls-files git-status files 'added "-c")
-            (git-run-diff-index git-status files))))
-    (git-run-ls-unmerged git-status files)
-    (when (or remaining-files (and git-show-unknown (not files)))
-      (setq remaining-files (git-run-ls-files-with-excludes git-status remaining-files 'unknown "-o")))
-    (when (or remaining-files (and git-show-ignored (not files)))
-      (setq remaining-files (git-run-ls-files-with-excludes git-status remaining-files 'ignored "-o" "-i")))
-    (git-set-filenames-state git-status remaining-files default-state)
+              (git-run-ls-files status files 'added "-c")
+            (git-run-diff-index status files))))
+    (git-run-ls-unmerged status files)
+    (when (or (not files) remaining-files)
+      (let ((exclude-files (git-get-exclude-files)))
+        (setq remaining-files (apply #'git-run-ls-files status remaining-files 'unknown "-o"
+                                     (concat "--exclude-per-directory=" git-per-dir-ignore-file)
+                                     (mapcar (lambda (f) (concat "--exclude-from=" f)) exclude-files)))))
+    ; mark remaining files with the default state (or remove them if nil)
+    (when remaining-files
+      (if default-state
+          (ewoc-map (lambda (info)
+                      (when (member (git-fileinfo->name info) remaining-files)
+                        (git-set-files-state (list info) default-state))
+                      nil)
+                    status)
+        (ewoc-filter status
+                     (lambda (info files)
+                       (not (member (git-fileinfo->name info) files)))
+                     remaining-files)))
     (git-refresh-files)
-    (git-refresh-ewoc-hf git-status)))
+    (git-refresh-ewoc-hf status)))
 
 (defun git-marked-files ()
   "Return a list of all marked files, or if none a list containing just the file at cursor position."
@@ -902,7 +853,7 @@ Return the list of files that haven't been handled."
 (defun git-add-file ()
   "Add marked file(s) to the index cache."
   (interactive)
-  (let ((files (git-get-filenames (git-marked-files-state 'unknown 'ignored))))
+  (let ((files (git-get-filenames (git-marked-files-state 'unknown))))
     (unless files
       (push (file-relative-name (read-file-name "File to add: " nil nil t)) files))
     (apply #'git-run-command nil nil "update-index" "--add" "--" files)
@@ -920,7 +871,7 @@ Return the list of files that haven't been handled."
 (defun git-remove-file ()
   "Remove the marked file(s)."
   (interactive)
-  (let ((files (git-get-filenames (git-marked-files-state 'added 'modified 'unknown 'uptodate 'ignored))))
+  (let ((files (git-get-filenames (git-marked-files-state 'added 'modified 'unknown 'uptodate))))
     (unless files
       (push (file-relative-name (read-file-name "File to remove: " nil nil t)) files))
     (if (yes-or-no-p
@@ -965,40 +916,10 @@ Return the list of files that haven't been handled."
   (interactive)
   (ewoc-filter git-status
                (lambda (info)
-                 (case (git-fileinfo->state info)
-                   ('ignored git-show-ignored)
-                   ('uptodate git-show-uptodate)
-                   ('unknown git-show-unknown)
-                   (t t))))
+                 (not (or (eq (git-fileinfo->state info) 'ignored)
+                          (eq (git-fileinfo->state info) 'uptodate)))))
   (unless (ewoc-nth git-status 0)  ; refresh header if list is empty
     (git-refresh-ewoc-hf git-status)))
-
-(defun git-toggle-show-uptodate ()
-  "Toogle the option for showing up-to-date files."
-  (interactive)
-  (if (setq git-show-uptodate (not git-show-uptodate))
-      (git-refresh-status)
-    (git-remove-handled)))
-
-(defun git-toggle-show-ignored ()
-  "Toogle the option for showing ignored files."
-  (interactive)
-  (if (setq git-show-ignored (not git-show-ignored))
-      (progn
-        (git-run-ls-files-with-excludes git-status nil 'ignored "-o" "-i")
-        (git-refresh-files)
-        (git-refresh-ewoc-hf git-status))
-    (git-remove-handled)))
-
-(defun git-toggle-show-unknown ()
-  "Toogle the option for showing unknown files."
-  (interactive)
-  (if (setq git-show-unknown (not git-show-unknown))
-      (progn
-        (git-run-ls-files-with-excludes git-status nil 'unknown "-o")
-        (git-refresh-files)
-        (git-refresh-ewoc-hf git-status))
-    (git-remove-handled)))
 
 (defun git-setup-diff-buffer (buffer)
   "Setup a buffer for displaying a diff."
@@ -1225,8 +1146,7 @@ Return the list of files that haven't been handled."
 
 (unless git-status-mode-map
   (let ((map (make-keymap))
-        (diff-map (make-sparse-keymap))
-        (toggle-map (make-sparse-keymap)))
+        (diff-map (make-sparse-keymap)))
     (suppress-keymap map)
     (define-key map "?"   'git-help)
     (define-key map "h"   'git-help)
@@ -1250,7 +1170,6 @@ Return the list of files that haven't been handled."
     (define-key map "q"   'git-status-quit)
     (define-key map "r"   'git-remove-file)
     (define-key map "R"   'git-resolve-file)
-    (define-key map "t"    toggle-map)
     (define-key map "T"   'git-toggle-all-marks)
     (define-key map "u"   'git-unmark-file)
     (define-key map "U"   'git-revert-file)
@@ -1267,11 +1186,6 @@ Return the list of files that haven't been handled."
     (define-key diff-map "h" 'git-diff-file-merge-head)
     (define-key diff-map "m" 'git-diff-file-mine)
     (define-key diff-map "o" 'git-diff-file-other)
-    ; the toggle submap
-    (define-key toggle-map "u" 'git-toggle-show-uptodate)
-    (define-key toggle-map "i" 'git-toggle-show-ignored)
-    (define-key toggle-map "k" 'git-toggle-show-unknown)
-    (define-key toggle-map "m" 'git-toggle-all-marks)
     (setq git-status-mode-map map)))
 
 ;; git mode should only run in the *git status* buffer
@@ -1293,9 +1207,6 @@ Commands:
   (let ((status (ewoc-create 'git-fileinfo-prettyprint "" "")))
     (set (make-local-variable 'git-status) status))
   (set (make-local-variable 'list-buffers-directory) default-directory)
-  (make-local-variable 'git-show-uptodate)
-  (make-local-variable 'git-show-ignored)
-  (make-local-variable 'git-show-unknown)
   (run-hooks 'git-status-mode-hook)))
 
 (defun git-find-status-buffer (dir)
