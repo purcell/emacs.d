@@ -2,11 +2,11 @@
 ;;;  ruby-mode.el -
 ;;;
 ;;;  $Author: matz $
-;;;  $Date: 2006/09/13 09:29:41 $
+;;;  $Date: 2007-11-12 05:54:00 +0100 (Mon, 12 Nov 2007) $
 ;;;  created at: Fri Feb  4 14:49:13 JST 1994
 ;;;
 
-(defconst ruby-mode-revision "$Revision: 1.96 $")
+(defconst ruby-mode-revision "$Revision: 13892 $")
 
 (defconst ruby-mode-version
   (progn
@@ -45,7 +45,7 @@
   (concat ruby-modifier-beg-re "\\|" ruby-block-op-re)
   )
 
-(defconst ruby-block-end-re "\\<end\\>\\|;;")
+(defconst ruby-block-end-re "\\<end\\>")
 
 (defconst ruby-here-doc-beg-re
   "<<\\(-\\)?\\(\\([a-zA-Z0-9_]+\\)\\|[\"]\\([^\"]+\\)[\"]\\|[']\\([^']+\\)[']\\)")
@@ -383,6 +383,8 @@ The variable ruby-indent-level controls the amount of indentation.
 	 (t
 	  (setq in-string (point))
 	  (goto-char end))))
+       ((looking-at "/=") 
+	(goto-char pnt))
        ((looking-at "/")
 	(cond
 	 ((and (not (eobp)) (ruby-expr-beg 'expr-re))
@@ -504,8 +506,9 @@ The variable ruby-indent-level controls the amount of indentation.
 	 (setq nest (cons (cons nil pnt) nest))
 	 (setq depth (1+ depth)))
 	(goto-char pnt))
-       ((looking-at ":\\(['\"]\\)\\(\\\\.\\|[^\\\\]\\)*\\1")
-	(goto-char (match-end 0)))
+       ((looking-at ":\\(['\"]\\)")
+	(goto-char (match-beginning 1))
+	(ruby-forward-string (buffer-substring (match-beginning 1) (match-end 1)) end))
        ((looking-at ":\\([-,.+*/%&|^~<>]=?\\|===?\\|<=>\\)")
 	(goto-char (match-end 0)))
        ((looking-at ":\\([a-zA-Z_][a-zA-Z_0-9]*[!?=]?\\)?")
@@ -725,15 +728,19 @@ The variable ruby-indent-level controls the amount of indentation.
 		    (not (looking-at (concat "\\<\\(" ruby-block-hanging-re "\\)\\>")))
 		    (eq (ruby-deep-indent-paren-p t) 'space)
 		    (not (bobp)))
-		   (save-excursion
-		     (widen)
-		     (goto-char (or begin parse-start))
-		     (skip-syntax-forward " ")
-		     (current-column)))
+		   (widen)
+		   (goto-char (or begin parse-start))
+		   (skip-syntax-forward " ")
+		   (current-column))
 		  ((car (nth 1 state)) indent)
 		  (t
 		   (+ indent ruby-indent-level))))))))
-      indent)))
+      (goto-char indent-point)
+      (beginning-of-line)
+      (skip-syntax-forward " ")
+      (if (looking-at "\\.[^.]")
+	  (+ indent ruby-indent-level)
+	indent))))
 
 (defun ruby-electric-brace (arg)
   (interactive "P")
@@ -1011,7 +1018,7 @@ balanced expression is found."
 	  ;; ?' ?" ?` are ascii codes
 	  ("\\(^\\|[^\\\\]\\)\\(\\\\\\\\\\)*[?$]\\([#\"'`]\\)" 3 (1 . nil))
 	  ;; regexps
-	  ("\\(^\\|[=(,~?:;]\\|\\(^\\|\\s \\)\\(if\\|elsif\\|unless\\|while\\|until\\|when\\|and\\|or\\|&&\\|||\\)\\|g?sub!?\\|scan\\|split!?\\)\\s *\\(/\\)[^/\n\\\\]*\\(\\\\.[^/\n\\\\]*\\)*\\(/\\)"
+	  ("\\(^\\|[=(,~?:;<>]\\|\\(^\\|\\s \\)\\(if\\|elsif\\|unless\\|while\\|until\\|when\\|and\\|or\\|&&\\|||\\)\\|g?sub!?\\|scan\\|split!?\\)\\s *\\(/\\)[^/\n\\\\]*\\(\\\\.[^/\n\\\\]*\\)*\\(/\\)"
 	   (4 (7 . ?/))
 	   (6 (7 . ?/)))
 	  ("^\\(=\\)begin\\(\\s \\|$\\)" 1 (7 . nil))
