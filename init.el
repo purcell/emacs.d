@@ -138,6 +138,9 @@
 ;; VI emulation and related key mappings
 ;;----------------------------------------------------------------------------
 (when *vi-emulation-support-enabled*
+  ;; C-z is usually 'iconify-or-deiconify-frame, but viper uses it to toggle
+  ;; vi/emacs input modes, causing confusion in non-viper buffers
+  (global-unset-key "\C-z")
   (setq viper-mode t)
   (require 'viper)
   (define-key viper-insert-global-user-map "\C-n" 'hippie-expand)
