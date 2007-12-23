@@ -437,6 +437,7 @@
 ;; Ruby
 ;;----------------------------------------------------------------------------
 (autoload 'ruby-electric-mode "ruby-electric" "Electric brackes/quotes/keywords for Ruby source" t)
+(require 'rcodetools)
 (setq ruby-electric-expand-delimiters-list nil)  ; Only use ruby-electric for adding 'end'
 (add-hook 'ruby-mode-hook
           (lambda () (ruby-electric-mode t)))
