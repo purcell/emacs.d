@@ -1,3 +1,6 @@
+2007-12-23  Michael Klishin <michael.klishin@railsware.com>
+        * rails-spec.el (rails-spec:run-this-spec): Run spec where the point is
+        
 2007-11-04  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails-core.el (rails-core:model-exist-p): fixed error, when model-file not exists.

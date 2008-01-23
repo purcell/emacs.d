@@ -61,4 +61,13 @@
   (interactive)
   (rails-spec:run-files rails-spec:last-files))
 
+(defun rails-spec:run-this-spec ()
+  "Run spec where the point is"
+  (interactive)
+  (let ((default-process-coding-system '(utf-8 . utf-8)))
+    (rails-project:compile-in-root
+     (concat rails-spec:runner " "
+             rails-spec:runner-options (concat " --line " (substring (what-line) 5) " ")
+             (buffer-file-name (current-buffer))))))
+
 (provide 'rails-spec)
