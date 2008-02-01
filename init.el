@@ -364,17 +364,22 @@
                       :width  'normal
                       :height (* 10 size)))
 
-(lexical-let ((font-name "monaco") (font-size 11) (frame-height 57))
+(lexical-let ((font-name "monaco") (font-size 11) (frame-height 57) (frame-width 202) (frame-left 3) (frame-top 22))
   ;;         ((font-name "monaco") (font-size 12) (frame-height 53))
   ;;         ((font-name "bitstream vera sans mono") (font-size 120) (frame-height 58))  ; untested
   (defun steve-set-default-font-size ()
     (steve-set-default-font font-name font-size))
 
+  (defun maximize-selected-frame ()
+    (interactive)
+    (set-frame-position (selected-frame) frame-left frame-top)
+    (set-frame-size (selected-frame) frame-width frame-height))
+
   (when *macbook-pro-support-enabled*
     (steve-set-default-font-size)
     ;; Default frame size (perfect for Macbook Pro when scrollbar, dock and toolbar hidden...)
-    (setq initial-frame-alist `((width  . 202) (height . ,frame-height) (top . 0) (left . 3) (tool-bar-lines . 0)))
-    (setq default-frame-alist `((width  . 202) (height . ,frame-height) (top . 22) (left . 3) (tool-bar-lines . 0)))))
+    (setq initial-frame-alist `((width  . ,frame-width) (height . ,frame-height) (top . 0) (left . ,frame-top) (tool-bar-lines . 0)))
+    (setq default-frame-alist `((width  . ,frame-width) (height . ,frame-height) (top . ,frame-top) (left . ,frame-top) (tool-bar-lines . 0)))))
 
 (tool-bar-mode nil)
 (scroll-bar-mode nil)
