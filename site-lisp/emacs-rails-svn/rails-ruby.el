@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-ruby.el $
-;; $Id: rails-ruby.el 216 2007-11-02 20:48:22Z dimaexe $
+;; $Id: rails-ruby.el 221 2008-02-06 23:44:57Z dimaexe $
 
 ;;; License
 
@@ -173,11 +173,11 @@ See the variable `align-rules-list' for more details.")
 
 (require 'inf-ruby)
 
-(defun run-ruby-in-buffer (cmd buf)
+(defun run-ruby-in-buffer (buf script &optional params)
   "Run CMD as a ruby process in BUF if BUF does not exist."
   (let ((abuf (concat "*" buf "*")))
     (when (not (comint-check-proc abuf))
-      (set-buffer (make-comint buf rails-ruby-command nil cmd)))
+      (set-buffer (make-comint buf rails-ruby-command nil script params)))
     (inferior-ruby-mode)
     (make-local-variable 'inferior-ruby-first-prompt-pattern)
     (make-local-variable 'inferior-ruby-prompt-pattern)

@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails.el $
-;; $Id: rails.el 217 2007-11-02 21:58:41Z dimaexe $
+;; $Id: rails.el 221 2008-02-06 23:44:57Z dimaexe $
 
 ;;; License
 
@@ -292,25 +292,25 @@ it in case it's still empty for the project."
   (rails-project:with-root
    (root)
    (unless (or (file-exists-p (rails-core:file "doc/api/index.html"))
-         (not (yes-or-no-p (concat "This project has no API documentation. "
-           "Would you like to configure it now? "))))
+               (not (yes-or-no-p (concat "This project has no API documentation. "
+                                         "Would you like to configure it now? "))))
      (let (clobber-gems)
        (message "This may take a while. Please wait...")
        (unless (file-exists-p (rails-core:file "vendor/rails"))
-   (setq clobber-gems t)
-   (message "Freezing gems...")
-   (shell-command-to-string "rake rails:freeze:gems"))
+         (setq clobber-gems t)
+         (message "Freezing gems...")
+         (shell-command-to-string "rake rails:freeze:gems"))
        ;; Hack to allow generation of the documentation for Rails 1.0 and 1.1
        ;; See http://dev.rubyonrails.org/ticket/4459
        (unless (file-exists-p (rails-core:file "vendor/rails/activesupport/README"))
-   (write-string-to-file (rails-core:file "vendor/rails/activesupport/README")
-             "Placeholder"))
+         (write-string-to-file (rails-core:file "vendor/rails/activesupport/README")
+                               "Placeholder"))
        (message "Generating documentation...")
        (shell-command-to-string "rake doc:rails")
        (if clobber-gems
-     (progn
-       (message "Unfreezing gems...")
-       (shell-command-to-string "rake rails:unfreeze")))
+           (progn
+             (message "Unfreezing gems...")
+             (shell-command-to-string "rake rails:unfreeze")))
        (message "Done...")))
    (if (file-exists-p (rails-core:file "doc/api/index.html"))
        (setq rails-api-root (rails-core:file "doc/api")))))

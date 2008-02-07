@@ -51,7 +51,7 @@
 (defun rails-test:line-regexp (&optional append prepend)
   (concat
    append
-    "\\[?\\([^ \f\n\r\t\v]*?\\):\\([0-9]+\\)\\(?::in\s*`\\(.*?\\)'\\)?"
+    "\\[?\\([^ \f\n\r\t\v]+?\\):\\([0-9]+\\)\\(?::in\s*`\\(.*?\\)'\\)?"
    prepend))
 
 (defun rails-test:error-regexp-alist ()

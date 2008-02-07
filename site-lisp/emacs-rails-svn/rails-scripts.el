@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-scripts.el $
-;; $Id: rails-scripts.el 212 2007-08-18 17:59:51Z dimaexe $
+;; $Id: rails-scripts.el 221 2008-02-06 23:44:57Z dimaexe $
 
 ;;; License
 
@@ -300,21 +300,25 @@ BUFFER-MAJOR-MODE and process-sentinel SENTINEL."
 
 ;;;;;;;;;; Shells ;;;;;;;;;;
 
-(defun rails-script:run-interactive (name script)
+(defun rails-script:run-interactive (name script &optional params)
   "Run an interactive shell with SCRIPT in a buffer named
 *rails-<project-name>-<name>*."
   (rails-project:with-root
    (root)
-   (let ((buffer-name (format "rails-%s-%s" (rails-project:name) name)))
-     (run-ruby-in-buffer (rails-core:file script)
-                         buffer-name)
+   (let ((buffer-name (format "rails-%s-%s" (rails-project:name) name))
+         (script (rails-core:file script)))
+     (run-ruby-in-buffer buffer-name
+                         script
+                         params)
      (setq ruby-buffer buffer-name))
    (rails-minor-mode t)))
 
 (defun rails-script:console ()
   "Run script/console."
   (interactive)
-  (rails-script:run-interactive "console" "script/console"))
+  (rails-script:run-interactive (format "console at (%s)" rails-default-environment)
+                                "script/console"
+                                 rails-default-environment))
 
 (defun rails-script:breakpointer ()
   "Run script/breakpointer."

@@ -1,4 +1,13 @@
+2008-02-07  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-test.el (rails-test:line-regexp): apply patch [#16714]
+	from RÃ©mi Vanicat, can match empty filename
+
+	* rails-scripts.el (rails-script:console): passed default
+	environment to script/console
+
 2007-12-23  Michael Klishin <michael.klishin@railsware.com>
+
         * rails-spec.el (rails-spec:run-this-spec): Run spec where the point is
         
 2007-11-04  Dmitry Galinsky  <dima.exe@gmail.com>
@@ -136,7 +145,7 @@
 
 2007-04-13  Dmitry Galinsky  <dima.exe@gmail.com>
 
-	* rails-ruby.el (flymake-ruby-init): apply patch #10056, thanks Rémi Vanicat
+	* rails-ruby.el (flymake-ruby-init): apply patch #10056, thanks Râ”‚Ğ˜mi Vanicat
 	* rails-core.el (rails-core:class-by-file): handle first digit[s] in filename
 	* rails-lib.el (capital-word-p): return nil if first char is not 
 	* inflections.el: rollback to using separate variables instead of structure

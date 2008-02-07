@@ -1,3 +1,6 @@
+SVN
+* Fixed [#16742]: pass rails environment to script/console
+
 0.5.99.6
 * Removed file 'untabify-file.el' from package emacs-rails
 * Updated highlight of compilation output
