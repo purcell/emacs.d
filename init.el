@@ -603,11 +603,7 @@
   (eval-after-load "slime"
     '(progn
        (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
-       (require 'slime-fancy)
-       (require 'slime-banner)
-       (require 'slime-asdf)
-       (slime-banner-init)
-       (slime-asdf-init)
+       (slime-setup '(slime-fancy slime-banner slime-asdf))
        (setq slime-complete-symbol*-fancy t)
        (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
        (add-hook 'slime-mode-hook 'pretty-lambdas)
