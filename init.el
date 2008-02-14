@@ -558,6 +558,13 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Shell mode
+;;----------------------------------------------------------------------------
+(autoload 'flymake-shell-load "flymake-shell" "On-the-fly syntax checking of shell scripts" t)
+(add-hook 'sh-mode-hook 'flymake-shell-load)
+
+
+;;----------------------------------------------------------------------------
 ;; PHP
 ;;----------------------------------------------------------------------------
 (autoload 'php-mode "php-mode" "mode for editing php files" t)
