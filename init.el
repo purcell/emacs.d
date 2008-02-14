@@ -199,6 +199,8 @@
 ;;      (require 'mmm-sample)
 ;;      (add-to-list 'mmm-mode-ext-classes-alist '(nxml-mode nil html-js))
 ;;      (add-to-list 'mmm-mode-ext-classes-alist '(nxml-mode nil embedded-css))))
+(autoload 'flymake-js-load "flymake-js" "On-the-fly syntax checking of javascript" t)
+(add-hook 'javascript-mode-hook '(lambda () (flymake-js-load)))
 
 
 ;;----------------------------------------------------------------------------
