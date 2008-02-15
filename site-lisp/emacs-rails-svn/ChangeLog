@@ -1,3 +1,13 @@
+2008-02-11  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-snippets-feature.el (rails-snippets-feature:fixture)
+	(rails-snippets-feature:model-name, rails-snippets-feature:rest):
+	replaced `downcase' to `decamelize'.
+
+	* rails-core.el (rails-core:file-by-class): replaced `downcase' to `decamelize'.
+
+	* rails-lib.el (decamelize): created function.
+
 2008-02-07  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails-test.el (rails-test:line-regexp): apply patch [#16714]

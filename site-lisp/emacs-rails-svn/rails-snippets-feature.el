@@ -386,21 +386,21 @@
   (let ((controller (rails-core:current-controller))
         (model (rails-core:current-model)))
     (cond
-     (controller (downcase controller))
-     (model (pluralize-string (downcase model)))
+     (controller (decamelize controller))
+     (model (pluralize-string (decamelize model)))
      (t "fixture"))))
 
 (defun rails-snippets-feature:model-name ()
   (let ((controller (rails-core:current-controller)))
     (if controller
-        (singularize-string (downcase controller))
+        (singularize-string (decamelize controller))
       "model")))
 
 (defun rails-snippets-feature:rest (action)
   (when-bind
    (controller (rails-core:current-controller))
-   (let* ((plural (downcase (pluralize-string controller)))
-          (singular (downcase (singularize-string controller)))
+   (let* ((plural (decamelize (pluralize-string controller)))
+          (singular (decamelize (singularize-string controller)))
           (model (concat "@" singular)))
      (case action
        (:index

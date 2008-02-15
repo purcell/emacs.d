@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-core.el $
-;; $Id: rails-core.el 219 2007-11-03 22:47:45Z dimaexe $
+;; $Id: rails-core.el 223 2008-02-11 20:32:03Z dimaexe $
 
 ;;; License
 
@@ -61,12 +61,8 @@
   "Return the filename associated with CLASSNAME.
 If the optional parameter DO-NOT-APPEND-EXT is set this function
 will not append \".rb\" to result."
-  (let* ((case-fold-search nil)
-         (path (replace-regexp-in-string "::" "/" classname))
-         (path (replace-regexp-in-string "\\([A-Z]+\\)\\([A-Z][a-z]\\)" "\\1_\\2" path))
-         (path (replace-regexp-in-string "\\([a-z\\d]\\)\\([A-Z]\\)" "\\1_\\2" path)))
-    (concat (downcase path)
-            (unless do-not-append-ext ".rb"))))
+  (concat (decamelize (replace-regexp-in-string "::" "/" classname))
+          (unless do-not-append-ext ".rb")))
 
 ;;;;;;;;;; Files ;;;;;;;;;;
 
@@ -149,8 +145,8 @@ it does not exist, ask to create it using QUESTION as a prompt."
 
 (defun rails-core:controller-file-by-model (model)
   (when model
-    (let* ((controller (pluralize-string model))
-           (controller (when controller (capitalize controller))))
+    (let* ((controller (pluralize-string model)))
+           ;(controller (when controller (capitalize controller))))
       (setq controller
             (cond
              ((rails-core:controller-exist-p controller) controller) ;; pluralized

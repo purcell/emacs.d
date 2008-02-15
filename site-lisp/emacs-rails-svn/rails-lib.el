@@ -8,7 +8,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-lib.el $
-;; $Id: rails-lib.el 213 2007-08-24 12:57:59Z crazypit $
+;; $Id: rails-lib.el 223 2008-02-11 20:32:03Z dimaexe $
 
 ;;; License
 
@@ -101,6 +101,16 @@ If EXPR is not nil exeutes BODY.
                                ;;after
                                ($a (substring ,str (match-end 0) (length ,str))))
                ,@body)))))))
+
+(defun decamelize (string)
+  "Convert from CamelCaseString to camel_case_string."
+  (let ((case-fold-search nil))
+    (downcase
+     (replace-regexp-in-string
+      "\\([A-Z]+\\)\\([A-Z][a-z]\\)" "\\1_\\2"
+      (replace-regexp-in-string
+       "\\([a-z\\d]\\)\\([A-Z]\\)" "\\1_\\2"
+       string)))))
 
 (defun string-not-empty (str) ;(+)
   "Return t if string STR is not empty."
