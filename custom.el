@@ -71,7 +71,10 @@
   ;; If there is more than one, they won't work right.
  '(default ((t (:stipple nil :background "white" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 110 :width normal :family "apple-monaco"))))
  '(darcsum-need-action-marked-face ((t (:foreground "forestgreen"))))
+ '(flymake-errline ((((class color)) (:background "firebrick"))))
  '(highline-face ((t (:background "floral white"))))
- '(mmm-code-submode-face ((t (:background "AliceBlue"))))
- '(mmm-output-submode-face ((t (:background "DarkSeaGreen1"))))
+ '(hl-line ((t (:background "magenta3"))))
+ '(mmm-code-submode-face ((t (:background "DarkSlateGrey"))))
+ '(mmm-comment-submode-face ((t (:background "DarkSlateGray" :foreground "OrangeRed"))))
+ '(mmm-output-submode-face ((t (:background "Navy"))))
  '(whitespace-highlight ((((class color) (background light)) (:background "Pink1")))))
