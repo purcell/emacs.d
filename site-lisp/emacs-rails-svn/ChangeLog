@@ -1,3 +1,7 @@
+2008-02-15  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-core.el (rails-core:observer-p, rails-core:mailer-p): fixed regexp.
+
 2008-02-11  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails-snippets-feature.el (rails-snippets-feature:fixture)

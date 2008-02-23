@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-core.el $
-;; $Id: rails-core.el 223 2008-02-11 20:32:03Z dimaexe $
+;; $Id: rails-core.el 224 2008-02-15 19:33:10Z dimaexe $
 
 ;;; License
 
@@ -316,13 +316,14 @@ CONTROLLER."
 ;;;;;;;;;; Functions that return collection of Rails objects  ;;;;;;;;;;
 (defun rails-core:observer-p (name)
   (when name
-    (if (string-match "\\(Observer\\|_observer\\(\\.rb\\)?\\)$" name)
+    (if (string-match "\\(Observer\\|_observer\\)\\(\\.rb\\)?$" name)
         t nil)))
 
 (defun rails-core:mailer-p (name)
   (when name
-    (if (string-match "\\(Mailer\\|Notifier\\|_mailer\\|_notifier\\(\\.rb\\)?\\)$" name)
+    (if (string-match "\\(Mailer\\|Notifier\\|_mailer\\|_notifier\\)\\(\\.rb\\)?$" name)
         t nil)))
+
 
 (defun rails-core:controllers (&optional cut-contoller-suffix)
   "Return a list of Rails controllers. Remove the '_controller'
