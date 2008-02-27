@@ -1,0 +1,25 @@
+= gitsum.el --- basic darcsum feelalike for Git
+
+Copyright (C) 2008  Christian Neukirchen <purl.org/net/chneukirchen>
+Licensed under the same terms as Emacs.
+
+Gitsum provides a mode to do interactive partial commits with Emacs.
+Run `M-x gitsum' inside a Git repository and kill everything you don't
+want to commit with `k'.  You can navigate easily between hunks with
+`n' and `p' and between files with `N' and `P'.  A whole file can be
+killed with `K'.  If you want to refine the patch, you can split it
+with `C-c C-s'.  If you toggle read-only with `C-x C-q', you can edit
+everything freely (be careful!).
+
+If you are ready, commit the patch with `C-c C-c' or just `c'.
+Enter the message and press `C-c C-c' again.
+
+N.B: If you want to add files in the commit, use `M-x git-status' from
+git.el, add the files with `a', then switch to gitsum with `s'.  You
+can only add files as a whole.  You need git.el from the git
+repository then.
+
+
+Repository: http://github.com/chneukirchen/gitsum
+             git://github.com/chneukirchen/gitsum.git
+Patches to: chneukirchen@gmail.com
