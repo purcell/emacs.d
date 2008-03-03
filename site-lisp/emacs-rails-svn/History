@@ -1,4 +1,5 @@
 SVN
+* Feature [#1853]: added support of thin (http://code.macournoyer.com/thin/)
 * Fixed [#16742]: pass rails environment to script/console
 
 0.5.99.6

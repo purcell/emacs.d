@@ -108,9 +108,16 @@
        '(rails-test-error
          rails-test-trace))
   (add-hook 'after-change-functions 'rails-test:print-progress nil t)
-  (add-hook 'rails-script:run-after-stop-hook 'rails-test:print-result nil t)
   (add-hook 'rails-script:run-after-stop-hook 'rails-test:hide-rails-project-root t t)
+;;  (add-hook 'rails-script:run-after-stop-hook 'rails-test:scroll-of-buffer t t)
+  (add-hook 'rails-script:run-after-stop-hook 'rails-test:print-result t t)
   (add-hook 'rails-script:show-buffer-hook 'rails-test:reset-point-and-height t t))
+
+;; (defun rails-test:scroll-of-buffer ()
+;;   (with-current-buffer "ROutput"
+;;     (buffer "ROutput")
+;;     (goto-char (point-min))
+;;     (scroll-down-nomark (count-lines (point-min) (point-max)))))
 
 (defun rails-test:hide-rails-project-root ()
   "Show files that are relative to the project root as relative filenames

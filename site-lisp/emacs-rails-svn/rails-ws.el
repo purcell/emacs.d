@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-ws.el $
-;; $Id: rails-ws.el 150 2007-03-29 20:48:17Z dimaexe $
+;; $Id: rails-ws.el 225 2008-03-02 21:07:10Z dimaexe $
 
 ;;; License
 
@@ -45,7 +45,7 @@
   :type 'string
   :tag "Rails Server Type")
 
-(defvar rails-ws:available-servers-list (list "mongrel" "lighttpd" "webrick"))
+(defvar rails-ws:available-servers-list (list "mongrel" "lighttpd" "webrick" "thin"))
 (defvar rails-ws:buffer-name "*RWebServer*")
 (defvar rails-ws:process-environment nil)
 
@@ -88,19 +88,32 @@ using `rails-default-environment'."
          (message "Only one instance rails-ws allowed")
        (let* ((default-directory root)
               (env (if env env rails-default-environment))
+              (command (rails-ws:compute-server-conmmand rails-ws:default-server-type rails-ws:port env))
               (proc
                (rails-cmd-proxy:start-process rails-ruby-command
                                               rails-ws:buffer-name
-                                              rails-ruby-command
-                                              (format "script/server %s -p %s -e %s"
-                                                      rails-ws:default-server-type
-                                                      rails-ws:port env))))
+                                              (car command)
+                                              (cadr command))))
            (set-process-sentinel proc 'rails-ws:sentinel-proc)
            (setq rails-ws:process-environment env)
            (message (format "%s (%s) starting with port %s"
                             (capitalize rails-ws:default-server-type)
                             env
                             rails-ws:port)))))))
+
+(defun rails-ws:compute-server-conmmand (server-type port env)
+  (cond
+   ((string= "thin" server-type)
+    (list server-type
+           (format "-p %s -e %s start"
+                   port
+                   env)))
+   (t
+    (list rails-ruby-command
+          (format "script/server %s -p %s -e %s"
+                  server-type
+                  port
+                  env)))))
 
 (defun rails-ws:stop ()
   "Stop the WebServer process."

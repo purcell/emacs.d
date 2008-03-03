@@ -1,3 +1,9 @@
+2008-03-03  Dmitry Galinsky  <dima.exe@gmail.com>
+
+	* rails-ws.el (rails-ws:available-servers-list): Added Thin support.
+
+	* rails.el (rails-templates-list): Added js.rjs and builder templates
+
 2008-02-15  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails-core.el (rails-core:observer-p, rails-core:mailer-p): fixed regexp.

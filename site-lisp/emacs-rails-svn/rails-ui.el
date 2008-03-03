@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-ui.el $
-;; $Id: rails-ui.el 213 2007-08-24 12:57:59Z crazypit $
+;; $Id: rails-ui.el 225 2008-03-02 21:07:10Z dimaexe $
 
 ;;; License
 
@@ -172,6 +172,9 @@
   ([rails ws use-mongrel]  '(menu-item "Use Mongrel" (lambda() (interactive)
                                                        (rails-ws:switch-default-server-type "mongrel"))
                                        :button (:toggle . (rails-ws:default-server-type-p "mongrel"))))
+  ([rails ws use-thin]  '(menu-item "Use Thin" (lambda() (interactive)
+                                                    (rails-ws:switch-default-server-type "thin"))
+                                       :button (:toggle . (rails-ws:default-server-type-p "thin"))))
   ([rails ws separator] '("--"))
 
   ([rails ws brows]      '(menu-item "Open Browser..." rails-ws:open-browser-on-controller

@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails.el $
-;; $Id: rails.el 221 2008-02-06 23:44:57Z dimaexe $
+;; $Id: rails.el 225 2008-03-02 21:07:10Z dimaexe $
 
 ;;; License
 
@@ -146,7 +146,7 @@ Emacs w3m browser."
   :type 'string)
 
 (defvar rails-version "0.5.99.6")
-(defvar rails-templates-list '("html.erb" "erb" "rhtml" "rxml" "rjs" "haml" "liquid" "mab"))
+(defvar rails-templates-list '("html.erb" "erb" "js.rjs" "builder" "rhtml" "rxml" "rjs" "haml" "liquid" "mab"))
 (defvar rails-use-another-define-key nil)
 (defvar rails-primary-switch-func nil)
 (defvar rails-secondary-switch-func nil)
@@ -437,15 +437,17 @@ necessary."
 
 (autoload 'haml-mode "haml-mode" "" t)
 
-(setq auto-mode-alist  (cons '("\\.rb$"     . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rake$"   . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.mab$"    . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("Rakefile$"  . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.haml$"   . haml-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rjs$"    . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rxml$"   . ruby-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.rhtml$"  . html-mode) auto-mode-alist))
-(setq auto-mode-alist  (cons '("\\.erb$"    . html-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rb$"      . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rake$"    . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.mab$"     . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("Rakefile$"   . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.haml$"    . haml-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rjs$"     . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rxml$"    . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.builder$" . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rjs$"     . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.rhtml$"   . html-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '("\\.erb$"     . html-mode) auto-mode-alist))
 
 (modify-coding-system-alist 'file "\\.rb$"     'utf-8)
 (modify-coding-system-alist 'file "\\.rake$"   'utf-8)
