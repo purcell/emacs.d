@@ -1,8 +1,8 @@
 ;;; git-blame.el --- Minor mode for incremental blame for Git  -*- coding: utf-8 -*-
 ;;
-;; Copyright (C) 2007  David KÃ¥gedal
+;; Copyright (C) 2007  David Kågedal
 ;;
-;; Authors:    David KÃ¥gedal <davidk@lysator.liu.se>
+;; Authors:    David Kågedal <davidk@lysator.liu.se>
 ;; Created:    31 Jan 2007
 ;; Message-ID: <87iren2vqx.fsf@morpheus.local>
 ;; License:    GPL
@@ -104,6 +104,13 @@ selected element from l."
   `(let ((e (elt ,l (random (length ,l)))))
      (setq ,l (remove e ,l))
      e))
+
+(defvar git-blame-log-oneline-format
+  "format:[%cr] %cn: %s"
+  "*Formatting option used for describing current line in the minibuffer.
+
+This option is used to pass to git log --pretty= command-line option,
+and describe which commit the current line was made.")
 
 (defvar git-blame-dark-colors
   (git-blame-color-scale "0c" "04" "24" "1c" "2c" "34" "14" "3c")
@@ -371,7 +378,8 @@ See also function `git-blame-mode'."
 (defun git-describe-commit (hash)
   (with-temp-buffer
     (call-process "git" nil t nil
-                  "log" "-1" "--pretty=oneline"
+                  "log" "-1"
+		  (concat "--pretty=" git-blame-log-oneline-format)
                   hash)
     (buffer-substring (point-min) (1- (point-max)))))
 
