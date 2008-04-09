@@ -209,6 +209,10 @@
 (autoload 'flymake-js-load "flymake-js" "On-the-fly syntax checking of javascript" t)
 (add-hook 'javascript-mode-hook '(lambda () (flymake-js-load)))
 
+;; Spiffy new js2-mode from Steve Yegge (http://code.google.com/p/js2-mode/)
+(autoload 'js2-mode "js2" nil t)
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(setq js2-use-font-lock-faces t)
 
 ;;----------------------------------------------------------------------------
 ;; Extensions -> Modes
