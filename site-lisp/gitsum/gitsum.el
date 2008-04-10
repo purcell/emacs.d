@@ -15,6 +15,7 @@
   '(("A" . gitsum-amend)
     ("c" . gitsum-commit)
     ("g" . gitsum-refresh)
+    ("k" . gitsum-kill-dwim)
     ("P" . gitsum-push)
     ("R" . gitsum-revert)
     ("s" . gitsum-switch-to-git-status)
@@ -63,15 +64,34 @@ A numeric argument serves as a repeat count."
         (insert diff)
         (goto-char (point-min))
         (delete-matching-lines "^index \\|^diff --git ")))
-    (set-buffer-modified-p nil)))
+    (set-buffer-modified-p nil)
+    (goto-char (point-min))
+    (forward-line 4)))
+
+(defun gitsum-kill-dwim ()
+  "Kill the current hunk or file depending on point."
+  (interactive)
+  (let ((inhibit-read-only t))
+    (if (looking-at "^---\\|^\\+\\+\\+")
+        (diff-file-kill)
+      (diff-hunk-kill)
+      (save-excursion
+        (when (or (looking-at "^--- ")
+                  (eobp))
+          (let ((here (point)))
+            (forward-line -2)
+            (when (looking-at "^--- ")
+              (delete-region here (point)))))))))
 
 (defun gitsum-commit ()
   "Commit the patch as-is, asking for a commit message."
   (interactive)
   (shell-command-on-region (point-min) (point-max) "git apply --check --cached")
-  (let ((buffer (get-buffer-create "*gitsum-commit*")))
+  (let ((buffer (get-buffer-create "*gitsum-commit*"))
+        (dir default-directory))
     (shell-command-on-region (point-min) (point-max) "(cat; git diff --cached) | git apply --stat" buffer)
     (with-current-buffer buffer
+      (setq default-directory dir)
       (goto-char (point-min))
       (insert "\n")
       (while (re-search-forward "^" nil t)
@@ -127,7 +147,8 @@ A numeric argument serves as a repeat count."
 (defun gitsum-kill-buffer ()
   "Kill the current buffer if it has no manual changes."
   (interactive)
-  (unless (buffer-modified-p)
+  (if (buffer-modified-p)
+      (message "Patch was modified, use C-x k to kill.")
     (kill-buffer nil)))
 
 (defun gitsum-switch-to-git-status ()
@@ -141,5 +162,9 @@ A numeric argument serves as a repeat count."
   (switch-to-buffer (generate-new-buffer "*gitsum*"))
   (gitsum-diff-mode)
   (gitsum-refresh))
+
+;; viper compatible
+(eval-after-load "viper"
+  '(add-to-list 'viper-emacs-state-mode-list 'gitsum-diff-mode))
 
 (provide 'gitsum)
