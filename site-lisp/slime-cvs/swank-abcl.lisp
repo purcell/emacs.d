@@ -142,9 +142,38 @@
 (defimplementation call-without-interrupts (fn)
   (funcall fn))
 
-;;there are too many to count
 (defimplementation getpid ()
-  0)
+  (handler-case 
+      (let* ((runtime 
+              (java:jstatic "getRuntime" "java.lang.Runtime"))
+             (command
+              (java:jnew-array-from-array 
+               "java.lang.String" #("sh" "-c" "echo $PPID")))
+             (runtime-exec-jmethod 		
+              ;; Complicated because java.lang.Runtime.exec() is
+              ;; overloaded on a non-primitive type (array of
+              ;; java.lang.String), so we have to use the actual
+              ;; parameter instance to get java.lang.Class
+              (java:jmethod "java.lang.Runtime" "exec" 
+                            (java:jcall 
+                             (java:jmethod "java.lang.Object" "getClass")
+                             command)))
+             (process 
+              (java:jcall runtime-exec-jmethod runtime command))
+             (output 
+              (java:jcall (java:jmethod "java.lang.Process" "getInputStream")
+                          process)))
+         (java:jcall (java:jmethod "java.lang.Process" "waitFor")
+                     process)
+	 (loop :with b :do 
+	    (setq b 
+		  (java:jcall (java:jmethod "java.io.InputStream" "read")
+			      output))
+	    :until (member b '(-1 #x0a))	; Either EOF or LF
+	    :collecting (code-char b) :into result
+	    :finally (return 
+		       (parse-integer (coerce result 'string)))))
+    (t () 0))) 
 
 (defimplementation lisp-implementation-type-name ()
   "armedbear")
@@ -391,15 +420,7 @@ part of *sysdep-pathnames* in swank.loader.lisp.
 
 ;;;; Inspecting
 
-(defclass abcl-inspector (backend-inspector) ())
-
-(defimplementation make-default-inspector ()
-  (make-instance 'abcl-inspector))
-
-(defmethod inspect-for-emacs ((slot mop::slot-definition) 
-                              (inspector backend-inspector))
-  (declare (ignore inspector))
-  (values "A slot." 
+(defmethod emacs-inspect ((slot mop::slot-definition))
           `("Name: " (:value ,(mop::%slot-definition-name slot))
             (:newline)
             "Documentation:" (:newline)
@@ -411,11 +432,9 @@ part of *sysdep-pathnames* in swank.loader.lisp.
                              `(:value ,(mop::%slot-definition-initform slot))
                              "#<unspecified>") (:newline)
             "  Function: " (:value ,(mop::%slot-definition-initfunction slot))
-            (:newline))))
+            (:newline)))
 
-(defmethod inspect-for-emacs ((f function) (inspector backend-inspector))
-  (declare (ignore inspector))
-  (values "A function."
+(defmethod emacs-inspect ((f function))
           `(,@(when (function-name f)
                     `("Name: " 
                       ,(princ-to-string (function-name f)) (:newline)))
@@ -427,19 +446,18 @@ part of *sysdep-pathnames* in swank.loader.lisp.
                          `("Documentation:" (:newline) ,(documentation f t) (:newline)))
             ,@(when (function-lambda-expression f)
                     `("Lambda expression:" 
-                      (:newline) ,(princ-to-string (function-lambda-expression f)) (:newline))))))
+                      (:newline) ,(princ-to-string (function-lambda-expression f)) (:newline)))))
 
 #|
 
-(defmethod inspect-for-emacs ((o t) (inspector backend-inspector))
+(defmethod emacs-inspect ((o t))
   (let* ((class (class-of o))
          (slots (mop::class-slots class)))
-    (values (format nil "~A~%   is a ~A" o class)
             (mapcar (lambda (slot)
                       (let ((name (mop::slot-definition-name slot)))
                         (cons (princ-to-string name)
                               (slot-value o name))))
-                    slots))))
+                    slots)))
 |#
 
 ;;;; Multithreading

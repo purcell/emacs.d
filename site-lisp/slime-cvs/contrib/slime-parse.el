@@ -16,14 +16,15 @@ one sexp to find out the context."
       (slime-enclosing-form-specs)
     (if (null operators)
         ""
-        (let ((op (first operators)))
+        (let ((op        (first operators))
+	      (op-start  (first points))
+	      (arg-index (first arg-indices)))
           (destructure-case (slime-ensure-list op)
             ((:declaration declspec) op)
             ((:type-specifier typespec) op)
-            (t (slime-ensure-list
-                (save-excursion (goto-char (first points))
-                                (slime-parse-sexp-at-point 
-				 (1+ (first arg-indices)))))))))))
+            (t 
+	     (slime-make-form-spec-from-string 
+	      (concat (slime-incomplete-sexp-at-point) ")"))))))))
 
 ;; XXX: unused function
 (defun slime-cl-symbol-external-ref-p (symbol)
@@ -228,9 +229,11 @@ Examples:
 
       => (\"foo\" (\"bar\" \"1\" (\"baz\" \":quux\")) \"'toto\")
 "
-  (cond ((slime-length= string 0) "")
-	((equal string "()") '())
-	(t
+  (cond ((slime-length= string 0) "")                    ; ""
+	((equal string "()") '())                        ; "()"
+	((eql (char-syntax (aref string 0)) ?\') string) ; "'(foo)", "#(foo)" &c
+	((not (eql (aref string 0) ?\()) string)         ; "foo"
+	(t                                               ; "(op arg1 arg2 ...)"
 	 (with-temp-buffer
 	   ;; Do NEVER ever try to activate `lisp-mode' here with
 	   ;; `slime-use-autodoc-mode' enabled, as this function is used
@@ -246,17 +249,18 @@ Examples:
 	       (delete-region (point-min) (point))
 	       (insert "(")))
 	   (goto-char (1- (point-max))) ; `(OP arg1 ... argN|)'
+	   (assert (eql (char-after) ?\)))
 	   (multiple-value-bind (forms indices points)
 	       (slime-enclosing-form-specs 1)
 	     (if (null forms)
 		 string
                 (let ((n (first (last indices))))
-		   (goto-char (1+ (point-min))) ; `(|OP arg1 ... argN)'
-		   (mapcar #'(lambda (s)
-			       (assert (not (equal s string)))       ; trap against
-			       (slime-make-form-spec-from-string s)) ;  endless recursion.
-			   (slime-ensure-list
-			    (slime-parse-sexp-at-point (1+ n) t))))))))))
+		  (goto-char (1+ (point-min))) ; `(|OP arg1 ... argN)'
+		  (mapcar #'(lambda (s)
+			      (assert (not (equal s string))) ; trap against
+			      (slime-make-form-spec-from-string s)) ;  endless recursion.
+			  (slime-ensure-list
+			   (slime-parse-sexp-at-point (1+ n) t))))))))))
 
 
 (defun slime-enclosing-form-specs (&optional max-levels)

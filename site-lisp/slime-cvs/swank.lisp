@@ -13,17 +13,18 @@
 ;;; available to us here via the `SWANK-BACKEND' package.
 
 (defpackage :swank
-  (:use :common-lisp :swank-backend)
+  (:use :cl :swank-backend)
   (:export #:startup-multiprocessing
            #:start-server 
            #:create-server
+           #:stop-server
+           #:restart-server
            #:ed-in-emacs
            #:inspect-in-emacs
            #:print-indentation-lossage
            #:swank-debugger-hook
-           #:run-after-init-hook
-           #:inspect-for-emacs
-           #:inspect-slot-for-emacs
+           #:emacs-inspect
+           ;;#:inspect-slot-for-emacs
            ;; These are user-configurable variables:
            #:*communication-style*
            #:*dont-close*
@@ -103,8 +104,14 @@ Redirection is done while Lisp is processing a request for Emacs.")
     (*print-array*            . t)
     (*print-lines*            . 10)
     (*print-escape*           . t)
-    (*print-right-margin*     . 70))
+    (*print-right-margin*     . 65))
   "A set of printer variables used in the debugger.")
+
+(defvar *backtrace-printer-bindings*
+  `((*print-pretty*           . nil)
+    (*print-level*            . 4)
+    (*print-length*           . 6))
+  "Pretter settings for printing backtraces.")
 
 (defvar *default-worker-thread-bindings* '()
   "An alist to initialize dynamic variables in worker threads.  
@@ -173,9 +180,6 @@ Backend code should treat the connection structure as opaque.")
 
 (defvar *after-init-hook* '()
   "Hook run after user init files are loaded.")
-
-(defun run-after-init-hook ()
-  (run-hook *after-init-hook*))
 
 
 ;;;; Connections
@@ -407,43 +411,6 @@ Useful for low level debugging."
   (<= (char-code c) 127))
 
 
-;;;;; Misc
-
-(defun length= (seq n)
-  "Test for whether SEQ contains N number of elements. I.e. it's equivalent
- to (= (LENGTH SEQ) N), but besides being more concise, it may also be more
- efficiently implemented."
-  (etypecase seq 
-    (list (do ((i n (1- i))
-               (list seq (cdr list)))
-              ((or (<= i 0) (null list))
-               (and (zerop i) (null list)))))
-    (sequence (= (length seq) n))))
-
-(defun ensure-list (thing)
-  (if (listp thing) thing (list thing)))
-
-(defun recursively-empty-p (list)
-  "Returns whether LIST consists only of arbitrarily nested empty lists."
-  (cond ((not (listp list)) nil)
-	((null list) t)
-	(t (every #'recursively-empty-p list))))
-
-(defun maybecall (bool fn &rest args)
-  "Call FN with ARGS if BOOL is T. Otherwise return ARGS as multiple values."
-  (if bool (apply fn args) (values-list args)))
-
-(defun exactly-one-p (&rest values)
-  "If exactly one value in VALUES is non-NIL, this value is returned.
-Otherwise NIL is returned."
-  (let ((found nil))
-    (dolist (v values)
-      (when v (if found
-                  (return-from exactly-one-p nil)
-                  (setq found v))))
-    found))
-
-
 ;;;;; Symbols
 
 (defun symbol-status (symbol &optional (package (symbol-package symbol)))
@@ -526,30 +493,38 @@ If PACKAGE is not specified, the home package of SYMBOL is used."
 
 
 (defun classify-symbol (symbol)
-  "Returns a list of classifiers that classify SYMBOL according
-to its underneath objects (e.g. :BOUNDP if SYMBOL constitutes a
-special variable.) The list may contain the following classification
-keywords: :BOUNDP, :FBOUNDP, :GENERIC-FUNCTION, :CLASS, :MACRO, 
-:SPECIAL-OPERATOR, and/or :PACKAGE"
+  "Returns a list of classifiers that classify SYMBOL according to its
+underneath objects (e.g. :BOUNDP if SYMBOL constitutes a special
+variable.) The list may contain the following classification
+keywords: :BOUNDP, :FBOUNDP, :CONSTANT, :GENERIC-FUNCTION,
+:TYPESPEC, :CLASS, :MACRO, :SPECIAL-OPERATOR, and/or :PACKAGE"
   (check-type symbol symbol)
-  (let (result)
-    (when (boundp symbol)             (push :boundp result))
-    (when (fboundp symbol)            (push :fboundp result))
-    (when (find-class symbol nil)     (push :class result))
-    (when (macro-function symbol)     (push :macro result))
-    (when (special-operator-p symbol) (push :special-operator result))
-    (when (find-package symbol)       (push :package result))
-    (when (typep (ignore-errors (fdefinition symbol))
-                 'generic-function)
-      (push :generic-function result))
-    result))
+  (flet ((type-specifier-p (s)
+           (or (documentation s 'type)
+               (not (eq (type-specifier-arglist s) :not-available)))))
+    (let (result)
+      (when (boundp symbol)             (push (if (constantp symbol)
+                                                  :constant :boundp) result))
+      (when (fboundp symbol)            (push :fboundp result))
+      (when (type-specifier-p symbol)   (push :typespec result))
+      (when (find-class symbol nil)     (push :class result))
+      (when (macro-function symbol)     (push :macro result))
+      (when (special-operator-p symbol) (push :special-operator result))
+      (when (find-package symbol)       (push :package result))
+      (when (typep (ignore-errors (fdefinition symbol))
+                   'generic-function)
+        (push :generic-function result))
+
+      result)))
 
 (defun symbol-classification->string (flags)
-  (format nil "~A~A~A~A~A~A~A"
-          (if (member :boundp flags) "b" "-")
+  (format nil "~A~A~A~A~A~A~A~A"
+          (if (or (member :boundp flags)
+                  (member :constant flags)) "b" "-")
           (if (member :fboundp flags) "f" "-")
           (if (member :generic-function flags) "g" "-")
           (if (member :class flags) "c" "-")
+          (if (member :typespec flags) "t" "-")
           (if (member :macro flags) "m" "-")
           (if (member :special-operator flags) "s" "-")
           (if (member :package flags) "p" "-")))
@@ -577,19 +552,20 @@ Valid values are :none, :line, and :full.")
 
 (defvar *coding-system* "iso-latin-1-unix")
 
+(defvar *listener-sockets* nil
+  "A property list of lists containing style, socket pairs used 
+   by swank server listeners, keyed on socket port number. They 
+   are used to close sockets on server shutdown or restart.")
+
 (defun start-server (port-file &key (style *communication-style*)
                                     (dont-close *dont-close*)
                                     (coding-system *coding-system*))
   "Start the server and write the listen port number to PORT-FILE.
 This is the entry point for Emacs."
-  (flet ((start-server-aux ()
-           (setup-server 0 (lambda (port) 
-                             (announce-server-port port-file port))
-                         style dont-close 
-                         (find-external-format-or-lose coding-system))))
-    (if (eq style :spawn)
-        (initialize-multiprocessing #'start-server-aux)
-        (start-server-aux))))
+  (setup-server 0 (lambda (port) 
+                    (announce-server-port port-file port))
+                style dont-close 
+                (find-external-format-or-lose coding-system)))
 
 (defun create-server (&key (port default-server-port)
                       (style *communication-style*)
@@ -610,18 +586,60 @@ connections, otherwise it will be closed after the first."
 (defun setup-server (port announce-fn style dont-close external-format)
   (declare (type function announce-fn))
   (let* ((socket (create-socket *loopback-interface* port))
-         (port (local-port socket)))
-    (funcall announce-fn port)
+         (local-port (local-port socket)))
+    (funcall announce-fn local-port)
     (flet ((serve ()
              (serve-connection socket style dont-close external-format)))
       (ecase style
         (:spawn
-         (spawn (lambda () (loop do (ignore-errors (serve)) while dont-close))
-                :name "Swank"))
+         (initialize-multiprocessing
+          (lambda ()
+            (spawn (lambda () 
+                     (cond ((not dont-close) (serve))
+                           (t (loop (ignore-errors (serve))))))
+                   :name (cat "Swank " (princ-to-string port))))))
         ((:fd-handler :sigio)
          (add-fd-handler socket (lambda () (serve))))
         ((nil) (loop do (serve) while dont-close)))
-      port)))
+      (setf (getf *listener-sockets* port) (list style socket))
+      local-port)))
+
+(defun stop-server (port)
+  "Stop server running on PORT."
+  (let* ((socket-description (getf *listener-sockets* port))
+         (style (first socket-description))
+         (socket (second socket-description)))
+    (ecase style
+      (:spawn
+       (let ((thread-position
+              (position-if 
+               (lambda (x) 
+                 (string-equal (first x)
+                               (concatenate 'string "Swank "
+                                            (princ-to-string port))))
+               (list-threads))))
+         (when thread-position
+           (kill-nth-thread thread-position)
+           (close-socket socket)
+           (remf *listener-sockets* port))))
+      ((:fd-handler :sigio)
+       (remove-fd-handlers socket)
+       (close-socket socket)
+       (remf *listener-sockets* port)))))
+
+(defun restart-server (&key (port default-server-port)
+                       (style *communication-style*)
+                       (dont-close *dont-close*) 
+                       (coding-system *coding-system*))
+  "Stop the server listening on PORT, then start a new SWANK server 
+on PORT running in STYLE. If DONT-CLOSE is true then the listen socket 
+will accept multiple connections, otherwise it will be closed after the 
+first."
+  (stop-server port)
+  (sleep 5)
+  (create-server :port port :style style :dont-close dont-close
+                 :coding-system coding-system))
+
 
 (defun serve-connection (socket style dont-close external-format)
   (let ((closed-socket-p nil))
@@ -1200,7 +1218,8 @@ dynamic binding."
 
 (defun init-global-stream-redirection ()
   (when *globally-redirect-io*
-    (mapc #'setup-stream-indirection 
+    (assert (not *saved-global-streams*) () "Streams already redirected.")
+    (mapc #'setup-stream-indirection
           (append *standard-output-streams*
                   *standard-input-streams*
                   *standard-io-streams*))))
@@ -1443,6 +1462,7 @@ VERSION: the protocol version"
               :type ,(machine-type)
               :version ,(machine-version))
     :features ,(features-for-emacs)
+    :modules ,*modules*
     :package (:name ,(package-name *package*)
               :prompt ,(package-string-for-prompt *package*))
     :version ,*swank-wire-protocol-version*))
@@ -1602,20 +1622,13 @@ Return the symbol and a flag indicating whether the symbols was found."
         (values symbol status)
         (error "Unknown symbol: ~A [in ~A]" string package))))
 
-;; FIXME: interns the name
 (defun parse-package (string)
   "Find the package named STRING.
 Return the package or nil."
-  (multiple-value-bind (name pos) 
-      (if (zerop (length string))
-          (values :|| 0)
-          (let ((*package* *swank-io-package*))
-            (ignore-errors (read-from-string string))))
-    (and name
-         (or (symbolp name) 
-             (stringp name))
-         (= (length string) pos)
-         (find-package name))))
+  ;; STRING comes usually from a (in-package STRING) form.
+  (ignore-errors
+    (find-package (let ((*package* *swank-io-package*))
+                    (read-from-string string)))))
 
 (defun unparse-name (string)
   "Print the name STRING according to the current printer settings."
@@ -1686,7 +1699,7 @@ Errors are trapped and invoke our debugger."
   (with-buffer-syntax ()
     (let ((*print-readably* nil))
       (cond ((null values) "; No value")
-            ((and (length= values 1)  (integerp (car values)))
+            ((and (integerp (car values)) (null (cdr values)))
              (let ((i (car values)))
                (format nil "~A~D (#x~X, #o~O, #b~B)" 
                        *echo-area-prefix* i i i i)))
@@ -1851,7 +1864,9 @@ WHAT can be:
 
 Returns true if it actually called emacs, or NIL if not."
   (flet ((pathname-or-string-p (thing)
-           (or (pathnamep thing) (typep thing 'string))))
+           (or (pathnamep thing) (typep thing 'string)))
+         (canonicalize-filename (filename)
+           (namestring (or (probe-file filename) filename))))
     (let ((target
            (cond ((and (listp what) (pathname-or-string-p (first what)))
                   (cons (canonicalize-filename (car what)) (cdr what)))
@@ -1987,12 +2002,15 @@ conditions are simply reported."
                                       ,(princ-to-string real-condition))))
   (throw 'sldb-loop-catcher nil))
 
+(defvar *sldb-condition-printer* #'format-sldb-condition
+  "Function called to print a condition to an SLDB buffer.")
+
 (defun safe-condition-message (condition)
   "Safely print condition to a string, handling any errors during
 printing."
-  (let ((*print-pretty* t))
+  (let ((*print-pretty* t) (*print-right-margin* 65))
     (handler-case
-        (format-sldb-condition condition)
+        (funcall *sldb-condition-printer* condition)
       (error (cond)
         ;; Beware of recursive errors in printing, so only use the condition
         ;; if it is printable itself:
@@ -2026,8 +2044,9 @@ I is an integer describing and FRAME a string."
   (loop for frame in (compute-backtrace start end)
         for i from start
         collect (list i (with-output-to-string (stream)
-                          (handler-case 
-                              (print-frame frame stream)
+                          (handler-case
+                              (with-bindings *backtrace-printer-bindings*
+                                (print-frame frame stream))
                             (t ()
                               (format stream "[error printing frame]")))))))
 
@@ -2111,11 +2130,12 @@ has changed, ignore the request."
 (defslimefun frame-locals-for-emacs (index)
   "Return a property list ((&key NAME ID VALUE) ...) describing
 the local variables in the frame INDEX."
-  (mapcar (lambda (frame-locals)
-            (destructuring-bind (&key name id value) frame-locals
-              (list :name (prin1-to-string name) :id id
-                    :value (to-string value))))
-          (frame-locals index)))
+  (with-bindings *backtrace-printer-bindings*
+    (mapcar (lambda (frame-locals)
+              (destructuring-bind (&key name id value) frame-locals
+                (list :name (prin1-to-string name) :id id
+                      :value (to-string value))))
+            (frame-locals index))))
 
 (defslimefun frame-catch-tags-for-emacs (frame-index)
   (mapcar #'to-string (frame-catch-tags frame-index)))
@@ -2156,9 +2176,6 @@ the local variables in the frame INDEX."
 
 (defun clear-compiler-notes ()  
   (setf *compiler-notes* '()))
-
-(defun canonicalize-filename (filename)
-  (namestring (truename filename)))
 
 (defslimefun compiler-notes-for-emacs ()
   "Return the list of compiler notes for the last compilation unit."
@@ -2245,18 +2262,15 @@ Record compiler notes signalled as `compiler-condition's."
 (defslimefun load-file (filename)
   (to-string (load filename)))
 
-(defslimefun load-file-set-package (filename &optional package)
-  (load-file filename)
-  (if package
-      (set-package package)))
-
 
 ;;;;; swank-require
 
-(defslimefun swank-require (module &optional filename)
+(defslimefun swank-require (modules &optional filename)
   "Load the module MODULE."
-  (require module (or filename (module-filename module)))
-  nil)
+  (dolist (module (if (listp modules) modules (list modules)))
+    (unless (member (string module) *modules* :test #'string=)
+      (require module (or filename (module-filename module)))))
+  *modules*)
 
 (defvar *find-module* 'find-module
   "Pluggable function to locate modules.
@@ -2276,10 +2290,7 @@ the filename of the module (or nil if the file doesn't exist).")
     (make-pathname :directory `(:relative ,dirname) :defaults defaults)
     defaults)))
 
-(defvar *load-path*
-  (list (make-pathname :directory (merged-directory "contrib" *load-truename*)
-                       :name nil :type nil :version nil
-                       :defaults *load-truename*))
+(defvar *load-path* '()
   "A list of directories to search for modules.")
 
 (defun module-canditates (name dir)
@@ -2331,16 +2342,16 @@ the filename of the module (or nil if the file doesn't exist).")
 
 ;;;; Simple completion
 
-(defslimefun simple-completions (string buffer-package)
+(defslimefun simple-completions (string package)
   "Return a list of completions for the string STRING."
-  (let ((strings (all-completions string buffer-package #'prefix-match-p)))
+  (let ((strings (all-completions string package #'prefix-match-p)))
     (list strings (longest-common-prefix strings))))
 
-(defun all-completions (string buffer-package test)
+(defun all-completions (string package test)
   (multiple-value-bind (name pname intern) (tokenize-symbol string)
     (let* ((extern (and pname (not intern)))
 	   (pack (cond ((equal pname "") keyword-package)
-		       ((not pname) (guess-buffer-package buffer-package))
+		       ((not pname) (guess-buffer-package package))
 		       (t (guess-package pname))))
 	   (test (lambda (sym) (funcall test name (unparse-symbol sym))))
 	   (syms (and pack (matching-symbols pack extern test))))
@@ -2453,24 +2464,15 @@ that symbols accessible in the current package go first."
                      (string< (symbol-name x) (symbol-name y))
                      (string< (package-name px) (package-name py)))))))))
 
-(let ((regex-hash (make-hash-table :test #'equal)))
-  (defun compiled-regex (regex-string)
-    (or (gethash regex-string regex-hash)
-        (setf (gethash regex-string regex-hash)
-              (if (zerop (length regex-string))
-                  (lambda (s) (check-type s string) t)
-                  (compile nil (slime-nregex:regex-compile regex-string)))))))
-
-(defun make-regexp-matcher (string case-sensitive)
-  (let* ((case-modifier (if case-sensitive #'string #'string-upcase))
-         (regex (compiled-regex (funcall case-modifier string))))
+(defun make-apropos-matcher (pattern case-sensitive)
+  (let ((chr= (if case-sensitive #'char= #'char-equal)))
     (lambda (symbol)
-      (funcall regex (funcall case-modifier symbol)))))
+      (search pattern (string symbol) :test chr=))))
 
 (defun apropos-symbols (string external-only case-sensitive package)
   (let ((packages (or package (remove (find-package :keyword)
                                       (list-all-packages))))
-        (matcher  (make-regexp-matcher string case-sensitive))
+        (matcher  (make-apropos-matcher string case-sensitive))
         (result))
     (with-package-iterator (next packages :external :internal)
       (loop (multiple-value-bind (morep symbol) (next)
@@ -2585,283 +2587,95 @@ Include the nicknames if NICKNAMES is true."
 
 ;;;; Source Locations
 
+(defslimefun find-definition-for-thing (thing)
+  (find-source-location thing))
+
 (defslimefun find-definitions-for-emacs (name)
   "Return a list ((DSPEC LOCATION) ...) of definitions for NAME.
 DSPEC is a string and LOCATION a source location. NAME is a string."
-  (multiple-value-bind (sexp error)
-      (ignore-errors (values (from-string name)))
+  (multiple-value-bind (sexp error) (ignore-errors (values (from-string name)))
     (unless error
-      (loop for (dspec loc) in (find-definitions sexp)
-         collect (list (to-string dspec) loc)))))
+      (mapcar #'xref>elisp (find-definitions sexp)))))
 
-(defun alistify (list key test)
-  "Partition the elements of LIST into an alist.  KEY extracts the key
-from an element and TEST is used to compare keys."
-  (declare (type function key))
-  (let ((alist '()))
-    (dolist (e list)
-      (let* ((k (funcall key e))
-	     (probe (assoc k alist :test test)))
-	(if probe
-	    (push e (cdr probe))
-            (push (cons k (list e)) alist))))
-    alist))
+(defslimefun xref (type name)
+  (let ((symbol (parse-symbol-or-lose name *buffer-package*)))
+    (mapcar #'xref>elisp
+            (ecase type
+              (:calls (who-calls symbol))
+              (:calls-who (calls-who symbol))
+              (:references (who-references symbol))
+              (:binds (who-binds symbol))
+              (:sets (who-sets symbol))
+              (:macroexpands (who-macroexpands symbol))
+              (:specializes (who-specializes symbol))
+              (:callers (list-callers symbol))
+              (:callees (list-callees symbol))))))
 
-(defun location-position< (pos1 pos2)
-  (cond ((and (position-p pos1) (position-p pos2))
-         (< (position-pos pos1)
-            (position-pos pos2)))
-        (t nil)))
-
-(defun partition (list test key)
-  (declare (type function test key))
-  (loop for e in list
-	if (funcall test (funcall key e)) collect e into yes
-	else collect e into no
-	finally (return (values yes no))))
-
-(defstruct (xref (:conc-name xref.)
-                 (:type list))
-  dspec location)
-
-(defun location-valid-p (location)
-  (eq (car location) :location))
-
-(defun xref-buffer (xref)
-  (location-buffer (xref.location xref)))
-
-(defun xref-position (xref)
-  (location-buffer (xref.location xref)))
-
-(defun group-xrefs (xrefs)
-  "Group XREFS, a list of the form ((DSPEC LOCATION) ...) by location.
-The result is a list of the form ((LOCATION . ((DSPEC . LOCATION) ...)) ...)."
-  (multiple-value-bind (resolved errors)
-      (partition xrefs #'location-valid-p #'xref.location)
-    (let ((alist (alistify resolved #'xref-buffer #'equal)))
-      (append
-       (loop for (buffer . list) in alist
-             collect (cons (second buffer)
-                           (mapcar (lambda (xref)
-                                     (cons (to-string (xref.dspec xref))
-                                           (xref.location xref)))
-                                   (sort list #'location-position<
-                                         :key #'xref-position))))
-       (if errors
-           (list (cons "Unresolved"
-                       (mapcar (lambda (xref)
-                                 (cons (to-string (xref.dspec xref))
-                                       (xref.location xref)))
-                               errors))))))))
-
-(defslimefun xref (type symbol-name)
-  (let ((symbol (parse-symbol-or-lose symbol-name *buffer-package*)))
-    (group-xrefs
-     (ecase type
-       (:calls (who-calls symbol))
-       (:calls-who (calls-who symbol))
-       (:references (who-references symbol))
-       (:binds (who-binds symbol))
-       (:sets (who-sets symbol))
-       (:macroexpands (who-macroexpands symbol))
-       (:specializes (who-specializes symbol))
-       (:callers (list-callers symbol))
-       (:callees (list-callees symbol))))))
+(defun xref>elisp (xref)
+  (destructuring-bind (name loc) xref
+    (list (to-string name) loc)))
 
 
 ;;;; Inspecting
 
-(defun common-seperated-spec (list &optional (callback (lambda (v) 
-							 `(:value ,v))))
-  (butlast
-   (loop
-      for i in list
-      collect (funcall callback i)
-      collect ", ")))
-
-(defun inspector-princ (list)
-  "Like princ-to-string, but don't rewrite (function foo) as #'foo. 
-Do NOT pass circular lists to this function."
-  (let ((*print-pprint-dispatch* (copy-pprint-dispatch)))
-    (set-pprint-dispatch '(cons (member function)) nil)
-    (princ-to-string list)))
-
-(defmethod inspect-for-emacs ((object cons) inspector)
-  (declare (ignore inspector))
-  (if (consp (cdr object))
-      (inspect-for-emacs-list object)
-      (inspect-for-emacs-simple-cons object)))
-
-(defun inspect-for-emacs-simple-cons (cons)
-  (values "A cons cell."
-          (label-value-line* 
-           ('car (car cons))
-           ('cdr (cdr cons)))))
-
-(defun inspect-for-emacs-list (list)
-  (let ((maxlen 40))
-    (multiple-value-bind (length tail) (safe-length list)
-      (flet ((frob (title list)
-               (let (lines)
-                 (loop for i from 0 for rest on list do
-                       (if (consp (cdr rest))     ; e.g. (A . (B . ...))
-                           (push (label-value-line i (car rest)) lines)
-                           (progn                 ; e.g. (A . NIL) or (A . B)
-                             (push (label-value-line i (car rest) :newline nil) lines)
-                             (when (cdr rest)
-                               (push '((:newline)) lines)
-                               (push (label-value-line ':tail () :newline nil) lines))
-                             (loop-finish)))
-                       finally
-                       (setf lines (reduce #'append (nreverse lines) :from-end t)))
-                 (values title (append '("Elements:" (:newline)) lines)))))
-                               
-        (cond ((not length)             ; circular
-               (frob "A circular list."
-                     (cons (car list)
-                           (ldiff (cdr list) list))))
-              ((and (<= length maxlen) (not tail))
-               (frob "A proper list." list))
-              (tail
-               (frob "An improper list." list))
-              (t
-               (frob "A proper list." list)))))))
-
-;; (inspect-for-emacs-list '#1=(a #1# . #1# ))
-
-(defun safe-length (list)
-  "Similar to `list-length', but avoid errors on improper lists.
-Return two values: the length of the list and the last cdr.
-NIL is returned if the list is circular."
-  (do ((n 0 (+ n 2))                    ;Counter.
-       (fast list (cddr fast))          ;Fast pointer: leaps by 2.
-       (slow list (cdr slow)))          ;Slow pointer: leaps by 1.
-      (nil)
-    (cond ((null fast) (return (values n nil)))
-          ((not (consp fast)) (return (values n fast)))
-          ((null (cdr fast)) (return (values (1+ n) (cdr fast))))
-          ((and (eq fast slow) (> n 0)) (return nil))
-          ((not (consp (cdr fast))) (return (values (1+ n) (cdr fast)))))))
-
-(defvar *slime-inspect-contents-limit* nil "How many elements of
- a hash table or array to show by default. If table has more than
- this then offer actions to view more. Set to nil for no limit." )
-
-(defmethod inspect-for-emacs ((ht hash-table) inspector)
-  (declare (ignore inspector))
-  (values (prin1-to-string ht)
-          (append
-           (label-value-line*
-            ("Count" (hash-table-count ht))
-            ("Size" (hash-table-size ht))
-            ("Test" (hash-table-test ht))
-            ("Rehash size" (hash-table-rehash-size ht))
-            ("Rehash threshold" (hash-table-rehash-threshold ht)))
-           (let ((weakness (hash-table-weakness ht)))
-             (when weakness
-               `("Weakness: " (:value ,weakness) (:newline))))
-           (unless (zerop (hash-table-count ht))
-             `((:action "[clear hashtable]" ,(lambda () (clrhash ht))) (:newline)
-               "Contents: " (:newline)))
-	   (if (and *slime-inspect-contents-limit*
-		    (>= (hash-table-count ht) *slime-inspect-contents-limit*))
-	       (inspect-bigger-piece-actions ht (hash-table-count ht))
-	       nil)
-           (loop for key being the hash-keys of ht
-                 for value being the hash-values of ht
-                 repeat (or *slime-inspect-contents-limit* most-positive-fixnum)
-                 append `((:value ,key) " = " (:value ,value)
-                          " " (:action "[remove entry]"
-                               ,(let ((key key))
-                                  (lambda () (remhash key ht))))
-                          (:newline))))))
-
-(defun inspect-bigger-piece-actions (thing size)
-  (append 
-   (if (> size *slime-inspect-contents-limit*)
-       (list (inspect-show-more-action thing)
-	     '(:newline))
-       nil)
-   (list (inspect-whole-thing-action thing  size)
-	 '(:newline))))
-
-(defun inspect-whole-thing-action (thing size)
-  `(:action ,(format nil "Inspect all ~a elements." 
-		      size)
-	    ,(lambda() 
-	       (let ((*slime-inspect-contents-limit* nil))
-		 (swank::inspect-object thing)))))
-
-(defun inspect-show-more-action (thing)
-  `(:action ,(format nil "~a elements shown. Prompt for how many to inspect..." 
-		     *slime-inspect-contents-limit* )
-	    ,(lambda() 
-	       (let ((*slime-inspect-contents-limit* 
-		      (progn (format t "How many elements should be shown? ") (read))))
-		 (swank::inspect-object thing)))))
-
-(defmethod inspect-for-emacs ((array array) inspector)
-  (declare (ignore inspector))
-  (values "An array."
-          (append
-           (label-value-line*
-            ("Dimensions" (array-dimensions array))
-            ("Its element type is" (array-element-type array))
-            ("Total size" (array-total-size array))
-            ("Adjustable" (adjustable-array-p array)))
-           (when (array-has-fill-pointer-p array)
-             (label-value-line "Fill pointer" (fill-pointer array)))
-           '("Contents:" (:newline))
-           (if (and *slime-inspect-contents-limit*
-		    (>= (array-total-size array) *slime-inspect-contents-limit*))
-	       (inspect-bigger-piece-actions array  (length array))
-	       nil)
-           (loop for i below (or *slime-inspect-contents-limit* (array-total-size array))
-                 append (label-value-line i (row-major-aref array i))))))
-
-(defmethod inspect-for-emacs ((char character) inspector)
-  (declare (ignore inspector))
-  (values "A character."
-          (append 
-           (label-value-line*
-            ("Char code" (char-code char))
-            ("Lower cased" (char-downcase char))
-            ("Upper cased" (char-upcase char)))
-           (if (get-macro-character char)
-               `("In the current readtable (" 
-                 (:value ,*readtable*) ") it is a macro character: "
-                 (:value ,(get-macro-character char)))))))
-
 (defvar *inspectee*)
+(defvar *inspectee-content*)
 (defvar *inspectee-parts*) 
 (defvar *inspectee-actions*)
-(defvar *inspector-stack* '())
-(defvar *inspector-history* (make-array 10 :adjustable t :fill-pointer 0))
-(declaim (type vector *inspector-history*))
-(defvar *inspect-length* 30)
-(defvar *default-inspector* (make-default-inspector))
+(defvar *inspector-stack*)
+(defvar *inspector-history*)
 
 (defun reset-inspector ()
   (setq *inspectee* nil
-        *inspector-stack* nil
+        *inspectee-content* nil
         *inspectee-parts* (make-array 10 :adjustable t :fill-pointer 0)
         *inspectee-actions* (make-array 10 :adjustable t :fill-pointer 0)
+        *inspector-stack* '()
         *inspector-history* (make-array 10 :adjustable t :fill-pointer 0)))
-
-;; FIXME: Unused?
-(defun valid-function-name-p (form)
-  (or (and (not (null form))
-           (not (eq form t))
-           (symbolp form))
-      (and (consp form)
-           (second form)
-           (not (third form))
-           (eq (first form) 'setf))))
 
 (defslimefun init-inspector (string)
   (with-buffer-syntax ()
     (reset-inspector)
     (inspect-object (eval (read-from-string string)))))
+
+(defun inspect-object (o)
+  (push (setq *inspectee* o) *inspector-stack*)
+  (unless (find o *inspector-history*)
+    (vector-push-extend o *inspector-history*))
+  (let ((*print-pretty* nil) ; print everything in the same line
+        (*print-circle* t)
+        (*print-readably* nil))
+    (setq *inspectee-content* (inspector-content (emacs-inspect o))))
+  (list :title (with-output-to-string (s)
+                 (print-unreadable-object (o s :type t :identity t)))
+        :id (assign-index o *inspectee-parts*)
+        :content (content-range *inspectee-content* 0 500)))
+
+(defun inspector-content (specs)
+  (loop for part in specs collect 
+        (etypecase part
+          (string part)
+          (cons (destructure-case part
+                  ((:newline) 
+                   '#.(string #\newline))
+                  ((:value obj &optional str) 
+                   (value-part obj str))
+                  ((:action label lambda &key (refreshp t)) 
+                   (action-part label lambda refreshp)))))))
+
+(defun assign-index (object vector)
+  (let ((index (fill-pointer vector)))
+    (vector-push-extend object vector)
+    index))
+
+(defun value-part (object string)
+  (list :value 
+        (or string (print-part-to-string object))
+        (assign-index object *inspectee-parts*)))
+
+(defun action-part (label lambda refreshp)
+  (list :action label (assign-index (list lambda refreshp)
+                                    *inspectee-actions*)))
 
 (defun print-part-to-string (value)
   (let ((string (to-string value))
@@ -2870,45 +2684,9 @@ NIL is returned if the list is circular."
         (format nil "#~D=~A" pos string)
         string)))
 
-(defun inspector-content-for-emacs (specs)
-  (loop for part in specs collect 
-        (etypecase part
-          (null ; XXX encourages sloppy programming
-           nil)
-          (string part)
-          (cons (destructure-case part
-                  ((:newline) 
-                   (string #\newline))
-                  ((:value obj &optional str) 
-                   (value-part-for-emacs obj str))
-                  ((:action label lambda &key (refreshp t)) 
-                   (action-part-for-emacs label lambda refreshp)))))))
-
-(defun assign-index (object vector)
-  (let ((index (fill-pointer vector)))
-    (vector-push-extend object vector)
-    index))
-
-(defun value-part-for-emacs (object string)
-  (list :value 
-        (or string (print-part-to-string object))
-        (assign-index object *inspectee-parts*)))
-
-(defun action-part-for-emacs (label lambda refreshp)
-  (list :action label (assign-index (list lambda refreshp)
-                                    *inspectee-actions*)))
-
-(defun inspect-object (object &optional (inspector *default-inspector*))
-  (push (setq *inspectee* object) *inspector-stack*)
-  (unless (find object *inspector-history*)
-    (vector-push-extend object *inspector-history*))
-  (let ((*print-pretty* nil)            ; print everything in the same line
-        (*print-circle* t)
-        (*print-readably* nil))
-    (multiple-value-bind (title content) (inspect-for-emacs object inspector)
-      (list :title title
-            :type (to-string (type-of object))
-            :content (inspector-content-for-emacs content)))))
+(defun content-range (list start end)
+  (let* ((len (length list)) (end (min len end)))
+    (list (subseq list start end) len start end)))
 
 (defslimefun inspector-nth-part (index)
   (aref *inspectee-parts* index))
@@ -2917,18 +2695,20 @@ NIL is returned if the list is circular."
   (with-buffer-syntax ()
     (inspect-object (inspector-nth-part index))))
 
+(defslimefun inspector-range (from to)
+  (content-range *inspectee-content* from to))
+
 (defslimefun inspector-call-nth-action (index &rest args)
-  (destructuring-bind (action-lambda refreshp)
-      (aref *inspectee-actions* index)
-    (apply action-lambda args)
+  (destructuring-bind (fun refreshp) (aref *inspectee-actions* index)
+    (apply fun args)
     (if refreshp
         (inspect-object (pop *inspector-stack*))
         ;; tell emacs that we don't want to refresh the inspector buffer
         nil)))
 
 (defslimefun inspector-pop ()
-  "Drop the inspector stack and inspect the second element.  Return
-nil if there's no second element."
+  "Drop the inspector stack and inspect the second element.
+Return nil if there's no second element."
   (with-buffer-syntax ()
     (cond ((cdr *inspector-stack*)
            (pop *inspector-stack*)
@@ -2938,10 +2718,10 @@ nil if there's no second element."
 (defslimefun inspector-next ()
   "Inspect the next element in the *inspector-history*."
   (with-buffer-syntax ()
-    (let ((position (position *inspectee* *inspector-history*)))
-      (cond ((= (1+ position) (length *inspector-history*))
+    (let ((pos (position *inspectee* *inspector-history*)))
+      (cond ((= (1+ pos) (length *inspector-history*))
              nil)
-            (t (inspect-object (aref *inspector-history* (1+ position))))))))
+            (t (inspect-object (aref *inspector-history* (1+ pos))))))))
 
 (defslimefun inspector-reinspect ()
   (inspect-object *inspectee*))
@@ -2975,6 +2755,107 @@ nil if there's no second element."
     (reset-inspector)
     (inspect-object (frame-var-value frame var))))
 
+;;;;; Lists
+
+(defmethod emacs-inspect ((o cons))
+  (if (listp (cdr o))
+      (inspect-list o)
+      (inspect-cons o)))
+
+(defun inspect-cons (cons)
+  (label-value-line* 
+   ('car (car cons))
+   ('cdr (cdr cons))))
+
+;; (inspect-list '#1=(a #1# . #1# ))
+;; (inspect-list (list* 'a 'b 'c))
+;; (inspect-list (make-list 10000))
+
+(defun inspect-list (list)
+  (multiple-value-bind (length tail) (safe-length list)
+    (flet ((frob (title list)
+             (list* title '(:newline) (inspect-list-aux list))))
+      (cond ((not length)
+             (frob "A circular list:"
+                   (cons (car list)
+                         (ldiff (cdr list) list))))
+            ((not tail)
+             (frob "A proper list:" list))
+            (t
+             (frob "An improper list:" list))))))
+
+(defun inspect-list-aux (list)
+  (loop for i from 0  for rest on list  while (consp rest)  append 
+        (if (listp (cdr rest))
+            (label-value-line i (car rest))
+            (label-value-line* (i (car rest)) (:tail (cdr rest))))))
+
+(defun safe-length (list)
+  "Similar to `list-length', but avoid errors on improper lists.
+Return two values: the length of the list and the last cdr.
+Return NIL if LIST is circular."
+  (do ((n 0 (+ n 2))                    ;Counter.
+       (fast list (cddr fast))          ;Fast pointer: leaps by 2.
+       (slow list (cdr slow)))          ;Slow pointer: leaps by 1.
+      (nil)
+    (cond ((null fast) (return (values n nil)))
+          ((not (consp fast)) (return (values n fast)))
+          ((null (cdr fast)) (return (values (1+ n) (cdr fast))))
+          ((and (eq fast slow) (> n 0)) (return nil))
+          ((not (consp (cdr fast))) (return (values (1+ n) (cdr fast)))))))
+
+;;;;; Hashtables
+
+(defmethod emacs-inspect ((ht hash-table))
+  (append
+   (label-value-line*
+    ("Count" (hash-table-count ht))
+    ("Size" (hash-table-size ht))
+    ("Test" (hash-table-test ht))
+    ("Rehash size" (hash-table-rehash-size ht))
+    ("Rehash threshold" (hash-table-rehash-threshold ht)))
+   (let ((weakness (hash-table-weakness ht)))
+     (when weakness
+       (label-value-line "Weakness:" weakness)))
+   (unless (zerop (hash-table-count ht))
+     `((:action "[clear hashtable]" 
+                ,(lambda () (clrhash ht))) (:newline)
+       "Contents: " (:newline)))
+   (loop for key being the hash-keys of ht
+         for value being the hash-values of ht
+         append `((:value ,key) " = " (:value ,value)
+                  " " (:action "[remove entry]"
+                               ,(let ((key key))
+                                     (lambda () (remhash key ht))))
+                  (:newline)))))
+
+;;;;; Arrays
+
+(defmethod emacs-inspect ((array array))
+  (append
+   (label-value-line*
+    ("Dimensions" (array-dimensions array))
+    ("Element type" (array-element-type array))
+    ("Total size" (array-total-size array))
+    ("Adjustable" (adjustable-array-p array)))
+   (when (array-has-fill-pointer-p array)
+     (label-value-line "Fill pointer" (fill-pointer array)))
+   '("Contents:" (:newline))
+   (loop for i below (array-total-size array)
+         append (label-value-line i (row-major-aref array i)))))
+
+;;;;; Chars
+
+(defmethod emacs-inspect ((char character))
+  (append 
+   (label-value-line*
+    ("Char code" (char-code char))
+    ("Lower cased" (char-downcase char))
+    ("Upper cased" (char-upcase char)))
+   (if (get-macro-character char)
+       `("In the current readtable (" 
+         (:value ,*readtable*) ") it is a macro character: "
+         (:value ,(get-macro-character char))))))
 
 ;;;; Thread listing
 
@@ -3194,5 +3075,13 @@ Collisions are caused because package information is ignored."
                     collisions))))))
 
 (add-hook *pre-reply-hook* 'sync-indentation-to-emacs)
+
+(defun before-init (version load-path)
+  (setq *swank-wire-protocol-version* version)
+  (setq *load-path* load-path)
+  (swank-backend::warn-unimplemented-interfaces))
+
+(defun init ()
+  (run-hook *after-init-hook*))
 
 ;;; swank.lisp ends here

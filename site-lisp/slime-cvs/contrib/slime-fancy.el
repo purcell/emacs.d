@@ -31,17 +31,19 @@
 (require 'slime-editing-commands)
 (slime-editing-commands-init)
 
-;; Makes the inspector fancier.
+;; Makes the inspector fancier.  (Once loaded, can't be turned off.)
 (require 'slime-fancy-inspector)
-(slime-fancy-inspector-init)
 
 ;; Just adds the command C-c M-i.  We do not make fuzzy completion the
 ;; default completion invoked by TAB. --mkoeppe
 (require 'slime-fuzzy)
 (slime-fuzzy-init)
 
+;; Do not activate slime-highlighting-edits by default, as it's easier
+;; to explictly activate it (if a user really wants it) than to explictly
+;; deactivate it once it got globally enabled. -TCR.
 (require 'slime-highlight-edits)
-(slime-highlight-edits-init)
+;(slime-highlight-edits-init)
 
 ;; Load slime-presentations even though they seem to be a
 ;; controversial feature, as they can be easily turned off by
@@ -54,6 +56,7 @@
 ;;(require 'slime-presentation-streams)
 
 (require 'slime-scratch)
+(slime-scratch-init)
 
 ;;; Do not load slime-typeout-frame, as simply loading causes display of a
 ;;; typeout frame, which cannot be turned off. --mkoeppe

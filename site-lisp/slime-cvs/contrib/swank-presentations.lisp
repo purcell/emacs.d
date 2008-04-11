@@ -104,6 +104,8 @@ The secondary value indicates the absence of an entry."
 	     (send-to-emacs `(:presentation-end ,id :repl-result))
 	     (send-to-emacs `(:write-string ,(string #\Newline) 
 					    :repl-result)))))
+    (fresh-line)
+    (finish-output)
     (if (null values)
         (send-to-emacs `(:write-string "; No value" :repl-result))
         (mapc #'send values))))

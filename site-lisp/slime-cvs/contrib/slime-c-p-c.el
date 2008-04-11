@@ -13,7 +13,7 @@
 ;; Add this to your .emacs: 
 ;;
 ;;   (add-to-list 'load-path "<directory-of-this-file>")
-;;   (add-hook 'slime-load-hook (lambda () (require 'slime-c-p-c)))
+;;   (slime-setup '(slime-c-p-c ... possibly other packages ...))
 ;;
 
 
@@ -177,6 +177,7 @@ This is a superset of the functionality of `slime-insert-arglist'."
 (defvar slime-c-p-c-init-undo-stack nil)
 
 (defun slime-c-p-c-init ()
+  (slime-require :swank-arglists)
   ;; save current state for unload
   (push 
    `(progn
@@ -188,12 +189,8 @@ This is a superset of the functionality of `slime-insert-arglist'."
 	',(lookup-key slime-repl-mode-map "\C-c\C-s")))
    slime-c-p-c-init-undo-stack)
   (setq slime-complete-symbol-function 'slime-complete-symbol*)
-  (add-hook 'slime-connected-hook 'slime-c-p-c-on-connect)
   (define-key slime-mode-map "\C-c\C-s" 'slime-complete-form)
   (define-key slime-repl-mode-map "\C-c\C-s" 'slime-complete-form))
-
-(defun slime-c-p-c-on-connect ()
-  (slime-eval-async '(swank:swank-require :swank-arglists)))
 
 (defun slime-c-p-c-unload ()
   (while slime-c-p-c-init-undo-stack

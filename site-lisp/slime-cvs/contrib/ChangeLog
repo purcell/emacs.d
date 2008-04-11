@@ -1,3 +1,369 @@
+2008-04-06  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* slime-presentations.lisp: 
+	(slime-maybe-M-.-presentation-at-point): Renamed to
+	`slime-edit-presentation'. Now makes sure to decline if user gave
+	a name explicitly. 
+
+2008-03-24  Helmut Eller  <heller@common-lisp.net>
+
+	* swank-kawa.scm: Save stacktraces with locals on throw events.
+	This is quite costly but makes debugging easier.
+
+2008-03-14  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-fancy-inspector.lisp (add-slots-for-inspector): Remove
+	IGNORE declaration of non-existing argument.
+
+2008-03-14  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-fuzzy.lisp (fuzzy-convert-matching-for-emacs): Return a
+	string representation of the classifications rather than the
+	classifications themselves. (Notice this propagates up to (and
+	consequently changes the return value of) the RPC function
+	FUZZY-COMPLETIONS. (incompatible api change.)  
+
+	Rationale: The number of supported classification can be changed
+	without having to adapt its display at the client.
+
+	* slime-fuzzy.lisp (slime-fuzzy-insert-completion-choice):
+	(slime-fuzzy-fill-completions-buffer): Adapted to API change.
+
+2008-03-14  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-fancy-inspector.lisp (make-symbols-listing :classification):
+	Add support for typespec and constant classification; don't
+	silently ignore symbols that can't be usefully classified, but
+	group them under "MISC".
+
+2008-03-14  Helmut Eller  <heller@common-lisp.net>
+
+	Move filename translation code to contrib.
+
+	* slime-tramp.el (slime-find-filename-translators)
+	(slime-filename-translations): Move from slime.el.
+	(slime-tramp-from-lisp-filename, slime-tramp-to-lisp-filename):
+	New functions.
+
+2008-03-08  Helmut Eller  <heller@common-lisp.net>
+
+	Don't blindly override the inspect method for functions.
+
+	* swank-fancy-inspector.lisp (emacs-inspect function): Define this
+	method only if the backend hasn't defined one.
+	(inspect-function): New function.
+
+2008-03-02  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	M-. now works on presentations. 
+
+	Additionally, a Find Definition entry is presented in the menu
+	appearing on right clicking on a presentation.
+	
+	* slime-presentations.lisp (slime-M-.-presentation): New function.
+	(slime-M-.-presentation-at-mouse): New function.
+	(slime-M-.-presentation-at-point): New function.
+	(slime-maybe-M-.-presentation-at-point): New function.
+	(slime-menu-choices-for-presentation): New entry "Find Definition".
+	(slime-presentation-easy-menu): New entry "Find Definition".
+	(slime-presentations-init): Hook into `slime-edit-definition-hooks'.
+
+2008-03-02  Helmut Eller  <heller@common-lisp.net>
+
+	* swank-mit-scheme.scm: New file.
+
+2008-02-21  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	Having the `slime-presentations' contrib enabled, (princ 10)
+	resulted in "1010" rather than "10\n10". (This also caused a
+	regression in the `repl-test' test case.)
+	
+	* swank-presentations.lisp (present-repl-results): Emit fresh-line
+	as the original SEND-REPL-RESULTS-TO-EMACS does.
+
+2008-02-18  Helmut Eller  <heller@common-lisp.net>
+
+	Update Kawa backend to the changed inspector protocol.
+
+	* swank-kawa.scm (inspect-object): Return a list (content len
+	start end).
+	(<inspector-state>): New field: content.
+	(content-range, subseq): New functions.
+
+2008-02-15  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	* slime-presentations.el (slime-previous-presentation)
+	(slime-next-presentation): Accept a standard prefix argument.
+
+2008-02-13  Helmut Eller  <heller@common-lisp.net>
+
+	* slime-c-p-c.el (slime-c-p-c-init): Use slime-require instead of
+	a connected-hook.
+
+2008-02-13  Helmut Eller  <heller@common-lisp.net>
+
+	Track tree-widget change: :dynarg is now called :expander.
+
+	* slime-xref-browser.el (slime-expand-class-node)
+	(slime-browse-classes, slime-expand-xrefs, slime-browse-xrefs):
+	:dynargs is obsolete, it is now called :expander.
+
+2008-02-10  Helmut Eller  <heller@common-lisp.net>
+
+	Fix some bugs introduced by the recent reorganization.
+
+	* swank-fancy-inspector.lisp (emacs-inspect pathname): Fix it
+	again.
+
+	* slime-fancy-inspector.el: Use slime-require.
+
+	* slime-fancy.el: slime-fancy-inspector-init no longer exists, so
+	don't call it.  Once loaded, it's also no longer possible to turn
+	the fancy inspector off.
+
+2008-02-04  Marco Baringer  <mb@bese.it>
+
+	* swank-presentation-streams.lisp (presenting-object-1): Add
+	declare special *record-repl-results* to silence compiler
+	warnings.
+
+	* swank-arglists.lisp (arglist-dispatch): Specialize operator-type
+	so openmcl doesn't warn about unused arguments.
+	(arglist-dispatch): add declare ignore form.
+
+2008-02-04  Helmut Eller  <heller@common-lisp.net>
+
+	Move some functions to swank-arglist.lisp.
+
+	* swank-arglist.lisp (length=, ensure-list, recursively-empty-p)
+	(maybecall, exactly-one-p, read-softly-from-string)
+	(unintern-in-home-package, valid-function-name-p): Moved from
+	swank.lisp. to contrib/swank-arglist.lisp.
+
+2008-02-03  Marco Baringer  <mb@bese.it>
+
+	* swank-motd.lisp, slime-motd.el: Message Of The Day printing for
+	slime.
+
+	* slime-indentation.el: Integrate cl-indent.el into slime's
+	contrib infrastructure. Fix bug in &rest.
+
+	* swank-indentation.lisp: Allow an application runnig under slime
+	to update emacs' indentation notes.
+
+2008-01-27  Helmut Eller  <heller@common-lisp.net>
+
+	Make autodoc use the correct width of the typeout-window.
+
+	* slime-autodoc.el (slime-autodoc-dimensions-function): New
+	variable.
+	(slime-autodoc-message-dimensions): Use it.
+
+	* slime-typeout-frame.el (slime-typeout-autodoc-dimensions): New
+	function.
+	(slime-typeout-frame-init): Use it.
+
+2008-01-27  Helmut Eller  <heller@common-lisp.net>
+
+	Use slime-require instead of a connected-hook.
+
+	* slime-autodoc.el (slime-autodoc-on-connect): Deleted.
+
+2008-01-20  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	Hook presentations into debugger and inspector, restoring 
+	features that were removed on 2007-08-27.
+	
+	* slime-presentations.el (slime-presentation-add-easy-menu):
+	Install presentation menu also in the debugger and inspector.
+	(slime-presentation-inspector-insert-ispec): New.
+	(slime-presentation-sldb-insert-frame-variable-value): New.
+	(slime-presentations-init): Install these functions as
+	slime-inspector-insert-ispec-function and
+	sldb-insert-frame-variable-value-function. 
+
+2008-01-19  Helmut Eller   <heller@common-lisp.net>
+
+	* swank-goo.goo: New file.
+	* swank-kawa.scm: New file.
+
+2008-01-11  Stelian Ionescu <sionescu@common-lisp.net>
+
+	* slime-presentations.el
+	(slime-copy-or-inspect-presentation-at-mouse): Call
+	slime-copy-presentation-at-mouse-to-repl rather than
+	slime-copy-presentation-at-mouse. 
+
+2008-01-10  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* slime-parse.el (slime-make-form-spec-from-string): Correctly
+	handle quoted things and other non-proper "(...)" forms.
+
+	* swank-arglist.lisp (read-form-spec): Added assertion against
+	receiving junk form specs from Emacs.
+	
+2008-01-10  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* slime-editing-commands.el (slime-close-all-parens-in-sexp): Use
+	new portability function `slime-delete-and-extract-region'.
+	
+2008-01-10  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-parse.lisp (slime-incomplete-form-at-point): Hopefully
+	better fix than before.
+	
+2008-01-10  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	Add keyboard commands (starting with C-c C-v) and a top-level menu
+	for presentation-related commands.  Add a command (C-c C-v M-o) to
+	forget all objects associated with presentations, without
+	clearing the REPL buffer.
+	
+	* slime-presentations.el
+	(slime-presentation-around-or-before-point-or-error): New
+	function.
+	(slime-inspect-presentation): New function, factored out from
+	slime-inspect-presentation-at-mouse. 
+	(slime-inspect-presentation-at-mouse): Use it here.
+	(slime-inspect-presentation-at-point): New command.
+	(slime-copy-presentation-to-repl): New function, factored out
+	from slime-copy-presentation-at-mouse.
+	(slime-copy-presentation-at-mouse-to-repl): Renamed from
+	slime-copy-presentation-at-mouse; use the new function
+	slime-copy-presentation-to-repl. 
+	(slime-copy-presentation-at-point-to-repl): New command.
+	(slime-copy-presentation-to-kill-ring): New function, factored
+	out from slime-copy-presentation-at-mouse-to-kill-ring.
+	(slime-copy-presentation-at-point-to-kill-ring): New command.
+	(slime-describe-presentation): New function, factored out from
+	slime-describe-presentation-at-mouse. 
+	(slime-describe-presentation-at-mouse): Use it here.
+	(slime-describe-presentation-at-point): New command.
+	(slime-pretty-print-presentation): New function, factored out
+	from slime-pretty-print-presentation-at-mouse.
+	(slime-pretty-print-presentation-at-mouse): Use it here.
+	(slime-pretty-print-presentation-at-point): New command.
+	(slime-mark-presentation): New command.
+	(slime-previous-presentation, slime-next-presentation): New
+	commands. 
+	(slime-presentation-command-map, slime-presentation-bindings):
+	New variables.
+	(slime-presentation-init-keymaps): New function.
+	(slime-presentation-around-or-before-point-p): New function.
+	(slime-presentation-easy-menu): New variable.
+	(slime-presentation-add-easy-menu): New function.
+	(slime-clear-presentations): Make interactive, remove
+	presentation markup from all presentations in the REPL buffer.
+	(slime-presentations-init): Call slime-presentation-init-keymaps
+	and slime-presentation-add-easy-menu.
+
+2008-01-10  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-parse.lisp (slime-incomplete-form-at-point): Take the
+	arglist index the user's point is located at correctly into
+	account. Previously `C-c C-s' on `(defun |foo' would have inserted
+        `args body...)', now it inserts `name args body...)'
+	
+2008-01-10  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-arglists.lisp (read-form-spec): Changed "cons" clause to
+	"list" clause in etypecase. Fix for error on arglist display on
+	`(declare (ftype (|)))', | being point.
+	
+2008-01-10  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* slime-fuzzy.el (slime-fuzzy-completion-time-limit-in-msec):
+	Update docstring: Its value isn't rounded to nearest second, but
+	is really interpreted as msecs.
+
+	* swank-fuzzy.el: Updated some comments.
+	(fuzzy-generate-matchings): Sort package matchings before
+	traversal, such that they're traversed in the order of their
+	score. (Important when time limit exhausts during traversal.)
+	
+2008-01-09  Matthias Koeppe  <mkoeppe@mail.math.uni-magdeburg.de>
+
+	Restore support for Scheme programs that was removed from core
+	SLIME on 2007-09-19, as a "slime-scheme" contrib.
+	
+	* slime-scheme.el: New file.
+
+2007-12-30  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-arglists.lisp: Fix for `(cerror "FOO" 'type-error ...)'
+
+	(*arglist-dummy*): Removed.
+	(arglist-dummy): New structure. Wrapper around whatever could not
+	be reliably read. The clue is that its printing function does only
+	print the object this structure contains.
+	(read-conversatively-for-autodoc): Return such a structure if
+	conversative reading fails.
+
+2007-11-27  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-arglists.lisp (arglist-dispatch 'defmethod): Use
+	VALID-FUNCTION-NAME-P. Fixes error on certain `(defmethod (setf	...))'
+	forms.
+	
+2007-11-27  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-arglists.lisp (print-arglist): Print initforms in &optional and
+	&key lambda list specifiers as if by PRIN1 instead of PRINC.
+	Reported by Michael Weber.
+	
+2007-11-24  Helmut Eller  <heller@common-lisp.net>
+
+	* slime-fuzzy.el: Use slime-require instead of a connected-hook.
+
+2007-11-20  Helmut Eller  <heller@common-lisp.net>
+
+	* swank-fancy-inspector.lisp (inspect-for-emacs function t): Don't
+	specialize the second argument, so that backend methods take
+	precedence.  Reported by Maciej Katafiasz.
+
+2007-10-24  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-arglist.lisp (decode-arglist): Fix incompatibility with
+	ACL's modern reader mode. Thanks to Andreas Fuchs for stumbling
+	over this.
+
+2007-10-22  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-arglist.lisp (read-softly): Renamed to
+	READ-SOFTLY-FROM-STRING and moved to `swank.lisp'.
+	(unintern-in-home-package): Moved to `swank.lisp'.
+
+2007-10-01  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* slime-autdoc.el (slime-autodoc-message-ok-p): Don't display an
+	arglist when the minibuffer is active.
+
+2007-10-01  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* slime-typeout-frame.el: Messages in the typeout frame were too
+	easily overwritten by `slime-autodoc'. Fix that.
+	Reported by Geoff Wozniak.
+	
+	(slime-typeout-message-aux): Split out from `slime-typeout-message'.
+	(slime-typeout-message): Wrapper around it. Additionally disable
+	the autodoc timer temporarily.
+
+2007-09-30  Geoff Wozniak  <geoff@wozniak.ca>
+
+	* slime-typeout-frame.el (slime-typeout-frame-init): Fix quoted
+	FUNCTION forms in literal.
+
+2007-09-28  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* README: Updated.
+
+	* slime-fancy.el: `slime-highlighting-edits' is not enabled by
+	default anymore, as its functionality is controversial, and it's
+	easier to explicitly enable it than to disable it once it got
+	globally activated. Better to be conservative.
+
+	* slime-fancy.el: Not only load, but also enable `slime-scratch'.
+
 2007-09-21  Helmut Eller  <heller@common-lisp.net>
 
 	* slime-asdf.el (slime-asdf-init, slime-asdf-unload): Fix typos.

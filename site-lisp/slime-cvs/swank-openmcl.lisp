@@ -211,14 +211,18 @@
 
 (defvar *break-in-sldb* t)
 
+
 (let ((ccl::*warn-if-redefine-kernel* nil))
-  (ccl::advise 
-   cl::break 
+  (ccl::advise
+   ccl::cbreak-loop
    (if (and *break-in-sldb* 
-            (find ccl::*current-process* (symbol-value (intern "*CONNECTIONS*" 'swank))
-                  :key (intern "CONNECTION.REPL-THREAD" 'swank)))
+            (find ccl::*current-process*
+                  (symbol-value (intern (string :*connections*) :swank))
+                  :key (intern (string :connection.repl-thread) :swank)))
        (apply 'break-in-sldb ccl::arglist)
-       (:do-it)) :when :around :name sldb-break))
+       (:do-it))
+   :when :around
+   :name sldb-break))
 
 (defun break-in-sldb (&optional string &rest args)
   (let ((c (make-condition 'simple-condition
@@ -335,8 +339,7 @@ condition."
                      for (value nil name) = (multiple-value-list (ccl::nth-value-in-frame p count context lfun pc vsp parent-vsp))
                      when name do (incf varcount)
                      until (= varcount var)
-                     finally (return value))
-               )))))))
+                     finally (return value)))))))))
 
 (defun xref-locations (relation name &optional (inverse nil))
   (flet ((function-source-location (entry)
@@ -345,8 +348,8 @@ condition."
                 (ccl::%db-key-from-xref-entry entry)
                 (if (eql (ccl::xref-entry-type entry)
                          'macro)
-                    'function
-                    (ccl::xref-entry-type entry)))
+                  'function
+                  (ccl::xref-entry-type entry)))
              (cond ((not info)
                     (list :error
                           (format nil "No source info available for ~A"
@@ -466,7 +469,8 @@ condition."
   (setq ccl::*fasl-save-definitions* nil)
   (setq ccl::*fasl-save-doc-strings* t)
   (setq ccl::*fasl-save-local-symbols* t)
-  (setq ccl::*ppc2-compiler-register-save-label* t) 
+  #+ppc (setq ccl::*ppc2-compiler-register-save-label* t)
+  #+x86-64 (setq ccl::*x862-compiler-register-save-label* t)
   (setq ccl::*save-arglist-info* t)
   (setq ccl::*save-definitions* nil)
   (setq ccl::*save-doc-strings* t)
@@ -513,9 +517,8 @@ condition."
 
 (defun frame-arguments (p context lfun pc)
   "Returns a string representing the arguments of a frame."
-  (multiple-value-bind (args types names count nclosed)
+  (multiple-value-bind (args types names)
       (ccl::frame-supplied-args p lfun pc nil context)
-    (declare (ignore count nclosed))
     (let ((result nil))
       (loop named loop
          for var = (cond
@@ -575,7 +578,9 @@ condition."
                    (push (list 
                           :name name
                           :id 0
-                          :value var)
+                          :value (if (typep var 'ccl::value-cell)
+                                     (ccl::uvref var 0)
+                                     var))
                          result))))
              (return-from frame-locals (nreverse result)))))))))
 
@@ -610,19 +615,24 @@ condition."
          (when (= frame-number the-frame-number)
            (setq function-to-disassemble lfun)
            (return-from find-frame)))))
-    (ccl::print-ppc-instructions 
-     *standard-output* 
-     (ccl::function-to-dll-header function-to-disassemble) nil)))
+    #+ppc (ccl::print-ppc-instructions 
+           *standard-output* 
+           (ccl::function-to-dll-header function-to-disassemble)
+           nil)
+    #+x86-64 (ccl::x8664-xdisassemble function-to-disassemble)))
 
 ;;;
 
-(defun canonicalize-location (file symbol)
+(defun canonicalize-location (file symbol &optional snippet)
   (etypecase file
     ((or string pathname)
      (multiple-value-bind (truename c) (ignore-errors (namestring (truename file)))
        (cond (c (list :error (princ-to-string c)))
              (t (make-location (list :file (remove-filename-quoting truename))
-                               (list :function-name (princ-to-string symbol)))))))))
+                               (list :function-name (princ-to-string symbol))
+                               (if snippet
+                                   (list :snippet snippet)
+                                   '()))))))))
 
 (defun remove-filename-quoting (string)
   (if (search "\\" string)
@@ -644,20 +654,20 @@ condition."
                       (list (list type symbol) 
                             (canonicalize-location file symbol))))))
 
-
 (defun function-source-location (function)
-  (multiple-value-bind (info name) (ccl::edit-definition-p function)
+  (multiple-value-bind (info name)
+      (ccl::edit-definition-p function)
     (cond ((not info) (list :error (format nil "No source info available for ~A" function)))
           ((typep (caar info) 'ccl::method)
            `(:location 
              (:file ,(remove-filename-quoting (namestring (translate-logical-pathname (cdr (car info))) )))
              (:method  ,(princ-to-string (ccl::method-name (caar info)))
-               ,(mapcar 'princ-to-string
-                        (mapcar #'specializer-name
-                                (ccl::method-specializers (caar info))))
-               ,@(mapcar 'princ-to-string (ccl::method-qualifiers (caar info))))
+                       ,(mapcar 'princ-to-string
+                                (mapcar #'specializer-name
+                                        (ccl::method-specializers (caar info))))
+                       ,@(mapcar 'princ-to-string (ccl::method-qualifiers (caar info))))
              nil))
-          (t (canonicalize-location (cdr (first info)) name)))))
+          (t (canonicalize-location (second (first info)) name (third (first info)))))))
 
 (defimplementation frame-source-location-for-emacs (index)
   "Return to Emacs the location of the source code for the
@@ -693,6 +703,7 @@ at least the filename containing it."
                         ,form)))
              )))))))
 
+#+ppc
 (defimplementation return-from-frame (index form)
   (let ((values (multiple-value-list (eval-in-frame form index))))
     (map-backtrace
@@ -700,7 +711,8 @@ at least the filename containing it."
        (declare (ignore context lfun pc))
        (when (= frame-number index)
          (ccl::apply-in-frame p #'values values))))))
- 
+
+#+ppc
 (defimplementation restart-frame (index)
   (map-backtrace
    (lambda (frame-number p context lfun pc)
@@ -784,19 +796,13 @@ at least the filename containing it."
 
 ;;;; Inspection
 
-(defclass openmcl-inspector (backend-inspector) ())
-
-(defimplementation make-default-inspector ()
-  (make-instance 'openmcl-inspector))
-
 (defimplementation describe-primitive-type (thing)
   (let ((typecode (ccl::typecode thing)))
     (if (gethash typecode *value2tag*)
 	(string (gethash typecode *value2tag*))
 	(string (nth typecode '(tag-fixnum tag-list tag-misc tag-imm))))))
 
-(defmethod inspect-for-emacs ((o t) (inspector backend-inspector))
-  (declare (ignore inspector))
+(defmethod emacs-inspect ((o t))
   (let* ((i (inspector::make-inspector o))
 	 (count (inspector::compute-line-count i))
 	 (lines 
@@ -808,24 +814,16 @@ at least the filename containing it."
              collect " = "
              collect `(:value ,value)
              collect '(:newline))))
-    (values (with-output-to-string (s)
-              (let ((*print-lines* 1)
-                    (*print-right-margin* 80))
-                (pprint o s)))
-            lines)))
+    lines))
 
-(defmethod inspect-for-emacs :around ((o t) (inspector backend-inspector))
+(defmethod emacs-inspect :around ((o t))
   (if (or (uvector-inspector-p o)
           (not (ccl:uvectorp o)))
       (call-next-method)
-      (multiple-value-bind (title content)
-          (call-next-method)
-        (values
-         title
-         (append content
+      (append (call-next-method)
                  `((:newline)
                    (:value ,(make-instance 'uvector-inspector :object o)
-                           "Underlying UVECTOR")))))))
+                           "Underlying UVECTOR")))))
 
 (defclass uvector-inspector ()
   ((object :initarg :object)))
@@ -834,31 +832,28 @@ at least the filename containing it."
   (:method ((object t)) nil)
   (:method ((object uvector-inspector)) t))
 
-(defmethod inspect-for-emacs ((uv uvector-inspector) 
-                              (inspector backend-inspector))
+(defmethod emacs-inspect ((uv uvector-inspector))
   (with-slots (object)
       uv
-    (values (format nil "The UVECTOR for ~S." object)
             (loop
                for index below (ccl::uvsize object)
                collect (format nil "~D: " index)
                collect `(:value ,(ccl::uvref object index))
-               collect `(:newline)))))
+               collect `(:newline))))
 
 (defun closure-closed-over-values (closure)
   (let ((howmany (nth-value 8 (ccl::function-args (ccl::closure-function closure)))))
     (loop for n below howmany
 	 collect
-	 (let* ((value (ccl::%svref closure (+ 1 (- howmany n))))
+	 (let* ((value (ccl::nth-immediate closure (+ 1 (- howmany n))))
 		(map (car (ccl::function-symbol-map (ccl::closure-function closure))))
 		(label (or (and map (svref map n)) n))
 		(cellp (ccl::closed-over-value-p value)))
 	   (list label (if cellp (ccl::closed-over-value value) value))))))
 
-(defmethod inspect-for-emacs ((c ccl::compiled-lexical-closure) (inspector t))
-  (declare (ignore inspector))
-  (values
-   (format nil "A closure: ~a" c)
+(defmethod emacs-inspect ((c ccl::compiled-lexical-closure))
+  (list*
+   (format nil "A closure: ~a~%" c)
    `(,@(if (arglist c)
 	   (list "Its argument list is: " 
 		 (funcall (intern "INSPECTOR-PRINC" 'swank) (arglist c))) 

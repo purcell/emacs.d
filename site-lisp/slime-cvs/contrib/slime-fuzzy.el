@@ -30,8 +30,8 @@ opposed to moving the point to the completion buffer."
   :type 'integer)
 
 (defcustom slime-fuzzy-completion-time-limit-in-msec 1500
-  "Limit the time spent (given in msec) in swank while gathering comletitions.
-\(NOTE: currently it's rounded up the nearest second)"
+  "Limit the time spent (given in msec) in swank while gathering
+comletitions."
   :group 'slime-mode
   :type 'integer)
 
@@ -294,30 +294,22 @@ Flags: boundp fboundp generic-function class macro special-operator package
   "Inserts the completion object `completion' as a formatted
 completion choice into the current buffer, and mark it with the
 proper text properties."
-  (let ((start (point))
-        (symbol-name (first completion))
-        (score (second completion))
-        (chunks (third completion))
-        (flags (fourth completion)))
-    (insert symbol-name)
-    (let ((end (point)))
+  (destructuring-bind (symbol-name score chunks classification-string) completion
+    (let ((start (point))
+	  (end))
+      (insert symbol-name)
+      (setq end (point))
       (dolist (chunk chunks)
-        (put-text-property (+ start (first chunk)) 
-                           (+ start (first chunk) 
-                              (length (second chunk)))
-                           'face 'bold))
+	(put-text-property (+ start (first chunk)) 
+			   (+ start (first chunk) 
+			      (length (second chunk)))
+			   'face 'bold))
       (put-text-property start (point) 'mouse-face 'highlight)
       (dotimes (i (- max-length (- end start)))
-        (insert " "))
-      (insert (format " %s%s%s%s%s%s%s %8.2f"
-                      (if (member :boundp flags) "b" "-")
-                      (if (member :fboundp flags) "f" "-")
-                      (if (member :generic-function flags) "g" "-")
-                      (if (member :class flags) "c" "-")
-                      (if (member :macro flags) "m" "-")
-                      (if (member :special-operator flags) "s" "-")
-                      (if (member :package flags) "p" "-")
-                      score))
+	(insert " "))
+      (insert (format " %s %-8.2f"
+		      classification-string
+		      score))
       (insert "\n")
       (put-text-property start (point) 'completion completion))))
 
@@ -386,13 +378,20 @@ done."
 
       (insert "Completion:")
       (dotimes (i (- max-length 10)) (insert " "))
-      ;;     Flags:  Score:
-      ;; ... ------- --------
-      ;;     bfgcmsp 
-      (insert "Flags:  Score:\n")
-      (dotimes (i max-length) (insert "-"))
-      (insert " ------- --------\n")
-      (setq slime-fuzzy-first (point))
+      ;;     Flags:   Score:
+      ;; ... -------  --------
+      ;;     bfgctmsp
+      (let* ((example-classification-string (fourth (first completions)))
+	     (classification-length (length example-classification-string))
+	     (spaces (- classification-length (length "Flags:"))))
+	(insert "Flags:")
+	(dotimes (i spaces) (insert " "))
+	(insert " Score:\n")
+	(dotimes (i max-length) (insert "-"))
+	(insert " ")
+	(dotimes (i classification-length) (insert "-"))
+	(insert " --------\n")
+	(setq slime-fuzzy-first (point)))
 
       (dolist (completion completions)
         (setq slime-fuzzy-last (point)) ; will eventually become the last entry
@@ -585,14 +584,12 @@ configuration was changed, we nullify our saved configuration."
 ;;; Initialization 
 
 (defun slime-fuzzy-init ()
-  (add-hook 'slime-connected-hook 'slime-fuzzy-on-connect)
   (slime-fuzzy-bind-keys))
 
 (defun slime-fuzzy-bind-keys ()
   (define-key slime-mode-map "\C-c\M-i" 'slime-fuzzy-complete-symbol)
   (define-key slime-repl-mode-map "\C-c\M-i" 'slime-fuzzy-complete-symbol))
 
-(defun slime-fuzzy-on-connect ()
-  (slime-eval-async '(swank:swank-require :swank-fuzzy)))
+(slime-require :swank-fuzzy)
 
 (provide 'slime-fuzzy)

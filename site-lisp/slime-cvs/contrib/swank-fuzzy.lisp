@@ -30,14 +30,14 @@
 The main result is a list of completion objects, where a completion
 object is:
 
-    (COMPLETED-STRING SCORE (&rest CHUNKS) FLAGS)
+    (COMPLETED-STRING SCORE (&rest CHUNKS) CLASSIFICATION-STRING)
 
 where a CHUNK is a description of a matched substring:
 
     (OFFSET SUBSTRING)
 
-and FLAGS is a list of keywords describing properties of the 
-symbol (see CLASSIFY-SYMBOL).
+and FLAGS is short string describing properties of the symbol (see
+CLASSIFY-SYMBOL and STRING-CLASSIFICATION->STRING).
 
 E.g., completing \"mvb\" in a package that uses COMMON-LISP would
 return something like:
@@ -131,11 +131,11 @@ designator's format. The cases are as follows:
       (values result (search symbol-name result)))))
 
 (defun fuzzy-convert-matching-for-emacs (fuzzy-matching user-input-string)
-  "Converts a result from the fuzzy completion core into
-something that emacs is expecting.  Converts symbols to strings,
-fixes case issues, and adds information describing if the symbol
-is :bound, :fbound, a :class, a :macro, a :generic-function,
-a :special-operator, or a :package."
+  "Converts a result from the fuzzy completion core into something
+that emacs is expecting.  Converts symbols to strings, fixes case
+issues, and adds information (as a string) describing if the symbol is
+bound, fbound, a class, a macro, a generic-function, a
+special-operator, or a package."
   (with-struct (fuzzy-matching. symbol score package-chunks symbol-chunks) fuzzy-matching
     (multiple-value-bind (name added-length)
 	(fuzzy-format-matching fuzzy-matching user-input-string)
@@ -148,7 +148,7 @@ a :special-operator, or a :package."
 				(let ((offset (first chunk)) (string (second chunk)))
 				  (list (+ added-length offset) string))) 
 			    symbol-chunks))
-	    (classify-symbol symbol)))))
+	    (symbol-classification->string (classify-symbol symbol))))))
 
 (defun fuzzy-completion-set (string default-package-name &key limit time-limit-in-msec)
   "Returns two values: an array of completion objects, sorted by
@@ -220,15 +220,20 @@ TIME-LIMIT-IN-MSEC is NIL, an infinite time limit is assumed."
 	       ;; relative to all the packages found.
 	       (multiple-value-bind (found-packages rest-time-limit)
 		   (find-packages parsed-package-name time-limit-in-msec)
+		 ;; We want to traverse the found packages in the order of their score,
+		 ;; since those with higher score presumably represent better choices.
+		 ;; (This is important because some packages may never be looked at if
+		 ;;  time limit exhausts during traversal.)
+		 (setf found-packages (sort found-packages #'fuzzy-matching-greaterp))
 		 (loop
 		       for package-matching across found-packages
 		       for package = (find-package (fuzzy-matching.package-name package-matching))
 		       while (or (not time-limit) (> rest-time-limit 0)) do
 		         (multiple-value-bind (matchings remaining-time)
-			     ;; The filter removes all those symbols which are also present
-			     ;; in one of the other packages, specifically if such a package
-			     ;; represents the home package of the symbol, because that one
-			     ;; is deemed to be the best match.
+			     ;; The duplication filter removes all those symbols which are
+			     ;; present in more than one package match. Specifically if such a
+			     ;; package match represents the home package of the symbol, it's
+			     ;; the one kept because this one is deemed to be the best match.
 			     (find-symbols parsed-symbol-name package rest-time-limit
 					   (%make-duplicate-symbols-filter
 					    (remove package-matching found-packages)))
@@ -261,9 +266,9 @@ TIME-LIMIT-IN-MSEC is NIL, an infinite time limit is assumed."
 	(* 1000 (* comparasions (expt 10 -7)))))) ; msecs
 
 (defun %make-duplicate-symbols-filter (fuzzy-package-matchings)
-  ;; Returns a filter function that takes a symbol and which returns T
-  ;; only if no matching in FUZZY-PACKAGE-MATCHINGS represents the
-  ;; home-package of the.
+  ;; Returns a filter function that takes a symbol, and which returns T
+  ;; if and only if /no/ matching in FUZZY-PACKAGE-MATCHINGS represents
+  ;; the home-package of the symbol passed.
   (let ((packages (mapcar #'(lambda (m)
 			      (find-package (fuzzy-matching.package-name m)))
 			  (coerce fuzzy-package-matchings 'list))))
@@ -285,7 +290,7 @@ equal, the one which comes alphabetically first wins."
 		 (name2 (symbol-name (fuzzy-matching.symbol m2))))
 	     (string< name1 name2))))))
 
-
+(declaim (ftype (function () (integer 0)) get-real-time-msecs))
 (defun get-real-time-in-msecs ()
   (let ((units-per-msec (max 1 (floor internal-time-units-per-second 1000))))
     (values (floor (get-internal-real-time) units-per-msec)))) ; return just one value!

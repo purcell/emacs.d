@@ -12,6 +12,40 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (swank-require :swank-c-p-c))
 
+(defun length= (seq n)
+  "Test for whether SEQ contains N number of elements. I.e. it's equivalent
+ to (= (LENGTH SEQ) N), but besides being more concise, it may also be more
+ efficiently implemented."
+  (etypecase seq 
+    (list (do ((i n (1- i))
+               (list seq (cdr list)))
+              ((or (<= i 0) (null list))
+               (and (zerop i) (null list)))))
+    (sequence (= (length seq) n))))
+
+(defun ensure-list (thing)
+  (if (listp thing) thing (list thing)))
+
+(defun recursively-empty-p (list)
+  "Returns whether LIST consists only of arbitrarily nested empty lists."
+  (cond ((not (listp list)) nil)
+	((null list) t)
+	(t (every #'recursively-empty-p list))))
+
+(defun maybecall (bool fn &rest args)
+  "Call FN with ARGS if BOOL is T. Otherwise return ARGS as multiple values."
+  (if bool (apply fn args) (values-list args)))
+
+(defun exactly-one-p (&rest values)
+  "If exactly one value in VALUES is non-NIL, this value is returned.
+Otherwise NIL is returned."
+  (let ((found nil))
+    (dolist (v values)
+      (when v (if found
+                  (return-from exactly-one-p nil)
+                  (setq found v))))
+    found))
+
 (defun valid-operator-symbol-p (symbol)
   "Is SYMBOL the name of a function, a macro, or a special-operator?"
   (or (fboundp symbol)
@@ -23,6 +57,14 @@
   "Is STRING the name of a function, macro, or special-operator?"
   (let ((symbol (parse-symbol string)))
     (valid-operator-symbol-p symbol)))
+
+(defun valid-function-name-p (form)
+  (or (symbolp form)
+      (and (consp form)
+           (second form)
+           (not (third form))
+           (eq (first form) 'setf)
+           (symbolp (second form)))))
 
 (defslimefun arglist-for-echo-area (raw-specs &key arg-indices
                                                    print-right-margin print-lines)
@@ -72,7 +114,14 @@ For more information about the format of ``raw form specs'' and
   (let ((op-rawspec (nth (1+ position) raw-specs)))
     (first (parse-form-spec op-rawspec #'read-conversatively-for-autodoc))))
 
-(defvar *arglist-dummy* (cons :dummy nil))
+;; This is a wrapper object around anything that came from Slime and
+;; could not reliably be read. 
+(defstruct (arglist-dummy
+	     (:conc-name #:arglist-dummy.)
+	     (:print-object (lambda (struct stream)
+			      (with-struct (arglist-dummy. string-representation) struct
+				(write-string string-representation stream)))))
+  string-representation)
 
 (defun read-conversatively-for-autodoc (string)
   "Tries to find the symbol that's represented by STRING. 
@@ -83,8 +132,8 @@ interned. Because this function is supposed to be called from the
 automatic arglist display stuff from Slime, interning freshly
 symbols is a big no-no.
 
-In such a case (that no symbol could be found), the object
-*ARGLIST-DUMMY* is returned instead, which works as a placeholder
+In such a case (that no symbol could be found), an object of type
+ARGLIST-DUMMY is returned instead, which works as a placeholder
 datum for subsequent logics to rely on."
   (let* ((string  (string-left-trim '(#\Space #\Tab #\Newline) string))
 	 (quoted? (eql (aref string 0) #\')))
@@ -92,7 +141,7 @@ datum for subsequent logics to rely on."
 	(parse-symbol (if quoted? (subseq string 1) string))
       (if found?
 	  (if quoted? `(quote ,symbol) symbol)
-	  *arglist-dummy*))))
+	  (make-arglist-dummy :string-representation string)))))
 
 
 (defun parse-form-spec (raw-spec &optional reader)
@@ -199,8 +248,8 @@ the Common Lisp datum that the string represents, a flag whether
 the returned datum is a symbol and has been newly interned in
 some package.
 
-If READER is not explicitly given, the function READ-SOFTLY is
-used instead."
+If READER is not explicitly given, the function 
+READ-SOFTLY-FROM-STRING* is used instead."
   (when spec
     (with-buffer-syntax ()
       (call-with-ignored-reader-errors
@@ -211,13 +260,13 @@ used instead."
                     (etypecase element
                       (string
                        (multiple-value-bind (sexp newly-interned?)
-                           (funcall (or reader 'read-softly) element)
+                           (funcall (or reader 'read-softly-from-string*) element)
                          (push sexp result)
                          (when newly-interned?
                            (push sexp newly-interned-symbols))))
-                      (cons
+                      (list
                        (multiple-value-bind (read-spec interned-symbols)
-                           (read-form-spec element)
+                           (read-form-spec element reader)
                          (push read-spec result)
                          (setf newly-interned-symbols
                                (append interned-symbols
@@ -227,28 +276,38 @@ used instead."
              (values (nreverse result)
                      (nreverse newly-interned-symbols))))))))
 
-(defun unintern-in-home-package (symbol)
-  (unintern symbol (symbol-package symbol)))
+(defun read-softly-from-string* (string)
+  "Like READ-SOFTLY-FROM-STRING, but only returns the sexp and
+the flag if a symbol had to be interned."
+  (multiple-value-bind (sexp pos interned?)
+      (read-softly-from-string string)
+    ;; To make sure that we haven't got any junk from Emacs.
+    (assert (= pos (length string)))
+    (values sexp interned?)))
 
-(defun read-softly (string)
-  "Returns two values:
+(defun read-softly-from-string (string)
+  "Returns three values:
 
      1. the object resulting from READing STRING.
 
-     2. T if the object is a symbol that had to be newly interned
+     2. The index of the first character in STRING that was not read.
+
+     3. T if the object is a symbol that had to be newly interned
         in some package. (This does not work for symbols in
         compound forms like lists or vectors.)"
   (multiple-value-bind (symbol found? symbol-name package) (parse-symbol string)
     (if found?
-        (values symbol nil)
-        (let ((sexp (read-from-string string)))
-          (values sexp
+        (values symbol (length string) nil)
+        (multiple-value-bind (sexp pos) (read-from-string string)
+          (values sexp pos
                   (when (symbolp sexp)
                     (prog1 t
                       ;; assert that PARSE-SYMBOL didn't parse incorrectly.
                       (assert (and (equal symbol-name (symbol-name sexp))
                                    (eq package (symbol-package sexp)))))))))))
 
+(defun unintern-in-home-package (symbol)
+  (unintern symbol (symbol-package symbol)))
 
 (defstruct (arglist (:conc-name arglist.) (:predicate arglist-p))
   provided-args         ; list of the provided actual arguments
@@ -297,6 +356,7 @@ used instead."
 ;;;       (DECLARE (OPTIMIZE &ANY (compilation-speed 1) (safety 1) ...))
 ;;;
 
+;; FIXME: This really ought to be rewritten.
 (defun print-arglist (arglist &key operator highlight)
   (let ((index 0)
         (need-space nil))
@@ -304,26 +364,29 @@ used instead."
                (typecase arg
                  (arglist               ; destructuring pattern
                   (print-arglist arg))
-                 (optional-arg 
-                  (princ (encode-optional-arg arg)))
+                 (optional-arg
+		  (let ((enc-arg (encode-optional-arg arg)))
+		    (if (symbolp enc-arg)
+			(princ enc-arg)
+			(destructuring-bind (var &optional (initform nil initform-p)) enc-arg
+			    (pprint-logical-block (nil nil :prefix "(" :suffix ")")
+			      (format t "~A~:[~; ~S~]" var initform-p initform))))))
                  (keyword-arg
                   (let ((enc-arg (encode-keyword-arg arg)))
                     (etypecase enc-arg
                       (symbol (princ enc-arg))
-                      ((cons symbol) 
-                       (pprint-logical-block (nil nil :prefix "(" :suffix ")")
-                         (princ (car enc-arg))
-                         (write-char #\space)
-                         (pprint-fill *standard-output* (cdr enc-arg) nil)))
+                      ((cons symbol)
+		       (destructuring-bind (keyarg initform) enc-arg
+			 (pprint-logical-block (nil nil :prefix "(" :suffix ")")
+			   (format t "~A ~S" keyarg initform))))
                       ((cons cons)
-                       (pprint-logical-block (nil nil :prefix "(" :suffix ")")
-                         (pprint-logical-block (nil nil :prefix "(" :suffix ")")
-                           (prin1 (caar enc-arg))
-                           (write-char #\space)
-                           (print-arg (keyword-arg.arg-name arg)))
-                         (unless (null (cdr enc-arg))
-                           (write-char #\space))
-                         (pprint-fill *standard-output* (cdr enc-arg) nil))))))
+		       (destructuring-bind ((keyword-name var) &optional (initform nil initform-p))
+			   enc-arg
+			 (pprint-logical-block (nil nil :prefix "(" :suffix ")")
+			   (pprint-logical-block (nil nil :prefix "(" :suffix ")")
+			     (format t "~S ~A" keyword-name var))
+			   (when initform-p
+			     (format t " ~S" initform))))))))
                  (t           ; required formal or provided actual arg
                   (if (keywordp arg)
 		      (prin1 arg)	; for &ANY args.
@@ -541,7 +604,7 @@ Return an OPTIONAL-ARG structure."
          (setq mode arg)
          (push arg (arglist.known-junk result)))
         ((and (symbolp arg)
-              (string= (symbol-name arg) (string '#:&ANY))) ; may be interned
+              (string= (symbol-name arg) (string '#:&any))) ; may be interned
          (setf (arglist.any-p result) t)                    ;  in any *package*.
          (setq mode '&any))
         ((member arg lambda-list-keywords)
@@ -1016,7 +1079,6 @@ Examples:
           (split-form-spec form-spec)
         (arglist-dispatch type operator arguments :remove-args remove-args))))
 
-
 (defmacro with-availability ((var) form &body body)
   `(let ((,var ,form))
      (if (eql ,var :not-available)
@@ -1025,7 +1087,7 @@ Examples:
 
 (defgeneric arglist-dispatch (operator-type operator arguments &key remove-args))
   
-(defmethod arglist-dispatch (operator-type operator arguments &key (remove-args t))
+(defmethod arglist-dispatch ((operator-type t) operator arguments &key (remove-args t))
   (when (and (symbolp operator)
              (valid-operator-symbol-p operator))
     (multiple-value-bind (decoded-arglist determining-args any-enrichment)
@@ -1053,9 +1115,7 @@ Examples:
 	     (not (null arguments)) ;have generic function name
 	     (notany #'listp (rest arguments))) ;don't have arglist yet 
     (let* ((gf-name (first arguments))
-	   (gf (and (or (symbolp gf-name)
-			(and (listp gf-name)
-			     (eql (first gf-name) 'setf)))
+	   (gf (and (valid-function-name-p gf-name)
 		    (fboundp gf-name)
 		    (fdefinition gf-name))))
       (when (typep gf 'generic-function)
@@ -1080,7 +1140,7 @@ Examples:
 (defmethod arglist-dispatch ((operator-type (eql :function)) (operator (eql 'declare))
                              arguments &key (remove-args t))
   ;; Catching 'DECLARE before SWANK-BACKEND:ARGLIST can barf.
-  (declare (ignore remove-args))
+  (declare (ignore remove-args arguments))
   (make-arglist :rest '#:decl-specifiers))
 
 (defmethod arglist-dispatch ((operator-type (eql :declaration))

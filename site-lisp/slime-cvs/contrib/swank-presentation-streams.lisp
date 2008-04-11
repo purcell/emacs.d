@@ -210,6 +210,9 @@ Two special return values:
 (defun presenting-object-1 (object stream continue)
   "Uses the bridge mechanism with two messages >id and <id. The first one
 says that I am starting to print an object with this id. The second says I am finished"
+  ;; this declare special is to let the compiler know that *record-repl-results* will eventually be
+  ;; a global special, even if it isn't when this file is compiled/loaded.
+  (declare (special *record-repl-results*))
   (let ((slime-stream-p 
 	 (and *record-repl-results* (slime-stream-p stream))))
     (if slime-stream-p

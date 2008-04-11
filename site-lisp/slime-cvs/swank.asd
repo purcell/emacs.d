@@ -24,25 +24,28 @@
 
 (in-package :swank-loader)
 
-(defclass cl-script-file (asdf:source-file) ())
+(defclass swank-loader-file (asdf:cl-source-file) ())
 
-(defmethod asdf:perform ((o asdf:compile-op) (f cl-script-file))
+;;;; make compile-op a nop
+
+(defmethod asdf:output-files ((o asdf:compile-op) (f swank-loader-file))
+  (list (asdf:component-pathname f)))
+
+(defmethod asdf:perform ((o asdf:compile-op) (f swank-loader-file))
   t)
-(defmethod asdf:perform ((o asdf:load-op) (f cl-script-file))
-  (mapcar #'load (asdf:input-files o f)))
-(defmethod asdf:output-files ((o asdf:compile-op) (f cl-script-file))
-  nil)
-(defmethod asdf:input-files ((o asdf:load-op) (c cl-script-file))
-  (list (asdf:component-pathname c)))
-(defmethod asdf:operation-done-p ((o asdf:compile-op) (c cl-script-file))
+
+(defmethod asdf:operation-done-p ((o asdf:compile-op) (f swank-loader-file))
   t)
-(defmethod asdf:source-file-type ((c cl-script-file) (s asdf:module))
-  "lisp")
+
+;;;; after loading run init
+
+(defmethod asdf:perform ((o asdf:load-op) (f swank-loader-file))
+  (load (asdf::component-pathname f))
+  (funcall (read-from-string "swank-loader::init")
+           :reload (asdf::operation-forced o)
+           :delete (asdf::operation-forced o)
+	   :setup nil))
 
 (asdf:defsystem :swank
-    :default-component-class cl-script-file
-    :components ((:file "swank-loader")))
-
-(defparameter *source-directory*
-  (asdf:component-pathname (asdf:find-system :swank)))
-
+  :default-component-class swank-loader-file
+  :components ((:file "swank-loader")))

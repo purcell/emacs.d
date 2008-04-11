@@ -93,11 +93,12 @@ The value is (SYMBOL-NAME . DOCUMENTATION).")
         ;; Asynchronously fetch, cache, and display documentation
         (slime-eval-async 
          retrieve-form
-         (with-lexical-bindings (cache-key)
-           (lambda (doc)
-             (let ((doc (if doc (slime-fontify-string doc) "")))
-               (slime-update-autodoc-cache cache-key doc)
-               (slime-autodoc-message doc)))))))))
+         (slime-rcurry 
+	  (lambda (doc cache-key)
+	    (let ((doc (if doc (slime-fontify-string doc) "")))
+	      (slime-update-autodoc-cache cache-key doc)
+	      (slime-autodoc-message doc)))
+	  cache-key))))))
 
 (defcustom slime-autodoc-use-multiline-p nil
   "If non-nil, allow long autodoc messages to resize echo area display."
@@ -116,10 +117,14 @@ The value is (SYMBOL-NAME . DOCUMENTATION).")
   (setq slime-autodoc-last-message doc)
   (message "%s" doc))
 
+(defvar slime-autodoc-dimensions-function nil)
+
 (defun slime-autodoc-message-dimensions ()
   "Return the available width and height for pretty printing autodoc
 messages."
   (cond
+   (slime-autodoc-dimensions-function
+    (funcall slime-autodoc-dimensions-function))
    (slime-autodoc-use-multiline-p 
     ;; Use the full width of the minibuffer;
     ;; minibuffer will grow vertically if necessary
@@ -244,6 +249,7 @@ annoy the user)."
        (not executing-kbd-macro)
        (not (and (boundp 'edebug-active) (symbol-value 'edebug-active)))
        (not cursor-in-echo-area)
+       (not (active-minibuffer-window))
        (not (eq (selected-window) (minibuffer-window)))
        (slime-background-activities-enabled-p)))
 
@@ -252,12 +258,8 @@ annoy the user)."
 
 (defun slime-autodoc-init ()
   (setq slime-echo-arglist-function 'slime-autodoc)
-  (add-hook 'slime-connected-hook 'slime-autodoc-on-connect)
   (dolist (h '(slime-mode-hook slime-repl-mode-hook sldb-mode-hook))
     (add-hook h 'slime-autodoc-maybe-enable)))
-
-(defun slime-autodoc-on-connect ()
-  (slime-eval-async '(swank:swank-require :swank-arglists)))
 
 (defun slime-autodoc-maybe-enable ()
   (when slime-use-autodoc-mode 
@@ -265,8 +267,9 @@ annoy the user)."
 
 (defun slime-autodoc-unload ()
   (setq slime-echo-arglist-function 'slime-show-arglist)
-  (remove-hook 'slime-connected-hook 'slime-autodoc-on-connect)
   (dolist (h '(slime-mode-hook slime-repl-mode-hook sldb-mode-hook))
     (remove-hook h 'slime-autodoc-maybe-enable)))
+
+(slime-require :swank-arglists)
 
 (provide 'slime-autodoc)

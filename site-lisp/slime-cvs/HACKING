@@ -16,6 +16,17 @@ The Lisp code is organised into these files:
     The top-level server program, built from the other components.
     Uses swank-backend.lisp as an interface to the actual backends.
 
+  slime.el: 
+    The Superior Lisp Inferior Mode for Emacs, i.e. the Emacs frontend
+    that the user actually interacts with and that connects to the
+    SWANK server to send expressions to, and retrieve information from
+    the running Common Lisp system.
+    
+  contrib/*.lisp:
+    Lisp related code for add-ons to SLIME that are maintained by
+    their respective authors. Consult contrib/README for more
+    information.
+
 * ChangeLog
 
 For each change we make an entry in the ChangeLog file. This is
@@ -28,12 +39,13 @@ ChangeLog diffs are automatically sent to the slime-devel mailing list
 each day as a sort of digest summary of the slime-cvs list.
 
 There are good tips on writing ChangeLog entries in the GNU Coding Standards:
-  http://www.gnu.org/prep/standards_40.html#SEC40
+  http://www.gnu.org/prep/standards/html_node/Style-of-Change-Logs.html#Style-of-Change-Logs
 
 For information about Emacs's ChangeLog support see the `Change Log'
 and `Change Logs and VC' nodes of the Emacs manual:
-  http://www.gnu.org/software/emacs/manual/html_node/emacs_333.html#SEC333
-  http://www.gnu.org/software/emacs/manual/html_node/emacs_156.html#SEC156
+  http://www.gnu.org/software/emacs/manual/html_node/emacs/Change-Log.html#Change-Log
+  http://www.gnu.org/software/emacs/manual/html_node/emacs/Change-Logs-and-VC.html#Change-Logs-and-VC
+
 
 * Sending Patches
 

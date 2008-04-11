@@ -49,27 +49,24 @@ mkdir $testdir
 cp -r $slimedir/*.{el,lisp} ChangeLog $slimedir/contrib  $testdir
 mkfifo $dribble
 
-session=slime-screen.$$
-
-screen -S $session -m -D bash -c "$emacs -nw -q -no-site-file --no-site-file \
-       --eval '(setq debug-on-quit t)' \
-       --eval '(setq max-lisp-eval-depth 1000)' \
-       --eval '(setq load-path (cons \"$testdir\" load-path))' \
-       --eval '(require (quote slime))' \
-       --eval '(setq inferior-lisp-program \"$lisp\")' \
-       --eval '(slime-batch-test \"$results\")' > $dribble;\
-       echo \$? > $statusfile" &
-
-screenpid=$!
+cmd=($emacs -nw -q -no-site-file --no-site-file
+       --eval "(setq debug-on-quit t)"
+       --eval "(add-to-list 'load-path \"$testdir\")"
+       --eval "(require 'slime)"
+       --eval "(setq inferior-lisp-program \"$lisp\")"
+       --eval "(slime-batch-test \"$results\")")
 
 if [ "$verbose" = true ]; then
-    cat $dribble &
-else
-    cat $dribble > /dev/null &
-fi;
-
-trap "screen -S $session -X quit" SIGINT
-wait $screenpid
+    "${cmd[@]}"
+    echo $? > $statusfile
+else 
+    session=slime-screen.$$
+    screen -S $session -m -D \
+	bash -c "\"\$@\"; echo \$? > $statusfile" "" "${cmd[@]}" &
+    screenpid=$!
+    trap "screen -S $session -X quit" SIGINT
+    wait $screenpid
+fi
 
 if [ -f "$statusfile" ]; then
     [ "$dump_results" = true ] && cat $results;

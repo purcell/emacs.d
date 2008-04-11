@@ -69,7 +69,7 @@ the top-level sexp before point."
         (setq point (point))
         ;; count sexps until either '(' or comment is found at first column
         (while (and (not (looking-at "^[(;]"))
-                  (ignore-errors (backward-up-list 1) t))
+		    (ignore-errors (backward-up-list 1) t))
           (incf sexp-level))))
     (when (> sexp-level 0)
       ;; insert correct number of right parens
@@ -79,7 +79,7 @@ the top-level sexp before point."
       (setq point (point))
       (skip-chars-forward " \t\n)")
       (skip-chars-backward " \t\n")
-      (let* ((deleted-region     (delete-and-extract-region point (point)))
+      (let* ((deleted-region     (slime-delete-and-extract-region point (point)))
              (deleted-text       (substring-no-properties deleted-region))
              (prior-parens-count (count ?\) deleted-text)))
         ;; Remember: we always insert as many parentheses as necessary

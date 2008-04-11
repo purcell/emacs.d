@@ -11,9 +11,56 @@
 ;;   (add-hook 'slime-load-hook (lambda () (require 'slime-tramp)))
 ;;
 
+(require 'tramp)
+
+(defcustom slime-filename-translations nil
+  "Assoc list of hostnames and filename translation functions.  
+Each element is of the form (HOSTNAME-REGEXP TO-LISP FROM-LISP).
+
+HOSTNAME-REGEXP is a regexp which is applied to the connection's
+slime-machine-instance. If HOSTNAME-REGEXP maches then the
+corresponding TO-LISP and FROM-LISP functions will be used to
+translate emacs filenames and lisp filenames.
+
+TO-LISP will be passed the filename of an emacs buffer and must
+return a string which the underlying lisp understandas as a
+pathname. FROM-LISP will be passed a pathname as returned by the
+underlying lisp and must return something that emacs will
+understand as a filename (this string will be passed to
+find-file).
+
+This list will be traversed in order, so multiple matching
+regexps are possible.
+
+Example:
+
+Assuming you run emacs locally and connect to slime running on
+the machine 'soren' and you can connect with the username
+'animaliter':
+
+  (push (list \"^soren$\"
+              (lambda (emacs-filename)
+                (subseq emacs-filename (length \"/ssh:animaliter@soren:\")))
+              (lambda (lisp-filename)
+                (concat \"/ssh:animaliter@soren:\" lisp-filename)))
+        slime-filename-translations)
+
+See also `slime-create-filename-translator'."
+  :type '(repeat (list :tag "Host description"
+                       (regexp :tag "Hostname regexp")
+                       (function :tag "To   lisp function")
+                       (function :tag "From lisp function")))
+  :group 'slime-lisp)
+
+(defun slime-find-filename-translators (hostname)
+  (cond ((and hostname slime-filename-translations)
+         (or (cdr (assoc-if (lambda (regexp) (string-match regexp hostname))
+                            slime-filename-translations))
+             (error "No filename-translations for hostname: %s" hostname)))
+        (t (list #'identity #'identity))))
+
 (defun slime-make-tramp-file-name (username remote-host lisp-filename)
   "Old (with multi-hops) tramp compatability function"
-  (require 'tramp)
   (if (boundp 'tramp-multi-methods)
       (tramp-make-tramp-file-name nil nil
                                   username
@@ -51,5 +98,16 @@ The functions created here expect your tramp-default-method or
              ,username
              ,remote-host
              lisp-filename)))))
+
+(defun slime-tramp-to-lisp-filename (filename)
+  (funcall (first (slime-find-filename-translators (slime-machine-instance)))
+           (expand-file-name filename)))
+
+(defun slime-tramp-from-lisp-filename (filename)
+  (funcall (second (slime-find-filename-translators (slime-machine-instance)))
+           filename))
+
+(setq slime-to-lisp-filename-function #'slime-tramp-to-lisp-filename)
+(setq slime-from-lisp-filename-function #'slime-tramp-from-lisp-filename)
 
 (provide 'slime-tramp)
