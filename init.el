@@ -451,7 +451,7 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Ruby
+;; Ruby - basics
 ;;----------------------------------------------------------------------------
 (autoload 'ruby-electric-mode "ruby-electric" "Electric brackes/quotes/keywords for Ruby source" t)
 (require 'rcodetools)
@@ -462,22 +462,18 @@
   (add-hook 'ruby-mode-hook (lambda () (viper-change-state-to-vi))))
 
 (add-auto-mode 'ruby-mode "Rakefile$" "\.rake$" "\.rxml$" "\.rjs" ".irbrc")
-(add-auto-mode 'html-mode "\.rhtml$")
-
-;; Jump to lines from Ruby stack traces in 'compile' mode
-(defun ruby-backtrace-line-regexp (&optional prefix suffix)
-  (concat prefix "\\[?\\([^ \f\n\r\t\v]+?\\):\\([0-9]+\\)\\(?::in\s*`\\(.*?\\)'\\)?" suffix))
-(eval-after-load "compile"
-  '(progn
-     (add-to-list 'compilation-error-regexp-alist-alist
-                  (list 'ruby-backtrace (ruby-backtrace-line-regexp) 1 2 nil 1))
-     (add-to-list 'compilation-error-regexp-alist-alist
-                  (list 'ruby-test-backtrace (ruby-backtrace-line-regexp nil "\\(?:\]:\\|\n$\\)") 1 2 nil 2))))
-
 
 
 (setq compile-command "rake ")
 
+(autoload 'ri "ri-ruby" "Show ri documentation for Ruby symbols" t)
+(setq ri-ruby-script (concat (directory-of-library "ri-ruby") "ri-emacs.rb"))
+
+
+;;----------------------------------------------------------------------------
+;; Ruby - erb
+;;----------------------------------------------------------------------------
+(add-auto-mode 'html-mode "\.rhtml$")
 (eval-after-load "mmm-mode"
   '(progn
      (mmm-add-classes
@@ -488,9 +484,23 @@
                :insert ((?% erb-code       nil @ "<%"  @ " " _ " " @ "%>" @)
                         (?# erb-comment    nil @ "<%#" @ " " _ " " @ "%>" @)
                         (?= erb-expression nil @ "<%=" @ " " _ " " @ "%>" @)))))
+     (mmm-add-mode-ext-class 'nxml-mode "\\.html\\.erb$" 'eruby)
      (mmm-add-mode-ext-class 'nxml-mode "\\.rhtml$" 'eruby)
      (mmm-add-mode-ext-class 'yaml-mode "\\.yml$" 'eruby)))
 
+
+;;----------------------------------------------------------------------------
+;; Ruby - compilation
+;;----------------------------------------------------------------------------
+
+;; Jump to lines from Ruby stack traces in 'compile' mode (regexps borrowed from emacs-rails)
+(defun ruby-backtrace-line-regexp (&optional prefix suffix)
+  (concat prefix "\\[?\\([^ \f\n\r\t\v]+?\\):\\([0-9]+\\)\\(?::in\s*`\\(.*?\\)'\\)?" suffix))
+(eval-after-load "compile"
+  '(progn
+     (mapcar (lambda (defn) (add-to-list 'compilation-error-regexp-alist-alist defn))
+             (list (list 'ruby-backtrace (ruby-backtrace-line-regexp) 1 2 nil 1)
+                   (list 'ruby-test-backtrace (ruby-backtrace-line-regexp nil "\\(?:\]:\\|\n$\\)") 1 2 nil 2)))))
 
 (define-derived-mode ruby-compilation-mode compilation-mode "Compilation[ruby]"
   "Major mode for running ruby scripts and tests."
@@ -525,9 +535,6 @@
 (when *rails-support-enabled*
   (add-hook 'rails-minor-mode-hook (lambda () (local-set-key [f6] 'recompile))))
 
-
-(autoload 'ri "ri-ruby" "Show ri documentation for Ruby symbols" t)
-(setq ri-ruby-script (concat (directory-of-library "ri-ruby") "ri-emacs.rb"))
 
 
 ;;----------------------------------------------------------------------------
