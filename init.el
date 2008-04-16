@@ -275,10 +275,13 @@
 
 (eval-after-load "compile"
   '(add-to-list 'compilation-error-regexp-alist-alist
-                '(git-svn "^\\t[A-Z]\\t(.*)$" 1)))
-(defun git-svn ()
-  (interactive)
-  (compile (concat "git-svn " (ido-completing-read "git-svn command: " (list "rebase" "dcommit" "log") nil t))))
+                '(git-svn "^\t[A-Z]\t(.*)$" 1)))
+
+(defun git-svn (dir)
+  (interactive "DSelect directory: ")
+  (let* ((default-directory (git-get-top-dir dir))
+         (compilation-buffer-name-function (lambda (major-mode-name) "*git-svn*")))
+    (compile (concat "git-svn " (ido-completing-read "git-svn command: " (list "rebase" "dcommit" "log") nil t)))))
 
 
 ;;----------------------------------------------------------------------------
@@ -460,11 +463,19 @@
 
 (add-auto-mode 'ruby-mode "Rakefile$" "\.rake$" "\.rxml$" "\.rjs" ".irbrc")
 (add-auto-mode 'html-mode "\.rhtml$")
+
+;; Jump to lines from Ruby stack traces in 'compile' mode
+(defun ruby-backtrace-line-regexp (&optional prefix suffix)
+  (concat prefix "\\[?\\([^ \f\n\r\t\v]+?\\):\\([0-9]+\\)\\(?::in\s*`\\(.*?\\)'\\)?" suffix))
 (eval-after-load "compile"
   '(progn
-     ;; Jump to lines from Ruby stack traces in 'compile' mode
      (add-to-list 'compilation-error-regexp-alist-alist
-                  '(ruby "\\([0-9A-Za-z_./\:-]+\\.rb\\):\\([0-9]+\\):in `" 1 2))))
+                  (list 'ruby-backtrace (ruby-backtrace-line-regexp) 1 2 nil 1))
+     (add-to-list 'compilation-error-regexp-alist-alist
+                  (list 'ruby-test-backtrace (ruby-backtrace-line-regexp nil "\\(?:\]:\\|\n$\\)") 1 2 nil 2))))
+
+
+
 (setq compile-command "rake ")
 
 (eval-after-load "mmm-mode"
@@ -483,7 +494,7 @@
 
 (define-derived-mode ruby-compilation-mode compilation-mode "Compilation[ruby]"
   "Major mode for running ruby scripts and tests."
-  (set (make-local-variable 'compilation-error-regexp-alist) '(ruby)))
+  (set (make-local-variable 'compilation-error-regexp-alist) '(ruby-backtrace ruby-test-backtrace)))
 
 (defun ruby-compile (command)
   (compile command)
