@@ -274,8 +274,12 @@
 (autoload 'gitsum "gitsum" "Make hunk-based git commits" t)
 
 (eval-after-load "compile"
-  '(add-to-list 'compilation-error-regexp-alist-alist
-                '(git-svn "^\t[A-Z]\t(.*)$" 1)))
+  '(progn
+     (mapcar (lambda (defn) (add-to-list 'compilation-error-regexp-alist-alist defn))
+             (list '(git-svn-updated "^\t[A-Z]\t\\(.*\\)$" 1)
+                   '(git-svn-needs-update "^\\(.*\\): needs update$" 1)))
+     (mapcar (lambda (defn) (add-to-list 'compilation-error-regexp-alist defn))
+             (list 'git-svn-updated 'git-svn-needs-update))))
 
 (defun git-svn (dir)
   (interactive "DSelect directory: ")
