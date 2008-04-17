@@ -273,11 +273,15 @@
 (autoload 'git-blame-mode "git-blame" "Minor mode for incremental blame for Git." t)
 (autoload 'gitsum "gitsum" "Make hunk-based git commits" t)
 
+
+;;----------------------------------------------------------------------------
+;; git-svn conveniences
+;;----------------------------------------------------------------------------
 (eval-after-load "compile"
   '(progn
      (mapcar (lambda (defn) (add-to-list 'compilation-error-regexp-alist-alist defn))
-             (list '(git-svn-updated "^\t[A-Z]\t\\(.*\\)$" 1)
-                   '(git-svn-needs-update "^\\(.*\\): needs update$" 1)))
+             (list '(git-svn-updated "^\t[A-Z]\t\\(.*\\)$" 1 nil nil 0 1)
+                   '(git-svn-needs-update "^\\(.*\\): needs update$" 1 nil nil 2 1)))
      (mapcar (lambda (defn) (add-to-list 'compilation-error-regexp-alist defn))
              (list 'git-svn-updated 'git-svn-needs-update))))
 
