@@ -380,8 +380,10 @@
 ;;----------------------------------------------------------------------------
 (defun steve-set-default-font (name size)
   (interactive
-   (list (ido-completing-read "font-name: " (mapcar (lambda (n) (list n n)) (mapcar (lambda (p) (car p)) (x-font-family-list))) nil t)
-         (read-number "size: " 12)))
+   (let ((current-name (face-attribute 'default :family))
+         (current-height (/ (face-attribute 'default :height) 10)))
+     (list (ido-completing-read "font-name: " (mapcar (lambda (n) (list n n)) (mapcar #'car (x-font-family-list))) nil t current-name)
+           (read-number "size: " current-height))))
   (set-face-attribute 'default nil
                       :family name
                       :slant  'normal
