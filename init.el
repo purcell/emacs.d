@@ -753,6 +753,13 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Log typed commands into a buffer for demo purposes
+;;----------------------------------------------------------------------------
+(autoload 'mwe:log-keyboard-commands "mwe-log-commands"
+  "Log commands executed in the current buffer" t)
+
+
+;;----------------------------------------------------------------------------
 ;; Conversion of line endings
 ;;----------------------------------------------------------------------------
 (require 'eol-conversion)
