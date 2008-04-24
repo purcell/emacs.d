@@ -26,6 +26,7 @@
 (define-derived-mode gitsum-diff-mode diff-mode "gitsum"
   "Git summary mode is for preparing patches to a Git repository.
 This mode is meant to be activated by `M-x gitsum' or pressing `s' in git-status.
+\\{gitsum-diff-mode-shared-map}
 \\{gitsum-diff-mode-map}"
   ;; magic...
   (lexical-let ((ro-bind (cons 'buffer-read-only gitsum-diff-mode-shared-map)))
