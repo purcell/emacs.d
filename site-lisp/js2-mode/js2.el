@@ -1,6 +1,6 @@
 ;;; js2.el -- an improved JavaScript editing mode
 ;;;
-;;; This file was auto-generated on Sat Apr 19 15:43:08 2008 from files:
+;;; This file was auto-generated on Thu Apr 24 03:14:31 2008 from files:
 ;;;  js2-vars.el
 ;;;  js2-util.el
 ;;;  js2-scan.el
@@ -15,7 +15,7 @@
 ;;; js2-mode.el --- an improved JavaScript editing mode
 
 ;; Author:  Steve Yegge (steve.yegge@gmail.com)
-;; Version: 20080419
+;; Version: 20080424
 ;; Keywords:  javascript languages
 
 ;; This program is free software; you can redistribute it and/or
@@ -392,7 +392,7 @@ which doesn't seem particularly useful, but Rhino permits it."
   :type 'boolean
   :group 'js2-mode)
 
-(defvar js2-mode-version 20080419
+(defvar js2-mode-version 20080424
   "Release number for `js2-mode'.")
 
 ;; scanner variables
@@ -7824,6 +7824,12 @@ Parses for, for-in, and for each-in statements."
       (when (null cond)
         (setq cond (js2-infix-node-right init)
               init (js2-infix-node-left init)))
+
+      ;; TODO:  fix let-node and then check kids for it here
+      (if (and (eq (setq tt (js2-node-type init)) js2-VAR)
+               (> (length (js2-var-decl-node-kids init)) 1))
+          (js2-report-error "msg.mult.index"))
+
       (setq pn (make-js2-for-in-node :iterator init
                                      :object cond
                                      :in-pos in-pos
@@ -8356,7 +8362,7 @@ the node position coincides with the first var-init child."
       (when nbeg
         (js2-set-face nbeg nend
                       (if (js2-function-node-p init)
-                          'js2-function-name-face
+                          'font-lock-function-name-face
                         'font-lock-variable-name-face)
                       'record))
       (if destructuring
