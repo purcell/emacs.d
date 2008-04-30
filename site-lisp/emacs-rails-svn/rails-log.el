@@ -6,7 +6,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails-log.el $
-;; $Id: rails-log.el 114 2007-03-25 18:15:35Z dimaexe $
+;; $Id: rails-log.el 229 2008-04-29 12:04:51Z tomtt $
 
 ;;; License
 
@@ -48,6 +48,7 @@
     (start-process "tail"
                    buffer
                    "tail"
+		   "-n" (message "%d" rails-number-of-lines-shown-when-opening-log-file)
                    "-f" (rails-core:file (concat "log/" log-file)))))
 
 (defun rails-log:open (log-file)

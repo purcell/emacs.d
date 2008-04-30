@@ -7,7 +7,7 @@
 
 ;; Keywords: ruby rails languages oop
 ;; $URL: http://emacs-rails.rubyforge.org/svn/trunk/rails.el $
-;; $Id: rails.el 225 2008-03-02 21:07:10Z dimaexe $
+;; $Id: rails.el 229 2008-04-29 12:04:51Z tomtt $
 
 ;;; License
 
@@ -145,11 +145,22 @@ Emacs w3m browser."
   :group 'rails
   :type 'string)
 
+(defcustom rails-enable-ruby-electric t
+  "Indicates whether ruby electric minor mode should be enabled by default for ruby files"
+  :group 'rails
+  :type 'boolean)
+
+(defcustom rails-number-of-lines-shown-when-opening-log-file 130
+  "Specifies how many lines to show initially when opening a log file"
+  :group 'rails
+  :type 'integer)
+
 (defvar rails-version "0.5.99.6")
 (defvar rails-templates-list '("html.erb" "erb" "js.rjs" "builder" "rhtml" "rxml" "rjs" "haml" "liquid" "mab"))
 (defvar rails-use-another-define-key nil)
 (defvar rails-primary-switch-func nil)
 (defvar rails-secondary-switch-func nil)
+(defvar rails-required-lisp-eval-depth 1000) ; Specifies the minimum required value of max-lisp-eval-depth for rails mode to work
 
 (defvar rails-directory<-->types
   '((:controller       "app/controllers/")
@@ -394,7 +405,7 @@ necessary."
           (lambda()
             (require 'rails-ruby)
             (require 'ruby-electric)
-            (ruby-electric-mode t)
+            (ruby-electric-mode (or rails-enable-ruby-electric -1))
             (ruby-hs-minor-mode t)
             (imenu-add-to-menubar "IMENU")
             (modify-syntax-entry ?! "w" (syntax-table))
@@ -453,5 +464,8 @@ necessary."
 (modify-coding-system-alist 'file "\\.rake$"   'utf-8)
 (modify-coding-system-alist 'file "Rakefile$" 'utf-8)
 (modify-coding-system-alist 'file (rails-core:regex-for-match-view) 'utf-8)
+
+;; Some navigation breaks if max-lisp-eval-depth is not high enough, up it if too low
+(setq max-lisp-eval-depth (max max-lisp-eval-depth rails-required-lisp-eval-depth))
 
 (provide 'rails)

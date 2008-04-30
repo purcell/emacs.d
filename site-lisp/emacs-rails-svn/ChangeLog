@@ -1,3 +1,11 @@
+2008-04-29  Tom ten Thij  <mail@tomtenthij.nl>
+
+	* rails.el: [#12451] Optional disablement ruby-electric-mode <pezra>, upping
+	max-lisp-eval-depth to allow navigation to work with larger number of files,
+	defined rails-number-of-lines-shown-when-opening-log-file
+	* rails-log.el: number of lines initially shown when opening log file as
+	specified by rails-number-of-lines-shown-when-opening-log-file
+
 2008-03-03  Dmitry Galinsky  <dima.exe@gmail.com>
 
 	* rails-ws.el (rails-ws:available-servers-list): Added Thin support.
