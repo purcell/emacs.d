@@ -11,7 +11,7 @@
 (setq *scheme-support-enabled* t)
 (setq *macbook-pro-support-enabled* t)
 (setq *erlang-support-enabled* t)
-(setq *darcs-support-enabled* t) ; You can use darcs to update these conf files
+(setq *darcs-support-enabled* t)
 (setq *rails-support-enabled* t)
 (setq *spell-check-support-enabled* nil)
 
