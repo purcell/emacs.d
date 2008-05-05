@@ -26,17 +26,6 @@
 
 (defclass swank-loader-file (asdf:cl-source-file) ())
 
-;;;; make compile-op a nop
-
-(defmethod asdf:output-files ((o asdf:compile-op) (f swank-loader-file))
-  (list (asdf:component-pathname f)))
-
-(defmethod asdf:perform ((o asdf:compile-op) (f swank-loader-file))
-  t)
-
-(defmethod asdf:operation-done-p ((o asdf:compile-op) (f swank-loader-file))
-  t)
-
 ;;;; after loading run init
 
 (defmethod asdf:perform ((o asdf:load-op) (f swank-loader-file))

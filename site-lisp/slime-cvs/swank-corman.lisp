@@ -373,8 +373,9 @@
       (when load-p
         (load (compile-file-pathname *compile-filename*))))))
 
-(defimplementation swank-compile-string (string &key buffer position directory)
-  (declare (ignore directory))
+(defimplementation swank-compile-string (string &key buffer position directory
+                                                debug)
+  (declare (ignore directory debug))
   (with-compilation-hooks ()
     (let ((*buffer-name* buffer)
           (*buffer-position* position)

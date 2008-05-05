@@ -442,11 +442,15 @@ compiler state."
   "Return a temporary file name to compile strings into."
   (concatenate 'string (tmpnam nil) ".lisp"))
 
-(defimplementation swank-compile-string (string &key buffer position directory)
+(defimplementation swank-compile-string (string &key buffer position directory
+                                                debug)
   (let ((*buffer-name* buffer)
         (*buffer-offset* position)
         (*buffer-substring* string)
-        (filename (temp-file-name)))
+        (filename (temp-file-name))
+        (old-min-debug (assoc 'debug (sb-ext:restrict-compiler-policy))))
+    (when debug
+      (sb-ext:restrict-compiler-policy 'debug 3))
     (flet ((compile-it (fn)
              (with-compilation-hooks ()
                (with-compilation-unit
@@ -462,6 +466,7 @@ compiler state."
                (compile-it #'load)
                (load (compile-it #'identity)))
         (ignore-errors
+          (sb-ext:restrict-compiler-policy 'debug (or old-min-debug 0))
           (delete-file filename)
           (delete-file (compile-file-pathname filename)))))))
 

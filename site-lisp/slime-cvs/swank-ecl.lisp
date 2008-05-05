@@ -10,6 +10,8 @@
 
 (in-package :swank-backend)
 
+(defvar *tmp*)
+
 (if (find-package :gray)
   (import-from :gray *gray-stream-symbols* :swank-backend)
   (import-from :ext *gray-stream-symbols* :swank-backend))
@@ -131,8 +133,9 @@
           (compile-file *compile-filename*)
         (when load-p (unless fail (load fn)))))))
 
-(defimplementation swank-compile-string (string &key buffer position directory)
-  (declare (ignore directory))
+(defimplementation swank-compile-string (string &key buffer position directory
+                                                debug)
+  (declare (ignore directory debug))
   (with-compilation-hooks ()
     (let ((*buffer-name* buffer)
           (*buffer-start-position* position)
@@ -204,7 +207,8 @@
 ;;; Debugging
 
 (import
- '(si::*ihs-top*
+ '(si::*break-env*
+   si::*ihs-top*
    si::*ihs-current*
    si::*ihs-base*
    si::*frs-base*
@@ -213,10 +217,41 @@
    si::*tpl-level*
    si::frs-top
    si::ihs-top
+   si::ihs-fun
+   si::ihs-env
    si::sch-frs-base
    si::set-break-env
    si::set-current-ihs
    si::tpl-commands))
+
+(defvar *backtrace* '())
+
+(defun in-swank-package-p (x)
+  (and
+   (symbolp x)
+   (member (symbol-package x)
+           (list #.(find-package :swank)
+                 #.(find-package :swank-backend)
+                 #.(ignore-errors (find-package :swank-mop))
+                 #.(ignore-errors (find-package :swank-loader))))
+   t))
+
+(defun is-swank-source-p (name)
+  (setf name (pathname name))
+  (pathname-match-p
+   name
+   (make-pathname :defaults swank-loader::*source-directory*
+                  :name (pathname-name name)
+                  :type (pathname-type name)
+                  :version (pathname-version name))))
+
+(defun is-ignorable-fun-p (x)
+  (or
+   (in-swank-package-p (frame-name x))
+   (multiple-value-bind (file position)
+       (ignore-errors (si::bc-file (car x)))
+     (declare (ignore position))
+     (if file (is-swank-source-p file)))))
 
 (defimplementation call-with-debugging-environment (debugger-loop-fn)
   (declare (type function debugger-loop-fn))
@@ -226,27 +261,98 @@
 	 (*frs-base* (or (sch-frs-base *frs-top* *ihs-base*) (1+ (frs-top))))
 	 (*frs-top* (frs-top))
 	 (*read-suppress* nil)
-	 (*tpl-level* (1+ *tpl-level*)))
+	 (*tpl-level* (1+ *tpl-level*))
+         (*backtrace* (loop for ihs from *ihs-base* below *ihs-top*
+                            collect (list (si::ihs-fun ihs)
+                                          (si::ihs-env ihs)
+                                          nil))))
+    (loop for f from *frs-base* until *frs-top*
+          do (let ((i (- (si::frs-ihs f) *ihs-base* 1)))
+               (when (plusp i)
+                 (let* ((x (elt *backtrace* i))
+                        (name (si::frs-tag f)))
+                   (unless (fixnump name)
+                     (push name (third x)))))))
+    (setf *backtrace* (remove-if #'is-ignorable-fun-p (nreverse *backtrace*)))
+    (Setf *tmp* *backtrace*)
     (set-break-env)
     (set-current-ihs)
-    (funcall debugger-loop-fn)))
+    (let ((*ihs-base* *ihs-top*))
+      (funcall debugger-loop-fn))))
 
-;; (defimplementation call-with-debugger-hook (hook fun)
-;;   (let ((*debugger-hook* hook))
-;;     (funcall fun)))
+(defimplementation call-with-debugger-hook (hook fun)
+  (let ((*debugger-hook* hook)
+        (*ihs-base*(si::ihs-top 'call-with-debugger-hook)))
+    (funcall fun)))
 
-(defun nth-frame (n)
-  (cond ((>= n *ihs-top* ) nil)
-        (t (- *ihs-top*  n))))
-                                               
 (defimplementation compute-backtrace (start end)
-  (loop for i from start below end
-        for f = (nth-frame i)     
-        while f
-        collect f))
+  (when (numberp end)
+    (setf end (min end (length *backtrace*))))
+  (subseq *backtrace* start end))
+
+(defun frame-name (frame)
+  (let ((x (first frame)))
+    (if (symbolp x)
+      x
+      (function-name x))))
+
+(defun function-position (fun)
+  (multiple-value-bind (file position)
+      (si::bc-file fun)
+    (and file (make-location `(:file ,file) `(:position ,position)))))
+
+(defun frame-function (frame)
+  (let* ((x (first frame))
+         fun position)
+    (etypecase x
+      (symbol (and (fboundp x)
+                   (setf fun (fdefinition x)
+                         position (function-position fun))))
+      (function (setf fun x position (function-position x))))
+    (values fun position)))
+
+(defun frame-decode-env (frame)
+  (let ((functions '())
+        (blocks '())
+        (variables '()))
+    (dolist (record (second frame))
+      (let* ((record0 (car record))
+	     (record1 (cdr record)))
+	(cond ((symbolp record0)
+	       (setq variables (acons record0 record1 variables)))
+	      ((not (fixnump record0))
+	       (push record1 functions))
+	      ((symbolp record1)
+	       (push record1 blocks))
+	      (t
+	       ))))
+    (values functions blocks variables)))
 
 (defimplementation print-frame (frame stream)
-  (format stream "~A" (si::ihs-fname frame)))
+  (format stream "~A" (first frame)))
+
+(defimplementation frame-source-location-for-emacs (frame-number)
+  (nth-value 1 (frame-function (elt *backtrace* frame-number))))
+
+(defimplementation frame-catch-tags (frame-number)
+  (third (elt *backtrace* frame-number)))
+
+(defimplementation frame-locals (frame-number)
+  (loop for (name . value) in (nth-value 2 (frame-decode-env (elt *backtrace* frame-number)))
+        with i = 0
+        collect (list :name name :id (prog1 i (incf i)) :value value)))
+
+(defimplementation frame-var-value (frame-number var-id)
+  (elt (nth-value 2 (frame-decode-env (elt *backtrace* frame-number)))
+       var-id))
+
+(defimplementation disassemble-frame (frame-number)
+  (let ((fun (frame-fun (elt *backtrace* frame-number))))
+    (disassemble fun)))
+
+(defimplementation eval-in-frame (form frame-number)
+  (let ((env (second (elt *backtrace* frame-number))))
+    (si:eval-with-env form env)))
 
 ;;;; Inspector
 
@@ -299,7 +405,27 @@
 
 ;;;; Definitions
 
-(defimplementation find-definitions (name) nil)
+(defimplementation find-definitions (name)
+  (if (fboundp name)
+      (let ((tmp (find-source-location (symbol-function name))))
+        `(((defun ,name) ,tmp)))))
+
+(defimplementation find-source-location (obj)
+  (setf *tmp* obj)
+  (or
+   (typecase obj
+     (function
+      (multiple-value-bind (file pos) (ignore-errors (si::bc-file obj))
+        (if (and file pos) 
+            (make-location
+              `(:file ,(namestring file))
+              `(:position ,pos)
+              `(:snippet
+                ,(with-open-file (s file)
+                                 (skip-toplevel-forms pos s)
+                                 (skip-comments-and-whitespace s)
+                                 (read-snippet s))))))))
+   `(:error (format nil "Source definition of ~S not found" obj))))
 
 ;;;; Threads
 
@@ -452,7 +578,9 @@
                            (not (and (open-stream-p x)
                                      (output-stream-p x))))
                          *auto-flush-streams*))
-        (mapc #'stream-finish-output *auto-flush-streams*)))
+        (dolist (i *auto-flush-streams*)
+          (ignore-errors (stream-finish-output i))
+          (ignore-errors (finish-output i)))))
      (sleep *auto-flush-interval*)))
 
   )

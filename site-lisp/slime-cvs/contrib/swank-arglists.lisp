@@ -585,65 +585,71 @@ Return an OPTIONAL-ARG structure."
 
 (defun decode-arglist (arglist)
   "Parse the list ARGLIST and return an ARGLIST structure."
-  (let ((mode nil)
-        (result (make-arglist)))
-    (dolist (arg arglist)
-      (cond
-        ((eql mode '&unknown-junk)      
-         ;; don't leave this mode -- we don't know how the arglist
-         ;; after unknown lambda-list keywords is interpreted
-         (push arg (arglist.unknown-junk result)))
-        ((eql arg '&allow-other-keys)
-         (setf (arglist.allow-other-keys-p result) t))
-        ((eql arg '&key)
-         (setf (arglist.key-p result) t
-               mode arg))
-        ((member arg '(&optional &rest &body &aux))
-         (setq mode arg))
-        ((member arg '(&whole &environment))
-         (setq mode arg)
-         (push arg (arglist.known-junk result)))
-        ((and (symbolp arg)
-              (string= (symbol-name arg) (string '#:&any))) ; may be interned
-         (setf (arglist.any-p result) t)                    ;  in any *package*.
-         (setq mode '&any))
-        ((member arg lambda-list-keywords)
-         (setq mode '&unknown-junk)
-         (push arg (arglist.unknown-junk result)))
-        (t
-         (ecase mode
-	   (&key
-	    (push (decode-keyword-arg arg) 
-                  (arglist.keyword-args result)))
-	   (&optional
-	    (push (decode-optional-arg arg) 
-                  (arglist.optional-args result)))
-	   (&body
-	    (setf (arglist.body-p result) t
-                  (arglist.rest result) arg))
-	   (&rest
-            (setf (arglist.rest result) arg))
-	   (&aux
-            (push (decode-optional-arg arg)
-                  (arglist.aux-args result)))
-	   ((nil)
-	    (push (decode-required-arg arg)
-                  (arglist.required-args result)))
-           ((&whole &environment)
-            (setf mode nil)
-            (push arg (arglist.known-junk result)))
-           (&any
-            (push arg (arglist.any-args result)))))))
-    (nreversef (arglist.required-args result))
-    (nreversef (arglist.optional-args result))
-    (nreversef (arglist.keyword-args result))
-    (nreversef (arglist.aux-args result))
-    (nreversef (arglist.any-args result))
-    (nreversef (arglist.known-junk result))
-    (nreversef (arglist.unknown-junk result))
-    (assert (or (and (not (arglist.key-p result)) (not (arglist.any-p result)))
-                (exactly-one-p (arglist.key-p result) (arglist.any-p result))))
-    result))
+  (loop
+    with mode = nil
+    with result = (make-arglist)
+    for arg = (if (consp arglist)
+                (pop arglist)
+                (progn
+                  (setf mode '&rest)
+                  arglist))
+    do (cond
+         ((eql mode '&unknown-junk)      
+          ;; don't leave this mode -- we don't know how the arglist
+          ;; after unknown lambda-list keywords is interpreted
+          (push arg (arglist.unknown-junk result)))
+         ((eql arg '&allow-other-keys)
+          (setf (arglist.allow-other-keys-p result) t))
+         ((eql arg '&key)
+          (setf (arglist.key-p result) t
+                mode arg))
+         ((member arg '(&optional &rest &body &aux))
+          (setq mode arg))
+         ((member arg '(&whole &environment))
+          (setq mode arg)
+          (push arg (arglist.known-junk result)))
+         ((and (symbolp arg)
+               (string= (symbol-name arg) (string '#:&any))) ; may be interned
+          (setf (arglist.any-p result) t)                    ;  in any *package*.
+          (setq mode '&any))
+         ((member arg lambda-list-keywords)
+          (setq mode '&unknown-junk)
+          (push arg (arglist.unknown-junk result)))
+         (t
+          (ecase mode
+            (&key
+               (push (decode-keyword-arg arg) 
+                     (arglist.keyword-args result)))
+            (&optional
+               (push (decode-optional-arg arg) 
+                     (arglist.optional-args result)))
+            (&body
+               (setf (arglist.body-p result) t
+                     (arglist.rest result) arg))
+            (&rest
+               (setf (arglist.rest result) arg))
+            (&aux
+               (push (decode-optional-arg arg)
+                     (arglist.aux-args result)))
+            ((nil)
+               (push (decode-required-arg arg)
+                     (arglist.required-args result)))
+            ((&whole &environment)
+               (setf mode nil)
+               (push arg (arglist.known-junk result)))
+            (&any
+               (push arg (arglist.any-args result))))))
+    until (atom arglist)
+    finally (nreversef (arglist.required-args result))
+    finally (nreversef (arglist.optional-args result))
+    finally (nreversef (arglist.keyword-args result))
+    finally (nreversef (arglist.aux-args result))
+    finally (nreversef (arglist.any-args result))
+    finally (nreversef (arglist.known-junk result))
+    finally (nreversef (arglist.unknown-junk result))
+    finally (assert (or (and (not (arglist.key-p result)) (not (arglist.any-p result)))
+                        (exactly-one-p (arglist.key-p result) (arglist.any-p result))))
+    finally (return result)))
 
 (defun encode-arglist (decoded-arglist)
   (append (mapcar #'encode-required-arg (arglist.required-args decoded-arglist))

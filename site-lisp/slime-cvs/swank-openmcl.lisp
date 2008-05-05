@@ -426,8 +426,9 @@ condition."
            (mapcan 'who-specializes (ccl::%class-direct-subclasses class)))
    :test 'equal))
 
-(defimplementation swank-compile-string (string &key buffer position directory)
-  (declare (ignore directory))
+(defimplementation swank-compile-string (string &key buffer position directory
+                                                debug)
+  (declare (ignore directory debug))
   (with-compilation-hooks ()
     (let ((*buffer-name* buffer)
           (*buffer-offset* position)

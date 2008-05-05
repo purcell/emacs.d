@@ -2230,7 +2230,7 @@ Record compiler notes signalled as `compiler-condition's."
                              (or (guess-external-format filename)
                                  :default)))))))
 
-(defslimefun compile-string-for-emacs (string buffer position directory)
+(defslimefun compile-string-for-emacs (string buffer position directory debug)
   "Compile STRING (exerpted from BUFFER at POSITION).
 Record compiler notes signalled as `compiler-condition's."
   (with-buffer-syntax ()
@@ -2238,7 +2238,8 @@ Record compiler notes signalled as `compiler-condition's."
      (lambda () 
        (let ((*compile-print* nil) (*compile-verbose* t))
          (swank-compile-string string :buffer buffer :position position 
-                               :directory directory))))))
+                               :directory directory
+                               :debug debug))))))
   
 (defun file-newer-p (new-file old-file)
   "Returns true if NEW-FILE is newer than OLD-FILE."

@@ -34,7 +34,7 @@
 
 ;;;; Module declaration
 
-;; (module-export start-swank create-swank-server swank-java-source-path)
+(module-export start-swank create-swank-server swank-java-source-path)
 
 (module-static #t)
 
@@ -465,10 +465,12 @@
                               (%read port rt)))))
 
 (df read-chunk ((in <in>) (len <int>) => <str>)
-  (let* ((chars (<char[]> :length len))
-         (count (! read in chars)))
-    (assert (= count len) "count: ~d len: ~d" count len)
-    (<str> chars)))
+  (let ((chars (<char[]> :length len)))
+    (let loop ((offset :: <int> 0))
+      (cond ((= offset len) (<str> chars))
+            (#t (let ((count (! read in chars offset (- len offset))))
+                  (assert (not (= count -1)) "partial packet")
+                  (loop (+ offset count))))))))
 
 ;;; FIXME: not thread safe
 (df %read ((port <gnu.mapping.InPort>) (table <gnu.kawa.lispexpr.ReadTable>))
@@ -1270,10 +1272,7 @@
    (set (@ names (this)) names)
    (set (@ values (this)) values))
   ((toString) :: <str>
-   (format "#<ff ~a (~{~a~^ ~})>" 
-           (src-loc>str loc)
-           (mapi args (fun (a) 
-                        (ignore-errors (vm-demirror *the-vm* a)))))))
+   (format "#<ff ~a>" (src-loc>str loc))))
 
 (df copy-stack ((t <thread-ref>))
   (packing (pack)

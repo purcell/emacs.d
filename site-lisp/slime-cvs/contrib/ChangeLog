@@ -1,3 +1,30 @@
+2008-04-17  Gábor Melis <mega@retes.hu>
+
+	* swank-fancy-inspector.lisp (inspect-slot-for-emacs):
+	slime-read-object has been gone for a long time, replaced with
+	slime-read-from-minibuffer.
+
+2008-04-15  Marco Baringer  <mb@bese.it>
+
+	* slime-indentation.el (cl-indent::line-number): new function.
+	(cl-indent:indent-cond): Custom indentation method for cl:cond.
+	(cl-indent-body-introducing-loop-macro-keyword)
+	(cl-indent-indented-loop-macro-keyword): more loop keywords.
+	(cl-indent-loop-advance-past-keyword-on-line): deal with comments
+	after loop keywords.
+	(#'define-cl-indent): Fix indentation of handler-case; give cond
+	it's custom indentation method; change indentation of defclass;
+	add methods for do-all-symbols, do-symbols, do-external-symbols,
+	restart-case, with-accessors, with-compilation-unit,
+	with-hash-table-iterator, with-output-to-string,
+	with-input-from-string, with-open-file, with-open-stream,
+	with-package-iterator, with-simple-restart, with-slots.
+
+2008-04-14  Marco Baringer  <mb@bese.it>
+
+	* swank-arglists.lisp (decode-arglist): Arglists can be dotted
+	lists.
+
 2008-04-06  Tobias C. Rittweiler  <tcr@freebits.de>
 
 	* slime-presentations.lisp: 

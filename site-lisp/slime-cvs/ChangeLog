@@ -1,3 +1,60 @@
+2008-05-01  Geo Carncross  <geocar@gmail.com>
+
+	* swank-ecl.lisp (call-with-debugging-environment)
+	(is-ignorable-fun-p, is-swank-source-p, in-swank-package-p):
+	Trim swank sources from the ECL backtrace.
+
+2008-04-30  Geo Carncross  <geocar@gmail.com>
+
+	* swank-ecl.lisp (call-with-debugging-environment)
+	(in-swank-package-p): Remove frames from the backtrace that are
+	in a swank package as those are misleading. Fixup locals
+	display.
+
+2008-04-29  Geo Carncross  <geocar@gmail.com>
+
+	* swank-ecl.lisp: Backtrace and frame/eval improvements
+
+2008-04-24  Tobias C. Rittweiler  <tcr@freebits.de>
+
+	* swank-backend.lisp: Clarified docstrings of interface functions
+	in the Debugging section.
+
+2008-04-23  Geo Carncross  <geocar@gmail.com>
+
+	* swank-source-file-cache.lisp (skip-comments-and-whitespace):
+	Include #\Page as whitespace
+
+	* swank-ecl.lisp (find-source-location): Initial support for
+	find-source-location with functions
+	(flush-streams): Workaround differences in different ECL versions
+	(find-definitions): basic/simple implementation of find-definitions
+
+	* swank-loader.lisp (*sysdep-files*): Include swank-source-path-parser
+	and swank-source-file-cache for ECL
+
+
+2008-04-17  Travis Cross <travis@travislists.com>
+	
+	* swank.asd: Don't make a compile-op a no-op so that a
+	swank-loader.fasl file gets generated and (require 'swank) can be
+	called multiple times.
+
+2008-04-17  Zach Beane <xach@xach.com>
+
+	C-c C-c with prefix args now uses the maximal debug level.
+	Only implemented for SBCL.
+	
+	* slime.el (slime-compile-with-maximum-debug): New variable.
+	(slime-compile-defun, slime-compile-region): Use it.
+
+	* swank.lisp (compile-string-for-emacs): Accept new debug
+	argument. Update backend accordingly.
+
+2008-04-17  Helmut Eller  <heller@common-lisp.net>
+
+	* slime.el (slime-set-default-directory): Send absolute filenames.
+
 2008-04-06  Tobias C. Rittweiler  <tcr@freebits.de>
 
 	* slime.el (slime-edit-definition): The `slime-edit-definition-hooks'

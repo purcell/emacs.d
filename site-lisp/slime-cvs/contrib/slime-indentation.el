@@ -378,7 +378,6 @@ used for upward compatibility."
 
 (defun cl-indent::normal (state)
   "Compute normal indentation according to STATE and current position."
-
   ;; Actually, the current column (i.e., the normal point) _is_ a good
   ;; approximation for the normal indentation. But lists with a list
   ;; as the first element make problems if an &rest or an &body method
@@ -505,9 +504,7 @@ code for this. If that's the case this variable should be a constant.
                             normal-indent)))
                 ((eq tem '&rest)
                  ;; this pattern holds for all remaining forms
-                 (setf method (let ((rest (cons (second method) nil)))
-                                (setf (cdr rest) rest)
-                                rest)
+                 (setf method (list (second method))
                        n 0))
                 ((> n 0)
                  ;; try next element of pattern
@@ -685,6 +682,71 @@ TEM is that indentation method and METHOD is the rest of the method list."
              method
              path state indent-point sexp-column normal-indent)))
 
+(defun cl-indent::line-number ()
+  "Compatability implementation of  emacs23's line-number-at-pos."
+  (cond 
+    ((fboundp 'line-number-at-pos)
+     (line-number-at-pos))
+    ((fboundp 'line-number)
+     (line-number nil t))
+    ((fboundp 'count-lines)
+     (count-lines (point-min) (point)))
+    (t
+     (error "Don't know how to count the number of lines from the start of the (narrowed) buffer to point."))))
+
+(defun cl-indent:indent-cond (path state indent-point sexp-column normal-indent)
+  "Handle indentation of cond.
+
+Cond is either (&rest (&whole 2 1 &rest 1)) or (&rest (&whole 6 1
+&rest 1)) depending on whether the first caluse is or isn't on
+the same line as the cond symbol.
+
+So if we have:
+
+  (cond (a b)
+        |
+
+we line up the clauses after the cond symbol (6 space of
+indentation). wherease if we have:
+
+  (cond
+    (a b)
+    |)
+
+we line up the clauses two space past the form's indentation."
+  ;; i'd bet my left pinky there's a better way to implement this...
+  (let (cond-line-number first-clause-line-number method here)
+    (save-excursion
+      ;; narrow to the aera we're interested in because
+      ;; cl-indent::line-number can, especially on tramp files, be
+      ;; very slow.
+      (save-restriction
+        (narrow-to-region (save-excursion
+                            (backward-up-list)
+                            (point))
+                          (point))
+        (setf here (point))
+        (backward-up-list)
+        (setf cond-line-number (cl-indent::line-number))
+        (down-list)
+        (forward-sexp 1)
+        (setf first-clause-line-number 
+              (progn
+                (if (= 1 (first path))
+                    ;; we're indenting the first form. use the current line.
+                    (goto-char here)
+                  ;; we're indenting some form which isn't the
+                  ;; first. find out which the line the first clause
+                  ;; starts on.
+                  (forward-sexp 1)
+                  (backward-sexp 1))
+                (cl-indent::line-number)))))
+    (cl-indent::form-method 
+     (if (= cond-line-number first-clause-line-number)
+         '(&rest (&whole 6 &rest 1))
+         '(&rest (&whole 2 &rest 1)))
+     path state indent-point sexp-column normal-indent)))
+
 
 ;;; ============================================================
 ;;;
@@ -771,7 +833,7 @@ Is typically set for a mode, during mode setup or in a mode hook.")
 
 ;; Regexps matching various varieties of loop macro keyword ...
 (defvar cl-indent-body-introducing-loop-macro-keyword
-  "do\\|finally\\|initially"
+  "do\\|finally\\|initially\\|doing\\|collect\\|collecting\\|append\\|appending"
   "Regexp matching loop macro keywords which introduce body-forms")
 
 ;; This is so "and when" and "else when" get handled right
@@ -788,7 +850,7 @@ like it ...")
 ;; This is handled right, but it's incomplete ...
 ;; (It could probably get arbitrarily long if I did *every* iteration-path)
 (defvar cl-indent-indented-loop-macro-keyword
-  "into\\|by\\|upto\\|downto\\|above\\|below\\|on\\|being\\|=\\|first\\|then\\|from\\|to"
+  "into\\|by\\|upto\\|downto\\|above\\|below\\|on\\|in\\|being\\|=\\|first\\|then\\|from\\|to"
   "Regexp matching keywords introducing loop subclauses.  Always indented two")
 
 (defvar cl-indent-indenting-loop-macro-keyword
@@ -919,8 +981,13 @@ Cause subsequent clauses to be indented")
 
 (defun cl-indent-loop-advance-past-keyword-on-line ()
   (forward-word 1)
-  (while (and (looking-at "\\s-") (not (eolp)))
-    (forward-char 1))
+  (block move-forward
+    (while (and (looking-at "\\s-") (not (eolp)))
+      (forward-char 1)
+      (when (looking-at "\\s<")
+        ;; eat up the comment (sorry, this will fail for for lisp block comments
+        (while (and (not (looking-at "\\s>")) (not (eolp)))
+          (forward-char 1)))))
   (if (eolp)
       nil
     (current-column)))
@@ -962,19 +1029,18 @@ stored."
 ;;; issue specifications for Common Lisp forms
 ;;;
 
-
 (mapcar #'define-cl-indent
 	'((block 1)
 	  (case		(4 &rest (&whole 2 &rest 3)))
 	  (ccase . case) (ecase . case)
 	  (typecase . case) (etypecase . case) (ctypecase . case)
 	  (handler-bind . let)
-	  (handler-case (4 (&whole 2 1 &rest 1)))
+	  (handler-case (4 &rest (&whole 2 4 &rest 2)))
 	  (catch 1)
-	  (cond		(&rest (&whole 2 1 &rest 1)))
+	  (cond		cl-indent:indent-cond)
 	  (defvar	(4 2 2))
 	  (defconstant . defvar) (defparameter . defvar)
-	  (defclass	(6 6 (&whole 4 &rest (&whole 1 &rest 2)) &rest 2))
+	  (defclass	(6 6 (&whole 2 &rest 1) &rest 2))
 	  (define-modify-macro
 			(4 &body))
 	  (defsetf	(4 (&whole 4 &rest 1) 4 &body))
@@ -990,6 +1056,9 @@ stored."
 			 (&whole 4 &rest 3) ; result: ((condition) (form) ...)
 			 &rest cl-indent:indent-do))
 	  (do* . do)
+          (do-all-symbols (4 &body))
+          (do-symbols (4 &body))
+          (do-external-symbols (4 &body))
 	  (dolist	((&whole 4 2 1) &body))
 	  (dotimes . dolist)
 	  (eval-when 1)
@@ -1021,6 +1090,7 @@ stored."
 	  (prog2 2)
 	  (progn 0)
 	  (progv	(4 4 &body))
+          (restart-case . handler-case)
 	  (return 0)
 	  (return-from	(nil &body))
 	  (tagbody	cl-indent:indent-tagbody)
@@ -1030,10 +1100,16 @@ stored."
 			(5 &body))
 	  (values 0)
 	  (when 1)
-	  ;; ITA additions as per /trunk/qres/lisp/LISP-STANDARDS.rest, with suggestions by scott mckay.
-          (make-condition (&rest 2))
-          (make-instance (&rest 2))
-          (with-prefixed-accessors . multiple-value-bind)))
+          (with-accessors (6 4 &body))
+          (with-compilation-unit (4 &body))
+          (with-hash-table-iterator (4 &body))
+          (with-output-to-string (4 &body))
+          (with-input-from-string . with-output-to-string)
+          (with-open-file (4 &body))
+          (with-open-stream . with-open-file)
+          (with-package-iterator (4 &body))
+          (with-simple-restart (4 &body))
+          (with-slots (6 4 &body))))
 
 ;; OK, we're almost finished.
 ;;

@@ -347,8 +347,9 @@ NIL if we aren't compiling from a buffer.")
           (when load-p (load output-file)))
         (values output-file warnings-p failure-p)))))
 
-(defimplementation swank-compile-string (string &key buffer position directory)
-  (declare (ignore directory))
+(defimplementation swank-compile-string (string &key buffer position directory
+                                                debug)
+  (declare (ignore directory debug))
   (with-compilation-hooks ()
     (let ((*buffer-name* buffer)
           (*buffer-start-position* position)

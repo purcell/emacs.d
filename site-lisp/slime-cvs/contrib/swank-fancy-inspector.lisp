@@ -175,7 +175,7 @@ See `methods-by-applicability'.")
                                 (abort "Abort setting slot ~S" slot-name)
                               (let ((value-string (eval-in-emacs
                                                    `(condition-case c
-                                                     (slime-read-object
+                                                     (slime-read-from-minibuffer
                                                       ,(format nil "Set slot ~S to (evaluated) : " slot-name))
                                                      (quit nil)))))
                                 (when (and value-string

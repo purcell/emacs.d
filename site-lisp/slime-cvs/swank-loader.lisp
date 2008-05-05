@@ -42,7 +42,7 @@
   #+clisp '(xref metering swank-clisp swank-gray)
   #+armedbear '(swank-abcl)
   #+cormanlisp '(swank-corman swank-gray)
-  #+ecl '(swank-ecl swank-gray))
+  #+ecl '(swank-source-path-parser swank-source-file-cache swank-ecl swank-gray))
 
 (defparameter *implementation-features*
   '(:allegro :lispworks :sbcl :openmcl :cmu :clisp :ccl :corman :cormanlisp

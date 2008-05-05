@@ -3721,6 +3721,9 @@ This is only used by the repl command sayoonara."
 
 ;;;; Compilation and the creation of compiler-note annotations
 
+(defvar slime-compile-with-maximum-debug nil
+  "When non-nil compile defuns with maximum debug optimization.")
+
 (defvar slime-highlight-compiler-notes t
   "*When non-nil annotate buffers with compilation notes etc.")
 
@@ -3781,10 +3784,11 @@ See `slime-compile-and-load-file' for further details."
      (slime-rcurry #'slime-compilation-finished (current-buffer)))
     (message "Compiling %s..." file)))
 
-(defun slime-compile-defun ()
+(defun slime-compile-defun (&optional maximum-debug-p)
   "Compile the current toplevel form."
-  (interactive)
-  (apply #'slime-compile-region (slime-region-for-defun-at-point)))
+  (interactive "P")
+  (let ((slime-compile-with-maximum-debug maximum-debug-p))
+    (apply #'slime-compile-region (slime-region-for-defun-at-point))))
 
 (defun slime-compile-region (start end)
   "Compile the region."
@@ -3804,7 +3808,8 @@ See `slime-compile-and-load-file' for further details."
      ,string
      ,(buffer-name)
      ,start-offset
-     ,(if (buffer-file-name) (file-name-directory (buffer-file-name))))
+     ,(if (buffer-file-name) (file-name-directory (buffer-file-name)))
+     ',slime-compile-with-maximum-debug)
    (slime-make-compilation-finished-continuation (current-buffer))))
 
 (defun slime-note-count-string (severity count &optional suppress-if-zero)
@@ -6274,12 +6279,13 @@ CL:MACROEXPAND."
 (defun slime-set-default-directory (directory)
   "Make DIRECTORY become Lisp's current directory."
   (interactive (list (read-directory-name "Directory: " nil nil t)))
-  (message "default-directory: %s"
-           (slime-from-lisp-filename
-            (slime-eval `(swank:set-default-directory
-                          ,(slime-to-lisp-filename directory)))))
-  (with-current-buffer (slime-output-buffer)
-    (setq default-directory (expand-file-name directory))))
+  (let ((dir (expand-file-name directory)))
+    (message "default-directory: %s"
+             (slime-from-lisp-filename
+              (slime-eval `(swank:set-default-directory
+                            ,(slime-to-lisp-filename dir)))))
+    (with-current-buffer (slime-output-buffer)
+      (setq default-directory dir))))
 
 (defun slime-sync-package-and-default-directory ()
   "Set Lisp's package and directory to the values in current buffer."

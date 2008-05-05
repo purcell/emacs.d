@@ -333,7 +333,7 @@ This is used to resolve filenames without directory component."
   (declare (ignore ignore))
   `(call-with-compilation-hooks (lambda () (progn ,@body))))
 
-(definterface swank-compile-string (string &key buffer position directory)
+(definterface swank-compile-string (string &key buffer position directory debug)
   "Compile source from STRING.  During compilation, compiler
 conditions must be trapped and resignalled as COMPILER-CONDITIONs.
 
@@ -344,7 +344,11 @@ positions reported in compiler conditions.
 
 If DIRECTORY is specified it may be used by certain implementations to
 rebind *DEFAULT-PATHNAME-DEFAULTS* which may improve the recording of
-source information.")
+source information.
+
+If DEBUG is supplied, it may be used by certain implementations to
+compile with maximum debugging information.
+")
 
 (definterface swank-compile-file (filename load-p external-format)
    "Compile FILENAME signalling COMPILE-CONDITIONs.
@@ -608,16 +612,6 @@ debug the debugger! Instead, such conditions can be reported to the
 user without (re)entering the debugger by wrapping them as
 `sldb-condition's."))
 
-(definterface compute-backtrace (start end)
-   "Return a list containing a backtrace of the condition current
-being debugged.  The results are unspecified if this function is
-called outside the dynamic contour CALL-WITH-DEBUGGING-ENVIRONMENT.
-
-START and END are zero-based indices constraining the number of frames
-returned.  Frame zero is defined as the frame which invoked the
-debugger.  If END is nil, return the frames from START to the end of
-the stack.")
-
 (definterface compute-sane-restarts (condition)
   "This is an opportunity for Lisps such as CLISP to remove
 unwanted restarts from the output of CL:COMPUTE-RESTARTS,
@@ -625,28 +619,48 @@ otherwise it should simply call CL:COMPUTE-RESTARTS, which is
 what the default implementation does."
   (compute-restarts condition))
 
+;;; The following functions in this section are supposed to be called
+;;; within the dynamic contour of CALL-WITH-DEBUGGING-ENVIRONMENT only.
+
+(definterface compute-backtrace (start end)
+   "Returns a backtrace of the condition currently being debugged,
+that is an ordered list consisting of frames. (What constitutes a
+frame is implementation dependent, but PRINT-FRAME must be defined on
+it.)
+
+``Ordered list'' means that the i-th. frame is associated to the
+frame-number i.
+
+START and END are zero-based indices constraining the number of frames
+returned.  Frame zero is defined as the frame which invoked the
+debugger.  If END is nil, return the frames from START to the end of
+the stack.")
+
 (definterface print-frame (frame stream)
   "Print frame to stream.")
 
 (definterface frame-source-location-for-emacs (frame-number)
-  "Return the source location for FRAME-NUMBER.")
+  "Return the source location for the frame associated to FRAME-NUMBER.")
 
 (definterface frame-catch-tags (frame-number)
-  "Return a list of XXX list of what? catch tags for a debugger
-stack frame.  The results are undefined unless this is called
-within the dynamic contour of a function defined by
-DEFINE-DEBUGGER-HOOK.")
+  "Return a list of catch tags for being printed in a debugger stack
+frame.")
 
 (definterface frame-locals (frame-number)
-  "Return a list of XXX local variable designators define me
-for a debugger stack frame.  The results are undefined unless
-this is called within the dynamic contour of a function defined
-by DEFINE-DEBUGGER-HOOK.")
+  "Return a list of ((&key NAME ID VALUE) ...) where each element of
+the list represents a local variable in the stack frame associated to
+FRAME-NUMBER.
 
-(definterface frame-var-value (frame var)
-  "Return the value of VAR in FRAME.  
-FRAME is the number of the frame in the backtrace.
-VAR is the number of the variable in the frame.")
+NAME, a symbol; the name of the local variable.
+
+ID, an integer; used as primary key for the local variable, unique
+relatively to the frame under operation.
+
+value, an object; the value of the local variable.")
+
+(definterface frame-var-value (frame-number var-id)
+  "Return the value of the local variable associated to VAR-ID
+relatively to the frame associated to FRAME-NUMBER.")
 
 (definterface disassemble-frame (frame-number)
   "Disassemble the code for the FRAME-NUMBER.
@@ -655,8 +669,7 @@ FRAME-NUMBER is a non-negative integer.")
 
 (definterface eval-in-frame (form frame-number)
    "Evaluate a Lisp form in the lexical context of a stack frame
-in the debugger.  The results are undefined unless called in the
-dynamic contour of a function defined by DEFINE-DEBUGGER-HOOK.
+in the debugger.
 
 FRAME-NUMBER must be a positive integer with 0 indicating the
 frame which invoked the debugger.
