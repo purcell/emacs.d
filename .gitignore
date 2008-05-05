@@ -6,3 +6,4 @@ CVS
 .svn
 *~
 .cvsignore
+.*.lock
