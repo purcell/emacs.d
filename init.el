@@ -400,6 +400,8 @@
 
 (require 'maxframe)
 (when *macbook-pro-support-enabled*
+  (setq mf-max-width 1440)
+  (setq mf-max-height 900)
   (setq mf-offset-x 3))
 (add-hook 'window-setup-hook 'maximize-frame t)
 
