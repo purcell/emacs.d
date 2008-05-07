@@ -391,8 +391,9 @@
                       :width  'normal
                       :height (* 10 size)))
 
-(lexical-let ((font-name "monaco") (font-size 11))
+(lexical-let ((font-name "monaco") (font-size 10))
   ;;         ((font-name "bitstream vera sans mono"))
+  ;;         ((font-name "lucida console"))
   (defun steve-set-default-font-size ()
     (steve-set-default-font font-name font-size)))
 
