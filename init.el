@@ -289,7 +289,9 @@
   (interactive "DSelect directory: ")
   (let* ((default-directory (git-get-top-dir dir))
          (compilation-buffer-name-function (lambda (major-mode-name) "*git-svn*")))
-    (compile (concat "git-svn " (ido-completing-read "git-svn command: " (list "rebase" "dcommit" "log") nil t)))))
+    (compile (concat "git-svn "
+                     (ido-completing-read "git-svn command: "
+                                          (list "rebase" "dcommit" "fetch" "log") nil t)))))
 
 
 ;;----------------------------------------------------------------------------
