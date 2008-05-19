@@ -584,6 +584,14 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Pymacs and Rope for Python
+;;----------------------------------------------------------------------------
+;; See http://edward.oconnor.cx/2008/02/ropemacs
+(require 'pymacs)
+(pymacs-load "ropemacs" "rope-")
+
+
+;;----------------------------------------------------------------------------
 ; Automatically set execute perms on files if first line begins with '#!'
 ;;----------------------------------------------------------------------------
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
