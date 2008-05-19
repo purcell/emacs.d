@@ -605,10 +605,11 @@
 
 
 ;;----------------------------------------------------------------------------
-;; CSV mode
+;; CSV mode and csv-nav mode
 ;;----------------------------------------------------------------------------
 (autoload 'csv-mode "csv-mode" "Major mode for editing comma-separated value files." t)
 (add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
+(autoload 'csv-nav-mode "csv-nav-mode" "Major mode for navigating comma-separated value files." t)
 
 
 ;;----------------------------------------------------------------------------
