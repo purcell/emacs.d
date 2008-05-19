@@ -712,9 +712,18 @@ non-nil, in which case return all visible changes."
                 (darcsum-remove-changeset darcsum-data changeset))
           (darcsum-refresh)))))
 
+(defvar darcsum-darcs-2-options 'not-set)
+
 (defun darcsum-start-process (subcommand args
                                          &optional name value &rest localize)
   "Start darcs process."
+  (if (eq darcsum-darcs-2-options 'not-set)
+      ;; Check version and set proper darcsum-darcs-2-options
+      (with-temp-buffer
+	(call-process darcsum-program nil t nil "--version")
+	(goto-char (point-min))
+	(setq darcsum-darcs-2-options
+	      (if (looking-at "2[.]") (list "--quiet")))))
     (let*
         ((buf (generate-new-buffer (format " *darcs %s*" subcommand)))
          (process-environment
@@ -723,7 +732,8 @@ non-nil, in which case return all visible changes."
 		  process-environment))
          (process-connection-type nil)
          (proc (apply 'start-process "darcs"
-                      buf darcsum-program subcommand args)))
+                      buf darcsum-program subcommand
+		      (append darcsum-darcs-2-options args))))
       (set-process-sentinel proc 'darcsum-process-sentinel)
       (set-process-filter proc 'darcsum-process-filter)
       (with-current-buffer buf
@@ -735,9 +745,17 @@ non-nil, in which case return all visible changes."
       proc))
 
 (defun darcsum-process-sentinel (proc string)
-  (cond
-   ((and (string-match "^exited abnormally" string) (process-buffer proc))
-    (message string))))
+  (if (buffer-live-p (process-buffer proc))
+      (with-current-buffer (process-buffer proc)
+	(save-excursion
+	  (goto-char (point-min))
+	  (cond
+	   ((looking-at "\n*\\(Couldn't get lock [^\n]*\\)")
+	    (let ((waiting (match-string 1)))
+	      (message waiting)
+	      (kill-buffer (current-buffer))))
+	   ((string-match "^exited abnormally" string)
+	    (message string)))))))
 
 (defun darcsum-process-filter (proc string)
   (with-current-buffer (process-buffer proc)
@@ -751,7 +769,7 @@ non-nil, in which case return all visible changes."
     (save-excursion
       (goto-char (point-min))
 
-      (if (looking-at "\n*Skipped \\(record\\|add\\) of [0-9]+ patch\\(es\\)\\.\n")
+      (if (looking-at "\n*Skipped \\(record\\|add\\|revert\\) of [0-9]+ patch\\(es\\)?\\.\n")
 	  (delete-region (point-min) (match-end 0)))
 
       (cond
@@ -1415,27 +1433,36 @@ Return nil if there is no changeset matching NEXT-P."
   (darcsum-refresh))
 
 (defun darcsum-remove ()
-  "Remove a file from the repository."
+  "Remove a file from the repository.
+
+This runs darcs remove (which undoes accidental addfile or adddir).
+
+If you want to remove an existing file or directory, remove file or
+directory otherwise and record change."
   (interactive)
   (darcsum-check-darcsum-mode)
   (let ((changeset (darcsum-changeset-at-point t))
-	(file))
+	(type (darcsum-get-line-type))
+	(path (get-text-property (point) 'darcsum-line-path)))
     (cond
-     ((eq type 'dir)
-      (error "Cannot remove whole directories yet; try file by file for now"))
-     ((memq type '(file change))
-      (when (yes-or-no-p (format "Really delete file `%s'? " path))
-        (cond
-         ((eq sym 'newfile)
-          (delete-file path))
-         (t
-          (delete-file path)
-	  (with-temp-buffer
-	    (cd (expand-file-name dir))
-	    (if (/= 0 (call-process darcsum-program nil t nil
-				    "remove" file-to-remove))
-		(error "Error running `darcs remove'")))))))))
-  (darcsum-redo))
+     ((eq (caadar changeset) 'adddir)
+      (setq changeset (cdr changeset))
+      (while (memq (caadar changeset) '(newfile newdir))
+	(setq changeset (cdr changeset)))
+      (if changeset
+	  (error "Remove pending changes in directory first")))
+     ((eq (caadar changeset) 'addfile)
+      (setq changeset (cdr changeset))
+      (while (numberp (caadar changeset))
+	(setq changeset (cdr changeset)))
+      (if changeset
+	  (error "First undo pending changes in file")))
+     (t
+      (error "Not added file or directory")))
+    (unless (= 0 (call-process darcsum-program nil t nil
+			       "remove" path))
+      (error "Error running `darcs remove'"))
+    (darcsum-redo)))
 
 (defun darcsum-add ()
   "Put new file or directory under Darcs control."
@@ -1465,13 +1492,13 @@ Propose the insertion of a regexp suitable to permanently ignore
 the file or the directory at point into the boring file."
   (interactive
    (let ((type (darcsum-get-line-type))
-	 (path (get-text-property (point) 'darcsum-path)))
+	 (path (get-text-property (point) 'darcsum-line-path)))
      (if (string-match "^\\./" path)
 	 (setq path (substring path 2)))
      (setq path (regexp-quote path))
      (cond
       ((eq type 'dir)
-       (setq path (concat "(^|/)" (regexp-quote path) "($|/)")))
+       (setq path (concat "(^|/)" path "($|/)")))
       ((memq type '(file change))
        (setq path (concat "(^|/)" path "$"))))
      (list (read-string "Add to boring list: " path))))
@@ -1681,7 +1708,7 @@ Inserts the entry in the darcs comment file instead of the ChangeLog."
     (define-key map "U" 'darcsum-revert)
     (define-key map "u" 'darcsum-toggle-context)
     (define-key map "d" 'darcsum-delete)
-    ;; (define-key map "r" 'darcsum-remove)
+    (define-key map "r" 'darcsum-remove)
     (define-key map "M" 'darcsum-move)
     (define-key map "m" 'darcsum-toggle-mark)
     (define-key map [button2] 'darcsum-mouse-toggle-mark)
