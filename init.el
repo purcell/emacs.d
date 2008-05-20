@@ -600,6 +600,15 @@
 
 
 ;;----------------------------------------------------------------------------
+;; htmlize
+;;----------------------------------------------------------------------------
+(dolist (sym
+         (list 'htmlize-file 'htmlize-region 'htmlize-buffer
+               'htmlize-many-files 'htmlize-many-files-dired))
+  (autoload sym "htmlize"))
+
+
+;;----------------------------------------------------------------------------
 ;; CSS mode
 ;;----------------------------------------------------------------------------
 (autoload 'css-mode "css-mode" "Mode for editing CSS files" t)
