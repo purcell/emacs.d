@@ -326,6 +326,23 @@
 
 
 ;;----------------------------------------------------------------------------
+;; ido completion in M-x
+;;----------------------------------------------------------------------------
+;; See http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings#toc5
+(defun ido-execute ()
+  (interactive)
+  (call-interactively
+   (intern
+    (ido-completing-read
+     "M-x "
+     (let (cmd-list)
+       (mapatoms (lambda (S) (when (commandp S) (setq cmd-list (cons (format "%S" S) cmd-list)))))
+       cmd-list)))))
+
+(global-set-key "\M-x" 'ido-execute)
+
+
+;;----------------------------------------------------------------------------
 ;; When splitting window, show (other-buffer) in the new window
 ;;----------------------------------------------------------------------------
 (defun split-window-func-with-other-buffer (split-function)
