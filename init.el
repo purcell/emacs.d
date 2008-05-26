@@ -533,6 +533,19 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Ruby - haml & sass
+;;----------------------------------------------------------------------------
+(add-auto-mode 'haml-mode "\.haml$")
+(add-auto-mode 'sass-mode "\.sass$")
+(autoload 'haml-mode "haml-mode" "Mode for editing haml files" t)
+(autoload 'sass-mode "sass-mode" "Mode for editing sass files" t)
+
+(when *rails-support-enabled*
+  (dolist (hook (list 'haml-mode-hook 'sass-mode-hook))
+    (add-hook hook (lambda () (if (rails-project:root) (rails-minor-mode t))))))
+
+
+;;----------------------------------------------------------------------------
 ;; Ruby - compilation
 ;;----------------------------------------------------------------------------
 
