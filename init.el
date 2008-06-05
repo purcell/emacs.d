@@ -533,6 +533,16 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Ruby - my convention for heredocs containing SQL
+;;----------------------------------------------------------------------------
+(eval-after-load "mmm-mode"
+  '(progn
+     (mmm-add-classes
+      '((ruby-heredoc-sql :submode sql-mode :front "<<-?end_sql" :back "end_sql" :face mmm-code-submode-face)))
+     (mmm-add-mode-ext-class 'ruby-mode "\\.rb$" 'ruby-heredoc-sql)))
+
+
+;;----------------------------------------------------------------------------
 ;; Ruby - haml & sass
 ;;----------------------------------------------------------------------------
 (add-auto-mode 'haml-mode "\.haml$")
