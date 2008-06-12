@@ -144,8 +144,7 @@
   (global-unset-key "\C-z")
   (setq viper-mode t)
   (require 'viper)
-  (define-key viper-insert-global-user-map "\C-n" 'hippie-expand)
-  (define-key viper-insert-global-user-map "\C-p" 'hippie-expand))
+  (require 'vimpulse))
 
 
 ;;----------------------------------------------------------------------------
