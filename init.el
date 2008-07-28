@@ -720,8 +720,6 @@
 
 (defun enable-paredit (keymap)
   (paredit-mode +1)
-  (define-key keymap (kbd "(") 'paredit-open-list)
-  (define-key keymap (kbd ")") 'paredit-close-list)
   (define-key keymap (kbd "RET") 'paredit-newline))
 
 (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
