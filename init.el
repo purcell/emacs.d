@@ -640,8 +640,10 @@
 ;; Pymacs and Rope for Python
 ;;----------------------------------------------------------------------------
 ;; See http://edward.oconnor.cx/2008/02/ropemacs
-(require 'pymacs)
-(pymacs-load "ropemacs" "rope-")
+(add-hook 'python-mode-hook
+          (lambda ()
+            (require 'pymacs)
+            (pymacs-load "ropemacs" "rope-")))
 
 
 ;;----------------------------------------------------------------------------
