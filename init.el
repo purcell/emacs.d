@@ -561,9 +561,9 @@
 (autoload 'haml-mode "haml-mode" "Mode for editing haml files" t)
 (autoload 'sass-mode "sass-mode" "Mode for editing sass files" t)
 
-(when *rails-support-enabled*
-  (dolist (hook (list 'haml-mode-hook 'sass-mode-hook))
-    (add-hook hook (lambda () (if (rails-project:root) (rails-minor-mode t))))))
+;(when *rails-support-enabled*
+;  (dolist (hook (list 'haml-mode-hook 'sass-mode-hook))
+;    (add-hook hook (lambda () (if (rails-project:root) (rails-minor-mode t))))))
 
 
 ;;----------------------------------------------------------------------------
@@ -618,9 +618,16 @@
 ; Rails (http://rubyforge.org/projects/emacs-rails/)
 ;;----------------------------------------------------------------------------
 (when *rails-support-enabled*
-  (require 'rails)
-  (setq rails-webrick:use-mongrel t)
-  (setq rails-api-root (expand-file-name "~/Documents/External/rails"))
+  (dolist (hook '(nxml-mode-hook haml-mode-hook sass-mode-hook))
+    (add-hook hook (lambda () (rinari-launch))))
+  (defun update-rails-ctags ()
+    (interactive)
+    (let ((default-directory (or (rinari-root) default-directory)))
+      (shell-command (concat "ctags -a -e -f " rinari-tags-file-name " --tag-relative -R app lib vendor test"))))
+  (require 'rinari)
+  ;(require 'rails)
+  ;(setq rails-webrick:use-mongrel t)
+  ;(setq rails-api-root (expand-file-name "~/Documents/External/rails"))
 
   (when *ecb-support-enabled*
     (require 'ecb)
