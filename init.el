@@ -337,6 +337,25 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Open a shell session in the current directory
+;;----------------------------------------------------------------------------
+;; See http://atomized.org/2008/07/emacs-open-a-shell-in-the-current-directory/
+(defun shell-here ()
+  "Open a shell in `default-directory'."
+  (interactive)
+  (let ((dir (expand-file-name default-directory))
+        (buf (or (get-buffer "*shell*") (shell))))
+    (goto-char (point-max))
+    (if (not (string= (buffer-name) "*shell*"))
+        (switch-to-buffer-other-window buf))
+    (message list-buffers-directory)
+    (if (not (string= (expand-file-name list-buffers-directory) dir))
+        (progn (comint-send-string (get-buffer-process buf)
+                                   (concat "cd \"" dir "\"\r"))
+               (setq list-buffers-directory dir)))))
+
+
+;;----------------------------------------------------------------------------
 ;; ido completion in M-x
 ;;----------------------------------------------------------------------------
 ;; See http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings#toc5
