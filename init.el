@@ -28,6 +28,14 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Automatically byte-compile .el files
+;;----------------------------------------------------------------------------
+(setq byte-compile-warnings t)
+(setq bcc-blacklist '("/\\.recentf$" "/history$" "/\\.ecb-user-layouts\\.el$" "/\\.session$" "/\\.emacs-project$" "/\\.emacs\\.desktop$" "/cedet/"))
+(require 'byte-code-cache)
+
+
+;;----------------------------------------------------------------------------
 ;; Use elisp package manager (http://tromey.com/elpa/)
 ;;----------------------------------------------------------------------------
 (setq load-path (cons (expand-file-name "~/.emacs.d/elpa") load-path))
