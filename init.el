@@ -31,9 +31,13 @@
 ;; Automatically byte-compile .el files
 ;;----------------------------------------------------------------------------
 (setq byte-compile-warnings t)
+(setq byte-compile-verbose t)
 (setq byte-cache-directory nil)
-(setq bcc-blacklist '("/\\.recentf$" "/history$" "/\\.ecb-user-layouts\\.el$" "/\\.session$" "/\\.emacs-project$" "/\\.emacs\\.desktop$"))
+(setq bcc-blacklist '("/\\.recentf$" "/history$" "/\\.ecb-user-layouts\\.el$" "/\\.session$"
+		      "/\\.emacs-project$" "/\\.emacs\\.desktop$" "/custom\\.el$" "/init\\.el$"
+		      "/\\.ido\\.last$" "/\\.ecb-tip-of-day\\.el$" "/\\.viper$" "/\\.recentf$"))
 (require 'byte-code-cache)
+(require 'auto-recomp)
 
 
 ;;----------------------------------------------------------------------------
