@@ -1,10 +1,10 @@
-This is semantic-user.info, produced by makeinfo version 4.8 from
+This is semantic-user.info, produced by makeinfo version 4.12 from
 user-guide.texi.
 
-   This is the Semantic User's Manual
+This is the Semantic User's Manual
 
-   Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
-Eric M. Ludlam Copyright (C) 2001, 2002, 2003, 2004 David Ponce
+   Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,
+2008 Eric M. Ludlam Copyright (C) 2001, 2002, 2003, 2004 David Ponce
 Copyright (C) 2002, 2003 Richard Y. Kim
 
      Permission is granted to copy, distribute and/or modify this
@@ -36,6 +36,9 @@ This chapter describes how to use applications enabled by semantic.
 Many of these come with semantic, but others are distributed apart from
 semantic.
 
+For basics of configuring semantic and the parts that go into it read
+the *note Semantic manual: (semantic.info)Top.
+
 * Menu:
 
 * speedbar::                    How to use Semantic speedbar support
@@ -43,14 +46,12 @@ semantic.
 * imenu::                       Special support for Imenu.
 * senator::                     The Semantic Navigator
 * Analyzer::                    Analyze local context
-* Class Browser::               Class hierarchy browser
 * Document::                    Document generation functions
 * Charts::                      Charting code statistics
 * Idle Scheduler::              The idle Scheduler and related modes
 * Minor Modes::                 Useful minor modes
 * semanticdb::                  Cache your parsed buffers between sessions.
-* Speed Debug::                 How to debug speed issues.
-* Customizing::
+* Debugging::                   How to debug speed or accuracy issues.
 * GNU Free Documentation License::
 * Index::
 
@@ -77,8 +78,7 @@ functions.
 If you use `semantic-load.el', you do not need to add the above lines
 in your `.emacs' file.
 
-Two additional speedbar modes are described in *Note Speedbar
-Analysis::, and *Note Class Browser::.
+Two additional speedbar modes are described in *note Speedbar Analysis::
 
 
 File: semantic-user.info,  Node: ECB,  Next: imenu,  Prev: speedbar,  Up: Top
@@ -298,10 +298,10 @@ Parsers::.)
           senator-isearch-toggle-semantic-mode
 
     <C-c , j>
-          semantic-complete-jump-local
+          (Lower case j) semantic-complete-jump-local
 
     <C-c , J>
-          semantic-complete-jump
+          (Upper case J) semantic-complete-jump
 
     <C-c , TAB>
           senator-complete-symbol
@@ -365,7 +365,7 @@ This will cause navigation and search commands to stop only between
 functions and variables, and to step at start and end of functions only.
 
 
-File: semantic-user.info,  Node: Analyzer,  Next: Class Browser,  Prev: senator,  Up: Top
+File: semantic-user.info,  Node: Analyzer,  Next: Document,  Prev: senator,  Up: Top
 
 5 Analyzer
 **********
@@ -413,11 +413,13 @@ list.
 * Menu:
 
 * Smart Completion::       Functions you can bind to keys for completion
-* Smart Idle Completion::  Automatic completion popups
+* Smart Summary::          Routines for displaying help on a symbol
+* Smart Jump::             Routines for jumping to tag origins
 * Speedbar Analysis::      Speedbar provided completion
+* Smart Completion Debugging:: How to debug analyzer issues.
 
 
-File: semantic-user.info,  Node: Smart Completion,  Next: Smart Idle Completion,  Up: Analyzer
+File: semantic-user.info,  Node: Smart Completion,  Next: Smart Summary,  Up: Analyzer
 
 5.1 Smart Completion
 ====================
@@ -439,34 +441,68 @@ These functions just provide commands that can be bound to key bindings.
  -- Command: semantic-ia-complete-tip point
      Pop up a tooltip for completion at POINT.
 
+You can get smart completions or summary information to automatically
+popup without explicity pressing a key or running a function.
+
+This is accomplished through the Idle Scheduler and related features.
+See *note Idle Scheduler:: for more on the Scheduler.
+
+Completions are provided with `semantic-idle-completions-mode'.  See
+*note Idle Completions Mode::.
+
+
+File: semantic-user.info,  Node: Smart Summary,  Next: Smart Jump,  Prev: Smart Completion,  Up: Analyzer
+
+5.2 Smart Summary
+=================
+
+Asside from completion, the analyzer can also be used just to show a
+summary of what is under point.  These routines will summarize the
+symbol in question in different ways.
+
  -- Command: semantic-ia-show-summary point
      Display a summary for the symbol under POINT.
 
  -- Command: semantic-ia-show-doc point
      Display the code-level documentation for the symbol at POINT.
 
-
-File: semantic-user.info,  Node: Smart Idle Completion,  Next: Speedbar Analysis,  Prev: Smart Completion,  Up: Analyzer
+ -- Command: semantic-ia-describe-class typename
+     Display as all known parts for the datatype TYPENAME.  If the type
+     in question is a class, all methods and other accessible parts of
+     the parent classes are displayed.
 
-5.2 Smart Idle Completion
-=========================
-
-You can get smart completions or summary information to automatically
-popup without explicity pressing a key or running a function.
+You can also get summaries to popup in idle time without having to
+press a key to get the information.
 
 This is accomplished through the Idle Scheduler and related features.
-See *Note Idle Scheduler:: for more on the Scheduler.
+See *note Idle Scheduler:: for more on the Scheduler.
 
-Summaries are provided with `semantic-idle-summary-mode'.  See *Note
+Summaries are provided with `semantic-idle-summary-mode'.  See *note
 Idle Summary Mode::.
 
-Completions are provided with `semantic-idle-completions-mode'.  See
-*Note Idle Completions Mode::.
+
+File: semantic-user.info,  Node: Smart Jump,  Next: Speedbar Analysis,  Prev: Smart Summary,  Up: Analyzer
+
+5.3 Smart Jump
+==============
+
+If you are on a symbol in some code, you might want to jump directly to
+it.  You can use `find-tag', but in complex C++ systems, you can spend
+a lot of time pressing `C-h M-.' trying to find the specific instance
+of some function.
+
+The analyzer can pinpoint very closely to where you actually indent
+based on code context.
+
+ -- Command: semantic-ia-fast-jump point
+     Jump to the tag referred to by the code at POINT.  Uses
+     "semantic-analyze-current-context" output to identify an accurate
+     origin of the code at point.
 
 
-File: semantic-user.info,  Node: Speedbar Analysis,  Prev: Smart Idle Completion,  Up: Analyzer
+File: semantic-user.info,  Node: Speedbar Analysis,  Next: Smart Completion Debugging,  Prev: Smart Jump,  Up: Analyzer
 
-5.3 Speedbar Analysis
+5.4 Speedbar Analysis
 =====================
 
 The Analyzer output can be used through a speedbar interface.  This
@@ -474,7 +510,7 @@ interface lists details about the analysis, such as the current
 function, local arguments and variables, details on the prefix (the
 symbol the cursor is on), and a list of all possible completions.
 Completions are specified in "semantic-analyze-possible-completions"
-*Note Analyzer::.
+*note Analyzer::.
 
 Each entry can be jumped to by clicking on the name.  For strongly
 typed languages, this means you will jump to the definition of the
@@ -497,42 +533,175 @@ You can also enter speedbar analyzer mode by selecting "Analyze" from
 the "Display" menu item on speedbar's menu.
 
 
-File: semantic-user.info,  Node: Class Browser,  Next: Document,  Prev: Analyzer,  Up: Top
+File: semantic-user.info,  Node: Smart Completion Debugging,  Prev: Speedbar Analysis,  Up: Analyzer
 
-6 Class Browser
-***************
+5.5 Smart Completion Debugging
+==============================
 
-The semantic class browser is a library that can covert a project file
-group into an object structure that contains links between structures
-so that the inheritance links between semantic tags can be easily
-navigated.
+If you think you've configured your system correctly, but semantic
+still can't find a definition you are looking for, you may have run
+into either a bug in semantic, an incomplete configuration, or somehow
+gotten semantic's set of cached tables into a bad state.
 
-The core to this library is one function in `semantic-cb.el'.
+This section was written with C/C++ in mind, but should be relevant for
+any typed language.
 
- -- Function: semantic-cb-new-class-browser
-     Create an object representing this project's organization.  The
-     object returned is of type "semantic-cb-project", which contains
-     the slot `:types', a list of all top-level types.  Each element is
-     a class of type "semantic-cb-token", or "semantic-cb-type".
+5.6 Step 1: Check the context
+=============================
 
-Use the Emacs function "describe-class" to learn more about these
-classes.
+The first thing to do is check the current context.  You can do this
+with `M-x semantic-analyze-current-context'.  If you look at the Prefix
+section, you should see a list of tags based on the text from under
+point.  If it shows only a simple string, the Semantic was unable to
+identify what the data type was.
 
-You can access the class inheritance structure through a speedbar
-interface.  You can choose the "Class Browser" option from Speedbar's
-"Display" menu item, or use the following command:
+The first item in the list of the prefix is the first lookup failure in
+the chain, and that is the item to focus debugging effort on.  For more
+on the analyzer, see *note Analyzer::.
 
- -- Command: semantic-cb-speedbar-mode
-     Bring speedbar up, and put it into Class Browser mode.  This will
-     use the Class Browser logic applied to the current Semantic
-     project database to build the available relations.  The structure
-     of the class hierarchy can then be navigated using traditional
-     speedbar interactions.
+     Context Type: #<semantic-analyze-context context>
+     Bounds: (182 . 185)
+     Prefix: Foo* bar
+             int bbb (const char* y)
+     Prefix Types: class Foo {}
+     --------
+     -> Local Vars: int argc
+                    char** argv
+
+In the above example you can see that the prefix has two fully found
+tags.  In the below example, the symbol "bbb" is incomplete, and could
+not be found.
+
+     Context Type: #<semantic-analyze-context context>
+     Bounds: (182 . 184)
+     Prefix: Foo* bar
+             "bb"
+     Prefix Classes: 'function
+                     'variable
+     Prefix Types: class Foo {}
+     --------
+     -> Local Vars: int argc
+                    char** argv
+
+5.7 Step 2 : Check your include path
+====================================
+
+Once you know what symbol can't be found, the next thing to check is
+your include path.  Is the header or include file that has the
+definitions you need actually in the list of headers semantic is
+searching through?  To get a basic list, you can use `M-x
+semanticdb-find-test-translate-path'.
+
+This will give you a list of database tables (by name) that semantic
+can find.  This list is in ADEBUG mode.  Use `SPC' to expand items to
+see if the tag you are looking for is in there.
+
+For C++, check to make sure that your project level include files are
+in "quotes", and not in <angle brackets>.  Items in angle brackets are
+system includes.
+
+See *note Semanticdb search debugging commands:: for more commands.
+
+If items should be loaded but aren't, you may need to update the search
+throttle.  See *note Search Throttle::.
+
+If you see some tables that have 0 tags in them, then you you may have
+an incorrectly set throttle.
+
+     *#<semanticdb-table main.cpp (4 tags DIRTY)>
+     *#<semanticdb-table foo.hh (0 tags DIRTY)>
+
+In the above example, semantic found `foo.hh', but there are 0 tags.
+This may be because the throttle was set to not read in and parse files
+that Emacs has not yet loaded in.  To fix this case, visit the file,
+and let semantic parse and save the tags table.
+
+5.8 Step 3: Check the local scope
+=================================
+
+If your data type is somehow abbreviated based on scope, such as from a
+`using' statement, you will need to make sure that the symbol you want
+is in the local scope.  Examine the scope with `M-x
+semantic-calculate-scope'.  The scope structure is displayed in ADEBUG
+mode, so use `SPC' to expand different elements and looking for your
+symbol.
+
+If your symbol should be in the scope, but you cannot find it, then you
+may have found a language support bug in the local-variable parser, or
+using statement parser.
+
+Calling `M-x bovinte' should force a reset on the scope in case there
+is merely some bad state.
+
+      ] Name: Cache
+      ] Class: #'semantic-scope-cache
+      ] :table #<semanticdb-table testsubclass.cpp (13 tags DIRTY)>
+      ] tag createMoose : class moose
+      ] scopetypes 'nil
+      ] parents #<TAG LIST: 1 entries>
+      ] scope #<TAG LIST: 22 entries>
+      ] fullscope #<TAG LIST: 23 entries>
+      ] localvar #<TAG LIST: 6 entries>
+
+In the above sample output, the `tag' slot specifies where within you
+source this scope is relevant.  `Parents' should contain any in scope
+parents, such as the class a method belongs to.  `Localvar' should
+contain your local variables.  `Scope' should contain datatypes in
+scope due to a `using' statement or the like.
+
+5.9 Step 4: Check the typecache
+===============================
+
+For complex typed languages like C++, semantic creates a typecache, or
+an optimized search table with all the various data types in it.
+Elements in the typecache do not obey local scope.  It only contains
+fully qualified names.  You can examine the typecache with `M-x
+semanticdb-typecache-dump'.
+
+If your data types are not in the typecache, there may be some parsing
+error or other bug.  Calling `M-x bovinte' should force a reset on the
+typecache in case there is merely some bad state.
+
+     ]#<semanticdb-typecache /home/zappo/cedet/semantic/tests/testsubclass.cpp>
+        ] Name: /home/zappo/cedet/semantic/tests/testsubclass.cpp
+        ] Class: #'semanticdb-typecache
+        ] filestream 'nil
+        ] includestream #<TAG LIST: 84 entries>
+        ] stream 'nil
+        ] dependants 'nil
+
+In the above example, the output of `M-x semanticdb-typecache-dump' was
+expanded one level.  The `filestream' slot should contain datatypes in
+the current file.  The `includestream' should contain all the datatypes
+in all included header files.
+
+The `dependants' slot will specify other files that depend on this one.
+
+5.10 Step 5: Check the parser
+=============================
+
+Go to the location where your unfound tag should be.  You can call `M-x
+bovinate', and see a dump of the raw tag structure.  To see a
+navigatable tree, use `M-x semantic-adebug-bovinate' instead.  You can
+then look to make sure your tag has been properly parsed.
+
+If it has not, then you may have found a parser bug.  To get a feel how
+semantic treats your file, you can enable `M-x
+global-semantic-show-unmatched-syntax-mode'.  It will underline syntax
+it cannot parse in red.
+
+If your type is not parsable, it could be for several reasons.
+
+  1. Parser Incorrect Perhaps the parser needs to be fixed.
+
+  2. C/C++ MACROs If there is a MACRO keyword used in the definition of
+     the type, then you may need to update the
+     `semantic-lex-c-preprocessor-symbol-map' to account for it.
 
 
-File: semantic-user.info,  Node: Document,  Next: Charts,  Prev: Class Browser,  Up: Top
+File: semantic-user.info,  Node: Document,  Next: Charts,  Prev: Analyzer,  Up: Top
 
-7 Document
+6 Document
 **********
 
 The document program uses semantic tag tables to aid in the creation of
@@ -602,7 +771,7 @@ texinfo files.
 
 File: semantic-user.info,  Node: Charts,  Next: Idle Scheduler,  Prev: Document,  Up: Top
 
-8 Charts
+7 Charts
 ********
 
 Some commands to draw charts of statistics generated from parsing:
@@ -630,7 +799,7 @@ Some commands to draw charts of statistics generated from parsing:
 
 File: semantic-user.info,  Node: Idle Scheduler,  Next: Minor Modes,  Prev: Charts,  Up: Top
 
-9 Idle Scheduler
+8 Idle Scheduler
 ****************
 
 The Idle Scheduler in Semantic 2.0 replaces what was once Auto-Parse
@@ -663,8 +832,17 @@ version 2.0 supercedes `semantic-auto-parse-mode' which is now obsolete.
      should be short enough to ensure that idle-scheduler will be run
      as soon as Emacs is idle.
 
+ -- Option: semantic-idle-scheduler-work-idle-time
+     Time in seconds of idle before scheduling big work.  This time
+     should be long enough that once any big work is started, it is
+     unlikely the user would be ready to type again right away.
+
  -- Option: semantic-idle-scheduler-mode-hook
      Hook run at the end of function "semantic-idle-scheduler-mode".
+
+ -- Option: semantic-idle-scheduler-verbose-flag
+     Non-`nil' means that the idle scheduler should provide debug
+     messages.  Use this setting to debug idle activities.
 
 You can add new functionality to the idle scheduler by reading the
 Application Developers Guide *note (semantic-appdev.info)Idle
@@ -673,20 +851,20 @@ Scheduling::.
 * Menu:
 
 * Reparsing Options::
-* Idle Summary Mode::
-* Idle Completions Mode::
+* Idle Summary Mode::           Display prototype of symbol under cursor
+* Idle Completions Mode::       Smart completion pop-up help.
 
 
 File: semantic-user.info,  Node: Reparsing Options,  Next: Idle Summary Mode,  Up: Idle Scheduler
 
-9.1 Reparsing Options
+8.1 Reparsing Options
 =====================
 
 The Idle Scheduler will automatically reparse all buffers that need it.
 User input at any time will cancel the operations and return to normal
 editing.
 
-9.1.1 Reparse Configuration
+8.1.1 Reparse Configuration
 ---------------------------
 
  -- Option: semantic-idle-scheduler-max-buffer-size
@@ -694,7 +872,7 @@ editing.
      value is less than or equal to 0, buffers are automatically
      reparsed regardless of their size.
 
-9.1.2 Reparse Messages
+8.1.2 Reparse Messages
 ----------------------
 
  -- Option: semantic-idle-scheduler-no-working-message
@@ -705,7 +883,7 @@ editing.
      Typically, parsing will show messages in the minibuffer.  This
      will move the parse message into the modeline.
 
-9.1.3 Reprasing Hooks
+8.1.3 Reprasing Hooks
 ---------------------
 
  -- Variable: semantic-before-idle-scheduler-reparse-hooks
@@ -721,11 +899,12 @@ editing.
 
 File: semantic-user.info,  Node: Idle Summary Mode,  Next: Idle Completions Mode,  Prev: Reparsing Options,  Up: Idle Scheduler
 
-9.2 Idle Summary Mode
+8.2 Idle Summary Mode
 =====================
 
-A summary describes a tag in a useful way.  These can be displayed for
-the lexical token under the cursor in idle time using this mode.
+Similar to the Emacs Lisp facility eldoc, `semantic-idle-summary-mode'
+will display the prototype, or other helpful doc about the symbol
+currently under point.
 
  -- semantic-idle-summary-mode: &optional arg
      Display a tag summary of the lexical token under the cursor.  This
@@ -745,18 +924,35 @@ version 2.0 supercedes `semantic-summary-mode' which is now obsolete.
      Function to use when displaying tag information during idle time.
      Some useful functions are found in `semantic-format-tag-functions'.
 
+ -- Variable: semantic-idle-summary-out-of-context-faces
+     List of font-lock faces that indicate a useless summary context.
+     Those are generally faces used to highlight comments or strings.
+
+     It might be useful to override this variable to add comment faces
+     specific to a major mode.  For example, in jde mode:
+
+          (defvar-mode-local jde-mode semantic-idle-summary-out-of-context-faces
+             (append (default-value 'semantic-idle-summary-out-of-context-faces)
+          	   '(jde-java-font-lock-doc-tag-face
+          	     jde-java-font-lock-link-face
+          	     jde-java-font-lock-bold-face
+          	     jde-java-font-lock-underline-face
+          	     jde-java-font-lock-pre-face
+          	     jde-java-font-lock-code-face)))
+
+
 
 File: semantic-user.info,  Node: Idle Completions Mode,  Prev: Idle Summary Mode,  Up: Idle Scheduler
 
-9.3 Idle Completions Mode
+8.3 Idle Completions Mode
 =========================
 
-The definition of completion lists is described in the Analyzer section
-*Note Analyzer::.
+The definition of smart completion is described in the Analyzer section
+*note Analyzer::.
 
 The Idle Completions mode will calculate the list of possible
-completions in idle time, and display them in a popup list, and also
-highlight the symbol that needs completion.
+completions in idle time, and display them in a popup list, or other
+inline completion mechanism.
 
  -- semantic-idle-completions-mode: &optional arg
      Display a tooltip with a list of possible completions near the
@@ -771,18 +967,34 @@ highlight the symbol that needs completion.
 This mode operates by using the command
 `semantic-complete-inline-analyzer'.
 
+Idle completion uses the completion function
+`emantic-complete-analyze-inline-idle'.  Changing the behavior of the
+idle completion popups should be done through those utilities.
+
+ -- Command: semantic-complete-analyze-inline-idle
+     Perform prompt completion to do in buffer completion.
+     "semantic-analyze-possible-completions" is used to determine the
+     possible values.  The function returns immediately, leaving the
+     buffer in a mode that will perform the completion.
+
+ -- Option: semantic-complete-inline-analyzer-idle-displayor-class
+     Class for displayor to use with inline completion at idle time.
+
+     Customize this variable to get a list of options, such as popup
+     tooltips, ghosting text, or traditional completion tools.
+
 
 File: semantic-user.info,  Node: Minor Modes,  Next: semanticdb,  Prev: Idle Scheduler,  Up: Top
 
-10 Minor Modes
-**************
+9 Minor Modes
+*************
 
 Semantic comes with a wide range of minor-modes which use various
 features of semantic.  These modes vary widly in utility.
 
 There are some core modes that are required for smooth operations.
-Some of these are discussed in other chapters, such as *Note Idle
-Scheduler::, and *Note semanticdb::
+Some of these are discussed in other chapters, such as *note Idle
+Scheduler::, and *note semanticdb::
 
 * Menu:
 
@@ -792,8 +1004,8 @@ Scheduler::, and *Note semanticdb::
 
 File: semantic-user.info,  Node: Code Helpers,  Next: Development Modes,  Up: Minor Modes
 
-10.1 Code Helpers
-=================
+9.1 Code Helpers
+================
 
 Code Helpers are minor modes that augment basic Emacs behavior in ways
 that can assist in programming Semantic supported langauges.
@@ -804,13 +1016,13 @@ that can assist in programming Semantic supported langauges.
 * Tag Decoration Mode::
 * MRU Bookmarks Mode::
 
-Senator is another mode which can assist in programming *Note senator::.
+Senator is another mode which can assist in programming *note senator::.
 
 
 File: semantic-user.info,  Node: Development Modes,  Prev: Code Helpers,  Up: Minor Modes
 
-10.2 Development Modes
-======================
+9.2 Development Modes
+=====================
 
 * Menu:
 
@@ -821,8 +1033,8 @@ File: semantic-user.info,  Node: Development Modes,  Prev: Code Helpers,  Up: Mi
 
 File: semantic-user.info,  Node: Sticky Function Mode,  Next: Tag Decoration Mode,  Up: Code Helpers
 
-10.2.1 Sticky Function Headers
-------------------------------
+9.2.1 Sticky Function Headers
+-----------------------------
 
  -- Command: semantic-stickyfunc-mode &optional arg
      Minor mode to show the title of a tag in the header line.
@@ -844,13 +1056,13 @@ File: semantic-user.info,  Node: Sticky Function Mode,  Next: Tag Decoration Mod
 
 File: semantic-user.info,  Node: Tag Decoration Mode,  Next: MRU Bookmarks Mode,  Prev: Sticky Function Mode,  Up: Code Helpers
 
-10.2.2 Tag Decoration Mode
---------------------------
+9.2.2 Tag Decoration Mode
+-------------------------
 
-Decoration mode is a harness that allows any parsed tag to be
-highlighted based on some arbitrary feature of that tag.  Decoration
-mode is actually a full harness for providing any kind of decoration on
-a tag based on a prefix function.
+Decoration mode is a harness that allows any parsed tag to be decorated
+based on some arbitrary feature of that tag.  Decoration mode is
+actually a full harness for providing any kind of decoration on a tag
+based on a prefix function.
 
  -- Command: semantic-decoration-mode &optional arg
      Minor mode for decorating tags.  Decorations are specified in
@@ -868,6 +1080,58 @@ To enable or disable specific decorations, you can use this function:
      specified in `semantic-decoration-styles'.  With prefix argument
      ARG, turn on if positive, otherwise off.  Return non-`nil' if the
      decoration style is enabled.
+
+9.2.2.1 Available decoration modes
+..................................
+
+There are several decoration modes that comes with semantic.
+
+ -- Function: Command semantic-tag-boundary-mode &optional arg
+     Place an overline in front of each long tag.
+
+      -- Option: semantic-tag-boundary-face
+          Face used to show long tags in.  Used by decoration style:
+          `semantic-tag-boundary'.
+
+
+ -- Function: Command semantic-decoration-on-private-members-mode
+          &optional arg
+     Highlight class members that are designated as PRIVATE access.
+
+      -- Option: semantic-decoration-on-private-members-face
+          Face used to show privately scoped tags in.  Used by the
+          decoration style: `semantic-decoration-on-private-members'.
+
+ -- Function: Command semantic-decoration-on-protected-members-mode
+          &optional arg
+     Highlight class members that are designated as PROTECTED access.
+
+      -- Option: semantic-decoration-on-protected-members-face
+          Face used to show protected scoped tags in.  Used by the
+          decoration style: `semantic-decoration-on-protected-members'.
+
+ -- Command: semantic-decoration-on-includes &optional arg
+     Highlight class members that are includes.  This mode provides a
+     nice context menu on the include statements.  Use the menus to ask
+     questions and get help on configuring semantic.
+
+      -- Option: semantic-decoration-on-includes
+          Overlay Face used on includes that are not in some other
+          state.  Used by the decoration style:
+          `semantic-decoration-on-includes'.
+
+      -- Option: semantic-decoration-on-unknown-includes
+          Face used to show includes that cannot be found.  Used by the
+          decoration style: `semantic-decoration-on-unknown-includes'.
+
+      -- Option: semantic-decoration-on-unparsed-includes
+          Face used to show includes that have not yet been parsed.
+          Used by the decoration style:
+          `semantic-decoration-on-unparsed-includes'.
+
+
+9.2.2.2 Create New Decoration Modes
+...................................
 
 You can create new types of decorations using the following function:
 
@@ -897,8 +1161,8 @@ You can create new types of decorations using the following function:
 
 File: semantic-user.info,  Node: MRU Bookmarks Mode,  Prev: Tag Decoration Mode,  Up: Code Helpers
 
-10.2.3 MRU Bookmarks Mode
--------------------------
+9.2.3 MRU Bookmarks Mode
+------------------------
 
 MRU stands for Most Recently Used.  Semantic MRU Bookmarks track the
 tags you edit and maintain a ring of things you've been working on.
@@ -926,8 +1190,8 @@ current tag to your MRU bookmark ring.
 
 File: semantic-user.info,  Node: Highlight Edits Mode,  Next: Parser State,  Up: Development Modes
 
-10.2.4 Highlight Edits Mode
----------------------------
+9.2.4 Highlight Edits Mode
+--------------------------
 
 Highlight edits mode is useful mostly for debugging the incremental
 parser.  As you change text, that effected text is highlighted, and you
@@ -948,8 +1212,8 @@ make.
 
 File: semantic-user.info,  Node: Parser State,  Next: Unmatched Syntax Highlighting,  Prev: Highlight Edits Mode,  Up: Development Modes
 
-10.2.5 Parser State
--------------------
+9.2.5 Parser State
+------------------
 
  -- Command: semantic-show-parser-state-mode &optional arg
      Minor mode for displaying parser cache state in the modeline.  The
@@ -978,8 +1242,8 @@ File: semantic-user.info,  Node: Parser State,  Next: Unmatched Syntax Highlight
 
 File: semantic-user.info,  Node: Unmatched Syntax Highlighting,  Prev: Parser State,  Up: Development Modes
 
-10.2.6 Unmatched Syntax Highlighting
-------------------------------------
+9.2.6 Unmatched Syntax Highlighting
+-----------------------------------
 
  -- Command: semantic-show-unmatched-syntax-mode &optional arg
      Minor mode to highlight unmatched syntax tokens.  When a parser
@@ -1000,9 +1264,9 @@ File: semantic-user.info,  Node: Unmatched Syntax Highlighting,  Prev: Parser St
      "semantic-show-unmatched-syntax-mode".
 
 
-File: semantic-user.info,  Node: semanticdb,  Next: Speed Debug,  Prev: Minor Modes,  Up: Top
+File: semantic-user.info,  Node: semanticdb,  Next: Debugging,  Prev: Minor Modes,  Up: Top
 
-11 Semantic Database
+10 Semantic Database
 ********************
 
 Semanticdb is a utility which tracks your parsed files, and saves the
@@ -1064,7 +1328,7 @@ You can execute hooks when semanticdb is activated using its mode hook.
 
 File: semantic-user.info,  Node: Semanticdb Tag Storage,  Next: Semanticdb Search Configuration,  Up: semanticdb
 
-11.1 Semanticdb Tag Storage
+10.1 Semanticdb Tag Storage
 ===========================
 
 Once you have tables of tags parsed from your files, the default action
@@ -1111,15 +1375,15 @@ directories where the caches are stored.
 
 File: semantic-user.info,  Node: Semanticdb Search Configuration,  Next: Semanticdb System Backends,  Prev: Semanticdb Tag Storage,  Up: semanticdb
 
-11.2 Semanticdb Search Configuration
+10.2 Semanticdb Search Configuration
 ====================================
 
 When different tools such as smart completion or tag jumping needs to
-find a tag, those routines call semanticdb search routines.  Some time
-usually needs to be spent making sure semanticdb can find the files
-your tags are in.
+find a tag, those routines call semanticdb search routines.  Getting
+the search path configured usually takes a little bit of time to get
+right.
 
-The search path should include:
+The search path includes:
 
   1. The current file
 
@@ -1137,7 +1401,7 @@ Include files or equivalent are found in:
 
   3. system directories
 
-In C code, semantic tries to distinguish between project and system
+In C/C++ code, semantic tries to distinguish between project and system
 headers based on `""' or `<>' delimiters.  Each language can
 distinguish using it's own rules.
 
@@ -1152,6 +1416,10 @@ You can use the command:
 
 to add more paths interactively into the current mode's path.  This
 will allow semantic to find more files w/out using system databases.
+To customize the system include path for a particular major mode, use
+the command:
+
+     M-x semantic-customize-system-include-path RET
 
 * Menu:
 
@@ -1163,7 +1431,7 @@ will allow semantic to find more files w/out using system databases.
 
 File: semantic-user.info,  Node: Semanticdb Roots,  Next: Include paths,  Up: Semanticdb Search Configuration
 
-11.2.1 SemanticDB project roots
+10.2.1 SemanticDB project roots
 -------------------------------
 
 Project roots specify where different code projects start.  Searching
@@ -1187,10 +1455,14 @@ directories.
      a more complex system).  This variable should be used by project
      management programs like EDE or JDE.
 
+Alternately, you can use EDE for project management, and EDE will then
+handle search routines as above.  See the *note EDE Manual: (ede)top
+for more.
+
 
 File: semantic-user.info,  Node: Include paths,  Next: Search Throttle,  Prev: Semanticdb Roots,  Up: Semanticdb Search Configuration
 
-11.2.2 Include Paths
+10.2.2 Include Paths
 --------------------
 
 You can add and remove system include paths based on major mode using
@@ -1204,10 +1476,21 @@ the following commands:
      Add a system include DIR to path for MODE.  Modifies a mode-local
      version of `semantic-dependency-system-include-path'.
 
+ -- Command: semantic-customize-system-include-path &optional mode
+     Customize the include path for this `major-mode'.  To create a
+     customizable include path for a major MODE, use the macro
+     "defcustom-mode-local-semantic-dependency-system-include-path".
+
+For a bit more on include paths, see the *note Search Optimization
+section: (semantic)Search Optimization.
+
+Debug your search paths using stiff in *note Semanticdb search
+debugging commands::.
+
 
 File: semantic-user.info,  Node: Search Throttle,  Next: Semanticdb search debugging commands,  Prev: Include paths,  Up: Semanticdb Search Configuration
 
-11.2.3 SemanticDB Search Throttle
+10.2.3 SemanticDB Search Throttle
 ---------------------------------
 
 The semanticdb find throttle is a configuration variable that may often
@@ -1258,10 +1541,15 @@ To set the throttle, use a command like this:
      		 semanticdb-find-default-throttle
      		 '(project unloaded system recursive))
 
+The default value of the throttle is for maximum accuracy at the
+expense of time taken to perform a particular look-up.  The throttle is
+tweaked by `semantic-idle-summary-mode' to remove 'unloaded, thus
+removing poor speed at unexpected times.
+
 
 File: semantic-user.info,  Node: Semanticdb search debugging commands,  Prev: Search Throttle,  Up: Semanticdb Search Configuration
 
-11.2.4 Semanticdb search debugging commands
+10.2.4 Semanticdb search debugging commands
 -------------------------------------------
 
 You can use `M-x semanticdb-dump-all-table-summary RET' to see the list
@@ -1270,12 +1558,25 @@ include DBs for the directories you expect.  You can follow up with
 `M-x semanticdb-find-test-translate-path RET' to then make sure
 specific tables from the path are discovered correctly.
 
+Alternately, you can get a list of include files semantic encountered,
+but could not find on disk using `M-x
+semanticdb-find-adebug-lost-includes RET'.
+
+Once you have used the below functions to debug the problem, you may
+need to reconfigure how semantic finds include files.  See *note
+Semanticdb Search Configuration::.  If the search config is ok, you may
+need to configure the search throttle. See *note Search Throttle::.
+
  -- Command: semanticdb-dump-all-table-summary
      Dump a list of all databases in Emacs memory.
 
  -- Command: semanticdb-find-test-translate-path &optional arg
      Call and output results of "semanticdb-find-translate-path" With
      ARG non-`nil', specify a BRUTISH translation.
+
+ -- Command: semanticdb-find-adebug-lost-includes
+     Translate the current path, then display the lost includes.
+     Examines the variable `semanticdb-find-lost-includes'.
 
 Lastly, you can test an explicit search term using this command:
 
@@ -1286,8 +1587,11 @@ Lastly, you can test an explicit search term using this command:
 
 File: semantic-user.info,  Node: Semanticdb System Backends,  Next: Changing Backends,  Prev: Semanticdb Search Configuration,  Up: semanticdb
 
-11.3 Semanticdb System Backends
+10.3 Semanticdb System Backends
 ===============================
+
+These variables should be set up automatically when you choose to use
+different system databases.
 
  -- Variable: semanticdb-project-system-databases
      List of databases containing system library information.  Mode
@@ -1307,12 +1611,16 @@ duplication.
 
 File: semantic-user.info,  Node: Changing Backends,  Next: Script Generated Cache Files,  Prev: Semanticdb System Backends,  Up: semanticdb
 
-11.4 Changing Backends
+10.4 Changing Backends
 ======================
 
 If you want to use some other form of backend, you can use this
 variable to choose which back end class to use for your general tag
 storage.
+
+The default is to save databases in flat files.  Alternativly, you
+could write a new database backend that stores tags into a database, or
+other storage system.
 
  -- Variable: semanticdb-new-database-class
      The default type of database created for new files.  This can be
@@ -1323,7 +1631,7 @@ storage.
 
 File: semantic-user.info,  Node: Script Generated Cache Files,  Next: Create System Databases,  Prev: Changing Backends,  Up: semanticdb
 
-11.5 Script Generated Cache Files
+10.5 Script Generated Cache Files
 =================================
 
 You can create new semantic databases with the `semanticdb.sh' script
@@ -1332,10 +1640,12 @@ create a cache file for you.
 
      $ semanticdb.sh *.el
 
+To use these generated tables, you would likely need to restart Emacs.
+
 
 File: semantic-user.info,  Node: Create System Databases,  Prev: Script Generated Cache Files,  Up: semanticdb
 
-11.6 Create System Databases
+10.6 Create System Databases
 ============================
 
 If your supported langauge stores the system libraries in readilly
@@ -1343,30 +1653,16 @@ available parsable source code, you can pre-generate database files for
 them once, which will be used over and over for tools such as
 summary-mode, or the analyzer.
 
-Use the following command to create new system databases:
-
- -- Command: semanticdb-create-system-database path &optional class
-     Create a system database starting at PATH.  PATH should be a top
-     level directory for a series of files containing declarations for
-     SYSTEM files.  In C, this would be header filaes.  CLASS is the
-     class for the database to create.  Only child classes of symbol
-     "semanticdb-project-database-system" are accepted.
-
  -- Command: semanticdb-create-ebrowse-database dir
      Create an EBROSE database for directory DIR.  The database file is
      stored in ~/.semanticdb, or whichever directory is specified by
      `semanticdb-default-system-save-directory'.
 
-The CLASS requested here is a bit of archana representing the class
-name for the language the entry is for.  Use completion `SPC' to see
-the ones available.  The name of the language should be part of the
-class name.
-
 
-File: semantic-user.info,  Node: Speed Debug,  Next: Customizing,  Prev: semanticdb,  Up: Top
+File: semantic-user.info,  Node: Debugging,  Next: GNU Free Documentation License,  Prev: semanticdb,  Up: Top
 
-12 Debugging Speed Problems
-***************************
+11 Debugging speed and accuracy issues
+**************************************
 
 If aspects of semantic cause your Emacs to slow down or block editing,
 there are several things that may be happening.  The most time
@@ -1382,35 +1678,29 @@ semantic mode functions will likely show up in that stack trace.
 From a simple standpoint, your next action might be to use the the
 Senator menu under `Modes' and just toggle suspected modes on and off.
 
-12.1 Interruptibility
-=====================
+11.1 Idle function errors
+=========================
 
-One of the goals with the semantic based minor modes and auto parse is
-that it should be interruptible.  Thus, a keyboard action should
-interrupt any active parsing or mode activity.  In practice, I've found
-this doesn't always work and I've been a bit stymied as to why.
+If the idle scheduler starts reporting errors, then you can run the
+command `M-x semantic-debug-idle-function RET' to get a stacktrace to
+report.
 
-You can test the interruptibility framework by running `M-x
-semantic-test-throw-on-input RET' and seeing that you can press any key
-to break out of the loop.
+If this doesn't report an issue, then you may have found a bug in the
+idle work function, where longer tasks are scheduled.  To debug that,
+use the command `M-x semantic-debug-idle-work-function RET'.
 
-12.2 Incremental parsing
-========================
+11.2 Analyzer debugging
+=======================
 
-The incremental parser used by semantic will reparse only small
-sections of a file you have edited, which eliminates the need to
-reparse entire files.  This speeds up minor modes that need the local
-buffer to be up to date, such as speedbar or ECB.
+When the semantic analyzer provides bad or non-existant completions,
+then you will need to debug the analyzer.  Place the cursor where the
+problem is, and then use the command `M-x semantic-analyze-debug-assist
+RET'.
 
-If the incremental parsing is not always working for you (meaning it
-will parse the whole file frequently while you edit) then perhaps you
-need to customize `semantic-edits-verbose-flag' to enable some friendly
-debug output.  Additionally using
-`semantic-load-enable-semantic-debugging-helpers' to help identify
-possible problem areas by enabling highlight edits mode and show parser
-state mode *note (semantic-langdev.info)Incremental Parser Debugging::
+This will perform an analysis, and then offer suggestions on what might
+be wrong, and how to reconfigure semantic to solve the problem.
 
-12.3 Symbol lookup
+11.3 Symbol lookup
 ==================
 
 There are many minor modes that have special behaviors tied into the
@@ -1427,17 +1717,58 @@ like them parse alternate files by adjusting
 `semanticdb-find-default-throttle'. You can read more in *note
 (semantic-appdev.info)DB Search Paths::.
 
+11.4 Interruptibility
+=====================
+
+One of the goals with the semantic based minor modes and auto parse is
+that it should be interruptible.  Thus, a keyboard action should
+interrupt any active parsing or mode activity.  In practice, I've found
+this doesn't always work and I've been a bit stymied as to why.
+
+You can test the interruptibility framework by running `M-x
+semantic-test-throw-on-input RET' and seeing that you can press any key
+to break out of the loop.
+
+11.5 Incremental parsing
+========================
+
+The incremental parser used by semantic will reparse only small
+sections of a file you have edited, which eliminates the need to
+reparse entire files.  This speeds up minor modes that need the local
+buffer to be up to date, such as speedbar or ECB.
+
+If the incremental parsing is not always working for you (meaning it
+will parse the whole file frequently while you edit) then perhaps you
+need to customize `semantic-edits-verbose-flag' to enable some friendly
+debug output.  Additionally using
+`semantic-load-enable-semantic-debugging-helpers' to help identify
+possible problem areas by enabling highlight edits mode and show parser
+state mode *note (semantic-langdev.info)Incremental Parser Debugging::
+
+11.6 Profiling
+==============
+
+To help identify speed issues with the semantic analyzer, you can use
+the `semantic-elp.el' tool.  To use it type:
+
+     M-x semantic-elp-analyze RET
+
+It will do a full run for each stage of analysis keeping profiling
+information.  The analysis will be done at point, so be sure to
+position the cursor at the location where the slowdown occurs.
+
+Once done, it will ask you to save the profiler information.  It will
+then show you the profile information in ADEBUG mode, so you can
+navigate through the results.
+
+Use `SPC' to open sections of the tree.  Use `SPC' on the sort option
+to change sorting of the results table.
+
+Use `M-x semantic-elp-load-old-run' to restore an old run and view it
+again.
+
 
-File: semantic-user.info,  Node: Customizing,  Next: GNU Free Documentation License,  Prev: Speed Debug,  Up: Top
-
-13 Customizing
-**************
-
-Customizations can be divided into two categories.  * M-x customize *
-Low level hooks.
-
-
-File: semantic-user.info,  Node: GNU Free Documentation License,  Next: Index,  Prev: Customizing,  Up: Top
+File: semantic-user.info,  Node: GNU Free Documentation License,  Next: Index,  Prev: Debugging,  Up: Top
 
 Appendix A GNU Free Documentation License
 *****************************************
@@ -1629,20 +1960,19 @@ Appendix A GNU Free Documentation License
      H. Include an unaltered copy of this License.
      I. Preserve the section entitled "History", and its title, and add
      to    it an item stating at least the title, year, new authors, and
-       publisher of the Modified Version as given on the Title Page.
-     If    there is no section entitled "History" in the Document,
-     create one    stating the title, year, authors, and publisher of
-     the Document as    given on its Title Page, then add an item
+       publisher of the Modified Version as given on the Title Page.  If
+       there is no section entitled "History" in the Document, create
+     one    stating the title, year, authors, and publisher of the
+     Document as    given on its Title Page, then add an item
      describing the Modified    Version as stated in the previous
      sentence.
      J. Preserve the network location, if any, given in the Document for
-       public access to a Transparent copy of the Document, and
-     likewise    the network locations given in the Document for
-     previous versions    it was based on.  These may be placed in the
-     "History" section.     You may omit a network location for a work
-     that was published at    least four years before the Document
-     itself, or if the original    publisher of the version it refers
-     to gives permission.
+       public access to a Transparent copy of the Document, and likewise
+       the network locations given in the Document for previous versions
+       it was based on.  These may be placed in the "History" section.
+       You may omit a network location for a work that was published at
+       least four years before the Document itself, or if the original
+      publisher of the version it refers to gives permission.
      K. In any section entitled "Acknowledgements" or "Dedications",
      preserve the section's title, and preserve in the section all the
       substance and tone of each of the contributor acknowledgements
@@ -1801,10 +2131,10 @@ notices just after the title page:
        Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
        A copy of the license is included in the section entitled ``GNU
        Free Documentation License''.
-If you have no Invariant Sections, write "with no Invariant
-Sections" instead of saying which ones are invariant.  If you have no
-Front-Cover Texts, write "no Front-Cover Texts" instead of "Front-Cover
-Texts being LIST"; likewise for Back-Cover Texts.
+If you have no Invariant Sections, write "with no Invariant Sections"
+instead of saying which ones are invariant.  If you have no Front-Cover
+Texts, write "no Front-Cover Texts" instead of "Front-Cover Texts being
+LIST"; likewise for Back-Cover Texts.
 
 If your document contains nontrivial examples of program code, we
 recommend releasing these examples in parallel under your choice of
@@ -1820,16 +2150,15 @@ Index
  [index ]
 * Menu:
 
-* &optional <1>:                         Idle Summary Mode.   (line  10)
-* &optional:                             Idle Completions Mode.
+* &optional <1>:                         Idle Completions Mode.
                                                               (line  14)
+* &optional:                             Idle Summary Mode.   (line  11)
 * Analyzer:                              Analyzer.            (line   6)
 * Charts:                                Charts.              (line   6)
-* Class Browser:                         Class Browser.       (line   6)
-* customizing:                           Customizing.         (line   6)
-* define-semantic-decoration-style:      Tag Decoration Mode. (line  31)
-* document:                              Document.            (line  40)
+* Command:                               Tag Decoration Mode. (line  43)
+* define-semantic-decoration-style:      Tag Decoration Mode. (line  83)
 * Document:                              Document.            (line   6)
+* document:                              Document.            (line  40)
 * document-inline:                       Document.            (line  45)
 * document-insert-defun-comment:         Document.            (line  48)
 * document-insert-new-file-header:       Document.            (line  51)
@@ -1842,19 +2171,31 @@ Index
 * re-search-forward:                     senator.             (line  60)
 * semantic-add-system-include:           Include paths.       (line  10)
 * semantic-adebug-searchdb:              Semanticdb search debugging commands.
-                                                              (line  22)
+                                                              (line  35)
 * semantic-after-idle-scheduler-reparse-hooks: Reparsing Options.
                                                               (line  38)
 * semantic-analyze-current-context:      Analyzer.            (line  10)
 * semantic-analyze-possible-completions: Analyzer.            (line  24)
 * semantic-before-idle-scheduler-reparse-hooks: Reparsing Options.
                                                               (line  33)
-* semantic-cb-new-class-browser:         Class Browser.       (line  14)
-* semantic-cb-speedbar-mode:             Class Browser.       (line  27)
 * semantic-chart-database-size:          Charts.              (line  16)
 * semantic-chart-tag-complexity:         Charts.              (line  22)
 * semantic-chart-tags-by-class:          Charts.              (line   9)
+* semantic-complete-analyze-inline-idle: Idle Completions Mode.
+                                                              (line  31)
+* semantic-complete-inline-analyzer-idle-displayor-class: Idle Completions Mode.
+                                                              (line  37)
+* semantic-customize-system-include-path: Include paths.      (line  18)
 * semantic-decoration-mode:              Tag Decoration Mode. (line   6)
+* semantic-decoration-on-includes:       Tag Decoration Mode. (line  58)
+* semantic-decoration-on-private-members-face: Tag Decoration Mode.
+                                                              (line  46)
+* semantic-decoration-on-protected-members-face: Tag Decoration Mode.
+                                                              (line  54)
+* semantic-decoration-on-unknown-includes: Tag Decoration Mode.
+                                                              (line  68)
+* semantic-decoration-on-unparsed-includes: Tag Decoration Mode.
+                                                              (line  72)
 * semantic-highlight-edits-face:         Highlight Edits Mode.
                                                               (line  20)
 * semantic-highlight-edits-mode:         Highlight Edits Mode.
@@ -1862,16 +2203,22 @@ Index
 * semantic-ia-complete-symbol:           Smart Completion.    (line  12)
 * semantic-ia-complete-symbol-menu:      Smart Completion.    (line  16)
 * semantic-ia-complete-tip:              Smart Completion.    (line  21)
-* semantic-ia-show-doc:                  Smart Completion.    (line  27)
-* semantic-ia-show-summary:              Smart Completion.    (line  24)
+* semantic-ia-describe-class:            Smart Summary.       (line  17)
+* semantic-ia-fast-jump:                 Smart Jump.          (line  15)
+* semantic-ia-show-doc:                  Smart Summary.       (line  14)
+* semantic-ia-show-summary:              Smart Summary.       (line  11)
 * semantic-idle-scheduler-idle-time:     Idle Scheduler.      (line  32)
 * semantic-idle-scheduler-max-buffer-size: Reparsing Options. (line  14)
-* semantic-idle-scheduler-mode-hook:     Idle Scheduler.      (line  37)
+* semantic-idle-scheduler-mode-hook:     Idle Scheduler.      (line  42)
 * semantic-idle-scheduler-no-working-message: Reparsing Options.
                                                               (line  22)
+* semantic-idle-scheduler-verbose-flag:  Idle Scheduler.      (line  45)
+* semantic-idle-scheduler-work-idle-time: Idle Scheduler.     (line  37)
 * semantic-idle-scheduler-working-in-modeline-flag: Reparsing Options.
                                                               (line  25)
-* semantic-idle-summary-function:        Idle Summary Mode.   (line  24)
+* semantic-idle-summary-function:        Idle Summary Mode.   (line  25)
+* semantic-idle-summary-out-of-context-faces: Idle Summary Mode.
+                                                              (line  29)
 * semantic-imenu-auto-rebuild-directory-indexes: imenu.       (line  57)
 * semantic-imenu-bucketize-file:         imenu.               (line  31)
 * semantic-imenu-bucketize-type-members: imenu.               (line  41)
@@ -1891,6 +2238,7 @@ Index
                                                               (line   7)
 * semantic-stickyfunc-sticky-classes:    Sticky Function Mode.
                                                               (line  20)
+* semantic-tag-boundary-face:            Tag Decoration Mode. (line  37)
 * semantic-texi-goto-source:             Document.            (line  67)
 * semantic-texi-update-doc:              Document.            (line  60)
 * semantic-toggle-decoration-style:      Tag Decoration Mode. (line  23)
@@ -1898,20 +2246,20 @@ Index
                                                               (line  21)
 * semanticdb:                            semanticdb.          (line   6)
 * semanticdb-create-ebrowse-database:    Create System Databases.
-                                                              (line  21)
-* semanticdb-create-system-database:     Create System Databases.
-                                                              (line  14)
+                                                              (line  12)
 * semanticdb-default-file-name:          Semanticdb Tag Storage.
                                                               (line  11)
 * semanticdb-default-save-directory:     Semanticdb Tag Storage.
                                                               (line  14)
 * semanticdb-dump-all-table-summary:     Semanticdb search debugging commands.
-                                                              (line  13)
+                                                              (line  22)
+* semanticdb-find-adebug-lost-includes:  Semanticdb search debugging commands.
+                                                              (line  29)
 * semanticdb-find-default-throttle:      Search Throttle.     (line  12)
 * semanticdb-find-test-translate-path:   Semanticdb search debugging commands.
-                                                              (line  16)
+                                                              (line  25)
 * semanticdb-mode-hooks:                 semanticdb.          (line  49)
-* semanticdb-new-database-class:         Changing Backends.   (line  11)
+* semanticdb-new-database-class:         Changing Backends.   (line  15)
 * semanticdb-persistent-path:            Semanticdb Tag Storage.
                                                               (line  21)
 * semanticdb-project-predicate-functions: Semanticdb Tag Storage.
@@ -1919,11 +2267,11 @@ Index
 * semanticdb-project-root-functions:     Semanticdb Roots.    (line  19)
 * semanticdb-project-roots:              Semanticdb Roots.    (line  12)
 * semanticdb-project-system-databases:   Semanticdb System Backends.
-                                                              (line   7)
+                                                              (line  10)
 * semanticdb-save-database-hooks:        Semanticdb Tag Storage.
                                                               (line  43)
 * semanticdb-search-system-databases:    Semanticdb System Backends.
-                                                              (line  19)
+                                                              (line  22)
 * senator:                               senator.             (line   6)
 * senator-complete-symbol:               senator.             (line  75)
 * senator-completion-menu-popup:         senator.             (line  80)
@@ -1947,85 +2295,99 @@ Index
 
 
 Tag Table:
-Node: Top1064
-Node: speedbar2118
-Node: ECB2886
-Node: imenu3242
-Ref: semantic-imenu-expandable-tag-classes5829
-Node: senator6050
-Node: Analyzer12809
-Node: Smart Completion14612
-Ref: semantic-ia-complete-symbol15079
-Ref: semantic-ia-complete-symbol-menu15261
-Ref: semantic-ia-complete-tip15457
-Ref: semantic-ia-show-summary15549
-Ref: semantic-ia-show-doc15641
-Node: Smart Idle Completion15709
-Node: Speedbar Analysis16336
-Node: Class Browser17671
-Node: Document19008
-Node: Charts21958
-Node: Idle Scheduler23196
-Ref: global-semantic-idle-scheduler-mode23785
-Ref: semantic-idle-scheduler-idle-time24465
-Ref: semantic-idle-scheduler-mode-hook24679
-Node: Reparsing Options24973
-Ref: semantic-idle-scheduler-max-buffer-size25381
-Ref: semantic-idle-scheduler-no-working-message25660
-Ref: semantic-idle-scheduler-working-in-modeline-flag25791
-Ref: semantic-before-idle-scheduler-reparse-hooks26077
-Ref: semantic-after-idle-scheduler-reparse-hooks26326
-Node: Idle Summary Mode26513
-Ref: semantic-idle-summary-mode26872
-Ref: semantic-idle-summary-function27568
-Node: Idle Completions Mode27713
-Ref: semantic-idle-completions-mode28188
-Node: Minor Modes28790
-Node: Code Helpers29367
-Node: Development Modes29786
-Node: Sticky Function Mode30012
-Node: Tag Decoration Mode30996
-Ref: semantic-decoration-mode31472
-Ref: semantic-toggle-decoration-style32044
-Ref: define-semantic-decoration-style32425
-Node: MRU Bookmarks Mode33505
-Ref: semantic-mru-bookmark-mode33920
-Node: Highlight Edits Mode34698
-Node: Parser State35639
-Node: Unmatched Syntax Highlighting36669
-Node: semanticdb37690
-Ref: semanticdb-mode-hooks39595
-Node: Semanticdb Tag Storage39939
-Ref: semanticdb-default-file-name40336
-Ref: semanticdb-default-save-directory40425
-Ref: semanticdb-persistent-path40754
-Ref: semanticdb-project-predicate-functions41478
-Ref: semanticdb-save-database-hooks41970
-Node: Semanticdb Search Configuration42122
-Node: Semanticdb Roots43830
-Ref: semanticdb-project-roots44268
-Ref: semanticdb-project-root-functions44614
-Node: Include paths45057
-Ref: semantic-add-system-include45392
-Ref: semantic-remove-system-include45586
-Node: Search Throttle45717
-Ref: semanticdb-find-default-throttle46217
-Node: Semanticdb search debugging commands47744
-Ref: semanticdb-dump-all-table-summary48343
-Ref: semanticdb-find-test-translate-path48458
-Ref: semantic-adebug-searchdb48690
-Node: Semanticdb System Backends48795
-Ref: semanticdb-project-system-databases49056
-Ref: semanticdb-search-system-databases49610
-Node: Changing Backends49679
-Ref: semanticdb-new-database-class50055
-Node: Script Generated Cache Files50274
-Node: Create System Databases50677
-Ref: semanticdb-create-system-database51210
-Ref: semanticdb-create-ebrowse-database51598
-Node: Speed Debug52007
-Node: Customizing54777
-Node: GNU Free Documentation License55013
-Node: Index74753
+Node: Top1068
+Node: speedbar2180
+Node: ECB2920
+Node: imenu3276
+Ref: semantic-imenu-expandable-tag-classes5863
+Node: senator6084
+Node: Analyzer12873
+Node: Smart Completion14808
+Ref: semantic-ia-complete-symbol15267
+Ref: semantic-ia-complete-symbol-menu15449
+Ref: semantic-ia-complete-tip15645
+Node: Smart Summary16052
+Ref: semantic-ia-show-summary16417
+Ref: semantic-ia-show-doc16509
+Ref: semantic-ia-describe-class16626
+Node: Smart Jump17129
+Ref: semantic-ia-fast-jump17635
+Node: Speedbar Analysis17802
+Node: Smart Completion Debugging19161
+Node: Document25672
+Node: Charts28617
+Node: Idle Scheduler29855
+Ref: global-semantic-idle-scheduler-mode30444
+Ref: semantic-idle-scheduler-idle-time31124
+Ref: semantic-idle-scheduler-work-idle-time31343
+Ref: semantic-idle-scheduler-mode-hook31590
+Ref: semantic-idle-scheduler-verbose-flag31709
+Node: Reparsing Options32146
+Ref: semantic-idle-scheduler-max-buffer-size32554
+Ref: semantic-idle-scheduler-no-working-message32833
+Ref: semantic-idle-scheduler-working-in-modeline-flag32964
+Ref: semantic-before-idle-scheduler-reparse-hooks33250
+Ref: semantic-after-idle-scheduler-reparse-hooks33499
+Node: Idle Summary Mode33686
+Ref: semantic-idle-summary-mode34069
+Ref: semantic-idle-summary-function34765
+Ref: semantic-idle-summary-out-of-context-faces34967
+Node: Idle Completions Mode35682
+Ref: semantic-idle-completions-mode36142
+Ref: semantic-complete-analyze-inline-idle36974
+Ref: semantic-complete-inline-analyzer-idle-displayor-class37296
+Node: Minor Modes37499
+Node: Code Helpers38074
+Node: Development Modes38491
+Node: Sticky Function Mode38715
+Node: Tag Decoration Mode39697
+Ref: semantic-decoration-mode40169
+Ref: semantic-toggle-decoration-style40741
+Ref: semantic-tag-boundary-face41274
+Ref: semantic-decoration-on-private-members-face41600
+Ref: semantic-decoration-on-protected-members-face41964
+Ref: semantic-decoration-on-includes42408
+Ref: semantic-decoration-on-unknown-includes42626
+Ref: semantic-decoration-on-unparsed-includes42828
+Ref: define-semantic-decoration-style43204
+Node: MRU Bookmarks Mode44284
+Ref: semantic-mru-bookmark-mode44697
+Node: Highlight Edits Mode45475
+Node: Parser State46414
+Node: Unmatched Syntax Highlighting47442
+Node: semanticdb48461
+Ref: semanticdb-mode-hooks50364
+Node: Semanticdb Tag Storage50708
+Ref: semanticdb-default-file-name51105
+Ref: semanticdb-default-save-directory51194
+Ref: semanticdb-persistent-path51523
+Ref: semanticdb-project-predicate-functions52247
+Ref: semanticdb-save-database-hooks52739
+Node: Semanticdb Search Configuration52891
+Node: Semanticdb Roots54721
+Ref: semanticdb-project-roots55159
+Ref: semanticdb-project-root-functions55505
+Node: Include paths56099
+Ref: semantic-add-system-include56434
+Ref: semantic-remove-system-include56628
+Ref: semantic-customize-system-include-path56826
+Node: Search Throttle57221
+Ref: semanticdb-find-default-throttle57721
+Node: Semanticdb search debugging commands59493
+Ref: semanticdb-dump-all-table-summary60520
+Ref: semanticdb-find-test-translate-path60635
+Ref: semanticdb-find-adebug-lost-includes60807
+Ref: semantic-adebug-searchdb61043
+Node: Semanticdb System Backends61148
+Ref: semanticdb-project-system-databases61508
+Ref: semanticdb-search-system-databases62062
+Node: Changing Backends62131
+Ref: semanticdb-new-database-class62669
+Node: Script Generated Cache Files62888
+Node: Create System Databases63363
+Ref: semanticdb-create-ebrowse-database63821
+Node: Debugging64012
+Node: GNU Free Documentation License68359
+Node: Index88085
 
 End Tag Table

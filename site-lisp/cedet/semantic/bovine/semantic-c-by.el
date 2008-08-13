@@ -1,9 +1,9 @@
 ;;; semantic-c-by.el --- Generated parser support file
 
-;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Eric M. Ludlam
+;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Steve <steve@Mandala.local>
-;; Created: 2007-08-12 00:13:22+0200
+;; Created: 2008-08-13 12:50:24+0100
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 
@@ -41,8 +41,7 @@
 ;;
 (defconst semantic-c-by--keyword-table
   (semantic-lex-make-keyword-table
-   '(("include" . INCLUDE)
-     ("extern" . EXTERN)
+   '(("extern" . EXTERN)
      ("static" . STATIC)
      ("const" . CONST)
      ("volatile" . VOLATILE)
@@ -60,6 +59,8 @@
      ("typename" . TYPENAME)
      ("namespace" . NAMESPACE)
      ("using" . USING)
+     ("new" . NEW)
+     ("delete" . DELETE)
      ("template" . TEMPLATE)
      ("throw" . THROW)
      ("reentrant" . REENTRANT)
@@ -118,11 +119,14 @@
      ("do" summary " do { code } while (<condition>);")
      ("else" summary "if (<condition>) { code } [ else { code } ]")
      ("if" summary "if (<condition>) { code } [ else { code } ]")
+     ("friend" summary "friend class <CLASSNAME>")
      ("catch" summary "try { <body> } catch { <catch code> }")
      ("try" summary "try { <body> } catch { <catch code> }")
      ("reentrant" summary "<type> <methoddef> (<method args>) reentrant ...")
      ("throw" summary "<type> <methoddef> (<method args>) throw (<exception>) ...")
      ("template" summary "template <class TYPE ...> TYPE_OR_FUNCTION")
+     ("delete" summary "delete <object>;")
+     ("new" summary "new <classname>();")
      ("using" summary "using <namespace>;")
      ("namespace" summary "Namespace Declaration: namespace <name> { ... };")
      ("typename" summary "typename is used to handle a qualified name as a typename;")
@@ -165,7 +169,6 @@
      ("string"
       (C . "\"C\""))
      ("punctuation"
-      (OPSTART . "[-+*/%^|&]")
       (OR . "\\`[|]\\'")
       (HAT . "\\`\\^\\'")
       (MOD . "\\`[%]\\'")
@@ -204,7 +207,16 @@
      (var-or-fun)
      (extern-c)
      (template)
-     (using)
+     (using
+      ,(semantic-lambda
+	(semantic-tag
+	 (car
+	  (car
+	   (nth 0 vals)))
+	 'using :type
+	 (car
+	  (nth 0 vals))))
+      )
      ) ;; end declaration
 
     (codeblock
@@ -250,88 +262,29 @@
       )
      ) ;; end extern-c
 
-    (macro-expression-list
-     (expression
-      macro-expression-list
-      punctuation
-      "\\`[;]\\'"
-      ,(semantic-lambda
-	(list nil))
-      )
-     (expression
-      ,(semantic-lambda
-	(list nil))
-      )
-     ) ;; end macro-expression-list
-
-    (macro-def
-     (macro-expression-list
-      ,(semantic-lambda
-	(list nil))
-      )
-     (expression
-      ,(semantic-lambda
-	(list nil))
-      )
-     ( ;;EMPTY
-      )
-     ) ;; end macro-def
-
     (macro
      (spp-macro-def
-      opt-define-arglist
-      macro-def
       ,(semantic-lambda
 	(semantic-tag-new-variable
-	 (nth 0 vals) nil
-	 (nth 2 vals) :constant-flag t))
+	 (nth 0 vals) nil nil :constant-flag t))
       )
-     (punctuation
-      "\\`[#]\\'"
-      macro-or-include
+     (spp-system-include
       ,(semantic-lambda
-	(nth 1 vals))
+	(semantic-tag-new-include
+	 (nth 0 vals) t))
+      )
+     (spp-include
+      ,(semantic-lambda
+	(semantic-tag-new-include
+	 (nth 0 vals) nil))
       )
      ) ;; end macro
 
-    (macro-or-include
-     (INCLUDE
-      system-include
-      ,(semantic-lambda
-	(semantic-tag-new-include
-	 (substring
-	  (nth 1 vals)
-	  1
-	  (1-
-	   (length
-	    (nth 1 vals)))) t))
-      )
-     (INCLUDE
-      string
-      ,(semantic-lambda
-	(semantic-tag-new-include
-	 (read
-	  (nth 1 vals)) nil))
-      )
-     ) ;; end macro-or-include
-
-    (opt-define-arglist
-     (semantic-list
-      ,(semantic-lambda
-	(list nil))
-      )
-     ( ;;EMPTY
-      )
-     ) ;; end opt-define-arglist
-
     (define
       (spp-macro-def
-       opt-define-arglist
-       macro-def
        ,(semantic-lambda
 	 (semantic-tag-new-variable
-	  (nth 0 vals) nil
-	  (nth 2 vals) :constant-flag t))
+	  (nth 0 vals) nil nil :constant-flag t))
        )
       (spp-macro-undef
        ,(semantic-lambda
@@ -380,6 +333,22 @@
 	 'label))
       )
      (var-or-fun)
+     (FRIEND
+      func-decl
+      ,(semantic-lambda
+	(semantic-tag
+	 (car
+	  (nth 1 vals))
+	 'friend))
+      )
+     (FRIEND
+      CLASS
+      symbol
+      ,(semantic-lambda
+	(semantic-tag
+	 (nth 2 vals)
+	 'friend))
+      )
      (type)
      (define)
      (template)
@@ -401,23 +370,45 @@
       )
      ) ;; end opt-class-parents
 
-    (class-parents
+    (one-class-parent
      (opt-class-protection
       opt-class-declmods
       namespace-symbol
+      ,(semantic-lambda
+	(semantic-tag-new-type
+	 (car
+	  (nth 2 vals))
+	 "class" nil nil :protection
+	 (car
+	  (nth 0 vals))))
+      )
+     (opt-class-declmods
+      opt-class-protection
+      namespace-symbol
+      ,(semantic-lambda
+	(semantic-tag-new-type
+	 (car
+	  (nth 2 vals))
+	 "class" nil nil :protection
+	 (car
+	  (nth 1 vals))))
+      )
+     ) ;; end one-class-parent
+
+    (class-parents
+     (one-class-parent
       punctuation
       "\\`[,]\\'"
       class-parents
       ,(semantic-lambda
 	(cons
-	 (nth 2 vals)
-	 (nth 4 vals)))
+	 (nth 0 vals)
+	 (nth 2 vals)))
       )
-     (opt-class-protection
-      opt-class-declmods
-      namespace-symbol
+     (one-class-parent
       ,(semantic-lambda
-	(nth 2 vals))
+	(list
+	 (nth 0 vals)))
       )
      ) ;; end class-parents
 
@@ -447,6 +438,9 @@
 	(nth 0 vals))
       )
      ( ;;EMPTY
+      ,(semantic-lambda
+	(list
+	 "private"))
       )
      ) ;; end opt-class-protection
 
@@ -487,7 +481,16 @@
 	 'label))
       )
      (template)
-     (using)
+     (using
+      ,(semantic-lambda
+	(semantic-tag
+	 (car
+	  (car
+	   (nth 0 vals)))
+	 'using :type
+	 (car
+	  (nth 0 vals))))
+      )
      ( ;;EMPTY
       )
      ) ;; end namespacesubparts
@@ -718,7 +721,9 @@
       punctuation
       "\\`[;]\\'"
       ,(semantic-lambda
-	(list nil))
+	(semantic-tag-new-type
+	 (nth 1 vals)
+	 "class" nil nil :prototype t))
       )
      (USING
       NAMESPACE
@@ -726,7 +731,9 @@
       punctuation
       "\\`[;]\\'"
       ,(semantic-lambda
-	(list nil))
+	(semantic-tag-new-type
+	 (nth 2 vals)
+	 "class" nil nil :prototype t))
       )
      ) ;; end using
 
@@ -1055,6 +1062,7 @@
 	(nth 0 vals))
       )
      (namespace-symbol
+      opt-template-specifier
       ,(semantic-lambda
 	(semantic-tag-new-type
 	 (car
@@ -1452,19 +1460,21 @@
      ) ;; end variablearg-opt-name
 
     (varnamelist
-     (varname
+     (opt-ref
+      varname
       punctuation
       "\\`[,]\\'"
       varnamelist
       ,(semantic-lambda
 	(cons
-	 (nth 0 vals)
-	 (nth 2 vals)))
+	 (nth 1 vals)
+	 (nth 3 vals)))
       )
-     (varname
+     (opt-ref
+      varname
       ,(semantic-lambda
 	(list
-	 (nth 0 vals)))
+	 (nth 1 vals)))
       )
      ) ;; end varnamelist
 
@@ -1994,6 +2004,17 @@
       )
      ) ;; end string-seq
 
+    (expr-start
+     (punctuation
+      "\\`[-]\\'")
+     (punctuation
+      "\\`[+]\\'")
+     (punctuation
+      "\\`[*]\\'")
+     (punctuation
+      "\\`[&]\\'")
+     ) ;; end expr-start
+
     (expression
      (number
       ,(semantic-lambda
@@ -2002,6 +2023,20 @@
 	 (identity end)))
       )
      (function-call
+      ,(semantic-lambda
+	(list
+	 (identity start)
+	 (identity end)))
+      )
+     (NEW
+      function-call
+      ,(semantic-lambda
+	(list
+	 (identity start)
+	 (identity end)))
+      )
+     (NEW
+      namespace-symbol
       ,(semantic-lambda
 	(list
 	 (identity start)
@@ -2027,13 +2062,19 @@
 	 (identity end)))
       )
      (semantic-list
+      expression
       ,(semantic-lambda
 	(list
 	 (identity start)
 	 (identity end)))
       )
-     (punctuation
-      "[-+*/%^|&]"
+     (semantic-list
+      ,(semantic-lambda
+	(list
+	 (identity start)
+	 (identity end)))
+      )
+     (expr-start
       expression
       ,(semantic-lambda
 	(list

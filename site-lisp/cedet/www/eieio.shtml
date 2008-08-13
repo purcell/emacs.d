@@ -15,16 +15,9 @@ types.  It has a fairly complete manual describing how to use it.</P>
 <P>
 EIEIO also supports the byte compiler for Emacs and XEmacs.  Because
 of the nature of byte compiling, EIEIO is picky about the version of
-Emacs you are running.  It supports Emacs 19.2x+, 20.x, 21.x, XEmacs
-19.1x, and appears to work on XEmacs 20.x and 21.x.  Byte compiling
-EIEIO is VERY IMPORTANT if performance is important. </p>
-
-<P>
-EIEIO supports documentation generation.  If you write an OO API to
-something, the eieio-doc functions will write your texinfo manual for
-you.  (Just make sure you use the documentation features of class
-slots while authoring your software.)
-</p>
+Emacs you are running.  It supports Emacs 19.2x+, 20, 21, 22, and CVS, XEmacs
+19.1x, 20.x and 21.x.
+Byte compiling EIEIO is VERY IMPORTANT for performance.</p>
 
 <table align=right>
 <td>
@@ -55,7 +48,7 @@ This version has additional demo programs which are:
 <a href="visbookmark.shtml">Visual C++ bookmark UI</a> as example code.<br>
 <a href="highlightcompile.shtml">Hilight Compilation hits</a> as example code.
 <DT>tree
-<DD>display trees in emacs buffers.  Includes some examples
+<DD>display trees in emacs buffers.
 <DT>call-tree
 <DD>display a call tree to an emacs lisp function
 <DT>chart
@@ -77,6 +70,8 @@ useful examples
     and uses persistend data classes, instance inheritors, and instance
     trackers.  It also uses speedbar classes to provide a project
     overview.
+<DT><a href="srecode.shtml">SRecode</a>
+<DD>Semantic Recoder template manager uses EIEIO to handle template tables.
 <DT><a href="cogre.shtml">COGRE</a>
 <DD>COnnected GRaph Editor uses EIEIO to track graph elements.
 <DT><a href="http://jdee.sunsite.dk/">JDE</a>
@@ -117,40 +112,6 @@ mailing list</a>
 </p>
 
 <!--#include file="download.php"-->
-
-<table width=100% class=BAR><tr><td>
-<h2>Downloading Earlier releases of EIEIO</h2>
-</td></tr></table>
-
-<P><a href="http://sourceforge.net/project/showfiles.php?group_id=17886">
-    eieio-0.17.tar.gz</A>.
-
-<h3>RPMS</h3>
-
-<P>RPMS for EIEIO can be downloaded from
-  <a href=http://sourceforge.net/projects/rte>Real Time Enterprises</a>
-  RPM site at sourceforge.</p>
-
-<h3>Even Older EIEIO Releases</h3>
-
-<P><a href="http://sourceforge.net/project/showfiles.php?group_id=17886">
-    eieio-0.16.tar.gz</A> has a new set of base classes to build apps from.</p>
-
-<p><A HREF="ftp/eieio-0.15.tar.gz"> eieio-0.15.tar.gz</A> has
-better byte-compiler support, and much better help system support.
-The help support now lets eieio based programs load faster.</p>
-
-<p><A HREF="ftp/eieio-0.14.1.tar.gz"> eieio-0.14.1.tar.gz</A>
-fixes some compile time problems when used with EIEIO using
-packages.</p>
-
-<p><A HREF="ftp/eieio-0.14.tar.gz"> eieio-0.14.tar.gz</A> adds
-multiple inheritance.</p>
-
-<p><A HREF="ftp/eieio-0.13.tar.gz"> eieio-0.13.tar.gz</A> adds
-typechecking.</p>
-
-<p><A HREF="ftp/eieio-0.12.tar.gz"> eieio-0.12.tar.gz</A>.</p>
 
 <!--#include file="footer.fsf.shtml"-->
 

@@ -1,10 +1,10 @@
 ;;; ede-proj-info.el --- EDE Generic Project texinfo support
 
-;;;  Copyright (C) 1998, 1999, 2000, 2001, 2004, 2007  Eric M. Ludlam
+;;;  Copyright (C) 1998, 1999, 2000, 2001, 2004, 2007, 2008  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-proj-info.el,v 1.18 2007/03/12 03:39:55 zappo Exp $
+;; RCS: $Id: ede-proj-info.el,v 1.21 2008/03/02 02:10:51 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -113,7 +113,7 @@ when working in Automake mode."
     (with-current-buffer buffer
       (save-excursion
 	(goto-char (point-min))
-	(and (re-search-forward "^@setfilename\\s-+\\([^.]+\\)" nil t)
+	(and (re-search-forward "^@setfilename\\s-+\\([^.]+\\).info$" nil t)
 	     (setq info (match-string 1)))))
     (unless (eq buffer opened)
       (kill-buffer buffer))

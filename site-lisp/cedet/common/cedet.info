@@ -1,8 +1,8 @@
-This is cedet.info, produced by makeinfo version 4.8 from cedet.texi.
+This is cedet.info, produced by makeinfo version 4.12 from cedet.texi.
 
-   This manual documents CEDET, a collection of other tools.
+This manual documents CEDET, a collection of other tools.
 
-   Copyright (C) 2007 Eric M. Ludlam
+   Copyright (C) 2007, 2008 Eric M. Ludlam
 
      Permission is granted to copy, distribute and/or modify this
      document under the terms of the GNU Free Documentation License,
@@ -30,7 +30,7 @@ CEDET Manual
 
 CEDET is a Collection of Emacs Development Environment Tools including
 core libraries such as EIEIO, and semantic, and user interface tools
-such as speedbar, EDE, and COGRE.
+such as Speedbar, EDE, and COGRE.
 
    While these tools are independent, and all have their own manuals,
 they are also all co-dependent within CEDET, and are dependent on the
@@ -51,6 +51,8 @@ the mailing list cedet-devel.net via the URL:
 * ECB Target::
 * Project Management::
 * Code Completion::
+* Code Generation::
+* C++ Features::
 * GNU Free Documentation License::
 * Index::
 
@@ -84,6 +86,13 @@ semantic also provides a wide range of core tag centric utilities such
 as enhanced tag decoration, code analysis, and the coveted "Smart
 Completion" feature.
 
+   Another mid-level tool is SRecode or the Semantic Recoder.  SRecode
+is a template management system designed with the goal of providing a
+way to build code-generating applications that are easilly modified or
+extended by users.  At it's core is a template autoring and insertion
+system.  A minor mode provides a simple way to insert tempaltes from
+the various template libraries.
+
    Speedbar is a user interface tool that provides a narrow view into
 your filesystem and tags.  Speedbar is also an API for designing other
 tools and is used for displaying EDE project information, Semantic
@@ -103,6 +112,7 @@ as inversion, ezimage, pretty printing, and mode-local variables.
 
 * EIEIO::       Object system for Emacs.
 * Semantic::    Parser generator and tag management tool.
+* SRecode::	Semantic Recoder Template manager
 * Speedbar::    File and tag explorer, plus more.
 * EDE::         Project Management tool.
 * COGRE::       Diagram editor for object design.
@@ -114,14 +124,14 @@ File: cedet.info,  Node: EIEIO,  Next: Semantic,  Up: Overview
 1.1 EIEIO
 =========
 
-EIEIO contains the core object library.  You can define classes, and
-methods for those classes using CLOS style syntax.  Objects can be
-customized using the Emacs customization tool, which allows easy
-creation of dialog box style UIs.  A series of bases classes allows the
-creation of Emacs centric tools, wrapping up the details of
-persistence, instance tracking, or instance inheritance.
+EIEIO contains the core object library for CEDET.  You can define
+classes, and methods for those classes using CLOS style syntax.
+Objects can be customized using the Emacs customization tool, which
+allows easy creation of dialog box style UIs.  A series of bases
+classes allows the creation of Emacs centric tools, wrapping up the
+details of persistence, instance tracking, or instance inheritance.
 
-   EIEOI also includes several stray tools, such as `tree.el' for
+   EIEIO also includes several stray tools, such as `tree.el' for
 drawing tree diagrams, `chart.el' for drawing charts, `linemark.el' for
 managing visible bookmarks programatically, and `lmcompile.el', which
 is a linemark tool that puts out bookmarks for compiler error hits.
@@ -134,7 +144,7 @@ browsable in Speedbar.
 (eieio)top.
 
 
-File: cedet.info,  Node: Semantic,  Next: Speedbar,  Prev: EIEIO,  Up: Overview
+File: cedet.info,  Node: Semantic,  Next: SRecode,  Prev: EIEIO,  Up: Overview
 
 1.2 Semantic
 ============
@@ -148,29 +158,44 @@ and completion options, Popup smart completion, tag decoration, and
 support for a wide range of Emacs tools such as Imenu, wich-func,
 hippie-expand, isearch, and cut/copy/paste.
 
-   For more details, please read the *note Semantic Manual:
-(semantic)top for high level overviews, configuration advice, etc.
+   For high level overviews, configuration advice, etc, please read
+*note Semantic Manual: (semantic)Top.
 
    If you are an application developer and need to know the functions
 and concepts, *note the Application Development Manual:
-(semantic-appdev)top.
+(semantic-appdev)Top.
 
    To support a new language, *note the Language Support Developer's
-Guide: (semantic-langdev)top.
+Guide: (semantic-langdev)Top.
 
    To use the grammar writing environment, and write in the rule based
-language, *note the Grammar Framework Manual: (grammar-fw)top.
+language, *note the Grammar Framework Manual: (grammar-fw)Top.
 
    For details on the original semantic LL parser, *note the Bovine
-Parser Manual: (bovine)top.
+Parser Manual: (bovine)Top.
 
    For details on the Bison-like LALR parser, *note the Wisent Parser
-Manual: (wisent)top.
+Manual: (wisent)Top.
 
 
-File: cedet.info,  Node: Speedbar,  Next: EDE,  Prev: Semantic,  Up: Overview
+File: cedet.info,  Node: SRecode,  Next: Speedbar,  Prev: Semantic,  Up: Overview
 
-1.3 Speedbar
+1.3 SRecode
+===========
+
+SRecode is a Template manager for writing code from Semantic templates.
+It includes a specialized template authoring language and environment,
+template loader and interpreter.  A minor mode for inserting mode
+specific templates, and some sample applications that also uses
+templates to write code.
+
+   For more details on SRecode, read the *note SRecode Manual:
+(srecode)top;
+
+
+File: cedet.info,  Node: Speedbar,  Next: EDE,  Prev: SRecode,  Up: Overview
+
+1.4 Speedbar
 ============
 
 Speedbar is an abbreviated everything browser.  If you can
@@ -187,15 +212,15 @@ include ERC (Irc client), xslt-process, MH-E (mail reader), and ECB, a
 code browser which embeds Speebar.
 
    Speedbar has been a part of Emacs for quite a while.  The CEDET
-version of speedbar (as of this writing, Jun 07) is identical to the
-version in Emacs 22.
+version of speedbar (as of this writing, Jul 08) is nearly identical to
+the version in Emacs 22.
 
-   Read the *note Speedbar Manual: (speedbar)top for more details.
+   For more details, read the *note Speedbar Manual: (speedbar)top.
 
 
 File: cedet.info,  Node: EDE,  Next: COGRE,  Prev: Speedbar,  Up: Overview
 
-1.4 EDE
+1.5 EDE
 =======
 
 EDE is the Emacs Development Environment, which means that it manages
@@ -224,7 +249,7 @@ EDE controlled project.
 
 File: cedet.info,  Node: COGRE,  Next: Other Library Functions,  Prev: EDE,  Up: Overview
 
-1.5 COGRE
+1.6 COGRE
 =========
 
 COGRE is a COnnected GRaph Editor.  You can use it to create simple
@@ -237,7 +262,7 @@ code, navigating your source via the UML diagram.
 
 File: cedet.info,  Node: Other Library Functions,  Prev: COGRE,  Up: Overview
 
-1.6 Other CEDET Library functions
+1.7 Other CEDET Library functions
 =================================
 
 CEDET provides several other useful libraries in the `common/'
@@ -257,6 +282,11 @@ the Commentary section of the Emacs Lisp file.
      enhance it with images afterwards, allowing your UI to work well
      in a text frame, in addition to looking pretty spiff in a
      graphical frame.
+
+   `' pulse.el Simple way to briefly highlight a region or line.  For
+     Emacs 22, it will pulse the line, with the color drifting from one
+     shade to another.  For older versions Emacs, it will just
+     highlight the line briefly.
 
    `' fame.el Support for `message' channels, allowing a program to
      provide a wide range of messages, and allowing a user to configure
@@ -308,12 +338,19 @@ INSTALL file in the top level CEDET directory.
 
           make EMACS=<your favorite emacs> MAKEINFO=<substitute, or echo>
 
+     If you do not have `make' installed on your system, or if you
+     cannot get the `Makefile's to work, then you can use the all Emacs
+     solution in `cedet-build.el' which is found in the toplevel CEDET
+
+     Read the Commentary section of `cedet-build.el' for details on
+     using this method.
+
   2. Install .emacs hooks
 
-     Load CEDET in your .emacs file.  You do not need to install all of
-     cedet into any magic Emacs controlled directories, or modify your
-     loadpath.  The cedet bootstrap file will automatically update your
-     load path, and load all the autoload files.  The cedet
+     Load CEDET in your `.emacs' file.  You do not need to install all
+     of cedet into any magic Emacs controlled directories, or modify
+     your loadpath.  The CEDET bootstrap file will automatically update
+     your load path, and load all the autoload files.  The cedet
      configuration will load a minimum set of files in.
 
           ;; Load CEDET
@@ -330,17 +367,17 @@ INSTALL file in the top level CEDET directory.
      For general discussions on development of these tools, use the
      mailing list cedet-devel@sourceforge.net via the URL:
 
-     http://lists.sourceforge.net/lists/listinfo/cedet-devel
+     `http://lists.sourceforge.net/lists/listinfo/cedet-devel'
 
      For semantic development use the mailing list cedet-semantic.net
      via the URL:
 
-     http://lists.sourceforge.net/lists/listinfo/cedet-semantic
+     `http://lists.sourceforge.net/lists/listinfo/cedet-semantic'
 
      For EIEIO use the mailing list cedet-eieio@sourceforge.net via the
      URL:
 
-     http://lists.sourceforge.net/lists/listinfo/cedet-eieio
+     `http://lists.sourceforge.net/lists/listinfo/cedet-eieio'
 
   5. Install Additional Tools
 
@@ -348,12 +385,12 @@ INSTALL file in the top level CEDET directory.
      obscure features.
 
      To use the JavaScript parser: javascript-mode.el :
-     http://www.emacswiki.org/cgi-bin/wiki/JavaScriptMode
+     `http://www.emacswiki.org/cgi-bin/wiki/JavaScriptMode'
 
-     To use the UML chart generation from "M-x semantic-dot": graphviz
-     dot programs, including "dotty" http://www.graphviz.org/
+     To use the UML chart generation from `M-x semantic-dot' graphviz
+     dot programs, including `dotty' `http://www.graphviz.org/'
 
-     To use the graphviz dot parser: graphviz-dot-mode.el: See the
+     To use the graphviz dot parser: `graphviz-dot-mode.el' see the
      commentary in cogre/wisent-dot.el
 
 
@@ -368,7 +405,7 @@ EIEIO, the object sytem, and Semantic, for parsing and providing
 tagging information.
 
    In addition to the basic CEDET configuration, you will likely want to
-add the following Semantic configuration to your .emacs file.
+add the following Semantic configuration to your `.emacs' file.
 
      (semantic-load-enable-minimum-features)
 
@@ -384,7 +421,7 @@ in Java, you may want to enable this instead:
 
      (semantic-load-enable-guady-code-helpers)
 
-   See the *note Semantic Configuration: (semantic)Canned Configuration
+   See the *note Semantic Configuration: (semantic)Canned Configuration.
 section of the semantic manual for more details about these features.
 
 
@@ -400,7 +437,7 @@ that shows semantic tag information.
    ECB can also be used with JDEE.
 
    In addition to the basic CEDET configuration, you will likely want to
-add the following Semantic configuration to your .emacs file.
+add the following Semantic configuration to your `.emacs' file.
 
      (semantic-load-enable-code-helpers)
 
@@ -408,7 +445,7 @@ add the following Semantic configuration to your .emacs file.
 
      (semantic-load-enable-guady-code-helpers)
 
-   See the *note Semantic Configuration: (semantic)Canned Configuration
+   See the *note Semantic Configuration: (semantic)Canned Configuration.
 section of the semantic manual for more details about these features.
 
 
@@ -420,21 +457,12 @@ File: cedet.info,  Node: Project Management,  Next: Code Completion,  Prev: ECB 
 If you are looking for CEDET to help you manage a project full of
 sourcecode, then you will be using EDE and semantic.
 
-   In addition to the basic CEDET configuration, you will likely want to
-add the following Semantic configuration to your .emacs file.
+   To enable EDE add this to your `.emacs' file after CEDET is loaded:
 
-     (semantic-load-enable-code-helpers)
+     (global-ede-mode 1)
 
-   or the fancier
-
-     (semantic-load-enable-guady-code-helpers)
-
-   See the *note Semantic Configuration: (semantic)Canned Configuration
-section of the semantic manual for more details about these features.
-
-   Once semantic is using your configuation, you can use EDE to define
-your projects.  If you are starting a new project, put a file from your
-new project into a buffer, and type:
+   You can use EDE to define your projects.  If you are starting a new
+project, put a file from your new project into a buffer, and type:
 
      M-x ede-new RET
 
@@ -444,45 +472,187 @@ underlying build technology to use for compilation.
    Use the menu to add targets.  You can then use either Speedbar or
 dired to populate your targets with files.
 
-   See the *note EDE reference manual: (ede)Top for more details.
+   For more details, see the *note EDE reference manual: (ede)Top.
+
+   In addition to EDE and basic CEDET configuration, you will likely
+want to add the following semantic configuration to your `.emacs' file.
+
+     (semantic-load-enable-code-helpers)
+
+   See the *note Semantic Configuration: (semantic)Canned Configuration.
+section of the semantic manual for more details about these features.
+
+   You may also want to enable the SRecode template insertion mode.
+
+     (srecode-minor-mode 1)
+
+   Both semantic and SRecode take advantage of EDE's knowledge of a
+projects structure.
 
 
-File: cedet.info,  Node: Code Completion,  Next: GNU Free Documentation License,  Prev: Project Management,  Up: Top
+File: cedet.info,  Node: Code Completion,  Next: Code Generation,  Prev: Project Management,  Up: Top
 
 6 Code Completion
 *****************
 
 Code Completion, or perhaps "Intellisense" is a difficult problem to
 get working in Emacs.  To use the CEDET suite to do it, you will need
-to start by autmenting the basic CEDET install in your .emacs file with:
+to start by augmenting the basic CEDET install in your `.emacs' file
+with:
 
      (semantic-load-enable-code-helpers)
 
-   or the fancier
+   Basic code helpers enable idle parsing and summary mode.  To get
+idle-completions mode, and some more decorative features, use:
 
      (semantic-load-enable-guady-code-helpers)
 
-   See the *note Semantic Configuration: (semantic)Canned Configuration
-section of the semantic manual for more details about these features.
+   TODO - add other handy bindings here.
 
-   This gets the basics working.  Semantic would now be able to parse
-your code, and provide some level of support for help text, and smart
-completion.
+   For more on configuration *note Semantic Configuration:
+(semantic)Canned Configuration.  section of the semantic manual for
+more details about these features.
 
-   To improve the things Semantic can find, and complete with, you then
-need to perform more configurations.  This is done mainly by providing
+   The basic idea is that Semantic will need to parse your source code
+and build lookup tables.  The tables are then searched to provide the
+completion you might be looking for.
+
+   To improve the things Semantic can find and complete with, you then
+need to configure a few more things.  This is done mainly by providing
 details on where Semantic can find the source code where your tag
-definitions are.  Please read the *note Semantic search configuration:
-(semantic-user)Semanticdb Search Configuration node for details on
-these techniques.
+definitions are.
 
-   Once you've optimized this step, there are several code completion
-options.  Please see the *note semantic analyzer:
-(semantic-user)Analyzer section for more details on different
-completion techniques.
+   For more, *note Semantic search configuration:
+(semantic-user)Semanticdb Search Configuration.
+
+   Once you've optimized semantic's ability to find your sources, there
+are several code completion options.  For more, *note semantic
+analyzer: (semantic-user)Analyzer.
+
+   If code completion doesn't work on your code right away, please read
+the section on *note Smart Completion Debugging: (semantic-user)Smart
+Completion Debugging.
 
 
-File: cedet.info,  Node: GNU Free Documentation License,  Next: Index,  Prev: Code Completion,  Up: Top
+File: cedet.info,  Node: Code Generation,  Next: C++ Features,  Prev: Code Completion,  Up: Top
+
+7 Code Generation
+*****************
+
+Code Generation, or the ability to automatically write code from some
+set of static data is done through the SRecode library.  SRecode is a
+template manager that uses the semantic infrastructure to support
+common concepts across multiple languages.
+
+   To effectively create a code-generation library, you need to
+configure semantic.  Read *note Semantic Configuration:
+(semantic)Canned Configuration.  for more.
+
+   Secondly, you will need to configure SRecode.  Read *note SRecode
+Manual: (srecode)Quick Start;
+
+   Once installed, you can jump right in to writing your Lisp and *note
+Template Writing: (screcode)Template Writing.
+
+
+File: cedet.info,  Node: C++ Features,  Next: GNU Free Documentation License,  Prev: Code Generation,  Up: Top
+
+8 C++ Features
+**************
+
+If you are using CEDET With C++, then there are a few C++ specific
+options you may need to update.
+
+8.1 C Pre-processor
+===================
+
+C and C++ use pre-processor directives, and the semantic parser has
+some basic support for a pre-processor.  As such, you may need to set
+up some macros.  You can do that in two ways.
+
+   The first option is to create your own symbol map in Emacs Lisp.  You
+can customize the preprocessor symbol map.
+
+ -- Variable: semantic-lex-c-preprocessor-symbol-map
+     Table of C Preprocessor keywords used by the Semantic C lexer.
+     Each entry is a cons cell like this:   ( "KEYWORD" . "REPLACEMENT"
+     ) Where KEYWORD is the macro that gets replaced in the lexical
+     phase, and REPLACEMENT is a string that is inserted in it's place.
+     Empty string implies that the lexical analyzer will discard
+     KEYWORD when it is encountered.
+
+     Alternately, it can be of the form:   ( "KEYWORD" ( LEXSYM1 "str"
+     1 1 ) ... ( LEXSYMN "str" 1 1 ) ) where LEXSYM is a symbol that
+     would normally be produced by the lexical analyzer, such as
+     `symbol' or "string".  The string in the second position is the
+     text that makes up the replacement.  This is the way to have
+     multiple lexical symbols in a replacement.  Using the first way to
+     specify text like "foo::bar" would not work, because : is a
+     sepearate lexical symbol.
+
+     A quick way to see what you would need to insert is to place a
+     definition such as:
+
+     #define MYSYM foo::bar
+
+     into a C file, and do this:   `M-x' semantic-lex-spp-describe
+
+     The output table will describe the symbols needed.
+
+   Alternatly, you can use an existing C header file, or write your own
+custom C header file, and use the ma cros in that to initialize the
+preprocessor list.
+
+ -- Variable: semantic-lex-c-preprocessor-symbol-file
+     List of C/C++ files that contain preprocessor macros for the C
+     lexer.  Each entry is a filename and each file is parsed, and
+     those macros are included in every C/C++ file parsed by semantic.
+     You can use this variable instead of
+     `semantic-lex-c-preprocessor-symbol-map' to store your global
+     macros in a more natural way.
+
+   Some such symbols for `stdio.h' as found on Linux are defined in
+`semantic-lex-c-preprocessor-symbol-map-builtin'.
+
+   Lastly, you could just opt to ignore conditional parsing.
+
+ -- Option: semantic-c-obey-conditional-section-parsing-flag
+     Non-`nil' means to interpret preprocessor #if sections.  This
+     implies that some blocks of code will not be parsed based on the
+     values of the conditions in the #if blocks.
+
+8.2 System Include path
+=======================
+
+If you want the code-completion to work with C++ system header file,
+you will need to update `semantic-dependency-system-include-path' for
+C++ mode.
+
+     M-x customize-variable RET semantic-c-dependency-system-include-path RET
+
+   Customizing this variable will allow you to setup your system
+include path and will update all files when you use custom to do it.
+
+8.3 EDE Setup
+=============
+
+For large C++ programs, it is important to setup EDE for it.  While EDE
+can be used to create makefiles and such using Automake, EDE also
+provides a way to merely describe a project so that tools like semantic
+can find your sources.  For C++, you may want to do this:
+
+     (global-ede-mode 1) ;; Enable EDE
+     (ede-cpp-root-project "SOMENAME" :file "/dir/to/some/file")
+
+   where SOMENAME is a name for this project, and the file is a file
+name that exists at the root of your project directory.  There are many
+more options for the optimization of finding your header files.  For
+more on this option, including include path setting, and providing
+macro to the C pre-processor, see *note ede-cpp-root: (ede)the
+ede-cpp-root chapter.
+
+
+File: cedet.info,  Node: GNU Free Documentation License,  Next: Index,  Prev: C++ Features,  Up: Top
 
 Appendix A GNU Free Documentation License
 *****************************************
@@ -674,20 +844,19 @@ Appendix A GNU Free Documentation License
      H. Include an unaltered copy of this License.
      I. Preserve the section entitled "History", and its title, and add
      to    it an item stating at least the title, year, new authors, and
-       publisher of the Modified Version as given on the Title Page.
-     If    there is no section entitled "History" in the Document,
-     create one    stating the title, year, authors, and publisher of
-     the Document as    given on its Title Page, then add an item
+       publisher of the Modified Version as given on the Title Page.  If
+       there is no section entitled "History" in the Document, create
+     one    stating the title, year, authors, and publisher of the
+     Document as    given on its Title Page, then add an item
      describing the Modified    Version as stated in the previous
      sentence.
      J. Preserve the network location, if any, given in the Document for
-       public access to a Transparent copy of the Document, and
-     likewise    the network locations given in the Document for
-     previous versions    it was based on.  These may be placed in the
-     "History" section.     You may omit a network location for a work
-     that was published at    least four years before the Document
-     itself, or if the original    publisher of the version it refers
-     to gives permission.
+       public access to a Transparent copy of the Document, and likewise
+       the network locations given in the Document for previous versions
+       it was based on.  These may be placed in the "History" section.
+       You may omit a network location for a work that was published at
+       least four years before the Document itself, or if the original
+      publisher of the version it refers to gives permission.
      K. In any section entitled "Acknowledgements" or "Dedications",
      preserve the section's title, and preserve in the section all the
       substance and tone of each of the contributor acknowledgements
@@ -846,10 +1015,10 @@ notices just after the title page:
        Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
        A copy of the license is included in the section entitled ``GNU
        Free Documentation License''.
-If you have no Invariant Sections, write "with no Invariant
-Sections" instead of saying which ones are invariant.  If you have no
-Front-Cover Texts, write "no Front-Cover Texts" instead of "Front-Cover
-Texts being LIST"; likewise for Back-Cover Texts.
+If you have no Invariant Sections, write "with no Invariant Sections"
+instead of saying which ones are invariant.  If you have no Front-Cover
+Texts, write "no Front-Cover Texts" instead of "Front-Cover Texts being
+LIST"; likewise for Back-Cover Texts.
 
    If your document contains nontrivial examples of program code, we
 recommend releasing these examples in parallel under your choice of
@@ -867,20 +1036,26 @@ Index
 
 
 Tag Table:
-Node: Top889
-Node: Overview1792
-Node: EIEIO4270
-Node: Semantic5272
-Node: Speedbar6609
-Node: EDE7552
-Node: COGRE8876
-Node: Other Library Functions9308
-Node: Installation/Basic Configuration11665
-Node: JDEE Target13731
-Node: ECB Target14676
-Node: Project Management15396
-Node: Code Completion16547
-Node: GNU Free Documentation License17894
-Node: Index37633
+Node: Top893
+Node: Overview1833
+Node: EIEIO4741
+Node: Semantic5752
+Node: SRecode7067
+Node: Speedbar7554
+Node: EDE8504
+Node: COGRE9828
+Node: Other Library Functions10260
+Node: Installation/Basic Configuration12856
+Node: JDEE Target15238
+Node: ECB Target16186
+Node: Project Management16909
+Node: Code Completion18244
+Node: Code Generation19868
+Node: C++ Features20637
+Ref: semantic-lex-c-preprocessor-symbol-map21278
+Ref: semantic-lex-c-preprocessor-symbol-file22632
+Ref: semantic-c-obey-conditional-section-parsing-flag23225
+Node: GNU Free Documentation License24591
+Node: Index44315
 
 End Tag Table

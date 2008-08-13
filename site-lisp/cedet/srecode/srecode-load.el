@@ -1,9 +1,9 @@
 ;;; srecode-load.el --- Autoload definitions for SRecode
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-load.el,v 1.1 2007/02/21 01:58:33 zappo Exp $
+;; X-RCS: $Id: srecode-load.el,v 1.3 2008/03/02 02:17:53 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -25,9 +25,11 @@
 ;; Initialize SRecode for supported conditions.
 
 ;;; Code:
-(load "srecode-loaddefs" nil t)
 
-(global-srecode-minor-mode 1)
+(require 'srecode)
+
+;; This may be desirous, but don't enable by default.
+;;(global-srecode-minor-mode 1)
 
 (provide 'srecode-load)
 

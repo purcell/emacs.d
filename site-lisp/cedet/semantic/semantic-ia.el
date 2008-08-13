@@ -1,10 +1,10 @@
 ;;; semantic-ia.el --- Interactive Analysis functions
 
-;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-ia.el,v 1.14 2007/02/22 03:32:03 zappo Exp $
+;; X-RCS: $Id: semantic-ia.el,v 1.23 2008/08/02 16:24:00 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -75,7 +75,7 @@ Completion options are calculated with `semantic-analyze-possible-completions'."
     ;; Complete this symbol.
     (if (null syms)
 	(progn
-	  (message "No smart completions found.  Trying senator-complete-symbol.")
+	  ;(message "No smart completions found.  Trying senator-complete-symbol.")
 	  (if (semantic-analyze-context-p a)
 	      (senator-complete-symbol)
 	      ))
@@ -140,9 +140,11 @@ Completion options are calculated with `semantic-analyze-possible-completions'."
 	  (semantic-ia-insert-tag ans))
 	))))
 
-(defun semantic-ia-insert-tag (tag)
+(define-overloadable-function semantic-ia-insert-tag (tag)
+  "Insert TAG into the current buffer based on completion.")
+
+(defun semantic-ia-insert-tag-default (tag)
   "Insert TAG into the current buffer based on completion."
-  ;; I need to convert this into an override method!
   (insert (semantic-tag-name tag))
   (let ((tt (semantic-tag-class tag)))
     (cond ((eq tt 'function)
@@ -183,22 +185,55 @@ Completion options are calculated with `semantic-analyze-possible-completions'."
   "Display a summary for the symbol under POINT."
   (interactive "P")
   (let* ((ctxt (semantic-analyze-current-context point))
-	 (pf (reverse (oref ctxt prefix)))
-	 (sum nil)
+	 (pf (when ctxt
+	       (semantic-analyze-interesting-tag ctxt)))
 	)
-    (while (and pf (not sum))
-      (if (semantic-tag-p (car pf))
-	  (setq sum (semantic-format-tag-summarize (car pf) nil t)))
-      (setq pf (cdr pf)))
-    (message "%s" sum)
-    ))
+    (when pf
+      (message "%s" (semantic-format-tag-summarize pf nil t)))))
+
+;;;###autoload
+(defun semantic-ia-fast-jump (point)
+  "Jump to the tag referred to by the code at POINT.
+Uses `semantic-analyze-current-context' output to identify an accurate
+origin of the code at point."
+  (interactive "d")
+  (let* ((ctxt (semantic-analyze-current-context point))
+	 (pf (and ctxt (reverse (oref ctxt prefix))))
+	 (first (car pf))
+	 (second (nth 1 pf))
+	 )
+    (if (semantic-tag-p first)
+	(progn
+	  ;; @todo - push a tag mark?
+	  (push-mark)
+	  (semantic-go-to-tag first)
+	  (switch-to-buffer (current-buffer)))
+      (if (semantic-tag-p second)
+	  (let ((secondclass (car (reverse (oref ctxt prefixtypes)))))
+	    (cond
+	     ((and (semantic-tag-with-position-p secondclass)
+		   (y-or-n-p (format "Cound not find `%s'.  Jump to %s? "
+				     first (semantic-tag-name secondclass))))
+	      (push-mark)
+	      (semantic-go-to-tag secondclass)
+	      (switch-to-buffer (current-buffer)))
+	     ((and (semantic-tag-p second)
+		   (y-or-n-p (format "Cound not find `%s'.  Jump to %s? "
+				     first (semantic-tag-name second))))
+	      (push-mark)
+	      (semantic-go-to-tag second)
+	      (switch-to-buffer (current-buffer)))))
+	(error "Could not find suitable jump point for %s"
+	       first)
+	))))
 
 ;;;###autoload
 (defun semantic-ia-show-doc (point)
   "Display the code-level documentation for the symbol at POINT."
-  (interactive "P")
+  (interactive "d")
   (let* ((ctxt (semantic-analyze-current-context point))
-	 (pf (reverse (oref ctxt prefix))))
+	 (pf (reverse (oref ctxt prefix)))
+	 )
     ;; If PF, the prefix is non-nil, then the last element is either
     ;; a string (incomplete type), or a semantic TAG.  If it is a TAG
     ;; then we should be able to find DOC for it.
@@ -221,6 +256,30 @@ Completion options are calculated with `semantic-analyze-possible-completions'."
 	  (t
 	   (message "Unknown tag.")))
     ))
+
+;;;###autoload
+(defun semantic-ia-describe-class (typename)
+  "Display all known parts for the datatype TYPENAME.
+If the type in question is a class, all methods and other accessible
+parts of the parent classes are displayed."
+  ;; @todo - use a fancy completing reader.
+  (interactive "sType Name: ")
+  ;; Get a hold of this class.
+  (let ((class (semantic-analyze-find-tag typename)))
+    (when (not (semantic-tag-p class))
+      (error "Cannot find class %s" class))
+    (with-output-to-temp-buffer "*TAG DOCUMENTATION*"
+      (princ (semantic-format-tag-summarize class))
+      (princ "\n")
+      (princ "  Type Members:\n")
+      (let ((parts (semantic-analyze-scoped-type-parts class)))
+	(while parts
+	  (princ "    ")
+	  (princ (semantic-format-tag-summarize (car parts)))
+	  (princ "\n")
+	  (setq parts (cdr parts)))
+	)
+      )))
 
 (provide 'semantic-ia)
 

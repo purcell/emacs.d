@@ -21,7 +21,7 @@ MAKEINFO=makeinfo
 opt_LISP=rpm.el sb-gud.el sb-info.el sb-rmail.el sb-w3.el sb-texinfo.el bigclock.el sb-html.el sb-ant.el
 aux_AUX=INSTALL ChangeLog
 images_MISC=sb-dir-plus.xpm sb-dir-minus.xpm sb-dir.xpm sb-pg-plus.xpm sb-pg-minus.xpm sb-pg.xpm sb-mail.xpm sb-tag-plus.xpm sb-tag-minus.xpm sb-tag.xpm sb-tag-gt.xpm sb-tag-v.xpm sb-tag-type.xpm sb-image.el sb-obj.xpm sb-chk.xpm sb-objod.xpm sb-label.xpm sb-ro.xpm sb-doc.xpm sb-info.xpm sb-doc-plus.xpm sb-doc-minus.xpm sb-box.xpm sb-box-plus.xpm sb-box-minus.xpm
-VERSION=1.0.1
+VERSION=1.0.2
 DISTDIR=$(top)speedbar-$(VERSION)
 
 

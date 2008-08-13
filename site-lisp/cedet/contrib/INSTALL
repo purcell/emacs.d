@@ -13,11 +13,11 @@ eassist.el:
    Provides a fancy way to navigate to tags similar to VisualAssist.
 
    To use, add something like this to your .emacs file:
-     (defun my-semantic-init-hook ()
-       (define-key c-mode-base-map (kbd "M-o") 'eassist-switch-h-cpp)
-       (define-key c-mode-base-map (kbd "M-m") 'eassist-list-methods))
 
-     (add-hook 'semantic-init-hooks 'my-c-mode-common-hook)
+   (defun my-c-mode-common-hook ()
+     (define-key c-mode-base-map (kbd "M-o") 'eassist-switch-h-cpp)
+     (define-key c-mode-base-map (kbd "M-m") 'eassist-list-methods))
+   (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
    To check out how it works, do the following:
 

@@ -1,9 +1,10 @@
 ;;; cedet-load.el --- Load definitions for CEDET's common libraries
 
+;;; Copyright (C) 2008 Eric M. Ludlam
 ;;; Copyright (C) 2003 David Ponce
 
 ;; Author: David Ponce <david@dponce.com>
-;; X-RCS: $Id: cedet-load.el,v 1.2 2005/09/30 20:07:22 zappo Exp $
+;; X-RCS: $Id: cedet-load.el,v 1.3 2008/03/14 22:38:15 zappo Exp $
 
 ;; CEDET is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -30,6 +31,7 @@
 ;;; Common autoloads
 ;;
 (load "cedet-loaddefs" nil t)
+(require 'cedet-compat)
 
 (provide 'cedet-load)
 

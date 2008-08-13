@@ -1,11 +1,11 @@
 ## Makefile --- Definition file for building CEDET
 ##
-## Copyright (C) 2003, 2004, 2005, 2007 by David Ponce
+## Copyright (C) 2003, 2004, 2005, 2007, 2008 by David Ponce
 ##
 ## Author: David Ponce <david@dponce.com>
 ## Maintainer: CEDET developers <http://sf.net/projects/cedet>
 ## Created: 12 Sep 2003
-## X-RCS: $Id: Makefile,v 1.14 2007/05/28 00:51:19 zappo Exp $
+## X-RCS: $Id: Makefile,v 1.17 2008/07/03 01:29:49 zappo Exp $
 ##
 ## This program is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -30,15 +30,16 @@ CEDET_HOME="$(CURDIR)"
 ## The CEDET's packages installed
 CEDET_PACKAGES=\
 common \
-ede \
 speedbar \
 eieio \
 semantic \
+srecode \
+ede \
 cogre \
 contrib
 
 ## Path to your Emacs
-EMACS=/Applications/MacPorts/Emacs.app/Contents/MacOS/Emacs
+EMACS=emacs
 
 ## Your shell (On Windows/Cygwin I recommend to use bash)
 #SHELL=bash
@@ -46,6 +47,13 @@ EMACS=/Applications/MacPorts/Emacs.app/Contents/MacOS/Emacs
 ## Path to your find and rm commands
 FIND=find
 #RM = rm -f
+
+## INSTALL PATHS
+PREFIX=/usr/local
+
+INFO_DIR=$(PREFIX)/share/info
+
+INSTALL_INFO=ginstall-info
 
 ############### Internal part of the Makefile ###############
 CEDET_VERSION=$(shell grep "defconst cedet-version" common/cedet.el | cut -d " " -f 3)
@@ -120,6 +128,28 @@ clean:
 	-print -exec $(RM) {} \;
 
 clean-all: clean clean-elc clean-info clean-grammars clean-autoloads
+
+### Install info files
+## Thanks Stefano Sabatini for the info install patch.
+INFO_FILES=$(shell $(FIND) $(CEDET_HOME) -type f -name '*.info')
+
+.PHONY: install-info
+install-info:
+	for file in $(INFO_FILES); do \
+	    cp $$file $(INFO_DIR); \
+	    $(INSTALL_INFO) $$file $(INFO_DIR)/dir ;\
+	done 
+
+## Uninstall info files 
+INSTALLED_INFO_FILES=$(shell find . -name *.info | sed -e 's|.*/\(.*\.info$$\)|$(INFO_DIR)/\1|')
+
+.PHONY: uninstall-info
+uninstall-info:
+	for file in $(INSTALLED_INFO_FILES); do \
+	    $(INSTALL_INFO) --delete $$file $(INFO_DIR)/dir ;\
+	    rm -f $$file;\
+	done
+
 
 ## Build a distribution file.
 dist: # $(CEDET_PACKAGES)

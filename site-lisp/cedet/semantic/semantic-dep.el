@@ -1,10 +1,10 @@
 ;;; semantic-dep.el --- Methods for tracking dependencies (include files)
 
-;;; Copyright (C) 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-dep.el,v 1.4 2007/05/17 01:41:20 zappo Exp $
+;; X-RCS: $Id: semantic-dep.el,v 1.10 2008/04/11 20:02:48 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -68,11 +68,55 @@ NOTE: Obsolete this, or use as special user")
 This should be set with either `defvar-mode-local', or with
 `semantic-add-system-include'.
 
+For mode authors, use
+`defcustom-mode-local-semantic-dependency-system-include-path'
+to create a mode-specific variable to control this.
+
 When searching for a file associated with a name found in an tag of
 class include, this path will be inspected for includes of type
 `system'.  Some include tags are agnostic to this setting and will
 check both the project and system directories.")
-(make-variable-buffer-local `semantic-dependency-include-path)
+(make-variable-buffer-local `semantic-dependency-system-include-path)
+
+;;;###autoload
+(defmacro defcustom-mode-local-semantic-dependency-system-include-path
+  (mode name value &optional docstring)
+  "Create a mode-local value of the system-dependency include path.
+MODE is the `major-mode' this name/value pairs is for.
+NAME is the name of the customizable value users will use.
+VALUE is the path to add.
+DOCSTRING is a documentation string applied to the variable NAME
+users will customize.
+
+Creates a customizable variable users can customize that will
+keep semantic data structures up to date."
+  `(progn
+     ;; Create a variable users can customize.
+     (defcustom ,name ,value
+       ,docstring
+       :group (quote ,(intern (car (split-string (symbol-name mode) "-"))))
+       :group 'semantic
+       :type '(repeat (directory :tag "Directory"))
+       :set (lambda (sym val)
+	      (set-default sym val)
+	      (setq-mode-local ,mode
+			       semantic-dependency-system-include-path
+			       val)
+	      (when (fboundp 
+		     'semantic-decoration-unparsed-include-do-reset)
+		(mode-local-map-mode-buffers
+		 'semantic-decoration-unparsed-include-do-reset
+		 (quote ,mode))))
+       )
+     ;; Set the variable to the default value.
+     (defvar-mode-local ,mode semantic-dependency-system-include-path
+       ,name
+       "System path to search for include files.")
+     ;; Bind NAME onto our variable so tools can customize it
+     ;; without knowing about it.
+     (put 'semantic-dependency-system-include-path
+	  (quote ,mode) (quote ,name))
+     ))
 
 ;;; PATH MANAGEMENT
 ;;
@@ -80,9 +124,10 @@ check both the project and system directories.")
 ;;;###autoload
 (defun semantic-add-system-include (dir &optional mode)
   "Add a system include DIR to path for MODE.
-Modifies a mode-local version of
-`semantic-dependency-system-include-path'."
-  (interactive "DDirectory: ")
+Modifies a mode-local version of `semantic-dependency-system-include-path'.
+
+Changes made by this function are not persistent."
+  (interactive "DNew Include Directory: ")
   (if (not mode) (setq mode major-mode))
   (let ((dirtmp (file-name-as-directory dir))
 	(value
@@ -96,11 +141,12 @@ Modifies a mode-local version of
 ;;;###autoload
 (defun semantic-remove-system-include (dir &optional mode)
   "Add a system include DIR to path for MODE.
-Modifies a mode-local version of
-`semantic-dependency-system-include-path'."
+Modifies a mode-local version of`semantic-dependency-system-include-path'.
+
+Changes made by this function are not persistent."
   (interactive (list
 		 (completing-read
-		  "Directory to Remove: "
+		  "Include Directory to Remove: "
 		  semantic-dependency-system-include-path))
 	       )
   (if (not mode) (setq mode major-mode))
@@ -124,6 +170,20 @@ Modifies a mode-local version of
 			  nil))
   )
 
+;;;###autoload
+(defun semantic-customize-system-include-path (&optional mode)
+  "Customize the include path for this `major-mode'.
+To create a customizable include path for a major MODE, use the
+macro `defcustom-mode-local-semantic-dependency-system-include-path'."
+  (interactive)
+  (let ((ips (get 'semantic-dependency-system-include-path
+		  (or mode major-mode))))
+    ;; Do we have one?
+    (when (not ips)
+      (error "There is no customizable includepath variable for %s"
+	     (or mode major-mode)))
+    ;; Customize it.
+    (customize-variable ips)))
 
 ;;; PATH SEARCH
 ;;
@@ -148,6 +208,9 @@ provided mode, not from the current major mode."
   (if (not mode) (setq mode major-mode))
   (let ((sysp (mode-local-value
 	       mode 'semantic-dependency-system-include-path))
+	(edesys (when (and (featurep 'ede) ede-minor-mode
+			   ede-object)
+		  (ede-system-include-path ede-object)))
 	(locp (mode-local-value
 	       mode 'semantic-dependency-include-path))
 	(found nil))
@@ -155,6 +218,8 @@ provided mode, not from the current major mode."
       (setq found file))
     (when (and (not found) (not systemp))
       (setq found (semantic--dependency-find-file-on-path file locp)))
+    (when (and (not found) edesys)
+      (setq found (semantic--dependency-find-file-on-path file edesys)))
     (when (not found)
       (setq found (semantic--dependency-find-file-on-path file sysp)))
     (if found (expand-file-name found))))

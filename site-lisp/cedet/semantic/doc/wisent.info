@@ -1,6 +1,6 @@
-This is wisent.info, produced by makeinfo version 4.8 from wisent.texi.
+This is wisent.info, produced by makeinfo version 4.12 from wisent.texi.
 
-   This manual documents the Wisent parser generator.
+This manual documents the Wisent parser generator.
 
    Copyright (C) 2001, 2002, 2003, 2004, 2007 David Ponce
 
@@ -45,7 +45,7 @@ programming languages, and how to use grammars to parse language source
 in Emacs buffers.
 
 It also describes how Wisent is used with the semantic tool set
-described in the *Note Semantic Manual: (semantic)Top.
+described in the *note Semantic Manual: (semantic)Top.
 
 * Menu:
 
@@ -67,10 +67,10 @@ GNU Compiler Compiler Bison. Its code is a port of the C code of GNU
 Bison 1.28 & 1.31.
 
 For more details on the basic concepts for understanding Wisent, it is
-worthwhile to read the *Note Bison Manual: Top.
+worthwhile to read the *note Bison Manual: Top.
 
 Wisent can generate compilers compatible with the semantic tool set.
-See the *Note Semantic Manual: (semantic)Top.
+See the *note Semantic Manual: (semantic)Top.
 
 It benefits from these Bison features:
 
@@ -120,7 +120,7 @@ File: wisent.info,  Node: Wisent Grammar,  Next: Wisent Parsing,  Prev: Wisent O
 
 In order for Wisent to parse a language, it must be described by a
 "context-free grammar".  That is a grammar specified as rules that can
-be applied regardless of context.  For more information, see *Note
+be applied regardless of context.  For more information, see *note
 Language and Grammar: (bison)Language and Grammar, in the Bison manual.
 
 The formal grammar is formulated using "terminal" and "nonterminal"
@@ -179,7 +179,7 @@ ASSOCS
      list of tokens which must have been previously declared in
      TERMINALS.
 
-     For details, see *Note Contextual Precedence: (bison)Contextual
+     For details, see *note Contextual Precedence: (bison)Contextual
      Precedence, in the Bison manual.
 
 NON-TERMINALS
@@ -284,7 +284,7 @@ NON-TERMINALS
           The effect of `(default-prec nil)' can be reversed by giving
           `(default-prec t)', which is the default.
 
-          For more details, see *Note Contextual Precedence:
+          For more details, see *note Contextual Precedence:
           (bison)Contextual Precedence, in the Bison manual.
 
           It is important to understand that ASSOCS declarations defines
@@ -354,7 +354,7 @@ File: wisent.info,  Node: Example,  Next: Compiling a grammar,  Prev: Grammar fo
 ===========
 
 Here is an example to parse simple infix arithmetic expressions.  See
-*Note Infix Calc: (bison)Infix Calc, in the Bison manual for details.
+*note Infix Calc: (bison)Infix Calc, in the Bison manual for details.
 
      '(
        ;; Terminals
@@ -469,7 +469,7 @@ derive the parser.  Like Bison, Wisent translates grammars that must be
 
 A grammar is LALR(1) if it is possible to tell how to parse any portion
 of an input string with just a single token of look-ahead: the
-"look-ahead token".  See *Note Language and Grammar: (bison)Language
+"look-ahead token".  See *note Language and Grammar: (bison)Language
 and Grammar, in the Bison manual for more information.
 
 Grammar translation (compilation) is achieved by the function:
@@ -493,7 +493,7 @@ Grammar translation (compilation) is achieved by the function:
     ACTIONS
           A state/token matrix telling the parser what to do at every
           state based on the current look-ahead token.  That is shift,
-          reduce, accept or error.  See also *Note Wisent Parsing::.
+          reduce, accept or error.  See also *note Wisent Parsing::.
 
     GOTOS
           A state/nonterminal matrix telling the parser the next state
@@ -533,7 +533,7 @@ There are two sorts of conflicts:
      state.
 
      Such conflicts are resolved by choosing to shift, unless otherwise
-     directed by operator precedence declarations.  See *Note
+     directed by operator precedence declarations.  See *note
      Shift/Reduce: (bison)Shift/Reduce, in the Bison manual for more
      information.
 
@@ -545,7 +545,7 @@ There are two sorts of conflicts:
      Such conflicts are resolved by choosing to use the rule that
      appears first in the grammar, but it is very risky to rely on
      this.  Every reduce/reduce conflict must be studied and usually
-     eliminated.  See *Note Reduce/Reduce: (bison)Reduce/Reduce, in the
+     eliminated.  See *note Reduce/Reduce: (bison)Reduce/Reduce, in the
      Bison manual for more information.
 
 * Menu:
@@ -581,7 +581,7 @@ like this:
      *** Wisent SOURCE-FILE - 2002-06-27 17:33
 
 where SOURCE-FILE is the name of the Emacs Lisp file from which the
-grammar was read.  See *Note Understanding the automaton::, for details
+grammar was read.  See *note Understanding the automaton::, for details
 on the verbose report.
 
 *Please Note*
@@ -818,7 +818,7 @@ corresponds to shifting `/', or as `(NUM + NUM) / NUM', which
 corresponds to reducing rule 1.
 
 Because in LALR(1) parsing a single decision can be made, Wisent
-arbitrarily chose to disable the reduction, see *Note Conflicts::.
+arbitrarily chose to disable the reduction, see *note Conflicts::.
 Discarded actions are reported in between square brackets.
 
 Note that all the previous states had a single possible action: either
@@ -1020,10 +1020,10 @@ When there are no more tokens to read the lexer must return the token
 
 `wisent-lex' is an example of a lexer that reads lexical tokens
 produced by a semantic lexer, and translates them into lexical tokens
-suitable to the Wisent parser.  See also *Note Wisent Lex::.
+suitable to the Wisent parser.  See also *note Wisent Lex::.
 
 To call the lexer in a semantic action use the function `wisent-lexer'.
-See also *Note Actions goodies::.
+See also *note Actions goodies::.
 
 
 File: wisent.info,  Node: Actions goodies,  Next: Report errors,  Prev: Writing a lexer,  Up: Wisent Parsing
@@ -1098,7 +1098,7 @@ File: wisent.info,  Node: Error recovery,  Next: Debugging actions,  Prev: Repor
 ==================
 
 The error recovery mechanism of the Wisent's parser conforms to the one
-Bison uses.  See *Note Error Recovery: (bison)Error Recovery, in the
+Bison uses.  See *note Error Recovery: (bison)Error Recovery, in the
 Bison manual for details.
 
 To recover from a syntax error you must write rules to recognize the
@@ -1345,7 +1345,7 @@ iterative parsers are better in that they can handle obscure errors
 more cleanly.
 
 Each start nonterminal must produces a "raw tag" by calling a
-`TAG'-like grammar macro with appropriate parameters.  See also *Note
+`TAG'-like grammar macro with appropriate parameters.  See also *note
 Start nonterminals::.
 
 Then, each parsing iteration automatically translates a raw tag into
@@ -1447,7 +1447,7 @@ The second consequence is that the iterative parser can't do automatic
 tag expansion, except for the start nonterminal value.  It is necessary
 to explicitly expand tags from concerned semantic actions by calling
 the grammar macro `EXPANDTAG' with a raw tag as parameter.  See also
-*Note Start nonterminals::, for incremental re-parse considerations.
+*note Start nonterminals::, for incremental re-parse considerations.
 
 
 File: wisent.info,  Node: Mixed style,  Next: Start nonterminals,  Prev: Bison style,  Up: Grammar styles
@@ -1644,7 +1644,7 @@ to know when writing new code to use Wisent in semantic:
      Add INPUT lexical token to the cache of unmatched tokens, in
      variable `semantic-unmatched-syntax-cache'.
 
-     See implementation of the function `wisent-skip-token' in *Note
+     See implementation of the function `wisent-skip-token' in *note
      Error recovery::, for an example of use.
 
 
@@ -1885,20 +1885,19 @@ Appendix A GNU Free Documentation License
      H. Include an unaltered copy of this License.
      I. Preserve the section entitled "History", and its title, and add
      to    it an item stating at least the title, year, new authors, and
-       publisher of the Modified Version as given on the Title Page.
-     If    there is no section entitled "History" in the Document,
-     create one    stating the title, year, authors, and publisher of
-     the Document as    given on its Title Page, then add an item
+       publisher of the Modified Version as given on the Title Page.  If
+       there is no section entitled "History" in the Document, create
+     one    stating the title, year, authors, and publisher of the
+     Document as    given on its Title Page, then add an item
      describing the Modified    Version as stated in the previous
      sentence.
      J. Preserve the network location, if any, given in the Document for
-       public access to a Transparent copy of the Document, and
-     likewise    the network locations given in the Document for
-     previous versions    it was based on.  These may be placed in the
-     "History" section.     You may omit a network location for a work
-     that was published at    least four years before the Document
-     itself, or if the original    publisher of the version it refers
-     to gives permission.
+       public access to a Transparent copy of the Document, and likewise
+       the network locations given in the Document for previous versions
+       it was based on.  These may be placed in the "History" section.
+       You may omit a network location for a work that was published at
+       least four years before the Document itself, or if the original
+      publisher of the version it refers to gives permission.
      K. In any section entitled "Acknowledgements" or "Dedications",
      preserve the section's title, and preserve in the section all the
       substance and tone of each of the contributor acknowledgements
@@ -2057,10 +2056,10 @@ notices just after the title page:
        Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
        A copy of the license is included in the section entitled ``GNU
        Free Documentation License''.
-If you have no Invariant Sections, write "with no Invariant
-Sections" instead of saying which ones are invariant.  If you have no
-Front-Cover Texts, write "no Front-Cover Texts" instead of "Front-Cover
-Texts being LIST"; likewise for Back-Cover Texts.
+If you have no Invariant Sections, write "with no Invariant Sections"
+instead of saying which ones are invariant.  If you have no Front-Cover
+Texts, write "no Front-Cover Texts" instead of "Front-Cover Texts being
+LIST"; likewise for Back-Cover Texts.
 
 If your document contains nontrivial examples of program code, we
 recommend releasing these examples in parallel under your choice of
@@ -2177,32 +2176,32 @@ Index
 
 
 Tag Table:
-Node: Top1335
-Node: Wisent Overview1965
-Node: Wisent Grammar4167
-Node: Grammar format5383
-Ref: action11453
-Node: Example13691
-Node: Compiling a grammar15732
-Node: Conflicts17827
-Node: Grammar Debugging19400
-Node: Understanding the automaton20756
-Node: Wisent Parsing30322
-Node: Writing a lexer32818
-Node: Actions goodies34418
-Node: Report errors35137
-Node: Error recovery36725
-Ref: wisent-skip-token41054
-Node: Debugging actions42228
-Node: Wisent Semantic44062
-Node: Grammar styles44897
-Node: Iterative style45432
-Node: Bison style47778
-Node: Mixed style49443
-Node: Start nonterminals52038
-Node: Useful functions54854
-Node: Wisent Lex55407
-Node: GNU Free Documentation License56825
-Node: Index76562
+Node: Top1333
+Node: Wisent Overview1963
+Node: Wisent Grammar4165
+Node: Grammar format5381
+Ref: action11451
+Node: Example13689
+Node: Compiling a grammar15730
+Node: Conflicts17825
+Node: Grammar Debugging19398
+Node: Understanding the automaton20754
+Node: Wisent Parsing30320
+Node: Writing a lexer32816
+Node: Actions goodies34416
+Node: Report errors35135
+Node: Error recovery36723
+Ref: wisent-skip-token41052
+Node: Debugging actions42226
+Node: Wisent Semantic44060
+Node: Grammar styles44895
+Node: Iterative style45430
+Node: Bison style47776
+Node: Mixed style49441
+Node: Start nonterminals52036
+Node: Useful functions54852
+Node: Wisent Lex55405
+Node: GNU Free Documentation License56823
+Node: Index76548
 
 End Tag Table

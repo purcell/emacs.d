@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-proj-aux.el,v 1.8 2007/03/10 01:25:49 zappo Exp $
+;; RCS: $Id: ede-proj-aux.el,v 1.9 2008/01/20 00:09:51 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -34,8 +34,8 @@
   "This target consists of aux files such as READMEs and COPYING.")
 
 (defvar ede-aux-source
-  (ede-sourcecode "ede-aux-source"
-		  :name "Auxiliary"
+  (ede-sourcecode "ede-aux-source-txt"
+		  :name "Auxiliary Text"
 		  :sourcepattern "^[A-Z]+$\\|\\.txt$")
   "Miscelaneous fields definition.")
 

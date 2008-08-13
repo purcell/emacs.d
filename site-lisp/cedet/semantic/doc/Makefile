@@ -18,7 +18,7 @@ semantic-appdev_info_TEXINFOS=app-dev-guide.texi tags.texi
 semantic-langdev_info_TEXINFOS=lang-support-guide.texi
 bovine_info_TEXINFOS=bovine.texi
 wisent_info_TEXINFOS=wisent.texi
-VERSION=2.0pre4
+VERSION=2.0pre5
 DISTDIR=$(top)semantic-$(VERSION)/doc
 
 

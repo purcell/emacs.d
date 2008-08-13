@@ -1,9 +1,9 @@
-;;; semantic-adebug-eieio.el --- EIEIO extensions to adebug
+;;; eieio-datadebug.el --- EIEIO extensions to the data debugger.
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-adebug-eieio.el,v 1.2 2007/05/10 15:50:59 zappo Exp $
+;; X-RCS: $Id: eieio-datadebug.el,v 1.1 2008/03/27 02:45:10 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -22,29 +22,33 @@
 
 ;;; Commentary:
 ;;
-;; Extensions to semantic Adebug for EIEIO objects.
+;; Extensions to data-debug for EIEIO objects.
 ;;
 
+(require 'data-debug)
+
+;;; Code:
+
 ;;;###autoload
-(defun semantic-adebug-insert-object-fields (object prefix)
+(defun data-debug-insert-object-fields (object prefix)
   "Insert all the fields of OBJECT.
 PREFIX specifies what to insert at the start of each line."
   (let ((attrprefix (concat (make-string (length prefix) ? ) "] "))
 	)
-    (semantic-adebug/eieio-insert-fields object attrprefix)
+    (data-debug/eieio-insert-fields object attrprefix)
     )
   )
 
-(defun semantic-adebug-insert-object-fields-from-point (point)
+(defun data-debug-insert-object-fields-from-point (point)
   "Insert the object fields found at the object button at POINT."
-  (let ((object (get-text-property point 'adebug))
-	(indent (get-text-property point 'adebug-indent))
+  (let ((object (get-text-property point 'ddebug))
+	(indent (get-text-property point 'ddebug-indent))
 	start end
 	)
     (end-of-line)
     (setq start (point))
     (forward-char 1)
-    (semantic-adebug-insert-object-fields object
+    (data-debug-insert-object-fields object
 					  (concat (make-string indent ? )
 						  "~ "))
     (setq end (point))
@@ -52,13 +56,13 @@ PREFIX specifies what to insert at the start of each line."
     ))
 
 ;;;###autoload
-(defun semantic-adebug-insert-object-button (object prefix prebuttontext)
+(defun data-debug-insert-object-button (object prefix prebuttontext)
   "Insert a button representing OBJECT.
 PREFIX is the text that preceeds the button.
 PREBUTTONTEXT is some text between PREFIX and the object button."
   (let ((start (point))
 	(end nil)
-	(str (object-name object))
+	(str (object-print object))
 	(tip (format "Object %s\nClass: %S\nParent(s): %S\n%d slots"
 		     (object-name-string object)
 		     (object-class object)
@@ -69,12 +73,12 @@ PREBUTTONTEXT is some text between PREFIX and the object button."
     (insert prefix prebuttontext str)
     (setq end (point))
     (put-text-property (- end (length str)) end 'face 'font-lock-keyword-face)
-    (put-text-property start end 'adebug object)
-    (put-text-property start end 'adebug-indent(length prefix))
-    (put-text-property start end 'adebug-prefix prefix)
+    (put-text-property start end 'ddebug object)
+    (put-text-property start end 'ddebug-indent(length prefix))
+    (put-text-property start end 'ddebug-prefix prefix)
     (put-text-property start end 'help-echo tip)
-    (put-text-property start end 'adebug-function
-		       'semantic-adebug-insert-object-fields-from-point)
+    (put-text-property start end 'ddebug-function
+		       'data-debug-insert-object-fields-from-point)
     (insert "\n")
     )
   )
@@ -83,15 +87,15 @@ PREBUTTONTEXT is some text between PREFIX and the object button."
 ;;
 ;; Each object should have an opportunity to show stuff about itself.
 
-(defmethod semantic-adebug/eieio-insert-fields ((obj eieio-default-superclass)
+(defmethod data-debug/eieio-insert-fields ((obj eieio-default-superclass)
 						prefix)
-  "Insert the fields of OBJ into the current ADEBUG buffer."
-  (semantic-adebug-insert-thing (object-name-string obj)
+  "Insert the fields of OBJ into the current DDEBUG buffer."
+  (data-debug-insert-thing (object-name-string obj)
 				prefix
 				"Name: ")
   (let* ((cl (object-class obj))
 	 (cv (class-v cl)))
-    (semantic-adebug-insert-thing (class-constructor cl)
+    (data-debug-insert-thing (class-constructor cl)
 				  prefix
 				  "Class: ")
     ;; Loop over all the public slots
@@ -102,24 +106,37 @@ PREBUTTONTEXT is some text between PREFIX and the object button."
 	(if (slot-boundp obj (car publa))
 	    (let ((i (class-slot-initarg cl (car publa)))
 		  (v (eieio-oref obj (car publa))))
-	      (semantic-adebug-insert-thing
+	      (data-debug-insert-thing
 	       v prefix (concat 
 			 (if i (symbol-name i)
 			   (symbol-name (car publa)))
 			 " ")))
 	  ;; Unbound case
 	  (let ((i (class-slot-initarg cl (car publa))))
-	    (semantic-adebug-insert-thing
+	    (data-debug-insert-custom
 	     "#unbound" prefix
 	     (concat (if i (symbol-name i)
 		       (symbol-name (car publa)))
-		     " ")))
+		     " ")
+	     'font-lock-keyword-face))
 	  )
 	(setq publa (cdr publa) publd (cdr publd)))
       )))
 
+;;; DEBUG METHODS
+;;
+;; A generic function to run DDEBUG on an object and popup a new buffer.
+;;
+;;;###autoload
+(defmethod data-debug-show ((obj eieio-default-superclass))
+  "Run ddebug against any EIEIO object OBJ"
+  (let ((ab (data-debug-new-buffer 
+	     (format "*%s DDEBUG*" (object-name obj)))))
+    (data-debug-insert-object-fields obj "]"))
+  )
+
 ;;; Code:
 
-(provide 'semantic-adebug-eieio)
+(provide 'eieio-datadebug)
 
-;;; semantic-adebug-eieio.el ends here
+;;; eieio-datadebug.el ends here

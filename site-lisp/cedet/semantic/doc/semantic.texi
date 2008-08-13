@@ -59,7 +59,7 @@ License''.
 This file documents Semantic.
 @emph{Infrastructure for parser based text analysis in Emacs}
 
-Copyright @copyright{} 2002 @value{AUTHOR}
+Copyright @copyright{} 2007 @value{AUTHOR}
 @end ifinfo
 
 @titlepage
@@ -67,7 +67,8 @@ Copyright @copyright{} 2002 @value{AUTHOR}
 @title @value{TITLE}
 @author by @value{AUTHOR}
 @vskip 0pt plus 1 fill
-Copyright @copyright{} 1999, 2000, 2001, 2002, 2003 @value{AUTHOR}
+Copyright @copyright{} 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
+2007 @value{AUTHOR}
 @page
 @vskip 0pt plus 1 fill
 @insertcopying

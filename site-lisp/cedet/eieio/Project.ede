@@ -2,6 +2,7 @@
 ;; EDE project file.
 (ede-proj-project "eieio"
   :name "eieio"
+  :version "1.1"
   :file "Project.ede"
   :targets (list 
    (ede-proj-target-elisp-autoloads "autoloads"
@@ -17,9 +18,9 @@
    (ede-proj-target-elisp "eieio"
     :name "eieio"
     :path ""
-    :source '("eieio.el" "eieio-comp.el" "eieio-opt.el" "eieio-custom.el" "eieio-doc.el" "eieio-base.el")
+    :source '("eieio.el" "eieio-comp.el" "eieio-opt.el" "eieio-custom.el" "eieio-doc.el" "eieio-base.el" "eieio-datadebug.el")
     :versionsource '("eieio.el")
-    :aux-packages '("speedbar")
+    :aux-packages '("speedbar" "data-debug")
     )
    (ede-proj-target-elisp "examples"
     :name "examples"

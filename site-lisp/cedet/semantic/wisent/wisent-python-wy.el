@@ -3,7 +3,7 @@
 ;; Copyright (C) 2002, 2003, 2004, 2007 Richard Kim
 
 ;; Author: Steve <steve@Mandala.local>
-;; Created: 2007-08-12 00:13:19+0200
+;; Created: 2008-08-13 12:48:23+0100
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 

@@ -1,6 +1,6 @@
-This is bovine.info, produced by makeinfo version 4.8 from bovine.texi.
+This is bovine.info, produced by makeinfo version 4.12 from bovine.texi.
 
-   This manual documents Bovine parser development in Semantic
+This manual documents Bovine parser development in Semantic
 
    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Eric M. Ludlam
 Copyright (C) 2001, 2002, 2003, 2004 David Ponce Copyright (C) 2002,
@@ -192,7 +192,7 @@ Will generate this pseudo equivalent-rule:
 Thus, from the bovinator point of view, the COMPONENTS part of a rule
 is made up of symbols and strings.  A string in the mix means that the
 previous symbol must have the additional constraint of exactly matching
-it, as described in *Note How Lexical Tokens Match::.
+it, as described in *note How Lexical Tokens Match::.
 
 *Please Note:*
      For the bovinator, this task was mixed into the language
@@ -561,20 +561,19 @@ Appendix A GNU Free Documentation License
      H. Include an unaltered copy of this License.
      I. Preserve the section entitled "History", and its title, and add
      to    it an item stating at least the title, year, new authors, and
-       publisher of the Modified Version as given on the Title Page.
-     If    there is no section entitled "History" in the Document,
-     create one    stating the title, year, authors, and publisher of
-     the Document as    given on its Title Page, then add an item
+       publisher of the Modified Version as given on the Title Page.  If
+       there is no section entitled "History" in the Document, create
+     one    stating the title, year, authors, and publisher of the
+     Document as    given on its Title Page, then add an item
      describing the Modified    Version as stated in the previous
      sentence.
      J. Preserve the network location, if any, given in the Document for
-       public access to a Transparent copy of the Document, and
-     likewise    the network locations given in the Document for
-     previous versions    it was based on.  These may be placed in the
-     "History" section.     You may omit a network location for a work
-     that was published at    least four years before the Document
-     itself, or if the original    publisher of the version it refers
-     to gives permission.
+       public access to a Transparent copy of the Document, and likewise
+       the network locations given in the Document for previous versions
+       it was based on.  These may be placed in the "History" section.
+       You may omit a network location for a work that was published at
+       least four years before the Document itself, or if the original
+      publisher of the version it refers to gives permission.
      K. In any section entitled "Acknowledgements" or "Dedications",
      preserve the section's title, and preserve in the section all the
       substance and tone of each of the contributor acknowledgements
@@ -733,10 +732,10 @@ notices just after the title page:
        Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
        A copy of the license is included in the section entitled ``GNU
        Free Documentation License''.
-If you have no Invariant Sections, write "with no Invariant
-Sections" instead of saying which ones are invariant.  If you have no
-Front-Cover Texts, write "no Front-Cover Texts" instead of "Front-Cover
-Texts being LIST"; likewise for Back-Cover Texts.
+If you have no Invariant Sections, write "with no Invariant Sections"
+instead of saying which ones are invariant.  If you have no Front-Cover
+Texts, write "no Front-Cover Texts" instead of "Front-Cover Texts being
+LIST"; likewise for Back-Cover Texts.
 
 If your document contains nontrivial examples of program code, we
 recommend releasing these examples in parallel under your choice of
@@ -754,15 +753,15 @@ Index
 
 
 Tag Table:
-Node: Top1104
-Node: Starting Rules2080
-Node: Bovine Grammar Rules3072
-Node: How Lexical Tokens Match4572
-Node: Grammar-to-Lisp Details6069
-Node: Order of components in rules7230
-Node: Optional Lambda Expression7772
-Node: Bovine Examples11416
-Node: GNU Free Documentation License12344
-Node: Index32081
+Node: Top1102
+Node: Starting Rules2078
+Node: Bovine Grammar Rules3070
+Node: How Lexical Tokens Match4570
+Node: Grammar-to-Lisp Details6067
+Node: Order of components in rules7228
+Node: Optional Lambda Expression7770
+Node: Bovine Examples11414
+Node: GNU Free Documentation License12342
+Node: Index32067
 
 End Tag Table

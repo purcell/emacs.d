@@ -3,7 +3,7 @@
 ;; Copyright (C) 2002 David Ponce
 
 ;; Author: Steve <steve@Mandala.local>
-;; Created: 2007-08-12 00:13:09+0200
+;; Created: 2008-08-13 12:48:12+0100
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 

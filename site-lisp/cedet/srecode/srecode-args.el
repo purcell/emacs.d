@@ -1,9 +1,9 @@
 ;;; srecode-args.el --- Provide some simple template arguments
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-args.el,v 1.2 2007/02/24 03:10:00 zappo Exp $
+;; X-RCS: $Id: srecode-args.el,v 1.6 2008/02/16 01:47:53 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -26,10 +26,24 @@
 ;; sets of dictionary words that need to be derived.  This file contains
 ;; a set of simple arguments for srecode templates.
 
-(require 'simple)
 (require 'srecode-insert)
 
 ;;; Code:
+
+;;; :blank
+;;
+;; Using :blank means that the template should force blank lines
+;; before and after the template, reguardless of where the insertion
+;; is occuring.
+;;;###autoload
+(defun srecode-semantic-handle-:blank (dict)
+  "Add macros into the dictionary DICT specifying blank line spacing.
+The wrapgap means make sure the first and last lines of the macro
+do not contain any text from preceeding or following text."
+  ;; This won't actually get used, but it might be nice
+  ;; to know about it.
+  (srecode-dictionary-set-value dict "BLANK" t)
+  )
 
 ;;; :indent ARGUMENT HANDLING
 ;;
@@ -37,8 +51,37 @@
 ;; for the current major mode.
 ;;;###autoload
 (defun srecode-semantic-handle-:indent (dict)
-  "Add macros into the dictionary DICT based on the current :user."
+  "Add macros into the dictionary DICT for indentation."
   (srecode-dictionary-set-value dict "INDENT" t)
+  )
+
+;;; :region ARGUMENT HANDLING
+;;
+;; When a :region argument is required, provide macros that
+;; deal with that active region.
+;;
+;; Regions allow a macro to wrap the region text within the
+;; template bounds.
+;;
+(defvar srecode-handle-region-when-non-active-flag nil
+  "Non-nil means do region handling w/out the region being active.")
+
+;;;###autoload
+(defun srecode-semantic-handle-:region (dict)
+  "Add macros into the dictionary DICT based on the current :region."
+  ;; Only enable the region section if we can clearly show that
+  ;; the user is intending to do something with the region.
+  (when (or srecode-handle-region-when-non-active-flag
+	    (eq last-command 'mouse-drag-region)
+	    (and transient-mark-mode mark-active))
+    ;; Show the region section
+    (srecode-dictionary-show-section dict "REGION")
+    (srecode-dictionary-set-value
+     dict "REGIONTEXT" (buffer-substring-no-properties (point) (mark)))
+    ;; Only whack the region if our template output
+    ;; is also destined for the current buffer.
+    (when (eq standard-output (current-buffer))
+      (kill-region (point) (mark))))
   )
 
 ;;; :user ARGUMENT HANDLING

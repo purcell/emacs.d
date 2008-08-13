@@ -1,6 +1,6 @@
 ;;; srecode-getset.el --- 
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -28,30 +28,44 @@
 (require 'srecode-insert)
 (require 'srecode-dictionary)
 
+;;;###autoload
+(eval-after-load "srecode-mode"
+  ;; Once SRecode mode is loaded, then lets add ourself to the keymap.
+  '(progn
+     (srecode-add-code-generator 'srecode-insert-getset
+				 "Get/Set"
+				 "G")
+
+     ))
+
 ;;; Code:
-(defcustom srecode-getset-template-file-alist
-  '( ( c++-mode . "srecode-getset-cpp.srt" )
-     )
-  ;; @todo - Make this variable auto-generated from the Makefile.
-  "List of template files for getsest associated with a given major mode."
-  :group 'srecode
-  :type '(repeat (cons (sexp :tag "Mode")
-		       (sexp :tag "Filename"))
-		 ))
+(defvar srecode-insert-getset-fully-automatic-flag nil
+  "Non-nil means accept choices srecode comes up with without asking.")
 
 ;;;###autoload
-(defun srecode-insert-getset ()
-  "Insert get/set methods for the current class."
+(defun srecode-insert-getset (&optional class-in field-in)
+  "Insert get/set methods for the current class.
+CLASS-IN is the semantic tag of the class to update.
+FIELD-IN is the semantic tag, or string name, of the field to add.
+If you do not specify CLASS-IN or FIELD-IN then a class and field
+will be derived."
   (interactive)
 
   (srecode-load-tables-for-mode major-mode)
-  (srecode-load-tables-for-mode major-mode srecode-getset-template-file-alist)
+  (srecode-load-tables-for-mode major-mode 'getset)
 
   (if (not (srecode-table))
       (error "No template table found for mode %s" major-mode))
 
+  (if (not (srecode-template-get-table (srecode-table)
+				       "getset-in-class"
+				       "declaration"
+				       'getset))
+      (error "No templates for inserting get/set"))
+
   ;; Step 1: Try to derive the tag for the class we will use
-  (let* ((class (srecode-auto-choose-class (point)))
+  (let* ((start (point-marker))
+	 (class (or class-in (srecode-auto-choose-class (point))))
 	 (inclass (eq (semantic-current-tag-of-class 'type) class))
 	 (field nil)
 	 )
@@ -59,7 +73,10 @@
       (error "Move point to a class and try again"))
 
     ;; Step 2: Select a name for the field we will use.
-    (when inclass
+    (when field-in
+      (setq field field-in))
+
+    (when (and inclass (not field))
       (setq field (srecode-auto-choose-field (point))))
 
     (when (not field)
@@ -68,13 +85,38 @@
     ;; Step 3: Insert a new field if needed
     (when (stringp field)
 
-      ;; Ack.. auto-create is hard.  Do it later.
-      (error "You must select a pre-existing field")
-
+      (goto-char (point))
       (srecode-position-new-field class inclass)
+
+      (let* ((dict (srecode-create-dictionary))
+	     (temp (srecode-template-get-table (srecode-table)
+					       "getset-field"
+					       "declaration"
+					       'getset))
+	     )
+	(when (not temp)
+	  (error "Getset templates for %s not loaded!" major-mode))
+	(srecode-resolve-arguments temp dict)
+	(srecode-dictionary-set-value dict "NAME" field)
+	(when srecode-insert-getset-fully-automatic-flag
+	  (srecode-dictionary-set-value dict "TYPE" "int"))
+	(srecode-insert-fcn temp dict)
+
+	(semantic-fetch-tags)
+	(let ((tmptag (semantic-deep-find-tags-by-name-regexp
+		       field (current-buffer))))
+	  (setq tmptag (semantic-find-tags-by-class 'variable tmptag))
+
+	  (if tmptag
+	      (setq field (car tmptag))
+	    (error "Could not find new field %s" field)))
+	)
 
       ;; Step 3.5: Insert an initializer if needed.
       ;; ...
+      
+
+      ;; Set up for the rest.
       )
 
     (if (not (semantic-tag-p field))
@@ -142,11 +184,14 @@ INCLASS specifies if the cursor is already in CLASS or not."
     (setq aftertag (semantic-find-first-tag-by-name
 		    setname (semantic-tag-type-members class)))
 
-    (if (not aftertag)
-	(setq aftertag (car-safe
-			(semantic--find-tags-by-macro
-			 (semantic-tag-get-attribute (car tags) :destructor-flag)
-			 (semantic-tag-type-members class))))
+    (when (not aftertag)
+      (setq aftertag (car-safe
+		      (semantic--find-tags-by-macro
+		       (semantic-tag-get-attribute (car tags) :destructor-flag)
+		       (semantic-tag-type-members class))))
+      ;; Make sure the tag is public
+      (when (not (eq (semantic-tag-protection aftertag class) 'public))
+	(setq aftertag nil))
       )
 
     (if (not aftertag)
@@ -154,6 +199,9 @@ INCLASS specifies if the cursor is already in CLASS or not."
 			(semantic--find-tags-by-macro
 			 (semantic-tag-get-attribute (car tags) :constructor-flag)
 			 (semantic-tag-type-members class))))
+      ;; Make sure the tag is public
+      (when (not (eq (semantic-tag-protection aftertag class) 'public))
+	(setq aftertag nil))
       )
 
     (if (not aftertag)
@@ -164,11 +212,30 @@ INCLASS specifies if the cursor is already in CLASS or not."
 	(setq aftertag (car (semantic-tag-type-members class))))
 
     (if aftertag
-	(goto-char (semantic-tag-end aftertag))
-      ;; At the beginning.
+	(progn
+	  (goto-char (semantic-tag-end aftertag))
+	  ;; If there is a comment immediatly after aftertag, skip over it.
+	  (when (looking-at (concat "\\s-*\n?\\s-*" semantic-lex-comment-regex))
+	    (let ((pos (point))
+		  (rnext (semantic-find-tag-by-overlay-next (point))))
+	      (forward-comment 1)
+	      ;; Make sure the comment we skipped didn't say anything about
+	      ;; the rnext tag.
+	      (when (and rnext
+			 (re-search-backward
+			  (regexp-quote (semantic-tag-name rnext)) pos t))
+		;; It did mention rnext, so go back to our starting position.
+		(goto-char pos)
+		)
+	      ))
+	  )
+
+      ;; At the very beginning of the class.
       (goto-char (semantic-tag-end class))
       (forward-sexp -1)
-      (forward-char 1))
+      (forward-char 1)
+
+      )
 
     (end-of-line)
     (forward-char 1)
@@ -182,6 +249,8 @@ and should not be moved during point selection."
   ;; If we aren't in the class, get the cursor there, pronto!
   (when (not inclass)
 
+    (error "You must position the cursor where to insert the new field")
+
     (let ((kids (semantic-find-tags-by-class
 		 'variable (semantic-tag-type-members class))))
       (cond (kids
@@ -190,14 +259,16 @@ and should not be moved during point selection."
 	     (semantic-go-to-tag class)))
       )
 
-    (switch-to-buffer (current-buffer)))
+    (switch-to-buffer (current-buffer))
 
-  
-  
-  ;; Once the cursor is in our class, ask the user to position
-  ;; the cursor to keep going.
-  
+    ;; Once the cursor is in our class, ask the user to position
+    ;; the cursor to keep going.
+    )
 
+  (if (or srecode-insert-getset-fully-automatic-flag
+	  (y-or-n-p "Insert new field here? "))
+      nil
+    (error "You must position the cursor where to insert the new field first"))
   )
 
 
@@ -213,11 +284,13 @@ Base selection on the field related to POINT."
       
       ;; If we get a field, make sure the user gets a chance to choose.
       (when field
-	(when (not (y-or-n-p
-		    (format "Use field %s? " (semantic-tag-name field))))
-	  (setq field nil))
-
-      field))))
+	(if srecode-insert-getset-fully-automatic-flag
+	    nil
+	  (when (not (y-or-n-p
+		      (format "Use field %s? " (semantic-tag-name field))))
+	    (setq field nil))
+	  ))
+      field)))
 
 (defun srecode-query-for-field (class)
   "Query for a field in CLASS."

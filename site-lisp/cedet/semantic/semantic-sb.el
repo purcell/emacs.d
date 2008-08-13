@@ -1,10 +1,10 @@
 ;;; semantic-sb.el --- Semantic tag display for speedbar
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-sb.el,v 1.58 2007/02/19 02:52:50 zappo Exp $
+;; X-RCS: $Id: semantic-sb.el,v 1.60 2008/06/10 00:43:28 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -94,7 +94,7 @@ Restore the old current buffer when completed."
 ;;
 ;;  +>  -> click to see additional information
 
-(define-overload semantic-sb-tag-children-to-expand (tag)
+(define-overloadable-function semantic-sb-tag-children-to-expand (tag)
   "For TAG, return a list of children that TAG expands to.
 If this returns a value, then a +> icon is created.
 If it returns nil, then a => icon is created.")
@@ -297,7 +297,7 @@ TEXT TOKEN and INDENT are the details."
   (let ((file
 	 (or
 	  (cond ((fboundp 'speedbar-line-path)
-		 (speedbar-line-path indent))
+		 (speedbar-line-directory indent))
 		((fboundp 'speedbar-line-directory)
 		 (speedbar-line-directory indent)))
 	  ;; If speedbar cannot figure this out, extract the filename from

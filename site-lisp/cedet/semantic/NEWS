@@ -122,6 +122,13 @@ A `semantic-simple-lexer' that ignores comments and whitespace, and
 returns tokens corresponding to syntax as specified by the syntax
 table.
 
+*** Lexical support for a pre-processor
+
+semantic-lex-spp.el is a new library for handling preprocessor style
+commands at lexical analysis time.  You can create ifdef/else/end
+style blocks which will cut out lexical tokens that aren't to be
+processed, and also substitue named symbols with other lexical values.
+
 *** `semantic-lex' core "overload" function.
 
 Called to lexically analyze text in an area of the current buffer.
@@ -413,6 +420,10 @@ Representation of a database belonging to system libraries.
 These databases may not come from source code, and can represent
 object files, header file libraries and the like.
 
+*** `semanticdb-create-system-database'
+Interactive command to create a system database, and bind it into
+your search space.
+
 *** `semanticdb-project-database-system'
 Baseclass for any system database.
 
@@ -428,6 +439,14 @@ Table representing search results for Emacs Lisp symbols.
 
 *** `semanticdb-project-database-emacs-lisp'
 Database representing Emacs' internal symbol obarray.
+
+** semanticdb-ebrowse.el
+Special system database using ebrowse as a backend for providing C/C++
+tagging information.
+
+*** `semanticdb-create-ebrowse-database'
+Interactive command to create an ebrowse database, and bind it into
+your search space.
 
 ** semanticdb-mk
 Routines for building semantic.cache files from a command line script.
@@ -470,6 +489,10 @@ tags.  It absorbs the duties of:
 
 ** `semantic-show-tag-boundaries-mode': obsolete
 ** `semantic-highlight-by-attribute-mode': obsolete
+
+** `semantic-mru-bookmark-mode'
+Track tags you've edited, and provide C-x B keybinding to jump back to
+previously edited tags.
 
 * Hooks.
 

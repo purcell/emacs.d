@@ -1,12 +1,12 @@
 ;;; senator.el --- SEmantic NAvigaTOR
 
-;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 by David Ponce
+;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by David Ponce
 
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 10 Nov 2000
 ;; Keywords: syntax
-;; X-RCS: $Id: senator.el,v 1.116 2007/02/19 02:55:09 zappo Exp $
+;; X-RCS: $Id: senator.el,v 1.126 2008/06/10 00:43:44 zappo Exp $
 
 ;; This file is not part of Emacs
 
@@ -447,16 +447,24 @@ type context exists at point."
 Uses `semanticdb' when available."
   (let ((tagsa nil)
 	(tagsb nil))
-    (if (and (featurep 'semantic-analyze))
-	(setq tagsa (semantic-analyze-possible-completions
-		     (semantic-analyze-current-context))))
-    (setq tagsb
-	  (if (and (featurep 'semanticdb) (semanticdb-minor-mode-p))
-	      ;; semanticdb version returns a list of (DB-TABLE . TAG-LIST)
-	      (semanticdb-deep-find-tags-for-completion prefix)
-	    ;; semantic version returns a TAG-LIST
-	    (semantic-deep-find-tags-for-completion prefix (current-buffer))))
-    (append tagsa (semanticdb-strip-find-results tagsb))))
+    (when (and (featurep 'semantic-analyze))
+      (let ((ctxt (semantic-analyze-current-context)))
+	(when ctxt
+	  (condition-case nil
+	      (setq tagsa (semantic-analyze-possible-completions
+			   ctxt))
+	    (error nil)))))
+
+    (if tagsa
+	tagsa
+      ;; If the analyzer fails, then go into boring completion
+      (setq tagsb
+	    (if (and (featurep 'semanticdb) (semanticdb-minor-mode-p))
+		;; semanticdb version returns a list of (DB-TABLE . TAG-LIST)
+		(semanticdb-deep-find-tags-for-completion prefix)
+	      ;; semantic version returns a TAG-LIST
+	      (semantic-deep-find-tags-for-completion prefix (current-buffer))))
+      (semanticdb-fast-strip-find-results tagsb))))
 
 ;;; Senator stream searching functions: no more supported.
 ;;
@@ -757,9 +765,13 @@ Of the form (BUFFER STARTPOS INDEX REGEX COMPLIST...)")
 
 (defsubst senator-current-symbol-start ()
   "Return position of start of the current symbol under point or nil."
-  (condition-case nil
-      (save-excursion (forward-sexp -1) (point))
-    (error nil)))
+  (let* ((sb (semantic-ctxt-current-symbol-and-bounds (point)))
+	 (bounds (nth 2 sb)))
+    (car bounds)))
+
+;;  (condition-case nil
+;;      (save-excursion (forward-sexp -1) (point))
+;;    (error nil)))
 
 ;;;###autoload
 (defun senator-complete-symbol (&optional cycle-once)
@@ -790,7 +802,7 @@ of completions once, doing nothing where there are no more matches."
                                                             0
                                                             regex)
                                                       complst))))
-    ;; Do the completion if apropriate.
+    ;; Do the completion if appropriate.
     (if complst
         (let ((ret   t)
               (index (nth 2 senator-last-completion-stats))
@@ -1291,7 +1303,7 @@ Some tags such as includes have other reference features."
       (switch-to-buffer (current-buffer))
       (semantic-momentary-highlight-tag newtag))))
 
-(define-overload semantic-up-reference (tag)
+(define-overloadable-function semantic-up-reference (tag)
   "Return a tag that is referredto by TAG.
 A \"reference\" could be any interesting feature of TAG.
 In C++, a function may have a 'parent' which is non-local.
@@ -1692,6 +1704,7 @@ minor mode entry."
    )
  '((semantic-idle-scheduler-idle-time)
    (semantic-idle-scheduler-max-buffer-size)
+   (semantic-idle-scheduler-verbose-flag)
    )
  )
 
@@ -1704,6 +1717,8 @@ minor mode entry."
    :help "Show tag summaries in idle time in all buffers."
    :save global-semantic-idle-summary-mode
    )
+ '((semantic-idle-summary-function)
+   )
  )
 
 (senator-register-mode-menu-entry
@@ -1714,6 +1729,8 @@ minor mode entry."
  '(global-semantic-idle-completions-mode
    :help "Show completion tips in idle time in all buffers."
    :save global-semantic-idle-completions-mode
+   )
+ '((semantic-complete-inline-analyzer-displayor-class)
    )
  )
 
@@ -1737,8 +1754,16 @@ minor mode entry."
    :help "Automatically enable decoration mode in all Semantic buffers."
    :save global-semantic-decoration-mode
    )
- 
- )
+  )
+
+(senator-register-mode-menu-entry
+ "MRU Bookmark"
+ nil
+ '(global-semantic-mru-bookmark-mode
+   :help "Automatically enable MRU bookmark tracking at a tag level."
+   :save global-semantic-mru-bookmark-mode
+   )
+  )
 
 
 ;;;;
@@ -1852,9 +1877,9 @@ This is a buffer local variable.")
       ])
     (senator-menu-item
      ["Jump to any tag..."
-      semantic-complete-jump-local
+      semantic-complete-jump
       :active t
-      :help "Jump to a semantic symbol"
+      :help "Jump to any semantic symbol in this project"
       ])
     (senator-menu-item
      ["Narrow to tag"
@@ -2018,10 +2043,10 @@ This is a buffer local variable.")
    (list
     "Analyze"
     (senator-menu-item
-     [ "Speedbar Class Browser"
-       semantic-cb-speedbar-mode
+     [ "Inline Smart completion"
+       semantic-complete-analyze-inline
        :active t
-       :help "Start speedbar in Class Broswer mode showing inheritance"
+       :help "Complete the symbol in the current buffer."
        ])
     (senator-menu-item
      [ "Speedbar Analyzer Mode"
@@ -2040,6 +2065,12 @@ This is a buffer local variable.")
        semantic-analyze-possible-completions
        :active t
        :help "Show a dump of the semantic analyzer's guess at possible completions"
+       ])
+    (senator-menu-item
+     [ "Analyzer Debug Assitant"
+       semantic-analyze-debug-assist
+       :active t
+       :help "Debug why the analyzer may not be working for you."
        ])
     )
    (list
@@ -2061,6 +2092,12 @@ This is a buffer local variable.")
        semantic-chart-database-size
        :active (and (featurep 'semanticdb) (semanticdb-minor-mode-p))
        :help "Choose the files with the most tags, and chart them by volume"
+       ])
+    (senator-menu-item
+     [ "Chart Analyzer Overhead"
+       semantic-chart-analyzer
+       :active t
+       :help "Calculate the overhead of running the analyzer, and chart it out."
        ])
     )
    (if (or (featurep 'xemacs) (> emacs-major-version 20))
@@ -2642,6 +2679,9 @@ Use Semantic, or the semantic database to look up possible
 completions.  The argument OLD has to be nil the first call of this
 function.  It returns t if a unique, possibly partial, completion is
 found, nil otherwise."
+
+  ;;@TODO - Can I support smart completion in here?
+
   (if (semantic-active-p)
       (let (symstart)
         ;; If the hippie says so, start over.
@@ -2804,16 +2844,36 @@ Use a senator search function when semantic isearch mode is enabled."
   [(control ?,)]
   'senator-isearch-toggle-semantic-mode)
 
+(defvar senator-old-isearch-search-fun nil
+  "Hold previous value of `isearch-search-fun-function'.")
+
 (defun senator-isearch-mode-hook ()
   "Isearch mode hook to setup semantic searching."
   (or senator-minor-mode
       (setq senator-isearch-semantic-mode nil))
   (when (boundp 'isearch-search-fun-function)
     (if (and isearch-mode senator-isearch-semantic-mode)
-        (set (make-local-variable 'isearch-search-fun-function)
-             'senator-isearch-search-fun)
-      (kill-local-variable 'isearch-search-fun-function)))
+        (progn
+          ;; When `senator-isearch-semantic-mode' is on save the
+          ;; previous `isearch-search-fun-function' and install the
+          ;; senator one.
+          (when (and (local-variable-p 'isearch-search-fun-function)
+                     (not (local-variable-p 'senator-old-isearch-search-fun)))
+            (set (make-local-variable 'senator-old-isearch-search-fun)
+                 isearch-search-fun-function))
+          (set (make-local-variable 'isearch-search-fun-function)
+               'senator-isearch-search-fun))
+      ;; When `senator-isearch-semantic-mode' is off restore the
+      ;; previous `isearch-search-fun-function'.
+      (when (eq isearch-search-fun-function 'senator-isearch-search-fun)
+        (if (local-variable-p 'senator-old-isearch-search-fun)
+            (progn
+              (set (make-local-variable 'isearch-search-fun-function)
+                   senator-old-isearch-search-fun)
+              (kill-local-variable 'senator-old-isearch-search-fun))
+          (kill-local-variable 'isearch-search-fun-function)))))
   (senator-mode-line-update))
+
 
 (add-hook 'isearch-mode-hook     'senator-isearch-mode-hook)
 (add-hook 'isearch-mode-end-hook 'senator-isearch-mode-hook)

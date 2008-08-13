@@ -1,9 +1,9 @@
 ;;; semantic-scm.el --- Semantic details for Scheme (guile)
 
-;;; Copyright (C) 2001, 2002, 2003, 2004 Eric M. Ludlam
+;;; Copyright (C) 2001, 2002, 2003, 2004, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-scm.el,v 1.13 2005/09/30 20:22:29 zappo Exp $
+;; X-RCS: $Id: semantic-scm.el,v 1.14 2008/04/01 01:52:10 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -34,13 +34,12 @@
 
 ;;; Code:
 
-(defcustom semantic-default-scheme-path '("/usr/share/guile/")
+(defcustom-mode-local-semantic-dependency-system-include-path
+  scheme-mode semantic-default-scheme-path
+  '("/usr/share/guile/")
   "Default set of include paths for scheme (guile) code.
-Used by `semantic-inc' to define an include path.  This should
-probably do some sort of search to see what is actually on the local
-machine."
-  :group 'scheme
-  :type '(repeat (string :tag "Path")))
+This should probably do some sort of search to see what is
+actually on the local machine.")
 
 (define-mode-local-override semantic-format-tag-prototype scheme-mode (tag)
   "Return a prototype for the Emacs Lisp nonterminal TAG."
@@ -95,7 +94,6 @@ syntax as specified by the syntax table."
                                             (include  . "Loads")
                                             (package  . "DefineModule"))
         imenu-create-index-function 'semantic-create-imenu-index
-        semantic-dependency-include-path semantic-default-scheme-path
         imenu-create-index-function 'semantic-create-imenu-index
         document-comment-start ";;"
         document-comment-line-prefix ";;"

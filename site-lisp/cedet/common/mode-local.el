@@ -1,12 +1,13 @@
 ;;; mode-local.el --- Support for mode local facilities
 ;;
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 ;; Copyright (C) 2004, 2005 David Ponce
 ;;
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 27 Apr 2004
 ;; Keywords: syntax
-;; X-RCS: $Id: mode-local.el,v 1.10 2006/01/30 12:51:20 ponced Exp $
+;; X-RCS: $Id: mode-local.el,v 1.13 2008/05/17 13:00:24 zappo Exp $
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -44,6 +45,8 @@
 
 ;; To Do:
 ;; Allow customization of a variable for a specific mode?
+;;
+;; Add mecro for defining the '-default' functionality.
 
 ;;; History:
 ;;
@@ -504,7 +507,7 @@ See also the function `define-overload'."
         (list (mode-local--override name args body))
       result)))
 
-(defmacro define-overload (name args docstring &rest body)
+(defmacro define-overloadable-function (name args docstring &rest body)
   "Define a new function, as with `defun' which can be overloaded.
 NAME is the name of the function to create.
 ARGS are the arguments to the function.
@@ -535,6 +538,8 @@ OVERARGS is a list of arguments passed to the override and
      (put ',name 'mode-local-overload t)))
 (put :override-with-args 'lisp-indent-function 1)
 
+(defalias 'define-overload 'define-overloadable-function)
+
 (defsubst function-overload-p (symbol)
   "Return non-nil if SYMBOL is a function which can be overloaded."
   (and symbol (symbolp symbol) (get symbol 'mode-local-overload)))
@@ -562,6 +567,14 @@ BODY is the implementation of this function."
                         '(override-flag t)
                         ',mode))
     ))
+
+;;; Read/Query Support
+;;
+;;;###autoload
+(defun mode-local-read-function (prompt &optional initial hist default)
+  "Interactively read in the name of a mode-local function.
+PROMPT, INITIAL, HIST, and DEFAULT are the same as for `completing-read'."
+  (completing-read prompt obarray 'function-overload-p t initial hist default))
 
 ;;; Help support
 ;;
@@ -740,6 +753,7 @@ invoked interactively."
                   "define-mode-local-override"
                   "define-child-mode"
                   "define-overload"
+                  "define-overloadable-function"
                   ;;"make-obsolete-overload"
                   "with-mode-local"
                   ) t))

@@ -3,18 +3,18 @@
  * Do not include things tested in test.c since that shares the
  * same language.
  *
- * $Id: test.cpp,v 1.21 2007/02/03 03:07:20 zappo Exp $
+ * $Id: test.cpp,v 1.22 2008/05/17 20:12:55 zappo Exp $
  *
  */
 
 /* An include test */
+#include <stdio.h>
+
 #include <cmath>
 
 #include "c++-test.hh"
 
 #include <c++-test.hh>
-
-#include <stdio.h>
 
 double var1 = 1.2;
 
@@ -112,6 +112,7 @@ int class3::method1_for_class3( int a, int &b)
 {
   int cvariablename;
   class3 fooy[];
+  class3 moose = new class3;
 
   // Complktion testing line should find external members.
   a = fooy[1].me ;
@@ -148,7 +149,9 @@ void *class3::method4_for_class3( int a, int b) reentrant
 {
   class3 ct;
 
-  ct.method5_for_class3(1,a)
+  ct.method5_for_class3(1,a);
+
+  pritf();
 }
 
 /*
@@ -156,6 +159,20 @@ void *class3::method4_for_class3( int a, int b) reentrant
  */
 void *class3::method5_for_class3( int a, int b) const
 {
+}
+
+/*
+ * Namespace parsing tests
+ */
+namespace NS {
+  class class_in_namespace {
+    int equiv(const NS::class_in_namespace *) const;
+  };
+}
+
+int NS::class_in_namespace::equiv(const NS::class_in_namespace *cin) const
+{
+  return 0;
 }
 
 // Stuff Klaus found.
@@ -236,6 +253,8 @@ int extern_c_1(int a, int b)
 
   funny_prototype(1,2,3.4);
 
+  printf("Moose", );
+
   return 1;
 }
 
@@ -252,12 +271,14 @@ extern "C" {
 class Action
 {
   // Problems!! operator() and operator[] can not be parsed with semantic
-  // 1.4.2 but with latest c.bnf
+  // 1.4.2 but with latest c.by
   virtual void operator()(int i, char *p ) = 0;
   virtual String& operator[]() = 0;
   virtual void operator!() = 0;
   virtual void operator->() = 0;
   virtual T& operator+=();
+  virtual T& operator*();
+  virtual T& operator*=();
 };
 
 // class with namespace qualified parents
@@ -316,6 +337,9 @@ const CT& max (const CT& a, const CT& b)
 {
   return a < b ? b : a;
 }
+
+// Arne Schmitz found this one
+std::vector<int> &a, &b, &c;
 
 class TemplateUsingClass
 {

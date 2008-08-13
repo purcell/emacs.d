@@ -1,6 +1,6 @@
 ;;; srecode-table.el --- Tables of Semantic Recoders
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -33,10 +33,36 @@
 ;;; TEMPLATE TABLE
 ;;
 (defclass srecode-template-table ()
-  ((file :initarg :file
+  (;;
+   ;; Raw file tracking
+   ;;
+   (file :initarg :file
 	 :type string
 	 :documentation
 	 "The name of the file this table was built from.")
+   (filesize :initarg :filesize
+	     :type number
+	     :documentation
+	     "The size of the file when it was parsed.")
+   (filedate :initarg :filedate
+	     :type cons
+	     :documentation
+	     "Date from the inode of the file when it was last edited.
+Format is from the `file-attributes' function.")
+   (major-mode :initarg :major-mode
+	       :documentation
+	       "The major mode this table of templates is associated with.")
+   ;;
+   ;; Template file sorting data
+   ;;
+   (application :initarg :application
+		:type symbol
+		:documentation
+		"Tracks the name of the application these templates belong to.
+If this is nil, then this template table belongs to a set of generic
+templates that can be used with no additional dictionary values.
+When it is non-nil, it is assumed the template macros need specialized
+Emacs Lisp code to fill in the dictoinary.")
    (priority :initarg :priority
 	     :type number
 	     :documentation
@@ -44,6 +70,9 @@
 When there are multiple template files with similar names, templates with
 the highest priority are scanned last, allowing them to override values in
 previous template files.")
+   ;;
+   ;; Parsed Data from the template file
+   ;;
    (templates :initarg :templates
 	      :type list
 	      :documentation
@@ -58,17 +87,6 @@ previous template files.")
 	      :documentation
 	      "AList of variables.
 These variables are used to initialize dictionaries.")
-   (major-mode :initarg :major-mode
-	       :documentation
-	       "The major mode this table of templates is associated with.")
-   (application :initarg :application
-		:type symbol
-		:documentation
-		"Tracks the name of the application these templates belong to.
-If this is nil, then this template table belongs to a set of generic
-templates that can be used with no additional dictionary values.
-When it is non-nil, it is assumed the template macros need specialized
-Emacs Lisp code to fill in the dictoinary.")
    )
   "Semantic recoder template table.
 A Table contains all templates from a single .srt file.
@@ -125,9 +143,12 @@ Return nil if there was none."
 INIT are the initialization parametrs for the new template table."
   (let* ((mt (srecode-make-mode-table mode))
 	 (old (srecode-mode-table-find mt file))
+	 (attr (file-attributes file))
 	 (new (apply 'srecode-template-table
 		     (file-name-nondirectory file)
 		     :file file
+		     :filesize (nth 7 attr)
+		     :filedate (nth 5 attr)
 		     :major-mode mode
 		     init
 		     )))
@@ -160,17 +181,20 @@ Use PREDICATE is the same as for the `sort' function."
 (defun srecode-dump-templates (mode)
   "Dump a list of the current templates for MODE."
   (interactive "sMode: ")
-  (srecode-load-tables-for-mode (intern-soft mode))
-  (let ((tmp (srecode-get-mode-table
-	      (cond ((or (not mode) (string= mode ""))
-		     major-mode)
-		    (t (intern-soft mode)))))
-	)
-    (if (not tmp)
-	(error "No table found for mode %s" mode))
-    (with-output-to-temp-buffer "*SRECODE DUMP*"
-      (srecode-dump tmp))
-    ))
+  (let ((modesym (cond ((string= mode "")
+			major-mode)
+		       ((not (string-match "-mode" mode))
+			(intern-soft (concat mode "-mode")))
+		       (t
+			(intern-soft mode)))))
+    (srecode-load-tables-for-mode modesym)
+    (let ((tmp (srecode-get-mode-table modesym))
+	  )
+      (if (not tmp)
+	  (error "No table found for mode %S" modesym))
+      (with-output-to-temp-buffer "*SRECODE DUMP*"
+	(srecode-dump tmp))
+      )))
 
 (defmethod srecode-dump ((tab srecode-mode-table))
   "Dump the contents of the SRecode mode table TAB."
@@ -191,6 +215,9 @@ Use PREDICATE is the same as for the `sort' function."
   (princ (object-name-string tab))
   (princ "\nPriority: ")
   (prin1 (oref tab :priority))
+  (when (oref tab :application)
+    (princ "\nApplication: ")
+    (princ (oref tab :application)))
   (princ "\n\nVariables:\n")
   (let ((vars (oref tab variables)))
     (while vars
@@ -207,6 +234,7 @@ Use PREDICATE is the same as for the `sort' function."
       (srecode-dump (car temp))
       (setq temp (cdr temp))))
   )  
+
 
 (provide 'srecode-table)
 

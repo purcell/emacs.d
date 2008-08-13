@@ -1,9 +1,9 @@
 ;;; cedet-files.el --- Common routines dealing with file names.
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: cedet-files.el,v 1.1 2007/05/20 15:54:09 zappo Exp $
+;; X-RCS: $Id: cedet-files.el,v 1.2 2008/02/14 16:02:10 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -39,8 +39,7 @@ Converts directory seperation characters into ! characters."
   (let ((file referencedir)
 	dir-sep-string)
     ;; Expand to full file name
-    (or (file-name-absolute-p file)
-	(setq file (expand-file-name file)))
+    (setq file (file-truename file))
     ;; If FILE is a directory, then force it to end in /.
     (when (file-directory-p file)
       (setq file (file-name-as-directory file)))

@@ -1,6 +1,22 @@
 History of changes made to EIEIO
 
 
+Changes in EIEIO Version 1.1
+
+* Method `no-applicable-method' now has extra arguments which are
+  the arguments passed into the method with no-applicable-method.
+
+* `class-direct-superclasses', `class-direct-subclasses' are new CLOS
+   compatible aliases.
+
+* data-debug support
+  EIEIO now has support for the data-debug arbitrary data display tool.
+
+* Documentation Changes
+
+** The doc has been overhauled from Richard's comments.
+
+
 Changes In EIEIO Version 1.0
 
 * Method Invocation Changes

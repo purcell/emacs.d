@@ -41,16 +41,22 @@
 <H3>Base Tools are:</h3>
 </td></tr></table>
 
+<P><A HREF="eieio.shtml"> <B>EIEIO: Enhanced Implementation of Emacs
+   Interpreted Objects</B></A><br> is a package which implements a
+   <B>CLOS</B> subset for Emacs.  It includes examples which can draw
+   simple tree graphs, and bar charts.
+</p>
+
 <P><A HREF="semantic.shtml"><B>Semantic</B></A><br> is a
    Infrastructure for parser based text analysis in Emacs.  It creates
    parsers in Emacs Lisp.  Includes interfaces to all common tag-like
    features in Emacs.
 </P>
 
-<P><A HREF="eieio.shtml"> <B>EIEIO: Enhanced Implementation of Emacs
-   Interpreted Objects</B></A><br> is a package which implements a
-   <B>CLOS</B> subset for Emacs.  It includes examples which can draw
-   simple tree graphs, and bar charts.
+<P><A HREF="srecode.shtml"> <B>SRecode: Semantic Recoder</B></A><br>
+  is a template authoring and cataloging system.  Includes base
+  templates for several languages and sample SRecode applications.
+  <em>Currently available from CVS only.</em>
 </p>
 
 <P><B>CEDET/common:</B><br>
@@ -64,6 +70,7 @@
      <li>inversion - Package level versioning system.
      <li>ezimage - Simple way to declare and display images in all
        versions of Emacs.
+     <li>pulse - Fancy overlay color pulsing.
      <li>pprint - Pretty printer for Emacs Lisp values.
    </ul>
 </p>
@@ -95,18 +102,6 @@
 <?php
   include ("download.php")
 ?>
-</p>
-
-<table width=100% class=BAR><tr><td>
-<h3>Tools In Progress:</h3>
-</td></tr></table>
-
-<P><a href="srecode.shtml"><b>The Semantic Recoder</b></a><br>
-  SReocde is a Template manager and code writing system.
-  It takes managing large sets of complex templates to a new level of
-  sophistication.  With templates based loosely on Google ctemplate, and
-  the power of the Semantic tag system to provide values for the macros,
-  SRecode can write complex code for any language.
 </p>
 
 <table width=100% class=BAR><tr><td>

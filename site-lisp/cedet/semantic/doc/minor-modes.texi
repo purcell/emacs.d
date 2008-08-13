@@ -64,7 +64,7 @@ List of tag classes which sticky func will display in the header line.
 @cindex semantic-decoration-mode
 
 Decoration mode is a harness that allows any parsed tag to be
-highlighted based on some arbitrary feature of that tag.  Decoration
+decorated based on some arbitrary feature of that tag.  Decoration
 mode is actually a full harness for providing any kind of decoration
 on a tag based on a prefix function.
 
@@ -89,6 +89,69 @@ Decorations are specified in @code{semantic-decoration-styles}.
 With prefix argument @var{arg}, turn on if positive, otherwise off.
 Return non-@code{nil} if the decoration style is enabled.
 @end deffn
+
+@subsubsection Available decoration modes
+
+There are several decoration modes that comes with semantic.
+
+@defun Command semantic-tag-boundary-mode &optional arg
+Place an overline in front of each long tag.
+
+@deffn Option semantic-tag-boundary-face
+@anchor{semantic-tag-boundary-face}
+Face used to show long tags in.
+Used by decoration style: @code{semantic-tag-boundary}.
+@end deffn
+
+@end defun
+
+
+@defun Command semantic-decoration-on-private-members-mode &optional arg
+Highlight class members that are designated as PRIVATE access.
+
+@deffn Option semantic-decoration-on-private-members-face
+@anchor{semantic-decoration-on-private-members-face}
+Face used to show privately scoped tags in.
+Used by the decoration style: @code{semantic-decoration-on-private-members}.
+@end deffn
+@end defun
+
+@defun Command semantic-decoration-on-protected-members-mode &optional arg
+Highlight class members that are designated as PROTECTED access.
+
+@deffn Option semantic-decoration-on-protected-members-face
+@anchor{semantic-decoration-on-protected-members-face}
+Face used to show protected scoped tags in.
+Used by the decoration style: @code{semantic-decoration-on-protected-members}.
+@end deffn
+@end defun
+
+@deffn Command semantic-decoration-on-includes  &optional arg
+Highlight class members that are includes.
+This mode provides a nice context menu on the include statements.
+Use the menus to ask questions and get help on configuring semantic.
+
+@deffn Option semantic-decoration-on-includes
+@anchor{semantic-decoration-on-includes}
+Overlay Face used on includes that are not in some other state.
+Used by the decoration style: @code{semantic-decoration-on-includes}.
+@end deffn
+
+@deffn Option semantic-decoration-on-unknown-includes
+@anchor{semantic-decoration-on-unknown-includes}
+Face used to show includes that cannot be found.
+Used by the decoration style: @code{semantic-decoration-on-unknown-includes}.
+@end deffn
+
+@deffn Option semantic-decoration-on-unparsed-includes
+@anchor{semantic-decoration-on-unparsed-includes}
+Face used to show includes that have not yet been parsed.
+Used by the decoration style: @code{semantic-decoration-on-unparsed-includes}.
+@end deffn
+
+@end deffn
+
+@subsubsection Create New Decoration Modes
 
 You can create new types of decorations using the following function:
 
@@ -116,6 +179,7 @@ To add other kind of decorations on a tag, @code{NAME-highlight} must use
 @dfn{semantic-decorate-tag}, and other functions of the semantic
 decoration @var{api} found in this library.
 @end defun
+
 
 @node MRU Bookmarks Mode
 @subsection MRU Bookmarks Mode

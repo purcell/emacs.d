@@ -1,12 +1,12 @@
 ;;; cogre.el --- COnnected GRaph Editor for Emacs
 
-;;; Copyright (C) 2001, 2002, 2003, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 2001, 2002, 2003, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: graph, oop, extensions, outlines
-;; X-RCS: $Id: cogre.el,v 1.20 2007/04/15 00:52:11 zappo Exp $
+;; X-RCS: $Id: cogre.el,v 1.22 2008/07/03 01:40:14 zappo Exp $
 
-(defvar cogre-version "0.5"
+(defvar cogre-version "0.6"
   "Current version of Cogre.")
 
 ;; This file is not part of GNU Emacs.
@@ -34,10 +34,10 @@
 ;; source code.
 ;;
 
-(require 'cogre-load)
 (require 'eieio)
 (require 'eieio-opt)
 (require 'eieio-base)
+(require 'cogre-load)
 (require 'semantic)
 (eval-when-compile
   (require 'picture-hack))
@@ -60,6 +60,7 @@
   :type 'number)
 
 ;;; Classes
+;;;###autoload
 (defclass cogre-graph (eieio-persistent)
   ((extension :initform ".cgr") ;; Override the default
    (name :initarg :name
@@ -85,6 +86,7 @@ displayed in.")
 a connected graph contains a series of nodes and links which are
 rendered in a buffer, or serialized to disk.")
 
+;;;###autoload
 (defclass cogre-graph-element (eieio-named)
   ((dirty :initform t
 	  :documentation
@@ -114,6 +116,7 @@ Graph elements are anything that is drawn into a `cogre-graph'.
 Graph elements have a method for marking themselves dirty."
   :abstract t)
 
+;;;###autoload
 (defclass cogre-node (cogre-graph-element)
   ((position :initarg :position
 	     :initform [ 0 0 ]
@@ -152,6 +155,7 @@ Nodes are regions with a fill color, and some amount of text representing
 a status, or values."
   )
 
+;;;###autoload
 (defclass cogre-link (cogre-graph-element)
   ((start :initarg :start
 	  :initform nil

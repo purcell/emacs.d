@@ -81,6 +81,9 @@ Different Modes for Speedbar
 <h2>Speedbar Enabled tools:</h2>
 </td></tr></table>
 
+<P>Speedbar is a standard part of Emacs and XEmacs.  The CEDET version
+  and the version in Emacs diverge over time, and occasionally synchronize.
+
 <P>There are several speedbar enabled tools that you can download
    which may not come with your installed Emacs distribution.</p>
 
@@ -132,36 +135,5 @@ Different Modes for Speedbar
 
 <br clear=both>
 <!--#include file="download.php"-->
-
-<table width=100% class=BAR><tr><td>
-<h2>Downloading Earlier versions of speedbar</h2>
-</td></tr></table>
-
-<P>
-It was a beta that was stable for a long time.
-<a href="http://sourceforge.net/project/showfiles.php?group_id=17886">
-speedbar 0.14beta4</a>
-</p>
-
-<P>
-<a href="http://sourceforge.net/project/showfiles.php?group_id=17886">
-speedbar-0.13a.tar.gz</A>.  <br>There is a bug in the Makefile of
-speedbar 0.13a.  To build, use the command "make LOADPATH=." to work
-around the problem quickly.
-</P>
-
-<h3>RPMS</h3>
-
-<P>RPMS for speedbar can be downloaded from
-  <a href="http://sourceforge.net/projects/rte">Real Time Enterprises</a>
-  RPM site at sourceforge.</p>
-
-<h3>Even Older releases of Speedbar</h3>
-
-<P><A HREF="ftp/speedbar-0.12.tar.gz">
-speedbar-0.12.tar.gz</A>.</P>
-
-<P><A HREF="ftp/speedbar-0.11.1.tar.gz">
-speedbar-0.11.1.tar.gz</A></P>
 
 <!--#include file="footer.fsf.shtml"-->

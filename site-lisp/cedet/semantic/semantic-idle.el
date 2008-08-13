@@ -1,10 +1,10 @@
 ;;; semantic-idle.el --- Schedule parsing tasks in idle time
 
-;;; Copyright (C) 2003, 2004, 2005, 2006 Eric M. Ludlam
+;;; Copyright (C) 2003, 2004, 2005, 2006, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-idle.el,v 1.35 2006/09/12 01:16:12 zappo Exp $
+;; X-RCS: $Id: semantic-idle.el,v 1.49 2008/06/13 12:14:52 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -49,6 +49,9 @@
 (defvar semantic-idle-scheduler-timer nil
   "Timer used to schedule tasks in idle time.")
 
+(defvar semantic-idle-scheduler-work-timer nil
+  "Timer used to schedule tasks in idle time that may take a while.")
+
 (defcustom semantic-idle-scheduler-verbose-flag nil
   "*Non-nil means that the idle scheduler should provide debug messages.
 Use this setting to debug idle activities."
@@ -66,16 +69,35 @@ run as soon as Emacs is idle."
          (when (timerp semantic-idle-scheduler-timer)
            (cancel-timer semantic-idle-scheduler-timer)
            (setq semantic-idle-scheduler-timer nil)
-           (semantic-idle-scheduler-setup-timer))))
+           (semantic-idle-scheduler-setup-timers))))
 
-(defun semantic-idle-scheduler-setup-timer ()
+(defcustom semantic-idle-scheduler-work-idle-time 60
+  "*Time in seconds of idle before scheduling big work.
+This time should be long enough that once any big work is started, it is
+unlikely the user would be ready to type again right away."
+  :group 'semantic
+  :type 'number
+  :set (lambda (sym val)
+         (set-default sym val)
+         (when (timerp semantic-idle-scheduler-timer)
+           (cancel-timer semantic-idle-scheduler-timer)
+           (setq semantic-idle-scheduler-timer nil)
+           (semantic-idle-scheduler-setup-timers))))
+
+(defun semantic-idle-scheduler-setup-timers ()
   "Lazy initialization of the auto parse idle timer."
   ;; REFRESH THIS FUNCTION for XEMACS FOIBLES
   (or (timerp semantic-idle-scheduler-timer)
       (setq semantic-idle-scheduler-timer
             (run-with-idle-timer
              semantic-idle-scheduler-idle-time t
-             #'semantic-idle-scheduler-function))))
+             #'semantic-idle-scheduler-function)))
+  (or (timerp semantic-idle-scheduler-work-timer)
+      (setq semantic-idle-scheduler-work-timer
+            (run-with-idle-timer
+             semantic-idle-scheduler-work-idle-time t
+             #'semantic-idle-scheduler-work-function)))
+  )
 
 (defun semantic-idle-scheduler-kill-timer ()
   "Kill the auto parse idle timer."
@@ -153,7 +175,7 @@ minor mode is enabled."
             (setq semantic-idle-scheduler-mode nil)
             (error "Buffer %s was not set up idle time scheduling"
                    (buffer-name)))
-        (semantic-idle-scheduler-setup-timer)))
+        (semantic-idle-scheduler-setup-timers)))
   semantic-idle-scheduler-mode)
 
 ;;;###autoload
@@ -237,7 +259,11 @@ And also manages services that depend on tag values."
         (save-excursion
           ;; First, reparse the current buffer.
           (setq mode major-mode
-                safe (semantic-idle-scheduler-refresh-tags))
+                safe (semantic-safe "Idle Parse Error: %S"
+		       ;(error "Goofy error 1")
+		       (semantic-idle-scheduler-refresh-tags)
+		       )
+		)
           ;; Now loop over other buffers with same major mode, trying to
           ;; update them as well.  Stop on keypress.
           (dolist (b buffers)
@@ -245,7 +271,9 @@ And also manages services that depend on tag values."
             (with-current-buffer b
               (if (eq major-mode mode)
                   (and (semantic-idle-scheduler-enabled-p)
-                       (semantic-idle-scheduler-refresh-tags))
+		       (semantic-safe "Idle Parse Error: %S"
+			 ;(error "Goofy error")
+			 (semantic-idle-scheduler-refresh-tags)))
                 (push (current-buffer) others))))
           (setq buffers others))
         ;; If re-parse of current buffer completed, evaluate all other
@@ -262,7 +290,8 @@ And also manages services that depend on tag values."
               (semantic-throw-on-input 'idle-queue)
 	      (when semantic-idle-scheduler-verbose-flag
 		(working-temp-message "IDLE: execture service %s..." service))
-              (funcall service)
+	      (semantic-safe (format "Idle Service Error %s: %%S" service)
+		(funcall service))
 	      (when semantic-idle-scheduler-verbose-flag
 		(working-temp-message "IDLE: execture service %s...done" service))
 	      )))
@@ -279,16 +308,175 @@ And also manages services that depend on tag values."
   (when semantic-idle-scheduler-verbose-flag
     (working-temp-message "IDLE: Core handler...done")))
 
+(defun semantic-debug-idle-function ()
+  "Run the Semantic idle function with debugging turned on."
+  (interactive)
+  (let ((debug-on-error t))
+    (semantic-idle-core-handler)
+    ))
+  
 (defun semantic-idle-scheduler-function ()
   "Function run when after `semantic-idle-scheduler-idle-time'.
 This function will reparse the current buffer, and if successful,
 call additional functions registered with the timer calls."
   (when (zerop (recursion-depth))
-    (unwind-protect
-        (semantic-safe "idle error: %S"
-          ;; Handle re-parsing and other scheduled services
-          (save-match-data (semantic-idle-core-handler)))
+    (let ((debug-on-error nil))
+      (save-match-data (semantic-idle-core-handler))
       )))
+
+
+;;; WORK FUNCTION
+;;
+;; Unlike the shorter timer, the WORK timer will kick of tasks that
+;; may take a long time to complete.
+(defcustom semantic-idle-work-parse-neighboring-files-flag t
+  "*Non-nil means to parse files in the same dir as the current buffer.
+Disable to prevent lots of excessive parsing in idle time."
+  :group 'semantic
+  :type 'boolean)
+
+
+(defun semantic-idle-work-for-one-buffer (buffer)
+  "Do long-processing work for for BUFFER.
+Uses `semantic-safe' and returns the output.
+Returns t of all processing succeeded."
+  (save-excursion
+    (set-buffer buffer)
+    (not (and
+	  ;; Just in case
+	  (semantic-safe "Idle Work Parse Error: %S"
+	    (semantic-idle-scheduler-refresh-tags)
+	    t)
+
+	  ;; Force all our include files to get read in so we
+	  ;; are ready to provide good smart completion and idle
+	  ;; summary information
+	  (semantic-safe "Idle Work Including Error: %S"
+	    ;; Get the include related path.
+	    (when (and (featurep 'semanticdb)
+		       (semanticdb-minor-mode-p))
+	      (require 'semanticdb-find)
+	      (semanticdb-find-translate-path buffer nil)
+	      )
+	    t)
+
+	  ;; Pre-build the typecaches as needed.
+	  (semantic-safe "Idle Work Typecaching Error: %S"
+	    (when (featurep 'semanticdb-typecache)
+	      (semanticdb-typecache-refresh-for-buffer buffer))
+	    t)
+	  ))
+    ))
+
+(defun semantic-idle-work-core-handler ()
+  "Core handler for idle work processing of long running tasks.
+Visits semantic controlled buffers, and makes sure all needed
+include files have been parsed, and that the typecache is up to date.
+Uses `semantic-idle-work-for-on-buffer' to do the work."
+  (let ((errbuf nil)
+	(interrupted
+	 (semantic-exit-on-input 'idle-work-timer
+	   (let* ((inhibit-quit nil)
+		  (cb (current-buffer))
+		  (buffers (delq (current-buffer)
+				 (delq nil
+				       (mapcar #'(lambda (b)
+						   (and (buffer-file-name b)
+							b))
+					       (buffer-list)))))
+		  mode safe errbuf)
+	     ;; First, handle long tasks in the current buffer.
+	     (when (semantic-idle-scheduler-enabled-p)
+	       (save-excursion
+		 (setq mode major-mode
+		       safe (semantic-idle-work-for-one-buffer (current-buffer))
+		       )))
+	     (when (not safe) (push (current-buffer) errbuf))
+
+	     ;; Now loop over other buffers with same major mode, trying to
+	     ;; update them as well.  Stop on keypress.
+	     (dolist (b buffers)
+	       (semantic-throw-on-input 'parsing-mode-buffers)
+	       (with-current-buffer b
+		 (when (semantic-idle-scheduler-enabled-p)
+		   (and (semantic-idle-scheduler-enabled-p)
+			(unless (semantic-idle-work-for-one-buffer (current-buffer))
+			  (push (current-buffer) errbuf)))
+		   ))
+	       )
+
+	     ;; Save everything.
+	     (semanticdb-save-all-db-idle)
+
+	     ;; Parse up files near our active buffer
+	     (when semantic-idle-work-parse-neighboring-files-flag
+	       (semantic-safe "Idle Work Parse Neighboring Files: %S"
+		 (when (and (featurep 'semanticdb)
+			    (semanticdb-minor-mode-p))
+		   (set-buffer cb)
+		   (semantic-idle-scheduler-work-parse-neighboring-files))
+		 t)
+	       )
+
+	     ;; Save everything... again
+	     (semanticdb-save-all-db-idle)
+
+	     ;; Done w/ processing
+	     nil))))
+
+    ;; Done
+    (if interrupted
+	"Interrupted"
+      (cond ((not errbuf)
+	     "done")
+	    ((not (cdr errbuf))
+	     (format "done with 1 error in %s" (car errbuf)))
+	    (t
+	     (format "done with errors in %d buffers."
+		     (length errbuf)))))))
+
+(defun semantic-debug-idle-work-function ()
+  "Run the Semantic idle function with debugging turned on."
+  (interactive)
+  (let ((debug-on-error t))
+    (semantic-idle-work-core-handler)
+    ))
+
+(defun semantic-idle-scheduler-work-function ()
+  "Function run when after `semantic-idle-scheduler-work-idle-time'.
+This routine handles difficult tasks that require a lot of parsing, such as
+parsing all the header files used by our active sources, or building up complex
+datasets."
+  (when semantic-idle-scheduler-verbose-flag
+    (message "Long Work Idle Timer..."))
+  (let ((exit-type (save-match-data
+		     (semantic-idle-work-core-handler))))
+    (when semantic-idle-scheduler-verbose-flag
+      (message "Long Work Idle Timer...%s" exit-type)))
+  )
+
+(defun semantic-idle-scheduler-work-parse-neighboring-files ()
+  "Parse all the files in similar directories to buffers being edited."
+  ;; Lets check to see if EDE matters.
+  (let ((ede-auto-add-method 'never))
+    (dolist (a auto-mode-alist)
+      (when (eq (cdr a) major-mode)
+	(dolist (file (directory-files default-directory t (car a) t))
+	  (semantic-throw-on-input 'parsing-mode-buffers)
+	  (save-excursion
+	    (semanticdb-file-table-object file)
+	    ))))
+    ))
+
+(defun semantic-idle-pnf-test ()
+  "Test `semantic-idle-scheduler-work-parse-neighboring-files' and time it."
+  (interactive)
+  (let ((start (current-time))
+	(junk (semantic-idle-scheduler-work-parse-neighboring-files))
+	(end (current-time)))
+    (message "Work took %.2f seconds." (semantic-elapsed-time start end)))
+  )
+
 
 ;;; REPARSING
 ;;
@@ -329,63 +517,70 @@ reparse.
 
 Does nothing if the current buffer doesn't need reparsing."
 
-  ;; These checks actually occur in `semantic-fetch-tags', but if we
-  ;; do them here, then all the bovination hooks are not run, and
-  ;; we save lots of time.
-  (cond
-   ;; If the buffer was previously marked unparseable,
-   ;; then don't waste our time.
-   ((semantic-parse-tree-unparseable-p)
-    nil)
-   ;; The parse tree is already ok.
-   ((semantic-parse-tree-up-to-date-p)
-    t)
-   (t
-    ;; If these cases are true, then don't do any additional work.
-    (let* ((semantic-working-type nil)
-	   (inhibit-quit nil)
-	   (working-use-echo-area-p
-	    (not semantic-idle-scheduler-working-in-modeline-flag))
-	   (working-status-dynamic-type
-	    (if semantic-idle-scheduler-no-working-message
-		nil
-	      working-status-dynamic-type))
-	   (working-status-percentage-type
-	    (if semantic-idle-scheduler-no-working-message
-		nil
-	      working-status-percentage-type))
-	   (lexically-safe t)
-	   )
-      ;; Let people hook into this, but don't let them hose
-      ;; us over!
-      (condition-case nil
-	  (run-hooks 'semantic-before-idle-scheduler-reparse-hooks)
-	(error (setq semantic-before-idle-scheduler-reparse-hooks nil)))
+  (prog1
+      ;; These checks actually occur in `semantic-fetch-tags', but if we
+      ;; do them here, then all the bovination hooks are not run, and
+      ;; we save lots of time.
+      (cond
+       ;; If the buffer was previously marked unparseable,
+       ;; then don't waste our time.
+       ((semantic-parse-tree-unparseable-p)
+	nil)
+       ;; The parse tree is already ok.
+       ((semantic-parse-tree-up-to-date-p)
+	t)
+       (t
+	;; If the buffer might need a reparse and it is safe to do so,
+	;; give it a try.
+	(let* ((semantic-working-type nil)
+	       (inhibit-quit nil)
+	       (working-use-echo-area-p
+		(not semantic-idle-scheduler-working-in-modeline-flag))
+	       (working-status-dynamic-type
+		(if semantic-idle-scheduler-no-working-message
+		    nil
+		  working-status-dynamic-type))
+	       (working-status-percentage-type
+		(if semantic-idle-scheduler-no-working-message
+		    nil
+		  working-status-percentage-type))
+	       (lexically-safe t)
+	       )
+	  ;; Let people hook into this, but don't let them hose
+	  ;; us over!
+	  (condition-case nil
+	      (run-hooks 'semantic-before-idle-scheduler-reparse-hooks)
+	    (error (setq semantic-before-idle-scheduler-reparse-hooks nil)))
 
-      (unwind-protect
-	  ;; Perform the parsing.
-	  (progn
-	    (when semantic-idle-scheduler-verbose-flag
-	      (working-temp-message "IDLE: reparse %s..." (buffer-name)))
-	    (when (semantic-lex-catch-errors idle-scheduler
-		    (save-excursion (semantic-fetch-tags))
-		    nil)
-	      ;; If we are here, it is because the lexical step failed,
-	      ;; proably due to unterminated lists or something like that.
+	  (unwind-protect
+	      ;; Perform the parsing.
+	      (progn
+		(when semantic-idle-scheduler-verbose-flag
+		  (working-temp-message "IDLE: reparse %s..." (buffer-name)))
+		(when (semantic-lex-catch-errors idle-scheduler
+			(save-excursion (semantic-fetch-tags))
+			nil)
+		  ;; If we are here, it is because the lexical step failed,
+		  ;; proably due to unterminated lists or something like that.
 	    
-	      ;; We do nothing, and just wait for the next idle timer
-	      ;; to go off.  In the meantime, remember this, and make sure
-	      ;; no other idle services can get executed.
-	      (setq lexically-safe nil))
-	    (when semantic-idle-scheduler-verbose-flag
-	      (working-temp-message "IDLE: reparse %s...done" (buffer-name))))
-	;; Let people hook into this, but don't let them hose
-	;; us over!
-	(condition-case nil
-	    (run-hooks 'semantic-after-idle-scheduler-reparse-hooks)
-	  (error (setq semantic-after-idle-scheduler-reparse-hooks nil))))
-      ;; Return if we are lexically safe
-      lexically-safe))))
+		  ;; We do nothing, and just wait for the next idle timer
+		  ;; to go off.  In the meantime, remember this, and make sure
+		  ;; no other idle services can get executed.
+		  (setq lexically-safe nil))
+		(when semantic-idle-scheduler-verbose-flag
+		  (working-temp-message "IDLE: reparse %s...done" (buffer-name))))
+	    ;; Let people hook into this, but don't let them hose
+	    ;; us over!
+	    (condition-case nil
+		(run-hooks 'semantic-after-idle-scheduler-reparse-hooks)
+	      (error (setq semantic-after-idle-scheduler-reparse-hooks nil))))
+	  ;; Return if we are lexically safe (from prog1)
+	  lexically-safe)))
+  
+    ;; After updating the tags, handle any pending decorations for this
+    ;; buffer.
+    (semantic-decorate-flush-pending-decorations (current-buffer))
+    ))
 
 
 ;;; IDLE SERVICES
@@ -509,11 +704,28 @@ minor mode is enabled.")
 ;; A mode similar to eldoc using semantic
 (require 'semantic-ctxt)
 
-(defcustom semantic-idle-summary-function 'semantic-format-tag-summarize
+(defcustom semantic-idle-summary-function
+  'semantic-idle-summary-format-default
   "*Function to use when displaying tag information during idle time.
 Some useful functions are found in `semantic-format-tag-functions'."
   :group 'semantic
   :type semantic-format-tag-custom-list)
+
+(defun semantic-idle-summary-format-default (tag parent color)
+  "A special displayor for idle summary mode.
+TAG, PARENT and COLOR are pased to
+`semantic-format-tag-prototype'.  The prototype is prefixed with the
+file it came from."
+  (let ((p (semantic-format-tag-prototype tag parent color))
+	(f (semantic-tag-file-name tag))
+	)
+    (if (and f (not (string= f (buffer-file-name (current-buffer)))))
+	(format "%s: %s"
+		(semantic--format-colorize-text
+		 (file-name-nondirectory f)
+		 font-lock-string-face)
+		p)
+      p)))
 
 (defsubst semantic-idle-summary-find-current-symbol-tag (sym)
   "Search for a semantic tag with name SYM in database tables.
@@ -550,15 +762,24 @@ Use the semantic analyzer to find the symbol information."
       (semantic-analyze-interesting-tag analysis))))
 
 (defun semantic-idle-summary-current-symbol-info-default ()
-  "Return a string message describing the current context."
-  ;; use whicever has success first.
-  (or
-   (semantic-idle-summary-current-symbol-keyword)
-
-   (semantic-idle-summary-current-symbol-info-context)
-
-   (semantic-idle-summary-current-symbol-info-brutish)
-   ))
+  "Return a string message describing the current context.
+This functin will disable loading of previously unloaded files
+by semanticdb as a time-saving measure."
+  (let (
+	(semanticdb-find-default-throttle
+	 (if (featurep 'semanticdb-find)
+	     (remq 'unloaded semanticdb-find-default-throttle)
+	   nil))
+	)
+    (save-excursion
+      ;; use whicever has success first.
+      (or
+       (semantic-idle-summary-current-symbol-keyword)
+       
+       (semantic-idle-summary-current-symbol-info-context)
+       
+       (semantic-idle-summary-current-symbol-info-brutish)
+       ))))
 
 (defvar semantic-idle-summary-out-of-context-faces
   '(
@@ -593,7 +814,7 @@ specific to a major mode.  For example, in jde mode:
       nil
     t))
 
-(define-overload semantic-idle-summary-current-symbol-info ()
+(define-overloadable-function semantic-idle-summary-current-symbol-info ()
   "Return a string message describing the current context.")
 
 (make-obsolete-overload 'semantic-eldoc-current-symbol-info
@@ -631,20 +852,24 @@ current tag to display information."
 
 (defun semantic-idle-completion-list-default ()
   "Calculate and display a list of completions."
-  (if (or (not (featurep 'tooltip)) tooltip-use-echo-area)
-      ;; If tooltips aren't available, turn this off.
-      (global-semantic-idle-completions-mode -1)
-    (when (semantic-idle-summary-useful-context-p)
-      ;; This mode can be fragile.  Ignore problems.
-      ;; If something doesn't do what you expect, run
-      ;; the below command by hand instead.
-      (condition-case nil
-	  (progn
-	    (semantic-complete-analyze-inline)
-	    (when (semantic-completion-inline-active-p)
-	      (semantic-complete-inline-force-display)))
-	(error nil))
-      )))
+  (when (semantic-idle-summary-useful-context-p)
+    ;; This mode can be fragile.  Ignore problems.
+    ;; If something doesn't do what you expect, run
+    ;; the below command by hand instead.
+    (condition-case nil
+	(let (
+	      ;; Don't go loading in oodles of header libraries in
+	      ;; IDLE time.
+	      (semanticdb-find-default-throttle
+	       (if (featurep 'semanticdb-find)
+		   (remq 'unloaded semanticdb-find-default-throttle)
+		 nil))
+	      )
+	  ;; Use idle version.
+	  (semantic-complete-analyze-inline-idle)
+	  )
+      (error nil))
+    ))
 
 (define-semantic-idle-service semantic-idle-completions
   "Display a list of possible completions in a tooltip."

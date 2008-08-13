@@ -1,13 +1,13 @@
-;; Object ede-proj-project
+;; Object semantic/tests
 ;; EDE project file.
-(ede-proj-project "ede-proj-project"
+(ede-proj-project "semantic/tests"
   :name "Tests"
   :file "Project.ede"
   :targets (list 
-   (ede-proj-target-aux "Tests"
+   (ede-proj-target-makefile-miscelaneous "Tests"
     :name "Tests"
     :path ""
-    :source '("test.c" "test.cpp" "templates.cpp" "test.make" "scopetest.cpp" "scopetest.java")
+    :source '("test.c" "test.cpp" "templates.cpp" "test.make" "scopetest.cpp" "scopetest.java" "testdoublens.cpp" "testdoublens.hpp" "testsubclass.cpp" "testsubclass.hh" "testspp.c" "testsppreplace.c" "testsppreplaced.c" "testtypedefs.cpp" "testfriends.cpp")
     )
    )
   )

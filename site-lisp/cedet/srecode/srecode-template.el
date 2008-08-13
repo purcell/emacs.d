@@ -1,6 +1,6 @@
 ;;; srecode-template.el --- SRecoder template language parser support.
 
-;;; Copyright (C) 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 2005, 2007, 2008 Eric M. Ludlam
 
 ;; This file is not part of GNU Emacs.
 
@@ -28,6 +28,18 @@
 (require 'semantic)
 (require 'srecode-template-wy)
 
+(define-mode-local-override semantic-tag-components
+  srecode-template-mode (tag)
+  "Return sectiondictionary tags."
+  (when (semantic-tag-of-class-p tag 'function)
+    (let ((dicts (semantic-tag-get-attribute tag :dictionaries))
+	  (ans nil))
+      (while dicts
+	(setq ans (append ans (cdr (car dicts))))
+	(setq dicts (cdr dicts)))
+      ans)      
+    ))
+
 ;;;###autoload
 (defun srecode-template-setup-parser ()
   "Setup buffer for parse."
@@ -52,7 +64,7 @@
    ))
 
 ;;;###autoload
-(add-hook 'srecode-mode-hook 'srecode-template-setup-parser)
+(add-hook 'srecode-template-mode-hook 'srecode-template-setup-parser)
 
 (provide 'srecode-template)
 

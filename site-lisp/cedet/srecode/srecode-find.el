@@ -1,6 +1,6 @@
 ;;;; srecode-find.el --- Tools for finding templates in the database.
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -25,81 +25,71 @@
 ;; in search of the right template.
 
 (require 'srecode-ctxt)
-
+(require 'srecode-table)
 ;;; Code:
 
 ;;; Basics
 ;;
 
 ;;;###autoload
-(defun srecode-table ()
-  "Return the currently active Semantic Recoder table for this buffer."
-  ;; @todo - Do a better tree for this.
-  (or (srecode-get-mode-table major-mode)
-      (srecode-get-mode-table 'default)))
+(defun srecode-table (&optional mode)
+  "Return the currently active Semantic Recoder table for this buffer.
+Optional argument MODE specifies the mode table to use."
+  (let* ((modeq (or mode major-mode))
+	 (table (srecode-get-mode-table modeq)))
+
+    ;; If there isn't one, keep searching backwards for a table.
+    (while (and (not table) (setq modeq (get-mode-local-parent modeq)))
+      (setq table (srecode-get-mode-table modeq)))
+
+    ;; Last ditch effort.
+    (when (not table)
+      (setq table (srecode-get-mode-table 'default)))
+
+    table))
 
 ;;; TRACKER
 ;;
 ;; Template file tracker for between sessions.
 ;;
-(defcustom srecode-template-file-alist
-  '( ( default . "default.srt" )
-     ( srecode-template-mode . "srecode-template.srt" )
-     ( c++-mode . "srecode-cpp.srt" )
-     ( emacs-lisp-mode . "srecode-el.srt" )
-     ( wisent-grammar-mode . "srecode-wisent.srt" )
-    )
-  ;; @todo - Make this variable auto-generated from the Makefile.
-  "List of template files and location associated with a given major mode."
-  :group 'srecode
-  :type '(repeat (cons (sexp :tag "Mode")
-		       (sexp :tag "Filename"))
-		 ))
-
-(defcustom srecode-user-template-directory "~/.srecode/"
-  "Directory where user templates are stored."
-  :group 'srecode
-  :type 'file)
-
 ;;;###autoload
-(defun srecode-load-tables-for-mode (mmode &optional alist)
+(defun srecode-load-tables-for-mode (mmode &optional appname)
   "Load all the template files for MMODE.
-Templates are found on the Emacs Lisp path as follows:
-  <load-path>/templates/*.srt
-  ~/.srecode/*.srt
-If ALIST is provided, then use ALIST instead of
-`srecode-template-file-alist'."
-  (let ((search-list (or alist srecode-template-file-alist)))
+Templates are found in the SRecode Template Map.
+See `srecode-get-maps' for more.
+APPNAME is the name of an application.  In this case,
+all template files for that application will be loaded."
+  (let ((files
+	 (if appname
+	     (apply 'append
+		    (mapcar
+		     (lambda (map)
+		       (srecode-map-entries-for-app-and-mode map appname mmode))
+		     (srecode-get-maps)))
+	   (apply 'append
+		  (mapcar
+		   (lambda (map)
+		     (srecode-map-entries-for-mode map mmode))
+		   (srecode-get-maps)))))
+	)
     ;; Don't recurse if we are already the 'default state.
     (when (not (eq mmode 'default))
       ;; Are we a derived mode?  If so, get the parent mode's
       ;; templates loaded too.
       (if (get-mode-local-parent mmode)
 	  (srecode-load-tables-for-mode (get-mode-local-parent mmode)
-					search-list)
+					appname)
 	;; No parent mode, all templates depend on the defaults being
 	;; loaded in, so get that in instead.
-	(srecode-load-tables-for-mode 'default search-list)))
-
-    ;; Load in templates for our major mode.
-    ;; @todo More than one template file??  User files??
-    (let* ((mma (assoc mmode search-list))
-	   (fname (cdr-safe mma))
-	   (mt (srecode-get-mode-table mmode))
-	   )
-      (when fname
-	;; Don't reload tables.
-	(let ((actualfname
-	       (or (locate-library fname t)
-		   (locate-library (concat "templates/" fname))
-		   )))
-	  (when (and actualfname
-		     (or (not mt)
-			 (not (srecode-mode-table-find mt actualfname))))
-	    (srecode-compile-file (locate-library actualfname t)))))
-      )
+	(srecode-load-tables-for-mode 'default appname)))
     
-    ;; @todo Once we've loaded in the shipped files, load in user files.
+    ;; Load in templates for our major mode.
+    (dolist (f files)
+      (let ((mt (srecode-get-mode-table mmode))
+	    )
+	  (when (or (not mt) (not (srecode-mode-table-find mt (car f))))
+	    (srecode-compile-file (car f)))
+	))
     ))
 
 ;;; SEARCH
@@ -145,6 +135,65 @@ tables that do not belong to an application will be searched."
 	  (srecode-template-get-table (srecode-get-mode-table 'default)
 				      template-name context)))))
 
+;;
+;; Find a given template based on a key binding.
+;;
+(defmethod srecode-template-get-table-for-binding
+  ((tab srecode-template-table) binding &optional context)
+  "Find in the template name in table TAB, the template with BINDING.
+Optional argument CONTEXT specifies that the template should part
+of a particular context."
+  (let* ((keyout nil)
+	 (hashfcn (lambda (key value)
+		    (when (and (slot-boundp value 'binding)
+			       (oref value binding)
+			       (= (aref (oref value binding) 0) binding))
+		      (setq keyout key))))
+	 (contextstr (cond ((listp context)
+			    (car-safe context))
+			   ((stringp context)
+			    context)
+			   (t nil)))
+	 )
+    (if context
+	(let ((ctxth (gethash contextstr (oref tab contexthash))))
+	  (when ctxth
+	    ;; If a context is specified, then look it up there.
+	    (maphash hashfcn ctxth)
+	    ;; Context hashes EXCLUDE the context prefix which
+	    ;; we need to include, so concat it here
+	    (when keyout
+	      (setq keyout (concat contextstr ":" keyout)))
+	    )))
+    (when (not keyout)
+      ;; No context, or binding in context.  Try full hash.
+      (maphash hashfcn (oref tab namehash)))
+    keyout))
+
+;;;###autoload
+(defmethod srecode-template-get-table-for-binding
+  ((tab srecode-mode-table) binding &optional context application)
+  "Find in the template name in mode table TAB, the template with BINDING.
+Optional argument CONTEXT specifies a context a particular template
+would belong to.
+Optional argument APPLICATION restricts searches to only template tables
+belonging to a specific application.  If APPLICATION is nil, then only
+tables that do not belong to an application will be searched."
+  (let* ((mt tab)
+	 (tabs (oref mt :tables))
+	 (ans nil))
+    (while (and (not ans) tabs)
+      (let ((app (oref (car tabs) :application)))
+	(when (or (and (not application) (null app))
+		  (and application (eq app application)))
+	  (setq ans (srecode-template-get-table-for-binding
+		     (car tabs) binding context)))
+	(setq tabs (cdr tabs))))
+    (or ans
+	;; Recurse to the default.
+	(when (not (equal (oref tab :major-mode) 'default))
+	  (srecode-template-get-table-for-binding
+	   (srecode-get-mode-table 'default) binding context)))))
 ;;; Interactive
 ;;
 ;; Interactive queries into the template data.
@@ -179,26 +228,34 @@ Optional argument HASH is the hash table to fill in."
 	(setq tabs (cdr tabs)))
       mhash)))
 
-(defun srecode-calculate-default-template (hash)
+(defun srecode-calculate-default-template-string (hash)
   "Calculate the name of the template to use as a DEFAULT.
 Templates are read from HASH.
 Context into which the template is inserted is calculated
 with `srecode-calculate-context'."
   (let* ((ctxt (srecode-calculate-context))
 	 (ans (concat (nth 0 ctxt) ":" (nth 1 ctxt))))
-    (when (gethash ans hash)
-      ans)))
+    (if (gethash ans hash)
+	ans
+      ;; No hash at the specifics, at least offer
+      ;; the prefix for the completing read
+      (concat (nth 0 ctxt) ":"))))
 
 ;;;###autoload
-(defun srecode-read-template-name (prompt)
+(defun srecode-read-template-name (prompt &optional initial hist default)
   "Completing read for Semantic Recoder template names.
-PROMPT is used to query for the name of the template desired."
+PROMPT is used to query for the name of the template desired.
+INITIAL is the initial string to use.
+HIST is a history variable to use.
+DEFAULT is what to use if the user presses RET."
   (srecode-load-tables-for-mode major-mode)
   (let* ((hash (srecode-all-template-hash))
-	 (def (srecode-calculate-default-template hash)))
+	 (def (or initial
+		  (srecode-calculate-default-template-string hash))))
     (completing-read prompt hash
 		     nil t def
-		     'srecode-read-template-name-history)))
+		     (or hist
+			 'srecode-read-template-name-history))))
 
 
 

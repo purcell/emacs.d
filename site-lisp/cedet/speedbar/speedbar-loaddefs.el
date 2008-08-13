@@ -72,14 +72,14 @@ Create speedbar buttons for the current web BUFFER displayed in w3 mode.
 ;;;***
 
 ;;;### (autoloads (speedbar-get-focus speedbar-frame-mode) "speedbar"
-;;;;;;  "speedbar.el" (17866 5372))
+;;;;;;  "speedbar.el" (18435 29472))
 ;;; Generated autoloads from speedbar.el
 
 (defalias (quote speedbar) (quote speedbar-frame-mode))
 
 (autoload (quote speedbar-frame-mode) "speedbar" "\
 Enable or disable speedbar.  Positive ARG means turn on, negative turn off.
-nil means toggle.  Once the speedbar frame is activated, a buffer in
+A nil ARG means toggle.  Once the speedbar frame is activated, a buffer in
 `speedbar-mode' will be displayed.  Currently, only one speedbar is
 supported at a time.
 `speedbar-before-popup-hook' is called before popping up the speedbar frame.
@@ -98,7 +98,7 @@ selected.  If the speedbar frame is active, then select the attached frame.
 
 ;;;### (autoloads nil nil ("bigclock.el" "dframe.el" "fsum.el" "sb-ant.el"
 ;;;;;;  "sb-html.el" "sb-image.el" "sb-texinfo.el" "speedbar-load.el")
-;;;;;;  (18110 13415 403109))
+;;;;;;  (18594 52817 576265))
 
 ;;;***
 

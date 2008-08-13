@@ -1,12 +1,12 @@
 ;;; semantic-grammar.el --- Major mode framework for Semantic grammars
 ;;
-;; Copyright (C) 2002, 2003, 2004, 2005, 2007 David Ponce
+;; Copyright (C) 2002, 2003, 2004, 2005, 2007, 2008 David Ponce
 ;;
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 15 Aug 2002
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-grammar.el,v 1.72 2007/02/18 22:40:58 zappo Exp $
+;; X-RCS: $Id: semantic-grammar.el,v 1.75 2008/06/10 00:43:15 zappo Exp $
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -436,7 +436,7 @@ Also load the specified macro libraries."
       ',keywords
       ',(semantic-grammar-keyword-properties keywords))))
 
-(define-overload semantic-grammar-keywordtable-builder ()
+(define-overloadable-function semantic-grammar-keywordtable-builder ()
   "Return the keyword table table value.")
 
 ;;; Token table builder
@@ -448,7 +448,7 @@ Also load the specified macro libraries."
       ',tokens
       ',(semantic-grammar-token-properties tokens))))
 
-(define-overload semantic-grammar-tokentable-builder ()
+(define-overloadable-function semantic-grammar-tokentable-builder ()
   "Return the value of the table of lexical tokens.")
 
 ;;; Parser table builder
@@ -457,7 +457,7 @@ Also load the specified macro libraries."
   "Return the default value of the parse table."
   (error "`semantic-grammar-parsetable-builder' not defined"))
 
-(define-overload semantic-grammar-parsetable-builder ()
+(define-overloadable-function semantic-grammar-parsetable-builder ()
   "Return the parser table value.")
 
 ;;; Parser setup code builder
@@ -466,7 +466,7 @@ Also load the specified macro libraries."
   "Return the default value of the setup code form."
   (error "`semantic-grammar-setupcode-builder' not defined"))
 
-(define-overload semantic-grammar-setupcode-builder ()
+(define-overloadable-function semantic-grammar-setupcode-builder ()
   "Return the parser setup code form.")
 
 ;;;;
@@ -1835,7 +1835,7 @@ Optional argument COLOR determines if color is added to the text."
 
     (let* ((context-return nil)
 	   (startpoint (point))
-	   (prefixandbounds (semantic-analyze-calculate-bounds))
+	   (prefixandbounds (semantic-ctxt-current-symbol-and-bounds))
 	   (prefix (car prefixandbounds))
 	   (endsym (nth 1 prefixandbounds))
 	   (bounds (nth 2 prefixandbounds))
@@ -1854,8 +1854,6 @@ Optional argument COLOR determines if color is added to the text."
 	     "context-for-semantic-grammar"
 	     :buffer (current-buffer)
 	     :scope nil
-	     :scopetypes nil
-	     :localvariables nil
 	     :bounds bounds
 	     :prefix (if prefixsym
 			 (list prefixsym)

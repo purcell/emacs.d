@@ -1,10 +1,10 @@
 ;;; ede-pmake.el --- EDE Generic Project Makefile code generator.
 
-;;;  Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007  Eric M. Ludlam
+;;;  Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-pmake.el,v 1.47 2007/02/19 13:46:24 zappo Exp $
+;; RCS: $Id: ede-pmake.el,v 1.49 2008/02/19 03:20:49 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -55,12 +55,11 @@ MFILENAME is the makefile to generate."
   (let ((mt nil) tmp
 	(isdist (string= mfilename (ede-proj-dist-makefile this)))
 	(depth 0)
-	(tmp this)
 	)
     ;; Find out how deep this project is.
-    (while (ede-parent-project tmp)
-      (setq depth (1+ depth)
-	    tmp (ede-parent-project tmp)))
+    (let ((tmp this))
+      (while (setq tmp (ede-parent-project tmp))
+	(setq depth (1+ depth))))
     ;; Collect the targets that belong in a makefile.
     (mapcar
      (lambda (obj)
@@ -74,7 +73,9 @@ MFILENAME is the makefile to generate."
     (save-excursion
       (set-buffer (find-file-noselect mfilename))
       (goto-char (point-min))
-      (if (not (looking-at "# Automatically Generated \\w+ by EDE."))
+      (if (and
+	   (not (eobp))
+	   (not (looking-at "# Automatically Generated \\w+ by EDE.")))
 	  (if (not (y-or-n-p (format "Really replace %s?" mfilename)))
 	      (error "Not replacing Makefile."))
 	(message "Replace EDE Makefile"))

@@ -1,11 +1,11 @@
 ;;; semantic-imenu.el --- Use Semantic as an imenu tag generator
 
-;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007 Paul Kinnucan & Eric Ludlam
+;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Paul Kinnucan & Eric Ludlam
 ;;; Copyright (C) 2001, 2002, 2003 Eric Ludlam
 
 ;; Created By: Paul Kinnucan
 ;; Maintainer: Eric Ludlam
-;; X-RCS: $Id: semantic-imenu.el,v 1.56 2007/02/19 02:51:54 zappo Exp $
+;; X-RCS: $Id: semantic-imenu.el,v 1.57 2008/02/19 02:33:34 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -246,9 +246,9 @@ Optional argument STREAM is an optional stream of tags used to create menus."
                (featurep 'semanticdb)
                (semanticdb-minor-mode-p))
           (semantic-create-imenu-directory-index
-	   (or stream (semantic-fetch-tags)))
+	   (or stream (semantic-fetch-tags-fast)))
         (semantic-create-imenu-index-1
-	 (or stream (semantic-fetch-tags)) nil))
+	 (or stream (semantic-fetch-tags-fast)) nil))
     (semantic-make-local-hook 'semantic-after-toplevel-cache-change-hook)
     (add-hook 'semantic-after-toplevel-cache-change-hook
               'semantic-imenu-flush-fcn nil t)

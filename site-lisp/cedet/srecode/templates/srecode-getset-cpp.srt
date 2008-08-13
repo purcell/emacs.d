@@ -1,9 +1,9 @@
 ;;; srecode-getset-cpp.srt --- Create getter/setters for a C++ class.
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-getset-cpp.srt,v 1.2 2007/02/24 03:15:16 zappo Exp $
+;; X-RCS: $Id: srecode-getset-cpp.srt,v 1.4 2008/06/08 16:24:29 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -25,26 +25,24 @@ set application "getset"
 
 context declaration
 
-template getset-in-class :tag :indent
+template getset-in-class :tag :indent :blank
 ----
-
-{{>A:doxygen-function-group-start}}
+{{>A:classdecl:comment-function-group-start}}
 {{TYPE}} get{{NICENAME}}() const {
    return {{NAME}};
 }
-void set{{NICENAME}}({{TYPE}} {{NICENAME}}) const {
+void set{{NICENAME}}({{TYPE}} {{NICENAME}}) {
    {{NAME}} = {{NICENAME}};
 }
-{{>A:doxygen-function-group-end}}
-
+{{>A:classdecl:comment-function-group-end}}
 ----
 
-template getset-field :tag
+template getset-field :blank :indent
 ----
-{{TYPE}} f{{?NAME}};
+{{?TYPE}} f{{?NAME}};
 ----
 
-template getset-initializer :tag
+template getset-initializer :indent
 ----
 f{{NAME}}(){{#NOTLAST}},{{/NOTLAST}}
 ----

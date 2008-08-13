@@ -1,7 +1,7 @@
-This is semantic-langdev.info, produced by makeinfo version 4.8 from
+This is semantic-langdev.info, produced by makeinfo version 4.12 from
 lang-support-guide.texi.
 
-   This manual documents Application Development with Semantic.
+This manual documents Application Development with Semantic.
 
    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007 Eric M.
 Ludlam Copyright (C) 2001, 2002, 2003, 2004 David Ponce Copyright (C)
@@ -112,7 +112,7 @@ for a language into the semantic framework.
 
 The primary means to customize how semantic works is to implement
 language specific versions of overloadable functions.  Semantic has a
-specialized mode bound way to do this.  *Note Semantic Overload
+specialized mode bound way to do this.  *note Semantic Overload
 Mechanism::.
 
 The parser has several parts which are all also overloadable.  The
@@ -409,7 +409,7 @@ File: semantic-langdev.info,  Node: Lexer Output,  Next: Lexer Construction,  Pr
 3.2 Lexer Output
 ================
 
-The lexer, *Note semantic-lex::, scans the content of a buffer and
+The lexer, *note semantic-lex::, scans the content of a buffer and
 returns a token list.  Let's illustrate this using this simple example.
 
      00: /*
@@ -660,7 +660,7 @@ analyzer construction macros.  The root construction macro is:
      `semantic-list' that has                   been decended.
      `semantic-lex-end-point' - End Point after match.
        Analyzers should set this to a buffer location if their
-               match string does not represent the end of the matched
+              match string does not represent the end of the matched
      text.    `semantic-lex-token-stream' - The token list being
      collected.                     Add new lexical tokens to this list.
      Proper action in FORMS is to move the value of
@@ -724,7 +724,7 @@ File: semantic-langdev.info,  Node: Keywords,  Next: Keyword Properties,  Prev: 
 3.6 Keywords
 ============
 
-Another important piece of the lexer is the keyword table (see *Note
+Another important piece of the lexer is the keyword table (see *note
 Writing Parsers::).  You language will want to set up a keyword table
 for fast conversion of symbol strings to language terminals.
 
@@ -803,7 +803,7 @@ specify rules to accomplish this.  The rules are stored in the buffer
 local variable `semantic--buffer-cache'.
 
 While it is certainly possible to write this table yourself, it is most
-likely you will want to use the *Note Grammar Programming Environment::.
+likely you will want to use the *note Grammar Programming Environment::.
 
 There are three choices for parsing your language.
 
@@ -1092,7 +1092,7 @@ You can step through the lexical analyzer with the following command:
      the next lexical token.
 
 For an example of what the output of the `semantic-lex' function should
-return, see *Note Lexer Output::.
+return, see *note Lexer Output::.
 
 
 File: semantic-langdev.info,  Node: Parser Output tools,  Next: Bovine Parser Debugging,  Prev: Lexical Debugging,  Up: Debugging
@@ -1364,7 +1364,7 @@ places, and requesting a dump of the context.
      buffer.  Returns an object based on symbol
      "semantic-analyze-context".
 
-*Note Semantic Analyzer Support:: *note (semantic-user)Analyzer::
+*note Semantic Analyzer Support:: *note (semantic-user)Analyzer::
 
 
 File: semantic-langdev.info,  Node: Semantic 1.4 Doc,  Prev: Debugging Analysis,  Up: Debugging
@@ -1612,20 +1612,19 @@ Appendix A GNU Free Documentation License
      H. Include an unaltered copy of this License.
      I. Preserve the section entitled "History", and its title, and add
      to    it an item stating at least the title, year, new authors, and
-       publisher of the Modified Version as given on the Title Page.
-     If    there is no section entitled "History" in the Document,
-     create one    stating the title, year, authors, and publisher of
-     the Document as    given on its Title Page, then add an item
+       publisher of the Modified Version as given on the Title Page.  If
+       there is no section entitled "History" in the Document, create
+     one    stating the title, year, authors, and publisher of the
+     Document as    given on its Title Page, then add an item
      describing the Modified    Version as stated in the previous
      sentence.
      J. Preserve the network location, if any, given in the Document for
-       public access to a Transparent copy of the Document, and
-     likewise    the network locations given in the Document for
-     previous versions    it was based on.  These may be placed in the
-     "History" section.     You may omit a network location for a work
-     that was published at    least four years before the Document
-     itself, or if the original    publisher of the version it refers
-     to gives permission.
+       public access to a Transparent copy of the Document, and likewise
+       the network locations given in the Document for previous versions
+       it was based on.  These may be placed in the "History" section.
+       You may omit a network location for a work that was published at
+       least four years before the Document itself, or if the original
+      publisher of the version it refers to gives permission.
      K. In any section entitled "Acknowledgements" or "Dedications",
      preserve the section's title, and preserve in the section all the
       substance and tone of each of the contributor acknowledgements
@@ -1784,10 +1783,10 @@ notices just after the title page:
        Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
        A copy of the license is included in the section entitled ``GNU
        Free Documentation License''.
-If you have no Invariant Sections, write "with no Invariant
-Sections" instead of saying which ones are invariant.  If you have no
-Front-Cover Texts, write "no Front-Cover Texts" instead of "Front-Cover
-Texts being LIST"; likewise for Back-Cover Texts.
+If you have no Invariant Sections, write "with no Invariant Sections"
+instead of saying which ones are invariant.  If you have no Front-Cover
+Texts, write "no Front-Cover Texts" instead of "Front-Cover Texts being
+LIST"; likewise for Back-Cover Texts.
 
 If your document contains nontrivial examples of program code, we
 recommend releasing these examples in parallel under your choice of
@@ -1896,56 +1895,56 @@ Index
 
 
 Tag Table:
-Node: Top1139
-Node: Tag Structure2246
-Node: Language Support Overview4120
-Node: Semantic Overload Mechanism5408
-Node: Semantic Parser Structure10481
-Node: Application API Structure10783
-Node: Semantic Analyzer Support12310
-Node: Writing Lexers12472
-Ref: semantic-lex13279
-Node: Lexer Overview14483
-Node: Lexer Output15718
-Node: Lexer Construction19575
-Ref: define-lex20037
-Node: Lexer Built In Analyzers20891
-Node: Lexer Analyzer Construction24389
-Node: Keywords28660
-Node: Keyword Properties30234
-Node: Writing Parsers31114
-Node: External Parsers32598
-Node: Grammar Programming Environment32920
-Node: Parsing a language file33474
-Ref: semantic-fetch-tags33848
-Ref: semantic-fetch-available-tags34618
-Ref: semantic-clear-toplevel-cache35068
-Node: Parser Backend Support35226
-Node: Example Backend File36028
-Node: Tag Expansion38308
-Ref: semantic-tag-expand-function38637
-Node: Debugging40287
-Node: Lexical Debugging40814
-Ref: semantic-lex-debug41230
-Node: Parser Output tools41705
-Ref: semantic-show-unmatched-syntax-mode42204
-Ref: semantic-show-tag-boundaries-mode43139
-Ref: semantic-highlight-by-attribute-mode43777
-Ref: bovinate44487
-Node: Bovine Parser Debugging44721
-Ref: semantic-debug45196
-Node: Wisent Parser Debugging46710
-Node: Overlay Debugging47100
-Ref: semantic-tag-components-with-overlays47821
-Node: Incremental Parser Debugging48564
-Ref: semantic-highlight-edits-mode49335
-Ref: semantic-show-parser-state-mode50070
-Ref: semantic-edits-verbose-flag51087
-Node: Debugging Analysis51222
-Ref: semantic-analyze-current-context51769
-Node: Semantic 1.4 Doc52056
-Node: Parser Error Handling53817
-Node: GNU Free Documentation License54010
-Node: Index73763
+Node: Top1137
+Node: Tag Structure2244
+Node: Language Support Overview4118
+Node: Semantic Overload Mechanism5406
+Node: Semantic Parser Structure10479
+Node: Application API Structure10781
+Node: Semantic Analyzer Support12308
+Node: Writing Lexers12470
+Ref: semantic-lex13277
+Node: Lexer Overview14481
+Node: Lexer Output15716
+Node: Lexer Construction19573
+Ref: define-lex20035
+Node: Lexer Built In Analyzers20889
+Node: Lexer Analyzer Construction24387
+Node: Keywords28657
+Node: Keyword Properties30231
+Node: Writing Parsers31111
+Node: External Parsers32595
+Node: Grammar Programming Environment32917
+Node: Parsing a language file33471
+Ref: semantic-fetch-tags33845
+Ref: semantic-fetch-available-tags34615
+Ref: semantic-clear-toplevel-cache35065
+Node: Parser Backend Support35223
+Node: Example Backend File36025
+Node: Tag Expansion38305
+Ref: semantic-tag-expand-function38634
+Node: Debugging40284
+Node: Lexical Debugging40811
+Ref: semantic-lex-debug41227
+Node: Parser Output tools41702
+Ref: semantic-show-unmatched-syntax-mode42201
+Ref: semantic-show-tag-boundaries-mode43136
+Ref: semantic-highlight-by-attribute-mode43774
+Ref: bovinate44484
+Node: Bovine Parser Debugging44718
+Ref: semantic-debug45193
+Node: Wisent Parser Debugging46707
+Node: Overlay Debugging47097
+Ref: semantic-tag-components-with-overlays47818
+Node: Incremental Parser Debugging48561
+Ref: semantic-highlight-edits-mode49332
+Ref: semantic-show-parser-state-mode50067
+Ref: semantic-edits-verbose-flag51084
+Node: Debugging Analysis51219
+Ref: semantic-analyze-current-context51766
+Node: Semantic 1.4 Doc52053
+Node: Parser Error Handling53814
+Node: GNU Free Documentation License54007
+Node: Index73748
 
 End Tag Table

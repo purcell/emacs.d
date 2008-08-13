@@ -11,6 +11,7 @@
 <tr><td >&nbsp&nbsp<img src=tag.png>&nbsp<a class=SB href=highlightcompile.shtml><b><font size=-1>LM Compile</font></b></a>&nbsp</td></tr>
 <tr><td >&nbsp<img src=page.gif>&nbsp<a class=SB href=semantic.shtml><b>Semantic </b></a>&nbsp</td></tr>
 <tr><td >&nbsp&nbsp<img src=tag.png>&nbsp<a class=SB href=intellisense.shtml><b><font size=-1>Intellisense</font></b></a>&nbsp</td></tr>
+<tr><td >&nbsp<img src=page.gif>&nbsp<a class=SB href=srecode.shtml><b>SRecode </b></a>&nbsp</td></tr>
 
 <tr><td  class=BAR><img src=dir-minus.gif>&nbsp <b>Tools    </b>&nbsp</td></tr>
 <tr><td >&nbsp<img src=page.gif>&nbsp<a class=SB href=speedbar.shtml><b>Speedbar </b></a>&nbsp</td></tr>

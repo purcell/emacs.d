@@ -1,10 +1,10 @@
 ;;; semanticdb-system.el --- Build a file DB for some system files.
 
-;;; Copyright (C) 2002, 2003, 2004, 2005 Eric M. Ludlam
+;;; Copyright (C) 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb-system.el,v 1.10 2007/03/17 21:22:33 zappo Exp $
+;; X-RCS: $Id: semanticdb-system.el,v 1.14 2008/06/10 00:51:21 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -33,7 +33,6 @@
 (require 'semanticdb-file)
 (require 'eieio-opt)
 
-;;;###autoload
 (defcustom semanticdb-default-system-save-directory
   ;; Leave this obvious for now.  Maybe hide it later.
   (expand-file-name "~/.semanticdb")
@@ -46,7 +45,12 @@ write permission to such paths."
                  (const :tag "Use current directory" :value nil)
                  (directory)))
 
-(defcustom semanticdb-system-database-warn-level 50
+(defcustom semanticdb-default-system-file-name "semantic.syscache"
+  "*File name of the semantic tag cache."
+  :group 'semanticdb
+  :type 'string)
+
+(defcustom semanticdb-system-database-warn-level 10
   "*Number of files to be added to a system DB that causes us to warn.
 If this number is exceeded, warn the users that it could take a while."
   :group 'semanticdb
@@ -88,14 +92,28 @@ If a database for DIRECTORY has already been loaded, return it.
 If a database for DIRECTORY exists, then load that database, and return it.
 If DIRECTORY doesn't exist, create a new one."
   ;; System databases span directories.  Be smart about creation.
-  (or semanticdb-database-being-created
-      (call-next-method)))
+  (let ((new (or semanticdb-database-being-created
+		 (call-next-method))))
+    ;; Add system paths for this mode
+    (let ((m (oref-default dbc major-modes)))
+      (while m
+	(semantic-add-system-include directory (car m))
+	(message "Adding %s to system include for %s" directory (car m))
+	(setq m (cdr m))))
+    ;; Return it.
+    new))
 
 (defmethod semanticdb-write-directory-p
   ((obj semanticdb-project-database-system))
   "Return non-nil if OBJ should be written to disk.
 Uses `semanticdb-persistent-path' to determine the return value."
   semanticdb-system-force-save)
+
+(defmethod semanticdb-file-name-non-directory :STATIC
+  ((dbclass semanticdb-project-database-system))
+  "Return the file name DBCLASS will use.
+File name excludes any directory part."
+  semanticdb-default-system-file-name)
 
 (defmethod semanticdb-cache-filename :STATIC
   ((dbclass semanticdb-project-database-system) path)
@@ -113,7 +131,6 @@ name in a secondary directory."
 (defvar semanticdb-system-database-query-history nil
   "History variable when asking for a type of system database.")
 
-;;;###autoload
 (defun semanticdb-create-system-database (path &optional class)
   "Create a system database starting at PATH.
 PATH should be a top level directory for a series of files containing
@@ -149,16 +166,15 @@ of symbol `semanticdb-project-database-system' are accepted."
     (semanticdb-load-system-database class path)
     ))
 
-;;;###autoload
 (defun semanticdb-load-system-caches ()
   "Load all system databases that were previously saved."
   (interactive)
   (let ((f (directory-files semanticdb-default-system-save-directory
-			    t (concat semanticdb-default-file-name "$") t)))
+			    t (concat semanticdb-default-system-file-name "$") t)))
     (while f
       ;; Emacs makes backup files if we save out the systemDB too often.
       ;; prevent loading backup files which are icky.
-      (when (string-match (concat semanticdb-default-file-name "$")
+      (when (string-match (concat semanticdb-default-system-file-name "$")
 			  (car f))
 	(semanticdb-load-database (car f)))
       ;; NOTE FOR THE FUTURE: Verify the system was not expanded for
@@ -189,6 +205,7 @@ and parsed. After the database is created, save it, and return the DB."
 	 (sysdb (semanticdb-create-database dbclass path))
 	 ;; 2) Set up to use this database when loading.
 	 (semanticdb-new-database-class dbclass)
+	 (preparse-files t)
 	 )
     (if (and (> (length files) semanticdb-system-database-warn-level)
 	     semanticdb-system-db-directory-search-recursed
@@ -201,18 +218,18 @@ and parsed. After the database is created, save it, and return the DB."
     (when (> (length files) semanticdb-system-database-warn-level)
       (if (y-or-n-p
 	   (format
-	    "There are %d files which could a long time to parse.  Proceed? "
+	    "There are %d files which could take a long time to parse.  Proceed? "
 	    (length files)))
 	  nil ;; Okie dokie
-	(error "")))
+	(setq preparse-files nil)))
     (oset sysdb reference-directory path)
-    (while files
+    (while (and preparse-files files)
       (let ((table (semanticdb-file-table sysdb (car files)))
 	    )
 	;; 1) Skip if loaded
-	(unless (and table (oref table tags))
+	(unless (and table (or (not (slot-boundp table 'tags)) (oref table tags)))
 	  ;; 3) load the file.
-	  (let ((b (get-file-buffer (car files))))
+	  (let ((b (find-buffer-visiting (car files))))
 	    (save-excursion
 	      (set-buffer (find-file-noselect (car files)))
 	      ;; 4) Force a reparse
@@ -224,7 +241,7 @@ and parsed. After the database is created, save it, and return the DB."
 	  ))
       (setq files (cdr files)))
 
-    ;; All tables are in.  Save this database
+    ;; All tables are in or skipped.  Save this database
     (let ((semanticdb-system-force-save t))
       (semanticdb-save-db sysdb))
 
@@ -275,7 +292,7 @@ Optional argument NOT-RECURSIVE suggests that this function will not recurse."
   ((file-header-line :initform
 		     ";; SEMANTICDB Tags save file for system libraries")
    ;; Scan for C header files.
-   (file-match-regex :initform "\\.\\(h\\(h\\|xx\\|pp\\|\\+\\+\\)?\\|H\\)?$")
+   (file-match-regex :initform "\\.\\(h\\(h\\|xx\\|pp\\|\\+\\+\\)?\\|H\\)$\\|\\<\\w+$")
    ;; C modes
    (major-modes :initform '(c-mode c++-mode))
    )

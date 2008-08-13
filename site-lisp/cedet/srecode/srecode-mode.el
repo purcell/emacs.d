@@ -1,4 +1,4 @@
-;;; srecode-mode.el --- Minor-mode for inserting templates into other files.
+;;; srecode-mode.el --- Minor-mode for managing and using SRecode templates
 
 ;; This file is not part of GNU Emacs.
 
@@ -19,9 +19,14 @@
 
 ;;; Commentary:
 ;;
-;; This uses a bunch of semantic conveniences for making a minor mode.
+;; Minor mode for working with SRecode template files.
+;;
+;; Depends on Semantic for minor-mode convenience functions.
 
 (require 'srecode)
+(require 'srecode-insert)
+(require 'srecode-find)
+(require 'srecode-map)
 (require 'senator)
 (require 'wisent)
 
@@ -54,10 +59,13 @@
   (let ((km (make-sparse-keymap)))
     ;; Basic template codes
     (define-key km "/" 'srecode-insert)
-    (define-key km "e" 'srecode-edit)
-    ;; Template direct binding
-    ;; Template applications
-    (define-key km "G" 'srecode-insert-getset)
+    (define-key km "." 'srecode-insert-again)
+    (define-key km "E" 'srecode-edit)
+    ;; Template indirect binding
+    (let ((k ?a))
+      (while (<= k ?z)
+	(define-key km (format "%c" k) 'srecode-bind-insert)
+	(setq k (1+ k))))
     km)
   "Keymap used behind the srecode prefix key in in srecode minor mode.")
 
@@ -66,10 +74,16 @@
    "SRecoder"
    (senator-menu-item
     ["Insert Template"
-      srecode-insert
-      :active t
-      :help "Insert a template by name."
-      ])
+     srecode-insert
+     :active t
+     :help "Insert a template by name."
+     ])
+   (senator-menu-item
+    ["Insert Template Again"
+     srecode-insert-again
+     :active t
+     :help "Run the same template as last time again."
+     ])
    (senator-menu-item
     ["Edit Template"
      srecode-edit
@@ -77,12 +91,36 @@
      :help "Edit a template for this language by name."
      ])
    "---"
-   (senator-menu-item
-    ["Dump Tables"
+   '( "Insert ..." :filter srecode-minor-mode-templates-menu )
+   `( "Generate ..." :filter srecode-minor-mode-generate-menu )
+   "---"
+    (senator-menu-item
+     ["Customize..."
+      (customize-group "srecode")
+      :active t
+      :help "Customize SRecode options"
+      ])
+   (list
+    "Debugging Tools..."
+    (senator-menu-item
+     ["Dump Template MAP"
+      srecode-get-maps
+      :active t
+      :help "Calculate (if needed) and display the current template file map."
+      ])
+    (senator-menu-item
+     ["Dump Tables"
       srecode-dump-templates
       :active t
       :help "Dump the current template table."
       ])
+    (senator-menu-item
+     ["Dump Dictionary"
+      srecode-dictionary-dump
+      :active t
+      :help "Calculate a dump a dictionary for point."
+      ])
+    )
    )
   "Menu for srecode minor mode.")
 
@@ -109,13 +147,26 @@ minor mode is enabled.
   (interactive
    (list (or current-prefix-arg
              (if srecode-minor-mode 0 1))))
+  ;; Flip the bits.
   (setq srecode-minor-mode
         (if arg
             (>
              (prefix-numeric-value arg)
              0)
           (not srecode-minor-mode)))
-  (run-hooks 'srecode-minor-mode-hook)
+  ;; If we are turning things on, make sure we have templates for
+  ;; this mode first.
+  (when srecode-minor-mode
+    (when (not (apply
+		'append
+		(mapcar (lambda (map)
+			  (srecode-map-entries-for-mode map major-mode))
+			(srecode-get-maps))))
+      (setq srecode-minor-mode nil))
+    )
+  ;; Run hooks if we are turning this on.
+  (when srecode-minor-mode
+    (run-hooks 'srecode-minor-mode-hook))
   srecode-minor-mode)
 
 ;;;###autoload
@@ -133,13 +184,130 @@ If ARG is nil, then toggle."
 			 ""
 			 srecode-mode-map)
 
+;;; Menu Filters
+;;
+(defun srecode-minor-mode-templates-menu (menu-def)
+  "Create a menu item of cascading filters active for this mode.
+MENU-DEF is the menu to bind this into."
+  ;; Doing this SEGVs Emacs on windows.
+  ;;(srecode-load-tables-for-mode major-mode)
+
+  (let* ((modetable (srecode-get-mode-table major-mode))
+	 (subtab (when modetable (oref modetable :tables)))
+	 (context nil)
+	 (active nil)
+	 (ltab nil)
+	 (temp nil)
+	 (alltabs nil)
+	 )
+    (if (not subtab)
+	;; No tables, show a "load the tables" option.
+	(list (vector "Load Mode Tables..."
+		      (lambda ()
+			(interactive)
+			(srecode-load-tables-for-mode major-mode))
+		      ))
+      ;; Build something
+      (setq context (car-safe (srecode-calculate-context)))
+
+      (while subtab
+	(setq ltab (oref (car subtab) templates))
+	(while ltab
+	  (setq temp (car ltab))
+	
+	  ;; Do something with this template.
+
+	  (let* ((ctxt (oref temp context))
+		 (ctxtcons (assoc ctxt alltabs))
+		 (bind (if (slot-boundp temp 'binding)
+			   (oref temp binding)))
+		 (name (object-name-string temp)))
+
+	    (when (not ctxtcons)
+	      (if (string= context ctxt)
+		  ;; If this context is not in the current list of contexts
+		  ;; is equal to the current context, then manage the
+		  ;; active list instead
+		  (setq active
+			(setq ctxtcons (or active (cons ctxt nil))))
+		;; This is not an active context, add it to alltabs.
+		(setq ctxtcons (cons ctxt nil))
+		(setq alltabs (cons ctxtcons alltabs))))
+
+	    (let ((new (vector
+			(if bind
+			    (concat name "   (" bind ")")
+			  name)
+			`(lambda () (interactive)
+			   (srecode-insert (concat ,ctxt ":" ,name)))
+			t)))
+
+	      (setcdr ctxtcons (cons
+				new
+				(cdr ctxtcons)))))
+
+	  (setq ltab (cdr ltab)))
+	(setq subtab (cdr subtab)))
+
+      ;; Now create the menu
+      (easy-menu-filter-return
+       (easy-menu-create-menu
+	"Semantic Recoder Filters"
+	(append (cdr active)
+		alltabs)
+	))
+      )))
+
+(defvar srecode-minor-mode-generators nil
+  "List of code generators to be displayed in the srecoder menu.")
+
+(defun srecode-minor-mode-generate-menu (menu-def)
+  "Create a menu item of cascading filters active for this mode.
+MENU-DEF is the menu to bind this into."
+  ;; Doing this SEGVs Emacs on windows.
+  ;;(srecode-load-tables-for-mode major-mode)
+  (let ((allgeneratorapps nil))
+    
+    (dolist (gen srecode-minor-mode-generators)
+      (setq allgeneratorapps
+	    (cons (vector (cdr gen) (car gen))
+		  allgeneratorapps))
+      (message "Adding %S to srecode menu" (car gen))
+      )
+
+    (easy-menu-filter-return
+     (easy-menu-create-menu
+      "Semantic Recoder Generate Filters"
+      allgeneratorapps)))
+  )
 
 ;;; Minor Mode commands
 ;;
+(defun srecode-bind-insert ()
+  "Bound insert for Srecode macros.
+This command will insert whichever srecode template has a binding
+to the current key."
+  (interactive)
+  (let* ((k last-command-char)
+	 (ctxt (srecode-calculate-context))
+	 ;; Find the template with the binding K
+	 (template (srecode-template-get-table-for-binding
+		    (srecode-table) k ctxt)))
+    ;; test it.
+    (when (not template)
+      (error "No template bound to %c" k))
+    ;; insert
+    (srecode-insert template)
+    ))
+
 (defun srecode-edit (template-name)
   "Switch to the template buffer for TEMPLATE-NAME.
 Template is chosen based on the mode of the starting buffer."
-  (interactive (list (srecode-read-template-name "Template Name: ")))
+  ;; @todo - Get a template stack from the last run template, and show
+  ;; those too!
+  (interactive (list (srecode-read-template-name
+		      "Template Name: "
+		      (car srecode-read-template-name-history))))
   (if (not (srecode-table))
       (error "No template table found for mode %s" major-mode))
     (let ((newdict (srecode-create-dictionary))
@@ -174,7 +342,48 @@ Template is chosen based on the mode of the starting buffer."
 	      (t (error "Can't find template %s" template-name)))
 	)))
 
-  
+(defun srecode-add-code-generator (function name &optional binding)
+  "Add the srecoder code generator FUNCTION with NAME to the menu.
+Optional BINDING specifies the keybinding to use in the srecoder map.
+BINDING should be a capital letter.  Lower case letters are reserved
+for individual templates.
+Optional MODE specifies a major mode this function applies to.
+Do not specify a mode if this function could be applied to most
+programming modes."
+  ;; Update the menu generating part.
+  (let ((remloop nil))
+    (while (setq remloop (assoc function srecode-minor-mode-generators))
+      (setq srecode-minor-mode-generators
+	    (remove remloop srecode-minor-mode-generators))))
+
+  (add-to-list 'srecode-minor-mode-generators
+	       (cons function name))
+
+  ;; Remove this function from any old bindings.
+  (when binding
+    (let ((oldkey (where-is-internal function
+				      (list srecode-prefix-map)
+				      t t t)))
+      (if (or (not oldkey)
+	      (and (= (length oldkey) 1)
+		   (= (length binding) 1)
+		   (= (aref oldkey 0) (aref binding 0))))
+	  ;; Its the same.
+	  nil
+	;; Remove the old binding
+	(define-key srecode-prefix-map oldkey nil)
+	)))
+
+  ;; Update Keybings
+  (let ((oldbinding (lookup-key srecode-prefix-map binding)))
+    (if (not oldbinding)
+	(define-key srecode-prefix-map binding function)
+      (if (eq function oldbinding)
+	  nil
+	;; Not the same.
+	(message "Conflict binding %S binding to srecode map."
+		 binding))))
+  )
 
 (provide 'srecode-mode)
 

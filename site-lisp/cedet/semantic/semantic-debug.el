@@ -1,9 +1,9 @@
 ;;; semantic-debug.el --- Language Debugger framework
 
-;;; Copyright (C) 2003, 2004, 2005 Eric M. Ludlam
+;;; Copyright (C) 2003, 2004, 2005, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-debug.el,v 1.15 2005/09/30 20:19:41 zappo Exp $
+;; X-RCS: $Id: semantic-debug.el,v 1.16 2008/02/19 03:23:08 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -226,7 +226,7 @@ If RULE and MATCH indicies are specified, highlight those also."
 
 (defmethod semantic-debug-unhighlight ((iface semantic-debug-interface))
   "Remove all debugging overlays."
-  (mapcar 'semantic-overlay-delete (oref iface overlays))
+  (mapc 'semantic-overlay-delete (oref iface overlays))
   (oset iface overlays nil))
 
 ;; Call from the parser at a breakpoint

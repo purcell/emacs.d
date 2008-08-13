@@ -1,9 +1,9 @@
 ;;; semantic-texi.el --- Semantic details for Texinfo files
 
-;;; Copyright (C) 2001, 2002, 2003, 2004, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-texi.el,v 1.35 2007/05/20 16:06:35 zappo Exp $
+;; X-RCS: $Id: semantic-texi.el,v 1.38 2008/02/11 14:02:16 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -42,7 +42,7 @@
   (require 'senator))
 
 (defvar semantic-texi-super-regex
-  "^@\\(chapter\\|\\(sub\\)*section\\|unnumbered\\(\\(sub\\)*sec\\)?\\|\
+  "^@\\(top\\|chapter\\|\\(sub\\)*section\\|unnumbered\\(\\(sub\\)*sec\\)?\\|\
 \\(chap\\|\\(sub\\)+\\|major\\)?heading\\|appendix\\(\\(sub\\)*sec\\)?\\|\
 centerchap\\|def\\(var\\|un\\|fn\\|opt\\)x?\\)"
   "Regular expression used to find special sections in a Texinfo file.")
@@ -162,10 +162,18 @@ tag with greater section value than LEVEL is found."
 		      (throw 'level-jump t)))
 		;; Recombobulate
 		(if levelmatch
-		    (progn
+		    (let ((end (match-end 1)))
+		      ;; Levels sometimes have a @node just in front.
+		      ;; That node statement should be included in the space
+		      ;; for this entry.
+		      (save-excursion
+			(skip-chars-backward "\n \t")
+			(beginning-of-line)
+			(when (looking-at "@node\\>")
+			  (setq begin (point))))
 		      ;; When there is a match, the descriptive text
 		      ;; consists of the rest of the line.
-		      (goto-char (match-end 1))
+		      (goto-char end)
 		      (skip-chars-forward " \t")
 		      (setq text (buffer-substring-no-properties
 				  (point)
@@ -204,7 +212,11 @@ tag with greater section value than LEVEL is found."
 		)
 	    (error "Problem finding section in semantic/texi parser"))
 	  ;; (setq oldl (cdr oldl))
-	  )))
+	  )
+	;; When oldl runs out, force a new endpoint as point-max
+	(when (not oldl)
+	  (semantic-texi-set-endpoint newl (point-max)))
+	))
     (cons (nreverse newl) oldl)))
 
 (defun semantic-texi-forward-deffn ()
@@ -220,17 +232,57 @@ The cursor should be on the @ sign."
   "Return components belonging to TAG."
   (semantic-tag-get-attribute tag :members))
 
-(define-mode-local-override semantic-insert-foreign-tag
-  texinfo-mode (foreign-tag)
-  "Insert TAG from a foreign buffer in TAGFILE.
-Assume TAGFILE is a source buffer, and create a documentation
-thingy from it using the `document' tool."
-  ;; This makes sure that TAG will be in an active buffer.
-  (let ((b (semantic-tag-buffer foreign-tag)))
-    ;; Now call the document insert thingy.
-    (require 'document)
-    (document-insert-texinfo foreign-tag b)))
+
+;;; Overrides: Context Parsing
+;;
+;; How to treat texi as a language?
+;;
+(define-mode-local-override semantic-up-context texinfo-mode ()
+  "Handle texinfo constructs which do not use parenthetical nesting."
+  (let ((done nil))
+    (save-excursion
+      (let ((parenthetical (semantic-up-context-default))
+	    )
+	(when (not parenthetical)
+	  ;; We are in parenthises.  Are they the types of parens
+	  ;; belonging to a texinfo construct?
+	  (forward-word -1)
+	  (when (looking-at "@\\w+{")
+	    (setq done (point))))))
+    ;; If we are not in a parenthetical node, then find a block instead.
+    ;; Use the texinfo support to find block start/end constructs.
+    (save-excursion
+      (while (and (not done)
+		  (re-search-backward texinfo-environment-regexp nil t))
+	;; For any hit, if we find an @end foo, then jump to the
+	;; matching @foo.  If it is not an end, then we win!
+	(if (not (looking-at "@end\\s-+\\(\\w+\\)"))
+	    (setq done (point))
+	  ;; Skip over this block
+	  (let ((env (match-string 1)))
+	    (re-search-backward (concat "@" env))))	  
+	))
+    ;; All over, post what we find.
+    (if done
+	;; We found something, so use it.
+	(progn (goto-char done)
+	       nil)
+      t)))
 
+(define-mode-local-override semantic-beginning-of-context texinfo-mode (&optional point)
+  "Move to the beginning of the context surrounding POINT."
+  (if (semantic-up-context point)
+      ;; If we can't go up, we can't do this either.
+      t
+    ;; We moved, so now we need to skip into whatever this thing is.
+    (forward-word 1) ;; skip the command
+    (if (looking-at "\\s-*{")
+	;; In a short command.  Go in.
+	(down-list 1)
+      ;; An environment.  Go to the next line.
+      (end-of-line)
+      (forward-char 1))
+    nil))
 
 (define-mode-local-override semantic-ctxt-current-class-list
   texinfo-mode (&optional point)
@@ -243,6 +295,22 @@ It would be nice to know function arguments too, but not today."
     (if (and sym (= (aref (car sym) 0) ?@))
 	'(function)
       '(word))))
+
+
+;;; Overrides : Formatting
+;;
+;; Various override to better format texi tags.
+;; 
+(define-mode-local-override semantic-insert-foreign-tag
+  texinfo-mode (foreign-tag)
+  "Insert TAG from a foreign buffer in TAGFILE.
+Assume TAGFILE is a source buffer, and create a documentation
+thingy from it using the `document' tool."
+  ;; This makes sure that TAG will be in an active buffer.
+  (let ((b (semantic-tag-buffer foreign-tag)))
+    ;; Now call the document insert thingy.
+    (require 'document)
+    (document-insert-texinfo foreign-tag b)))
 
 (define-mode-local-override semantic-format-tag-abbreviate
   texinfo-mode  (tag &optional parent color)
@@ -260,13 +328,45 @@ It would be nice to know function arguments too, but not today."
   "Texinfo tags abbreviation."
   (semantic-format-tag-abbreviate tag parent color))
 
+
+;;; Texi Unique Features
+;;
+(defun semantic-tag-texi-section-text-bounds (tag)
+  "Get the bounds to the text of TAG.
+The text bounds is the text belonging to this node excluding
+the text of any child nodes, but including any defuns."
+  (let ((memb (semantic-tag-components tag)))
+    ;; Members.. if one is a section, check it out.
+    (while (and memb (not (semantic-tag-of-class-p (car memb) 'section)))
+      (setq memb (cdr memb)))
+    ;; No members? ... then a simple problem!
+    (if (not memb)
+	(semantic-tag-bounds tag)
+      ;; Our end is their beginning...
+      (list (semantic-tag-start tag) (semantic-tag-start (car memb))))))
+
+(defun semantic-texi-current-environment (&optional point)
+  "Return as a string the type of the current environment.
+Optional argument POINT is where to look for the environment."
+  (save-excursion
+    (when point (goto-char (point)))
+    (while (and (or (not (looking-at texinfo-environment-regexp))
+		    (looking-at "@end"))
+		(not (semantic-up-context)))
+      )
+    (when (looking-at texinfo-environment-regexp)
+       (match-string 1))))
+
+
+;;; Analyzer
+;;
 (eval-when-compile
   (require 'semantic-analyze))
 
 (define-mode-local-override semantic-analyze-current-context
   texinfo-mode (point)
   "Analysis context makes no sense for texinfo.  Return nil."
-  (let* ((prefixandbounds (semantic-analyze-calculate-bounds))
+  (let* ((prefixandbounds (semantic-ctxt-current-symbol-and-bounds (point)))
 	 (prefix (car prefixandbounds))
 	 (endsym (nth 1 prefixandbounds))
 	 (bounds (nth 2 prefixandbounds))
@@ -278,8 +378,6 @@ It would be nice to know function arguments too, but not today."
        "Context-for-texinfo"
        :buffer (current-buffer)
        :scope nil
-       :scopetypes nil
-       :localvariables nil
        :bounds bounds
        :prefix prefix
        :prefixtypes nil
@@ -333,6 +431,9 @@ that start with that symbol."
 	  (t nil))
     ))
 
+
+;;; Parser Setup
+;;
 ;;;###autoload
 (defun semantic-default-texi-setup ()
   "Set up a buffer for parsing of Texinfo files."
@@ -544,10 +645,11 @@ If TAG is nil, it is derived from the deffn under POINT."
   (unless (semantic-tag-of-class-p tag 'def)
     (error "Only deffns (or defun or defvar) can be updated"))
   (let* ((name (semantic-tag-name tag))
-	 (tags (semanticdb-strip-find-results
+	 (tags (semanticdb-fast-strip-find-results
 		(semanticdb-with-match-any-mode
 		  (semanticdb-brute-deep-find-tags-by-name name nil t))
 		))
+
 	 (done nil)
 	 )
     (save-excursion

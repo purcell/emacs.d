@@ -1,10 +1,10 @@
 ;;; srecode-template.wy --- Semantic Recoder Template parser
 
-;; Copyright (C) 2005, 2007 Eric M. Ludlam
+;; Copyright (C) 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: srecode-template.wy,v 1.3 2007/03/10 04:57:48 zappo Exp $
+;; X-RCS: $Id: srecode-template.wy,v 1.9 2008/01/30 03:43:42 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -36,15 +36,25 @@
 
 ;;; KEYWORDS
 %type    <keyword>
-%keyword TEMPLATE  "template"
-%put     TEMPLATE  summary "template <name>\\n <template definition>"
 %keyword SET  "set"
 %put     SET  summary "set <name> <value>"
+%keyword SHOW "show"
+%put     SHOW summary "show <name>   ; to show a section"
+%keyword MACRO "macro"
+%put     MACRO summary "... macro \"string\" ..."
 %keyword CONTEXT "context"
 %put     CONTEXT summary "context <name>"
+%keyword TEMPLATE  "template"
+%put     TEMPLATE  summary "template <name>\\n <template definition>"
+%keyword SECTIONDICTIONARY "sectiondictionary"
+%put     SECTIONDICTIONARY summary "sectiondictionary <name>\\n <dictionary entries>"
 %keyword PROMPT "prompt"
 %keyword DEFAULT "default"
-%put     { PROMPT DEFAULT } summary "prompt <symbol> \"Describe Symbol: \" [default <lispsym>]"
+%keyword DEFAULTMACRO "defaultmacro"
+%keyword READ "read"
+%put     { PROMPT DEFAULT DEFAULTMACRO READ } summary "prompt <symbol> \"Describe Symbol: \" [default[macro] <lispsym>|\"valuetext\"] [read <lispsym>]"
+%keyword BIND "bind"
+%put     BIND summary "bind \"<letter>\""
 
 ;;; Punctuation Types
 %type <punctuation> syntax "\\s.+"
@@ -54,7 +64,7 @@
 %token <separator> TEMPLATE_BLOCK "^----"
 
 ;;; Bland default types
-%type <property> ":\\w+"
+%type <property> ":\\(\\w\\|\\s_\\)+"
 %token <property> property
 
 %type  <symbol>
@@ -82,26 +92,67 @@ context
   ;
 
 prompt
-  : PROMPT symbol string opt-lisp-fcn
-    (TAG $2 'prompt :text (read $3) :default $4)
+  : PROMPT symbol string opt-default-fcn opt-read-fcn newline
+    (TAG $2 'prompt :text (read $3) :default $4 :read $5)
+  ;
+
+opt-default-fcn
+  : DEFAULT symbol
+    (progn (read $2))
+  | DEFAULT string
+    (progn (read $2))
+  | DEFAULTMACRO string
+    (progn (cons 'macro (read $2)))
+  | ()
+  ;
+
+opt-read-fcn
+  : READ symbol
+    (progn (read $2))
+  | ()
   ;
 
 variable
-  : SET symbol string newline
+  : SET symbol insertable-string-list newline
     (VARIABLE-TAG $2 nil $3)
+  | SHOW symbol newline
+    (VARIABLE-TAG $2 nil t)
+  ;
+
+insertable-string-list
+  : insertable-string
+    (list $1)
+  | insertable-string-list insertable-string
+    (append $1 (list $2))
+  ;
+
+insertable-string
+  : string
+    (read $1)
+  | MACRO string
+    (cons 'macro (read $2))
   ;
 
 template
-  : TEMPLATE symbol opt-dynamic-arguments newline
+  : TEMPLATE templatename opt-dynamic-arguments newline
     opt-string
+    opt-section-dictionaries
     TEMPLATE_BLOCK newline
-    (FUNCTION-TAG $2 nil $3 :documentation $5 :code $6)
+    opt-bind
+    (FUNCTION-TAG $2 nil $3 :documentation $5 :code $7
+		  :dictionaries $6 :binding $9 )
   ;
 
-opt-lisp-fcn
-  : DEFAULT symbol
-    (progn $1)
-  | ()
+templatename
+  : symbol
+  | PROMPT
+  | CONTEXT
+  | TEMPLATE
+  | DEFAULT
+  | MACRO
+  | DEFAULTMACRO
+  | READ
+  | SET
   ;
 
 opt-dynamic-arguments
@@ -116,11 +167,41 @@ opt-string
   | ()
   ;
 
+opt-section-dictionaries
+  : () ;; EMPTY
+  | section-dictionary-list
+  ;
+
+section-dictionary-list
+  : one-section-dictionary
+    (list $1)
+  | section-dictionary-list one-section-dictionary
+    (append $1 (list $2))
+  ;
+
+one-section-dictionary
+  : SECTIONDICTIONARY string newline
+    variable-list
+    (cons (read $2) $4)
+  ;
+
+variable-list
+  : variable
+    (EXPANDTAG $1)
+  | variable-list variable
+    (append $1 (EXPANDTAG $2))
+  ;
+
+opt-bind
+  : BIND string newline
+    ( read $2 )
+  | ()
+  ;
 
 %%
 (define-lex-simple-regex-analyzer srecode-template-property-analyzer
   "Detect and create a dynamic argument properties."
-  ":\\w+" 'property 0)
+  ":\\(\\w\\|\\s_\\)+" 'property 0)
 
 (define-lex-regex-analyzer srecode-template-separator-block
   "Detect and create a template quote block."

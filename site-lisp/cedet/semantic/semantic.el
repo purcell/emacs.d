@@ -1,15 +1,15 @@
 ;;; semantic.el --- Semantic buffer evaluator.
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic.el,v 1.201 2007/06/06 01:04:30 zappo Exp $
+;; X-RCS: $Id: semantic.el,v 1.208 2008/06/18 23:32:21 zappo Exp $
 
 (eval-and-compile
   ;; Other package depend on this value at compile time via inversion.
 
-  (defvar semantic-version "2.0pre4"
+  (defvar semantic-version "2.0pre5"
     "Current version of Semantic.")
 
   )
@@ -62,8 +62,12 @@ introduced."
 			  (when beta (concat "beta" beta)))))
 
 (defgroup semantic nil
-  "Parser Generator/Parser."
+  "Parser Generator and parser framework."
   :group 'lisp)
+
+(defgroup semantic-faces nil
+  "Faces used for Semantic enabled tools."
+  :group 'semantic)
 
 (require 'semantic-fw)
 
@@ -191,7 +195,7 @@ associated with this buffer.
 For language specific hooks, make sure you define this as a local hook.")
 
 (defvar semantic-before-toplevel-cache-flush-hook nil
-  "Hooks run before the toplevel nonterminal cache is flushed.
+  "Hooks run before the toplevel tag cache is flushed.
 For language specific hooks, make sure you define this as a local
 hook.  This hook is called before a corresponding
 `semantic-after-toplevel-cache-change-hook' which is also called
@@ -251,7 +255,7 @@ The parse tree must be rebuilt by `semantic-parse-region'."
 ;;; Interfacing with the system
 ;;
 (defcustom semantic-inhibit-functions nil
-  "List of functions to call with no arguments before to setup Semantic.
+  "List of functions to call with no arguments before Semantic is setup.
 If any of these functions returns non-nil, the current buffer is not
 setup to use Semantic."
   :group 'semantic
@@ -315,7 +319,8 @@ to use Semantic, and `semantic-init-hook' is run."
   (condition-case nil
       (if (semantic-parse-tree-needs-update-p)
 	  (semantic-fetch-tags))
-    (error nil)))
+    (error nil))
+  semantic--buffer-cache)
 
 (if (boundp 'eval-defun-hooks)
     (add-hook 'eval-defun-hooks 'semantic-fetch-tags-fast))
@@ -360,7 +365,7 @@ the output buffer."
 ;;
 ;; Overload these functions to create new types of parsers.
 ;;
-(define-overload semantic-parse-stream (stream nonterminal)
+(define-overloadable-function semantic-parse-stream (stream nonterminal)
   "Parse STREAM, starting at the first NONTERMINAL rule.
 For bovine and wisent based parsers, STREAM is from the output of
 `semantic-lex', and NONTERMINAL is a rule in the apropriate language
@@ -372,13 +377,13 @@ Must return a list: (STREAM TAGS) where STREAM is the unused elements
 from STREAM, and TAGS is the list of semantic tags found, usually only
 one tag is returned with the exception of compound statements")
 
-(define-overload semantic-parse-changes ()
+(define-overloadable-function semantic-parse-changes ()
   "Reparse changes in the current buffer.
 The list of changes are tracked as a series of overlays in the buffer.
 When overloading this function, use `semantic-changes-in-region' to
 analyze.")
 
-(define-overload semantic-parse-region
+(define-overloadable-function semantic-parse-region
   (start end &optional nonterminal depth returnonerror)
   "Parse the area between START and END, and return any tags found.
 If END needs to be extended due to a lexical token being too large, it
@@ -412,13 +417,15 @@ unterminated syntax."
     ;; If there is no table, or it was set to t, then we are here by
     ;; some other mistake.  Do not throw an error deep in the parser.
     (error "No support found to parse buffer %S" (buffer-name)))
-  (when (or (< end start) (> end (point-max)))
-    (error "Invalid parse region bounds %S, %S" start end))
-  (nreverse
-   (semantic-repeat-parse-whole-stream
-    (or (cdr (assq start semantic-lex-block-streams))
-        (semantic-lex start end depth))
-    nonterminal returnonerror)))
+  (save-restriction
+    (widen)
+    (when (or (< end start) (> end (point-max)))
+      (error "Invalid parse region bounds %S, %S" start end))
+    (nreverse
+     (semantic-repeat-parse-whole-stream
+      (or (cdr (assq start semantic-lex-block-streams))
+	  (semantic-lex start end depth))
+      nonterminal returnonerror))))
 
 ;;; Parsing functions
 ;;
@@ -467,8 +474,8 @@ is requested."
   ;; Nuke all semantic overlays.  This is faster than deleting based
   ;; on our data structure.
   (let ((l (semantic-overlay-lists)))
-    (mapcar 'semantic-delete-overlay-maybe (car l))
-    (mapcar 'semantic-delete-overlay-maybe (cdr l))
+    (mapc 'semantic-delete-overlay-maybe (car l))
+    (mapc 'semantic-delete-overlay-maybe (cdr l))
     )
   (semantic-parse-tree-set-needs-rebuild)
   ;; Remove this hook which tracks if a buffer is up to date or not.

@@ -1,13 +1,13 @@
 ;;; c.by -- LL grammar for C/C++ language specification
 ;;
-;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Eric M. Ludlam
+;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 ;; Copyright (C) 2002, 2003 David Ponce
 ;;
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;;         David Ponce <david@dponce.com>
 ;;         Klaus Berndl <klaus.berndl@sdm.de>
 ;;
-;; X-RCS: $Id: c.by,v 1.34 2007/05/22 01:41:58 zappo Exp $
+;; X-RCS: $Id: c.by,v 1.47 2008/07/15 01:46:03 zappo Exp $
 ;;
 ;; c.by is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,8 +31,6 @@
 %start         declaration
 %scopestart    codeblock
 
-%token INCLUDE "include"
-
 %token <punctuation>   HASH       "\\`[#]\\'"
 %token <punctuation>   PERIOD     "\\`[.]\\'"
 %token <punctuation>   COLON      "\\`[:]\\'"
@@ -51,7 +49,6 @@
 %token <punctuation>   MOD        "\\`[%]\\'"
 %token <punctuation>   HAT        "\\`\\^\\'"
 %token <punctuation>   OR         "\\`[|]\\'"
-%token <punctuation>   OPSTART    "[-+*/%^|&]"
 %token <string>        C          "\"C\""
 %token <number>        ZERO       "^0$"
 %token <symbol>        RESTRICT   "\\<\\(__\\)?restrict\\>"
@@ -105,6 +102,11 @@
 %token USING "using"
 %put USING summary "using <namespace>;"
 
+%token NEW "new"
+%put NEW summary "new <classname>();"
+%token DELETE "delete"
+%put DELETE summary "delete <object>;"
+
 ;; Despite this, this parser can find templates by ignoring the TEMPLATE
 ;; keyword, and finding the class/method being templateized.
 %token TEMPLATE "template"
@@ -124,6 +126,7 @@
 %token PRIVATE "private"
 %token PROTECTED "protected"
 %token FRIEND "friend"
+%put FRIEND summary "friend class <CLASSNAME>"
 
 ;; These aren't used for parsing, but is a useful place to describe the keywords.
 %token IF "if"
@@ -196,6 +199,7 @@ declaration
   | extern-c
   | template
   | using
+    (TAG (car (car $1)) 'using :type (car $1))
   ;
 
 codeblock
@@ -225,52 +229,19 @@ extern-c
     ( nil )
   ;
 
-;; Klaus Berndl: At least one-liner should be parsed correctly!
-;; Multi-line macros (every line ends with a '\') not being one
-;; code-block can not be parsed because \+newline is flexed as nothing
-;; and therefore we can not distinguish if the lines > 1 belong to the
-;; macro or are separated statements! Maybe we need special backslash
-;; recognizing and then better macro-parsing. For the moment it's goog
-;; enough.
-macro-expression-list
-  : expression macro-expression-list SEMICOLON
-    ( nil )
-  | expression
-    ( nil )
-  ;
-
-macro-def
-  : macro-expression-list
-    ( nil )
-  | expression
-    ( nil )
-  | ;;EMPTY
-  ;
-
 macro
-  : spp-macro-def opt-define-arglist macro-def
-    (VARIABLE-TAG $1 nil $3 :constant-flag t )
-  | HASH macro-or-include
-    ( ,$2 )
-  ;
-
-macro-or-include
-  : INCLUDE system-include
-    (INCLUDE-TAG (substring $2 1 (1- (length $2))) t)
-  | INCLUDE string
-    (INCLUDE-TAG (read $2) nil )
-  ;
-
-opt-define-arglist
-  : semantic-list
-    ( nil )
-  | ;;EMPTY
+  : spp-macro-def
+    (VARIABLE-TAG $1 nil nil :constant-flag t )
+  | spp-system-include
+    (INCLUDE-TAG $1 t)
+  | spp-include
+    (INCLUDE-TAG $1 nil)
   ;
 
 ;; This is used in struct parts.
 define
-  : spp-macro-def opt-define-arglist macro-def
-    (VARIABLE-TAG $1 nil $3 :constant-flag t)
+  : spp-macro-def
+    (VARIABLE-TAG $1 nil nil :constant-flag t)
   | spp-macro-undef
     ( nil )
   ;
@@ -301,6 +272,7 @@ opt-symbol
   | ;;EMPTY
   ;
 
+;; @todo - support 'friend' construct.
 classsubparts
   : LBRACE
     ( nil )
@@ -308,9 +280,13 @@ classsubparts
     ( nil )
   | class-protection opt-symbol COLON
  ;; For QT, they may put a `slot' keyword between the protection
- ;; and the COLON.
+ ;; and the COLON.  @todo - Have the QT stuff use macros.
     (TAG (car $1) 'label)
   | var-or-fun
+  | FRIEND func-decl
+    (TAG (car $2) 'friend)
+  | FRIEND CLASS symbol
+    (TAG $3 'friend)
   | type
   | define
   | template
@@ -324,12 +300,18 @@ opt-class-parents
     ( )
   ;
 
+one-class-parent
+  : opt-class-protection opt-class-declmods namespace-symbol
+    (TYPE-TAG (car $3) "class" nil nil :protection (car $1))
+  | opt-class-declmods opt-class-protection namespace-symbol
+    (TYPE-TAG (car $3) "class" nil nil :protection (car $2))
+  ;
+
 class-parents
-  : opt-class-protection opt-class-declmods
-    namespace-symbol COMA class-parents
-    ( ,(cons $3 $5 ) )
-  | opt-class-protection opt-class-declmods namespace-symbol
-    ( ,$3 )
+  : one-class-parent COMA class-parents
+    ( ,(cons ,$1 $3 ) )
+  | one-class-parent
+    ( $1 )
   ;
 
 opt-class-declmods
@@ -351,7 +333,8 @@ class-protection
 opt-class-protection
   : class-protection
     ( ,$1 )
-  | ;;EMPTY
+  | ;;EMPTY - Same as private
+    ( "private" )
   ;
 
 namespaceparts
@@ -373,6 +356,7 @@ namespacesubparts
  ;; PUBLIC or PRIVATE bits.  Ignore them for now.
   | template
   | using
+    (TAG (car (car $1)) 'using :type (car $1))
   | ;;EMPTY
   ;
 
@@ -476,9 +460,9 @@ opt-attribute
 ;; of the code.  We should probably specify a new token type for this.
 using
   : USING typeformbase SEMICOLON
-    ( nil )
+    ( TYPE-TAG ,$2 "class" nil nil :prototype t)
   | USING NAMESPACE typeformbase SEMICOLON
-    ( nil )
+    ( TYPE-TAG ,$3 "class" nil nil :prototype t)
   ;
 
 template
@@ -684,7 +668,7 @@ typeformbase
  ;;  ( $1 type "class" )
  ;;| namespace-symbol opt-stars opt-template-specifier
  ;;| namespace-symbol opt-template-specifier
-  | namespace-symbol
+  | namespace-symbol opt-template-specifier
     (TYPE-TAG (car $1) "class" nil nil)
   | symbol
     ( $1 )
@@ -902,10 +886,10 @@ variablearg-opt-name
   ;
 
 varnamelist
-  : varname COMA varnamelist
-    ( ,(cons $1 $3) )
-  | varname
-    ( $1 )
+  : opt-ref varname COMA varnamelist
+    ( ,(cons $2 $4) )
+  | opt-ref varname
+    ( $2 )
   ;
 
 ;; Klaus Berndl: Is necessary to parse stuff like
@@ -1117,12 +1101,23 @@ string-seq
     ( $1 )
   ;
 
+expr-start 
+  : MINUS
+  | PLUS
+  | STAR
+  | AMPERSAND
+  ;
+
 ;; Use expression for parsing only.  Don't actually return anything
 ;; for now.  Hopefully we can fix this later.
 expression
   : number
     ( (identity start) (identity end) )
   | function-call
+    ( (identity start) (identity end) )
+  | NEW function-call
+    ( (identity start) (identity end) )
+  | NEW namespace-symbol
     ( (identity start) (identity end) )
  ;; Klaus Berndl: symbol -> namespace-symbol!
   | namespace-symbol
@@ -1133,10 +1128,19 @@ expression
     ( (identity start) (identity end) )
   | type-cast expression  ;; A cast to some other type
     ( (identity start) (identity end) )
+ ;; Casting the results of one expression to something else.
+  | semantic-list expression
+    ( (identity start) (identity end) )
   | semantic-list
     ( (identity start) (identity end) )
-  | OPSTART expression
+  | expr-start expression
     ( (identity start) (identity end) )
   ;
+
+;; From Michael Reiher: Subject: completion of members for struct-pointers
+;;   ClassA xyz = abc().def();
+;;   ClassA xyz = abc().def;
+;;   ClassA xyz = abc.def;
+
 
 ;;; c.by ends here

@@ -1,10 +1,10 @@
 ;;; semanticdb-el.el --- Semantic database extensions for Emacs Lisp
 
-;;; Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb-el.el,v 1.26 2007/03/10 01:57:23 zappo Exp $
+;; X-RCS: $Id: semanticdb-el.el,v 1.28 2008/05/17 11:59:16 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -43,7 +43,7 @@
 ;;; Code:
 
 ;;; Classes:
-(defclass semanticdb-table-emacs-lisp (semanticdb-search-results-table)
+(defclass semanticdb-table-emacs-lisp (semanticdb-abstract-table)
   ((major-mode :initform emacs-lisp-mode)
    )
   "A table for returning search results from Emacs.")
@@ -102,6 +102,11 @@ local variable."
   (save-excursion
     (set-buffer buffer)
     (eq (or mode-local-active-mode major-mode) 'emacs-lisp-mode)))
+
+(defmethod semanticdb-full-filename ((obj semanticdb-table-emacs-lisp))
+  "Fetch the full filename that OBJ refers to.
+For Emacs Lisp system DB, there isn't one."
+  nil)
 
 ;;; Conversion
 ;;

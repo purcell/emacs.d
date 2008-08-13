@@ -1,10 +1,10 @@
 ;;; semantic-java.el --- Semantic functions for Java
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
 ;;;   David Ponce
 
 ;; Author: David Ponce <david@dponce.com>
-;; X-RCS: $Id: semantic-java.el,v 1.14 2007/02/19 13:37:44 zappo Exp $
+;; X-RCS: $Id: semantic-java.el,v 1.15 2008/04/01 01:51:25 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -145,6 +145,11 @@ corresponding compound declaration."
 
 ;;; Environment
 ;;
+(defcustom-mode-local-semantic-dependency-system-include-path
+  java-mode semantic-java-dependency-system-include-path
+  ;; @todo - Use JDEE to get at the include path, or something else?
+  nil
+  "The system include path used by Java langauge.")
 
 ;; Local context
 ;;

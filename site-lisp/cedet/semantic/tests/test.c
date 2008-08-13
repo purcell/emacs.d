@@ -1,7 +1,7 @@
 /* Test file for C language.
  * Attempt to include as many aspects of the C language as possible.
  *
- * $Id: test.c,v 1.11 2005/09/30 20:50:39 zappo Exp $
+ * $Id: test.c,v 1.12 2008/05/17 20:16:03 zappo Exp $
  *
  */
 /* types of include files */
@@ -9,6 +9,8 @@
 #include <includeme2.h>
 #include <subdir/includeme3.h>
 #include <includeme.notanhfile>
+#include <stdlib.h>
+#include <cmath>
 
 #if 0
 int dont_show_function()
@@ -140,6 +142,11 @@ int fun1 ()
   int sv = 1;
 }
 
+int fun1p1 (void)
+{
+  int sv = 1;
+}
+
 char fun2(int arg_11)
 {
   char sv = 2;
@@ -199,6 +206,11 @@ int funk3(arg_51, arg_53)
 
   /* Bad var/slot and param */
   blah.notafunction(moose);
+
+  /* Print something. */
+  printf("Moose", );
+
+  tan();
 }
 
 int funk4_fixme(arg_61, arg_62)

@@ -3,9 +3,17 @@
 ;;; Code:
 
 
-;;;### (autoloads (cogre-load-graph cogre) "cogre" "cogre.el" (17953
-;;;;;;  30523))
+;;;### (autoloads (cogre-load-graph cogre) "cogre" "cogre.el" (18540
+;;;;;;  11774))
 ;;; Generated autoloads from cogre.el
+
+(eieio-defclass-autoload (quote cogre-graph) (quote (eieio-persistent)) "cogre" "A Connected Graph.\na connected graph contains a series of nodes and links which are\nrendered in a buffer, or serialized to disk.")
+
+(eieio-defclass-autoload (quote cogre-graph-element) (quote (eieio-named)) "cogre" "A Graph Element.\nGraph elements are anything that is drawn into a `cogre-graph'.\nGraph elements have a method for marking themselves dirty.")
+
+(eieio-defclass-autoload (quote cogre-node) (quote (cogre-graph-element)) "cogre" "Connected Graph node.\nNodes are regions with a fill color, and some amount of text representing\na status, or values.")
+
+(eieio-defclass-autoload (quote cogre-link) (quote (cogre-graph-element)) "cogre" "Connected Graph link.\nLinks are lines drawn between two nodes, or possibly loose in space\nas an intermediate step.  Some links have text describing what they\ndo, and most links have special markers on one end or another, such as\narrows or circles.")
 
 (autoload (quote cogre) "cogre" "\
 Create a new graph with the Connected Graph Editor.
@@ -30,6 +38,19 @@ Connected Graph Editor Mode.
 \\{cogre-mode-map}
 
 \(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads nil "cogre-uml" "cogre-uml.el" (18540 11820))
+;;; Generated autoloads from cogre-uml.el
+
+(eieio-defclass-autoload (quote cogre-package) (quote (cogre-node)) "cogre-uml" "A Package node.\nPackages represent other class diagrams, and list the major nodes\nwithin them.  They can be linked by dependency links.")
+
+(eieio-defclass-autoload (quote cogre-class) (quote (cogre-node)) "cogre-uml" "A Class node.\nClass nodes represent a class, and can list the attributes and methods\nwithin them.  Classes can have attribute links, and class hierarchy links.")
+
+(eieio-defclass-autoload (quote cogre-inherit) (quote (cogre-link)) "cogre-uml" "This type of link indicates that the two nodes reference infer inheritance.\nThe `start' node is the child, and the `end' node is the parent.\nThis is supposed to infer that START inherits from END.")
+
+(eieio-defclass-autoload (quote cogre-aggrigate) (quote (cogre-link)) "cogre-uml" "This type of link indicates aggregation.\nThe `start' node is the owner of the aggregation, the `end' node is\nthe item being aggregated.\nThis is supposed to infer that START contains END.")
 
 ;;;***
 
@@ -64,8 +85,8 @@ Setup buffer for parse.
 
 ;;;***
 
-;;;### (autoloads nil nil ("cogre-load.el" "cogre-uml.el" "picture-hack.el"
-;;;;;;  "wisent-dot-wy.el") (18110 13446 740638))
+;;;### (autoloads nil nil ("cogre-load.el" "picture-hack.el" "wisent-dot-wy.el")
+;;;;;;  (18594 52857 746263))
 
 ;;;***
 

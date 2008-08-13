@@ -1,4 +1,4 @@
-This is ede.info, produced by makeinfo version 4.8 from ede.texi.
+This is ede.info, produced by makeinfo version 4.12 from ede.texi.
 
 START-INFO-DIR-ENTRY
 * ede: (ede).       Objects for Emacs
@@ -11,7 +11,7 @@ File: ede.info,  Node: Top,  Next: EDE Project Concepts,  Prev: (dir),  Up: (dir
 Extensions_.  EDE provides the gloss that simplifies the learning curve
 for all the very useful functionality of building and debugging under
 emacs.  In doing so it attempts to emulate a typical IDE (Integrated
-Development Environment).  What this means is that EDE will manage or
+Development Environment).  What this means is that EDE can manage or
 create your makefiles and other building environment duties so the
 developer can concentrate on code, and not support files.  In doing so,
 it will be much easier for new programmers to learn and adopt the GNU
@@ -32,39 +32,6 @@ ways of doing things.
 * Sourcecode::
 * Compilers::
 
- --- The Detailed Node Listing ---
-
-Modifying your project
-
-* Add/Remove target::
-* Add/Remove files::
-* Customize Features::
-* EDE Project Features::
-
-EDE Project Features
-
-* Changing Compilers and Flags::
-* Configurations::
-
-Project types
-
-* Make and Automake projects::  Project types of `ede-project'
-* Automake direct projects::    Project interface on hand-written automake files.
-
-Extending EDE
-
-* User interface methods::      Methods associated with keybindings
-* Base project methods::        The most basic methods on EDE objects.
-* Sourcecode objects::          Defining new sourcecode classes.
-* Compiler and Linker objects::  Defining new compilers and linkers.
-
-Class hierarchies
-
-* Project    :: The different project types.
-* Targets    :: The different target types.
-* Sourcecode :: Source Code management types.
-* Compilers  :: Compiler management types.
-
 
 File: ede.info,  Node: EDE Project Concepts,  Next: EDE Mode,  Prev: Top,  Up: Top
 
@@ -75,7 +42,7 @@ EDE is a generic interface for managing projects.  In other words,
 there is one set of menus and keybindings specified by EDE, but there
 are multiple ways a project can be expressed via a build system.
 
-   You can learn about multiple *Note Project types::, or the specific
+   You can learn about multiple *note Project types::, or the specific
 build or debug commands in other chapters.
 
    In EDE, a project hierarchy matches a directory hierarchy.  There
@@ -114,7 +81,6 @@ mode, and Texinfo mode.  You can turn EDE on for all buffers by running
 the command `global-ede-mode', or by putting this in your `~/.emacs'
 file.
 
-     (require 'ede)
      (global-ede-mode t)
 
    When EDE is active for a given buffer, the menu item "Project"
@@ -270,7 +236,7 @@ customize the project or target with `customize-project' or
 
    When you are customizing, you are directly manipulating slot values
 in EIEIO objects.  If you are interested in additional details, see
-*Note Extending EDE::
+*note Extending EDE::
 
 * Menu:
 
@@ -288,7 +254,7 @@ to customize the desired target.
 
    In the `[Make]' section, you can then choose a new compiler or
 linker from the list.  If a linker you need is not available, you will
-need to create a new one.  *Note Compiler and Linker objects::.
+need to create a new one.  *note Compiler and Linker objects::.
 
    If an existing compiler or linker is close, but you need to modify
 some flag set such as adding an include path you will need to add a
@@ -297,7 +263,7 @@ configuration variable.
    To start, you should create the basic setup, and construct a makefile
 with `ede-proj-regenerate'.  Look in the `Makefile' to see what
 commands are inserted.  Once you have determined the variable you need
-to modify, you can add a configuration for it.  *Note Configurations::.
+to modify, you can add a configuration for it.  *note Configurations::.
 
 
 File: ede.info,  Node: Configurations,  Prev: Changing Compilers and Flags,  Up: EDE Project Features
@@ -384,18 +350,26 @@ File: ede.info,  Node: Project types,  Next: Extending EDE,  Prev: Miscellaneous
 7 Project types
 ***************
 
-There are two types of project modes currently.  One is `ede-project',
-and shows up as `Make' and `Automake' when creating new projects.
+There are currently three types of project modes.  One is
+`ede-project', and shows up as `Make' and `Automake' when creating new
+projects.
 
    The other is project type handles automake projects directly from the
 automake files.  EDE cannot make new projects of this type, assuming
 the user will do it themselves.  Use `ede-project' in `Automake' mode
 to have EDE create `Makefile.am' file, and a `configure.in' file.
 
+   The third project style are "Simple" projects.  If you already have
+project infrastructure for building and debugging, you can instead
+create a simple project that identifies a project root and can look up
+files.  The simple project styles are useful for working with tools
+that use EDE to look up files.
+
 * Menu:
 
 * Make and Automake projects::  Project types of `ede-project'
 * Automake direct projects::    Project interface on hand-written automake files.
+* Simple projects::             Projects EDE doesn't manage.
 
 
 File: ede.info,  Node: Make and Automake projects,  Next: Automake direct projects,  Prev: Project types,  Up: Project types
@@ -412,7 +386,7 @@ bootstrapping routines will also improt and maintain a configure.am
 script and a host of other files required by Automake.
 
 
-File: ede.info,  Node: Automake direct projects,  Prev: Make and Automake projects,  Up: Project types
+File: ede.info,  Node: Automake direct projects,  Next: Simple projects,  Prev: Make and Automake projects,  Up: Project types
 
 7.2 Automake direct projects
 ============================
@@ -423,6 +397,156 @@ independently.  This mode eventually became EDE.  The `project-am'
 project will read existing automake files, but will not generate them
 automatically, or create new ones.  As such, it is useful as a browsing
 tool, or as maintenance in managing file lists.
+
+
+File: ede.info,  Node: Simple projects,  Prev: Automake direct projects,  Up: Project types
+
+7.3 Simple Projects
+===================
+
+There can be a wide array of Simple projects.  The root for simple
+projects is the class `ede-simple-project'.  This handles the
+infrastructure of storing a .ede file if needed.
+
+   The class `ede-simple-project' is designed to be subclassed.  Then
+key EDE methods can be overridden to provide a quick wrapper over any
+project.
+
+   A second project type is `ede-cpp-root'.  This project type is
+designed to be created for a directory hierarchy full of C/C++ code.
+It can be configured with minimal lisp knowledge to do header file
+lookup for semantic, improving code completion performance.
+
+* Menu:
+
+* ede-cpp-root::
+* ede-simple subclassing::
+
+
+File: ede.info,  Node: ede-cpp-root,  Next: ede-simple subclassing,  Up: Simple projects
+
+7.3.1 ede-cpp-root
+------------------
+
+The `ede-cpp-root' project type will allow you to create a single
+object with no save-file in your `.emacs' file.  It will allow EDE to
+provide semantic with the ability to find header files quickly.
+
+   The `ede-cpp-root' class knows a few things about C++ projects, such
+as the prevalence of "include" directories, and typical file-layout
+stuff.  If this isn't sufficient, you can subclass
+`ede-cpp-root-project' and add your own tweaks in just a few lines.
+See the end of this file for an example.
+
+   In the most basic case, add this to your `.emacs' file, modifying
+apropriate bits as needed.
+
+     (ede-cpp-root-project "SOMENAME" :file "/dir/to/some/file")
+
+   Replace SOMENAME with whatever name you want, and the filename to an
+actual file at the root of your project.  It might be a Makefile, a
+README file.  Whatever.  It doesn't matter.  It's just a key to hang
+the rest of EDE off of.
+
+   The most likely reason to create this project, is to speed up
+searching for includes files, or to simplify bootstrapping semantic's
+ability to find files without much user interaction.  In conjunction
+with semantic completion, having a short include path is key.  You can
+override the default include path and system include path like this:
+
+     (ede-cpp-root-project "NAME" :file "FILENAME"
+         :include-path '( "/include" "../include" "/c/include" )
+         :system-include-path '( "/usr/include/c++/3.2.2/" )
+         :spp-table '( ("MOOSE" . "")
+                       ("CONST" . "const") ) )
+
+   In this case each item in the include path list is searched.  If the
+directory starts with "/", then that expands to the project root
+directory.  If a directory does not start with "/", then it is relative
+to the default-directory of the current buffer when the file name is
+expanded.
+
+   The include path only affects C/C++ header files.  Use the slot
+`:header-match-regexp' to change it.
+
+   The `:system-include-path' allows you to specify full directory
+names to include directories where system header files can be found.
+These will be applied to files in this project only.
+
+   The `:spp-table' provides a list of project specific #define style
+macros that are unique to this project, passed in to the compiler on
+the command line, or are in special headers.  See the
+`semantic-lex-c-preprocessor-symbol-map' for more on how to format this
+entry.
+
+   If you want to override the file-finding tool with your own function
+you can do this:
+
+     (ede-cpp-root-project "NAME" :file "FILENAME" :locate-fcn 'MYFCN)
+
+   Where MYFCN is a symbol for a function.  The locate function can be
+used in place of `ede-expand-filename' so you can quickly customize
+your custom target to use specialized local routines instead of the
+default EDE routines.  The function symbol must take two arguments:
+
+NAME
+     The name of the file to find.
+
+DIR
+     The directory root for this cpp-root project.
+
+   If the cpp-root project style is right for you, but you want a
+dynamic loader, instead of hard-coding path name values in your
+`.emacs', you can do that too, but you will need to write some lisp
+code.
+
+   To do that, you need to add an entry to the
+`ede-project-class-files' list, and also provide two functions to teach
+EDE how to load your project pattern
+
+   It would oook like this:
+
+     (defun MY-FILE-FOR-DIR (&optional dir)
+       "Return a full file name to the project file stored in DIR."
+       <write your code here, or return nil>
+       )
+
+     (defun MY-ROOT-FCN ()
+       "Return the root fcn for `default-directory'"
+       ;; You might be able to use `ede-cpp-root-project-root'
+       ;; and not write this at all.
+       )
+
+     (defun MY-LOAD (dir)
+       "Load a project of type `cpp-root' for the directory DIR.
+     Return nil if there isn't one."
+       ;; Use your preferred constructin method here.
+       (ede-cpp-root-project "NAME" :file (expand-file-name "FILE" dir)
+                                    :locate-fcn 'MYFCN)
+       )
+
+     (add-to-list 'ede-project-class-files
+     	     (ede-project-autoload "cpp-root"
+     	      :name "CPP ROOT"
+     	      :file 'ede-cpp-root
+     	      :proj-file 'MY-FILE-FOR-DIR
+                   :proj-root 'MY-ROOT-FCN
+     	      :load-type 'MY-LOAD
+     	      :class-sym 'ede-cpp-root)
+     	     t)
+
+   This example only creates an auto-loader, and does create a new kind
+of project.
+
+
+File: ede.info,  Node: ede-simple subclassing,  Prev: ede-cpp-root,  Up: Simple projects
+
+7.3.2 ede-simple Subclassing
+----------------------------
+
+todo - Write some doc.
+
+   In the meantime look in the commentary of ede-simple.el
 
 
 File: ede.info,  Node: Extending EDE,  Next: Project,  Prev: Project types,  Up: Top
@@ -445,7 +569,7 @@ saved, or how a target is compiled can be customized by a project
 author in detail.  EDE communicates to these project objects via an API
 using methods.  The commands you use in EDE mode are high-level
 functional wrappers over these methods.  For details on different types
-of projects, *Note Project types::.  *Note (eieio)Top::. For details on
+of projects, *note Project types::.  *note (eieio)Top::. For details on
 using EIEIO to extending classes, and writing methods.
 
    If you intend to exted EDE, it is most likely that a new target type
@@ -463,7 +587,7 @@ fields to track important information.
    If you are building currently unsuported code into a program or
 shared library, it is unlikely you need a new target at all.  Instead
 you would need to create a new compiler or linker object that compiles
-source code of the desired type. *Note Compiler and Linker objects::.
+source code of the desired type. *note Compiler and Linker objects::.
 
    Once your new class exists, you will want to fill in some basic
 methods.  See the `ede-skel.el' file for examples of these.  The files
@@ -687,7 +811,9 @@ File: ede.info,  Node: Project,  Next: Targets,  Prev: Extending EDE,  Up: Top
 
 * ede-project-placeholder ::
 *  ede-project ::
+*   ede-cpp-root-project ::
 *   ede-proj-project ::
+*   ede-simple-project ::
 *   project-am-makefile ::
 
 
@@ -728,7 +854,6 @@ Slots:
 
     `:file'
           Type: `string'
-          Default Value: `unbound'
 
           File name where this project is stored.
 
@@ -737,20 +862,28 @@ Slots:
 9.1.1 Specialized Methods
 -------------------------
 
- -- Method: ede-project-force-load :PRIMARY this
+ -- Method: ede-project-root :AFTER this
+     If a project knows it's root, return it here.  Allows for
+     one-project-object-for-a-tree type systems.
+
+ -- Method: ede-project-root-directory :AFTER this
+     If a project knows it's root, return it here.  Allows for
+     one-project-object-for-a-tree type systems.
+
+ -- Method: ede-project-force-load :AFTER this
      Make sure the placeholder THIS is replaced with the real thing.
      Return the new object created in its place.
 
- -- Method: project-interactive-select-target :PRIMARY this prompt
+ -- Method: project-interactive-select-target :AFTER this prompt
      Make sure placeholder THIS is replaced with the real thing, and
      pass through.
 
- -- Method: project-add-file :PRIMARY this file
+ -- Method: project-add-file :AFTER this file
      Make sure placeholder THIS is replaced with the real thing, and
      pass through.
 
 
-File: ede.info,  Node: ede-project,  Next: ede-proj-project,  Prev: ede-project-placeholder,  Up: Project
+File: ede.info,  Node: ede-project,  Next: ede-cpp-root-project,  Prev: ede-project-placeholder,  Up: Project
 
 9.2 ede-project
 ===============
@@ -766,7 +899,9 @@ Inheritance Tree:
                    `ede-project'
 
                         Children:
+                              *Note ede-cpp-root-project::,
                               *Note ede-proj-project::,
+                              *Note ede-simple-project::,
                               *Note project-am-makefile::.
 
 
@@ -777,11 +912,62 @@ Create a new object with name NAME of class type ede-project
 
 Slots:
 
+    `:file'
+          Type: `string'
+
+          File name where this project is stored.
+
     `:targets'
           Type: `list'
-          Default Value: `unbound'
 
           List of top level targets in this project.
+
+    `:tool-cache'
+          Type: `list'
+
+          List of tool cache configurations in this project.  This
+          allows any tool to create, manage, and persist
+          project-specific settings.
+
+    `:web-site-url'
+          Type: `string'
+          Default Value: `""'
+
+          URL to this projects web site.  This is a URL to be sent to a
+          web site for documentation.
+
+    `:web-site-directory
+          '
+          Default Value: `""'
+
+          A directory where web pages can be found by Emacs.  For
+          remote locations use a path compatible with ange-ftp or EFS.
+          You can also use TRAMP for use with rcp & scp.
+
+    `:web-site-file
+          '
+          Default Value: `""'
+
+          A file which contains the home page for this project.  This
+          file can be relative to slot `web-site-directory'.  This can
+          be a local file, use ange-ftp, EFS, or TRAMP.
+
+    `:ftp-site'
+          Type: `string'
+          Default Value: `""'
+
+          FTP site where this project's distribution can be found.
+          This FTP site should be in Emacs form, as needed by
+          `ange-ftp', but can also be of a form used by TRAMP for use
+          with scp, or rcp.
+
+    `:ftp-upload-site'
+          Type: `string'
+          Default Value: `""'
+
+          FTP Site to upload new distributions to.  This FTP site
+          should be in Emacs form as needed by `ange-ftp'.  If this
+          slot is `nil', then use `ftp-site' instead.
 
     `:configurations'
           Type: `list'
@@ -809,118 +995,297 @@ Slots:
 9.2.1 Specialized Methods
 -------------------------
 
- -- Method: eieio-speedbar-description :PRIMARY obj
+ -- Method: ede-subproject-relative-path :AFTER proj
+     Get a path name for PROJ which is relative to the parent project.
+
+ -- Method: eieio-speedbar-description :AFTER obj
      Provide a speedbar description for OBJ.
 
- -- Method: ede-map-any-target-p :PRIMARY this proc
+ -- Method: ede-map-any-target-p :AFTER this proc
      For project THIS, map PROC to all targets and return if any
      non-nil.  Return the first non-`nil' value returned by PROC.
 
- -- Method: project-rescan :PRIMARY this
+ -- Method: project-rescan :AFTER this
      Rescan the EDE proj project THIS.
 
- -- Method: ede-map-subprojects :PRIMARY this proc
+ -- Method: ede-map-subprojects :AFTER this proc
      For object THIS, execute PROC on all subprojects.
 
- -- Method: ede-convert-path :PRIMARY this path
+ -- Method: ede-convert-path :AFTER this path
      Convert path in a standard way for a given project.  Default to
      making it project relative.  Argument THIS is the project to
      convert PATH to.
 
- -- Method: ede-name :PRIMARY this
+ -- Method: ede-name :AFTER this
      Return a short-name for THIS project file.  Do this by extracting
      the lowest directory name.
 
- -- Method: eieio-speedbar-derive-line-path :PRIMARY obj &optional depth
+ -- Method: eieio-speedbar-derive-line-path :AFTER obj &optional depth
      Return the path to OBJ.  Optional DEPTH is the depth we start at.
 
- -- Method: ede-buffer-header-file :PRIMARY this buffer
+ -- Method: ede-buffer-header-file :AFTER this buffer
      Return `nil', projects don't have header files.
 
- -- Method: ede-buffer-documentation-files :PRIMARY this buffer
+ -- Method: ede-buffer-documentation-files :AFTER this buffer
      Return all documentation in project THIS based on BUFFER.
 
- -- Method: ede-map-targets :PRIMARY this proc
+ -- Method: ede-map-targets :AFTER this proc
      For object THIS, execute PROC on all targets.
 
- -- Method: ede-buffer-mine :PRIMARY this buffer
+ -- Method: ede-buffer-mine :AFTER this buffer
      Return non-`nil' if object THIS lays claim to the file in BUFFER.
 
- -- Method: ede-object-keybindings :PRIMARY this
+ -- Method: ede-object-keybindings :BEFORE this
      Retrieves the slot `keybindings' from an object of class
      `ede-project'
 
- -- Method: ede-description :PRIMARY this
+ -- Method: ede-description :AFTER this
      Return a description suitible for the minibuffer about THIS.
 
- -- Method: eieio-speedbar-object-children :PRIMARY this
+ -- Method: project-make-dist :AFTER this
+     Build a distribution for the project based on THIS project.
+
+ -- Method: eieio-speedbar-object-children :AFTER this
      Return the list of speedbar display children for THIS.
 
- -- Method: project-make-dist :PRIMARY this
-     Build a distribution for the project based on THIS target.
-
- -- Method: project-new-target-custom :PRIMARY proj
+ -- Method: project-new-target-custom :AFTER proj
      Create a new target.  It is up to the project PROJ to get the name.
 
- -- Method: ede-expand-filename :PRIMARY this filename &optional force
+ -- Method: ede-subproject-p :AFTER proj
+     Return non-`nil' if PROJ is a sub project.
+
+ -- Method: ede-expand-filename :AFTER this filename &optional force
      Return a fully qualified file name based on project THIS.
      FILENAME should be just a filename which occurs in a directory
      controlled by this project.  Optional argument FORCE forces the
      default filename to be provided even if it doesn't exist.
 
- -- Method: ede-menu-items-build :PRIMARY obj &optional current
+ -- Method: ede-menu-items-build :AFTER obj &optional current
      Return a list of menu items for building project OBJ.  If optional
      argument CURRENT is non-`nil', return sub-menu code.
 
- -- Method: project-new-target :PRIMARY proj
+ -- Method: project-new-target :AFTER proj
      Create a new target.  It is up to the project PROJ to get the name.
 
- -- Method: project-compile-project :PRIMARY obj &optional command
+ -- Method: project-compile-project :AFTER obj &optional command
      Compile the entire current project OBJ.  Argument COMMAND is the
      command to use when compiling.
 
- -- Method: eieio-speedbar-object-buttonname :PRIMARY object
+ -- Method: eieio-speedbar-object-buttonname :AFTER object
      Return a string to use as a speedbar button for OBJECT.
 
- -- Method: ede-map-project-buffers :PRIMARY this proc
+ -- Method: ede-map-project-buffers :AFTER this proc
      For THIS, execute PROC on all buffers belonging to THIS.
 
- -- Method: eieio-done-customizing :PRIMARY proj
+ -- Method: eieio-done-customizing :AFTER proj
      Call this when a user finishes customizing PROJ.
 
- -- Method: ede-documentation :PRIMARY this
+ -- Method: ede-html-documentation :AFTER this
+     Return a list of HTML files provided by project THIS.
+
+ -- Method: ede-documentation :AFTER this
      Return a list of files that provides documentation.  Documentation
      is not for object THIS, but is provided by THIS for other files in
      the project.
 
- -- Method: project-interactive-select-target :PRIMARY this prompt
+ -- Method: project-interactive-select-target :AFTER this prompt
      Interactivly query for a target that exists in project THIS.
      Argument PROMPT is the prompt to use when querying the user for a
      target.
 
- -- Method: ede-target-in-project-p :PRIMARY proj target
+ -- Method: ede-target-in-project-p :AFTER proj target
      Is PROJ the parent of TARGET?  If TARGET belongs to a subproject,
      return that project file.
 
- -- Method: ede-find-target :PRIMARY proj buffer
+ -- Method: ede-find-target :AFTER proj buffer
      Fetch the target in PROJ belonging to BUFFER or nil.
 
- -- Method: ede-add-subproject :PRIMARY proj-a proj-b
+ -- Method: ede-add-subproject :AFTER proj-a proj-b
      Add into PROJ-A, the subproject PROJ-B.
 
- -- Method: ede-commit-project :PRIMARY proj
+ -- Method: ede-commit-project :AFTER proj
      Commit any change to PROJ to its file.
 
- -- Method: ede-object-menu :PRIMARY this
+ -- Method: project-dist-files :AFTER this
+     Return a list of files that constitues a distribution of THIS
+     project.
+
+ -- Method: ede-object-menu :BEFORE this
      Retrieves the slot `menu' from an object of class `ede-project'
 
- -- Method: ede-commit-local-variables :PRIMARY proj
+ -- Method: ede-commit-local-variables :AFTER proj
      Commit change to local variables in PROJ.
 
 
-File: ede.info,  Node: ede-proj-project,  Next: project-am-makefile,  Prev: ede-project,  Up: Project
+File: ede.info,  Node: ede-cpp-root-project,  Next: ede-proj-project,  Prev: ede-project,  Up: Project
 
-9.3 ede-proj-project
+9.3 ede-cpp-root-project
+========================
+
+Inheritance Tree:
+
+    `eieio-instance-tracker'
+
+         `ede-cpp-root-project'
+               No children
+
+
+Create a new object with name NAME of class type ede-cpp-root-project
+
+Slots:
+
+    `:name'
+          Type: `string'
+          Default Value: `"Untitled"'
+
+          The name used when generating distribution files.
+
+    `:version'
+          Type: `string'
+          Default Value: `"1.0"'
+
+          The version number used when distributing files.
+
+    `:file'
+          Type: `string'
+
+          File name where this project is stored.
+
+    `:targets'
+          Type: `list'
+
+          List of top level targets in this project.
+
+    `:tool-cache'
+          Type: `list'
+
+          List of tool cache configurations in this project.  This
+          allows any tool to create, manage, and persist
+          project-specific settings.
+
+    `:web-site-url'
+          Type: `string'
+          Default Value: `""'
+
+          URL to this projects web site.  This is a URL to be sent to a
+          web site for documentation.
+
+    `:web-site-directory
+          '
+          Default Value: `""'
+
+          A directory where web pages can be found by Emacs.  For
+          remote locations use a path compatible with ange-ftp or EFS.
+          You can also use TRAMP for use with rcp & scp.
+
+    `:web-site-file
+          '
+          Default Value: `""'
+
+          A file which contains the home page for this project.  This
+          file can be relative to slot `web-site-directory'.  This can
+          be a local file, use ange-ftp, EFS, or TRAMP.
+
+    `:ftp-site'
+          Type: `string'
+          Default Value: `""'
+
+          FTP site where this project's distribution can be found.
+          This FTP site should be in Emacs form, as needed by
+          `ange-ftp', but can also be of a form used by TRAMP for use
+          with scp, or rcp.
+
+    `:ftp-upload-site'
+          Type: `string'
+          Default Value: `""'
+
+          FTP Site to upload new distributions to.  This FTP site
+          should be in Emacs form as needed by `ange-ftp'.  If this
+          slot is `nil', then use `ftp-site' instead.
+
+    `:configurations'
+          Type: `list'
+          Default Value: `("debug" "release")'
+
+          List of available configuration types.  Individual
+          target/project types can form associations between a
+          configuration, and target specific elements such as build
+          variables.
+
+    `:configuration-default
+          '
+          Default Value: `"debug"'
+
+          The default configuration.
+
+    `:local-variables
+          '
+          Default Value: `nil'
+
+          Project local variables
+
+    `:include-path'
+          Type: `list'
+          Default Value: `(quote ("/include" "../include/"))'
+
+          The default locate function expands filenames within a
+          project.  If a header file (.h, .hh, etc) name is expanded,
+          and the `:locate-fcn' slot is `nil', then the include path is
+          checked first, and other directories are ignored.  For very
+          large projects, this optimization can save a lot of time.
+
+          Directory names in the path can be relative to the current
+          buffer's `default-directory' (not starting with a /).
+          Directories that are relative to the project's root should
+          start with a /.
+
+    `:header-match-regexp'
+          Type: `string'
+          Default Value:
+          `"\\.\\(h\\(h\\|xx\\|pp\\|\\+\\+\\)?\\|H\\)$\\|\\<\\w+$"'
+
+          Regexp used to identify C/C++ header files.
+
+    `:locate-fcn'
+          Type: `(or null function)'
+          Default Value: `nil'
+
+          The locate function can be used in place of
+          "ede-expand-filename" so you can quickly customize your
+          custom target to use specialized local routines instead of
+          the EDE routines.  The function symbol must take two
+          arguments:   NAME - The name of the file to find.    DIR -
+          The directory root for this cpp-root project.
+
+
+
+9.3.1 Specialized Methods
+-------------------------
+
+ -- Method: initialize-instance :AFTER this &rest fields
+     Make sure the `:file' is fully expanded.
+
+ -- Method: ede-cpp-root-header-file-p :AFTER proj name
+     Non `nil' if in PROJ the filename NAME is a header.
+
+ -- Method: ede-project-root :AFTER this
+     Return my root.
+
+ -- Method: ede-expand-filename :AFTER proj name
+     Within this project PROJ, find the file NAME.  This knows details
+     about or source tree.
+
+ -- Method: ede-project-root-directory :AFTER this
+     Return my root.
+
+ -- Method: ede-find-target :AFTER proj buffer
+     Find an EDE target in PROJ for BUFFER.  If one doesn't exist,
+     create a new one for this directory.
+
+
+File: ede.info,  Node: ede-proj-project,  Next: ede-simple-project,  Prev: ede-cpp-root-project,  Up: Project
+
+9.4 ede-proj-project
 ====================
 
 Inheritance Tree:
@@ -943,6 +1308,23 @@ Inheritance Tree:
 Create a new object with name NAME of class type ede-proj-project
 
 Slots:
+
+    `:file'
+          Type: `string'
+
+          File name where this project is stored.
+
+    `:targets'
+          Type: `list'
+
+          List of top level targets in this project.
+
+    `:tool-cache'
+          Type: `list'
+
+          List of tool cache configurations in this project.  This
+          allows any tool to create, manage, and persist
+          project-specific settings.
 
     `:makefile-type'
           Type: `symbol'
@@ -973,6 +1355,13 @@ Slots:
 
           Inference rules to add to the makefile.
 
+    `:include-file
+          '
+          Default Value: `nil'
+
+          Additional files to include.  These files can contain
+          additional rules, variables, and customizations.
+
     `:automatic-dependencies'
           Type: `boolean'
           Default Value: `t'
@@ -980,107 +1369,245 @@ Slots:
           Non-`nil' to do implement automatic dependencies in the
           Makefile.
 
+    `:metasubproject'
+          Type: `boolean'
+          Default Value: `nil'
+
+          Non-`nil' if this is a metasubproject.  Usually, a subproject
+          is determined by a parent project.  If multiple top level
+          projects are grouped into a large project not maintained by
+          EDE, then you need to set this to non-nil.  The only effect
+          is that the `dist' rule will then avoid making a tar file.
 
 
-9.3.1 Specialized Methods
+
+9.4.1 Specialized Methods
 -------------------------
 
- -- Method: project-rescan :PRIMARY this
+ -- Method: project-rescan :AFTER this
      Rescan the EDE proj project THIS.
 
- -- Method: ede-proj-makefile-create :PRIMARY this mfilename
+ -- Method: ede-proj-makefile-create :AFTER this mfilename
      Create a Makefile for all Makefile targets in THIS.  MFILENAME is
      the makefile to generate.
 
- -- Method: ede-proj-makefile-insert-rules :PRIMARY this
+ -- Method: ede-proj-makefile-insert-rules :AFTER this
      Insert rules needed by THIS target.
 
- -- Method: ede-proj-makefile-tags :PRIMARY this targets
+ -- Method: ede-proj-makefile-tags :AFTER this targets
      Insert into the current location rules to make recursive TAGS
      files.  Argument THIS is the project to create tags for.  Argument
      TARGETS are the targets we should depend on for TAGS.
 
- -- Method: project-update-version :PRIMARY this
+ -- Method: project-update-version :AFTER this
      The `:version' of project THIS has changed.
 
- -- Method: ede-buffer-mine :PRIMARY this buffer
+ -- Method: ede-buffer-mine :AFTER this buffer
      Return `t' if object THIS lays claim to the file in BUFFER.
 
- -- Method: ede-proj-makefile-insert-variables :PRIMARY this
+ -- Method: ede-proj-makefile-insert-variables :AFTER this
      Insert variables needed by target THIS.
 
- -- Method: project-make-dist :PRIMARY this
+ -- Method: project-make-dist :AFTER this
      Build a distribution for the project based on THIS target.
 
- -- Method: ede-proj-makefile-insert-dist-rules :PRIMARY this
+ -- Method: ede-proj-makefile-insert-dist-rules :AFTER this
      Insert distribution rules for THIS in a Makefile, such as CLEAN
      and DIST.
 
- -- Method: project-new-target-custom :PRIMARY this
+ -- Method: project-new-target-custom :AFTER this
      Create a new target in THIS for custom.
 
- -- Method: ede-proj-makefile-create-maybe :PRIMARY this mfilename
+ -- Method: ede-proj-makefile-insert-dist-dependencies :AFTER this
+     Insert any symbols that the DIST rule should depend on.  Argument
+     THIS is the project that should insert stuff.
+
+ -- Method: ede-proj-makefile-insert-subproj-rules :AFTER this
+     Insert a rule for the project THIS which should be a subproject.
+
+ -- Method: ede-proj-makefile-create-maybe :AFTER this mfilename
      Create a Makefile for all Makefile targets in THIS if needed.
      MFILENAME is the makefile to generate.
 
- -- Method: ede-proj-configure-test-required-file :PRIMARY this file
+ -- Method: ede-proj-configure-test-required-file :AFTER this file
      For project THIS, test that the file FILE exists, or create it.
 
- -- Method: ede-proj-setup-buildenvironment :PRIMARY this &optional
-          force
+ -- Method: ede-proj-setup-buildenvironment :AFTER this &optional force
      Setup the build environment for project THIS.  Handles the
      Makefile, or a Makefile.am configure.in combination.  Optional
      argument FORCE will force items to be regenerated.
 
- -- Method: ede-proj-makefile-garbage-patterns :PRIMARY this
+ -- Method: ede-proj-makefile-garbage-patterns :AFTER this
      Return a list of patterns that are considred garbage to THIS.
      These are removed with make clean.
 
- -- Method: ede-proj-configure-synchronize :PRIMARY this
+ -- Method: ede-proj-configure-synchronize :AFTER this
      Synchronize what we know about project THIS into configure.in.
 
- -- Method: project-new-target :PRIMARY this
+ -- Method: project-new-target :AFTER this
      Create a new target in THIS based on the current buffer.
 
- -- Method: project-compile-project :PRIMARY proj &optional command
+ -- Method: project-compile-project :AFTER proj &optional command
      Compile the entire current project PROJ.  Argument COMMAND is the
      command to use when compiling.
 
- -- Method: ede-proj-makefile-configuration-variables :PRIMARY this
+ -- Method: ede-proj-makefile-configuration-variables :AFTER this
           configuration
      Return a list of configuration variables from THIS.  Use
      CONFIGURATION as the current configuration to query.
 
- -- Method: eieio-done-customizing :PRIMARY proj
+ -- Method: eieio-done-customizing :AFTER proj
      Call this when a user finishes customizing this object.  Argument
      PROJ is the project to save.
 
- -- Method: ede-proj-configure-recreate :PRIMARY this
+ -- Method: ede-proj-configure-recreate :AFTER this
      Delete project THISes configure script and start over.
 
- -- Method: ede-proj-makefile-insert-user-rules :PRIMARY this
+ -- Method: ede-proj-makefile-insert-user-rules :AFTER this
      Insert user specified rules needed by THIS target.  This is
      different from "ede-proj-makefile-insert-rules" in that this
      function won't create the building rules which are auto created
      with automake.
 
- -- Method: ede-proj-dist-makefile :PRIMARY this
+ -- Method: ede-proj-dist-makefile :AFTER this
      Return the name of the Makefile with the DIST target in it for
      THIS.
 
- -- Method: ede-proj-configure-file :PRIMARY this
+ -- Method: ede-proj-configure-file :AFTER this
      The configure.in script used by project THIS.
 
- -- Method: ede-commit-project :PRIMARY proj
+ -- Method: ede-commit-project :AFTER proj
      Commit any change to PROJ to its file.
 
- -- Method: ede-commit-local-variables :PRIMARY proj
+ -- Method: project-dist-files :AFTER this
+     Return a list of files that constitutes a distribution of THIS
+     project.
+
+ -- Method: ede-commit-local-variables :AFTER proj
      Commit change to local variables in PROJ.
 
 
-File: ede.info,  Node: project-am-makefile,  Prev: ede-proj-project,  Up: Project
+File: ede.info,  Node: ede-simple-project,  Next: project-am-makefile,  Prev: ede-proj-project,  Up: Project
 
-9.4 project-am-makefile
+9.5 ede-simple-project
+======================
+
+Inheritance Tree:
+
+    `eieio-persistent'
+
+         `ede-simple-project'
+               No children
+
+
+Create a new object with name NAME of class type ede-simple-project
+
+Slots:
+
+    `:file'
+          Type: `string'
+
+          The save file for this persistent object.  This must be a
+          string, and must be specified when the new object is
+          instantiated.
+
+    `:name'
+          Type: `string'
+          Default Value: `"Untitled"'
+
+          The name used when generating distribution files.
+
+    `:version'
+          Type: `string'
+          Default Value: `"1.0"'
+
+          The version number used when distributing files.
+
+    `:targets'
+          Type: `list'
+
+          List of top level targets in this project.
+
+    `:tool-cache'
+          Type: `list'
+
+          List of tool cache configurations in this project.  This
+          allows any tool to create, manage, and persist
+          project-specific settings.
+
+    `:web-site-url'
+          Type: `string'
+          Default Value: `""'
+
+          URL to this projects web site.  This is a URL to be sent to a
+          web site for documentation.
+
+    `:web-site-directory
+          '
+          Default Value: `""'
+
+          A directory where web pages can be found by Emacs.  For
+          remote locations use a path compatible with ange-ftp or EFS.
+          You can also use TRAMP for use with rcp & scp.
+
+    `:web-site-file
+          '
+          Default Value: `""'
+
+          A file which contains the home page for this project.  This
+          file can be relative to slot `web-site-directory'.  This can
+          be a local file, use ange-ftp, EFS, or TRAMP.
+
+    `:ftp-site'
+          Type: `string'
+          Default Value: `""'
+
+          FTP site where this project's distribution can be found.
+          This FTP site should be in Emacs form, as needed by
+          `ange-ftp', but can also be of a form used by TRAMP for use
+          with scp, or rcp.
+
+    `:ftp-upload-site'
+          Type: `string'
+          Default Value: `""'
+
+          FTP Site to upload new distributions to.  This FTP site
+          should be in Emacs form as needed by `ange-ftp'.  If this
+          slot is `nil', then use `ftp-site' instead.
+
+    `:configurations'
+          Type: `list'
+          Default Value: `("debug" "release")'
+
+          List of available configuration types.  Individual
+          target/project types can form associations between a
+          configuration, and target specific elements such as build
+          variables.
+
+    `:configuration-default
+          '
+          Default Value: `"debug"'
+
+          The default configuration.
+
+    `:local-variables
+          '
+          Default Value: `nil'
+
+          Project local variables
+
+
+
+9.5.1 Specialized Methods
+-------------------------
+
+ -- Method: ede-commit-project :AFTER proj
+     Commit any change to PROJ to its file.
+
+
+File: ede.info,  Node: project-am-makefile,  Prev: ede-simple-project,  Up: Project
+
+9.6 project-am-makefile
 =======================
 
 Inheritance Tree:
@@ -1104,40 +1631,53 @@ Create a new object with name NAME of class type project-am-makefile
 
 Slots:
 
+    `:file'
+          Type: `string'
+
+          File name where this project is stored.
+
     `:targets'
           Type: `list'
           Default Value: `nil'
 
-          *Note ede-project::.
+          Top level targets in this makefile.
+
+    `:tool-cache'
+          Type: `list'
+
+          List of tool cache configurations in this project.  This
+          allows any tool to create, manage, and persist
+          project-specific settings.
 
 
-9.4.1 Specialized Methods
+
+9.6.1 Specialized Methods
 -------------------------
 
- -- Method: project-rescan :PRIMARY this
+ -- Method: project-rescan :AFTER this
      Rescan the makefile for all targets and sub targets.
 
- -- Method: project-am-subtree :PRIMARY ampf subpath
+ -- Method: project-am-subtree :AFTER ampf subpath
      Return the sub project in AMPF specified by SUBPATH.
 
- -- Method: project-targets-for-file :PRIMARY proj
+ -- Method: project-targets-for-file :AFTER proj
      Return a list of targets the project PROJ.
 
- -- Method: ede-buffer-mine :PRIMARY this buffer
+ -- Method: ede-buffer-mine :AFTER this buffer
      Return `t' if object THIS lays claim to the file in BUFFER.
 
- -- Method: project-new-target :PRIMARY proj
+ -- Method: project-new-target :AFTER proj
      Create a new target named NAME.  Argument TYPE is the type of
      target to insert.  This is a string matching something in
      `project-am-type-alist' or type class symbol.  Despite the fact
      that this is a method, it depends on the current buffer being in
      order to provide a smart default target type.
 
- -- Method: project-compile-project :PRIMARY obj &optional command
+ -- Method: project-compile-project :AFTER obj &optional command
      Compile the entire current project.  Argument COMMAND is the
      command to use when compiling.
 
- -- Method: ede-find-target :PRIMARY amf buffer
+ -- Method: ede-find-target :AFTER amf buffer
      Fetch the target belonging to BUFFER.
 
 
@@ -2956,58 +3496,63 @@ Slots:
 
 
 Tag Table:
-Node: Top146
-Node: EDE Project Concepts2248
-Node: EDE Mode3863
-Node: Creating a project4689
-Node: Modifying your project6560
-Node: Add/Remove target7042
-Node: Add/Remove files7810
-Node: Customize Features8885
-Node: EDE Project Features9822
-Node: Changing Compilers and Flags10548
-Node: Configurations11505
-Node: Building and Debugging12390
-Node: Miscellaneous commands13132
-Node: Project types14083
-Node: Make and Automake projects14791
-Node: Automake direct projects15457
-Node: Extending EDE16017
-Node: User interface methods18481
-Node: Base project methods19702
-Node: Sourcecode objects21070
-Node: Compiler and Linker objects22773
-Node: Project25268
-Node: ede-project-placeholder25479
-Node: ede-project26818
-Node: ede-proj-project32333
-Node: project-am-makefile37500
-Node: Targets39194
-Node: ede-target39898
-Node: ede-proj-target45617
-Node: ede-proj-target-makefile51349
-Node: ede-proj-target-makefile-objectcode54265
-Node: ede-proj-target-makefile-archive55912
-Node: ede-proj-target-makefile-program57117
-Node: ede-proj-target-makefile-shared-object59002
-Node: ede-proj-target-elisp60955
-Node: ede-proj-target-makefile-info62732
-Node: ede-proj-target-makefile-miscelaneous64725
-Node: ede-proj-target-aux66012
-Node: ede-proj-target-scheme66697
-Node: project-am-target67528
-Node: project-am-objectcode69154
-Node: project-am-program70733
-Node: project-am-lib71621
-Node: project-am-lisp72391
-Node: project-am-texinfo73635
-Node: project-am-man75232
-Node: Sourcecode76130
-Node: ede-sourcecode76348
-Node: Compilers79195
-Node: ede-compilation-program79603
-Node: ede-compiler82880
-Node: ede-object-compiler86092
-Node: ede-linker88264
+Node: Top147
+Node: EDE Project Concepts1373
+Node: EDE Mode2988
+Node: Creating a project3794
+Node: Modifying your project5665
+Node: Add/Remove target6147
+Node: Add/Remove files6915
+Node: Customize Features7990
+Node: EDE Project Features8927
+Node: Changing Compilers and Flags9653
+Node: Configurations10610
+Node: Building and Debugging11495
+Node: Miscellaneous commands12237
+Node: Project types13188
+Node: Make and Automake projects14268
+Node: Automake direct projects14934
+Node: Simple projects15518
+Node: ede-cpp-root16300
+Node: ede-simple subclassing20799
+Node: Extending EDE21034
+Node: User interface methods23498
+Node: Base project methods24719
+Node: Sourcecode objects26087
+Node: Compiler and Linker objects27790
+Node: Project30285
+Node: ede-project-placeholder30550
+Node: ede-project32166
+Node: ede-cpp-root-project39728
+Node: ede-proj-project44593
+Node: ede-simple-project51161
+Node: project-am-makefile54205
+Node: Targets56196
+Node: ede-target56900
+Node: ede-proj-target62619
+Node: ede-proj-target-makefile68351
+Node: ede-proj-target-makefile-objectcode71267
+Node: ede-proj-target-makefile-archive72914
+Node: ede-proj-target-makefile-program74119
+Node: ede-proj-target-makefile-shared-object76004
+Node: ede-proj-target-elisp77957
+Node: ede-proj-target-makefile-info79734
+Node: ede-proj-target-makefile-miscelaneous81727
+Node: ede-proj-target-aux83014
+Node: ede-proj-target-scheme83699
+Node: project-am-target84530
+Node: project-am-objectcode86156
+Node: project-am-program87735
+Node: project-am-lib88623
+Node: project-am-lisp89393
+Node: project-am-texinfo90637
+Node: project-am-man92234
+Node: Sourcecode93132
+Node: ede-sourcecode93350
+Node: Compilers96197
+Node: ede-compilation-program96605
+Node: ede-compiler99882
+Node: ede-object-compiler103094
+Node: ede-linker105266
 
 End Tag Table

@@ -1,10 +1,10 @@
 ;;; semantic-tag-file.el --- Routines that find files based on tags.
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-tag-file.el,v 1.18 2007/06/22 19:01:31 zappo Exp $
+;; X-RCS: $Id: semantic-tag-file.el,v 1.26 2008/07/02 14:19:16 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -35,7 +35,7 @@
 ;;; Location a TAG came from.
 ;;
 ;;;###autoload
-(define-overload semantic-go-to-tag (tag &optional parent)
+(define-overloadable-function semantic-go-to-tag (tag &optional parent)
   "Go to the location of TAG.
 TAG may be a stripped element, in which case PARENT specifies a
 parent tag that has position information.
@@ -48,7 +48,7 @@ depended on (see `semantic-dependency-tag-file'."
 		  (when f
 		    (set-buffer (find-file-noselect f))
 		    (point))))
-     (cond ((semantic-tag-buffer tag)
+     (cond ((semantic-tag-in-buffer-p tag)
 	    ;; We have a linked tag, go to that buffer.
 	    (set-buffer (semantic-tag-buffer tag)))
 	   ((semantic-tag-file-name tag)
@@ -56,7 +56,7 @@ depended on (see `semantic-dependency-tag-file'."
 	    ;; name, then we need to get to that file so the tag
 	    ;; location is made accurate.
 	    (set-buffer (find-file-noselect (semantic-tag-file-name tag))))
-	   ((and parent (semantic-tag-p parent) (semantic-tag-buffer parent))
+	   ((and parent (semantic-tag-p parent) (semantic-tag-in-buffer-p parent))
 	    ;; The tag had nothing useful, but we have a parent with
 	    ;; a buffer, then go there.
 	    (set-buffer (semantic-tag-buffer parent)))
@@ -100,27 +100,9 @@ depended on (see `semantic-dependency-tag-file'."
 ;; A tag which is of type 'include specifies a dependency.
 ;; Dependencies usually represent a file of some sort.
 ;; Find the file described by a dependency.
-;;; Code:
-;;;###autoload
-(defvar semantic-dependency-include-path nil
-  "Defines the include path used when searching for files.
-This should be a list of directories to search which is specific
-to the file being included.
-
-If `semantic-dependency-tag-file' is overridden for a given
-language, this path is most likely ignored.
-
-This function, reguardless of being overriden, caches the located
-dependency file location in the tag property `dependency-file'.
-If you override this function, you do not need to implement your
-own cache.  Each time the buffer is fully reparsed, the cache
-will be reset.
-
-TODO: use ffap.el to locate such items.")
-(make-variable-buffer-local `semantic-dependency-include-path)
 
 ;;;###autoload
-(define-overload semantic-dependency-tag-file (&optional tag)
+(define-overloadable-function semantic-dependency-tag-file (&optional tag)
   "Find the filename represented from TAG.
 Depends on `semantic-dependency-include-path' for searching.  Always searches
 `.' first, then searches additional paths."
@@ -128,45 +110,58 @@ Depends on `semantic-dependency-include-path' for searching.  Always searches
   (unless (semantic-tag-of-class-p tag 'include)
     (signal 'wrong-type-argument (list tag 'include)))
   (save-excursion
-    (cond ((semantic-tag-buffer tag)
-	   ;; If the tag has an overlay and buffer associated with it,
-	   ;; switch to that buffer so that we get the right override metohds.
-	   (set-buffer (semantic-tag-buffer tag)))
-	  ((semantic-tag-file-name tag)
-	   ;; If it didn't have a buffer, but does have a file
-	   ;; name, then we need to get to that file so the tag
-	   ;; location is made accurate.
-	   (set-buffer (find-file-noselect (semantic-tag-file-name tag)))))
-    (let ((result nil))
+    (let ((result nil)
+	  (default-directory default-directory)
+	  (edefind nil))
+      (cond ((semantic-tag-in-buffer-p tag)
+	     ;; If the tag has an overlay and buffer associated with it,
+	     ;; switch to that buffer so that we get the right override metohds.
+	     (set-buffer (semantic-tag-buffer tag)))
+	    ((semantic-tag-file-name tag)
+	     ;; If it didn't have a buffer, but does have a file
+	     ;; name, then we need to get to that file so the tag
+	     ;; location is made accurate.
+	     ;;(set-buffer (find-file-noselect (semantic-tag-file-name tag)))
+	     ;;
+	     ;; 2/3/08
+	     ;; The above causes unnecessary buffer loads all over the place. Ick!
+	     ;; All we really need is for 'default-directory' to be set correctly.
+	     (setq default-directory (file-name-directory (semantic-tag-file-name tag)))
+	     ))
       ;; First, see if this file exists in the current EDE project
-      ;; @ToDo : Move EDE piece into semantic-dep
       (if (and (not (semantic-tag-include-system-p tag))
 	       (fboundp 'ede-expand-filename) ede-minor-mode
-	       (ede-expand-filename (ede-toplevel)
-				    (semantic-tag-name tag)))
-	  (setq result 
-		(ede-expand-filename (ede-toplevel)
-				     (semantic-tag-name tag)))
-	)
+	       (setq edefind
+		     (condition-case nil
+			 (let ((proj  (ede-toplevel)))
+			   (when proj
+			     (ede-expand-filename proj (semantic-tag-name tag))))
+		       nil)))
+	  (setq result edefind))
       (if (not result)
 	  (setq result
-		(if (semantic--tag-get-property tag 'dependency-file)
-		    (semantic--tag-get-property tag 'dependency-file)
-		  (:override
-		   (save-excursion
-		     (let* ((name (semantic-tag-name tag)))
-		       (semantic-dependency-find-file-on-path
-			name (semantic-tag-include-system-p tag)))))
-		  )))
-	(if (stringp result)
-	    (progn
-	      (semantic--tag-put-property tag 'dependency-file result)
-	      result)
-	  ;; @todo: Do something to make this get flushed w/
-	  ;;        when the path is changed.
-	  (semantic--tag-put-property tag 'dependency-file 'none)
-	  nil)
-	)))
+		;; I don't have a plan for refreshing tags with a dependency
+		;; stuck on them somehow.  I'm thinking that putting a cache
+		;; onto the dependancy finding with a hash table might be best.
+		;;(if (semantic--tag-get-property tag 'dependency-file)
+		;;  (semantic--tag-get-property tag 'dependency-file)
+		(:override
+		 (save-excursion
+		   (let* ((name (semantic-tag-name tag)))
+		     (semantic-dependency-find-file-on-path
+		      name (semantic-tag-include-system-p tag)))))
+		;; )
+		))
+      (if (stringp result)
+	  (progn
+	    (semantic--tag-put-property tag 'dependency-file result)
+	    result)
+	;; @todo: Do something to make this get flushed w/
+	;;        when the path is changed.
+	;; @undo: Just eliminate
+	;; (semantic--tag-put-property tag 'dependency-file 'none)
+	nil)
+      )))
 
 (make-obsolete-overload 'semantic-find-dependency
                         'semantic-dependency-tag-file)
@@ -178,7 +173,7 @@ Depends on `semantic-dependency-include-path' for searching.  Always searches
 ;; prototype file a given source file would be associated with.
 ;; This can be used by prototype manager programs.
 ;;;###autoload
-(define-overload semantic-prototype-file (buffer)
+(define-overloadable-function semantic-prototype-file (buffer)
   "Return a file in which prototypes belonging to BUFFER should be placed.
 Default behavior (if not overridden) looks for a token specifying the
 prototype file, or the existence of an EDE variable indicating which

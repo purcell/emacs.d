@@ -4,5 +4,6 @@
 (add-to-list 'load-path "../../common/")
 (add-to-list 'load-path "../bovine/")
 (add-to-list 'load-path "../")
+(add-to-list 'load-path "../../ede/")
 (add-to-list 'load-path "../../eieio/")
 (setq debug-on-error t)

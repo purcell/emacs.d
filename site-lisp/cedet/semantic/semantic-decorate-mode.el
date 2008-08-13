@@ -1,10 +1,10 @@
 ;;; semantic-decorate-mode.el --- Minor mode for decorating tags
 
-;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Eric M. Ludlam
+;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-decorate-mode.el,v 1.13 2005/09/30 20:19:48 zappo Exp $
+;; X-RCS: $Id: semantic-decorate-mode.el,v 1.25 2008/06/10 00:42:52 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -116,7 +116,8 @@ Return DECO."
 (defun semantic-decorate-tag (tag begin end &optional face)
   "Add a new decoration on TAG on the region between BEGIN and END.
 If optional argument FACE is non-nil, set the decoration's face to
-FACE."
+FACE.
+Return the overlay that makes up the new decoration."
   (let ((deco (semantic-tag-create-secondary-overlay tag)))
     ;; We do not use the unlink property because we do not want to
     ;; save the highlighting information in the DB.
@@ -167,10 +168,13 @@ Also make sure old decorations in the area are completely flushed."
   (dolist (tag tag-list)
     ;; Cleanup old decorations.
     (when (semantic-decorate-tag-decoration tag)
+      ;; Note on below comment.   This happens more as decorations are refreshed
+      ;; mid-way through their use.  Remove the message.
+
       ;; It would be nice if this never happened, but it still does
       ;; once in a while.  Print a message to help flush these
       ;; situations
-      (message "Decorations still on %s" (semantic-format-tag-name tag))
+      ;;(message "Decorations still on %s" (semantic-format-tag-name tag))
       (semantic-decorate-clear-tag tag))
     ;; Add new decorations.
     (dolist (style semantic-decoration-styles)
@@ -184,6 +188,35 @@ Also make sure old decorations in the area are completely flushed."
     ;; Recurse on the children of all tags
     (semantic-decorate-add-decorations
      (semantic-tag-components-with-overlays tag))))
+
+;;; PENDING DECORATIONS
+;;
+;; Activities in Emacs may cause a decoration to change state.  Any
+;; such identified change ought to be setup as PENDING.  This means
+;; that the next idle step will do the decoration change, but at the
+;; time of the state change, minimal work would be done.
+(defvar semantic-decorate-pending-decoration-hooks nil
+  "Functions to call with pending decoration changes.")
+
+(defun semantic-decorate-add-pending-decoration (fcn &optional buffer)
+  "Add a pending decoration change represented by FCN.
+Applies only to the current BUFFER.
+The setting of FCN will be removed after it is run."
+  (save-excursion
+    (when buffer (set-buffer buffer))
+    (semantic-make-local-hook 'semantic-decorate-flush-pending-decorations)
+    (add-hook 'semantic-decorate-pending-decoration-hooks fcn nil t)))
+
+;;;###autoload
+(defun semantic-decorate-flush-pending-decorations (&optional buffer)
+  "Flush any pending decorations for BUFFER.
+Flush functions from `semantic-decorate-pending-decoration-hooks'."
+  (save-excursion
+    (when buffer (set-buffer buffer))
+    (run-hooks 'semantic-decorate-pending-decoration-hooks)
+    ;; Always reset the hooks
+    (setq semantic-decorate-pending-decoration-hooks nil)))
+  
 
 ;;; DECORATION MODE
 ;;
@@ -368,7 +401,7 @@ IGNORE any input arguments."
   (or semantic-decoration-menu-cache
       (setq semantic-decoration-menu-cache
 	    (mapcar 'semantic-decoration-build-style-menu
-		    semantic-decoration-styles)
+		    (reverse semantic-decoration-styles))
 	    )))
 
 
@@ -408,12 +441,12 @@ decoration API found in this library."
        (setq semantic-decoration-menu-cache nil)
        ;; Create an override method to specify if a given tag belongs
        ;; to this type of decoration
-       (define-overload ,predicate (tag)
+       (define-overloadable-function ,predicate (tag)
          ,(format "Return non-nil to decorate TAG with `%s' style.\n%s"
                   name doc))
        ;; Create an override method that will perform the highlight
        ;; operation if the -p method returns non-nil.
-       (define-overload ,highlighter (tag)
+       (define-overloadable-function ,highlighter (tag)
          ,(format "Decorate TAG with `%s' style.\n%s"
                   name doc))
        ;; Add this to the list of primary decoration modes.
@@ -461,16 +494,18 @@ Used by decoration style: `semantic-tag-boundary'."
 
 (defun semantic-tag-boundary-highlight-default (tag)
   "Highlight the first line of TAG as a boundary."
-  (with-current-buffer (semantic-tag-buffer tag)
-    (semantic-decorate-tag
-     tag
-     (semantic-tag-start tag)
-     (save-excursion
-       (goto-char (semantic-tag-start tag))
-       (end-of-line)
-       (forward-char 1)
-       (point))
-     'semantic-tag-boundary-face)))
+  (when (bufferp (semantic-tag-buffer tag))
+    (with-current-buffer (semantic-tag-buffer tag)
+      (semantic-decorate-tag
+       tag
+       (semantic-tag-start tag)
+       (save-excursion
+	 (goto-char (semantic-tag-start tag))
+	 (end-of-line)
+	 (forward-char 1)
+	 (point))
+       'semantic-tag-boundary-face))
+    ))
 
 ;;; Private member highlighting
 ;;
@@ -527,3 +562,4 @@ Use a primary decoration."
 (provide 'semantic-decorate-mode)
 
 ;;; semantic-decorate-mode.el ends here
+

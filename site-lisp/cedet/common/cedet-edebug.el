@@ -1,7 +1,7 @@
 ;;; cedet-edebug.el --- Special EDEBUG augmentation code
 
 ;;;
-;; Copyright (C) 2003, 2004, 2007 Eric M. Ludlam
+;; Copyright (C) 2003, 2004, 2007, 2008 Eric M. Ludlam
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ See `cedet-edebug-prin1-extensions' for the official list."
 	    ;; meant to with `object-print' and `class-name'
 	    (defalias 'edebug-prin1-to-string 'cedet-edebug-prin1-to-string)
 	    ;; Add a fancy binding into EDEBUG's keymap for ADEBUG.
-	    (define-key edebug-mode-map "A" 'semantic-adebug-edebug-expr)
+	    (define-key edebug-mode-map "A" 'data-debug-edebug-expr)
 	    ))
 
 ;;; DEBUG MODE TOO
@@ -121,7 +121,7 @@ See `cedet-edebug-prin1-extensions' for the official list."
 	  (lambda ()
 	    (require 'cedet-edebug)
 	    ;; Add a fancy binding into the debug mode map for ADEBUG.
-	    (define-key debugger-mode-map "A" 'semantic-adebug-edebug-expr)
+	    (define-key debugger-mode-map "A" 'data-debug-edebug-expr)
 	    ))
 
 (provide 'cedet-edebug)

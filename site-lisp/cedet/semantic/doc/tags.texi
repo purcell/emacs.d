@@ -139,7 +139,7 @@ sometimes the overlay is replaced with an integer pair
 [ @var{start} @var{end} ]
 @end example
 when the buffer the tag belongs to is not in memory.  This happens
-when a using has activated the Semantic Database
+when a user has activated the Semantic Database
  @inforef{semanticdb, , lang-support-guide}.
 @c
 @end itemize
@@ -185,13 +185,16 @@ Several functions that deal with @var{attributes} component are given
 in @ref{Tag Attributes Internals,Tag Attributes Internals}.
 However functions listed in @ref{Tag Query,Tag Query}
 should provide most needs of the application developer.
+@refill
 
 Similarly functions that deal with @var{properties} component are given
 in @ref{Tag Properties Internals,Tag Properties Internals}.
 The application developer should not need to use any of these.
+@refill
 
 Finally @ref{Tag Overlay,Tag Overlay} lists functions dealing with
 the @var{overlay} component.
+@refill
 
 @node Tag Query
 @section Tag Query
@@ -217,6 +220,16 @@ same thing, but may be constructed of different cons cells.
 @obsolete{semantic-equivalent-tokens-p,semantic-equivalent-tag-p}
 @end defun
 
+@defun semantic-tag-similar-p tag1 tag2
+@anchor{semantic-tag-similar-p}
+Test to see if @var{tag1} and @var{tag2} are similar.
+Two tags are similar if their name, datatype, and various attributes
+are the same.
+
+Similar tags that have sub-tags such as arg lists or type members,
+are similar w/out checking the sub-list of tags.
+@end defun
+
 @defun semantic-tag-of-class-p tag class
 @anchor{semantic-tag-of-class-p}
 Return non-@code{nil} if class of @var{tag} is @var{class}.
@@ -227,6 +240,10 @@ Return non-@code{nil} if class of @var{tag} is @var{class}.
 Return non-@code{nil} if @var{tag} is a @var{faux} tag.
 @var{faux} tags are created to represent a construct that is
 not known to exist in the code.
+
+Example: When the class browser sees methods to a class, but
+cannot find the class, it will create a faux tag to represent the
+class to store those methods.
 @end defun
 
 @defun semantic-tag-type-compound-p tag
@@ -301,6 +318,10 @@ That is the value of the attribute `:default-value'.
 @defun semantic-tag-type tag
 @anchor{semantic-tag-type}
 Return the value of the `:type' attribute of @var{tag}.
+For a function it would be the data type of the return value.
+For a variable, it is the storage type of that variable.
+For a data type, the type is the style of datatype, such as
+struct or union.
 @obsolete{semantic-token-type,semantic-tag-type}
 @end defun
 
@@ -308,6 +329,10 @@ Return the value of the `:type' attribute of @var{tag}.
 @anchor{semantic-tag-of-type-p}
 Compare TAG's type against @var{type}.  Non @code{nil} if equivalent.
 @var{type} can be a string, or a tag of class @code{'type}.
+This can be complex since some tags might have a @code{:type} that is a tag,
+while other tags might just have a string.  This function will also be
+return true of TAG's type is compared directly to the declaration of a
+data type.
 @end defun
 
 @subsection Inheritance and Hierarchy
@@ -407,8 +432,6 @@ If @var{positiononly} is non-@code{nil}, use @dfn{semantic-tag-components-with-o
 @obsolete{semantic-nonterminal-children,semantic-tag-children-compatibility}
 @end defun
 
-@subsection Location
-
 @node Tag Overlay
 @section Tag Overlay
 @cindex Tag Overlay
@@ -433,6 +456,12 @@ Return the end location of @var{tag}.
 @anchor{semantic-tag-bounds}
 Return the location (@var{start} @var{end}) of data @var{tag} describes.
 @obsolete{semantic-token-extent,semantic-tag-bounds}
+@end defun
+
+@defun semantic-tag-in-buffer-p tag
+@anchor{semantic-tag-in-buffer-p}
+Return the buffer @var{tag} resides in @var{iff} tag is already in a buffer.
+If a tag is not in a buffer, return @code{nil}.
 @end defun
 
 @defun semantic-tag-buffer tag
@@ -538,7 +567,7 @@ Semantic supports two TAG specific hooks at this time:
 @item link-hook
 This hook is run whenever a tag is linked into a buffer.  This occurs
 just after parsing, and whenever a tag is loaded into memory.  This
-hook also executes after a datase save, when all tags are first
+hook also executes after a database save, when all tags are first
 unlinked from the current buffer before the save.
 @item unlink-hook
 This hook is run whenever a tag is unlinked from a buffer.  This

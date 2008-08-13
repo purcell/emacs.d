@@ -1,0 +1,851 @@
+;;; wisent-php.wy -- Semantic LALR grammar for Php
+;;
+;; Copyright (C) 2008 Free Software Foundation
+;;
+;; Author: Original code for Java by David Ponce <david@dponce.com>
+;; Keywords: syntax
+;; X-RCS: $Id: wisent-php.wy,v 1.2 2008/06/28 14:21:41 zappo Exp $
+;;
+;; This file is not part of GNU Emacs.
+;;
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+;;
+;; This software is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to the
+;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+;; Boston, MA 02111-1307, USA.
+
+;;%package wisent-php-wy
+
+%languagemode  php-mode
+
+%start start
+%start compilation_units
+%start compilation_unit
+%start include_declaration
+%start require_expr
+%start type_declaration
+%start class_declaration
+%start class_body
+%start class_member_declaration
+%start interface_declaration
+%start interface_body
+%start interface_member_declaration
+%start method_declaration
+%start method_declarator
+%start identifier_list
+%start method_body
+%start block
+%start formal_parameter_list
+%start formal_parameters
+%start formal_parameter
+%start field_declaration
+%start variable_declarators
+%start variable_declarator
+%start variable_declarator_id
+%start variable_initializer
+%start class_modifiers
+%start class_modifier
+%start method_modifiers
+%start method_modifier
+%start field_modifiers
+%start field_modifier
+
+;; -----------------------------
+;; Block & Parenthesis terminals
+;; -----------------------------
+%type  <block>       ;;syntax "\\s(\\|\\s)" matchdatatype block
+
+%token <block>       PAREN_BLOCK "(LPAREN RPAREN)"
+%token <block>       BRACE_BLOCK "(LBRACE RBRACE)"
+%token <block>       BRACK_BLOCK "(LBRACK RBRACK)"
+
+%token <open-paren>  LPAREN      "("
+%token <close-paren> RPAREN      ")"
+%token <open-paren>  LBRACE      "{"
+%token <close-paren> RBRACE      "}"
+%token <open-paren>  LBRACK      "["
+%token <close-paren> RBRACK      "]"
+
+;; ------------------
+;; Operator terminals
+;; ------------------
+%type  <punctuation> ;;syntax "\\(\\s.\\|\\s$\\|\\s'\\)+" matchdatatype string
+
+%token <punctuation> T_DEREF                "->"
+%token <punctuation> T_PAAMAYIM_NEKUDOTAYIM "::"
+%token <punctuation> T_INC                  "++"
+%token <punctuation> T_DEC                  "--"
+%token <punctuation> T_IS_IDENTICAL         "==="
+%token <punctuation> T_IS_NOT_IDENTICAL     "!=="
+%token <punctuation> T_IS_EQUAL             "=="
+%token <punctuation> T_IS_NOT_EQUAL         "!="
+%token <punctuation> T_IS_NOT_EQUAL         "<>"
+%token <punctuation> T_IS_SMALLER_OR_EQUAL  "<="
+%token <punctuation> T_IS_GREATER_OR_EQUAL  ">="
+%token <punctuation> T_PLUS_EQUAL           "+="
+%token <punctuation> T_MINUS_EQUAL          "-="
+%token <punctuation> T_MUL_EQUAL            "*="
+%token <punctuation> T_DIV_EQUAL            "/="
+%token <punctuation> T_CONCAT_EQUAL         ".="
+%token <punctuation> T_MOD_EQUAL            "%="
+%token <punctuation> T_SL_EQUAL             "<<="
+%token <punctuation> T_SR_EQUAL             ">>="
+%token <punctuation> T_AND_EQUAL            "&="
+%token <punctuation> T_OR_EQUAL             "|="
+%token <punctuation> T_XOR_EQUAL            "^="
+%token <punctuation> T_BOOLEAN_OR           "||"
+%token <punctuation> T_BOOLEAN_AND          "&&"
+%token <punctuation> T_SL                   "<<"
+%token <punctuation> T_SR                   ">>"
+%token <punctuation> T_DOUBLE_ARROW         "=>"
+%token <punctuation> T_HEREDOC              "<<<"
+%token <punctuation> T_NOT         	    "!"
+%token <punctuation> T_MOD         	    "%"
+%token <punctuation> T_AND         	    "&"
+%token <punctuation> T_MULT        	    "*"
+%token <punctuation> T_PLUS        	    "+"
+%token <punctuation> T_COMMA       	    ","
+%token <punctuation> T_MINUS       	    "-"
+%token <punctuation> T_DOT         	    "."
+%token <punctuation> T_DIV         	    "/"
+%token <punctuation> T_COLON       	    ":"
+%token <punctuation> T_SEMI	   	    ";"
+%token <punctuation> T_LT          	    "<"
+%token <punctuation> T_EQ          	    "="
+%token <punctuation> T_GT          	    ">"
+%token <punctuation> T_URSHIFT     	    ">>>"
+%token <punctuation> T_URSHIFTEQ   	    ">>>="
+%token <punctuation> T_QUESTION    	    "?"
+%token <punctuation> T_XOR         	    "^"
+%token <punctuation> T_OR          	    "|"
+%token <punctuation> T_COMP        	    "~"
+%token <punctuation> T_ASTERISK        	    "@"
+%token <punctuation> T_DOLLER               "$"
+
+;; -----------------
+;; Literal terminals
+;; -----------------
+%type  <symbol>      ;;syntax "\\(\\sw\\|\\s_\\)+"
+%token <symbol>      IDENTIFIER
+
+%type  <string>      ;;syntax "\\s\"" matchdatatype sexp
+%token <string>      STRING_LITERAL
+
+%type  <number>      ;;syntax semantic-lex-number-expression
+%token <number>      NUMBER_LITERAL
+
+%type  <code>
+%token <code>        PROLOGUE
+%token <code>        EPILOGUE
+
+;; -----------------
+;; Keyword terminals
+;; -----------------
+
+;; Generate a keyword analyzer
+%type  <keyword> ;;syntax "\\(\\sw\\|\\s_\\)+" matchdatatype keyword
+
+%keyword T_EXIT            "exit"
+%keyword T_EXIT            "die"
+%keyword T_FUNCTION        "function"
+%keyword T_CONST           "const"
+%put     T_CONST summary
+"Unused reserved word"
+%keyword T_RETURN          "return"
+%put     T_RETURN summary
+"return [<expr>] ;"
+%keyword T_TRY             "try"
+%put     T_TRY summary
+"try {<stmts>} [catch(<parm>) {<stmts>} ...] [finally {<stmts>}]"
+%keyword T_CATCH           "catch"
+%put     T_CATCH summary
+"try {<stmts>} catch(<parm>) {<stmts>} ... "
+%keyword T_THROW           "throw"
+%keyword T_IF              "if"
+%put     T_IF summary
+"if (<expr>) <stmt> [else <stmt>]"
+%keyword T_ELSEIF          "elseif"
+%keyword T_ENDIF           "endif"
+%keyword T_ELSE            "else"
+%put     T_ELSE summary
+"if (<expr>) <stmt> else <stmt>"
+%keyword T_WHILE           "while"
+%put     T_WHILE summary
+"while (<expr>) <stmt> | do <stmt> while (<expr>);"
+%keyword T_ENDWHILE        "endwhile"
+%keyword T_DO              "do"
+%put     T_DO summary
+"do <stmt> while (<expr>);"
+%keyword T_FOR             "for"
+%put     T_FOR summary
+"for ([<init-expr>]; [<expr>]; [<update-expr>]) <stmt>"
+%keyword T_ENDFOR          "endfor"
+%keyword T_FOREACH         "foreach"
+%keyword T_ENDFOREACH      "endforeach"
+%keyword T_DECLARE         "declare"
+%keyword T_ENDDECLARE      "enddeclare"
+%keyword T_INSTANCEOF      "instanceof"
+%keyword INT          "int"
+%put     T_INT summary
+%keyword T_AS              "as"
+%keyword T_SWITCH          "switch"
+%keyword T_ENDSWITCH       "endswitch"
+%keyword T_CASE            "case"
+%put     T_CASE summary
+"switch(<expr>) {case <const-expr>: <stmts> ... }"
+%keyword T_DEFAULT         "default"
+%put     T_DEFAULT summary
+"switch(<expr>) { ... default: <stmts>}"
+%keyword T_BREAK           "break"
+%put     T_BREAK summary
+"break [<label>] ;"
+%keyword T_CONTINUE        "continue"
+%put     T_CONTINUE summary
+"continue [<label>] ;"
+%keyword T_ECHO            "echo"
+%keyword T_PRINT           "print"
+%keyword T_CLASS           "class"
+%put     T_CLASS summary
+"Class declaration: class <name>"
+%keyword T_INTERFACE       "interface"
+%put     T_INTERFACE summary
+"Interface declaration: interface <name>"
+%keyword T_EXTENDS         "extends"
+%put     T_EXTENDS summary
+"SuperClass|SuperInterfaces declaration: extends <name> [, ...]"
+%keyword T_IMPLEMENTS      "implements"
+%put     T_IMPLEMENTS summary
+"Class SuperInterfaces declaration: implements <name> [, ...]"
+%keyword T_NEW             "new"
+%keyword PACKAGE      "package"
+%put     T_PACKAGE summary
+%keyword T_CLONE           "clone"
+%keyword T_VAR             "var"
+%keyword T_EVAL            "eval"
+%keyword T_INCLUDE         "include"
+%keyword T_INCLUDE_ONCE    "include_once"
+%keyword T_REQUIRE         "require"
+%keyword T_REQUIRE_ONCE    "require_once"
+%keyword T_USE             "use"
+%keyword T_GLOBAL          "global"
+%keyword T_ISSET           "isset"
+%keyword T_EMPTY           "empty"
+%keyword T_HALT_COMPILER   "__halt_compiler"
+%keyword T_STATIC          "static"
+%put     T_STATIC summary
+"Declaration modifier: static {class|interface|<type>} <name> ..."
+%keyword T_ABSTRACT        "abstract"
+%put     T_ABSTRACT summary
+"Class|Method declaration modifier: abstract {class|<type>} <name> ..."
+%keyword T_FINAL           "final"
+%put     T_FINAL summary
+"Class|Member declaration modifier: final {class|<type>} <name> ..."
+%keyword T_PRIVATE         "private"
+%put     T_PRIVATE summary
+"Access level modifier: private {class|interface|<type>} <name> ..."
+%keyword T_PROTECTED       "protected"
+%put     T_PROTECTED summary
+"Access level modifier: protected {class|interface|<type>} <name> ..."
+%keyword T_PUBLIC          "public"
+%put     T_PUBLIC summary
+"Access level modifier: public {class|interface|<type>} <name> ..."
+%keyword T_UNSET           "unset"
+%keyword T_LIST            "list"
+%keyword T_ARRAY           "array"
+%keyword T_LOGICAL_OR      "or"
+%keyword T_LOGICAL_AND     "and"
+%keyword T_LOGICAL_XOR     "xor"
+%keyword T_CLASS_C         "__CLASS__"
+%keyword T_FUNC_C          "__FUNCTION__"
+%keyword T_METHOD_C        "__METHOD__"
+%keyword T_LINE            "__LINE__"
+%keyword T_FILE            "__FILE__"
+
+;; --------------------------
+;; Official phpdoc line tags
+;; --------------------------
+
+;; Phpdoc tags are identified by a 'phpdoc' keyword property.  The
+;; value of this property must be itself a property list where the
+;; following properties are recognized:
+;;
+;; - `seq' (mandatory) is the tag sequence number used to check if tags
+;;   are correctly ordered in a phpdoc comment block.
+;;
+;; - `usage' (mandatory) is the list of token categories for which this
+;;   documentation tag is allowed.
+;;
+;; - `opt' (optional) if non-nil indicates this is an optional tag.
+;;   By default tags are mandatory.
+;;
+;; - `with-name' (optional) if non-nil indicates that this tag is
+;;   followed by an identifier like in "@param <var-name> description"
+;;   or "@exception <class-name> description".
+;;
+;; - `with-ref' (optional) if non-nil indicates that the tag is
+;;   followed by a reference like in "@see <reference>".
+
+%keyword _AUTHOR      "@author"
+%put     _AUTHOR      phpdoc (seq 1 usage (type))
+%keyword _VERSION     "@version"
+%put     _VERSION     phpdoc (seq 2 usage (type)) 
+%keyword _PARAM       "@param"
+%put     _PARAM       phpdoc (seq 3 usage (function) with-name t) 
+%keyword _RETURN      "@return"
+%put     _RETURN      phpdoc (seq 4 usage (function)) 
+%keyword _EXCEPTION   "@exception"
+%put     _EXCEPTION   phpdoc (seq 5 usage (function) with-name t) 
+%keyword _THROWS      "@throws"
+%put     _THROWS      phpdoc (seq 6 usage (function) with-name t) 
+%keyword _SEE         "@see"
+%put     _SEE         phpdoc (seq 7 usage (type function variable) opt t with-ref t) 
+%keyword _SINCE       "@since"
+%put     _SINCE       phpdoc (seq 8 usage (type function variable) opt t) 
+%keyword _SERIAL      "@serial"
+%put     _SERIAL      phpdoc (seq 9 usage (variable) opt t) 
+%keyword _SERIALDATA  "@serialData"
+%put     _SERIALDATA  phpdoc (seq 10 usage (function) opt t) 
+%keyword _SERIALFIELD "@serialField"
+%put     _SERIALFIELD phpdoc (seq 11 usage (variable) opt t) 
+%keyword _DEPRECATED  "@deprecated"
+%put     _DEPRECATED  phpdoc (seq 12 usage (type function variable) opt t) 
+
+%left T_INCLUDE T_INCLUDE_ONCE T_EVAL T_REQUIRE T_REQUIRE_ONCE
+%left T_COMMA
+%left T_LOGICAL_OR
+%left T_LOGICAL_XOR
+%left T_LOGICAL_AND
+%right T_PRINT
+%left T_EQ T_PLUS_EQUAL T_MINUS_EQUAL T_MUL_EQUAL T_DIV_EQUAL T_CONCAT_EQUAL T_MOD_EQUAL T_AND_EQUAL T_OR_EQUAL T_XOR_EQUAL T_SL_EQUAL T_SR_EQUAL
+%left T_QUESTION T_COLON
+%left T_BOOLEAN_OR
+%left T_BOOLEAN_AND
+%left T_OR
+%left T_XOR
+%left T_AND
+%nonassoc T_IS_EQUAL T_IS_NOT_EQUAL T_IS_IDENTICAL T_IS_NOT_IDENTICAL
+%nonassoc T_LT T_IS_SMALLER_OR_EQUAL '>' T_IS_GREATER_OR_EQUAL
+%left T_SL T_SR
+%left T_PLUS T_MINUS T_DOT
+%left T_MULT T_DIV T_MOD
+%right T_NOT
+%nonassoc T_INSTANCEOF
+%right T_COMP T_INC T_DEC T_INT_CAST T_DOUBLE_CAST T_STRING_CAST T_ARRAY_CAST T_OBJECT_CAST T_BOOL_CAST T_UNSET_CAST T_ASTERISK
+%right LBRACK
+%nonassoc T_NEW T_CLONE
+%token T_EXIT
+%token T_IF
+%left T_ELSEIF
+%left T_ELSE
+%left T_ENDIF
+
+%%
+
+;; ------------
+;; LALR Grammar
+;; ------------
+
+;; This grammar is not designed to fully parse correct php syntax.  It
+;; is optimized to work in an interactive environment to extract tokens
+;; (tags) needed by Semantic.  In some cases a syntax not allowed by
+;; the php Language Specification will be accepted by this grammar.
+
+start
+  : PROLOGUE compilation_units EPILOGUE
+    (identity $2)
+  | PROLOGUE compilation_units
+    (identity $2)
+  ;
+
+compilation_units
+  : ;;EMPTY
+  | compilation_unit compilation_units 
+    (if $2 (append $2 (EXPANDTAG $1)) (EXPANDTAG $1))
+  ;
+
+compilation_unit
+  : include_declaration
+  | type_declaration
+  ;
+
+include_declaration
+  : T_USE require_expr T_SEMI
+    (identity $2)
+  | T_REQUIRE require_expr T_SEMI
+    (identity $2)
+  | T_REQUIRE_ONCE require_expr T_SEMI
+    (identity $2)
+  | T_INCLUDE require_expr T_SEMI
+    (identity $2)
+  | T_INCLUDE_ONCE require_expr T_SEMI
+    (identity $2)
+  ;
+
+require_expr
+  : STRING_LITERAL
+    (INCLUDE-TAG $1 nil)
+  | PAREN_BLOCK
+    (INCLUDE-TAG $1 nil)
+  ;
+
+type_declaration
+  : function_declaration
+  | class_declaration
+  | interface_declaration
+  ;
+
+;;; Type Declaration token
+;; ("NAME" type "TYPE" ( PART-LIST ) ( PARENTS ) EXTRA-SPEC "DOCSTRING")
+class_declaration
+  : class_modifiers_opt T_CLASS IDENTIFIER superc_opt interfaces_opt class_body
+    (TYPE-TAG $3 $2 $6 (if (or $4 $5) (cons $4 $5)) :typemodifiers $1)
+  ;
+
+superc_opt
+  : ;;EMPTY
+  | T_EXTENDS IDENTIFIER
+    (identity $2)
+  ;
+
+interfaces_opt
+  : ;;EMPTY
+  | T_IMPLEMENTS identifier_list
+    (nreverse $2)
+  ;
+
+class_body
+  : BRACE_BLOCK
+    (EXPANDFULL $1 class_member_declaration)
+  ;
+
+class_member_declaration
+  : LBRACE
+    ()
+  | RBRACE
+    ()
+  | block
+    ()
+  | interface_declaration
+  | class_declaration
+  | method_declaration
+  | field_declaration
+  ;
+
+;;; Type Declaration token
+;; ("NAME" type "TYPE" ( PART-LIST ) ( PARENTS ) EXTRA-SPEC "DOCSTRING")
+interface_declaration
+  : class_modifiers_opt T_INTERFACE IDENTIFIER extends_interfaces_opt interface_body
+    (TYPE-TAG $3 $2 $5 (if $4 (cons nil $4)) :typemodifiers $1)
+  ;
+
+extends_interfaces_opt
+  : ;;EMPTY
+  | T_EXTENDS identifier_list
+    (identity $2)
+  ;
+
+interface_body
+  : BRACE_BLOCK
+    (EXPANDFULL $1 interface_member_declaration)
+  ;
+
+interface_member_declaration
+  : LBRACE
+    ()
+  | RBRACE
+    ()
+  | interface_declaration
+  | class_declaration
+  | method_declaration
+  | field_declaration
+  ;
+
+function_declaration
+  :  method_declarator method_body
+    (FUNCTION-TAG (car $1) nil (cdr $1))
+  ;
+
+;;; Function token
+;; ("NAME" function "TYPE" ( ARG-LIST ) EXTRA-SPEC "DOCSTRING") 
+method_declaration
+  : method_modifiers_opt method_declarator method_body
+    (FUNCTION-TAG (car $2) nil (cdr $2) :typemodifiers $1)
+  ;
+
+method_declarator
+  : T_FUNCTION reference_opt IDENTIFIER formal_parameter_list
+    (cons $3 $4)
+  ;
+
+identifier_list
+  : identifier_list T_COMMA IDENTIFIER
+    (cons $3 $1)
+  | IDENTIFIER
+    (list $1)
+  ;
+
+method_body
+  : T_SEMI
+  | block
+  ;
+
+;; Just eat {...} block!
+block
+  : BRACE_BLOCK
+  ;
+
+formal_parameter_list
+  : PAREN_BLOCK
+    (EXPANDFULL $1 formal_parameters)
+  ;
+
+formal_parameters
+  : LPAREN
+    ()
+  | RPAREN
+    ()
+  | formal_parameter T_COMMA
+  | formal_parameter RPAREN
+  ;
+
+;;; Variable token
+;; ("NAME" variable "TYPE" DEFAULT-VALUE EXTRA-SPEC "DOCSTRING")
+formal_parameter
+  : variable_declarator_id T_EQ expression
+    (VARIABLE-TAG $1 nil $region3)
+  | variable_declarator_id
+    (VARIABLE-TAG $1 nil nil)
+  ;
+
+;;; Variable token
+;; ("NAME" variable "TYPE" DEFAULT-VALUE EXTRA-SPEC "DOCSTRING")
+field_declaration
+  : field_modifiers_opt variable_declarators T_SEMI
+    (VARIABLE-TAG $2 nil nil :typemodifiers $1)
+  ;
+
+variable_declarators
+  : variable_declarators T_COMMA variable_declarator
+    (cons $3 $1)
+  | variable_declarator
+    (list $1)
+  ;
+
+variable_declarator
+  : variable_declarator_id T_EQ variable_initializer
+    (list $1 nil nil $3)
+  | variable_declarator_id
+    (list $1)
+  ;
+
+variable_declarator_id
+  : reference_opt IDENTIFIER dims_opt
+    (concat $2 $3)
+  ;
+
+reference_opt
+  : ;;EMPTY
+  | T_AND
+  ;
+
+variable_initializer
+  : expression
+  ;
+
+;; Just eat expression!
+expression
+  : expression term
+  | term
+  ;
+
+term
+  : literal
+  | operator
+  | IDENTIFIER
+  | BRACK_BLOCK
+  | PAREN_BLOCK
+  | BRACE_BLOCK
+  | T_NEW
+  | T_CLONE
+  | T_ARRAY
+  ;
+
+literal
+;;   : NULL_LITERAL
+;;   | BOOLEAN_LITERAL
+  : STRING_LITERAL
+  | NUMBER_LITERAL
+  ;
+
+operator
+  : T_DEREF
+  | T_PAAMAYIM_NEKUDOTAYIM
+  | T_INC
+  | T_DEC
+  | T_IS_IDENTICAL
+  | T_IS_NOT_IDENTICAL
+  | T_IS_EQUAL
+  | T_IS_NOT_EQUAL
+  | T_IS_NOT_EQUAL
+  | T_IS_SMALLER_OR_EQUAL
+  | T_IS_GREATER_OR_EQUAL
+  | T_PLUS_EQUAL
+  | T_MINUS_EQUAL
+  | T_MUL_EQUAL
+  | T_DIV_EQUAL
+  | T_CONCAT_EQUAL
+  | T_MOD_EQUAL
+  | T_SL_EQUAL
+  | T_SR_EQUAL
+  | T_AND_EQUAL
+  | T_OR_EQUAL
+  | T_XOR_EQUAL
+  | T_BOOLEAN_OR
+  | T_BOOLEAN_AND
+  | T_SL
+  | T_SR
+  | T_DOUBLE_ARROW
+  | T_HEREDOC
+  | T_NOT
+  | T_MOD
+  | T_AND
+  | T_MULT
+  | T_PLUS
+  | T_COMMA
+  | T_MINUS
+  | T_DOT
+  | T_DIV
+  | T_COLON
+  | T_LT
+  | T_EQ
+  | T_GT
+  | T_URSHIFT
+  | T_URSHIFTEQ
+  | T_QUESTION
+  | T_XOR
+  | T_OR
+  | T_COMP
+  | T_ASTERISK
+  | T_LIST
+  | T_ARRAY
+  | T_LOGICAL_OR
+  | T_LOGICAL_AND
+  | T_LOGICAL_XOR
+  ;
+
+class_modifiers_opt
+  : ;;EMPTY
+  | class_modifiers
+    (nreverse $1)
+  ;
+
+class_modifiers
+  : class_modifiers class_modifier
+    (cons $2 $1)
+  | class_modifier
+    (list $1)
+  ;
+
+class_modifier
+  : T_FINAL
+  | T_ABSTRACT
+  ;
+
+method_modifiers_opt
+  : ;;EMPTY
+  | method_modifiers
+    (nreverse $1)
+  ;
+
+method_modifiers
+  : method_modifiers method_modifier
+    (cons $2 $1)
+  | method_modifier
+    (list $1)
+  ;
+
+method_modifier
+  : T_FINAL
+  | T_ABSTRACT
+  | T_STATIC
+  | T_PRIVATE
+  | T_PROTECTED
+  | T_PUBLIC
+  ;
+
+field_modifiers_opt
+  : ;;EMPTY
+  | field_modifiers
+    (nreverse $1)
+  ;
+
+field_modifiers
+  : field_modifiers field_modifier
+    (cons $2 $1)
+  | field_modifier
+    (list $1)
+  ;
+
+field_modifier
+  : method_modifier
+  | T_VAR
+  ;
+
+dims_opt
+  : ;;EMPTY
+    (identity "")
+  | dims
+  ;
+
+dims
+  : dims BRACK_BLOCK
+    (concat $1 "[]")
+  | BRACK_BLOCK
+    (identity "[]")
+  ;
+
+%%
+(defconst semantic-php-number-regexp
+  (eval-when-compile
+    (concat "\\("
+            "\\<[0-9]+[.][0-9]+\\([eE][-+]?[0-9]+\\)?[fFdD]?\\>"
+            "\\|"
+            "\\<[0-9]+[.][eE][-+]?[0-9]+[fFdD]?\\>"
+            "\\|"
+            "\\<[0-9]+[.][fFdD]\\>"
+            "\\|"
+            "\\<[0-9]+[.]"
+            "\\|"
+            "[.][0-9]+\\([eE][-+]?[0-9]+\\)?[fFdD]?\\>"
+            "\\|"
+            "\\<[0-9]+[eE][-+]?[0-9]+[fFdD]?\\>"
+            "\\|"
+            "\\<0[xX][0-9a-fA-F]+[lL]?\\>"
+            "\\|"
+            "\\<[0-9]+[lLfFdD]?\\>"
+            "\\)"
+            ))
+  "Lexer regexp to match Java number terminals.
+Following is the specification of Java number literals.
+
+DECIMAL_LITERAL:
+    [1-9][0-9]*
+  ;
+HEX_LITERAL:
+    0[xX][0-9a-fA-F]+
+  ;
+OCTAL_LITERAL:
+    0[0-7]*
+  ;
+INTEGER_LITERAL:
+    <DECIMAL_LITERAL>[lL]?
+  | <HEX_LITERAL>[lL]?
+  | <OCTAL_LITERAL>[lL]?
+  ;
+EXPONENT:
+    [eE][+-]?[09]+
+  ;
+FLOATING_POINT_LITERAL:
+    [0-9]+[.][0-9]*<EXPONENT>?[fFdD]?
+  | [.][0-9]+<EXPONENT>?[fFdD]?
+  | [0-9]+<EXPONENT>[fFdD]?
+  | [0-9]+<EXPONENT>?[fFdD]
+  ;")
+
+(defconst wisent-php-label-regex
+  "[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*")
+
+(defvar wisent-in-php nil
+  "State variable tracking parsing in/out of PHP code.")
+
+(defun wisent-php--move-to-php-beginning ()
+  (if (re-search-forward "<[%?]" nil t)
+      (cond
+       ((or (looking-at "\\(php\\)?$")
+	    (looking-at "\\(php\\)?[[:space:]])"))
+	(goto-char (match-end 0))
+	'T_NONPHP)
+       ((or (looking-at "=$")
+	    (looking-at "=[[:space:]]"))
+	'T_ECHO_BLOCK)
+       (t
+	(wisent-php--move-to-php-beginning)))
+    (goto-char (point-max))
+    nil))
+
+(define-lex-regex-analyzer wisent-php-lex-prologue
+  "Detect and create a prologue token."
+  "<[?%]\\(php\\)?\\([[:space:]]+\\|$\\)"
+  ;; Zing to the end of this brace block.
+  (let ((start (match-beginning 0))
+        (end   (match-end 0)))
+    (semantic-lex-push-token
+     (semantic-lex-token 'PROLOGUE start end))))
+
+(define-lex-regex-analyzer wisent-php-lex-epilogue
+  "Detect and create an epilogue or percent-percent token."
+  "[%?]>"
+  (let ((start (match-beginning 0))
+        (end   (match-end 0)))
+    (semantic-lex-push-token
+     (semantic-lex-token 'EPILOGUE start end))))
+
+  
+(define-lex-regex-analyzer wisent-php-lex-heredoc
+  "Detect and create an epilogue or percent-percent token."
+  (concat "<<<[[:blank:]]*\\(" wisent-php-label-regex "\\)$")
+  (let ((start (match-beginning 0))
+        (end   (progn
+		 (re-search-forward (concat "^" (match-string 1) ";") nil t)
+		 (match-end 0))))
+    (semantic-lex-push-token
+     (semantic-lex-token 'STRING_LITERAL start end))
+    (setq semantic-lex-end-point end)))
+
+(define-lex-analyzer wisent-php-lex-out-of-php
+  "Detect and create python indentation tokens at beginning of line."
+  (progn
+    (and wisent-in-php
+	 (looking-at "[[:space:]\n]*[%?]>")
+	 (setq wisent-in-php nil))
+    (when (not wisent-in-php)
+      (let ((last-pos (point))
+	    (token (wisent-php--move-to-php-beginning)))
+	(setq semantic-lex-end-point (point))
+	(when token
+	  (setq wisent-in-php t)))
+;;	  (semantic-lex-push-token
+;;	   (semantic-lex-token token last-pos (point)))))
+      t)))
+
+;; Define the lexer for this grammar
+(define-lex wisent-php-lexer
+  "Lexical analyzer that handles php buffers.
+It ignores whitespaces, newlines and comments."
+  semantic-lex-ignore-whitespace
+  semantic-lex-ignore-newline
+  semantic-lex-ignore-comments
+  wisent-php-lex-prologue
+  wisent-php-lex-epilogue
+  wisent-php-lex-heredoc
+  ;;;; Auto-generated analyzers.
+  wisent-php-wy--<number>-regexp-analyzer
+  wisent-php-wy--<string>-sexp-analyzer
+  ;; Must detect keywords before other symbols
+  wisent-php-wy--<keyword>-keyword-analyzer
+  wisent-php-wy--<symbol>-regexp-analyzer
+  wisent-php-wy--<punctuation>-string-analyzer
+  wisent-php-wy--<block>-block-analyzer
+  ;;;;
+  semantic-lex-default-action)
+
+;;; wisent-php.wy ends here

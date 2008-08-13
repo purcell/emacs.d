@@ -1,8 +1,8 @@
 ;;; semantic-lex.el --- Lexical Analyzer builder
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
-;; X-CVS: $Id: semantic-lex.el,v 1.44 2007/03/08 03:33:11 zappo Exp $
+;; X-CVS: $Id: semantic-lex.el,v 1.48 2008/06/10 00:43:24 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -484,16 +484,25 @@ If universal argument ARG, then try the whole buffer."
 		  (point-max)))
 	 (end (current-time)))
     (message "Elapsed Time: %.2f seconds."
-	     (semantic-elapsed-time start end)))
-  )
+	     (semantic-elapsed-time start end))
+    (pop-to-buffer "*Lexer Output*")
+    (require 'pp)
+    (erase-buffer)
+    (insert (pp-to-string result))
+    (goto-char (point-min))
+    ))
 
 (defun semantic-lex-test-region (beg end)
   "Test the semantic lexer in the current buffer.
 Analyze the area between BEG and END."
   (interactive "r")
   (let ((result (semantic-lex beg end)))
-    (message "%s: %S" semantic-lex-analyzer result))
-  )
+    (pop-to-buffer "*Lexer Output*")
+    (require 'pp)
+    (erase-buffer)
+    (insert (pp-to-string result))
+    (goto-char (point-min))
+    ))
 
 (defvar semantic-lex-debug nil
   "When non-nil, debug the local lexical analyzer.")
@@ -566,6 +575,8 @@ Should be set with `add-hook'specifying a LOCAL option.")
 
 ;; Stack of nested blocks.
 (defvar semantic-lex-block-stack nil)
+;;(defvar semantic-lex-timeout 5
+;;  "*Number of sections of lexing before giving up.")
 
 ;;;###autoload
 (defmacro define-lex (name doc &rest analyzers)
@@ -587,7 +598,8 @@ analyzer which might mistake a number for as a symbol."
      ;; Allow specialty reset items.
      (run-hook-with-args 'semantic-lex-reset-hooks start end)
      ;; Lexing state.
-     (let* ((starting-position (point))
+     (let* (;(starttime (current-time))
+	    (starting-position (point))
             (semantic-lex-token-stream nil)
             (semantic-lex-block-stack nil)
 	    (tmp-start start)
@@ -619,6 +631,10 @@ analyzer which might mistake a number for as a symbol."
                     tmp-start (car semantic-lex-token-stream)))
 	   (setq tmp-start semantic-lex-end-point)
            (goto-char semantic-lex-end-point)
+	   ;;(when (> (semantic-elapsed-time starttime (current-time))
+	   ;;	    semantic-lex-timeout)
+	   ;;  (error "Timeout during lex at char %d" (point)))
+	   (semantic-throw-on-input 'lex)
 	   (semantic-lex-debug-break (car semantic-lex-token-stream))
 	   ))
        ;; Check that there is no unterminated block.
@@ -769,7 +785,7 @@ See also the function `semantic-lex-token'."
 (defsubst semantic-lex-token-bounds (token)
   "Fetch the start and end locations of the lexical token TOKEN.
 Return a pair (START . END)."
-  (if (stringp (car (cdr token)))
+  (if (not (numberp (car (cdr token))))
       (cdr (cdr token))
     (cdr token)))
 
@@ -807,7 +823,7 @@ See also the function `semantic-lex-token'."
      (car mod) (nth 1 mod) semantic-lex-syntax-table)))
 
 ;;;###autoload
-(define-overload semantic-lex (start end &optional depth length)
+(define-overloadable-function semantic-lex (start end &optional depth length)
   "Lexically analyze text in the current buffer between START and END.
 Optional argument DEPTH indicates at what level to scan over entire
 lists.  The last argument, LENGTH specifies that `semantic-lex'
@@ -1049,7 +1065,7 @@ they are comment end characters) AND when you want whitespace tokens."
       'whitespace (match-beginning 0) (match-end 0)))))
 
 (define-lex-regex-analyzer semantic-lex-ignore-newline
-  "Detect and create newline tokens.
+  "Detect and ignore newline tokens.
 Use this ONLY if newlines are not whitespace characters (such as when
 they are comment end characters)."
   "\\s-*\\(\n\\|\\s>\\)"
@@ -1494,7 +1510,10 @@ If there is no error, then the last value of FORMS is returned."
        ;; will prevent future calls from parsing, but will allow
        ;; then to still return the cache.
        (when ,ret
-         (message "Buffer not currently parsable (%S)." ,ret)
+	 ;; Leave this message off.  If an APP using this fcn wants
+	 ;; a message, they can do it themselves.  This cleans up
+	 ;; problems with the idle scheduler obscuring useful data.
+         ;;(message "Buffer not currently parsable (%S)." ,ret)
          (semantic-parse-tree-unparseable))
        ,ret)))
 (put 'semantic-lex-catch-errors 'lisp-indent-function 1)

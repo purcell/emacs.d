@@ -1,10 +1,10 @@
 ;;; semantic-format.el --- Routines for formatting tags
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-format.el,v 1.25 2007/03/12 03:29:54 zappo Exp $
+;; X-RCS: $Id: semantic-format.el,v 1.28 2008/06/10 00:43:10 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -205,8 +205,14 @@ FORMATTER is a function used to format a tag.
 COLOR specifies if color should be used."
   (let ((out nil))
     (while args
-      (push (semantic-format-tag-name-from-anything
-             (car args) nil color 'variable) out)
+      (push (if (and formatter
+		     (semantic-tag-p (car args))
+		     (not (string= (semantic-tag-name (car args)) ""))
+		     )
+		(funcall formatter (car args) nil color)
+	      (semantic-format-tag-name-from-anything
+	       (car args) nil color 'variable))
+	    out)
       (setq args (cdr args)))
     (mapconcat 'identity (nreverse out) semantic-function-argument-separator)
     ))
@@ -214,7 +220,7 @@ COLOR specifies if color should be used."
 ;;; Data Type
 ;;
 ;;;###autoload
-(define-overload semantic-format-tag-type (tag color)
+(define-overloadable-function semantic-format-tag-type (tag color)
   "Convert the data type of TAG to a string usable in tag formatting.
 It is presumed that TYPE is a string or semantic tag.")
 
@@ -280,7 +286,7 @@ of FACE-CLASS for which this is used."
 	 (semantic--format-colorize-text (car anything) colorhint))))
 
 ;;;###autoload
-(define-overload semantic-format-tag-name (tag &optional parent color)
+(define-overloadable-function semantic-format-tag-name (tag &optional parent color)
   "Return the name string describing TAG.
 The name is the shortest possible representation.
 Optional argument PARENT is the parent type if TAG is a detail.
@@ -328,7 +334,7 @@ local definitions."
     ;; IMPLELEMENT ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     (reverse rlist)))
 
-(define-overload semantic-format-tag-canonical-name (tag &optional parent color)
+(define-overloadable-function semantic-format-tag-canonical-name (tag &optional parent color)
   "Return a canonical name for TAG.
 A canonical name includes the names of any parents or namespaces preceeding
 the tag.
@@ -355,7 +361,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
   )
 
 ;;;###autoload
-(define-overload semantic-format-tag-abbreviate (tag &optional parent color)
+(define-overloadable-function semantic-format-tag-abbreviate (tag &optional parent color)
   "Return an abbreviated string describing TAG.
 The abbreviation is to be short, with possible symbols indicating
 the type of tag, or other information.
@@ -397,7 +403,7 @@ This is a simple C like default."
  'semantic-summerize-nonterminal 'semantic-format-tag-summarize)
 
 ;;;###autoload
-(define-overload semantic-format-tag-summarize (tag &optional parent color)
+(define-overloadable-function semantic-format-tag-summarize (tag &optional parent color)
   "Summarize TAG in a reasonable way.
 Optional argument PARENT is the parent type if TAG is a detail.
 Optional argument COLOR means highlight the prototype with font-lock colors.")
@@ -420,7 +426,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 ;;; Prototype generation
 ;;
 ;;;###autoload
-(define-overload semantic-format-tag-prototype (tag &optional parent color)
+(define-overloadable-function semantic-format-tag-prototype (tag &optional parent color)
   "Return a prototype for TAG.
 This function should be overloaded, though it need not be used.
 This is because it can be used to create code by language independent
@@ -475,7 +481,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 	    (or array ""))))
 
 ;;;###autoload
-(define-overload semantic-format-tag-concise-prototype (tag &optional parent color)
+(define-overloadable-function semantic-format-tag-concise-prototype (tag &optional parent color)
   "Return a concise prototype for TAG.
 Optional argument PARENT is the parent type if TAG is a detail.
 Optional argument COLOR means highlight the prototype with font-lock colors.")
@@ -559,7 +565,7 @@ UML attribute strings are things like {abstract} or {leaf}."
   "Association list of the form (SYMBOL . \"STRING\") for protection symbols.
 This associates a symbol, such as 'public with the st ring \"+\".")
 
-(define-overload semantic-format-tag-uml-protection-to-string (protection-symbol color)
+(define-overloadable-function semantic-format-tag-uml-protection-to-string (protection-symbol color)
   "Convert PROTECTION-SYMBOL to a string for UML.
 By default, uses `semantic-format-tag-protection-symbol-to-string-assoc-list'
 to convert.
@@ -601,7 +607,7 @@ COLOR indicates if it should be colorized."
 	(concat semantic-uml-colon-string str))))
 
 ;;;###autoload
-(define-overload semantic-format-tag-uml-abbreviate (tag &optional parent color)
+(define-overloadable-function semantic-format-tag-uml-abbreviate (tag &optional parent color)
   "Return a UML style abbreviation for TAG.
 Optional argument PARENT is the parent type if TAG is a detail.
 Optional argument COLOR means highlight the prototype with font-lock colors.")
@@ -624,7 +630,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
     text))
 
 ;;;###autoload
-(define-overload semantic-format-tag-uml-prototype (tag &optional parent color)
+(define-overloadable-function semantic-format-tag-uml-prototype (tag &optional parent color)
   "Return a UML style prototype for TAG.
 Optional argument PARENT is the parent type if TAG is a detail.
 Optional argument COLOR means highlight the prototype with font-lock colors.")
@@ -656,7 +662,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
     ))
 
 ;;;###autoload
-(define-overload semantic-format-tag-uml-concise-prototype (tag &optional parent color)
+(define-overloadable-function semantic-format-tag-uml-concise-prototype (tag &optional parent color)
   "Return a UML style concise prototype for TAG.
 Optional argument PARENT is the parent type if TAG is a detail.
 Optional argument COLOR means highlight the prototype with font-lock colors.")
@@ -679,9 +685,6 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 
 ;;; Compatibility and aliases
 ;;
-(semantic-alias-obsolete 'semantic-test-all-token->text-functions
-			 'semantic-test-all-format-tag-functions)
-
 (semantic-alias-obsolete 'semantic-prin1-nonterminal
 			 'semantic-format-tag-prin1)
 

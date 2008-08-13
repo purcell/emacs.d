@@ -1,8 +1,8 @@
 ;;; semantic-fw.el --- Framework for Semantic
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
-;; X-CVS: $Id: semantic-fw.el,v 1.56 2007/05/20 16:00:11 zappo Exp $
+;; X-CVS: $Id: semantic-fw.el,v 1.61 2008/07/03 01:44:28 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -50,7 +50,11 @@
       (defalias 'semantic-overlay-move            'set-extent-endpoints)
       (defalias 'semantic-overlay-delete          'delete-extent)
       (defalias 'semantic-overlays-at
-        (lambda (pos) (extent-list nil pos pos)))
+        (lambda (pos) 
+	  (condition-case nil
+	      (extent-list nil pos pos)
+	    (error nil))
+	  ))
       (defalias 'semantic-overlays-in
         (lambda (beg end) (extent-list nil beg end)))
       (defalias 'semantic-overlay-buffer          'extent-buffer)
@@ -256,6 +260,7 @@ will throw a warning when it encounters this symbol."
 ;;
 ;; Load semantic-loaddefs after compatibility code, to allow to use it
 ;; in autoloads without infinite recursive load problems.
+(require 'eieio)
 (load "semantic-loaddefs" nil t)
 
 ;;; Help debugging
@@ -349,7 +354,8 @@ If FORMS completes, then the return value is the same as `progn'."
 FROM is an indication of where this function is called from as a value
 to pass to `throw'.  It is recommended to use the name of the function
 calling this one."
-  `(when (and semantic-current-input-throw-symbol (input-pending-p))
+  `(when (and semantic-current-input-throw-symbol
+              (or (input-pending-p) (accept-process-output)))
      (throw semantic-current-input-throw-symbol ,from)))
 
 (defun semantic-test-throw-on-input ()
@@ -381,6 +387,7 @@ calling this one."
 		 "define-lex-regex-analyzer"
 		 "define-lex-spp-macro-declaration-analyzer"
 		 "define-lex-spp-macro-undeclaration-analyzer"
+		 "define-lex-spp-include-analyzer"
 		 "define-lex-simple-regex-analyzer"
 		 "define-lex-keyword-type-analyzer"
 		 "define-lex-sexp-type-analyzer"
@@ -395,6 +402,7 @@ calling this one."
 		 "semantic-alias-obsolete"
 		 "semantic-varalias-obsolete"
 		 "semantic-make-obsolete-overload"
+		 "defcustom-mode-local-semantic-dependency-system-include-path"
 		 ))
            (kf (if vf (regexp-opt vf t) ""))
            ;; Regexp depths
@@ -435,7 +443,7 @@ calling this one."
  #'(lambda ()
 
      (def-edebug-spec semantic-exit-on-input
-       (symbolp def-body)
+       (quote def-body)
        )
 
      ))

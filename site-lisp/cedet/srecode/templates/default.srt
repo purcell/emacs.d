@@ -1,6 +1,6 @@
 ;;; default.srt --- Templates for srecode-template-mode
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -49,7 +49,7 @@ template copyright
 
 template filecomment :file :user :time
 ----
-{{comment_start}} {{FILENAME}} --- 
+{{comment_start}} {{FILENAME}} --- {{^}}
 
 {{comment_prefix}} Copyright (C) {{YEAR}} {{?AUTHOR}}
 

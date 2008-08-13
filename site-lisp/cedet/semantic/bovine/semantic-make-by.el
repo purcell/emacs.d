@@ -1,9 +1,9 @@
 ;;; semantic-make-by.el --- Generated parser support file
 
-;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Eric M. Ludlam
+;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2008 Eric M. Ludlam
 
 ;; Author: Steve <steve@Mandala.local>
-;; Created: 2007-08-12 00:13:23+0200
+;; Created: 2008-08-13 12:50:25+0100
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 
@@ -77,10 +77,31 @@
      ) ;; end bovine-toplevel
 
     (Makefile
-     (variable)
-     (rule)
-     (conditional)
-     (include)
+     (bol
+      newline
+      ,(semantic-lambda
+	(list nil))
+      )
+     (bol
+      variable
+      ,(semantic-lambda
+	(nth 1 vals))
+      )
+     (bol
+      rule
+      ,(semantic-lambda
+	(nth 1 vals))
+      )
+     (bol
+      conditional
+      ,(semantic-lambda
+	(nth 1 vals))
+      )
+     (bol
+      include
+      ,(semantic-lambda
+	(nth 1 vals))
+      )
      (whitespace
       ,(semantic-lambda
 	(list nil))
@@ -164,35 +185,35 @@
 
     (conditional
      (IF
-      whitespace
+      some-whitespace
       symbol
       newline
       ,(semantic-lambda
 	(list nil))
       )
      (IFDEF
-      whitespace
+      some-whitespace
       symbol
       newline
       ,(semantic-lambda
 	(list nil))
       )
      (IFNDEF
-      whitespace
+      some-whitespace
       symbol
       newline
       ,(semantic-lambda
 	(list nil))
       )
      (IFEQ
-      whitespace
+      some-whitespace
       expression
       newline
       ,(semantic-lambda
 	(list nil))
       )
      (IFNEQ
-      whitespace
+      some-whitespace
       expression
       newline
       ,(semantic-lambda
@@ -216,7 +237,7 @@
 
     (include
      (INCLUDE
-      whitespace
+      some-whitespace
       element-list
       ,(semantic-lambda
 	(semantic-tag-new-include
@@ -266,7 +287,7 @@
 
     (elements
      (element
-      whitespace
+      some-whitespace
       elements
       ,(semantic-lambda
 	(nth 0 vals)
@@ -335,13 +356,25 @@
      ) ;; end commands
 
     (opt-whitespace
-     (whitespace
+     (some-whitespace
       ,(semantic-lambda
 	(list nil))
       )
      ( ;;EMPTY
       )
      ) ;; end opt-whitespace
+
+    (some-whitespace
+     (whitespace
+      some-whitespace
+      ,(semantic-lambda
+	(list nil))
+      )
+     (whitespace
+      ,(semantic-lambda
+	(list nil))
+      )
+     ) ;; end some-whitespace
     )
   "Parser table.")
 

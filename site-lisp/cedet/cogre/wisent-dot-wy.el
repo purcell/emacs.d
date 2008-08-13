@@ -3,7 +3,7 @@
 ;; Copyright (C) 2003, 2004 Eric M. Ludlam
 
 ;; Author: Steve <steve@Mandala.local>
-;; Created: 2007-08-12 00:13:26+0200
+;; Created: 2008-08-13 12:51:23+0100
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 

@@ -3,36 +3,30 @@
 ;;; Code:
 
 
-;;;### (autoloads (ede-target-parent ede-parent-project ede-load-project-file
-;;;;;;  ede-documentation-files ede-description ede-name project-make-dist
-;;;;;;  project-compile-target project-compile-project project-edit-file-target
-;;;;;;  ede-compile-target ede-remove-file ede-project ede-target
-;;;;;;  ede-project-autoload) "ede" "ede.el" (18078 49091))
+;;;### (autoloads (ede-adebug-project ede-target-parent ede-parent-project
+;;;;;;  ede-load-project-file ede-documentation-files ede-description
+;;;;;;  ede-name project-make-dist project-compile-target project-compile-project
+;;;;;;  project-edit-file-target ede-compile-target ede-remove-file
+;;;;;;  global-ede-mode) "ede" "ede.el" (18592 59461))
 ;;; Generated autoloads from ede.el
 
-(autoload (quote ede-project-autoload) "ede" "\
-Class representing minimal knowledge set to run preliminary EDE functions.
-When more advanced functionality is needed from a project type, that projects
-type is required and the load function used.
+(eieio-defclass-autoload (quote ede-project-autoload) (quote nil) "ede" "Class representing minimal knowledge set to run preliminary EDE functions.\nWhen more advanced functionality is needed from a project type, that projects\ntype is required and the load function used.")
 
-\(fn)" nil nil)
+(eieio-defclass-autoload (quote ede-target) (quote (eieio-speedbar-directory-button)) "ede" "A top level target to build.")
 
-(autoload (quote ede-target) "ede" "\
-A top level target to build.
-
-\(fn EIEIO-SPEEDBAR-DIRECTORY-BUTTON)" nil nil)
-
-(autoload (quote ede-project) "ede" "\
-Top level EDE project specification.
-All specific project types must derive from this project.
-
-\(fn EDE-PROJECT-PLACEHOLDER)" nil nil)
+(eieio-defclass-autoload (quote ede-project) (quote (ede-project-placeholder)) "ede" "Top level EDE project specification.\nAll specific project types must derive from this project.")
 
 (defvar ede-projects nil "\
 A list of all active projects currently loaded in Emacs.")
 
 (defvar ede-minor-mode nil "\
 Non-nil in EDE controlled buffers.")
+
+(autoload (quote global-ede-mode) "ede" "\
+Turn on variable `ede-minor-mode' mode when ARG is positive.
+If ARG is negative, disable.  Toggle otherwise.
+
+\(fn ARG)" t nil)
 
 (autoload (quote ede-remove-file) "ede" "\
 Remove the current file from targets.
@@ -103,10 +97,44 @@ could become slow in time.
 
 \(fn TARGET)" nil nil)
 
+(autoload (quote ede-adebug-project) "ede" "\
+Run adebug against the current ede project.
+Display the results as a debug list.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (ede-cpp-root-load ede-cpp-root-project-root ede-cpp-root-project-file-for-dir)
+;;;;;;  "ede-cpp-root" "ede-cpp-root.el" (18539 36731))
+;;; Generated autoloads from ede-cpp-root.el
+
+(autoload (quote ede-cpp-root-project-file-for-dir) "ede-cpp-root" "\
+Return a full file name to the project file stored in DIR.
+
+\(fn &optional DIR)" nil nil)
+
+(autoload (quote ede-cpp-root-project-root) "ede-cpp-root" "\
+Get the root directory for DIR.
+
+\(fn)" nil nil)
+
+(autoload (quote ede-cpp-root-load) "ede-cpp-root" "\
+Return a CPP root object if you created one.
+Return nil if there isn't one.
+Argument DIR is the directory it is created for.
+ROOTPROJ is nil, since there is only one project.
+
+\(fn DIR &optional ROOTPROJ)" nil nil)
+
+(add-to-list (quote ede-project-class-files) (ede-project-autoload "cpp-root" :name "CPP ROOT" :file (quote ede-cpp-root) :proj-file (quote ede-cpp-root-project-file-for-dir) :proj-root (quote ede-cpp-root-project-root) :load-type (quote ede-cpp-root-load) :class-sym (quote ede-cpp-root) :new-p nil) t)
+
+(eieio-defclass-autoload (quote ede-cpp-root-project) (quote (eieio-instance-tracker ede-project)) "ede-cpp-root" "EDE cpp-root project class.\nEach directory needs a a project file to control it.")
+
 ;;;***
 
 ;;;### (autoloads (ede-pmake-varname) "ede-pmake" "ede-pmake.el"
-;;;;;;  (17881 43568))
+;;;;;;  (18362 19217))
 ;;; Generated autoloads from ede-pmake.el
 
 (autoload (quote ede-pmake-varname) "ede-pmake" "\
@@ -116,15 +144,15 @@ Convert OBJ into a variable name name, which converts .  to _.
 
 ;;;***
 
-;;;### (autoloads nil "ede-proj" "ede-proj.el" (17881 43589))
+;;;### (autoloads nil "ede-proj" "ede-proj.el" (18521 49142))
 ;;; Generated autoloads from ede-proj.el
 
-(add-to-list (quote auto-mode-alist) (quote ("Project\\.ede" . emacs-lisp-mode)))
+(add-to-list (quote auto-mode-alist) (quote ("Project\\.ede$" . emacs-lisp-mode)))
 
 ;;;***
 
-;;;### (autoloads (ede-simple-project ede-simple-load ede-simple-projectfile-for-dir)
-;;;;;;  "ede-simple" "ede-simple.el" (18042 51835))
+;;;### (autoloads (ede-simple-load ede-simple-projectfile-for-dir)
+;;;;;;  "ede-simple" "ede-simple.el" (18519 58532))
 ;;; Generated autoloads from ede-simple.el
 
 (add-to-list (quote ede-project-class-files) (ede-project-autoload "simple-overlay" :name "Simple" :file (quote ede-simple) :proj-file (quote ede-simple-projectfile-for-dir) :load-type (quote ede-simple-load) :class-sym (quote ede-simple-project)) t)
@@ -139,14 +167,31 @@ The directory has three parts:
 (autoload (quote ede-simple-load) "ede-simple" "\
 Load a project of type `Simple' for the directory DIR.
 Return nil if there isn't one.
+ROOTPROJ is nil, since we will only create a single EDE project here.
 
-\(fn DIR)" nil nil)
+\(fn DIR &optional ROOTPROJ)" nil nil)
 
-(autoload (quote ede-simple-project) "ede-simple" "\
-EDE Simple project class.
-Each directory needs a a project file to control it.
+(eieio-defclass-autoload (quote ede-simple-project) (quote (eieio-persistent ede-project)) "ede-simple" "EDE Simple project class.\nEach directory needs a a project file to control it.")
 
-\(fn EIEIO-PERSISTENT EDE-PROJECT)" nil nil)
+;;;***
+
+;;;### (autoloads (ede-srecode-insert ede-srecode-setup) "ede-srecode"
+;;;;;;  "ede-srecode.el" (18521 49742))
+;;; Generated autoloads from ede-srecode.el
+
+(autoload (quote ede-srecode-setup) "ede-srecode" "\
+Update various paths to get SRecode to identify our macros.
+
+\(fn)" nil nil)
+
+(autoload (quote ede-srecode-insert) "ede-srecode" "\
+Insert at the current point TEMPLATE.
+TEMPLATE should specify a context by using a string format of:
+  context:templatename
+Add DICTIONARY-ENTRIES into the dictionary before insertion.
+Note: Just like `srecode-insert', but templates found in 'ede app.
+
+\(fn TEMPLATE &rest DICTIONARY-ENTRIES)" nil nil)
 
 ;;;***
 
@@ -168,7 +213,7 @@ Argument NEWVERSION is the version number to use in the current project.
 ;;;;;;  "ede-proj-info.el" "ede-proj-misc.el" "ede-proj-obj.el" "ede-proj-prog.el"
 ;;;;;;  "ede-proj-scheme.el" "ede-proj-shared.el" "ede-proj-skel.el"
 ;;;;;;  "ede-source.el" "ede-speedbar.el" "ede-system.el" "project-am.el")
-;;;;;;  (18110 13412 718342))
+;;;;;;  (18594 52853 908243))
 
 ;;;***
 

@@ -2,7 +2,7 @@
 
 ;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007 Eric M. Ludlam
 
-;; X-CVS: $Id: semantic-bovine.el,v 1.13 2007/02/19 13:35:47 zappo Exp $
+;; X-CVS: $Id: semantic-bovine.el,v 1.14 2007/09/02 17:07:30 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -193,8 +193,8 @@ list of semantic tokens found."
                     (setq lse (car s)   ;Get the local stream element
                           s   (cdr s))  ;update stream.
                     ;; Do the compare
-                    (if (eq (car lte) (car lse)) ;syntactic match
-                        (let ((valdot (cdr lse)))
+                    (if (eq (car lte) (semantic-lex-token-class lse)) ;syntactic match
+                        (let ((valdot (semantic-lex-token-bounds lse)))
                           (setq val (semantic-lex-token-text lse))
                           (setq lte (cdr lte))
                           (if (stringp (car lte))
@@ -203,16 +203,16 @@ list of semantic tokens found."
                                       lte (cdr lte))
                                 (if (string-match tev val)
                                     (setq cvl (cons
-                                               (if (memq (car lse)
+                                               (if (memq (semantic-lex-token-class lse)
                                                          '(comment semantic-list))
                                                    valdot val)
                                                cvl)) ;append this value
                                   (setq lte nil cvl nil))) ;clear the entry (exit)
                             (setq cvl (cons
-                                       (if (memq (car lse)
+                                       (if (memq (semantic-lex-token-class lse)
                                                  '(comment semantic-list))
                                            valdot val) cvl))) ;append unchecked value.
-                          (setq end (cdr (cdr lse)))
+                          (setq end (semantic-lex-token-end lse))
                           )
                       (setq lte nil cvl nil)) ;No more matches, exit
                     )))

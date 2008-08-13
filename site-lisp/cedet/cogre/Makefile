@@ -11,7 +11,7 @@ ede_FILES=Project.ede Makefile
 
 wy_SEMANTIC_GRAMMAR=wisent-dot.wy
 EMACS=emacs
-LOADPATH= ../common/ ../semantic/ ../eieio/\
+LOADPATH= ../ede/ ../common/ ../semantic/ ../eieio/\
     ../semantic/wisent/  ../speedbar/ ../semantic/bovine/
 wy_SEMANTIC_GRAMMAR_EL=wisent-dot-wy.el
 EMACS=emacs
@@ -26,7 +26,7 @@ MAKEINFO=makeinfo
 misc_MISC=INSTALL ChangeLog
 hacks_LISP=picture-hack.el
 COGRE_LISP=cogre.el cogre-uml.el uml-create.el
-VERSION=0.5
+VERSION=0.6
 DISTDIR=$(top)COGRE-$(VERSION)
 
 

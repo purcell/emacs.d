@@ -1,9 +1,9 @@
 ;; srecode-wisent.srt --- Templates for Emacs/WISENT grammar files.
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-wisent.srt,v 1.1 2007/03/10 03:29:11 zappo Exp $
+;; X-RCS: $Id: srecode-wisent.srt,v 1.2 2008/01/29 14:30:49 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -76,17 +76,20 @@ template function
   : {{^}}
   ;
 ----
+bind "f"
 
 template keyword
 ----
 %keyword {{?NAME:upcase}} "{{NAME:downcase}}"
 %put     {{NAME:upcase}} summary "{{NAME}} {{^}}"
 ----
+bind "k"
 
 template token
 ----
 %type <{{?LEXTOKEN}}>
 %token <{{LEXTOKEN}}> {{LEXTOKEN}}
 ----
+bind "t"
 
 ;; end

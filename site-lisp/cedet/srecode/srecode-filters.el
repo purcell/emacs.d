@@ -1,6 +1,6 @@
 ;;; srecode-filters.el --- Filteres for use in template variables.
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -33,7 +33,10 @@
 ;;    
 ;;    ))
 
-(require 'newcomment)
+(condition-case nil
+    (require 'newcomment)
+  (error nil))
+
 (require 'srecode-table)
 (require 'srecode-insert)
 

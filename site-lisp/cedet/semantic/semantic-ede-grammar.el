@@ -1,10 +1,10 @@
 ;;; ede-ede-grammar.el --- EDE support for Semantic Grammar Files
 
-;;;  Copyright (C) 2003, 2004, 2007  Eric M. Ludlam
+;;;  Copyright (C) 2003, 2004, 2007, 2008  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: semantic-ede-grammar.el,v 1.12 2007/03/18 16:43:17 zappo Exp $
+;; RCS: $Id: semantic-ede-grammar.el,v 1.15 2008/03/11 02:33:33 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -127,14 +127,17 @@ Lays claim to all -by.el, and -wy.el files."
 
 (defmethod project-compile-target ((obj semantic-ede-proj-target-grammar))
   "Compile all sources in a Lisp target OBJ."
-  (let ((cb (current-buffer)))
-    (mapcar (lambda (src)
-	      (save-excursion
-		(set-buffer (find-file-noselect src))
-		(let ((cf (concat (semantic-grammar-package) ".el")))
-		  (if (or (not (file-exists-p cf))
-			  (file-newer-than-file-p src cf))
-		      (byte-compile-file cf)))))
+  (let ((cb (current-buffer))
+	(default-directory (ede-expand-filename obj ".")))
+    (mapc (lambda (src)
+	    (save-excursion
+	      (set-buffer (find-file-noselect src))
+	      (semantic-grammar-create-package)
+	      (save-buffer)
+	      (let ((cf (concat (semantic-grammar-package) ".el")))
+		(if (or (not (file-exists-p cf))
+			(file-newer-than-file-p src cf))
+		    (byte-compile-file cf)))))
 	    (oref obj source)))
   (message "All Semantic Grammar sources are up to date in %s" (object-name obj)))
 
@@ -150,7 +153,11 @@ Lays claim to all -by.el, and -wy.el files."
   "Insert variables needed by target THIS."
   (ede-proj-makefile-insert-loadpath-items
    (ede-proj-elisp-packages-to-loadpath
-    (list "eieio" "semantic" "inversion")))
+    (list "eieio" "semantic" "inversion" "ede")))
+  ;; eieio for object system needed in ede
+  ;; semantic because it is
+  ;; Inversion for versioning system.
+  ;; ede for project regeneration
   (ede-pmake-insert-variable-shared
       (concat (ede-pmake-varname this) "_SEMANTIC_GRAMMAR_EL")
     (insert

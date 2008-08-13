@@ -1,9 +1,9 @@
 ;;; semantic-html.el --- Semantic details for html files
 
-;;; Copyright (C) 2004, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-html.el,v 1.10 2007/07/06 11:35:26 zappo Exp $
+;; X-RCS: $Id: semantic-html.el,v 1.12 2008/03/25 02:21:28 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -126,14 +126,19 @@ html parser.  PNT is the new point to set."
       (setcar (nthcdr (1- (length metatag)) metatag) pnt)
       metatag)))
 
-(defsubst semantic-html-new-section-tag (name members start end)
+(defsubst semantic-html-new-section-tag (name members level start end)
   "Create a semantic tag of class section.
 NAME is the name of this section.
 MEMBERS is a list of semantic tags representing the elements that make
 up this section.
+LEVEL is the levelling level.
 START and END define the location of data described by the tag."
-  (append (semantic-tag name 'section :members members)
-          (list start end)))
+  (let ((anchorp (eq level 11)))
+    (append (semantic-tag name
+			  (cond (anchorp 'anchor)
+				(t 'section))
+			  :members members)
+	    (list start (if anchorp (point) end)) )))
 
 (defun semantic-html-extract-section-name ()
   "Extract a section name from the current buffer and point.
@@ -201,7 +206,7 @@ tag with greater section value than LEVEL is found."
 			   (cdr oldl) (car (cdr levelmatch))))
 		;; Build a tag
 		(setq tag (semantic-html-new-section-tag
-			   text (car tmp) begin (point)))
+			   text (car tmp) (car (cdr levelmatch)) begin (point-max)))
 		;; Before appending the newtag, update the previous tag
 		;; if it is a section tag.
 		(when newl
@@ -214,6 +219,7 @@ tag with greater section value than LEVEL is found."
 	    (error "Problem finding section in semantic/html parser"))
 	  ;; (setq oldl (cdr oldl))
 	  )))
+    ;; Return the list
     (cons (nreverse newl) oldl)))
 
 (define-mode-local-override semantic-sb-tag-children-to-expand
@@ -233,7 +239,7 @@ tag with greater section value than LEVEL is found."
 	semantic-symbol->name-assoc-list '((section . "Section")
 					   
 					   )
-	semantic-imenu-expandable-tag-classes 'section
+	semantic-imenu-expandable-tag-classes '(section)
 	semantic-imenu-bucketize-file nil
 	semantic-imenu-bucketize-type-members nil
 	senator-step-at-start-end-tag-classes '(section)

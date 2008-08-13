@@ -1,9 +1,9 @@
 ;;; semantic-mru-bookmark.el --- Automatic bookmark tracking
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-mru-bookmark.el,v 1.3 2007/05/31 02:22:24 zappo Exp $
+;; X-RCS: $Id: semantic-mru-bookmark.el,v 1.13 2008/08/11 14:19:37 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -94,11 +94,16 @@ Nice values are 'edit, 'read, 'jump, and 'mark.
 Uses `semantic-go-to-tag' and highlighting."
   (with-slots (tag filename) sbm
     ;; Go to the tag
-    (when (not (semantic-tag-buffer tag))
+    (when (not (semantic-tag-in-buffer-p tag))
       (let ((fn (or (semantic-tag-file-name tag)
-		    filename)))
-	(set-buffer (find-file-noselect fn))))
+ 		    filename)))
+ 	(set-buffer (find-file-noselect fn))))
     (semantic-go-to-tag (oref sbm tag) (oref sbm parent))
+    ;; Go back to the offset.
+    (condition-case nil
+	(let ((o (oref sbm offset)))
+	  (forward-char o))
+      (error nil))
     ;; make it visible
     (switch-to-buffer (current-buffer))
     (semantic-momentary-highlight-tag tag)
@@ -119,13 +124,14 @@ REASON is a symbol.  See slot `reason' on `semantic-bookmark'."
   "Method called on a tag before the current buffer list of tags is flushed.
 If there is a buffer match, unlink the tag."
   (let ((tag (oref sbm tag))
-	(parent (oref sbm parent)))
-    (let ((b (semantic-tag-buffer tag)))
+	(parent (when (slot-boundp sbm 'parent)
+		  (oref sbm parent))))
+    (let ((b (semantic-tag-in-buffer-p tag)))
       (when (and b (eq b (current-buffer)))
 	(semantic--tag-unlink-from-buffer tag)))
 
     (when parent
-      (let ((b (semantic-tag-buffer parent)))
+      (let ((b (semantic-tag-in-buffer-p parent)))
 	(when (and b (eq b (current-buffer)))
 	  (semantic--tag-unlink-from-buffer parent))))))
 
@@ -153,6 +159,18 @@ to delete some items from the ring when we don't have the data.")
   "The MRU bookmark ring.
 This ring tracks the most recent active tags of interest.")
 
+(defun semantic-mrub-find-nearby-tag (point)
+  "Find a nearby tag to be pushed for this current location.
+Argument POINT is where to find the tag near."
+  ;; I thought this was a good idea, but it is not!
+  ;;(semantic-fetch-tags) ;; Make sure everything is up-to-date.
+  (let ((tag (semantic-current-tag)))
+    (when (or (not tag) (semantic-tag-of-class-p tag 'type))
+      (let ((nearby (or (semantic-find-tag-by-overlay-next point)
+			(semantic-find-tag-by-overlay-prev point))))
+	(when nearby (setq tag nearby))))
+    tag))
+
 (defmethod semantic-mrub-push ((sbr semantic-bookmark-ring) point
 			       &optional reason)
   "Add a bookmark to the ring SBR from POINT.
@@ -160,28 +178,32 @@ REASON is why it is being pushed.  See doc for `semantic-bookmark'
 for possible reasons.
 The resulting bookmark is then sorted within the ring."
   (let* ((ring (oref sbr ring))
-	 (tag (semantic-current-tag))
-	 (elts (ring-elements ring))
-	 (sbm (object-assoc tag 'tag elts)))
-    (if sbm
-	;; Delete the old mark from the ringn
-	(let ((idx (- (length elts) (length (memq sbm elts)))))
-	  (ring-remove ring idx))
+	 (tag (semantic-mrub-find-nearby-tag (point)))
+	 (idx 0))
+    (when tag
+      (while (and (not (ring-empty-p ring)) (< idx (ring-size ring)))
+	(if (semantic-tag-similar-p (oref (ring-ref ring idx) tag)
+				    tag)
+	    (ring-remove ring idx))
+	(setq idx (1+ idx)))
       ;; Create a new mark
-      (setq sbm (semantic-bookmark (semantic-tag-name tag)
-		 :tag tag)))
-    ;; Take the mark, and update it for the current state.
-    (ring-insert ring sbm)
-    (semantic-mrub-update sbm point reason)
-    ))
+      (let ((sbm (semantic-bookmark (semantic-tag-name tag)
+				    :tag tag)))
+	;; Take the mark, and update it for the current state.
+	(ring-insert ring sbm)
+	(semantic-mrub-update sbm point reason))
+      )))
 
 (defun semantic-mrub-cache-flush-fcn ()
   "Function called in the `semantic-before-toplevel-cache-flush-hook`.
 Cause tags in the ring to become unlinked."
-  (let ((elts (ring-elements (oref semantic-mru-bookmark-ring ring)))
-	(buf (current-buffer)))
-    (dolist (e elts)
-      (semantic-mrub-preflush e))))
+  (let* ((ring (oref semantic-mru-bookmark-ring ring))
+	 (len (ring-length ring))
+	 (idx 0)
+	 (buf (current-buffer)))
+    (while (< idx len)
+      (semantic-mrub-preflush (ring-ref ring idx))
+      (setq idx (1+ idx)))))
 
 (add-hook 'semantic-before-toplevel-cache-flush-hook
 	  'semantic-mrub-cache-flush-fcn)
@@ -194,7 +216,7 @@ Cause tags in the ring to become unlinked."
 (defun semantic-mru-bookmark-change-hook-fcn (overlay)
   "Function set into `semantic-edits-new/move-change-hook's.
 Argument OVERLAY is the overlay created to mark the change.
-This function will set the face property on this overlay."
+This function pushes tags onto the tag ring."
   ;; Dup?
   (when (not (eq overlay semantic-mrub-last-overlay))
     (setq semantic-mrub-last-overlay overlay)
@@ -253,7 +275,7 @@ enabled parse the current buffer if needed.  Return non-nil if the
 minor mode is enabled."
   (if semantic-mru-bookmark-mode
       (if (not (and (featurep 'semantic) (semantic-active-p)))
-          (progn
+	  (progn
             ;; Disable minor mode if semantic stuff not available
             (setq semantic-mru-bookmark-mode nil)
             (error "Buffer %s was not set up for parsing"
@@ -311,28 +333,42 @@ minor mode is enabled."
 (defun semantic-mrub-read-history nil
   "History of `semantic-mrub-completing-read'.")
 
+(defun semantic-mrub-ring-to-assoc-list (ring)
+  "Convert RING into an association list for completion."
+  (let ((idx 0)
+	(len (ring-length ring))
+	(al nil))
+    (while (< idx len)
+      (let ((r (ring-ref ring idx)))
+	(setq al (cons (cons (oref r :object-name) r)
+		       al)))
+      (setq idx (1+ idx)))
+    (nreverse al)))
+
 (defun semantic-mrub-completing-read (prompt)
   "Do a `completing-read' on elements from the mru bookmark ring.
 Argument PROMPT is the promot to use when reading."
   (if (ring-empty-p (oref semantic-mru-bookmark-ring ring))
       (error "Semantic Bookmark ring is currently empty"))
-  (let* ((elts (ring-elements (oref semantic-mru-bookmark-ring ring)))
-	 (first (car elts))
+  (let* ((ring (oref semantic-mru-bookmark-ring ring))
 	 (ans nil)
-	 (alist (object-assoc-list :object-name elts))
+	 (alist (semantic-mrub-ring-to-assoc-list ring))
+	 (first (cdr (car alist)))
 	 (semantic-mrub-read-history nil)
 	 )
     ;; Don't include the current tag.. only those that come after.
     (if (semantic-equivalent-tag-p (oref first tag)
 				   (semantic-current-tag))
-	(setq first (car (cdr elts))))
+	(setq first (cdr (car (cdr alist)))))
     ;; Create a fake history list so we don't have to bind
     ;; M-p and M-n to our special cause.
-    (while elts
-      (setq semantic-mrub-read-history (cons (oref (car elts) :object-name)
-					     semantic-mrub-read-history))
-      (setq elts (cdr elts)))
+    (let ((elts (reverse alist)))
+      (while elts
+	(setq semantic-mrub-read-history
+	      (cons (car (car elts)) semantic-mrub-read-history))
+	(setq elts (cdr elts))))
     (setq semantic-mrub-read-history (nreverse semantic-mrub-read-history))
+
     ;; Do the read/prompt
     (let ((prompt (if first (format "%s (%s): " prompt
 				    (semantic-format-tag-name
@@ -370,15 +406,24 @@ Jumps to the tag and highlights it briefly."
 ;;; ADVICE
 ;;
 ;; Advise some commands to help set tag marks.
-(defadvice set-mark-command (around semantic-mru-bookmark activate)
-  "Set this buffer's mark to POS.
+(defadvice push-mark (around semantic-mru-bookmark activate)
+  "Push a mark at LOCATION with NOMSG and ACTIVATE passed to `push-mark'.
 If `semantic-mru-bookmark-mode' is active, also push a tag onto
 the mru bookmark stack."
-  (when (and semantic-mru-bookmark-mode (interactive-p))
-    (semantic-mrub-push semantic-mru-bookmark-ring
-			(point)
-			'mark))
+  (semantic-mrub-push semantic-mru-bookmark-ring
+		      (point)
+		      'mark)
   ad-do-it)
+
+;(defadvice set-mark-command (around semantic-mru-bookmark activate)
+;  "Set this buffer's mark to POS.
+;If `semantic-mru-bookmark-mode' is active, also push a tag onto
+;the mru bookmark stack."
+;  (when (and semantic-mru-bookmark-mode (interactive-p))
+;    (semantic-mrub-push semantic-mru-bookmark-ring
+;			(point)
+;			'mark))
+;  ad-do-it)
 
 
 ;;; Debugging
@@ -388,10 +433,9 @@ the mru bookmark stack."
 Useful for debugging mrub problems."
   (interactive)
   (let* ((out semantic-mru-bookmark-ring)
-	 (ab (semantic-adebug-new-buffer "*TAG RING ADEBUG*"))
+	 (ab (data-debug-new-buffer "*TAG RING ADEBUG*"))
 	 )
-
-    (semantic-adebug-insert-object-fields out "]")
+    (data-debug-insert-object-fields out "]")
     ))
 
 

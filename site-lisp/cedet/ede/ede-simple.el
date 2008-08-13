@@ -1,9 +1,9 @@
 ;;; ede-simple.el --- Overlay an EDE structure on an existing project
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: ede-simple.el,v 1.3 2007/06/21 18:59:07 zappo Exp $
+;; X-RCS: $Id: ede-simple.el,v 1.5 2008/06/17 16:21:56 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -34,11 +34,15 @@
 ;; It will also support a the minimal EDE UI for compilation and
 ;; configuration.
 
+;; @todo - Add support for cpp-root as an ede-simple project.
+;; @todo - Allow ede-simple to store locally.
+
 (require 'ede)
 (require 'cedet-files)
 
 ;;; Code:
 ;;;###autoload
+;; @todo - below is not compatible w/ Emacs 20!
 (add-to-list 'ede-project-class-files
 	     (ede-project-autoload "simple-overlay"
 	      :name "Simple" :file 'ede-simple
@@ -74,9 +78,10 @@ The directory has three parts:
     ))
 
 ;;;###autoload
-(defun ede-simple-load (dir)
+(defun ede-simple-load (dir &optional rootproj)
   "Load a project of type `Simple' for the directory DIR.
-Return nil if there isn't one."
+Return nil if there isn't one.
+ROOTPROJ is nil, since we will only create a single EDE project here."
   (let ((pf (ede-simple-projectfile-for-dir dir)))
     (when pf
       (eieio-persistent-read pf))

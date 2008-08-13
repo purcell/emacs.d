@@ -1,0 +1,19 @@
+;; Object ede-proj-project
+;; EDE project file.
+(ede-proj-project "ede-proj-project"
+  :name "Tests"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-elisp "Lisp"
+    :name "Lisp"
+    :path ""
+    :source '("cedet-integ-test.el" "cit-cpp.el" "cit-el.el" "cit-texi.el" "cit-load.el" "cit-srec.el")
+    )
+   (ede-proj-target-makefile-miscelaneous "templates"
+    :name "templates"
+    :path ""
+    :source '("cit-extra-cpp.srt")
+    )
+   )
+  :metasubproject 't
+  )

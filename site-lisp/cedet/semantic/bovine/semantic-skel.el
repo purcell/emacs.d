@@ -1,9 +1,15 @@
+;; NOTE TO USERS OF THIS SKELETON:
+;;
+;; If you may want to use the wisent parser generator instead.  It
+;; will generate more efficient parsers.
+
+
 ;;; semantic-skel.el --- Semantic details for skel
 
-;;; Copyright (C) 2001, 2003, 2004 Eric M. Ludlam
+;;; Copyright (C) 2001, 2003, 2004, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-skel.el,v 1.6 2005/09/30 20:22:34 zappo Exp $
+;; X-RCS: $Id: semantic-skel.el,v 1.7 2008/04/01 01:52:43 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -78,6 +84,10 @@
 
 ;;; Override methods & Variables
 ;;
+(defcustom-mode-local-semantic-dependency-system-include-path
+  skel-mode semantic-makefile-dependency-system-include-path
+  nil
+  "The system include path used by skel langauge.")
 
 ;; Add methods to the override table here.  See
 ;; `semantic-install-function-overrides' for more details.

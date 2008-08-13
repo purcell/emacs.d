@@ -1,9 +1,9 @@
 ;;; make.by -- BY notation for Makefiles.
 ;;
-;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Eric M. Ludlam
+;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2008 Eric M. Ludlam
 ;;
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: make.by,v 1.11 2005/09/30 20:21:59 zappo Exp $
+;; X-RCS: $Id: make.by,v 1.13 2008/03/09 15:27:11 zappo Exp $
 ;;
 ;; make.bnf is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -53,10 +53,15 @@
 
 %%
 
-Makefile : variable
-	 | rule
-	 | conditional
-	 | include
+Makefile : bol newline (nil)
+	 | bol variable
+	   ( ,@$2 )
+	 | bol rule
+	   ( ,@$2 )
+	 | bol conditional
+	   ( ,@$2 )
+	 | bol include
+	   ( ,@$2 )
 	 | whitespace ( nil )
 	 | newline ( nil )
 	 ;
@@ -86,15 +91,15 @@ sub-target: symbol
 	  | varref
 	  ;
 
-conditional: IF whitespace symbol newline
+conditional: IF some-whitespace symbol newline
 	     ( nil )
-	   | IFDEF whitespace symbol newline
+	   | IFDEF some-whitespace symbol newline
 	     ( nil )
-	   | IFNDEF whitespace symbol newline
+	   | IFNDEF some-whitespace symbol newline
 	     ( nil )
-	   | IFEQ whitespace expression newline
+	   | IFEQ some-whitespace expression newline
 	     ( nil )
-	   | IFNEQ whitespace expression newline
+	   | IFNEQ some-whitespace expression newline
 	     ( nil )
 	   | ELSE newline
 	     ( nil )
@@ -105,7 +110,7 @@ conditional: IF whitespace symbol newline
 expression : semantic-list
 	   ;
 
-include: INCLUDE whitespace element-list
+include: INCLUDE some-whitespace element-list
 	 (INCLUDE-TAG ,$3 nil)
        ;
 
@@ -122,7 +127,7 @@ element-list: elements newline
 	      ( ,@$1 )
 	    ;
 
-elements: element whitespace elements
+elements: element some-whitespace elements
 	  ( ,@$1 ,@$3 )
 	| element
 	  ( ,@$1 )
@@ -152,8 +157,12 @@ commands: shell-command newline commands
 	  ( )
 	;
 
-opt-whitespace : whitespace ( nil )
+opt-whitespace : some-whitespace ( nil )
 	       | ;;EMPTY
 	       ;
+
+some-whitespace : whitespace some-whitespace (nil)
+		| whitespace (nil)
+		;
 
 ;;; make.by ends here

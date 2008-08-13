@@ -1,10 +1,10 @@
 ;;; semantic-util.el --- Utilities for use with semantic tag tables
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-util.el,v 1.131 2007/02/19 02:54:03 zappo Exp $
+;; X-RCS: $Id: semantic-util.el,v 1.135 2008/03/18 17:46:47 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -66,9 +66,9 @@ If FILE is not loaded, check to see if `semanticdb' feature exists,
    and use it to get tags from files not in memory.
 If FILE is not loaded, and semanticdb is not available, find the file
    and parse it."
-  (if (get-file-buffer file)
+  (if (find-buffer-visiting file)
       (save-excursion
-	(set-buffer (get-file-buffer file))
+	(set-buffer (find-buffer-visiting file))
 	(semantic-fetch-tags))
     ;; File not loaded
     (if (and (fboundp 'semanticdb-minor-mode-p)
@@ -99,7 +99,7 @@ buffer, or a filename.  If SOMETHING is nil return nil."
       (semantic-fetch-tags)))
    ;; A Tag: Get that tag's buffer
    ((and (semantic-tag-with-position-p something)
-	 (semantic-tag-buffer something))
+	 (semantic-tag-in-buffer-p something))
     (save-excursion
       (set-buffer (semantic-tag-buffer something))
       (semantic-fetch-tags)))
@@ -116,8 +116,15 @@ buffer, or a filename.  If SOMETHING is nil return nil."
    ;; A Semanticdb table
    ((and (featurep 'semanticdb)
 	 (semanticdb-minor-mode-p)
-	 (semanticdb-abstract-table-p something))
-    (semanticdb-get-tags something something))
+	 (semanticdb-abstract-table-child-p something))
+    (semanticdb-get-tags something))
+   ;; Semanticdb find-results
+   ((and (featurep 'semanticdb)
+	 (semanticdb-minor-mode-p)
+	 (semanticdb-find-results-p something))
+    (semanticdb-strip-find-results something))
+   ;; NOTE: This commented out since if a search result returns
+   ;;       empty, that empty would turn into everything on the next search.
    ;; Use the current buffer for nil
 ;;   ((null something)
 ;;    (semantic-fetch-tags))

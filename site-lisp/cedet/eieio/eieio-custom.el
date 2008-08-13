@@ -1,9 +1,9 @@
 ;;; eieio-custom.el -- eieio object customization
 
-;;; Copyright (C) 1999, 2000, 2001, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2005, 2007, 2008 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
-;; RCS: $Id: eieio-custom.el,v 1.22 2007/02/18 18:11:06 zappo Exp $
+;; RCS: $Id: eieio-custom.el,v 1.23 2008/06/11 01:51:45 zappo Exp $
 ;; Keywords: OO, lisp
 ;;                                                                          
 ;; This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,13 @@
 (require 'widget)
 (require 'wid-edit)
 (require 'custom)
+
+;;; Compatibility
+;;
+(if (featurep 'xemacs)
+    (defalias 'eieio-overlay-lists (lambda () (list (extent-list))))
+  (defalias 'eieio-overlay-lists 'overlay-lists)
+  )
 
 ;;; Code:
 (defclass eieio-widget-test-class nil
@@ -348,7 +355,7 @@ These groups are specified with the `:group' slot flag."
     (toggle-read-only -1)
     (kill-all-local-variables)
     (erase-buffer)
-    (let ((all (overlay-lists)))
+    (let ((all (eieio-overlay-lists)))
       ;; Delete all the overlays.
       (mapcar 'delete-overlay (car all))
       (mapcar 'delete-overlay (cdr all)))

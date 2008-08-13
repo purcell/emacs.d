@@ -82,14 +82,3 @@ int no_show_moose_elif_2() {}
 int show_moose_elif_else() {}
 #endif
 
-#define EMU
-
-int EMU parse_around_emu(EMU)
-{
-}
-
-#define SUBFLOAT float
-
-SUBFLOAT returnanfloat()
-{
-}

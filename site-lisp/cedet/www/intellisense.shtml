@@ -148,7 +148,7 @@ The commands available (for binding to a key) are:
 <h2>Semantic Analyzer FAQ</h2>
 </td></tr></table>
 
-Quastions are for C/C++:
+Questions are for C/C++:
 
 <pre>
 Q) When I type the name of a struct or class and press "." nothing

@@ -1,12 +1,12 @@
 ;;; semantic-util-modes.el --- Semantic minor modes
 
-;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 ;;; Copyright (C) 2001 David Ponce
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Author: David Ponce <david@dponce.com>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-util-modes.el,v 1.59 2007/02/19 02:54:37 zappo Exp $
+;; X-RCS: $Id: semantic-util-modes.el,v 1.61 2008/06/19 02:24:21 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -231,7 +231,7 @@ until the buffer is reparsed."
     (((class color) (background light))
      (:background "gray90")))
   "*Face used to show dirty tokens in `semantic-highlight-edits-mode'."
-  :group 'semantic)
+  :group 'semantic-faces)
 
 (defun semantic-highlight-edits-new-change-hook-fcn (overlay)
   "Function set into `semantic-edits-new-change-hook'.
@@ -344,7 +344,7 @@ semantic parser cannot match is highlighted with a red underline."
      (:underline "red")))
   "*Face used to show unmatched syntax in.
 The face is used in  `semantic-show-unmatched-syntax-mode'."
-  :group 'semantic)
+  :group 'semantic-faces)
 
 (defsubst semantic-unmatched-syntax-overlay-p (overlay)
   "Return non-nil if OVERLAY is an unmatched syntax one."
@@ -863,8 +863,17 @@ when it lands in the sticky line."
   "Value of the header line when entering sticky func mode.")
 
 (defconst semantic-stickyfunc-header-line-format
-  '(:eval (list semantic-stickyfunc-indent-string
-                (semantic-stickyfunc-fetch-stickyline)))
+  (cond ((featurep 'xemacs)
+	 nil)
+	((>= emacs-major-version 22)
+	 '(:eval (list
+		  ;; Magic bit I found on emacswiki.
+		  (propertize " " 'display '((space :align-to 0)))
+		  (semantic-stickyfunc-fetch-stickyline))))
+	((= emacs-major-version 21)
+	 '(:eval (list semantic-stickyfunc-indent-string
+		       (semantic-stickyfunc-fetch-stickyline))))
+	(t nil))
   "The header line format used by sticky func mode.")
 
 (defun semantic-stickyfunc-mode-setup ()

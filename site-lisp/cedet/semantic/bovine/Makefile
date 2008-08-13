@@ -11,14 +11,14 @@ ede_FILES=Project.ede Makefile
 
 by_SEMANTIC_GRAMMAR=c.by make.by scheme.by erlang.by
 EMACS=emacs
-LOADPATH= ../../common/ ../ ../../eieio/\
+LOADPATH= ../../ede/ ../../common/ ../ ../../eieio/\
     ../wisent/ ../../speedbar/
 by_SEMANTIC_GRAMMAR_EL=semantic-c-by.el semantic-make-by.el semantic-scm-by.el semantic-erlang-by.el
 bovinator_LISP=semantic-bovine.el bovine-grammar.el bovine-debug.el bovine-grammar-macros.el
 EMACS=emacs
 examples_MISC=semantic-skel.el skeleton.by
 languages_LISP=semantic-c.el semantic-el.el semantic-make.el semantic-scm.el semantic-java.el erlang-edoc.el semantic-erlang.el
-VERSION=2.0pre4
+VERSION=2.0pre5
 DISTDIR=$(top)semantic-$(VERSION)/bovine
 
 

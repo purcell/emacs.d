@@ -17,7 +17,7 @@ Add a CVS tag
 
   * Create a new copy of CVS TRUNK
     - mkdir <some dir>
-    - cvs -d <username>@cvs.sourceforge.net:/cvsroot/cedet co cedet
+    - cvs -d <username>@cedet.cvs.sourceforge.net:/cvsroot/cedet co cedet
     - mv cedet cedet-<branchname>  # (such as cedet-1p0beta3)
     - cd cedet-branchname
     - cvs tag -b <branchname>     
@@ -38,10 +38,18 @@ Update Changelogs
 
 Build a DIST file
 
+  * touch `find . -name Makefile`
+  * make
   * make dist
 
 After a dist is made:
 --------------------
+
+CEDET integration test
+  * From a CVS area:
+  * cd cedet/tests
+  * emacs -q -l cedet/common/cedet.el -l cedet/tests/cit-load.el -f cedet-integ-test
+  * If it passes: rm -rf /tmp/CEDET_INTEG
 
 CEDET & Common area
 
@@ -55,7 +63,6 @@ CEDET & Common area
      - Other
 
   * Check version numbers of different tools.
-     - M-x inversion-unit-test RET
 
      - Verify output of:
        M-x cedet-version RET
@@ -71,6 +78,33 @@ CEDET & Common area
       xemacs -q
 
       M-x load-file RET cedet/common/cedet.el RET
+
+  * Test inversion
+
+      M-x inversion-unit-test RET
+      - Make sure it doesn't throw an error.
+
+  * Test ezimage
+
+      M-x ezimage-image-association-dump RET
+      - Verify some common images for Emacs and XEmacs.
+      M-x ezimage-image-dump RET
+      - Verify the default registered images for Emacs and XEmacs.
+
+  * Test working
+
+      M-x working-wait-for-keypress RET
+      - Verify working message till a key is pressed.
+        NOTE: The key will be executed as a regular Emacs command too.
+
+      M-x working-verify-sleep RET
+      - Verify working message runs for 5 seconds when the subprocess
+        sleep is done.
+ 
+  * Test pulse
+      M-x pulse-test RET
+      - Verify pulse does what messages say.
+      - Try in Emacs 22, and older Emacs, or XEmacs.  (different behaviors)
 
 EIEIO
 
@@ -111,6 +145,12 @@ Semantic
     Run some unit tests:
       M-x load-library semantic-utest.el
       M-x semantic-utest-main RET
+
+      M-x load-library semantic-utest-c.el
+      M-x semantic-utest-c RET
+
+      M-x load-library semantic-ai-utest.el+
+      M-x semantic-ia-utest RET
 
       M-x semantic-test-data-cache RET
       M-x semantic-test-throw-on-input RET
@@ -220,6 +260,20 @@ COGRE
 
      - Verify the grpah.  (on parent, some direct children.)
      - Move some blocks around (M-f, M-b, M-n, M-p)
+
+SRecode
+
+   * Run the tests:
+     M-x srecode-utest-template-output RET
+
+   * Verify menu working in SRT, C++, and Emacs Lisp.
+     * Make sure srecode-mode is on.
+
+   * Try inserting file:empty in some modes, and then a function
+     to make sure prompts work.
+
+   * Check the maps:
+     M-x srecode-get-maps RET
 
 GENERAL
 

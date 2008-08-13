@@ -1,9 +1,9 @@
 ;;; semantic-el.el --- Semantic details for Emacs Lisp
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-el.el,v 1.39 2007/03/08 04:11:20 zappo Exp $
+;; X-RCS: $Id: semantic-el.el,v 1.46 2008/08/02 16:25:03 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -104,7 +104,9 @@ syntax as specified by the syntax table."
       (cond
        ((stringp (car p))
 	(car p))
-       ((or (symbolp (car p)) (listp (car p)))
+       ((or (symbolp (car p))
+	    (listp (car p))
+	    (numberp (car p)))
 	(format "%S" (car p)))
        (t nil)))))
 
@@ -230,13 +232,15 @@ Return a bovination list to use."
        (semantic-elisp-desymbolify (nth 2 form))
        :user-visible-flag (eq (car-safe (nth 4 form)) 'interactive)
        :documentation (semantic-elisp-do-doc (nth 3 form))
-       :overloadable (eq (car form) 'define-overload)
+       :overloadable (or (eq (car form) 'define-overload)
+			 (eq (car form) 'define-overloadable-function))
        ))
   defun
   defun*
   defsubst
   defmacro
-  define-overload
+  define-overload ;; @todo - remove after cleaning up semantic.
+  define-overloadable-function
   )
 
 (semantic-elisp-setup-form-parser
@@ -255,10 +259,54 @@ Return a bovination list to use."
   defvar
   defconst
   defcustom
+  )
+
+(semantic-elisp-setup-form-parser
+    (lambda (form start end)
+      (let ((doc (semantic-elisp-form-to-doc-string (nth 3 form))))
+        (semantic-tag-new-variable
+         (symbol-name (nth 1 form))
+         "face"
+         (nth 2 form)
+         :user-visible-flag (and doc
+                                 (> (length doc) 0)
+                                 (= (aref doc 0) ?*))
+         :documentation (semantic-elisp-do-doc doc)
+         )))
   defface
+  )
+
+
+(semantic-elisp-setup-form-parser
+    (lambda (form start end)
+      (let ((doc (semantic-elisp-form-to-doc-string (nth 3 form))))
+        (semantic-tag-new-variable
+         (symbol-name (nth 1 form))
+         "image"
+         (nth 2 form)
+         :user-visible-flag (and doc
+                                 (> (length doc) 0)
+                                 (= (aref doc 0) ?*))
+         :documentation (semantic-elisp-do-doc doc)
+         )))
   defimage
   defezimage
   )
+
+
+(semantic-elisp-setup-form-parser
+    (lambda (form start end)
+      (let ((doc (semantic-elisp-form-to-doc-string (nth 3 form))))
+        (semantic-tag
+         (symbol-name (nth 1 form))
+         'customgroup
+         :value (nth 2 form)
+         :user-visible-flag t
+         :documentation (semantic-elisp-do-doc doc)
+         )))
+  defgroup
+  )
+
 
 (semantic-elisp-setup-form-parser
     (lambda (form start end)
@@ -404,10 +452,13 @@ Return a bovination list to use."
 (define-mode-local-override semantic-dependency-tag-file
   emacs-lisp-mode (tag)
   "Find the file BUFFER depends on described by TAG."
-  (let ((f (file-name-sans-extension
-	    (locate-library (semantic-tag-name tag)))))
-    (concat f ".el")))
+  (let ((lib (locate-library (semantic-tag-name tag)))
+	)
+    (when lib
+      (concat (file-name-sans-extension lib) ".el"))))
 
+;;; DOC Strings
+;;
 (defun semantic-emacs-lisp-overridable-doc (tag)
   "Return the documentation string generated for overloadable functions.
 Fetch the item for TAG.  Only returns info about what symbols can be
@@ -475,9 +526,19 @@ Optional argument NOSNARF is ignored."
        (semantic-emacs-lisp-overridable-doc tag)
        (semantic-emacs-lisp-obsoleted-doc tag)))))
 
+;;; Tag Features
+;;
+(define-mode-local-override semantic-tag-include-filename emacs-lisp-mode
+  (tag)
+  "Return the name of the tag with .el appended.
+If there is a detail, prepend that directory."
+  (let ((name (semantic-tag-name tag))
+	(detail (semantic-tag-get-attribute tag :directory)))
+    (concat (expand-file-name name detail) ".el")))
+
 (define-mode-local-override semantic-insert-foreign-tag
-  emacs-lisp-mode (tag tagfile)
-  "Insert TAG from TAGFILE at point.
+  emacs-lisp-mode (tag)
+  "Insert TAG at point.
 Attempts a simple prototype for calling or using TAG."
   (cond ((semantic-tag-of-class-p tag 'function)
 	 (insert "(" (semantic-tag-name tag) " )")
@@ -730,14 +791,8 @@ fields and such to, but that is for some other day."
       (error '(variable)))
     ))
 
-(define-mode-local-override semantic-tag-include-filename emacs-lisp-mode
-  (tag)
-  "Return the name of the tag with .el appended.
-If there is a detail, prepend that directory."
-  (let ((name (semantic-tag-name tag))
-	(detail (semantic-tag-get-attribute tag :directory)))
-    (concat (expand-file-name name detail) ".el")))
-
+;;; Formatting
+;;
 (define-mode-local-override semantic-format-tag-abbreviate emacs-lisp-mode
   (tag &optional parent color)
   "Return an abbreviated string describing tag."
@@ -784,6 +839,23 @@ See `semantic-format-tag-prototype' for Emacs Lisp for more details."
 See `semantic-format-tag-prototype' for Emacs Lisp for more details."
   (semantic-format-tag-prototype tag parent color))
 
+;;; IA Commands
+;;
+(define-mode-local-override semantic-ia-insert-tag
+  emacs-lisp-mode (tag)
+  "Insert TAG into the current buffer based on completion."
+  ;; This function by David <de_bb@...> is a tweaked version of the original.
+  (insert (semantic-tag-name tag))
+  (let ((tt (semantic-tag-class tag))
+	(args (semantic-tag-function-arguments tag)))
+    (cond ((eq tt 'function)
+	   (if args
+	       (insert " ")
+	     (insert ")")))
+	  (t nil))))
+
+;;; Lexical features and setup
+;;
 (defvar-mode-local emacs-lisp-mode semantic-lex-analyzer
   'semantic-emacs-lisp-lexer)
 
@@ -807,6 +879,11 @@ See `semantic-format-tag-prototype' for Emacs Lisp for more details."
 
 (defvar-mode-local emacs-lisp-mode imenu-create-index-function
   'semantic-create-imenu-index)
+
+(defvar-mode-local emacs-lisp-mode semantic-stickyfunc-sticky-classes
+  '(function type variable)
+  "Add variables.
+ELisp variables can be pretty long, so track this one too.")
 
 (define-child-mode lisp-mode emacs-lisp-mode
   "Make `lisp-mode' inherits mode local behavior from `emacs-lisp-mode'.")

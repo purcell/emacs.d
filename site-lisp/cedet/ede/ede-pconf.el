@@ -1,10 +1,10 @@
 ;;; ede-pconf.el --- configure.in maintenance for EDE
 
-;;  Copyright (C) 1998, 1999, 2000, 2005  Eric M. Ludlam
+;;  Copyright (C) 1998, 1999, 2000, 2005, 2008  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project
-;; RCS: $Id: ede-pconf.el,v 1.12 2005/09/30 20:16:30 zappo Exp $
+;; RCS: $Id: ede-pconf.el,v 1.13 2008/03/20 22:36:37 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -62,10 +62,18 @@
     (set-buffer b)
     ;; Next, verify all targets of all subobjects.
     (autoconf-set-version (oref this version))
-    (autoconf-set-output '("Makefile"))
-     ;;
-     ;; NOTE TO SELF.  TURN THIS INTO THE OFFICIAL LIST
-     ;;
+    (let ((top-level-project-local this))
+      (autoconf-set-output
+       (ede-map-all-subprojects
+	this
+	(lambda (sp) 
+	  (concat (file-name-as-directory 
+		   (directory-file-name 
+		    (ede-subproject-relative-path sp top-level-project-local)))
+		  "Makefile")))))
+    ;;
+    ;; NOTE TO SELF.  TURN THIS INTO THE OFFICIAL LIST
+    ;;
     (ede-proj-dist-makefile this)
     ;; Loop over all targets to clean and then add themselves in.
     (ede-map-targets this 'ede-proj-flush-autoconf)

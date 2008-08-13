@@ -1,10 +1,10 @@
 ;;; eieio-tests.el -- eieio tests routines
 
 ;;;
-;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2006 Eric M. Ludlam
+;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
-;; RCS: $Id: eieio-tests.el,v 1.37 2006/02/09 02:23:09 zappo Exp $
+;; RCS: $Id: eieio-tests.el,v 1.42 2008/06/19 02:05:48 zappo Exp $
 ;; Keywords: oop, lisp, tools
 ;;
 ;; This program is free software; you can redistribute it and/or modify
@@ -213,7 +213,7 @@ Argument A is object of type symbol `class-a'."
   (call-next-method)
   )
 
-(defmethod no-next-method ((a class-a))
+(defmethod no-next-method ((a class-a) &rest args)
   "Override signal throwing for variable `class-a'.
 Argument A is the object of class variable `class-a'."
   'moose)
@@ -223,7 +223,7 @@ Argument A is the object of class variable `class-a'."
   (error "no-next-method return value failure."))
 
 ;; Non-existing methods.
-(defmethod no-applicable-method ((b class-b) method)
+(defmethod no-applicable-method ((b class-b) method &rest args)
   "No need.
 Argument B is for booger.
 METHOD is the method that was attempting to be called."
@@ -709,6 +709,158 @@ Do not override for `prot-2'."
        (error "Instance inheritor: Level zero inheritance failed."))
       (t t))
 
+;;; Test slot attribute override patterns
+;;
+(defclass slotattr-base ()
+  ((initform :initform init)
+   (type :type list)
+   (initarg :initarg :initarg)
+   (protection :protection :private)
+   (custom :custom (repeat string)
+	   :label "Custom Strings"
+	   :group moose)
+   (docstring :documentation
+	      "Replace the doc-string for this property.")
+   (printer :printer printer1)
+   )
+  "Baseclass we will attempt to subclass.
+Subclasses to override slot attributes.")
+
+(let ((good-fail t))
+  (condition-case nil
+      (progn
+	(defclass slotattr-fail (slotattr-base)
+	  ((protection :protection :public)
+	   )
+	  "This class should throw an error.")
+	(setq good-fail nil))
+    (error nil))
+  (if (not good-fail)
+      (error "Subclass overrode :protection slot attribute.")))
+
+(let ((good-fail t))
+  (condition-case nil
+      (progn
+	(defclass slotattr-fail (slotattr-base)
+	  ((type :type string)
+	   )
+	  "This class should throw an error.")
+	(setq good-fail nil))
+    (error nil))
+  (if (not good-fail)
+      (error "Subclass overrode :type slot attribute.")))
+
+
+(defclass slotattr-ok (slotattr-base)
+  ((initform :initform no-init)   
+   (initarg :initarg :initblarg)
+   (custom :custom string
+	   :label "One String"
+	   :group cow)
+   (docstring :documentation
+	      "A better doc string for this class.")
+   (printer :printer printer2)
+   )
+  "This class should allow overriding of various slot attributes.")
+
+(let ((obj (slotattr-ok "moose")))
+  (if (not (eq (oref obj initform) 'no-init))
+      (error "Initform did not override in instance allocation."))
+)
+
+;;; Test slot attribute override patterns for CLASS allocated slots
+;;
+(defclass slotattr-class-base ()
+  ((initform :allocation :class
+	     :initform init)
+   (type :allocation :class
+	 :type list)
+   (initarg :allocation :class
+	    :initarg :initarg)
+   (protection :allocation :class
+	       :protection :private)
+   (custom :allocation :class
+	   :custom (repeat string)
+	   :label "Custom Strings"
+	   :group moose)
+   (docstring :allocation :class
+	      :documentation
+	      "Replace the doc-string for this property.")
+   )
+  "Baseclass we will attempt to subclass.
+Subclasses to override slot attributes.")
+
+(let ((good-fail t))
+  (condition-case nil
+      (progn
+	(defclass slotattr-fail (slotattr-class-base)
+	  ((protection :protection :public)
+	   )
+	  "This class should throw an error.")
+	(setq good-fail nil))
+    (error nil))
+  (if (not good-fail)
+      (error "Subclass overrode :protection slot attribute.")))
+
+(let ((good-fail t))
+  (condition-case nil
+      (progn
+	(defclass slotattr-fail (slotattr-class-base)
+	  ((type :type string)
+	   )
+	  "This class should throw an error.")
+	(setq good-fail nil))
+    (error nil))
+  (if (not good-fail)
+      (error "Subclass overrode :type slot attribute.")))
+
+
+(defclass slotattr-class-ok (slotattr-class-base)
+  ((initform :initform no-init)   
+   (initarg :initarg :initblarg)
+   (custom :custom string
+	   :label "One String"
+	   :group cow)
+   (docstring :documentation
+	      "A better doc string for this class.")
+   )
+  "This class should allow overriding of various slot attributes.")
+
+(if (not (eq (oref-default slotattr-class-ok initform) 'no-init))
+    (error "Initform did not override in instance allocation."))
+
+
+(let* ((cv (class-v 'slotattr-ok))
+       (docs   (aref cv class-public-doc))
+       (names  (aref cv class-public-a))
+       (cust   (aref cv class-public-custom))
+       (label  (aref cv class-public-custom-label))
+       (group  (aref cv class-public-custom-group))
+       (types  (aref cv class-public-type))
+       (args   (aref cv class-initarg-tuples))
+       (i 0)
+       )
+  
+  (if (not (assoc :initblarg args))
+      (error ":initarg did not override for subclass."))
+
+  (while (< i (length names))
+
+    (cond
+     ((eq (nth i names) 'custom)
+      (if (not (eq (nth i cust) 'string))
+	  (error "Custom slot attribute did not override."))
+      (if (not (string= (nth i label) "One String"))
+	  (error "Custom Label slot attribute did not override."))
+      (let ((grp (nth i group)))
+	(if (not (and (memq 'moose grp) (memq 'cow grp)))
+	    (error "Custom Group slot attribute did not combine."))
+	))
+
+     (t nil))
+
+    (setq i (1+ i))))
+
 ;;; Test clone on boring objects too!
 ;;
 (defvar CLONETEST1 nil)
@@ -726,18 +878,43 @@ Do not override for `prot-2'."
 ;;
 (defclass PO (eieio-persistent)
   ((slot1 :initarg :slot1
-	  :initform 2)
+	  :initform 'moose
+	  :printer PO-slot1-printer)
    (slot2 :initarg :slot2
 	  :initform "foo"))
   "A Persistent object with two initializable slots.")
 
+(defun PO-slot1-printer (slotvalue)
+  "Print the slot value SLOTVALUE to stdout.
+Assume SLOTVALUE is a symbol of some sort."
+  (princ "(make-symbol \"")
+  (princ (symbol-name slotvalue))
+  (princ "\")")
+  nil)
+;;(PO-slot1-printer 'moose)
+
 (defvar PO1 nil)
-(setq PO1 (PO "persist" :slot1 4 :slot2 "testing"
+(setq PO1 (PO "persist" :slot1 'goose :slot2 "testing"
 	      :file (concat default-directory "test-p.el")))
 
 (eieio-persistent-save PO1)
 
-(eieio-persistent-read "test-p.el")
+(let ((obj (eieio-persistent-read "test-p.el")))
+  (message "%S" obj)
+  )
+
+
+(let* ((find-file-hooks nil)
+       (tbuff (find-file-noselect "test-p.el"))
+       )
+  (condition-case nil
+      (unwind-protect
+	  (save-excursion
+	    (set-buffer tbuff)
+	    (goto-char (point-min))
+	    (re-search-forward ":slot1 (make-symbol"))
+	(kill-buffer tbuff))
+    (error "PO's Slot1 printer function didn't work.")))
 
 
 ;;; Test the instance tracker

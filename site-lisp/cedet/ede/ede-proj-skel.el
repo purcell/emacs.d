@@ -1,10 +1,10 @@
 ;;; ede-proj-%NAME%.el --- EDE Generic Project ...
 
-;;;  Copyright (C) 1999, 2000, 2001  Eric M. Ludlam
+;;;  Copyright (C) 1999, 2000, 2001, 2008  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-proj-skel.el,v 1.12 2005/09/30 20:17:16 zappo Exp $
+;; RCS: $Id: ede-proj-skel.el,v 1.13 2008/06/28 14:36:13 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 ;;
 ;; If a function is commented out, then you probably don't need to
 ;; override it.  If it is not commented out, you probably need it, but
-;; there is no requirement that you impelement it.
+;; there is no requirement that you implement it.
 
 (require 'ede-proj)
 

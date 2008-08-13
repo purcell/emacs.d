@@ -1,4 +1,4 @@
-;;; eassist.el --- EmacsAssist, C/C++/Java/Python method/function navigator.
+;;; eassist.el --- EmacsAssist, C/C++/Java/Python/ELisp method/function navigator.
 
 ;; Copyright (C) 2006, 2007 Anton V. Belyaev
 ;; Author: Anton V. Belyaev <anton.belyaev at the gmail.com>
@@ -20,10 +20,10 @@
 ;; Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ;; MA 02111-1307 USA
 
-;; Version: 0.6
-;; CEDET CVS Version: $Id: eassist.el,v 1.2 2007/08/09 16:07:14 zappo Exp $
+;; Version: 0.9
+;; CEDET CVS Version: $Id: eassist.el,v 1.5 2008/02/23 20:35:54 kpoxman Exp $
 
-;; Compatibility: Emacs 22 or 23, CEDET 1.0pre4.
+;; Compatibility: Emacs 22 or 23, CEDET 1.0pre4
 
 ;;; Commentary:
 
@@ -41,15 +41,18 @@
 
 ;; 2) Header <-> Body file switch.
 ;;    You can easily switch between body (c, cpp, cc...) and its corresponding
-;;    header file (h, hpp...) using eassist-switch-h-cpp.  The file is searched
-;;    in the same directory.  You can adjust body to header correspondence
+;;    header file (h, hpp...) using eassist-switch-h-cpp.  The counterpart file
+;;    is first searched in opened buffers and if there is no match the file is
+;;    searched in the same directory.  You can adjust body to header correspondence
 ;;    customizing eassist-header-switches variable.
 ;;    This function is recommended to be bound to M-o in c-mode.
 
 ;; EmacsAssist uses Semantic (http://cedet.sourceforge.net/semantic.shtml)
-;; EmacsAssist is developed for Semantics from CEDET 1.0pre3 package.
-;; EmacsAssist works with current development (22) version of Emacs and
+;; EmacsAssist is a part of CEDET project (current CVS version of CEDET contains
+;; EmacsAssist)
+;; EmacsAssist works with current (22) and development (23) versions of Emacs and
 ;; does not work with version 21.
+;; EmacsAssist works with CEDET 1.0pre4 and subsequent CVS versions of CEDET.
 
 ;; EmacsAssist has a page at Emacs Wiki, where you can always find the latest
 ;; version: http://www.emacswiki.org/cgi-bin/wiki/EAssist
@@ -57,11 +60,20 @@
 ;; Usage:
 
 ;; 1) Install CEDET package for Emacs (if you don't have CEDET already).
-;; 2) Add convenient keymaps for fast EmacsAssist calls in c-mode:
+;; 2) Add convenient keymaps for fast EmacsAssist calls in c-mode and (or) python-mode
+;;    and for lisp:
+;;
 ;;    (defun my-c-mode-common-hook ()
 ;;      (define-key c-mode-base-map (kbd "M-o") 'eassist-switch-h-cpp)
 ;;      (define-key c-mode-base-map (kbd "M-m") 'eassist-list-methods))
 ;;    (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
+;;
+;;    (defun my-python-mode-hook ()
+;;      (define-key python-mode-map (kbd "M-m") 'eassist-list-methods))
+;;    (add-hook 'python-mode-hook 'my-python-mode-hook)
+;;
+;;    (define-key lisp-mode-shared-map (kbd "M-m") 'eassist-list-methods)
+;;
 ;; 3) Open any C++ file with class definition, press M-m.  Try to type
 ;;    any method name.
 ;; 4) Open any .cpp file.  Press M-o.  If there is .h or .hpp file in the
@@ -81,6 +93,12 @@
 ;;                     Thanks to Eric Ludlam for CHECKDOC tool suggestion.
 ;; 23 jun 2007 -- v0.7 EAssist is now a part of CEDET project.
 ;;                     Added autoload cookies for some vars and funs.
+;; 29 aug 2007 -- v0.8 "M-o" function now tries first to use already opened buffers
+;;                     and if there are no counterparts, tries to search them in the
+;;                     current directory.
+;;                     Thanks to Alekseenko Dimitry for great feature suggestion.
+;; 23 feb 2008 -- v0.9 "M-m" buffer comes up with current function highlighted.
+;;                     Thanks to Christoph Conrad for great suggestions and patches.
 
 ;;; Code:
 
@@ -99,7 +117,7 @@
 ;; ================================== CPP-H switch ===========================
 ;;;###autoload
 (defvar eassist-header-switches '(("h" . ("cpp" "cc" "c"))
-			     ("hpp" . ("cpp"))
+			     ("hpp" . ("cpp" "cc"))
 			     ("cpp" . ("h" "hpp"))
 			     ("c" . ("h"))
 			     ("C" . ("H"))
@@ -116,28 +134,26 @@ The current buffer's file name extention is searched in
 `eassist-header-switches' variable to find out extention for file's counterpart,
 for example *.hpp <--> *.cpp."
   (interactive)
-  (let ((ext (file-name-extension (buffer-file-name))))
-    (when (null (find-if
-                 (lambda (i)
-                   (when (string= (car i) ext)
-                     (if (find-if 'eassist-try-h-cpp (cdr i))
-                         t
-                       (message "There is no corresponding pair (header or body) file."))))
-                 eassist-header-switches))
-      (message "It is not a header or body file! See eassist-header-switches variable."))))
-
-(defun eassist-try-h-cpp (ext)
-  "Open file with name of the current buffer and extention changed to EXT."
-  (eassist-find-if-exist
-   (concat (eassist-string-without-last (buffer-file-name) (length (file-name-extension (buffer-file-name)))) ext)))
-
-(defun eassist-find-if-exist (file)
-  "Opend the FILE if it exists."
-  (when (file-exists-p file)
-      (find-file file) file))
+  (let* ((ext (file-name-extension (buffer-file-name)))
+         (base-name (eassist-string-without-last (buffer-name) (length ext)))
+         (base-path (eassist-string-without-last (buffer-file-name) (length ext)))
+         (count-ext (cdr (find-if (lambda (i) (string= (car i) ext)) eassist-header-switches))))
+    (cond
+     (count-ext
+      (unless
+          (or
+           (loop for b in (mapcar (lambda (i) (concat base-name i)) count-ext)
+                 when (bufferp (get-buffer b)) return (switch-to-buffer b))
+           (loop for c in (mapcar (lambda (count-ext) (concat base-path count-ext)) count-ext)
+                 when (file-exists-p c) return (find-file c)))
+        (message "There is no corresponding pair (header or body) file.")))
+     (t
+      (message "It is not a header or body file! See eassist-header-switches variable.")))))
 ;; ================================== CPP-H switch end =========================
 
 ;; ================================== Method navigator =========================
+(defvar eassist-current-tag nil
+  "Current Semantic tag in source buffer.")
 (defvar eassist-buffer nil
   "Buffer used to selecting tags in EAssist.")
 (defvar eassist-names-column nil
@@ -211,6 +227,7 @@ F - list of triplets of tag type, parent and name."
 This function is recommended to be bound to some convinient hotkey."
   (interactive)
   (setq eassist-buffer (current-buffer))
+  (setq eassist-current-tag (semantic-current-tag))
   (switch-to-buffer (get-buffer-create (concat (buffer-name (current-buffer)) " method list")) t)
   (eassist-mode))
 
@@ -299,6 +316,11 @@ buffer and sets the point to a method/function, corresponding the line."
     	map
     	(read-kbd-macro (char-to-string k))
     	(eassist-make-key-function k)))
+    (dolist (k (string-to-list "=><&!"))
+      (define-key
+    	map
+    	(read-kbd-macro (char-to-string k))
+    	(eassist-make-key-function k)))
 
     (eassist-key-itself map (string-to-char " "))
     (eassist-key-itself map (string-to-char "_"))
@@ -312,7 +334,8 @@ buffer and sets the point to a method/function, corresponding the line."
 (defstruct eassist-method
   (full-line)
   (name)
-  (position))
+  (position)
+  (tag))
 
 (defun eassist-mode-init ()
   "Initialize method/function list mode."
@@ -327,12 +350,21 @@ buffer and sets the point to a method/function, corresponding the line."
   (setq eassist-methods
         (let* ((method-tags (eassist-function-tags))
                (method-triplets (mapcar 'eassist-function-string-triplet method-tags)))
-          (mapcar* '(lambda (full-line name position)
-                      (make-eassist-method :full-line full-line :name name :position position))
+          (mapcar* '(lambda (full-line name position tag)
+                      (make-eassist-method :full-line full-line :name name :position position :tag tag))
                    (eassist-format-triplets method-triplets)
                    (mapcar 'caddr method-triplets)
-                   (mapcar 'semantic-tag-start method-tags))))
+                   (mapcar 'semantic-tag-start method-tags)
+                   method-tags)))
   (eassist-search-string-updated)
+
+  ;; Set current line corresponding to the current function/method if any
+  (let ((line (position-if 
+               (lambda (item) (eq eassist-current-tag (eassist-method-tag item)))
+               eassist-methods)))
+    (when line
+      (goto-line (1+ line))))
+
   ;;(setq b1 (current-buffer))
   ;;(setq ov1 (make-overlay 1 30 b1))
   ;;(overlay-put ov1 'face '(background-color . "yellow"))

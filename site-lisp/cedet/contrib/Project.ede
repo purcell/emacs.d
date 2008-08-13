@@ -2,7 +2,7 @@
 ;; EDE project file.
 (ede-proj-project "Contrib"
   :name "Contrib"
-  :version "1.0pre4"
+  :version "1.0pre5"
   :file "Project.ede"
   :targets (list 
    (ede-proj-target-aux "misc"
@@ -29,12 +29,12 @@
    (semantic-ede-proj-target-grammar "wy"
     :name "wy"
     :path ""
-    :source '("wisent-csharp.wy" "wisent-javascript-jv.wy")
+    :source '("wisent-csharp.wy" "wisent-javascript-jv.wy" "wisent-ruby.wy" "wisent-php.wy")
     )
    (ede-proj-target-elisp "lisp"
     :name "lisp"
     :path ""
-    :source '("wisent-csharp.el" "wisent-javascript.el" "semantic-tag-folding.el" "semanticdb-javascript.el" "eassist.el")
+    :source '("wisent-csharp.el" "wisent-javascript.el" "semantic-tag-folding.el" "semanticdb-javascript.el" "eassist.el" "wisent-ruby.el" "wisent-php.el" "ede-gnustep.el")
     :aux-packages '("semantic-grammar" "wisent" "inversion" "speedbar" "semantic-el")
     )
    )

@@ -2,11 +2,12 @@
 
 ;; Copyright (C) 2001, 2002, 2003 Vladimir G. Sekissov
 ;; Copyright (C) 2003 David Ponce
+;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Vladimir G. Sekissov <svg@surnet.ru>
 ;;         David Ponce <david@dponce.com>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-erlang.el,v 1.4 2005/09/30 20:22:18 zappo Exp $
+;; X-RCS: $Id: semantic-erlang.el,v 1.5 2008/04/01 01:51:04 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -63,6 +64,11 @@
   semantic-lex-ignore-comments
   semantic-lex-punctuation
   semantic-lex-default-action)
+
+(defcustom-mode-local-semantic-dependency-system-include-path
+  erlang-mode semantic-erlang-dependency-system-include-path
+  nil
+  "The system include path used by Erlang langauge.")
 
 (defun semantic-erlang-default-setup ()
   "Set up a buffer for semantic parsing of the Erlang language."

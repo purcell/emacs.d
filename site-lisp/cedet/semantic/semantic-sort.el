@@ -1,10 +1,10 @@
 ;;; semantic-sort.el --- Utilities for sorting and re-arranging tag tables.
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-sort.el,v 1.23 2007/06/06 01:05:25 zappo Exp $
+;; X-RCS: $Id: semantic-sort.el,v 1.26 2008/06/10 00:43:31 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -63,6 +63,36 @@ Argument S1 and S2 are the strings to compare."
 	  ((listp ty)
 	   (or (car ty) ""))
 	  (t ""))))
+
+(defun semantic-tag-lessp-name-then-type (A B)
+  "Return t if tag A is < tag B.
+First sorts on name, then sorts on the name of the :type of
+each tag."
+  (let ((na (semantic-tag-name A))
+	(nb (semantic-tag-name B))
+	)
+    (if (string-lessp na nb)
+	t ; a sure thing.
+      (if (string= na nb)
+	  ;; If equal, test the :type which might be different.
+	  (let* ((ta (semantic-tag-type A))
+		 (tb (semantic-tag-type B))
+		 (tas (cond ((stringp ta)
+			     ta)
+			    ((semantic-tag-p ta)
+			     (semantic-tag-name ta))
+			    (t nil)))
+		 (tbs (cond ((stringp tb)
+			     tb)
+			    ((semantic-tag-p tb)
+			     (semantic-tag-name tb))
+			    (t nil))))
+	    (if (and (stringp tas) (stringp tbs))
+		(string< tas tbs)
+	      ;; This is if A == B, and no types in A or B
+	      nil))
+	;; This nil is if A > B, but not =
+	nil))))
 
 ;;;###autoload
 (defun semantic-sort-tags-by-name-increasing (tags)
@@ -128,6 +158,19 @@ Return the sorted list."
 	       (semantic-string-lessp-ci (semantic-sort-tag-type b)
 					 (semantic-sort-tag-type a)))))
 
+;;;###autoload
+(defun semantic-sort-tags-by-name-then-type-increasing (tags)
+  "Sort TAGS by name, then type in increasing order with side effects.
+Return the sorted list."
+  (sort tags (lambda (a b) (semantic-tag-lessp-name-then-type a b))))
+
+;;;###autoload
+(defun semantic-sort-tags-by-name-then-type-decreasing (tags)
+  "Sort TAGS by name, then type in increasing order with side effects.
+Return the sorted list."
+  (sort tags (lambda (a b) (semantic-tag-lessp-name-then-type b a))))
+
+
 (semantic-alias-obsolete 'semantic-sort-tokens-by-name-increasing
 			 'semantic-sort-tags-by-name-increasing)
 (semantic-alias-obsolete 'semantic-sort-tokens-by-name-decreasing
@@ -157,7 +200,9 @@ Return the sorted list."
 ;;;###autoload
 (defun semantic-unique-tag-table-by-name (tags)
   "Scan a list of TAGS, removing duplicate names.
-This must first sort the tags by name alphabetically ascending."
+This must first sort the tags by name alphabetically ascending.
+For more complex uniqueness testing used by the semanticdb
+typecaching system, see `semanticdb-typecache-merge-streams'."
   (let ((copy (copy-sequence tags))
 	(sorted (semantic-sort-tags-by-name-increasing
 		 (copy-sequence tags)))
@@ -176,7 +221,9 @@ This must first sort the tags by name alphabetically ascending."
   "Scan a list of TAGS, removing duplicates.
 This must first sort the tags by position ascending.
 TAGS are removed only if they are equivalent, as can happen when
-multiple tag sources are scanned."
+multiple tag sources are scanned.
+For more complex uniqueness testing used by the semanticdb
+typecaching system, see `semanticdb-typecache-merge-streams'."
   (let ((copy (copy-sequence tags))
 	(sorted (sort (copy-sequence tags)
 		      (lambda (a b)
@@ -438,7 +485,7 @@ buckets with the bucket function."
 ;; to enable the feature.
 ;;
 ;;;###autoload
-(define-overload semantic-tag-external-member-parent (tag)
+(define-overloadable-function semantic-tag-external-member-parent (tag)
   "Return a parent for TAG when TAG is an external member.
 TAG is an external member if it is defined at a toplevel and
 has some sort of label defining a parent.  The parent return will
@@ -466,7 +513,7 @@ include the default behavior, and merely extend your own."
 			 'semantic-tag-external-member-parent)
 
 ;;;###autoload
-(define-overload semantic-tag-external-member-p (parent tag)
+(define-overloadable-function semantic-tag-external-member-p (parent tag)
   "Return non-nil if PARENT is the parent of TAG.
 TAG is an external member of PARENT when it is somehow tagged
 as having PARENT as it's parent.
@@ -494,7 +541,7 @@ include the default behavior, and merely extend your own."
 			 'semantic-tag-external-member-p)
 
 ;;;###autoload
-(define-overload semantic-tag-external-member-children (tag &optional usedb)
+(define-overloadable-function semantic-tag-external-member-children (tag &optional usedb)
   "Return the list of children which are not *in* TAG.
 If optional argument USEDB is non-nil, then also search files in
 the Semantic Database.  If USEDB is a list of databases, search those
@@ -534,7 +581,7 @@ See `semantic-tag-external-member-children' for details."
     ))
 
 ;;;###autoload
-(define-overload semantic-tag-external-class (tag)
+(define-overloadable-function semantic-tag-external-class (tag)
   "Return a list of real tags that faux TAG might represent.
 
 In some languages, a method can be defined on an object which is

@@ -1,10 +1,10 @@
 ;;; eieio-base.el --- Base classes for EIEIO.
 
 ;;;
-;; Copyright (C) 2000, 2001, 2002, 2004, 2005, 2007 Eric M. Ludlam
+;; Copyright (C) 2000, 2001, 2002, 2004, 2005, 2007, 2008 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
-;; RCS: $Id: eieio-base.el,v 1.22 2007/06/04 00:39:27 zappo Exp $
+;; RCS: $Id: eieio-base.el,v 1.25 2008/05/04 02:02:02 zappo Exp $
 ;; Keywords: OO, lisp
 ;;
 ;; This program is free software; you can redistribute it and/or modify
@@ -181,7 +181,13 @@ Enables auto-choosing nice file names based on name.")
 		     :initform ";; EIEIO PERSISTENT OBJECT"
 		     :documentation
 		     "Header line for the save file.
-This is used with the `object-write' method."))
+This is used with the `object-write' method.")
+   (do-backups :type boolean
+	       :allocation :class
+	       :initform t
+	       :documentation
+	       "Saving this object should make backup files.
+Setting to nil will mean no backups are made."))
   "This special class enables persistence through save files
 Use the `object-save' method to write this object to disk.  The save
 format is Emacs Lisp code which calls the constructor for the saved
@@ -203,7 +209,7 @@ a file.  Optional argument NAME specifies a default file name."
   (oref this file))
 
 (defun eieio-persistent-read (filename)
-  "Read a persistent object from FILENAME."
+  "Read a persistent object from FILENAME, and return it."
   (save-excursion
     (let ((ret nil))
       (set-buffer (get-buffer-create " *tmp eieio read*"))
@@ -246,7 +252,16 @@ instance."
 			(eieio-persistent-path-relative this file)
 		      (file-name-nondirectory cfn)))
 	      (object-write this (oref this file-header-line)))
-	    (write-file cfn nil))
+	    (let ((backup-inhibited (not (oref this do-backups))))
+	      ;; Old way - write file.  Leaves message behind.
+	      ;;(write-file cfn nil)
+	      
+	      ;; New way - Avoid the vast quantities of error checking
+	      ;; just so I can get at the special flags that disable
+	      ;; displaying random messages.
+	      (write-region (point-min) (point-max)
+			    cfn nil 1)
+	      ))
 	;; Restore :file, and kill the tmp buffer
 	(oset this file cfn)
 	(setq buffer-file-name nil)

@@ -1,9 +1,9 @@
 ;;; semantic-make.el --- Makefile parsing rules.
 
-;; Copyright (C) 2000, 2001, 2002, 2003, 2004 Eric M. Ludlam
+;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-make.el,v 1.18 2005/09/30 20:22:25 zappo Exp $
+;; X-RCS: $Id: semantic-make.el,v 1.21 2008/04/01 01:51:45 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -37,10 +37,18 @@
   )
 
 ;;; Code:
-
-(define-lex-simple-regex-analyzer semantic-lex-make-backslash-newline
-  "A line ending with a \ continues to the next line and is treated as whitespace."
-  "\\(\\\\\n\\s-*\\)" 'whitespace 1)
+(define-lex-analyzer semantic-lex-make-backslash-no-newline
+  "Detect and create a beginning of line token (BOL)."
+  (and (looking-at "\\(\\\\\n\\s-*\\)")
+       ;; We have a \ at eol.  Push it as whitespace, but pretend
+       ;; it never happened so we can skip the BOL tokenizer.
+       (semantic-lex-push-token (semantic-lex-token 'whitespace
+						    (match-beginning 1)
+						    (match-end 1)))
+       (goto-char (match-end 1))
+       nil) ;; CONTINUE
+   ;; We want to skip BOL, so move to the next condition.
+   nil)
 
 (define-lex-regex-analyzer semantic-lex-make-command
   "A command in a Makefile consists of a line starting with TAB, and ending at the newline."
@@ -52,10 +60,18 @@
     (semantic-lex-push-token
      (semantic-lex-token 'shell-command start (point)))))
 
+(define-lex-regex-analyzer semantic-lex-make-ignore-automake-conditional
+  "An automake conditional seems to really bog down the parser.
+Ignore them."
+  "^@\\(\\w\\|\\s_\\)+@"
+  (setq semantic-lex-end-point (match-end 0)))
+
 (define-lex semantic-make-lexer
   "Lexical analyzer for Makefiles."
+  semantic-lex-beginning-of-line
+  semantic-lex-make-ignore-automake-conditional
   semantic-lex-make-command
-  semantic-lex-make-backslash-newline
+  semantic-lex-make-backslash-no-newline
   semantic-lex-whitespace
   semantic-lex-newline
   semantic-lex-symbol-or-keyword
@@ -71,11 +87,19 @@
   "Expand TAG into a list of equivalent tags, or nil."
   (let ((name (semantic-tag-name tag))
         xpand)
-    (and (consp name)
-         (memq (semantic-tag-class tag) '(function include))
-         (while name
-           (setq xpand (cons (semantic-tag-clone tag (car name)) xpand)
-                 name  (cdr name))))
+    ;(message "Expanding %S" name)
+    ;(goto-char (semantic-tag-start tag))
+    ;(sit-for 0)
+    (if (and (consp name)
+	     (memq (semantic-tag-class tag) '(function include))
+	     (> (length name) 1))
+	(while name
+	  (setq xpand (cons (semantic-tag-clone tag (car name)) xpand)
+		name  (cdr name)))
+      ;; Else, only a single name.
+      (when (consp name)
+	(setcar tag (car name)))
+      (setq xpand (list tag)))
     xpand))
 
 (define-mode-local-override semantic-get-local-variables
@@ -177,6 +201,10 @@ Uses default implementation, and also gets a list of filenames."
       (append normal filetags)
       )))
 
+(defcustom-mode-local-semantic-dependency-system-include-path
+  makefile-mode semantic-makefile-dependency-system-include-path
+  nil
+  "The system include path used by Makefiles langauge.")
 
 ;;;###autoload
 (defun semantic-default-make-setup ()

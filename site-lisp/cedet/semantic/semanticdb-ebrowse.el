@@ -1,10 +1,10 @@
 ;;; semanticdb-ebrowse.el --- Semanticdb backend using ebrowse.
 
-;;; Copyright (C) 2005, 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 2005, 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>, Joakim Verona
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb-ebrowse.el,v 1.16 2007/05/31 02:25:27 zappo Exp $
+;; X-RCS: $Id: semanticdb-ebrowse.el,v 1.18 2008/03/27 02:52:22 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -226,15 +226,6 @@ This table is compisited from the ebrowse *Globals* section.")
    )
   "Semantic Database deriving tags using the EBROWSE tool.
 EBROWSE is a C/C++ parser for use with `ebrowse' Emacs program.")
-
-;; NOTE: Be sure to modify this to the best advantage of your
-;;       language.
-(defvar-mode-local c++-mode semanticdb-find-default-throttle
-  '(project system recursive)
-  "Search project files, then search this omniscience database.
-It is not necessary to do system or recursive searching because of
-the omniscience database.")
-
 
 ;JAVE this just instantiates a default empty ebrowse struct? 
 ; how would new instances wind up here?
@@ -667,8 +658,8 @@ run the test again..")
 	(ab nil))
     (while db
       (when (semanticdb-project-database-ebrowse-p (car db))
-	(setq ab (semantic-adebug-new-buffer "*EBROWSE Database*"))
-	(semantic-adebug-insert-thing (car db) "*" "")
+	(setq ab (data-debug-new-buffer "*EBROWSE Database*"))
+	(data-debug-insert-thing (car db) "*" "")
 	(setq db nil)
 	)
       (setq db (cdr db)))))

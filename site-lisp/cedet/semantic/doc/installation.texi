@@ -7,7 +7,11 @@
 
 Semantic should be installed as a part of the CEDET distribution.  See
 the cedet/INSTALL file in the cedet distribution for basic
-installation instructions.
+installation instructions of the CEDET suite, plus canned
+configurations for the entire CEDET suite.
+
+These chapters dig into more detail for configuring @semantic{}
+components beyond the basics of CEDET.
 
 @menu
 * Canned Configuration::
@@ -116,27 +120,42 @@ Show the current buffer state via small indicators in the mode line.
 @node Search Optimization
 @section Search Optimization
 
-A common use of semantic is for smart completion and tag browsing.
+A common use of @semantic{} is for smart completion and tag browsing.
 These operations involve searching through the tags of your files.
 For complete documentation on configuring your searches,
 @ref{(semantic-user)Semanticdb Search Configuration}.
 
-The default configuration is for fast searches that may not find your
-symbols all the time.
+The default configuration is for the most complete set of searches
+possible.  During idle services, the slowest options are disabled.
 
 Searching is controlled with @code{semanticdb-find-default-throttle}.
-To force the search to find and read and tag files not yet in memory,
-you might add code like this for C mode.
+If you want to speed up parsing by disabling searches in system
+headers, you might add code like this for C mode.
 
 @example
 (setq-mode-local c-mode
 		 semanticdb-find-default-throttle
-		 '(project unloaded system recursive))
+		 '(project unloaded recursive))
+                 ;; Remove 'system from the throttle
 @end example
 
-Finding unloaded databases requires knowing the search path.  You can
-find headers on a system or project level search path.
-@xref{(semantic-user)Include paths}.
+Finding files included into a program file requires knowing the
+include path.  You can find headers at a system level by configuring
+an include path.  @xref{(semantic-user)Include paths}.
+
+Finding files within a project path is more complex.  One way is to
+teach @semantic{} about your project, and add an entry to
+@code{semanticdb-project-roots}.  See
+@xref{(semantic-user)Semanticdb Search Configuration}, or 
+@xref{(semantic-user)SemanticDB project roots}.
+@refill
+
+Alternately, setup an EDE project.  Using the @inforef{top, EDE project
+system, ede} to allows finer grained control on how Semantic will find
+header files for C/C++ systems.  Creating a simple project that allows
+configuration of just this piece is covered in @xref{(ede)Simple
+projects}.
+@refill
 
 If using the above tactic doesn't work for your language (something
 other than C/C++), it may be that your language isn't configured
@@ -168,11 +187,14 @@ search list for your C and C++ based projects.  These databases will
 be created in your @file{~/.semanticdb} directory to be reloaded in
 future Emacs sessions.
 
+Unfortunately, EBROWSE does not support all the features needed by
+@semantic{}, so you will find that @semantic{} will need to go and
+reparse those files later.
 
 @node Parsing Optimization
 @section Parsing Optimization
 
-The semantic parsers generate the tags that form the basis of all the
+The @semantic{} parsers generate the tags that form the basis of all the
 semantic based tools, such as browsers and completion.  Keeping those
 tags up to date can have performance implications.
 
@@ -185,7 +207,8 @@ variable.
 
 @defvar semantic-inhibit-functions
 @anchor{semantic-inhibit-functions}
-List of functions to call with no arguments before to setup Semantic.
+List of functions to call with no arguments before @semantic{} sets up
+a buffer.
 If any of these functions returns non-@code{nil}, the current buffer is not
 setup to use Semantic.
 @end defvar
@@ -197,7 +220,7 @@ which case particular problems to semantic.
 @subsection Parsing in idle time
 
 Tags are usually kept up to date when Emacs is idle
-@ref{(semantic-user)Idle Scheduler}.  The semantic's idle-scheduler
+@ref{(semantic-user)Idle Scheduler}.  The @semantic{} idle-scheduler
 automatically updates the tags in various buffers before executing
 specific idle modes, such as summary mode.
 
@@ -211,4 +234,16 @@ your @file{.emacs} file:
 (setq semantic-idle-scheduler-max-buffer-size 100000)
 @end example
 
+There is also a secondary idle services that runs after a longer
+delay.  The secondary idle service will perform large scale parsing of
+any file @semantic{} thinks you may need to reference, and then saves
+all the databases.
+
+You might want to tune the scheduler timer in your @file{.emacs} file
+like this:
+
+@example
+;; Increase the delay before doing slow work to 2 minutes.
+(setq semantic-idle-scheduler-work-idle-time 120)
+@end example
 

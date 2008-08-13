@@ -1,10 +1,10 @@
 ;;; semantic-cb.el --- Manage and maintain a Class Browser database
 
-;;; Copyright (C) 2002, 2003, 2004, 2005 Eric M. Ludlam
+;;; Copyright (C) 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-cb.el,v 1.18 2005/09/30 20:18:50 zappo Exp $
+;; X-RCS: $Id: semantic-cb.el,v 1.22 2008/06/10 00:50:41 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -35,12 +35,18 @@
 ;; speedbar support for full class browsing is garnered for
 ;; nearly no effort.
 
+;; @todo - This stuff doesn't support namespace concepts from C++ very
+;; well.  it also needs some love surrounding guiding the user around
+;; parsing up an entire project.
+;; 
+
 (require 'semantic)
 (require 'semanticdb)
 (require 'semanticdb-find)
 (require 'semantic-sort)
 (require 'eieio-speedbar)
 (require 'eieio-base)
+(require 'data-debug)
 
 ;;; Code:
 (defclass semantic-cb-project ()
@@ -48,12 +54,40 @@
 	  :type list
 	  :documentation
 	  "List of top level types in this project.")
+   (namespaces :initarg :namespaces
+	       :type list
+	       :documentation
+	       "List of top level namespaces in this project.")
    )
   "The root of a project's tag system.
 The project will consist of top-level types, classes, namespaces,
 or whatever is used in that language as a representaton.")
 
-(defclass semantic-cb-tag (eieio-named eieio-speedbar)
+(defclass semantic-cb-tag-abstract (eieio-named eieio-speedbar)
+  ()
+  "An abstract baseclass for tags."
+  :abstract t)
+
+(defclass semantic-cb-namespace (semantic-cb-tag-abstract)
+  ((buttontype :initform curly)
+   (buttonface :initform speedbar-tag-face)
+
+   (children :type list
+	     :initform nil
+	     :documentation
+	     "List of CB tag children embedded in this namespace.
+Embedded children of namespaces will come from many locations,
+and be grouped under a single tag node.")
+    
+   )
+  "A namespace object in a project.
+The namespace contains lists of other tags, but itself
+is not as important as the core classes that can be instantiated.
+
+Namespaces do not get tags, since the positional information is
+completely irrelivent.")
+
+(defclass semantic-cb-tag (semantic-cb-tag-abstract)
   ((buttontype :initform statictag)
    (buttonface :initform speedbar-tag-face)
    (tag :initarg :tag
@@ -137,23 +171,29 @@ The object returned is of type `semantic-cb-project', which contains
 the slot `:types', a list of all top-level types.  Each element is a
 class of type `semantic-cb-tag', or `semantic-cb-type'."
   (let* ((semanticdb-search-system-databases nil)
-	 (alldbtype (semanticdb-brute-find-tags-by-class
-		    'type
-		    ;; Need a way to strip away system queries.
-		    ))
+	 (tc (semanticdb-typecache-for-database 
+	      semanticdb-current-database))
+	 (merged (oref tc stream))
+
 	 ;; Scope these variables during construction.
 	 (semantic-cb-incomplete-types nil)
 	 (semantic-cb-incomplete-scoped-types nil)
 	 )
+
     ;; Loop over all discovered types, and construct them.
-    (while alldbtype
-      (let ((alltype (cdr (car alldbtype)))
-	    (db (car (car alldbtype))))
-	(while alltype
-	  ;; This adds all new types into a special list.
-	  (semantic-cb-convert-type (car alltype) db nil)
-	  (setq alltype (cdr alltype))))
-      (setq alldbtype (cdr alldbtype)))
+    ;;(semanticdb-find-result-mapc 
+    ;; (lambda (tag db)
+    ;;   (semantic-cb-convert-type tag db nil)
+    ;;   )
+    ;; alldbtype)
+
+    (mapc (lambda (tag)
+	    (let* ((fname (semantic-tag-file-name tag))
+		   (db (semanticdb-file-table-object fname))
+		   )
+	      (semantic-cb-convert-type tag db nil)))
+	  merged)
+
     ;; Cycle over all incomplete subtypes, finding parents
     ;; The incomplete type lists are in two batches.  The first we
     ;; will deal with are for unscoped classes at the top level.
@@ -314,11 +354,27 @@ PARENTOBJ is the CB tag which hosts CHILDLIST."
       this
     (semantic-cb-find-node-in-list (oref this subclasses) name))
   )
+
+;;; ADEBUG the class browser.
+;;
+(defun semantic-cb-adebug (clear)
+  "Debug the output of the semantic Class Browser.
+With universla argument CLEAR, reset the current browser project."
+  (interactive "P")
+  (if clear (semantic-cb-clear-current-project))
+  (let* ((start  (current-time))
+	 (cb (semantic-cb-new-class-browser))
+	 (ab nil)
+	 (end  (current-time)))
+    (message "Retrieving CLASS BROWSER data took %.2f seconds."
+	     (semantic-elapsed-time start end))
+    (setq ab (data-debug-new-buffer "*CLASS BROWSER ADEBUG*"))
+    (data-debug-insert-thing cb "@" "")
+    ))
 
 
 ;;; Dot Output File Generation for UML
 ;;
-;;;###autoload
 (defun semantic-dot (start)
   "Create a DOT graph out of the class browser information.
 Argument START specifies the name of the class we are going to start
@@ -474,7 +530,6 @@ Argument DIR is the directory speedbar is asking about."
       (speedbar-with-attached-buffer (semantic-cb-new-class-browser)))
   (oref semantic-cb-current-project types))
 
-;;;###autoload
 (defun semantic-cb-speedbar-mode ()
   "Bring speedbar up, and put it into Class Browser mode.
 This will use the Class Browser logic applied to the current Semantic

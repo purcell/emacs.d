@@ -1,9 +1,9 @@
 ;;; semantic-c.el --- Semantic details for C
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-c.el,v 1.55 2007/05/22 01:41:10 zappo Exp $
+;; X-RCS: $Id: semantic-c.el,v 1.86 2008/06/17 04:00:03 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -24,9 +24,9 @@
 
 ;;; Commentary:
 ;;
-
-;;; History:
-;; 
+;; Support for the C/C++ bovine parser for Semantic.
+;;
+;; @todo - can I support c++-font-lock-extra-types ?
 
 (require 'semantic)
 (require 'semantic-lex-spp)
@@ -61,44 +61,145 @@ This function does not do any hidden buffer changes."
                (forward-char)
                t))))
   )
-;;-------
-
-;;; Lexical analysis
-(defcustom semantic-lex-c-preprocessor-symbol-map nil
-  "Table of C Preprocessor keywords used by the Semantic C lexer."
-  :group 'c
-  :type '(repeat (cons (string :tag "Keyword")
-		       (string :tag "Replacement")))
-  )
 
 ;;; Code:
+
+;;; Pre-processor maps
+;;
+;;; Lexical analysis
+(defvar semantic-lex-c-preprocessor-symbol-map-builtin
+  '( ("__THROW" . "")
+     ("__const" . "const")
+     ("__restrict" . "")
+     )
+  "List of symbols to include by default.")
+
+(defun semantic-c-reset-preprocessor-symbol-map ()
+  "Reset the C preprocessor symbol map based on all input variables."
+  (let ((filemap nil))
+    (dolist (sf semantic-lex-c-preprocessor-symbol-file)
+      ;; Global map entries
+      (let* ((table (semanticdb-file-table-object sf)))
+	(when table
+	  (setq filemap (append filemap (oref table lexical-table)))
+	  )
+	))
+
+    (setq-mode-local c-mode
+		     semantic-lex-spp-macro-symbol-obarray
+		     (semantic-lex-make-spp-table
+		      (append semantic-lex-c-preprocessor-symbol-map-builtin
+			      semantic-lex-c-preprocessor-symbol-map
+			      filemap))
+		     )
+    ))
+
+;;;###autoload
+(defcustom semantic-lex-c-preprocessor-symbol-map nil
+  "Table of C Preprocessor keywords used by the Semantic C lexer.
+Each entry is a cons cell like this:
+  ( \"KEYWORD\" . \"REPLACEMENT\" )
+Where KEYWORD is the macro that gets replaced in the lexical phase,
+and REPLACEMENT is a string that is inserted in it's place.  Empty string
+implies that the lexical analyzer will discard KEYWORD when it is encountered.
+
+Alternately, it can be of the form:
+  ( \"KEYWORD\" ( LEXSYM1 \"str\" 1 1 ) ... ( LEXSYMN \"str\" 1 1 ) )
+where LEXSYM is a symbol that would normally be produced by the
+lexical analyzer, such as `symbol' or `string'.  The string in the
+second position is the text that makes up the replacement.  This is
+the way to have multiple lexical symbols in a replacement.  Using the
+first way to specify text like \"foo::bar\" would not work, because :
+is a sepearate lexical symbol.
+
+A quick way to see what you would need to insert is to place a
+definition such as:
+
+#define MYSYM foo::bar
+
+into a C file, and do this:
+  \\[semantic-lex-spp-describe]
+
+The output table will describe the symbols needed."
+  :group 'c
+  :type '(repeat (cons (string :tag "Keyword")
+		       (sexp :tag "Replacement")))
+  :set (lambda (sym value)
+	 (set-default sym value)
+	 (semantic-c-reset-preprocessor-symbol-map)
+	 )
+  )
+
+;;;###autoload
+(defcustom semantic-lex-c-preprocessor-symbol-file nil
+  "List of C/C++ files that contain preprocessor macros for the C lexer.
+Each entry is a filename and each file is parsed, and those macros
+are included in every C/C++ file parsed by semantic.
+You can use this variable instead of `semantic-lex-c-preprocessor-symbol-map'
+to store your global macros in a more natural way."
+  :group 'c
+  :type '(repeat (file :tag "File"))
+  :set (lambda (sym value)
+	 (set-default sym value)
+	 (semantic-c-reset-preprocessor-symbol-map)
+	 )
+  )
+
 (define-lex-spp-macro-declaration-analyzer semantic-lex-cpp-define
   "A #define of a symbol with some value.
 Record the symbol in the semantic preprocessor.
 Return the the defined symbol as a special spp lex token."
-  "^\\s-*#define\\s-+\\(\\(\\sw\\|\\s_\\)+\\)" 1
+  "^\\s-*#\\s-*define\\s-+\\(\\(\\sw\\|\\s_\\)+\\)" 1
   (goto-char (match-end 0))
   (skip-chars-forward " \t")
   (if (eolp)
       nil
-    (prog1
-	(buffer-substring-no-properties (point)
-					(progn
-					  ;; NOTE: THIS SHOULD BE
-					  ;; END OF MACRO!!!
-					  (forward-word 1)
-					  (point)))
-      ;; Move the lexical end after the value.
-      (semantic-c-end-of-macro)
+    (let* ((with-args (save-excursion
+			(goto-char (match-end 0))
+			(looking-at "(")))
+	   (semantic-lex-spp-replacements-enabled nil)
+	   (raw-stream
+	    (semantic-lex-spp-stream-for-macro (save-excursion
+						 (semantic-c-end-of-macro)
+						 (point))))
+	   )
+
+      ;; If this symbol refers to some other symbol, do a replacement.
+      ;; @todo - This really needs to handle the case of multiple
+      ;;         macros, but we'll see if we get any reports on that.
+      (when (and (consp raw-stream) (consp (car raw-stream))
+		 (eq (car (car raw-stream)) 'spp-replace-replace))
+
+	;; extract the replacement.
+	(setq raw-stream (car (cdr (car raw-stream)))))
+
+      ;; Only do argument checking if the paren was immediatly after
+      ;; the macro name.
+      (if with-args
+	  (semantic-lex-spp-first-token-arg-list (car raw-stream)))
+
       ;; Magical spp variable for end point.
       (setq semantic-lex-end-point (point))
+
+      ;; Return the stream.
+      raw-stream
       )))
 
 (define-lex-spp-macro-undeclaration-analyzer semantic-lex-cpp-undef
   "A #undef of a symbol.
 Remove the symbol from the semantic preprocessor.
 Return the the defined symbol as a special spp lex token."
-  "^\\s-*#undef\\s-+\\(\\(\\sw\\|\\s_\\)+\\)" 1)
+  "^\\s-*#\\s-*undef\\s-+\\(\\(\\sw\\|\\s_\\)+\\)" 1)
+
+
+;;; Conditional Skipping
+;;
+(defcustom semantic-c-obey-conditional-section-parsing-flag t
+  "*Non-nil means to interpret preprocessor #if sections.
+This implies that some blocks of code will not be parsed based on the
+values of the conditions in the #if blocks."
+  :group 'c
+  :type 'boolean)
 
 (defun semantic-c-skip-conditional-section ()
   "Skip one section of a conditional.
@@ -108,8 +209,11 @@ Movers completely over balanced #if blocks."
     ;; (if (looking-at "^\\s-*#if")
     ;; (semantic-lex-spp-push-if (point))
     (end-of-line)
-    (while (and (not done)
-		(re-search-forward "^\\s-*#\\(if\\(n?def\\)?\\|el\\(if\\|se\\)\\|endif\\)\\>" nil t))
+    (while (and semantic-c-obey-conditional-section-parsing-flag
+		(and (not done)
+		     (re-search-forward
+		      "^\\s-*#\\(if\\(n?def\\)?\\|el\\(if\\|se\\)\\|endif\\)\\>"
+		      nil t)))
       (goto-char (match-beginning 0))
       (cond
        ((looking-at "^\\s-*#if")
@@ -131,7 +235,7 @@ Movers completely over balanced #if blocks."
 (define-lex-regex-analyzer semantic-lex-c-if
   "Code blocks wrapped up in #if, or #ifdef.
 Uses known macro tables in SPP to determine what block to skip."
-  "^\\s-*#\\(if\\|ifndef\\|ifdef\\|elif\\)\\s-+\\(!?defined(\\|\\)\\(\\(\\sw\\|\\s_\\)+\\))?\\s-*$"
+  "^\\s-*#\\s-*\\(if\\|ifndef\\|ifdef\\|elif\\)\\s-+\\(!?defined(\\|\\)\\(\\(\\sw\\|\\s_\\)+\\))?\\s-*$"
   (let* ((sym (buffer-substring-no-properties 
 	       (match-beginning 3) (match-end 3)))
 	 (defstr (buffer-substring-no-properties 
@@ -180,7 +284,7 @@ Uses known macro tables in SPP to determine what block to skip."
 We won't see the #else due to the macro skip section block
 unless we are actively parsing an open #if statement.  In that
 case, we must skip it since it is the ELSE part."
-  "^#\\(else\\)"
+  "^\\s-*#\\s-*\\(else\\)"
   (let ((pt (point)))
     (semantic-c-skip-conditional-section)
     (setq semantic-lex-end-point (point))
@@ -191,27 +295,31 @@ case, we must skip it since it is the ELSE part."
 
 (define-lex-regex-analyzer semantic-lex-c-macrobits
   "Ignore various forms of #if/#else/#endif conditionals."
-  "^#\\(if\\(def\\)?\\|endif\\)"
+  "^#\\s-*\\(if\\(def\\)?\\|endif\\)"
   (semantic-c-end-of-macro)
   (setq semantic-lex-end-point (point))
   nil)
 
-(define-lex-analyzer semantic-lex-c-include-system
-  "Identify system include strings, and return special tokens."
-  (and (looking-at "<[^\n>]+>")
-       (save-excursion
-	 (beginning-of-line)
-	 (looking-at "\\s-*#\\s-*include\\s-+<"))
-       (= (match-end 0) (1+ (point))))
-  ;; We found a system include.
-  (let ((start (point)))
-    ;; This should always pass
-    (re-search-forward ">")
-    ;; We have the whole thing.
-    (semantic-lex-push-token
-     (semantic-lex-token 'system-include start (point)))
-    )
-  )
+(define-lex-spp-include-analyzer semantic-lex-c-include-system
+  "Identify include strings, and return special tokens."
+    "^\\s-*#\\s-*include\\s-*<\\([^ \t\n>]+\\)>" 0
+    ;; Hit 1 is the name of the include.
+    (goto-char (match-end 0))
+    (setq semantic-lex-end-point (point))
+    (cons (buffer-substring-no-properties (match-beginning 1)
+					  (match-end 1))
+	  'system))
+
+(define-lex-spp-include-analyzer semantic-lex-c-include
+  "Identify include strings, and return special tokens."
+    "^\\s-*#\\s-*include\\s-*\"\\([^ \t\n>]+\\)\"" 0
+    ;; Hit 1 is the name of the include.
+    (goto-char (match-end 0))
+    (setq semantic-lex-end-point (point))
+    (cons (buffer-substring-no-properties (match-beginning 1)
+					  (match-end 1))
+	  nil))
+  
 
 (define-lex-regex-analyzer semantic-lex-c-ignore-ending-backslash
   "Skip backslash ending a line.
@@ -234,16 +342,27 @@ Go to the next line."
 	(point))
       ))))
 
+(define-lex-regex-analyzer semantic-c-lex-ignore-newline
+  "Detect and ignore newline tokens.
+Use this ONLY if newlines are not whitespace characters (such as when
+they are comment end characters)."
+  ;; Just like semantic-lex-ignore-newline, but also ignores
+  ;; trailing \.
+  "\\s-*\\\\?\\s-*\\(\n\\|\\s>\\)"
+  (setq semantic-lex-end-point (match-end 0)))
+
+
 (define-lex semantic-c-lexer
   "Lexical Analyzer for C code."
   semantic-lex-ignore-whitespace
-  semantic-lex-ignore-newline
+  semantic-c-lex-ignore-newline
   ;; C preprocessor features
   semantic-lex-cpp-define
   semantic-lex-cpp-undef
   semantic-lex-c-if
   semantic-lex-c-macro-else
   semantic-lex-c-macrobits
+  semantic-lex-c-include
   semantic-lex-c-include-system
   semantic-lex-c-ignore-ending-backslash
   ;; Non-preprocessor features
@@ -257,6 +376,92 @@ Go to the next line."
   semantic-lex-ignore-comments
   semantic-lex-punctuation
   semantic-lex-default-action)
+
+(define-mode-local-override semantic-parse-region c-mode 
+  (start end &optional nonterminal depth returnonerror)
+  "Calls 'semantic-parse-region-default', except in a macro expansion.
+MACRO expansion mode is handled through the nature of Emacs's non-lexical
+binding of variables.
+START, END, NONTERMINAL, DEPTH, and RETURNONERRORS are the same
+as for the parent."
+  (if (and (boundp 'lse) (or (/= start 1) (/= end (point-max))))
+      (let* ((last-lexical-token lse)
+	     (macroexpand (stringp (car (cdr last-lexical-token)))))
+	(if macroexpand
+	    (progn
+	      ;; It is a macro expansion.  Do something special.
+	      ;(message "MOOSE %S %S, %S : %S" start end nonterminal lse)
+	      (semantic-c-parse-lexical-token
+	       lse nonterminal depth returnonerror)
+	      )
+	  ;; Not a macro expansion.  the old thing.
+	  (semantic-parse-region-default start end 
+					 nonterminal depth
+					 returnonerror)
+	  ))
+    ;; Else, do the old thing.
+    (semantic-parse-region-default start end nonterminal
+				   depth returnonerror)
+    ))
+
+(defun semantic-c-parse-lexical-token (lexicaltoken nonterminal depth
+						    returnonerror)
+  "Do a region parse on the contents of LEXICALTOKEN.
+Presumably, this token has a string in it from a macro.
+The text of the token is inserted into a different buffer, and
+parsed there.
+Argument NONTERMINAL, DEPTH, and RETURNONERROR are passed into
+the regular parser."
+  (let* ((buf (get-buffer-create " *C parse hack*"))
+	 (mode major-mode)
+	 (spp-syms semantic-lex-spp-dynamic-macro-symbol-obarray)
+	 (stream nil)
+	 (start (semantic-lex-token-start lexicaltoken))
+	 (end (semantic-lex-token-end lexicaltoken))
+	 (symtext (semantic-lex-token-text lexicaltoken))
+	 (macros (get-text-property 0 'macros symtext))
+	 )
+    (save-excursion
+      (set-buffer buf)
+      (erase-buffer)
+      (when (not (eq major-mode mode))
+	(funcall mode)
+	;; Hack in mode-local
+	(activate-mode-local-bindings)
+	;; CHEATER!  The following 3 lines are from
+	;; `semantic-new-buffer-fcn', but we don't want to turn
+	;; on all the other annoying modes for this little task.
+	(setq semantic-new-buffer-fcn-was-run t)
+	(semantic-lex-init)
+	(semantic-clear-toplevel-cache)
+	(remove-hook 'semantic-lex-reset-hooks 'semantic-lex-spp-reset-hook
+		     t)
+	)
+      ;; Get the macro symbol table right.
+      (setq semantic-lex-spp-dynamic-macro-symbol-obarray spp-syms)
+      ;; (message "%S" macros)
+      (dolist (sym macros)
+	(semantic-lex-spp-symbol-set (car sym) (cdr sym)))
+
+      (insert symtext)
+
+      (setq stream
+	    (semantic-parse-region-default
+	     (point-min) (point-max) nonterminal depth returnonerror))
+
+      ;; Clean up macro symbols
+      (dolist (sym macros)
+	(semantic-lex-spp-symbol-remove (car sym)))
+
+      ;; Convert the text of the stream.
+      (dolist (tag stream)
+	;; Only do two levels here 'cause I'm lazy.
+	(semantic--tag-set-overlay tag (list start end))
+	(dolist (stag (semantic-tag-components-with-overlays tag))
+	  (semantic--tag-set-overlay stag (list start end))
+	  ))
+      )
+    stream))
 
 (defun semantic-expand-c-tag (tag)
   "Expand TAG into a list of equivalent tags, or nil."
@@ -397,7 +602,8 @@ Optional argument STAR and REF indicate the number of * and & in the typedef."
 			       (string= (car (nth 2 tokenpart)) (car tokenpart)))
 			  )
 		      (not (car (nth 3 tokenpart)))))
-		(fcnpointer (string-match "^\\*" (car tokenpart)))
+		(fcnpointer (and (string-match "^\\*" (car tokenpart))
+				 (string-match "[a-z][A-Z]" (car tokenpart))))
 		(fnname (if fcnpointer
 			    (substring (car tokenpart) 1)
 			  (car tokenpart)))
@@ -466,9 +672,10 @@ Optional argument STAR and REF indicate the number of * and & in the typedef."
 
 ;;; Override methods & Variables
 ;;
-(defvar-mode-local c-mode semantic-dependency-system-include-path
-  '("/usr/include" "/usr/dt/include" "/usr/X11R6/include")
-  "System path to search for include files.")
+(defcustom-mode-local-semantic-dependency-system-include-path
+  c-mode semantic-c-dependency-system-include-path
+  '("/usr/include")
+  "The system include path used by the C langauge.")
 
 (defcustom semantic-default-c-path nil
   "Default set of include paths for C code.
@@ -481,7 +688,6 @@ NOTE: In process of obsoleting this."
 (defvar-mode-local c-mode semantic-dependency-include-path
   semantic-default-c-path
   "System path to search for include files.")
-
 
 (define-mode-local-override semantic-format-tag-name
   c-mode (tag &optional parent color)
@@ -534,11 +740,41 @@ Argument COLOR adds color to the text."
       (concat defaulttype ref point))
     ))
 
+(define-mode-local-override semantic-find-tags-by-scope-protection
+  c-mode (scopeprotection parent &optional table)
+  "Override the usual search for protection.
+We can be more effective than the default by scanning through once,
+and collecting tags based on the labels we see along the way."
+  (if (not table) (setq table (semantic-tag-type-members parent)))
+  (if (null scopeprotection)
+      table
+    (let ((ans nil)
+	  (curprot 1)
+	  (targetprot (cond ((eq scopeprotection 'public)
+			     1)
+			    ((eq scopeprotection 'protected)
+			     2)
+			    (t 3)
+			    ))
+	  (alist '(("public" . 1)
+		   ("protected" . 2)
+		   ("private" . 3)))
+	  )
+      (dolist (tag table)
+	(cond 
+	 ((semantic-tag-of-class-p tag 'label)
+	  (setq curprot (cdr (assoc (semantic-tag-name tag) alist)))
+	  )
+	 ((>= targetprot curprot)
+	  (setq ans (cons tag ans)))
+	 ))
+      ans)))
+
 (define-mode-local-override semantic-tag-protection
-  c-mode (token &optional parent)
-  "Return the protection of TOKEN in PARENT.
+  c-mode (tag &optional parent)
+  "Return the protection of TAG in PARENT.
 Override function for `semantic-tag-protection'."
-  (let ((mods (semantic-tag-modifiers token))
+  (let ((mods (semantic-tag-modifiers tag))
 	(prot nil))
     ;; Check the modifiers for protection if we are not a child
     ;; of some class type.
@@ -556,7 +792,7 @@ Override function for `semantic-tag-protection'."
     ;; If we have a typed parent, look for :public style labels.
     (when (and parent (eq (semantic-tag-class parent) 'type))
       (let ((pp (semantic-tag-type-members parent)))
-	(while (and pp (not (semantic-equivalent-tag-p (car pp) token)))
+	(while (and pp (not (semantic-equivalent-tag-p (car pp) tag)))
 	  (when (eq (semantic-tag-class (car pp)) 'label)
 	    (setq prot
 		  (cond ((string= (semantic-tag-name (car pp)) "public")
@@ -677,7 +913,9 @@ handled.  A class is abstract iff it's destructor is virtual."
 If TYPE is a typedef, get TYPE's type by name or tag, and return."
   (if (and (eq (semantic-tag-class type) 'type)
 	   (string= (semantic-tag-type type) "typedef"))
-      (semantic-tag-get-attribute type :typedef)
+      (let ((dt (semantic-tag-get-attribute type :typedef)))
+	(cond ((stringp dt) dt)
+	      ((consp dt) (car dt))))
     type))
 
 (define-mode-local-override semantic-analyze-type-constants c-mode (type)
@@ -704,13 +942,56 @@ DO NOT return the list of tags encompassing point."
     ;; locally and add them to the list.
     (setq tmp (semantic-find-tags-by-class 'type (current-buffer)))
     (setq tmp (semantic-find-tags-by-type "namespace" tmp))
+    (setq tmp (semantic-find-tags-by-name "unnamed" tmp))
     (setq tagreturn tmp)
     ;; We should also find all "using" type statements and
     ;; accept those entities in as well.
+    (setq tmp (semantic-find-tags-by-class 'using (current-buffer)))
+    (while tmp
+      (setq tagreturn (cons (semantic-tag-type (car tmp))
+			    tagreturn))
+      (setq tmp (cdr tmp)))
 
     ;; Return the stuff
     tagreturn
     ))
+
+(define-mode-local-override semantic-get-local-variables c++-mode ()
+  "Do what `semantic-get-local-variables' does, plus add `this' if needed."
+  (let* ((origvar (semantic-get-local-variables-default))
+	 (ct (semantic-current-tag))
+	 (p (semantic-tag-function-parent ct)))
+    ;; If we have a function parent, then that implies we can
+    (if (and p (semantic-tag-of-class-p ct 'function))
+	;; Append a new tag THIS into our space.
+	(cons (semantic-tag-new-variable "this" p nil)
+	      origvar)
+      ;; No parent, just return the usual
+      origvar)
+    ))
+
+(define-mode-local-override semantic-idle-summary-current-symbol-info
+  c-mode ()
+  "Handle the SPP keywords, then use the default mechanism."
+  (let* ((sym (car (semantic-ctxt-current-thing)))
+	 (spp-sym (semantic-lex-spp-symbol sym)))
+    (if spp-sym
+	(let* ((txt (concat "Macro: " sym))
+	       (sv  (symbol-value spp-sym))
+	       (arg (semantic-lex-spp-macro-with-args sv))
+	       )
+	  (when arg
+	    (setq txt (concat txt (format "%S" arg)))
+	    (setq sv (cdr sv)))
+
+	  ;; This is optional, and potentially fraught w/ errors.
+	  (condition-case nil
+	      (dolist (lt sv)
+		(setq txt (concat txt " " (semantic-lex-token-text lt))))
+	    (error (setq txt (concat txt "  #error in summary fcn"))))
+
+	  txt)
+      (semantic-idle-summary-current-symbol-info-default))))
 
 (defvar-mode-local c-mode semantic-orphaned-member-metaparent-type "struct"
   "When lost memberes are found in the class hierarchy generator, use a struct.")
@@ -735,8 +1016,8 @@ DO NOT return the list of tags encompassing point."
   "Imenu index function for C.")
 
 (defvar-mode-local c-mode semantic-type-relation-separator-character 
-  '("." "->")
-  "Separator characters between something of a give type, and a field.")
+  '("." "->" "::")
+  "Separator characters between something of a given type, and a field.")
 
 (defvar-mode-local c-mode semantic-command-separation-character ";"
   "Commen separation character for C")
@@ -763,8 +1044,6 @@ DO NOT return the list of tags encompassing point."
         )
   
   (setq semantic-lex-analyzer #'semantic-c-lexer)
-  (setq semantic-lex-spp-macro-symbol-obarray
-	(semantic-lex-make-spp-table semantic-lex-c-preprocessor-symbol-map))
   (add-hook 'semantic-lex-reset-hooks 'semantic-lex-spp-reset-hook nil t)
   )
 
@@ -780,10 +1059,9 @@ DO NOT return the list of tags encompassing point."
       (setq semantic-lex-c-preprocessor-symbol-map
 	    (cons  (cons sym replacement)
 		   semantic-lex-c-preprocessor-symbol-map))))
-  (setq-mode-local c-mode
-		   semantic-lex-spp-macro-symbol-obarray
-		   (semantic-lex-make-spp-table
-		    semantic-lex-c-preprocessor-symbol-map)))
+
+  (semantic-c-reset-preprocessor-symbol-map)
+  )
 
 ;;;###autoload
 (add-hook 'c-mode-hook 'semantic-default-c-setup)

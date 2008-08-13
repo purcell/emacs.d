@@ -1,4 +1,4 @@
-This is speedbar.info, produced by makeinfo version 4.8 from
+This is speedbar.info, produced by makeinfo version 4.12 from
 speedbar.texi.
 
 INFO-DIR-SECTION Emacs
@@ -270,7 +270,7 @@ extra text characters at the end of the line.  File mode uses boolean
 flags, such as a `*' to indicate that a file has been checked out of a
 versioning system.
 
-   For additional flags, see *Note File Mode::, and *Note Version
+   For additional flags, see *note File Mode::, and *note Version
 Control::.
 
 2.2.0.4 Unadorned Text
@@ -1104,7 +1104,7 @@ inserted by its paired function:
      information required.
 
    It is often useful to use `speedbar-create-tag-hierarchy' on your
-tag list *Note Creating a display::.
+tag list *note Creating a display::.
 
    Once these two functions are written, modify the variable
 `speedbar-dynamic-tags-function-list' to include your parser at the
@@ -1135,7 +1135,7 @@ File: speedbar.info,  Node: Creating a display,  Prev: Tagging Extensions,  Up: 
 ======================
 
 Rendering a display in speedbar is completely flexible.  When your
-button function is called, see *Note Minor Display Modes::, and *Note
+button function is called, see *note Minor Display Modes::, and *note
 Major Display Modes::, you have control to `insert' anything you want.
 
    The conventions allow almost anything to be inserted, but several
@@ -1493,41 +1493,41 @@ Concept Index
 
 
 Tag Table:
-Node: Top1466
-Node: Introduction3242
-Node: Basic Navigation4806
-Node: Basic Key Bindings5251
-Node: Basic Visuals7392
-Node: Mouse Bindings11347
-Node: Displays Submenu12972
-Node: File Mode13652
-Node: Directory Display14259
-Node: Hidden Files17299
-Node: File Key Bindings18746
-Node: Buffer Mode20180
-Node: Minor Modes21295
-Node: RMAIL22151
-Node: Info23049
-Node: GDB23656
-Node: Customizing24323
-Node: Frames and Faces25134
-Node: Tag Hierarchy Methods26472
-Node: Version Control28698
-Node: Hooks30045
-Node: Extending31301
-Node: Minor Display Modes32347
-Node: Major Display Modes34338
-Ref: speedbar-stealthy-function-list39277
-Node: Tagging Extensions40186
-Ref: speedbar-dynamic-tags-function-list41671
-Node: Creating a display42451
-Node: Creating Buttons43616
-Node: Generic Tag Lists46257
-Node: Expand Buttons48520
-Ref: speedbar-change-expand-button-char49814
-Ref: speedbar-with-writable50543
-Ref: speedbar-delete-subblock51295
-Ref: speedbar-center-buffer-smartly52294
-Node: Index52480
+Node: Top1467
+Node: Introduction3243
+Node: Basic Navigation4807
+Node: Basic Key Bindings5252
+Node: Basic Visuals7393
+Node: Mouse Bindings11348
+Node: Displays Submenu12973
+Node: File Mode13653
+Node: Directory Display14260
+Node: Hidden Files17300
+Node: File Key Bindings18747
+Node: Buffer Mode20181
+Node: Minor Modes21296
+Node: RMAIL22152
+Node: Info23050
+Node: GDB23657
+Node: Customizing24324
+Node: Frames and Faces25135
+Node: Tag Hierarchy Methods26473
+Node: Version Control28699
+Node: Hooks30046
+Node: Extending31302
+Node: Minor Display Modes32348
+Node: Major Display Modes34339
+Ref: speedbar-stealthy-function-list39278
+Node: Tagging Extensions40187
+Ref: speedbar-dynamic-tags-function-list41672
+Node: Creating a display42452
+Node: Creating Buttons43617
+Node: Generic Tag Lists46258
+Node: Expand Buttons48521
+Ref: speedbar-change-expand-button-char49815
+Ref: speedbar-with-writable50544
+Ref: speedbar-delete-subblock51296
+Ref: speedbar-center-buffer-smartly52295
+Node: Index52481
 
 End Tag Table

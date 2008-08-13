@@ -4,10 +4,10 @@
 
 
 ;;;### (autoloads (eassist-list-methods eassist-switch-h-cpp) "eassist"
-;;;;;;  "eassist.el" (18107 15282))
+;;;;;;  "eassist.el" (18368 33706))
 ;;; Generated autoloads from eassist.el
 
-(defvar eassist-header-switches (quote (("h" "cpp" "cc" "c") ("hpp" "cpp") ("cpp" "h" "hpp") ("c" "h") ("C" "H") ("H" "C" "CPP" "CC") ("cc" "h" "hpp"))) "\
+(defvar eassist-header-switches (quote (("h" "cpp" "cc" "c") ("hpp" "cpp" "cc") ("cpp" "h" "hpp") ("c" "h") ("C" "H") ("H" "C" "CPP" "CC") ("cc" "h" "hpp"))) "\
 This variable defines possible switches for `eassist-switch-h-cpp' function.
 Its format is list of (from . (to1 to2 to3...)) elements.  From and toN are
 strings which are extentions of the files.")
@@ -28,16 +28,12 @@ This function is recommended to be bound to some convinient hotkey.
 
 ;;;***
 
-;;;### (autoloads (semantic-default-matlab-setup) "semantic-matlab"
-;;;;;;  "semantic-matlab.el" (17213 40186))
-;;; Generated autoloads from semantic-matlab.el
+;;;### (autoloads nil "ede-gnustep" "ede-gnustep.el" (18586 20446))
+;;; Generated autoloads from ede-gnustep.el
 
-(autoload (quote semantic-default-matlab-setup) "semantic-matlab" "\
-Set up a buffer for parsing of MATLAB files.
+(add-to-list (quote ede-project-class-files) (ede-project-autoload "edegnustep" :name "GNUstep-Make" :file (quote ede-gnustep) :proj-file "ProjStep.ede" :load-type (quote ede-step-load) :class-sym (quote ede-step-project)) t)
 
-\(fn)" nil nil)
-
-(add-hook (quote matlab-mode-hook) (quote semantic-default-matlab-setup))
+(add-to-list (quote auto-mode-alist) (quote ("ProjStep\\.ede" . emacs-lisp-mode)))
 
 ;;;***
 
@@ -101,8 +97,24 @@ Setup buffer for parse.
 
 ;;;***
 
+;;;### (autoloads (wisent-php-default-setup) "wisent-php" "wisent-php.el"
+;;;;;;  (18540 11866))
+;;; Generated autoloads from wisent-php.el
+
+(autoload (quote wisent-php-default-setup) "wisent-php" "\
+Hook run to setup Semantic in `php-mode'.
+Use the alternate LALR(1) parser.
+
+\(fn)" nil nil)
+
+(add-hook (quote php-mode-hook) (function wisent-php-default-setup))
+
+;;;***
+
 ;;;### (autoloads nil nil ("cedet-contrib-load.el" "cedet-contrib.el"
-;;;;;;  "semanticdb-javascript.el") (18110 13448 763983))
+;;;;;;  "semantic-matlab.el" "semanticdb-javascript.el" "wisent-csharp-wy.el"
+;;;;;;  "wisent-javascript-jv-wy.el" "wisent-php-wy.el" "wisent-ruby-wy.el"
+;;;;;;  "wisent-ruby.el") (18594 52859 994106))
 
 ;;;***
 

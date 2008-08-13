@@ -1,10 +1,10 @@
 ;;; semanticdb-mk.el --- Command line database builder
 
-;;; Copyright (C) 2002, 2004 Eric M. Ludlam
+;;; Copyright (C) 2002, 2004, 2007 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb-mk.el,v 1.4 2005/09/30 20:19:26 zappo Exp $
+;; X-RCS: $Id: semanticdb-mk.el,v 1.5 2007/09/04 01:10:06 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -27,6 +27,7 @@
 ;;
 ;; For use by semanticdb.sh for building tag files.
 ;;
+;; @todo - support loading configurations from the users .emacs file.
 
 ;;; Code
 ;;

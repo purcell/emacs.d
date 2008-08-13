@@ -1,10 +1,10 @@
 ;;; cogre-uml.el --- UML support for COGRE
 
-;;; Copyright (C) 2001 Eric M. Ludlam
+;;; Copyright (C) 2001, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: oop, uml
-;; X-RCS: $Id: cogre-uml.el,v 1.10 2005/09/30 20:06:58 zappo Exp $
+;; X-RCS: $Id: cogre-uml.el,v 1.11 2008/07/03 01:41:00 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -33,6 +33,7 @@
 (require 'cogre)
 
 ;;; Code:
+;;;###autoload
 (defclass cogre-package (cogre-node)
   ((name-default :initform "Package")
    (blank-lines-top :initform 0)
@@ -56,6 +57,7 @@ The `subgraph' slot must be scanned for this information."
   (list nil)
   )
 
+;;;###autoload
 (defclass cogre-class (cogre-node)
   ((name-default :initform "Class")
    (blank-lines-top :initform 0)
@@ -119,6 +121,7 @@ Argument CLASS is the class whose slots are referenced."
    (mapcar (lambda (s) (cogre-uml-stoken->uml class s)) (oref class methods))
    ))
 
+;;;###autoload
 (defclass cogre-inherit (cogre-link)
   ((end-glyph :initform [ (" ^ " "/_\\")
 			  ("_|_" "\\ /" " V ")
@@ -130,6 +133,7 @@ Argument CLASS is the class whose slots are referenced."
 The `start' node is the child, and the `end' node is the parent.
 This is supposed to infer that START inherits from END.")
 
+;;;###autoload
 (defclass cogre-aggrigate (cogre-link)
   ((start-glyph :initform [ ("/\\ " "\\/" )
 			    ("/\\ " "\\/" )

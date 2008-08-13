@@ -1,9 +1,9 @@
 ;;; semantic-load.el --- Autoload definitions for Semantic
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-load.el,v 1.56 2007/05/31 02:25:55 zappo Exp $
+;; X-RCS: $Id: semantic-load.el,v 1.60 2008/06/10 00:51:54 zappo Exp $
 
 ;; Semantic is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -40,7 +40,6 @@
 ;;; Some speedbar major modes
 (eval-after-load "speedbar"
   '(progn
-     (require 'semantic-cb)
      (require 'semantic-ia-sb)))
 
 ;;; Useful predefined setup
@@ -65,7 +64,6 @@ Prevent this load system from loading files in twice.")
 This includes:
  `semantic-idle-scheduler-mode' - Keeps a buffer's parse tree up to date.
  `semanticdb-minor-mode' - Stores tags when a buffer is not in memory.
- `semanticdb-load-system-caches' - Loads any systemdbs created earlier.
  `semanticdb-load-ebrowse-caches' - Loads any ebrowse dbs created earlier."
   (interactive)
 
@@ -79,10 +77,6 @@ This includes:
     ;; This loads any created system databases which get linked into
     ;; any searches performed.
     (setq semantic-load-system-cache-loaded t)
-    (when (and (boundp 'semanticdb-default-system-save-directory)
-	       (stringp semanticdb-default-system-save-directory)
-	       (file-exists-p semanticdb-default-system-save-directory))
-      (semanticdb-load-system-caches))
 
     ;; This loads any created ebrowse databases which get linked into
     ;; any searches performed.
@@ -135,16 +129,13 @@ This includes `semantic-load-enable-code-helpers'.
   (interactive)
 
   (global-semantic-decoration-mode 1)
+  (require 'semantic-decorate-include)
 
   (when (boundp 'header-line-format)
     (global-semantic-stickyfunc-mode 1))
 
-  ;; Idle Completions mode is more annoying than useful
-  ;; when it keeps splitting the window to show you completions.
-  ;; Using speedbar for this would be better.
   (condition-case nil
-      (when (and (featurep 'tooltip) tooltip-mode)
-	(global-semantic-idle-completions-mode 1))
+      (global-semantic-idle-completions-mode 1)
     (error nil))
 
   (semantic-load-enable-code-helpers)

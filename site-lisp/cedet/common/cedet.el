@@ -1,12 +1,13 @@
 ;;; cedet.el --- Setup CEDET environment
 
-;; Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 by David Ponce
+;; Copyright (C) 2007, 2008 by Eric M. Ludlam
+;; Copyright (C) 2002, 2003, 2004, 2005, 2006 by David Ponce
 
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: CEDET developers <http://sf.net/projects/cedet>
 ;; Created: 09 Dec 2002
 ;; Keywords: syntax
-;; X-RCS: $Id: cedet.el,v 1.21 2007/06/06 00:50:33 zappo Exp $
+;; X-RCS: $Id: cedet.el,v 1.28 2008/07/03 01:37:53 zappo Exp $
 
 ;; This file is not part of Emacs
 
@@ -50,6 +51,8 @@
 ;;     |
 ;;     +- speedbar
 ;;     |
+;;     +- srecode
+;;     |
 ;;     \- contrib
 ;;
 ;; Then, add the following into your ~/.emacs startup file:
@@ -71,27 +74,30 @@
 ;; That's it!
 ;;
 
-;;; History:
-;;
-
 ;;; Code:
 (eval-when-compile
   (require 'cl)
   )
 
-(defconst cedet-version "1.0pre4"
+(defconst cedet-version "1.0pre5"
   "Current version of CEDET.")
+
+(defconst cedet-emacs-min-version "21.1"
+  "Minimum version of GNU Emacs supported by CEDET.")
+(defconst cedet-xemacs-min-version "21.4"
+  "Minimum version of XEmacs supported by CEDET.")
 
 (defconst cedet-packages
   `(
-    ;;PACKAGE   MIN-VERSION      INSTALLDIR
-    (cedet         ,cedet-version  "common" )
-    (cogre         "0.5"                    )
-    (ede           "1.0pre4"                )
-    (eieio         "1.0"                    )
-    (semantic      "2.0pre4"                )
-    (speedbar      "1.0.1"                  )
-    (cedet-contrib "1.0pre4"      "contrib" )
+    ;;PACKAGE   MIN-VERSION      INSTALLDIR DOCDIR
+    (cedet         ,cedet-version "common"  "common" 	   )
+    (eieio         "1.1"           nil      "eieio"        )
+    (semantic      "2.0pre5"       nil      "semantic/doc" )
+    (srecode       "0.1"           nil      "srecode"      ) 
+    (ede           "1.0pre5"       nil      "ede"    	   )    
+    (speedbar      "1.0.2"         nil      "speedbar"     )
+    (cogre         "0.6"           nil      "cogre"  	   )
+    (cedet-contrib "1.0pre5"      "contrib"  nil           )
     )
   "Table of CEDET packages to install.")
 
@@ -106,19 +112,38 @@
   ;; Require the inversion library.
   (require 'inversion)
   
+  ;; Require specific Emacs versions
+  (inversion-require-emacs cedet-emacs-min-version
+			   cedet-xemacs-min-version)
+
   ;; Go up to the parent "<INSTALL-DIR>/cedet" directory.
   (let ((default-directory (expand-file-name ".."))
-        package min-version installdir)
+        package min-version installdir docdir)
 
     ;; Add the CEDET packages subdirectories to the `load-path' if
     ;; necessary.
     (dolist (package-spec cedet-packages)
       (setq package     (nth 0 package-spec)
             min-version (nth 1 package-spec)
-            installdir  (nth 2 package-spec))
+            installdir  (nth 2 package-spec)
+	    docdir      (nth 3 package-spec)
+	    )
+      ;; Add package to load path
       (when installdir
         (setq installdir (expand-file-name installdir)))
-      (inversion-add-to-load-path package min-version installdir))
+      (inversion-add-to-load-path package min-version installdir)
+      ;; Add doc to Info path
+      (when docdir
+	(let ((fulldocpath (expand-file-name docdir default-directory)))
+	  ;; Set up one of the info paths depending on if info is
+	  ;; loaded yet.	  
+	  (if (featurep 'info)
+	      (add-to-list 'Info-directory-list fulldocpath)
+	    (add-to-list 'Info-default-directory-list fulldocpath))
+	  )))
+
+    ;; Force EIEIO to load so that the autoloads work.
+    (require 'eieio)
 
     ;; Then run every package setup.
     (dolist (package-spec cedet-packages)

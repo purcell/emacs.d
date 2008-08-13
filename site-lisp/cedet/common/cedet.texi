@@ -8,11 +8,14 @@
 @c *************************************************************************
 @c @ Header
 @c *************************************************************************
+@macro cedet{}
+@i{CEDET}
+@end macro
 
 @copying
-This manual documents CEDET, a collection of other tools.
+This manual documents @cedet{}, a collection of other tools.
 
-Copyright @copyright{} 2007 Eric M. Ludlam
+Copyright @copyright{} 2007, 2008 Eric M. Ludlam
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -37,7 +40,7 @@ License''.
 @end iftex
 
 @ifinfo
-This file documents CEDET.
+This file documents @cedet{}.
 @emph{Collection of Emacs Development Environment Tools}
 
 Copyright @copyright{} 2007 @value{AUTHOR}
@@ -55,12 +58,28 @@ Copyright @copyright{} 2007 @value{AUTHOR}
 @end titlepage
 @page
 
-@macro cedet{}
-@i{CEDET}
-@end macro
-
 @macro semantic{}
 @i{semantic}
+@end macro
+
+@macro srecode{}
+@i{SRecode}
+@end macro
+
+@macro eieio{}
+@i{EIEIO}
+@end macro
+
+@macro ede{}
+@i{EDE}
+@end macro
+
+@macro cogre{}
+@i{COGRE}
+@end macro
+
+@macro speedbar{}
+@i{Speedbar}
 @end macro
 
 
@@ -73,8 +92,8 @@ Copyright @copyright{} 2007 @value{AUTHOR}
 @top @value{TITLE}
 
 @cedet{} is a @i{Collection of Emacs Development Environment Tools}
-including core libraries such as @i{EIEIO}, and @i{semantic}, and user
-interface tools such as @i{speedbar}, @i{EDE}, and @i{COGRE}.
+including core libraries such as @eieio{}, and @semantic{}, and user
+interface tools such as @speedbar{}, @ede{}, and @cogre{}.
 
 While these tools are independent, and all have their own manuals,
 they are also all co-dependent within @cedet{}, and are dependent on
@@ -94,6 +113,8 @@ use the mailing list cedet-devel.net via the URL:
 * ECB Target::
 * Project Management::
 * Code Completion::
+* Code Generation::	
+* C++ Features::	
 * GNU Free Documentation License::  
 * Index::                       
 @end menu
@@ -104,18 +125,18 @@ use the mailing list cedet-devel.net via the URL:
 The @cedet{} collection is made up of several tools.  Each tool has
 it's own manual with details for that tool.
 
-At the core of the @cedet{} suite is @i{EIEIO}, which is an
+At the core of the @cedet{} suite is @eieio{}, which is an
 @i{Implementation of Emacs Interpreted Objects}.  This provides a CLOS
-like interface to writing object-oriented code in Emacs.  @i{EIEIO}
+like interface to writing object-oriented code in Emacs.  @eieio{}
 forms the base of most of the other tools, with the notable exception
-of @i{Speedbar}.
+of @speedbar{}.
 
 Several other tools form the next layer of @cedet{} functionality.
-For project management, @i{EDE} provides a simple way to create
-projects.  You can create an @i{EDE} centric project, which uses
+For project management, @ede{} provides a simple way to create
+projects.  You can create an @ede{} centric project, which uses
 either Makefiles, or AutoMakefiles, or it can wrap an automake based
-program you've already developed.  You can also create simple EDE
-wrappers on top of any style of project.  @i{EDE} provides a backgrop
+program you've already developed.  You can also create simple @ede{}
+wrappers on top of any style of project.  @ede{} provides a backgrop
 for any other @cedet{} tool that needs to know the filesystem scope of
 a code base, where include directories might be.
 
@@ -126,17 +147,24 @@ code.  @semantic{} also provides a wide range of core tag centric
 utilities such as enhanced tag decoration, code analysis, and the
 coveted ``Smart Completion'' feature.
 
-@i{Speedbar} is a user interface tool that provides a narrow view into
+Another mid-level tool is @srecode{} or the @i{Semantic Recoder}.
+@srecode{} is a template management system designed with the goal of
+providing a way to build code-generating applications that are easilly
+modified or extended by users.  At it's core is a template autoring
+and insertion system.  A minor mode provides a simple way to insert
+tempaltes from the various template libraries.
+
+@speedbar{} is a user interface tool that provides a narrow view into
 your filesystem and tags.  Speedbar is also an API for designing other
-tools and is used for displaying EDE project information, Semantic
+tools and is used for displaying @ede{} project information, Semantic
 smart completion options, Email, Info, and even GDB stack information.
 
-Lastly, @i{COGRE} is a @i{COnnected GRaph Editor}.  The core is an
+Lastly, @cogre{} is a @i{COnnected GRaph Editor}.  The core is an
 object design and library for drawing, saving, and restoring simple
 connected graphs.  Built on this is a UML based tool which interfaces
 with Semantic Tag information to draw simple UML diagrams of your
-code.  As of this writing @i{COGRE} is quite simple.  Longer term
-plans include using @i{COGRE} as a way of manipulating source code
+code.  As of this writing @cogre{} is quite simple.  Longer term
+plans include using @cogre{} as a way of manipulating source code
 indirectly.
 
 All these tools depend on a suite of simple library functions, such as
@@ -146,6 +174,7 @@ variables.
 @menu
 * EIEIO::       Object system for Emacs.
 * Semantic::    Parser generator and tag management tool.
+* SRecode::	Semantic Recoder Template manager
 * Speedbar::    File and tag explorer, plus more.
 * EDE::         Project Management tool.
 * COGRE::       Diagram editor for object design.
@@ -153,27 +182,28 @@ variables.
 @end menu
 
 @node EIEIO
-@section EIEIO
+@section @eieio{}
 
-@i{EIEIO} contains the core object library.  You can define classes,
-and methods for those classes using CLOS style syntax.  Objects can be
-customized using the Emacs customization tool, which allows easy
-creation of dialog box style UIs.  A series of bases classes allows
-the creation of Emacs centric tools, wrapping up the details of
-persistence, instance tracking, or instance inheritance.
+@eieio{} contains the core object library for @cedet{}.  You can
+define classes, and methods for those classes using @i{CLOS} style
+syntax.  Objects can be customized using the Emacs customization tool,
+which allows easy creation of dialog box style UIs.  A series of bases
+classes allows the creation of Emacs centric tools, wrapping up the
+details of persistence, instance tracking, or instance inheritance.
 
-@i{EIEOI} also includes several stray tools, such as @file{tree.el}
+@eieio{} also includes several stray tools, such as @file{tree.el}
 for drawing tree diagrams, @file{chart.el} for drawing charts,
 @file{linemark.el} for managing visible bookmarks programatically, and
 @file{lmcompile.el}, which is a linemark tool that puts out bookmarks
 for compiler error hits.
 
-Lastly, @i{EIEIO} has baseclasses for writing Speedbar interfaces.
+Lastly, @eieio{} has baseclasses for writing @speedbar{} interfaces.
 Take an existing object hierarchy and inherit from these baseclasses
 to be browsable in Speedbar.
 
-For more details on @i{EIEIO}, read the
+For more details on @eieio{}, read the
 @inforef{top, EIEIO Reference Manul, eieio}.
+
 
 @node Semantic
 @section Semantic
@@ -188,73 +218,85 @@ completion, tag decoration, and support for a wide range of Emacs
 tools such as Imenu, wich-func, hippie-expand, isearch, and
 cut/copy/paste.
 
-For more details, please read the
-@inforef{top, Semantic Manual, semantic} for high level overviews,
-configuration advice, etc.
+For high level overviews, configuration advice, etc, please read
+@inforef{Top, Semantic Manual, semantic}.
 
 If you are an application developer and need to know the functions and
 concepts, 
-@inforef{top, the Application Development Manual, semantic-appdev}.
+@inforef{Top, the Application Development Manual, semantic-appdev}.
 
 To support a new language,
-@inforef{top, the Language Support Developer's Guide, semantic-langdev}.
+@inforef{Top, the Language Support Developer's Guide, semantic-langdev}.
 
 To use the grammar writing environment, and write in the rule based
 language, 
-@inforef{top, the Grammar Framework Manual, grammar-fw}.
+@inforef{Top, the Grammar Framework Manual, grammar-fw}.
 
 For details on the original @semantic{} @acronym{LL} parser,
-@inforef{top, the Bovine Parser Manual, bovine}.
+@inforef{Top, the Bovine Parser Manual, bovine}.
  
 For details on the Bison-like @acronym{LALR} parser,
-@inforef{top, the Wisent Parser Manual, wisent}.
+@inforef{Top, the Wisent Parser Manual, wisent}.
+
+
+@node SRecode
+@section @srecode{}
+
+@srecode{} is a Template manager for writing code from Semantic
+templates.  It includes a specialized template authoring language and
+environment, template loader and interpreter.  A minor mode for
+inserting mode specific templates, and some sample applications that
+also uses templates to write code.
+
+For more details on @srecode{}, read the
+@inforef{top, SRecode Manual, srecode};
 
 @node Speedbar
 @section Speedbar
 
-@i{Speedbar} is an abbreviated everything browser.  If you can
+@speedbar{} is an abbreviated everything browser.  If you can
 conceptualize browsable information into 20 columns, then Speedbar can
 display it for you.
 
 Speedbar comes with several interfaces, with the primary one being for
 files and tags.  It can also display buffer lists, RMAIL boxes, and
-Info nodes.  Combined with CEDET, it also provides project tracking,
+Info nodes.  Combined with @cedet{}, it also provides project tracking,
 smart completion lists, Class browsing, Connected graph browsing.
 
 You can use speedbar to write your own browsers.  Some external tools
 include ERC (Irc client), xslt-process, MH-E (mail reader), and ECB, a
 code browser which embeds Speebar.
 
-@i{Speedbar} has been a part of Emacs for quite a while.  The @cedet{}
-version of speedbar (as of this writing, Jun 07) is identical to the
-version in Emacs 22.
+@speedbar{} has been a part of Emacs for quite a while.  The @cedet{}
+version of speedbar (as of this writing, Jul 08) is nearly identical
+to the version in Emacs 22.
 
-Read the
-@inforef{top, Speedbar Manual, speedbar} for more details.
+For more details, read the 
+@inforef{top, Speedbar Manual, speedbar}.
 
 @node EDE
-@section EDE
+@section @ede{}
 
-@i{EDE} is the @i{Emacs Development Environment}, which means that it
+@ede{} is the @i{Emacs Development Environment}, which means that it
 manages projects, and can build Makefiles, track distribution and web
 sites associated with your GNU project.
 
-@i{EDE} has several types of projects it can manage with varying
-degrees of development support.  An EDE centric project will generate
+@ede{} has several types of projects it can manage with varying
+degrees of development support.  An @ede{} centric project will generate
 Makefiles or Automake files, and provides menus and keybindings for
 compiling any target, debugging programs by providing the arguments to
 your debugger, and will make sure you don't forget to include some
 file in your targets.  It will help you build distribution files, and
-post them to the web (such as with Source Forge).  @i{EDE} will track
+post them to the web (such as with Source Forge).  @ede{} will track
 revision numbers and make sure they are updated in multiple places.
 
-Projects that are merely wrapped with @i{EDE} can support a small
+Projects that are merely wrapped with @ede{} can support a small
 subset of the above.  All project provide an API to other programs
 that need to know the scope of a project, such as which files belong
 together, where include directories might be, how to find
 documentation, and details of that nature.  You can even create
 project-local variables, which are Emacs variables with specific
-values within the scope of an EDE controlled project.
+values within the scope of an @ede{} controlled project.
 
 Read more about it in the
 @inforef{top, EDE reference manual, ede}.
@@ -262,7 +304,7 @@ Read more about it in the
 @node COGRE
 @section COGRE
 
-@i{COGRE} is a @i{COnnected GRaph Editor}.  You can use it to create
+@cogre{} is a @i{COnnected GRaph Editor}.  You can use it to create
 simple connected graphs and diagrams.  You can also create more
 complex UML class diagrams in it, or even bind UML diagrams directly
 to source code, navigating your source via the UML diagram.
@@ -290,6 +332,11 @@ and XEmacs.
 Using ezimage allows you to write a text based UI, and then enhance it
 with images afterwards, allowing your UI to work well in a text
 frame, in addition to looking pretty spiff in a graphical frame.
+@item pulse.el
+Simple way to briefly highlight a region or line.  For Emacs 22, it
+will pulse the line, with the color drifting from one shade to
+another.  For older versions Emacs, it will just highlight the line
+briefly.
 @item fame.el
 Support for @code{message} channels, allowing a program to provide a
 wide range of messages, and allowing a user to configure which set
@@ -329,10 +376,10 @@ user feedback explaining a delay.
 @chapter Installation and Basic Configuration
 
 A complination centric version of the @cedet{} installation is in the
-INSTALL file in the top level CEDET directory.
+INSTALL file in the top level @cedet{} directory.
 
 @enumerate
-@item Compile CEDET
+@item Compile @cedet{}
 
 @example
 make
@@ -344,13 +391,21 @@ or
 make EMACS=<your favorite emacs> MAKEINFO=<substitute, or echo>
 @end example
 
+If you do not have @code{make} installed on your system, or if you
+cannot get the @file{Makefile}s to work, then you can use the all
+Emacs solution in @file{cedet-build.el} which is found in the
+toplevel @cedet directory.
+
+Read the Commentary section of @file{cedet-build.el} for details on
+using this method.
+
 @item Install .emacs hooks
 
-Load @cedet{} in your .emacs file.  You do not need to install all of
-cedet into any magic Emacs controlled directories, or modify your
-loadpath.  The cedet bootstrap file will automatically update your
-load path, and load all the autoload files.  The cedet configuration
-will load a minimum set of files in.
+Load @cedet{} in your @file{.emacs} file.  You do not need to install
+all of cedet into any magic Emacs controlled directories, or modify
+your loadpath.  The @cedet{} bootstrap file will automatically update
+your load path, and load all the autoload files.  The cedet
+configuration will load a minimum set of files in.
 
 @example
 ;; Load CEDET
@@ -363,22 +418,22 @@ You will likely need to configure @cedet{} to your application.  Visit
 the other chapters in this manual for samples to get some ideas on
 possible configuration scenarios.
 
-@item Contribute to CEDET
+@item Contribute to @cedet{}
 
 For general discussions on development of these tools, use the mailing
 list cedet-devel@@sourceforge.net via the URL:
 
-http://lists.sourceforge.net/lists/listinfo/cedet-devel
+@url{http://lists.sourceforge.net/lists/listinfo/cedet-devel}
 
 For @semantic{} development use the mailing list cedet-semantic.net via
 the URL:
 
-http://lists.sourceforge.net/lists/listinfo/cedet-semantic
+@url{http://lists.sourceforge.net/lists/listinfo/cedet-semantic}
 
-For EIEIO use the mailing list cedet-eieio@@sourceforge.net via the
+For @eieio{} use the mailing list cedet-eieio@@sourceforge.net via the
 URL:
 
-http://lists.sourceforge.net/lists/listinfo/cedet-eieio
+@url{http://lists.sourceforge.net/lists/listinfo/cedet-eieio}
 
 @item Install Additional Tools
 
@@ -386,26 +441,26 @@ You may also need to download some of the following files for more
 obscure features.
 
 To use the JavaScript parser:
-javascript-mode.el : http://www.emacswiki.org/cgi-bin/wiki/JavaScriptMode
+javascript-mode.el : @url{http://www.emacswiki.org/cgi-bin/wiki/JavaScriptMode}
    
-To use the UML chart generation from "M-x semantic-dot":
-graphviz dot programs, including "dotty"
-http://www.graphviz.org/
+To use the UML chart generation from @code{M-x semantic-dot}
+graphviz dot programs, including @file{dotty}
+@url{http://www.graphviz.org/}
 
-To use the graphviz dot parser:
-graphviz-dot-mode.el: See the commentary in cogre/wisent-dot.el
+To use the graphviz dot parser: @file{graphviz-dot-mode.el} see the
+commentary in cogre/wisent-dot.el
 
 @end enumerate
 
 @node JDEE Target
-@chapter JDEE Target
+@chapter @i{JDEE} Target
 
-JDEE, or the Java Development Environment, depends on CEDET for both
-EIEIO, the object sytem, and Semantic, for parsing and providing
-tagging information.
+@i{JDEE}, or the @i{Java Development Environment}, depends on @cedet{}
+for both @eieio{}, the object sytem, and Semantic, for parsing and
+providing tagging information.
 
-In addition to the basic CEDET configuration, you will likely want to
-add the following Semantic configuration to your .emacs file.
+In addition to the basic @cedet{} configuration, you will likely want to
+add the following Semantic configuration to your @file{.emacs} file.
 
 @example
 (semantic-load-enable-minimum-features)
@@ -428,20 +483,20 @@ or the fancier
 @end example
 
 See the
-@inforef{Canned Configuration, Semantic Configuration, semantic}
+@inforef{Canned Configuration, Semantic Configuration, semantic}.
 section of the semantic manual for more details about these features.
 
 @node ECB Target
 @chapter ECB Target
 
-ECB, or the Emacs Code Browser depends on CEDET for the @semantic{}
-parsing engine, and several other features.  ECB can display a window
-that shows semantic tag information.
+@i{ECB}, or the @i{Emacs Code Browser} depends on @cedet{} for the @semantic{}
+parsing engine, and several other features.  @i{ECB} can display a
+window that shows semantic tag information.
 
-ECB can also be used with JDEE.
+@i{ECB} can also be used with @i{JDEE}.
 
-In addition to the basic CEDET configuration, you will likely want to
-add the following Semantic configuration to your .emacs file.
+In addition to the basic @cedet{} configuration, you will likely want to
+add the following Semantic configuration to your @file{.emacs} file.
 
 @example
 (semantic-load-enable-code-helpers)
@@ -454,34 +509,23 @@ or the fancier
 @end example
 
 See the
-@inforef{Canned Configuration, Semantic Configuration, semantic}
+@inforef{Canned Configuration, Semantic Configuration, semantic}.
 section of the semantic manual for more details about these features.
 
 @node Project Management
 @chapter Project Management
 
 If you are looking for @cedet{} to help you manage a project full of
-sourcecode, then you will be using @i{EDE} and @semantic{}.
+sourcecode, then you will be using @ede{} and @semantic{}.
 
-In addition to the basic CEDET configuration, you will likely want to
-add the following Semantic configuration to your .emacs file.
-
-@example
-(semantic-load-enable-code-helpers)
-@end example
-
-or the fancier
+To enable @ede{} add this to your @file{.emacs} file after @cedet{}
+is loaded:
 
 @example
-(semantic-load-enable-guady-code-helpers)
+(global-ede-mode 1)
 @end example
 
-See the
-@inforef{Canned Configuration, Semantic Configuration, semantic}
-section of the semantic manual for more details about these features.
-
-
-Once semantic is using your configuation, you can use EDE to define
+You can use @ede{} to define
 your projects.  If you are starting a new project, put a file from
 your new project into a buffer, and type:
 
@@ -495,47 +539,199 @@ underlying build technology to use for compilation.
 Use the menu to add targets.  You can then use either Speedbar or
 dired to populate your targets with files.
 
+For more details, see the 
+@inforef{Top, EDE reference manual, ede}.
+
+
+In addition to @ede{} and basic @cedet{} configuration, you will likely
+want to add the following @semantic{} configuration to your
+@file{.emacs} file.
+
+@example
+(semantic-load-enable-code-helpers)
+@end example
+
 See the
-@inforef{Top, EDE reference manual, ede}
-for more details.
+@inforef{Canned Configuration, Semantic Configuration, semantic}.
+section of the semantic manual for more details about these features.
+
+You may also want to enable the @srecode{} template insertion mode.
+
+@example
+(srecode-minor-mode 1)
+@end example
+
+Both @semantic{} and @srecode{} take advantage of @ede{}'s knowledge of a
+projects structure.
 
 @node Code Completion
 @chapter Code Completion
 
 Code Completion, or perhaps ``Intellisense'' is a difficult problem to
 get working in Emacs.  To use the @cedet{} suite to do it, you will
-need to start by autmenting the basic @cedet{} install in your .emacs
-file with:
+need to start by augmenting the basic @cedet{} install in your
+@file{.emacs} file with:
 
 @example
 (semantic-load-enable-code-helpers)
 @end example
 
-or the fancier
+Basic code helpers enable idle parsing and summary mode.  To get
+idle-completions mode, and some more decorative features, use:
 
 @example
 (semantic-load-enable-guady-code-helpers)
 @end example
 
-See the
-@inforef{Canned Configuration, Semantic Configuration, semantic}
+TODO - add other handy bindings here.
+
+For more on configuration
+@inforef{Canned Configuration, Semantic Configuration, semantic}.
 section of the semantic manual for more details about these features.
 
-This gets the basics working.  Semantic would now be able to parse
-your code, and provide some level of support for help text, and smart
-completion.
+The basic idea is that Semantic will need to parse your source code and
+build lookup tables.  The tables are then searched to provide the
+completion you might be looking for.
 
-To improve the things Semantic can find, and complete with, you then
-need to perform more configurations.  This is done mainly by providing
+To improve the things Semantic can find and complete with, you then
+need to configure a few more things.  This is done mainly by providing
 details on where Semantic can find the source code where your tag
-definitions are.  Please read the
-@inforef{Semanticdb Search Configuration, Semantic search configuration, semantic-user}
-node for details on these techniques.
+definitions are.
 
-Once you've optimized this step, there are several code completion
-options.  Please see the
-@inforef{Analyzer, semantic analyzer, semantic-user}
-section for more details on different completion techniques.
+For more, 
+@inforef{Semanticdb Search Configuration, Semantic search configuration, semantic-user}.
+
+Once you've optimized @semantic{}'s ability to find your sources,
+there are several code completion options.  For more,
+@inforef{Analyzer, semantic analyzer, semantic-user}.
+
+If code completion doesn't work on your code right away, please read
+the section on @inforef{Smart Completion Debugging, Smart Completion Debugging, semantic-user}.
+
+@node Code Generation
+@chapter Code Generation
+
+Code Generation, or the ability to automatically write code from some
+set of static data is done through the @srecode{} library.
+@srecode{} is a template manager that uses the @semantic{}
+infrastructure to support common concepts across multiple languages.
+
+To effectively create a code-generation library, you need to configure
+@semantic{}.
+Read @inforef{Canned Configuration, Semantic Configuration, semantic}.
+for more.
+@refill
+
+Secondly, you will need to configure @srecode{}.  Read
+@inforef{Quick Start, SRecode Manual, srecode};
+@refill
+
+Once installed, you can jump right in to writing your Lisp and
+@inforef{Template Writing, Template Writing, screcode}.
+
+
+@node C++ Features
+@chapter C++ Features
+
+If you are using CEDET With C++, then there are a few C++ specific
+options you may need to update.
+
+@section C Pre-processor
+
+C and C++ use pre-processor directives, and the @semantic{} parser has
+some basic support for a pre-processor.  As such, you may need to set
+up some macros.  You can do that in two ways.
+
+The first option is to create your own symbol map in Emacs Lisp.  You
+can customize the preprocessor symbol map.
+
+@defvar semantic-lex-c-preprocessor-symbol-map
+@anchor{semantic-lex-c-preprocessor-symbol-map}
+Table of @var{c} Preprocessor keywords used by the Semantic @var{c} lexer.
+Each entry is a cons cell like this:
+  ( ``@var{keyword}`` . ''REPLACEMENT'' )
+Where @var{keyword} is the macro that gets replaced in the lexical phase,
+and @var{replacement} is a string that is inserted in it's place.  Empty string
+implies that the lexical analyzer will discard @var{keyword} when it is encountered.
+
+Alternately, it can be of the form:
+  ( ``@var{keyword}`` ( @var{lexsym1} ``str'' @var{1} @var{1} ) @dots{} ( @var{lexsymn} ''str'' @var{1} @var{1} ) )
+where @var{lexsym} is a symbol that would normally be produced by the
+lexical analyzer, such as @code{symbol} or @dfn{string}.  The string in the
+second position is the text that makes up the replacement.  This is
+the way to have multiple lexical symbols in a replacement.  Using the
+first way to specify text like ``foo::bar'' would not work, because :
+is a sepearate lexical symbol.
+
+A quick way to see what you would need to insert is to place a
+definition such as:
+
+#define @var{mysym} foo::bar
+
+into a @var{c} file, and do this:
+  @kbd{M-x} semantic-lex-spp-describe
+
+The output table will describe the symbols needed.
+@end defvar
+
+Alternatly, you can use an existing C header file, or write your own
+custom C header file, and use the ma cros in that to initialize the
+preprocessor list.
+
+@defvar semantic-lex-c-preprocessor-symbol-file
+@anchor{semantic-lex-c-preprocessor-symbol-file}
+List of @var{c}/@var{c}++ files that contain preprocessor macros for the @var{c} lexer.
+Each entry is a filename and each file is parsed, and those macros
+are included in every @var{c}/@var{c}++ file parsed by semantic.
+You can use this variable instead of @code{semantic-lex-c-preprocessor-symbol-map}
+to store your global macros in a more natural way.
+@end defvar
+
+Some such symbols for @file{stdio.h} as found on Linux are defined in
+@code{semantic-lex-c-preprocessor-symbol-map-builtin}.
+
+Lastly, you could just opt to ignore conditional parsing.
+
+@deffn Option semantic-c-obey-conditional-section-parsing-flag
+@anchor{semantic-c-obey-conditional-section-parsing-flag}
+Non-@code{nil} means to interpret preprocessor #if sections.
+This implies that some blocks of code will not be parsed based on the
+values of the conditions in the #if blocks.
+@end deffn
+
+@section System Include path
+
+If you want the code-completion to work with C++ system header file,
+you will need to update @code{semantic-dependency-system-include-path} for
+C++ mode.
+
+@example
+M-x customize-variable RET semantic-c-dependency-system-include-path RET
+@end example
+
+
+Customizing this variable will allow you to setup your system include path
+and will update all files when you use custom to do it.
+
+@section EDE Setup
+
+For large C++ programs, it is important to setup @ede{} for it. 
+While @ede{} can be used to create makefiles and such using Automake,
+@ede{} also provides a way to merely describe a project so that tools
+like @semantic{} can find your sources.  For C++, you may want to do
+this:
+
+@example
+(global-ede-mode 1) ;; Enable EDE
+(ede-cpp-root-project "SOMENAME" :file "/dir/to/some/file")
+@end example
+
+where SOMENAME is a name for this project, and the file is a file name
+that exists at the root of your project directory.  There are many
+more options for the optimization of finding your header files.
+For more on this option, including include path setting, and providing
+macro to the C pre-processor, see
+@inforef{the ede-cpp-root chapter, ede-cpp-root, ede}.
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
