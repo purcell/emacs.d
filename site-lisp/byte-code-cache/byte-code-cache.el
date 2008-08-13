@@ -33,7 +33,8 @@ intercepts LOADs and byte-compiles files on the fly."
   :group 'internal)
 
 (defcustom bcc-cache-directory "~/.emacs.d/byte-cache"
-  "The directory in which we store cached byte-compiled files"
+  "The directory in which we store cached byte-compiled files, or nil
+to store them alongside the original file"
   :type 'directory
   :group 'byte-code-cache)
 
@@ -115,11 +116,14 @@ The resulting name is always an absolute path to a file ending in
 
   ;; Assumes unix here
   (concat
-   (file-name-as-directory (expand-file-name bcc-cache-directory))
-   (subst-char-in-string
-    ?/ ?!
-    (file-name-sans-extension
-     (file-relative-name file-name "/")))
+   (if (null bcc-cache-directory)
+       (progn
+         (file-name-as-directory (expand-file-name bcc-cache-directory))
+         (subst-char-in-string
+          ?/ ?!
+          (file-name-sans-extension
+           (file-relative-name file-name "/"))))
+     (file-name-sans-extension file-name))
    ".elc"))
 
 (defun bcc-in-blacklist (string blist)

@@ -31,7 +31,8 @@
 ;; Automatically byte-compile .el files
 ;;----------------------------------------------------------------------------
 (setq byte-compile-warnings t)
-(setq bcc-blacklist '("/\\.recentf$" "/history$" "/\\.ecb-user-layouts\\.el$" "/\\.session$" "/\\.emacs-project$" "/\\.emacs\\.desktop$" "/cedet/"))
+(setq byte-cache-directory nil)
+(setq bcc-blacklist '("/\\.recentf$" "/history$" "/\\.ecb-user-layouts\\.el$" "/\\.session$" "/\\.emacs-project$" "/\\.emacs\\.desktop$"))
 (require 'byte-code-cache)
 
 
