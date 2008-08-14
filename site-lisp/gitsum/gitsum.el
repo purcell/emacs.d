@@ -11,6 +11,12 @@
 
 (eval-when-compile (require 'cl))
 
+(defcustom gitsum-reuse-buffer t
+  "Whether `gitsum' should try to reuse an existing buffer
+if there is already one that displays the same directory."
+  :group 'git
+  :type 'boolean)
+
 (easy-mmode-defmap gitsum-diff-mode-shared-map
   '(("A" . gitsum-amend)
     ("c" . gitsum-commit)
@@ -167,12 +173,32 @@ A numeric argument serves as a repeat count."
     (when marked
       (gitsum-refresh (mapconcat 'identity marked " ")))))
 
+(defun gitsum-find-buffer (dir)
+  "Find the gitsum buffer handling a specified directory."
+  (let ((list (buffer-list))
+        (fulldir (expand-file-name dir))
+        found)
+    (while (and list (not found))
+      (let ((buffer (car list)))
+        (with-current-buffer buffer
+          (when (and list-buffers-directory
+                     (string-equal fulldir
+                                   (expand-file-name list-buffers-directory))
+                     (eq major-mode 'gitsum-diff-mode))
+            (setq found buffer))))
+      (setq list (cdr list)))
+    found))
+
 (defun gitsum ()
   "Entry point into gitsum-diff-mode."
   (interactive)
-  (switch-to-buffer (generate-new-buffer "*gitsum*"))
-  (gitsum-diff-mode)
-  (gitsum-refresh))
+  (let* ((dir default-directory)
+         (buffer (or (and gitsum-reuse-buffer (gitsum-find-buffer dir))
+                     (generate-new-buffer "*gitsum*"))))
+    (switch-to-buffer buffer)
+    (gitsum-diff-mode)
+    (set (make-local-variable 'list-buffers-directory) dir)
+    (gitsum-refresh)))
 
 ;; viper compatible
 (eval-after-load "viper"
