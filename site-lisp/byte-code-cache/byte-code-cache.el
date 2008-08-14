@@ -43,6 +43,12 @@ to store them alongside the original file"
   :type 'boolean
   :group 'byte-code-cache)
 
+(defcustom bcc-enabled-on-save nil
+  "Whether to update the byte-code cache when saving emacs lisp
+source files"
+  :type 'boolean
+  :group 'byte-code-cache)
+
 (defcustom bcc-blacklist '("/\\.recentf$" "/history$")
   "List of regular expressions matching files that should
 not be cached. Files that are modified every time Emacs
@@ -194,7 +200,7 @@ thing it does for LOAD."
   ;; This function is not on the fast path.
 
   (unless nomessage
-    (message "Regenerating cache for %s" fullname))
+    (message "Regenerating cache for %s" input))
 
   (let ((byte-compile-verbose nil)
         (font-lock-verbose nil)
@@ -223,7 +229,21 @@ thing it does for LOAD."
       (bcc-make-fake-cache-entry cachename input)))
 
   (unless nomessage
-    (message "Regenerating cache for %s...done" fullname)))
+    (message "Regenerating cache for %s...done" input)))
+
+(defun bcc-maybe-regenerate-cache-for-file ()
+  "Regenerate the byte-code cache for the current buffer if
+configured to do so."
+  (when (and bcc-enabled-on-save
+             (not (bcc-in-blacklist buffer-file-name bcc-blacklist)))
+    (setq cachename (file-truename (bcc-cache-file-name buffer-file-name)))
+    (bcc-regenerate-cache buffer-file-name cachename nil)))
+
+(defun bcc-add-after-save-hook ()
+  (add-hook 'after-save-hook 'bcc-maybe-regenerate-cache-for-file))
+
+(make-variable-buffer-local 'after-save-hook)
+(add-hook 'emacs-lisp-mode-hook 'bcc-add-after-save-hook)
 
 (defun bcc-load-cached-file (cachename origname noerror nomessage)
   "Load compiled file CACHENAME, but pretend we're loading
