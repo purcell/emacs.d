@@ -1,6 +1,6 @@
 ;;; haskell-hugs.el --- simplistic interaction mode with a
 
-;; Copyright 2004, 2005, 2006  Free Software Foundation, Inc.
+;; Copyright 2004, 2005, 2006, 2007  Free Software Foundation, Inc.
 ;; Copyright 1998, 1999  Guy Lapalme
 
 ;; Hugs interpreter for Haskell developped by 
@@ -16,7 +16,7 @@
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
+;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 
 ;; This file is distributed in the hope that it will be useful,
@@ -46,7 +46,7 @@
 ;;        Moss&Thorn <http://www.haskell.org/haskell-mode>
 ;; add this to .emacs:
 ;;
-;;    (add-hook haskell-mode-hook 'turn-on-haskell-hugs)
+;;    (add-hook 'haskell-mode-hook 'turn-on-haskell-hugs)
 ;;
 ;; Customisation:
 ;;       The name of the hugs interpreter is in variable

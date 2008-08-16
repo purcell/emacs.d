@@ -1,12 +1,12 @@
 ;;; haskell-cabal.el --- Support for Cabal packages
 
-;; Copyright (C) 2007  Stefan Monnier
+;; Copyright (C) 2007, 2008  Stefan Monnier
 
 ;; Author: Stefan Monnier <monnier@iro.umontreal.ca>
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
+;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 
 ;; This file is distributed in the hope that it will be useful,
@@ -21,7 +21,11 @@
 
 ;;; Commentary:
 
-;; 
+;; Todo:
+
+;; - distinguish continued lines from indented lines.
+;; - indent-line-function.
+;; - outline-minor-mode.
 
 ;;; Code:
 
@@ -41,6 +45,8 @@
 ;;                        varlist))
 ;;          (fields (mapcar (lambda (sym) (substring-no-properties sym 0 -1)) syms)))
 ;;     fields))
+
+(eval-when-compile (require 'cl))
 
 (defconst haskell-cabal-general-fields
   ;; Extracted with (haskell-cabal-extract-fields-from-doc "general-fields")
@@ -66,16 +72,58 @@
 
 (defvar haskell-cabal-mode-syntax-table
   (let ((st (make-syntax-table)))
+    ;; The comment syntax can't be described simply in syntax-table.
+    ;; We could use font-lock-syntactic-keywords, but is it worth it?
+    ;; (modify-syntax-entry ?-  ". 12" st)
+    (modify-syntax-entry ?\n ">" st)
     st))
 
 (defvar haskell-cabal-font-lock-keywords
-  ;; The comment syntax can't be described simply in syntax-table.  We could
-  ;; use font-lock-syntactic-keywords, but is it worth it?
-  '(("^--.*" . font-lock-comment-face)
-    ("^\\([^ :]+\\):" (1 font-lock-keyword-face))))
+  ;; The comment syntax can't be described simply in syntax-table.
+  ;; We could use font-lock-syntactic-keywords, but is it worth it?
+  '(("^[ \t]*--.*" . font-lock-comment-face)
+    ("^ *\\([^ \t:]+\\):" (1 font-lock-keyword-face))
+    ("^\\(Library\\)[ \t]*\\({\\|$\\)" (1 font-lock-keyword-face))
+    ("^\\(Executable\\)[ \t]+\\([^\n \t]*\\)"
+     (1 font-lock-keyword-face) (2 font-lock-function-name-face))
+    ("^\\(Flag\\)[ \t]+\\([^\n \t]*\\)"
+     (1 font-lock-keyword-face) (2 font-lock-constant-face))
+    ("^ *\\(if\\)[ \t]+.*\\({\\|$\\)" (1 font-lock-keyword-face))
+    ("^ *\\(}[ \t]*\\)?\\(else\\)[ \t]*\\({\\|$\\)"
+     (2 font-lock-keyword-face))))
 
 (defvar haskell-cabal-buffers nil
   "List of Cabal buffers.")
+
+;; (defsubst* inferior-haskell-string-prefix-p (str1 str2)
+;;   "Return non-nil if STR1 is a prefix of STR2"
+;;   (eq t (compare-strings str2 nil (length str1) str1 nil nil)))
+
+(defun haskell-cabal-find-file ()
+  "Return a buffer visiting the cabal file of the current directory, or nil."
+  (catch 'found
+    ;; ;; First look for it in haskell-cabal-buffers.
+    ;; (dolist (buf haskell-cabal-buffers)
+    ;;   (if (inferior-haskell-string-prefix-p
+    ;;        (with-current-buffer buf default-directory) default-directory)
+    ;;       (throw 'found buf)))
+    ;; Then look up the directory hierarchy.
+    (let ((user (nth 2 (file-attributes default-directory)))
+          ;; Abbreviate, so as to stop when we cross ~/.
+          (root (abbreviate-file-name default-directory))
+          files)
+      (while (and root (equal user (nth 2 (file-attributes root))))
+        (if (setq files (directory-files root 'full "\\.cabal\\'"))
+            ;; Avoid the .cabal directory.
+            (dolist (file files (throw 'found nil))
+              (unless (file-directory-p file)
+                (throw 'found (find-file-noselect file))))
+          (if (equal root
+                     (setq root (file-name-directory
+                                 (directory-file-name root))))
+              (setq root nil))))
+      nil)))
+
 
 (defun haskell-cabal-buffers-clean (&optional buffer)
   (let ((bufs ()))
@@ -98,7 +146,35 @@
        '(haskell-cabal-font-lock-keywords t t nil nil))
   (add-to-list 'haskell-cabal-buffers (current-buffer))
   (add-hook 'change-major-mode-hook 'haskell-cabal-unregister-buffer nil 'local)
-  (add-hook 'kill-buffer-hook 'haskell-cabal-unregister-buffer nil 'local))
+  (add-hook 'kill-buffer-hook 'haskell-cabal-unregister-buffer nil 'local)
+  (set (make-local-variable 'comment-start) "-- ")
+  (set (make-local-variable 'comment-start-skip) "\\(^[ \t]*\\)--[ \t]*")
+  (set (make-local-variable 'comment-end) "")
+  (set (make-local-variable 'comment-end-skip) "[ 	]*\\(\\s>\\|\n\\)")
+)
+
+(defun haskell-cabal-get-setting (name)
+  (save-excursion
+    (let ((case-fold-search t))
+      (goto-char (point-min))
+      (when (re-search-forward
+             (concat "^" (regexp-quote name)
+                     ":[ \t]*\\(.*\\(\n[ \t]+[ \t\n].*\\)*\\)")
+             nil t)
+        (let ((val (match-string 1))
+              (start 1))
+          (when (match-end 2)             ;Multiple lines.
+            ;; The documentation is not very precise about what to do about
+            ;; the \n and the indentation: are they part of the value or
+            ;; the encoding?  I take the point of view that \n is part of
+            ;; the value (so that values can span multiple lines as well),
+            ;; and that only the first char in the indentation is part of
+            ;; the encoding, the rest is part of the value (otherwise, lines
+            ;; in the value cannot start with spaces or tabs).
+            (while (string-match "^[ \t]\\(?:\\.$\\)?" val start)
+              (setq start (1+ (match-beginning 0)))
+              (setq val (replace-match "" t t val))))
+          val)))))
 
 (provide 'haskell-cabal)
 

@@ -1,6 +1,6 @@
 ;;; haskell-decl-scan.el --- Declaration scanning module for Haskell Mode
 
-;; Copyright (C) 2004, 2005  Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2005, 2007  Free Software Foundation, Inc.
 ;; Copyright (C) 1997-1998 Graeme E Moss
 
 ;; Author: 1997-1998 Graeme E Moss <gem@cs.york.ac.uk>
@@ -12,7 +12,7 @@
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
+;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 
 ;; This file is distributed in the hope that it will be useful,
@@ -39,7 +39,7 @@
 ;; To turn declaration scanning on for all Haskell buffers under the
 ;; Haskell mode of Moss&Thorn, add this to .emacs:
 ;;
-;;    (add-hook haskell-mode-hook 'turn-on-haskell-decl-scan)
+;;    (add-hook 'haskell-mode-hook 'turn-on-haskell-decl-scan)
 ;;
 ;; Otherwise, call `turn-on-haskell-decl-scan'.
 ;;
@@ -128,13 +128,6 @@
 ;;; Code:
 
 (require 'haskell-mode)
-
-(defconst haskell-decl-scan-version "1.11"
-  "Version number of haskell-decl-scan.")
-(defun haskell-decl-scan-version ()
-  "Echo the current version of haskell-decl-scan in the minibuffer."
-  (interactive)
-  (message "Using haskell-decl-scan version %s" haskell-decl-scan-version))
 
 ;;###autoload
 ;; As `cl' defines macros that `imenu' uses, we must require them at
@@ -659,13 +652,11 @@ To turn declaration scanning on for the current buffer, call
 
 Literate Haskell scripts are supported: If the value of
 `haskell-literate' (automatically set by the Haskell mode of
-Moss&Thorn) is 'bird, a Bird-style literate script is assumed.  If it
-is nil or 'latex, a non-literate or LaTeX-style literate script is
+Moss&Thorn) is `bird', a Bird-style literate script is assumed.  If it
+is nil or `tex', a non-literate or LaTeX-style literate script is
 assumed, respectively.
 
-Invokes `haskell-decl-scan-hook' if not nil.
-
-Use `haskell-decl-scan-version' to find out what version this is."
+Invokes `haskell-decl-scan-mode-hook'."
   (if (boundp 'beginning-of-defun-function)
       (if haskell-decl-scan-mode
           (progn

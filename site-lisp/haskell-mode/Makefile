@@ -3,10 +3,13 @@ EMACS = emacs
 ELFILES = \
 	haskell-font-lock.el \
 	haskell-mode.el \
+	haskell-c.el \
+	haskell-cabal.el \
 	haskell-doc.el \
 	haskell-decl-scan.el \
-	inf-haskell.el \
-	haskell-indent.el
+	haskell-indent.el \
+	haskell-simple-indent.el \
+	inf-haskell.el
 
 ELCFILES = $(ELFILES:.el=.elc)
 # AUTOLOADS = $(PACKAGE)-startup.el

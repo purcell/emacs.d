@@ -1,4 +1,308 @@
+2008-07-04  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-load-and-run): Don't run if there
+	were compilation errors.  Switch to inf-haskell buffer after run.
+
+	* inf-haskell.el (inferior-haskell-cabal-of-buf): Don't return
+	a dead buffer.  Reported by Conal Elliott <conal@conal.net>.
+	(replace-regexp-in-string): Add XEmacs compatibility.
+
+2008-05-30  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-font-lock.el (haskell-font-lock-symbols-alist): Change the
+	character used for the composition operator.
+
+	* haskell-indent.el (haskell-indent-map): Disable C-c C-g binding since
+	C-g is a special key not to be used like that.
+
+2008-05-23  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-cabal.el (haskell-cabal-find-file): Ignore directories.
+
+2008-05-12  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-spot-prompt): New function.
+	(inferior-haskell-mode): Use it.
+	(inferior-haskell-seen-prompt): New var.
+	(inferior-haskell-wait-for-prompt): Use it.
+	(inferior-haskell-send-command): Reset it.
+	(inferior-haskell-type): Avoid use of remove-it.
+
+	* inf-haskell.el (inferior-haskell-info-xref-re): Allow a column-range.
+	Reported by Jose A. Ortega Ruiz <jao@google.com>.
+	(inferior-haskell-error-regexp-alist): Use the extra column-end info
+	if available.
+
+2008-02-28  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-indentation.el: Fix up general coding convention stuff.
+	(haskell-indentation-mode): Use define-minor-mode.
+	(turn-on-haskell-indentation, turn-off-haskell-indentation):
+	Remove, fold into haskell-indentation-mode.
+
+2008-02-28  Kristof Bastiaensen  <kristof@vleeuwen.org>
+
+	* haskell-indentation.el: New file.
+
+2008-02-28  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-indent.el (haskell-indent-region): New dummy function.
+	(turn-on-haskell-indent): Use it to be more honest.
+
+	* haskell-mode.el (literate-haskell-mode): Fix up mode line.
+	Disable fill-comment-paragraph in Bird style.
+
+	* inf-haskell.el (subst-char-in-string, make-temp-file):
+	Add fallback definitions for XEmacs-21.4.
+
+2008-02-28  Greg Steuck  <greg@nest.cx>  (tiny change)
+
+	* inf-haskell.el (inferior-haskell-find-haddock): Jump to the symbol
+	anchor within Haddock.
+
+2008-02-18  Daniel Burrows  <dburrows@debian.org>  (tiny change)
+
+	* haskell-indent.el (haskell-indent-next-symbol-safe): New fun.
+	(haskell-indent-separate-valdef): Use it.
+
+2008-02-18  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-cabal-of-buf): Fix typo.
+	Reported by Bas van Dijk <v.dijk.bas@gmail.com>.
+
+2008-02-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-wait-for-prompt): Add timeout arg.
+	(inferior-haskell-find-definition): Expand file name in the right cwd.
+
+2008-01-30  Greg Steuck  <greg@nest.cx>  (tiny change)
+
+	* inf-haskell.el (inferior-haskell-cabal-of-buf)
+	(inferior-haskell-module-alist-file): Adjust for XEmacs.
+
+2008-01-17  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-cabal.el (haskell-cabal-font-lock-keywords): Add rules
+	for `if', `else', `Library', `Flag', and `Executable'.
+	(haskell-cabal-mode): Setup comment variables.
+
+2007-12-12  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (haskell-package-conf-file): Don't use `ignore-errors'
+	because this form is not byte-compiled :-(.
+
+2007-12-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* Release version 2.4.
+
+2007-12-11  Florian Lorenzen  <lorenzen@physik.fu-berlin.de>  (tiny change)
+
+	* haskell-mode.el (haskell-mode-map): Fix last change.
+
+2007-12-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-mode.el (haskell-delete-indentation): New command.
+	(haskell-mode-map): Use it.
+
+	* haskell-doc.el (haskell-doc-in-code-p): New function.
+	(haskell-doc-show-type): Use it.
+
+	* Makefile (ELFILES): Add haskell-c, haskell-cabal,
+	and haskell-simple-indent.
+
+2007-11-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-cabal.el (haskell-cabal-get-setting):
+	Handle multi-line settings.
+
+	* inf-haskell.el (inferior-haskell-load-file): Typo.
+
+2007-09-26  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-cabal.el (haskell-cabal-get-setting): New function.
+
+	* inf-haskell.el (inferior-haskell-find-project-root): Use it.
+
+	* haskell-c.el: New file.
+
+2007-09-17  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-load-file): Do reload if prefix arg.
+
+2007-09-07  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-indent.el (turn-on-haskell-indent): Fix keymap setup code.
+
+2007-09-06  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-find-project-root): New var, to
+	replace inferior-haskell-use-cabal.
+	(inferior-haskell-find-project-root): New function.
+	(inferior-haskell-load-file): Use them.
+	(inferior-haskell-module-alist): Use a temp buffer so as not to write
+	out random junk before/after the actual module alist.
+
+2007-08-29  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-load-file): Re-add the `reload' arg.
+	(inferior-haskell-reload-file): Re-instate the command.
+
+	* haskell-mode.el (turn-on-haskell-hugs, turn-on-haskell-ghci):
+	Make people work harder to use those obsolete packages.,
+
+	* haskell-indent.el (haskell-indent-map): New var.
+	(turn-on-haskell-indent, turn-off-haskell-indent): Use it together with
+	keymap inheritance instead of inplace modifications.
+
+	* haskell-indent.el (turn-on-haskell-indent): Add alternate binding for
+	C-c C-|.  Suggested by David House <dmhouse@gmail.com>.
+
+2007-07-31  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-type): Fix call to message.
+
+2007-07-30  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* Update license to GPLv3.
+
+	* haskell-mode.el (haskell-ident-at-point): Extend it to cover
+	all elements of a qualified name.
+
+2007-06-30  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-mode.el (haskell-mode-map): Remove C-c C-r binding.
+
+	* inf-haskell.el (inferior-haskell-load-file): Remove reload arg.
+	(inferior-haskell-reload-file): Remove.
+
+2007-06-29  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-compute-module-alist): Fix regexps.
+	(inferior-haskell-module-alist-file): Thinko.
+
+	* inf-haskell.el (inferior-haskell-run-command): New var.
+	(inferior-haskell-load-and-run): New command.
+
+	* inf-haskell.el (inferior-haskell-map-internal-ghc-ident): New var.
+	(inferior-haskell-map-internal-ghc-ident): New fun.
+	(inferior-haskell-find-haddock): Use it.
+
+	* inf-haskell.el (inferior-haskell-module-alist-file): Use a file in
+	/tmp rather than ~/ by default.
+	(inferior-haskell-compute-module-alist):
+	Rename from inferior-haskell-populate-module-alist.
+	Just return the result without saving it in any cache.
+	(inferior-haskell-read-module-alist-cache): Delete.
+	(inferior-haskell-module-alist): New function which replaces it, taking
+	care of the caching (both store&read).
+	(inferior-haskell-find-haddock): Adjust to this new arrangement.
+
+2007-06-29  David House  <dmhouse@gmail.com>
+
+	* haskell-mode.el (haskell-mode-map): Add binding to the new
+	inferior-haskell-find-haddock command.
+
+2007-06-29  David House  <dmhouse@gmail.com>
+
+	* inf-haskell.el (inferior-haskell-module-alist-file)
+	(inferior-haskell-module-re, inferior-haskell-use-web-docs)
+	(inferior-haskell-web-docs-base, haskell-package-manager-name)
+	(haskell-package-conf-file, inferior-haskell-module-alist): New vars.
+	(inferior-haskell-get-module, inferior-haskell-query-ghc-pkg)
+	(inferior-haskell-get-package-list)
+	(inferior-haskell-populate-module-alist)
+	(inferior-haskell-read-module-alist-cache)
+	(inferior-haskell-find-haddock): New functions to lookup Haddock docs.
+
+2007-06-29  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-type, inferior-haskell-info)
+	(inferior-haskell-find-definition): Add missing autoload cookies since
+	they're used in haskell-mode-map.
+
+2007-06-26  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-error-regexp-alist):
+	Add more regexps for GHC's ever expanding variety of formats.
+
+2007-06-20  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-font-lock.el (haskell-font-lock-haddock): New custom.
+	(haskell-font-lock-seen-haddock): New internal var.
+	(haskell-syntactic-face-function): Highlight Haddock comments.
+
+2007-06-12  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-font-lock.el (haskell-font-lock-symbols-alist): Add `forall'.
+
+	* inf-haskell.el (inferior-haskell-error-regexp-alist): Be more careful
+	with multiline patterns.  Add pattern for GHCi's type error messages.
+
+2007-06-10  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-font-lock.el (haskell-font-lock-dot-is-not-composition):
+	New function.
+	(haskell-font-lock-symbols-alist): Change rule for the "." symbol to
+	use that new function, so as to check it's not a "forall <foo> .".
+	(haskell-font-lock-compose-symbol)
+	(haskell-font-lock-symbols-keywords): Adjust to the new syntax.
+
+2007-06-07  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-error-regexp-alist): Add entries for
+	GHCI's exceptions.
+	(inferior-haskell-mode): Set compilation-first-column.
+
+2007-06-07  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-indent.el (haskell-indent-column+offset): New function.
+	(haskell-indent-push-pos-offset, haskell-indent-after-keyword-column):
+	Use it.
+	(haskell-indent-within-literate-code): Accept `tex' as well as `latex'
+	for literate style.
+
+	* haskell-mode.el (haskell-literate): Use `tex' rather than `latex'.
+	Declare as safe-local-variable.
+	(literate-haskell-mode): Use `tex' rather than `latex'.
+	Make it visible in the modeline.
+
+	* haskell-font-lock.el (haskell-font-lock-keywords-create):
+	Accept `tex' as well as `latex' for literate style.
+
+	* haskell-decl-scan.el (haskell-decl-scan-version): Remove.
+
+2007-05-08  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-use-cabal): New custom var.
+	(inferior-haskell-cabal-of-buf): New fun.
+	(inferior-haskell-load-file): Use it to try and do the right thing in
+	multi-directory projects using a Cabal file.
+
+	* haskell-cabal.el (inferior-haskell-string-prefix-p)
+	(haskell-cabal-find-file): New functions.
+
+	* inf-haskell.el (inferior-haskell-string-to-strings):
+	Remove `separator' argument.  Call split string without separator arg
+	either, so that it drops null strings.
+
+2007-05-03  "David House"  <dmhouse@gmail.com>  (tiny change)
+
+	* inf-haskell.el (inferior-haskell-load-file): Save buffer before
+	using buffer-file-name.
+
+2007-05-01  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-mode.el (haskell-hoogle-command, haskell-hoogle): New var
+	and command.
+
+2007-03-05  Ken Takusagawa  <ken.takusagawa.2@gmail.com>  (tiny change)
+
+	* haskell-font-lock.el (haskell-font-lock-keywords-create):
+	Wrap haskell-default-face for XEmacs.
+
 2007-02-14  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* Release version 2.3.
 
 	* haskell-cabal.el: New file.
 
@@ -7,6 +311,8 @@
 	* inf-haskell.el (with-selected-window): Define while compiling.
 
 2007-02-10  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* Release version 2.2.
 
 	* haskell-font-lock.el (haskell-font-lock-keywords-create):
 	Remove qualified and hiding from the reserved identifiers.

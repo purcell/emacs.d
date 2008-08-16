@@ -7,73 +7,8 @@
 
 
 
-;;;### (autoloads (haskell-cabal-mode) "haskell-cabal" "haskell-cabal.el"
-;;;;;;  (17875 26421))
-;;; Generated autoloads from haskell-cabal.el
-
-(add-to-list (quote auto-mode-alist) (quote ("\\.cabal\\'" . haskell-cabal-mode)))
-
-(autoload (quote haskell-cabal-mode) "haskell-cabal" "\
-Major mode for Cabal package description files.
-
-\(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads (haskell-decl-scan-mode) "haskell-decl-scan" "haskell-decl-scan.el"
-;;;;;;  (17282 16501))
-;;; Generated autoloads from haskell-decl-scan.el
-
-(autoload (quote haskell-decl-scan-mode) "haskell-decl-scan" "\
-Minor mode for declaration scanning for Haskell mode.
-Top-level declarations are scanned and listed in the menu item \"Declarations\".
-Selecting an item from this menu will take point to the start of the
-declaration.
-
-\\[haskell-ds-forward-decl] and \\[haskell-ds-backward-decl] move forward and backward to the start of a declaration.
-
-Under XEmacs, the following keys are also defined:
-
-\\[fume-list-functions] lists the declarations of the current buffer,
-\\[fume-prompt-function-goto] prompts for a declaration to move to, and
-\\[fume-mouse-function-goto] moves to the declaration whose name is at point.
-
-This may link with `haskell-doc' (only for Emacs currently).
-
-For non-literate and LaTeX-style literate scripts, we assume the
-common convention that top-level declarations start at the first
-column.  For Bird-style literate scripts, we assume the common
-convention that top-level declarations start at the third column,
-ie. after \"> \".
-
-Anything in `font-lock-comment-face' is not considered for a
-declaration.  Therefore, using Haskell font locking with comments
-coloured in `font-lock-comment-face' improves declaration scanning.
-
-To turn on declaration scanning for all Haskell buffers, add this to
-.emacs:
-
-  (add-hook 'haskell-mode-hook 'turn-on-haskell-decl-scan)
-
-To turn declaration scanning on for the current buffer, call
-`turn-on-haskell-decl-scan'.
-
-Literate Haskell scripts are supported: If the value of
-`haskell-literate' (automatically set by the Haskell mode of
-Moss&Thorn) is 'bird, a Bird-style literate script is assumed.  If it
-is nil or 'latex, a non-literate or LaTeX-style literate script is
-assumed, respectively.
-
-Invokes `haskell-decl-scan-hook' if not nil.
-
-Use `haskell-decl-scan-version' to find out what version this is.
-
-\(fn &optional ARG)" nil nil)
-
-;;;***
-
 ;;;### (autoloads (haskell-doc-show-type haskell-doc-mode) "haskell-doc"
-;;;;;;  "haskell-doc.el" (17869 26151))
+;;;;;;  "haskell-doc.el" (17263 33718))
 ;;; Generated autoloads from haskell-doc.el
 
 (autoload (quote haskell-doc-mode) "haskell-doc" "\
@@ -92,11 +27,13 @@ of prelude functions and their types, or from the local functions in the
 current buffer.
 
 \(fn &optional SYM)" t nil)
+(put 'haskell 'custom-loads (cons 'haskell-doc (get 'haskell 'custom-loads)))
+(put 'haskell-doc 'custom-loads (cons 'haskell-doc (get 'haskell-doc 'custom-loads)))
 
 ;;;***
 
 ;;;### (autoloads (haskell-indent-mode) "haskell-indent" "haskell-indent.el"
-;;;;;;  (17875 21187))
+;;;;;;  (17263 45416))
 ;;; Generated autoloads from haskell-indent.el
 
 (autoload (quote haskell-indent-mode) "haskell-indent" "\
@@ -129,11 +66,13 @@ next line to indent.
 Invokes `haskell-indent-hook' if not nil.
 
 \(fn &optional ARG)" t nil)
+(put 'haskell-indent 'custom-loads (cons 'haskell-indent (get 'haskell-indent 'custom-loads)))
+(put 'haskell 'custom-loads (cons 'haskell-indent (get 'haskell 'custom-loads)))
 
 ;;;***
 
 ;;;### (autoloads (literate-haskell-mode haskell-mode) "haskell-mode"
-;;;;;;  "haskell-mode.el" (17869 25437))
+;;;;;;  "haskell-mode.el" (17259 54545))
 ;;; Generated autoloads from haskell-mode.el
 
 (autoload (quote haskell-mode) "haskell-mode" "\
@@ -183,11 +122,13 @@ As `haskell-mode' but for literate scripts.
 (add-to-list 'auto-mode-alist '("\\.l[gh]s\\'" . literate-haskell-mode))
 (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+(put 'languages 'custom-loads (cons 'haskell-mode (get 'languages 'custom-loads)))
+(put 'haskell 'custom-loads (cons 'haskell-mode (get 'haskell 'custom-loads)))
 
 ;;;***
 
 ;;;### (autoloads (inferior-haskell-load-file switch-to-haskell)
-;;;;;;  "inf-haskell" "inf-haskell.el" (17875 21120))
+;;;;;;  "inf-haskell" "inf-haskell.el" (17264 51731))
 ;;; Generated autoloads from inf-haskell.el
 
 (defalias (quote run-haskell) (quote switch-to-haskell))
@@ -201,12 +142,13 @@ Show the inferior-haskell buffer.  Start the process if needed.
 Pass the current buffer's file to the inferior haskell process.
 
 \(fn &optional RELOAD)" t nil)
+(put 'haskell 'custom-loads (cons 'inf-haskell (get 'haskell 'custom-loads)))
 
 ;;;***
 
-;;;### (autoloads nil nil ("haskell-font-lock.el" "haskell-ghci.el"
-;;;;;;  "haskell-hugs.el" "haskell-simple-indent.el") (17875 26544
-;;;;;;  864790))
+;;;### (autoloads nil nil ("haskell-decl-scan.el" "haskell-font-lock.el"
+;;;;;;  "haskell-ghci.el" "haskell-hugs.el" "haskell-simple-indent.el")
+;;;;;;  (17264 58578 552243))
 
 ;;;***
 

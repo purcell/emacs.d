@@ -1,6 +1,6 @@
 ;;; haskell-ghci.el --- A GHCi interaction mode
 
-;; Copyright (C) 2004, 2005, 2006  Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2005, 2006, 2007  Free Software Foundation, Inc.
 ;; Copyright (C) 2001  Chris Webb
 ;; Copyright (C) 1998, 1999  Guy Lapalme
 
@@ -10,7 +10,7 @@
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
+;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 
 ;; This file is distributed in the hope that it will be useful,
@@ -50,7 +50,7 @@
 ;;
 ;; add this to .emacs:
 ;;
-;;   (add-hook haskell-mode-hook 'turn-on-haskell-ghci)
+;;   (add-hook 'haskell-mode-hook 'turn-on-haskell-ghci)
 ;;
 ;;
 ;; Customisation:

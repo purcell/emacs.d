@@ -14,7 +14,7 @@
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
+;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 ;;
 ;; This program is distributed in the hope that it will be useful,
@@ -35,17 +35,10 @@
 ;; checking the word under the cursor and matching it against a list of
 ;; prelude, library, local and global functions.
 
-;; The preferred usage of this package is in combination with
-;; `haskell-hugs-mode'.
-;; In that case `haskell-doc-mode' checks an internal variable updated by
-;; `imenu' to access the types of all local functions.  In `haskell-mode' this
-;; is not possible.  However, types of prelude functions are still shown.
-
 ;; To show types of global functions, i.e. functions defined in a module
 ;; imported by the current module, call the function
 ;; `turn-on-haskell-doc-global-types'.  This automatically loads all modules
-;; and builds `imenu' tables to get the types of all functions (again this
-;; currently requires `haskell-hugs-mode').
+;; and builds `imenu' tables to get the types of all functions.
 ;; Note: The modules are loaded recursively, so you might pull in
 ;;       many modules by just turning on global function support.
 ;; This features is currently not very well supported.
@@ -134,7 +127,17 @@
 
 ;;; Changelog:
 ;;  ==========
-;;  haskell-doc.el,v
+;;  $Log: haskell-doc.el,v $
+;;  Revision 1.29  2007-12-12 04:04:19  monnier
+;;  (haskell-doc-in-code-p): New function.
+;;  (haskell-doc-show-type): Use it.
+;;
+;;  Revision 1.28  2007/08/30 03:10:08  monnier
+;;  Comment/docs fixes.
+;;
+;;  Revision 1.27  2007/07/30 17:36:50  monnier
+;;  (displayed-month): Remove declaration since it's not used here.
+;;
 ;;  Revision 1.26  2007/02/10 06:28:55  monnier
 ;;  (haskell-doc-get-current-word): Remove.
 ;;  Change all refs to it, to use haskell-ident-at-point instead.
@@ -369,7 +372,7 @@ functions and `haskell-doc-show-prelude' is non-nil show its type.
 
 If the identifier near point is local \(i.e. defined in this module\) check
 the `imenu' list of functions for the type. This obviously requires that
-your language mode uses `imenu' \(`haskell-hugs-mode' 0.6 for example\).
+your language mode uses `imenu'.
 
 If the identifier near point is global \(i.e. defined in an imported module\)
 and the variable `haskell-doc-show-global-types' is non-nil show the type of its
@@ -1509,6 +1512,14 @@ function. Only the user interface is different."
 
 ;;@cindex haskell-doc-show-type
 
+(defun haskell-doc-in-code-p ()
+  (not (or (and (eq haskell-literate 'bird)
+                ;; Copied from haskell-indent-bolp.
+                (<= (current-column) 2)
+                (eq (char-after (line-beginning-position)) ?\>))
+           (if (fboundp 'syntax-ppss)
+               (nth 8 (syntax-ppss))))))
+
 ;;;###autoload
 (defun haskell-doc-show-type (&optional sym)
   "Show the type of the function near point.
@@ -1521,7 +1532,7 @@ current buffer."
   ;; if printed before do not print it again
   (unless (string= sym (car haskell-doc-last-data))
     (let ((doc (haskell-doc-sym-doc sym)))
-      (when doc
+      (when (and doc (haskell-doc-in-code-p))
         ;; In emacs 19.29 and later, and XEmacs 19.13 and later, all
         ;; messages are recorded in a log.  Do not put haskell-doc messages
         ;; in that log since they are legion.
