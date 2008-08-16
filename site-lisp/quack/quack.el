@@ -1,11 +1,11 @@
 ;;; quack.el --- enhanced support for editing and running Scheme code
 
-(defconst quack-copyright    "Copyright (C) 2002-2006 Neil W. Van Dyke")
+(defconst quack-copyright    "Copyright (C) 2002-2008 Neil Van Dyke")
 (defconst quack-copyright-2  "Portions Copyright (C) Free Software Foundation")
 ;; Emacs-style font-lock specs adapted from GNU Emacs 21.2 scheme.el.
 ;; Scheme Mode menu adapted from GNU Emacs 21.2 cmuscheme.el.
 
-(defconst quack-version      "0.29")
+(defconst quack-version      "0.33")
 (defconst quack-author-name  "Neil Van Dyke")
 (defconst quack-author-email "neil@neilvandyke.org")
 (defconst quack-web-page     "http://www.neilvandyke.org/quack/")
@@ -21,7 +21,7 @@ should have received a copy of the GNU General Public License along with Emacs;
 see the file `COPYING'.  If not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.")
 
-(defconst quack-cvsid "$Id: quack.el,v 1.426 2006-11-12 09:09:18 neil Exp $")
+(defconst quack-cvsid "$Id: quack.el,v 1.445 2008-08-01 02:11:34 neil Exp $")
 
 ;;; Commentary:
 
@@ -82,24 +82,27 @@ see the file `COPYING'.  If not, write to the Free Software Foundation, Inc.,
 
 ;; COMPATIBILITY:
 ;;
-;;     GNU Emacs 21 -- Yes.  Quack is developed under GNU Emacs 21 on a
+;;     GNU Emacs 21 -- Yes.  Quack is developed under GNU Emacs 22 on a
 ;;     GNU/Linux system, which is the preferred platform for Quacksmokers.
-;;     Quack should work under GNU Emacs 21 on any Un*x-like OS.  Reportedly,
-;;     Quack also works with GNU Emacs 21 on Mac OS X and Microsoft Windows
-;;     (NT, 2000, XP), but the author has no means of testing on those
+;;     Quack should work under GNU Emacs 22 on any Un*x-like OS.  Reportedly,
+;;     Quack also works with GNU Emacs 22 on Apple Mac OS X and Microsoft
+;;     Windows (NT, 2000, XP), but the author has no means of testing on those
 ;;     platforms.
 ;;
-;;     GNU Emacs 20 -- Mostly.  Some of the menus do not work properly, due to
-;;     a bug in easymenu.el (which the FSF will not fix, since they no longer
-;;     support Emacs 20).  Nested block comments are not fontified correctly.
-;;     Pretty-lambda does not work.  Quack runs less efficiently in 20 than 21,
-;;     due to the lack of standard hash tables.
+;;     GNU Emacs 21 -- Probably, but no longer tested.
 ;;
-;;     XEmacs 21 -- Mostly.  Block comment fontification is not yet supported
-;;     under XEmacs 21, due to what appears to be a bug in 21.4 font-lock.
-;;     Pretty-lambda does not work.  XEmacs Quacksmokers who always want the
-;;     latest and greatest Quack should consider GNU Emacs 21 -- Quack treats
-;;     XEmacs like a high-maintenance redheaded stepchild.
+;;     GNU Emacs 20 -- Probably mostly.  When last tested. Some of the menus do
+;;     not work properly, due to a bug in easymenu.el (which the FSF will not
+;;     fix, since they no longer support Emacs 20).  Nested block comments are
+;;     not fontified correctly.  Pretty-lambda does not work.  Quack runs less
+;;     efficiently in 20 than 21, due to the lack of standard hash tables.
+;;
+;;     XEmacs 21 -- Probably mostly, but no longer tested.  Block comment
+;;     fontification is not yet supported under XEmacs 21, due to what appears
+;;     to be a bug in 21.4 font-lock.  Pretty-lambda does not work.  XEmacs
+;;     Quacksmokers who always want the latest and greatest Quack should
+;;     consider GNU Emacs 21 -- Quack treats XEmacs like a high-maintenance
+;;     redheaded stepchild.
 
 ;; INSTALLATION:
 ;;
@@ -153,6 +156,36 @@ see the file `COPYING'.  If not, write to the Free Software Foundation, Inc.,
 ;;     neil@neilvandyke.org to add you to the moderated `quack-announce' list.
 
 ;; HISTORY:
+;;
+;;     Version 0.33 (2008-07-31)
+;;         * Added handlers for some PLT 4.0.1 "setup-plt" messages.
+;;
+;;     Version 0.32 (2008-06-19)
+;;         * Added to `quack-programs'.
+;;         * Updated compatibility comments.
+;;         * Added indent rule for `for/fold'.
+;;
+;;     Version 0.31 (2008-05-03)
+;;         * Added `defvar' for `quack-pltish-font-lock-keywords', so that the
+;;           GNU Emacs 22.1 compiler doesn't complain about assignment to a free
+;;           variable.
+;;         * Changed banner regexp for MzScheme for v3.99.x.
+;;         * Set `dynamic-wind' `scheme-indent-function to 0, when the default
+;;           is 3.  It was just taking up too much space.  DrScheme's
+;;           indentation seems to be equivalent -1, so there is precedent for
+;;           something different.  We generally respect Emacs indentation
+;;           convention.
+;;         * Added fontifying and indent for PLT `define-for-syntax',
+;;           `define-values-for-syntax', `quasisyntax', `quasisyntax/loc',
+;;           `syntax', `syntax/loc', `define-parameters'.
+;;         * Advise `scheme-interactively-start-process' for GNU Emacs 22.
+;;         * Removed TODO comment that mentioned using `(current-eventspace
+;;           (make-eventspace))' under `mred', as Robby Findler has indicated
+;;           that is not good advice.
+;;
+;;     Version 0.30 (2007-06-27)
+;;         * Emacs 22 compatibility change: `string-to-number' instead of
+;;           `string-to-int'.  Thanks to Charles Comstock.
 ;;
 ;;     Version 0.29 (2006-11-12)
 ;;         * Fixed `quack-bar-syntax-string', which caused vertical bar
@@ -453,8 +486,8 @@ see the file `COPYING'.  If not, write to the Free Software Foundation, Inc.,
 ;;     much less of good software engineering.  Emacs is by nature a complex
 ;;     system of interacting kludges.  To get Emacs to do useful new things is
 ;;     to artfully weave one's extensions into a rich tapestry of sticky duct
-;;     tape.  Also, Quack usually only gets hacked on when I'm stuck somewhere
-;;     for an hour on the laptop and unable to do real work.
+;;     tape.  Also, Quack usually only got hacked on when I was stuck in a busy
+;;     lobby for an hour with a laptop and unable to do real work.
 
 ;;; Code:
 
@@ -747,27 +780,29 @@ This only has effect when `quack-fontify-style' is `plt'."
     "class*" "class*/names" "class100" "class100*" "compound-unit/sig" "cond"
     "cond-expand" "define" "define-class" "define-const-structure"
     "define-constant" "define-embedded" "define-entry-point" "define-external"
-    "define-foreign-record" "define-foreign-type" "define-foreign-variable"
-    "define-generic" "define-generic-procedure" "define-inline"
-    "define-location" "define-macro" "define-method" "define-module"
-    "define-opt" "define-public" "define-reader-ctor" "define-record"
-    "define-record-printer" "define-record-type" "define-signature"
-    "define-struct" "define-structure" "define-syntax" "define-syntax-set"
-    "define-values" "define-values/invoke-unit/sig" "define/contract"
-    "define/override" "define/private" "define/public" "delay" "do" "else"
-    "exit-handler" "field" "if" "import" "inherit" "inherit-field" "init"
-    "init-field" "init-rest" "instantiate" "interface" "lambda" "let" "let*"
-    "let*-values" "let+" "let-syntax" "let-values" "let/ec" "letrec"
-    "letrec-values" "letrec-syntax" "match-lambda" "match-lambda*" "match-let"
-    "match-let*" "match-letrec" "match-define" "mixin" "module" "opt-lambda"
-    "or" "override" "override*" "namespace-variable-bind/invoke-unit/sig"
-    "parameterize" "private" "private*" "protect" "provide"
-    "provide-signature-elements" "provide/contract" "public" "public*"
-    "quasiquote" "quote" "receive" "rename" "require" "require-for-syntax"
-    "send" "send*" "set!" "set!-values" "signature->symbols"
-    "super-instantiate" "syntax-case" "syntax-case*" "syntax-error"
-    "syntax-rules" "unit/sig" "unless" "unquote" "unquote-splicing" "when"
-    "with-handlers" "with-method" "with-syntax"
+    "define-for-syntax" "define-foreign-record" "define-foreign-type"
+    "define-foreign-variable" "define-generic" "define-generic-procedure"
+    "define-inline" "define-location" "define-macro" "define-method"
+    "define-module" "define-opt" "define-public" "define-reader-ctor"
+    "define-record" "define-record-printer" "define-record-type"
+    "define-signature" "define-struct" "define-structure" "define-syntax"
+    "define-syntax-set" "define-values" "define-values-for-syntax"
+    "define-values/invoke-unit/sig" "define/contract" "define/override"
+    "define/private" "define/public" "delay" "do" "else" "exit-handler" "field"
+    "if" "import" "inherit" "inherit-field" "init" "init-field" "init-rest"
+    "instantiate" "interface" "lambda" "let" "let*" "let*-values" "let+"
+    "let-syntax" "let-values" "let/ec" "letrec" "letrec-values" "letrec-syntax"
+    "match-lambda" "match-lambda*" "match-let" "match-let*" "match-letrec"
+    "match-define" "mixin" "module" "opt-lambda" "or" "override" "override*"
+    "namespace-variable-bind/invoke-unit/sig" "parameterize" "private"
+    "private*" "protect" "provide" "provide-signature-elements"
+    "provide/contract" "public" "public*" "quasiquote" 
+    "quasisyntax" "quasisyntax/loc" "quote" "receive"
+    "rename" "require" "require-for-syntax" "send" "send*" "set!" "set!-values"
+    "signature->symbols" "super-instantiate" "syntax" "syntax/loc"
+    "syntax-case" "syntax-case*" "syntax-error" "syntax-rules" "unit/sig"
+    "unless" "unquote" "unquote-splicing" "when" "with-handlers" "with-method"
+    "with-syntax"
 
     )
   "*Scheme keywords to fontify when `quack-fontify-style' is `plt'."
@@ -816,7 +851,9 @@ unavailable for your system, please notify the Quack author."
 
 (defcustom quack-programs
   '("bigloo" "csi" "csi -hygienic" "gosh" "gsi" "gsi ~~/syntax-case.scm -"
-    "guile" "kawa" "mit-scheme" "mred -z" "mzscheme" "mzscheme -M errortrace" "rs" "scheme" "scheme48" "scsh" "sisc" "stklos" "sxi")
+    "guile" "kawa" "mit-scheme" "mred -z" "mzscheme" "mzscheme -M
+    errortrace" "mzscheme3m" "mzschemecgc" "rs" "scheme" "scheme48" "scsh"
+    "sisc" "stklos" "sxi")
   "List of Scheme interpreter programs that can be used with `run-scheme'.
 
 These names will be accessible via completion when `run-scheme' prompts for
@@ -1941,7 +1978,8 @@ For PLT-style when `quack-pltish-fontify-keywords-p' is non-nil."
 
 (defconst quack-toggle-lambda-re-1
   (concat "define\\*?"
-          (quack-re-alt "-public"
+          (quack-re-alt "-for-syntax"
+                        "-public"
                         "/override"
                         "/private"
                         "/public"
@@ -2950,6 +2988,16 @@ Can be used in your `~/.emacs' file something like this:
       (switch-to-scheme t))
     (message "Switched to running Scheme: %s" scheme-program-name)))
 
+(defadvice scheme-interactively-start-process (around
+                                               quack-ad-sisp 
+                                               first
+                                               (&optional cmd)
+                                               activate)
+  ;; (save-window-excursion
+  (call-interactively 'run-scheme)
+  ;; )
+  )
+
 (defadvice scheme-proc (around quack-ad-scheme-proc first nil activate)
   (condition-case nil
       ad-do-it
@@ -3099,6 +3147,8 @@ Can be used in your `~/.emacs' file something like this:
 (put 'class             'scheme-indent-function 'defun)
 (put 'class*            'scheme-indent-function 'defun)
 (put 'compound-unit/sig 'scheme-indent-function 0)
+(put 'dynamic-wind      'scheme-indent-function 0)
+(put 'for/fold          'scheme-indent-function 2)
 (put 'instantiate       'scheme-indent-function 2)
 (put 'interface         'scheme-indent-function 1)
 (put 'let*-values       'scheme-indent-function 1)
@@ -3109,11 +3159,12 @@ Can be used in your `~/.emacs' file something like this:
 (put 'module            'scheme-indent-function 'defun)
 (put 'opt-lambda        'scheme-indent-function 1)
 (put 'parameterize      'scheme-indent-function 1)
+(put 'quasisyntax/loc   'scheme-indent-function 1)
 (put 'receive           'scheme-indent-function 2)
 (put 'send*             'scheme-indent-function 1)
 (put 'sigaction         'scheme-indent-function 1)
 (put 'syntax-case       'scheme-indent-function 2)
-(put 'syntax/loc        'scheme-indent-function 'defun)
+(put 'syntax/loc        'scheme-indent-function 1)
 (put 'unit              'scheme-indent-function 'defun)
 (put 'unit/sig          'scheme-indent-function 2)
 (put 'unless            'scheme-indent-function 1)
@@ -3548,6 +3599,8 @@ Can be used in your `~/.emacs' file something like this:
             ;; Colon keywords.
             ("\\<:\\sw+\\>" . font-lock-builtin-face))))
 
+(defvar quack-pltish-font-lock-keywords nil)
+
 (defun quack-pltish-num-re (radix digit base16-p)
   ;; These regexps started as a transliteration of the R5RS BNF to regular
   ;; expressions, adapted for PLTisms, and with a few optimizations.
@@ -3592,7 +3645,7 @@ Can be used in your `~/.emacs' file something like this:
 
 (defconst quack-pltish-fls-base
   `(
-    ("\\`\\(MrEd\\|Welcome to MzScheme\\) version [^\n]+" . quack-banner-face)
+    ("\\`\\(MrEd\\|Welcome to MzScheme\\) v[^\n]+" . quack-banner-face)
     ("\\`Gambit Version 4\\.0[^\n]*" . quack-banner-face)
     ("\\`Welcome to scsh [0-9][^\n]+\nType ,\\? for help[^\n]+"
      . quack-banner-face)
@@ -3642,6 +3695,7 @@ Can be used in your `~/.emacs' file something like this:
                             "-embedded"
                             "-entry-point"
                             "-external"
+                            "-for-syntax"
                             "-foreign-record"
                             "-foreign-type"
                             "-foreign-variable"
@@ -3652,6 +3706,7 @@ Can be used in your `~/.emacs' file something like this:
                             "-macro"
                             "-method"
                             "-opt"
+                            "-parameters"
                             "-public"
                             "-reader-ctor"
                             "-record"
@@ -3662,6 +3717,7 @@ Can be used in your `~/.emacs' file something like this:
                             "-structure"
                             "-syntax"
                             "-values"
+                            "-values-for-syntax"
                             "/contract"
                             "/override"
                             "/private"
@@ -3912,6 +3968,8 @@ Can be used in your `~/.emacs' file something like this:
 
 ;; Compilation Mode:
 
+;; TODO: Add compilation-directory-matcher support for "setup-plt:  in".
+
 (defvar quack-saved-compilation-error-regexp-alist nil)
 
 (defconst quack-compilation-error-regexp-alist-additions
@@ -3924,7 +3982,7 @@ Can be used in your `~/.emacs' file something like this:
     ;;   load-handler: expected a `module' declaration for `bar-unit' in
     ;;   "/u/collects/bar/bar-unit.ss", but found something else
     (,(concat "load-handler: expected a `module' declaration for `[^']+' in "
-              "\"\\([^\n\"]+\\)\", but found something else")
+              "\"\\([^:\n\"]+\\)\", but found something else")
      1 ,no-line)
 
     ;; PLT MzScheme 205 "setup-plt".
@@ -3932,10 +3990,22 @@ Can be used in your `~/.emacs' file something like this:
     ("setup-plt: Error during Compiling .zos for [^\n]+ \(\\([^\n\)]+\\)\)"
      1 ,no-line)
 
+    ;; PLT MzScheme 4.0.1 "setup-plt".
+    ("setup-plt: +\\(?:WARNING: +\\)\\([^:\n]+\\)::"
+     1 ,no-line)
+
+    ;; PLT MzScheme 4.0.1 "setup-plt".
+    ("setup-plt: +\\(?:WARNING: +\\)\\([^:\n]+\\):\\([0-9]+\\):\\([0-9]+\\)"
+     1 2 3)
+
+    ;; PLT MzScheme 4.0.1 "setup-plt":
+    ("load-handler: expected a `module' declaration for `[^'\n]+' in #<path:\\([^>\n]+\\)>[^\n]+"
+     1 ,no-line)
+
     )))
 
 (defun quack-compile-no-line-number (filename column)
-  (list (point-marker) filename 1 (and column (string-to-int column))))
+  (list (point-marker) filename 1 (and column (string-to-number column))))
 
 (defun quack-install-compilation-mode-stuff ()
   (unless quack-saved-compilation-error-regexp-alist
@@ -4425,26 +4495,6 @@ Provided by Quack: http://www.neilvandyke.org/quack/"
 ;;       more about a particular Scheme implementation than just the command
 ;;       line to start its REPL, though.
 
-;; TODO: Maybe do this automatically.
-;;
-;; [...]
-;; Subject: Re: [plt-scheme] MrEd's stdio REPL with GUI code
-;; Date: Wed, 21 Aug 2002 07:02:16 -0600 (MDT)
-;;
-;; [...]
-;; Evaluate
-;;
-;;   (current-eventspace (make-eventspace))
-;;
-;; as the first expression in the stdio REPL, and then it will work the
-;; way you want.
-;;
-;; The GUI REPL creates a new eventspace for evaluating expressions, so
-;; the expressions are not evaluated in MrEd's main thread. The stdio
-;; REPL, however, uses the main thread for evaluating expressions, so that
-;; it acts just like MzScheme.
-;; [...]
-
 ;; TODO: Perhaps put some initialization code that depends on user's custom
 ;;       settings into after-init-hook.  See if this works in XEmacs.
 
@@ -4507,6 +4557,14 @@ Provided by Quack: http://www.neilvandyke.org/quack/"
 ;; remove it. From desecting the customize option to adding (define-key
 ;; global-map [menu-bar quack] nil)"
 
+;; TODO: We could do this:
+;;
+;; mzscheme -m -e "(begin (display #\') (write (map path->string (current-library-collection-paths))) (newline) (exit))"
+;; '("/home/neil/collects"
+;;   "/home/neil/.plt-scheme/360/collects"
+;;   "/usr/lib/plt/collects")
+
+;; emacs22  -batch -no-site-file -f batch-byte-compile quack.el ; rm quack.elc
 ;; emacs21  -batch -no-site-file -f batch-byte-compile quack.el ; rm quack.elc
 ;; emacs20  -batch -no-site-file -f batch-byte-compile quack.el ; rm quack.elc
 ;; xemacs21 -batch -no-site-file -f batch-byte-compile quack.el ; rm quack.elc
