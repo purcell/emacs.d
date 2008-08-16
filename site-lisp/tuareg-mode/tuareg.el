@@ -1,6 +1,6 @@
 ;;; tuareg.el --- Caml mode for (X)Emacs.   -*- coding: latin-1 -*-
    
-;;        Copyright © 1997-2006 Albert Cohen, all rights reserved.
+;;        Copyright © 1997-2008 Albert Cohen, all rights reserved.
 ;;        Licensed under the GNU General Public License.
 
 ;;    This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,8 @@
 (require 'cl)
 (require 'easymenu)
 
-(defconst tuareg-mode-version "Tuareg Version 1.45.4"
-  "        Copyright © 1997-2006 Albert Cohen, all rights reserved.
+(defconst tuareg-mode-version "Tuareg Version 1.45.6"
+  "        Copyright © 1997-2008 Albert Cohen, all rights reserved.
          Copying is covered by the GNU General Public License.
 
     This program is free software; you can redistribute it and/or modify
@@ -509,6 +509,16 @@ and `tuareg-xemacs-w3-manual' (XEmacs only)."
     (skip-chars-backward " \t")
     (bolp)))
 
+(defvar tuareg-cache-stop (point-min))
+(make-variable-buffer-local 'tuareg-cache-stop)
+(defvar tuareg-cache nil)
+(make-variable-buffer-local 'tuareg-cache)
+(defvar tuareg-cache-local nil)
+(make-variable-buffer-local 'tuareg-cache-local)
+(defvar tuareg-cache-last-local nil)
+(make-variable-buffer-local 'tuareg-cache-last-local)
+(defvar tuareg-last-loc (cons nil nil))
+  
 (if tuareg-use-syntax-ppss
     (progn
       (defun tuareg-in-literal-p ()
@@ -529,16 +539,6 @@ and `tuareg-xemacs-w3-manual' (XEmacs only)."
       ;; FIXME: not clear if moving out of a string/comment counts as 1 or no.
       (defalias 'tuareg-backward-up-list 'backward-up-list))
 
-  (defvar tuareg-cache-stop (point-min))
-  (make-variable-buffer-local 'tuareg-cache-stop)
-  (defvar tuareg-cache nil)
-  (make-variable-buffer-local 'tuareg-cache)
-  (defvar tuareg-cache-local nil)
-  (make-variable-buffer-local 'tuareg-cache-local)
-  (defvar tuareg-cache-last-local nil)
-  (make-variable-buffer-local 'tuareg-cache-last-local)
-  (defvar tuareg-last-loc (cons nil nil))
-  
   (defun tuareg-before-change-function (begin end)
     (setq tuareg-cache-stop
 	  (if (save-excursion (beginning-of-line) (= (point) (point-min)))
@@ -1250,8 +1250,8 @@ possible."
 	 (save-excursion
 	   (goto-char (window-point (get-buffer-window (current-buffer) t)))
 	   (if (looking-at tuareg-error-chars-regexp)
-	       (setq beg (string-to-int (tuareg-match-string 1))
-		     end (string-to-int (tuareg-match-string 2))))))
+	       (setq beg (string-to-number (tuareg-match-string 1))
+		     end (string-to-number (tuareg-match-string 2))))))
        (beginning-of-line)
        (if beg
 	   (progn
@@ -1464,15 +1464,26 @@ If found, return the actual text of the keyword or operator."
 	  (t kwop))))
 
 (defconst tuareg-find-else-match-regexp
-  (tuareg-make-find-kwop-regexp ";"))
+  (tuareg-make-find-kwop-regexp ";\\|->\\|\\<with\\>"))
 (defun tuareg-find-else-match ()
   (let ((kwop (tuareg-find-kwop tuareg-find-else-match-regexp
-				     "\\<then\\>")))
-    (cond ((string= kwop "then")
-	   (tuareg-find-match) kwop)
-	  ((string= kwop ";")
-	   (tuareg-find-semi-colon-match)
-	   (tuareg-find-else-match) kwop))))
+				"->\\|\\<\\(with\\|then\\)\\>")))
+    (cond
+     ((string= kwop "then")
+      (tuareg-find-match))
+     ((string= kwop "with")
+      (tuareg-find-with-match))
+     ((string= kwop "->")
+      (setq kwop (tuareg-find-->-match))
+      (while (string= kwop "|")
+	(setq kwop (tuareg-find-|-match)))
+      (if (string= kwop "with")
+	  (tuareg-find-with-match))
+      (tuareg-find-else-match))
+     ((string= kwop ";")
+      (tuareg-find-semi-colon-match)
+      (tuareg-find-else-match)))
+    kwop))
 
 (defun tuareg-find-do-match ()
   (let ((kwop (tuareg-find-kwop tuareg-find-kwop-regexp
@@ -2785,8 +2796,8 @@ or indent all lines in the current phrase."
 		     matchbeg matchend
 		     'face 'tuareg-font-lock-interactive-error-face)
 		    (if (looking-at tuareg-interactive-toplevel-error-regexp)
-			(let ((beg (string-to-int (tuareg-match-string 1)))
-			      (end (string-to-int (tuareg-match-string 2))))
+			(let ((beg (string-to-number (tuareg-match-string 1)))
+			      (end (string-to-number (tuareg-match-string 2))))
 			  (put-text-property
 			   (+ comint-last-input-start beg)
 			   (+ comint-last-input-start end)
@@ -2975,8 +2986,8 @@ current phrase else insert a newline and indent."
 			       (point-max) t))
       (if error-pos
 	  (progn
-	    (setq beg (string-to-int (tuareg-match-string 1))
-		  end (string-to-int (tuareg-match-string 2))))))
+	    (setq beg (string-to-number (tuareg-match-string 1))
+		  end (string-to-number (tuareg-match-string 2))))))
     (if (not error-pos)
 	(message "No syntax or typing error in last phrase.")
       (setq beg (+ tuareg-interactive-last-phrase-pos-in-source beg)
@@ -2993,8 +3004,8 @@ current phrase else insert a newline and indent."
 	    (re-search-forward tuareg-interactive-toplevel-error-regexp
 			       (point-max) t))
       (if error-pos
-	  (setq beg (string-to-int (tuareg-match-string 1))
-		end (string-to-int (tuareg-match-string 2)))))
+	  (setq beg (string-to-number (tuareg-match-string 1))
+		end (string-to-number (tuareg-match-string 2)))))
     (if (not error-pos)
 	(message "No syntax or typing error in last phrase.")
       (setq beg (+ tuareg-interactive-last-phrase-pos-in-toplevel beg)
