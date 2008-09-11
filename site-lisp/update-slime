@@ -1,8 +1,0 @@
-#!/bin/sh -e
-export CVSROOT=:pserver:anonymous@common-lisp.net:/project/slime/cvsroot
-if [ -d slime-cvs ]; then
-  cvs up -dP slime-cvs
-else
-  cvs login
-  cvs co -rHEAD -d slime-cvs slime
-fi

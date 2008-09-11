@@ -1,0 +1,3 @@
+[submodule "site-lisp/slime"]
+	path = site-lisp/slime
+	url = git://github.com/pat-maddox/slime.git
