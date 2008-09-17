@@ -1,3 +1,6 @@
 [submodule "site-lisp/slime"]
 	path = site-lisp/slime
 	url = git://github.com/pat-maddox/slime.git
+[submodule "site-lisp/org-mode"]
+	path = site-lisp/org-mode
+	url = git://repo.or.cz/org-mode.git
