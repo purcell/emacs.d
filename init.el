@@ -246,6 +246,32 @@
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 (setq js2-use-font-lock-faces t)
 
+(eval-after-load "mmm-mode"
+  '(progn
+     (mmm-add-group
+      'html-js2
+      '((js-script-cdata
+         :submode js2-mode
+         :face mmm-code-submode-face
+         :front "<script[^>]*>[ \t\n]*\\(//\\)?<!\\[CDATA\\[[ \t]*\n?"
+         :back "[ \t]*\\(//\\)?]]>[ \t\n]*</script>"
+         :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
+                      @ "\n" _ "\n" @ "</script>" @)))
+        (js-script
+         :submode js2-mode
+         :face mmm-code-submode-face
+         :front "<script[^>]*>[ \t]*\n?"
+         :back "[ \t]*</script>"
+         :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
+                      @ "\n" _ "\n" @ "</script>" @)))
+        (js-inline
+         :submode js2-mode
+         :face mmm-code-submode-face
+         :front "on\w+=\""
+         :back "\"")))
+     (mmm-add-mode-ext-class 'nxml-mode "\\.r?html\\(\\.erb\\)?$" 'html-js2)))
+
+
 ;;----------------------------------------------------------------------------
 ;; Extensions -> Modes
 ;;----------------------------------------------------------------------------
