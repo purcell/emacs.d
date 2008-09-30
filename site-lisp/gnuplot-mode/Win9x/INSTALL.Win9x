@@ -1,0 +1,138 @@
+
+Time-stamp: <1999-05-15 11:29:23 bruce>
+
+
+This file describes how to install gnuplot-mode on a Windows 95 or 98
+system so that you may use Gnuplot from within Emacs.
+
+Gnuplot-mode was written by Bruce Ravel <ravel@phys.washington.edu>.
+Contact him with any questions or comments regarding gnuplot-mode.
+For questions or comments regarding Emacs or Gnuplot, contact the
+authors of those programs.
+
+
+			    ------O------
+
+
+Gnuplot-mode and Gnuplot can be used with Emacs on a Windows 95 or 98
+system, although a small amount of additional effort will be required
+to get everything working.
+
+The best solution is to install a sufficiently recent version of
+Gnuplot which includes the ability to run as a child process (as of
+May 15 1999 there is no such version).  A more complete description of
+this is attached to the end of this document.  Recent versions of
+Gnuplot can be found at ftp://ftp.gnuplot.vt.edu/pub/gnuplot/
+
+   If you install a very recent version of gnuplot which includes the
+   ability to run as a child process, then the installation
+   instructions for gnuplot-mode are much simpler.  After following
+   the normal installation instructions, just add the following line
+   to your Emacs initialization file:
+
+         (add-hook 'gnuplot-load-hook
+                   '(lambda ()
+                        (setq gnuplot-program
+                              "c:/path/to/pgnuplot/pgnuplot.exe")))
+
+   Replace "c:/path/to/pgnuplot/pgnuplot.exe" with the full path to
+   pgnuplot on your computer.
+
+
+
+You can make gnuplot work even with an older version of Gnuplot for
+Windows by following these steps:
+
+  1.  Edit the file pgnuplot.c so that the variable FULLPATH at line 5 
+      is pointing at the actual location of the Gnuplot executable on
+      your computer.
+
+  2.  Using any C compiler, compile pgnuplot.c to pgnuplot.exe
+
+  3.  Byte-compile gnuplot.el and gnuplot-gui.el as described in the
+      INSTALL file in the main gnuplot-mode directory.  Make sure the
+      .elc files a placed in a location where Emacs knows to look,
+      i.e. in its load-path.  You can add new directories to the
+      load-path by placing the following line near the top of your
+      Emacs initialization file (.emacs or _emacs):
+
+	 (setq load-path (append (list "c:/path/to/lisp/files")
+				 load-path))
+
+  4.  Add these lines to your Emacs initialization file (.emacs or
+      _emacs):
+
+         (autoload 'gnuplot-mode "gnuplot"
+                   "gnuplot major mode" t)
+         (autoload 'gnuplot-make-buffer "gnuplot"
+                   "open a buffer in gnuplot-mode" t)
+         (setq auto-mode-alist (append '(("\\.gp$" . gnuplot-mode))
+                                       auto-mode-alist))
+         (global-set-key [(f9)] 'gnuplot-make-buffer)
+         (add-hook 'gnuplot-load-hook
+                   '(lambda ()
+                        (setq gnuplot-program
+                              "c:/path/to/pgnuplot/pgnuplot.exe")))
+
+      The last line is very important.  It tells Emacs to launch
+      pgnuplot.exe as its subprocess rather than Gnuplot itself.  The
+      first four lines are explained in the comments near the
+      beginning of gnuplot.el.
+
+
+   Replace "c:/path/to/pgnuplot/pgnuplot.exe" with the full path to
+   pgnuplot on your computer.
+
+
+
+
+			    ------O------
+
+Resources:
+
+  Emacs for Windows NT/9x:
+      http://www.cs.washington.edu/homes/voelker/ntemacs.html
+
+  The Gnuplot distribution site (includes Windows executables):
+      ftp://ftp.gnuplot.vt.edu/pub/gnuplot/
+
+  The gnuplot-mode homepage:
+      http://feff.phys.washington.edu/~ravel/gnuplot/  
+
+  Cygwin, Unix tools for Windows NT/9x:
+      http://sourceware.cygnus.com/cygwin/
+
+
+			    ------O------
+
+
+What follows are the comments of the author of pgnuplot.c,
+Hans-Bernhard Broeker, describing the function and need for this
+program. 
+
+                                                 Thu, 11 Feb 1999
+
+   Here's the tiny program I came up with to fix the single most
+   annoying problem specific to the Windows version of gnuplot: lack
+   of support for piping commands into it via STDIN.
+
+   For those who don't know the context: Windows GUI programs like
+   wgnuplot do not have any access to the usual I/O channels stdin and
+   stdout. So the usual method to allow gnuplot to run as a child
+   application, being controlled via a command stream by another one
+   (i.e. the classical 'popen("gnuplot", "w");' method), can not work
+   on Windoze.
+
+   It's implemented as a separate Win32 console application (that's a
+   different kind of program, which cannot display GUI windows, but
+   does have STDIN/STDOUT channels). This program will get hold of a
+   running wgnuplot (or start one itself, passing on any command line
+   arguments), and deliver each character it sees on its own standard
+   input stream as a keypress message to the command window of
+   wgnuplot.
+
+   Effectively, this makes 'pgnuplot.exe' an almost 100% complete
+   replacement of wgnuplot.exe, as far as starting the program is
+   concerned, but adding the stdin capabilities. A different way of
+   seeing it is as a prototype of a general application that wants to
+   run wgnuplot as a child process.

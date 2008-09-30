@@ -1,0 +1,224 @@
+
+May 17 2002 Bruce Ravel  <ravel@phys.washington.edu>
+        * gnuplot.el: Version 0.5r
+        * handle continuation lines better
+	* C-c C-c now for comment region, C-c C-o for GUI
+	* trim gnuplot buffer + customize vble controlling max buffer
+	  length
+	* Altered Makefile.in to install .el files along with .elc
+	  files
+
+May 30 2001 Bruce Ravel  <ravel@phys.washington.edu>
+        * gnuplot.el: Version 0.5q
+	* added font-lock bindings for words associated with plotting
+
+Apr 15 2001 Bruce Ravel  <ravel@phys.washington.edu>
+	* gnuplot.el: Version 0.5p
+	* fixed the fix for the serious bug in how speedbar and
+	  gnuplot-mode interact.  In the words of Bullwinkle, "This
+	  time for sure!"
+
+Jan  4 2001 Bruce Ravel  <ravel@phys.washington.edu>
+	* gnuplot.el: Version 0.5n
+	* fixed a serious bug in how speedbar and gnuplot-mode
+	  interact 
+
+Nov 29 2000 Bruce Ravel  <ravel@phys.washington.edu>
+	* gnuplot.el: Version 0.5m
+	* much better algorithm for determining gnuplot version number
+	* add colorization and gui support for new commands in 3.8.
+	* gui support for emf term.
+	* gui support for new "set style" syntax.
+
+Nov 16 2000 Bruce Ravel  <ravel@phys.washington.edu>
+        * gnuplot.el: Version 0.5l
+	* support for pm3d in gnuplot-gui and in plot options
+	  insertions menu.
+        * mentioned pm3d in gpelcard.
+        * `gnuplot-negate-option' works with new syntax
+
+Sep 22 1999  Bruce Ravel  <ravel@phys.washington.edu>
+        * gnuplot.el: Version 0.5k
+        * make `gnuplot-send-line-and-forward' skip over blank and
+          comment lines as suggested by <SE>.
+        * Jan 10 2000 Bound C-c C-j to `gnuplot-forward-script-line'.
+
+Sep  9 1999  Bruce Ravel  <ravel@phys.washington.edu>
+        * gnuplot.el: Version 0.5j
+        * Do a more robust check for the gnuplot process before
+          killing the gnuplot buffer, as suggested by <SE>.
+
+Sep  2 1999  Bruce Ravel  <ravel@phys.washington.edu>
+        * gnuplot.el: Version 0.5i
+        * Once again changed how `comint-process-echos' gets set.
+          Maybe I got it right this time?
+        * Also fixed certain situations where the info file did not
+          get properly loaded (insertion with info toggle on and info
+          button in GUI).
+
+Aug 15 1999  Bruce Ravel  <ravel@phys.washington.edu>
+        * gnuplot.el: Version 0.5h
+        * Added `gnuplot-determine-gnuplot-version' so that the
+          gnuplot version number and `comint-process-echos' actually
+          get set correctly.  Actually, the first time something is
+          plotted, the echoing might not work, but the second time it
+          will.
+
+May 27 1999  Bruce Ravel  <ravel@phys.washington.edu>
+        * gnuplot.el: Version 0.5g
+	* fixed a bug in XEmacs in the font-locking rules for comments
+	  and strings
+	* figure out what version of gnuplot is being run by reading
+	  the Gnuplot start-up message and set
+          gnuplot-echo-command-line-flag appropriately
+	* fixed a bug which made gnuplot-mode fail when font-lock was
+    	  not a feature
+
+May 15 1999  Bruce Ravel  <ravel@phys.washington.edu>
+        * gnuplot.el: Version 0.5f
+	* include pgnuplot.c and installation instructions for Windows
+	  95 and 98
+	* allow user to defer parsing info file so that gnuplot-mode
+	  starts up faster
+	
+Apr  6 1999  Bruce Ravel  <ravel@phys.washington.edu>
+	* gnuplot.el: Version 0.5e
+	* drop gnuplot-which-highlight variable but still make sure
+	  colorization works under emacs, xemacs, font-lock, and
+	  hilit19
+	* insert a space at the end of a unique completion
+	* fixed completion in file widget in GUI
+	* primitive support for plot, splot, fit in gui.
+	* rewrote a lot of GUI code
+
+Mar 21 1999  Bruce Ravel  <ravel@phys.washington.edu>
+	* gnuplot.el: Version 0.5d
+	* use installation materials provided by Lars Hecking,
+	  maintainer of gnuplot itself
+	* added some GUI support for hidden3d
+	* various improvements to the types alists used by the GUI
+	* improved various document strings and the bug reporter function
+
+Feb 15 1999  Bruce Ravel  <ravel@phys.washington.edu>
+	* gnuplot.el: Version 0.5c
+	* update copyright information and gpelcard.tex
+
+Jan 28 1999  Bruce Ravel  <ravel@phys.washington.edu>
+	* gnuplot.el: Version 0.5b
+	* fixed a bug in gnuplot-kill-gnuplot-buffer
+	* fixed a bug in gnuplot-plot-from-comint
+	* fixed the description of the gnuplot-faces customization group
+
+Jan 23 1999  Bruce Ravel  <ravel@phys.washington.edu>
+	* gnuplot.el: Version 0.5a
+	* send file to gnuplot now uses the "load" command
+	* can plot scripts from the comint buffer using
+	  gnuplot-plot-from-comint or
+          gnuplot-save-and-plot-from-comint.
+	* C-d in comint buffer is more graceful
+
+Dec 27 1998  Bruce Ravel  <ravel@phys.washington.edu>
+
+	* gnuplot.el: Version 0.5
+	* preliminary version of interactive graphical system for
+          setting command arguments
+	* make changes to insertion menu and to gnuplot-insert
+          function to accomodate GUI system
+	* made gnuplot-negate-option function and bound it to C-c C-n
+	* replace kw-compl with a simple completion function 
+	* transparent icons in toolbar
+	* move toolbar code into gnuplot.el
+
+Dec 15 1998  Bruce Ravel  <ravel@phys.washington.edu>
+
+	* gnuplot.el: Version 0.4f
+	* defcustom all the insertion submenus
+	* added gnuplot-insertion-menu-flag
+	* Makefile now knows how to determine which version of
+	  info-look to compile
+
+Dec 13 1998  Bruce Ravel  <ravel@phys.washington.edu>
+
+	* gnuplot.el: Version 0.4e
+	* deal with the many versions of info-look in the Makefile
+	* drop install-gnuplot
+	* break insertions menu up into several variables and put
+	  menubar initialization into a function
+
+Dec  9 1998  Bruce Ravel  <ravel@phys.washington.edu>
+
+	* gnuplot.el: Version 0.4d
+	* added function gnuplot-setup-info-look and hook variable
+	  gnuplot-info-hook to handle situation of different versions
+	  of the info file.
+
+Nov 30 1998  Bruce Ravel  <ravel@phys.washington.edu>
+
+	* gnuplot.el: Version 0.4c
+	* fixed frame behavior
+	* fixed comint highlighting behavior
+	* added :link to defgroup.  added "[:]" to range insertions
+	* fixed behavior of filename insertion function
+	* added more :link's to the defgroup
+	* edited Makefile and README file in the distribution, added
+          dot.el to the distribution to suppress compile-time
+	  warnings
+
+Nov 21 1998  Bruce Ravel  <ravel@phys.washington.edu>
+
+	* gnuplot.el: Version 0.4b
+	* Fix bug in line plotting function when line is empty
+	* Add toolbar for XEmacs and file gnuplot-toolbar.el
+	* Allow display of gnuplot process in a separate frame
+
+Nov 18 1998  Bruce Ravel  <ravel@phys.washington.edu>
+
+	* gnuplot.el: Version 0.4a
+	* clean up useless buffers left lying around by info-look
+	* Fix font-lock rules so that quoted words and the text
+	  surrounding them are correctly highlighted
+	* Fix font-lock rules for plot and splot
+	* Added function `gnuplot-send-line-and-forward' and bound it to
+	  C-c C-v.  Mention this in gpelcard
+
+Nov 14 1998  Bruce Ravel  <ravel@phys.washington.edu>
+
+	* gnuplot.el: Version 0.4
+	* Added info-look to distribution.  It was taken from the emacs
+	  20.2 installation and one small change was made to allow
+	  it compile under XEmacs.
+	* Use info-look for info interface.  With this the gnuplot-mode
+       	  user interface to the gnuplot info file does not change
+	  but the interior code is much cleaner and I get to use an
+	  already invented wheel.  One nice feature is that the help
+	  function is completely independent of the version number of
+	  gnuplot as long as the index in the gnuplot.info file is
+	  called "General Index".  Also `gnuplot-keywords' (which is
+	  used for help, keyword-completion, and hilit19 highlighting)
+	  is now generated automatically the first time gnuplot mode
+	  is invoked.
+	* Changed default of `gnuplot-show-help-flag' to nil.
+
+
+Earlier versions (taken from gnuplot.el file)
+
+  0.1   Jun 25 1998 Finished with initial release.
+  0.2   Sep  4 1998 Added filename insertion, indentation, and
+        colorization/completion in comint buffer. <BR>
+  0.2a  Sep 11 1998 made `indent-line-function' buffer-local (whoops!)
+        and fixed some stuff in the installation script <BR>
+  0.3   Sep 12 1998 include insertions menu <BR>
+  0.3a  Sep 14 1998 fixed bug finding info file if missing, fixed bug
+        starting font-lock, fixed bug re overwriting files in
+        installation script <BR>
+  0.3b  Sep 15 1998 Added (require 'info) to `(eval-and-compile' clause,
+        Added (kill-all-local-variables) to `gnuplot-mode', altered order
+        of:-
+            (provide 'gnuplot)
+            ;; any final chores before leaving
+            (run-hooks 'gnuplot-load-hook)
+        at the end of the file in case something in the load hook
+        requires gnuplot (oh not that old one again...), added
+        `gnuplot-comint-setup-hook', corrected `gnuplot-mark-active'
+        which caused an error to be raised by (mark) when the mark
+        was inactive <DB>  Some changes to font-lock rules <LB>&<BR>

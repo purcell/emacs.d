@@ -1,0 +1,491 @@
+
+%% Time-stamp: <2002/12/13 16:41:13 bruce>
+
+%% This document is copyright (C) 1998-2002 Bruce Ravel <ravel@phys.washington.edu>
+%% This page covers version 0.6.0 of gnuplot-mode.
+
+%% This document is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% properly describing the software it documents.
+
+%% Permission is granted to make and distribute copies of this
+%% document in electronic form provided the copyright notice and this
+%% permission are preserved on all copies.
+
+
+\documentclass[twocolumn]{article}
+\usepackage{fancybox}
+
+\setlength{\parindent}{0truecm}
+\setlength{\parskip}{1ex}
+\setlength{\hoffset}{-0.5truecm}
+\setlength{\voffset}{0truecm}
+\setlength{\topmargin}{-2.5truecm}
+\setlength{\marginparsep}{0truecm}
+\setlength{\marginparwidth}{0truecm}
+\setlength{\textheight}{25.5truecm}
+\setlength{\textwidth}{17truecm}
+\setlength{\oddsidemargin}{0truecm}
+\setlength{\evensidemargin}{1.2truecm}
+\setlength{\columnsep}{1.4truecm}
+
+\newenvironment{Boxedminipage}%
+{\begin{Sbox}\begin{minipage}}%
+  {\end{minipage}\end{Sbox}\Ovalbox{\TheSbox}}
+\newenvironment{SqBoxedminipage}%
+{\begin{Sbox}\begin{minipage}}%
+  {\end{minipage}\end{Sbox}\fbox{\TheSbox}}
+
+\def\version{{0.6.0}}
+\def\revised{{17 May, 2002}}
+\def\file#1{{\texttt{`#1'}}}
+\def\key#1{{\textrm \leavevmode\hbox{%
+  \raise0.4pt\hbox{$\langle$}\kern-.08em\vtop{%
+    \vbox{\hrule\kern-0.4pt
+     \hbox{\raise0.4pt\hbox{\vphantom{$\langle$}}#1}}%
+    \kern-0.4pt\hrule}%
+  \kern-.06em\raise0.4pt\hbox{$\rangle$}}}}
+\def\variable#1#2#3{{
+    \vspace{-0.2truecm}
+    \begin{flushright}
+      \begin{minipage}[h]{0.97\linewidth}
+        \vspace{-0.2truecm}
+        \textbf{#1}\hfill[\texttt{#2}]
+        \begin{flushright}
+          \begin{minipage}[h]{0.93\linewidth}
+            \vspace{-0.2truecm}
+            #3
+          \end{minipage}
+        \end{flushright}
+      \end{minipage}
+    \end{flushright}
+    }}
+\def\command#1#2{{
+    \vspace{-0.2truecm}
+    \begin{flushright}
+      \begin{minipage}[h]{0.97\linewidth}
+        \vspace{-0.2truecm}
+        \textbf{#1}\hfill
+        \begin{flushright}
+          \begin{minipage}[h]{0.93\linewidth}
+            \vspace{-0.4truecm}
+            #2
+          \end{minipage}
+        \end{flushright}
+      \end{minipage}
+    \end{flushright}
+    }}
+\def\Star{{$\star$}}
+
+
+\begin{document}
+
+\small
+
+\thispagestyle{empty}
+
+\begin{center}
+  \begin{Boxedminipage}{0.75\linewidth}
+    \begin{center}
+      \vspace{0.01\textheight}
+      {\Large Quick Reference for}\\
+      \vspace{0.007\textheight}
+      {\Large gnuplot-mode}
+      \vspace{0.01\textheight}
+    \end{center}
+  \end{Boxedminipage}
+\end{center}
+
+\vspace{3ex}
+
+This card describes the features of gnuplot-mode for Emacs.
+Gnuplot-mode is intended for composing scripts for the
+\textsc{gnuplot} plotting program.  It offers functions for sending
+commands or entire scripts to the \textsc{gnuplot} program as well as
+various functions to aid in composing scripts.  It works with any
+version of \textsc{gnuplot} from 3.5 to 3.8.  See the comments in the
+file \file{gnuplot.el} for instructions on installing gnuplot-mode.
+
+\vspace{2ex}
+
+\begin{minipage}[h]{\linewidth}
+  \begin{center}
+    \centerline{{\large\textbf{gnuplot-mode key sequences}}}
+    \vspace{0.2ex}
+    \begin{tabular}[h]{cl}
+      \hline \hline
+      \\[-1ex]
+      \multicolumn{2}{l}{~\quad\textbf{Gnuplot-mode buffer}}\\[0.5ex]
+      \textrm{key} & \quad description \\
+      \hline
+      \texttt{C-c C-l} & send a line to gnuplot \\
+      \texttt{C-c C-v} & send a line and move forward 1 line\\
+      \texttt{C-c C-r} & send the region to gnuplot \\
+      \texttt{C-c C-b} & send the buffer to gnuplot \\
+      \texttt{C-c C-f} & send a file to gnuplot \\
+      & \\[-1.5ex]
+      \texttt{M-\key{tab}} & complete keyword at point \\
+      \texttt{C-c C-i} & insert filename at point \\
+      \texttt{C-c C-j} & jump to next statement \\
+      \texttt{C-c C-n} & negate set option at point \\
+      \texttt{C-c C-c} & comment region \\
+      \texttt{C-c C-o} & set arguments of command at point \\
+      \texttt{S-mouse-2} & set arguments of command under mouse \\
+      \texttt{C-c C-h} & get help from the gnuplot info file \\
+      \texttt{C-c C-e} & look at the gnuplot process buffer \\
+      & \\[-1.5ex]
+      \texttt{C-c C-k} & kill the gnuplot process \\
+      \texttt{C-c C-u} & submit a bug report about gnuplot-mode \\
+      \texttt{C-c C-z} & customize gnuplot-mode \\
+      \hline
+      \\[-1ex]
+      \multicolumn{2}{l}{~\quad\textbf{Gnuplot process buffer}}\\[0.5ex]
+      \textrm{key} & \quad description \\
+      \hline
+      \texttt{M-C-p}   & plot script \\
+      \texttt{M-C-f}   & load file containing script \\
+      \hline \hline
+    \end{tabular}
+  \end{center}
+\end{minipage}
+
+\vspace{4ex}
+
+\centerline{{\large\textbf{Starting gnuplot-mode}}}
+\vspace{2ex}
+
+\command{M-x gnuplot-mode}{Start gnuplot-mode in the current buffer.}
+%
+\command{M-x gnuplot-make-buffer}{Open a new buffer in gnuplot-mode}
+
+
+
+\vfill
+
+\begin{Boxedminipage}{1.05\linewidth}
+  \begin{center}
+    \footnotesize{Gnuplot-mode homepage} \\
+    \scriptsize{%%
+      \texttt{http://feff.phys.washington.edu/\char126ravel/software/gnuplot-mode/}}
+  \end{center}
+\end{Boxedminipage}
+\begin{flushleft}
+  {\footnotesize
+    This page {\copyright} 1998-2002 Bruce Ravel \hfill revised \revised \\
+    \texttt{<ravel@phys.washington.edu>} \\ %% \hfill printed \today \\
+    This page covers version {\version} of gnuplot-mode.
+
+    Permission is granted to make and distribute copies of this quick
+    reference provided the copyright notice and this permission are
+    preserved on all copies.}
+\end{flushleft}
+%%\vfil
+\pagebreak
+\centerline{{\large\textbf{Setting up gnuplot-mode}}}
+\vspace{2ex}
+
+Put the lines in the box below in your \file{.emacs} file or in the
+system wide start-up file to enable gnuplot-mode.  The first two lines
+make Emacs recognize the functions described in the ``Starting
+gnuplot-mode'' section on this page.  The third line causes Emacs to
+put all files ending in \file{.gp} into gnuplot-mode.  The final line
+defines a hotkey -- in this case \key{F9} -- for starting
+gnuplot-mode.
+
+\begin{SqBoxedminipage}{\linewidth}
+\begin{Verbatim}
+  (autoload 'gnuplot-mode "gnuplot"
+            "gnuplot major mode" t)
+  (autoload 'gnuplot-make-buffer "gnuplot"
+            "open a buffer in gnuplot mode" t)
+  (setq auto-mode-alist
+        (append '(("\\.gp$" . gnuplot-mode))
+                auto-mode-alist))
+  (global-set-key [(f9)] 'gnuplot-make-buffer)
+\end{Verbatim}%%$
+\end{SqBoxedminipage}
+
+
+\vspace{4ex}
+
+\begin{description}
+\item[Using the gnuplot-process buffer] \hfill \\
+  The process buffer contains an active \textsc{gnuplot} command line
+  for interacting with \textsc{gnuplot} directly.  The \texttt{M-C-p}
+  and \texttt{M-C-f} key sequences will plot using the contents of
+  the gnuplot script buffer.
+\item[Using the GUI to set command arguments] \hfill \\
+  \texttt{C-c C-c} and \texttt{S-mouse-2} are used to invoke the
+  graphical tool for setting command arguments.  Use text fields and
+  option menus to choose appropriate values.  Menus and buttons are
+  activated with the middle mouse button.  A few plot options may not
+  be fully supported.
+\item[Customizing variables] \hfill \\
+  The graphical customization tool for variables can be invoked using
+  \texttt{C-c C-z}.  Descriptions of the variables relevant to
+  gnuplot-mode can be obtained by using \texttt{gnuplot} as the
+  regular expression for \texttt{M-x apropos}.
+\item[On-line help] \hfill \\
+  Keyword completion and on-line help require that the
+  \textsc{gnuplot} info file be available and that the info-look
+  package be installed.  The info file can be made from the
+  documentation supplied with the \textsc{gnuplot} distribution and
+  the info-look package is a standard part of Emacs 20.  Users of
+  XEmacs or Emacs 19 should download \file{info-look.el} from the
+  gnuplot-mode homepage.
+\item[Using pm3d] \hfill \\
+  All features of the pm3d patch to \textsc{gnuplot} should be
+  available when using gnuplot-mode.  One particularly useful feature
+  of pm3d is the ability to push a cursor position into the
+  clipboard.  This is done by double-clicking \texttt{mouse-1} in the
+  plot window, then doing \texttt{M-x yank-clipboard-selection}
+  (usually bound to \texttt{mouse-2}) in the gnuplot script buffer.
+\end{description}
+
+
+
+\vfill
+\pagebreak
+
+%%% end of first column
+
+\begin{center}
+  \begin{Boxedminipage}{0.75\linewidth}
+    \begin{center}
+      {\large User configurable variables}
+    \end{center}
+  \end{Boxedminipage}
+\end{center}
+
+
+\variable{gnuplot-program}{gnuplot}{The name of the gnuplot
+  executable.}
+%
+\variable{gnuplot-process-name}{*gnuplot*}{The name of the gnuplot
+  process and process buffer.}
+%
+\variable{gnuplot-gnuplot-buffer}{plot.gp}{The name of the gnuplot
+  scratch buffer opened by \texttt{gnuplot-make-buffer}.}
+%
+%
+\variable{gnuplot-display-process}{'window}{Determines how to display
+  the gnuplot process buffer, either 'frame, 'window, or nil}
+%
+\variable{gnuplot-info-display}{'window}{Determines how
+  `gnuplot-get-help' displays the info file, either 'frame, 'window,
+  or nil}
+%
+\variable{gnuplot-echo-command-line-flag}{t}{If lines that you send to
+  gnuplot from the gnuplot-mode buffer are not appearing at the
+  gnuplot prompt in the process buffer, set this to nil and restart
+  emacs.}
+%
+\variable{gnuplot-delay}{0.01}{Time in seconds to allow the gnuplot
+  display to update.  Increase this number if the prompts and lines
+  are displayed out of order.}
+%
+\variable{gnuplot-quote-character}{'}{Quotation character used when
+  inserting a filename into the script (single, double, or no quote).}
+
+\variable{gnuplot-buffer-max-size}{1000}{The maximum size in lines of
+the gnuplot buffer.  Excess lines are trimmed.  0 means to never trim.}
+
+%%\vspace{1ex}
+\begin{center}
+  \begin{Boxedminipage}{0.75\linewidth}
+    \begin{center}
+      {\large Hook variables}
+    \end{center}
+  \end{Boxedminipage}
+\end{center}
+
+\variable{gnuplot-mode-hook}{nil}{Functions run when gnuplot minor
+  mode is entered.}
+%
+\variable{gnuplot-load-hook}{nil}{Functions run when gnuplot.el is
+  first loaded.}
+%
+\variable{gnuplot-after-plot-hook}{nil}{Functions run after gnuplot
+  plots an entire buffer.  See the doc string for
+  \texttt{gnuplot-recently-sent}.}
+%
+\variable{gnuplot-comint-setup-hook}{nil}{Functions run after setting
+  up the gnuplot process buffer in comint mode.}
+%
+\variable{gnuplot-info-hook}{nil}{Functions run before setting up
+  info-look in the gnuplot-mode buffer.}
+%
+
+
+
+\vfill\eject
+
+
+\begin{center}
+  \begin{Boxedminipage}{0.75\linewidth}
+    \begin{center}
+      {\large Insertion variables}
+    \end{center}
+  \end{Boxedminipage}
+\end{center}
+
+\noindent These variables control the \texttt{Insertions} pull-down
+menu, which can be used to insert \textsc{gnuplot} commands into the
+script.  The various sub-menu variables can be used to customize which
+commands appear in the \texttt{Insertions} menu.
+
+\vspace{2ex}
+%
+\variable{gnuplot-insertions-menu-flag}{t}{Non-nil means to display
+  the \texttt{Insertions} menu in the menubar.}
+%
+\variable{gnuplot-insertions-show-help-flag}{nil}{Non-nil means to
+  display help from info file when using the \texttt{Insertions}
+  menu.}
+%
+\variable{gnuplot-insertions-adornments}{\Star}{Contents of the
+  \texttt{adornments} sub-menu.}
+%
+\variable{gnuplot-insertions-plot-options}{\Star}{Contents of the
+  \texttt{plot-options} sub-menu.}
+%
+\variable{gnuplot-insertions-terminal}{\Star}{Contents of the
+  \texttt{terminal} sub-menu.}
+%
+\variable{gnuplot-insertions-x-axis}{\Star}{Contents of the \texttt{x
+    axis} sub-menu.}
+%
+\variable{gnuplot-insertions-x2-axis}{\Star}{Contents of the \texttt{x2
+    axis} sub-menu.}
+%
+\variable{gnuplot-insertions-y-axis}{\Star}{Contents of the \texttt{y
+    axis} sub-menu.}
+%
+\variable{gnuplot-insertions-y2-axis}{\Star}{Contents of the \texttt{y2
+    axis} sub-menu.}
+%
+\variable{gnuplot-insertions-z-axis}{\Star}{Contents of the \texttt{z
+    axis} sub-menu.}
+%
+\variable{gnuplot-insertions-parametric-plots}{\Star}{Contents of the
+  \texttt{parametric plots} sub-menu.}
+%
+\variable{gnuplot-insertions-polar-plots}{\Star}{Contents of the
+  \texttt{polar plots} sub-menu.}
+%
+\variable{gnuplot-insertions-surface-plots}{\Star}{Contents of the
+  \texttt{surface plots} sub-menu.}
+
+
+
+\begin{center}
+  \begin{Boxedminipage}{0.75\linewidth}
+    \begin{center}
+      {\large Toolbar variables}
+    \end{center}
+  \end{Boxedminipage}
+\end{center}
+
+\noindent These variables control the use and location of the
+toolbar in XEmacs.  The toolbar has buttons equivalent to the key
+sequences \texttt{C-c C-l}, \texttt{C-c C-r}, \texttt{C-c C-b},
+\texttt{C-c C-e}, and \texttt{C-c C-h}.
+
+\vspace{2ex}
+
+%
+\variable{gnuplot-display-toolbar-flag}{nil}{Non-nil means to display
+  a toolbar if using XEmacs.}
+%
+\variable{gnuplot-use-toolbar}{left-toolbar}{Location of XEmacs
+  toolbar.  Valid values are \texttt{left-toolbar},
+  \texttt{right-toolbar}, \texttt{top-toolbar}, \texttt{bottom-toolbar},
+  \texttt{default-toolbar} and nil.}
+%
+
+\begin{center}
+  \begin{Boxedminipage}{0.75\linewidth}
+    \begin{center}
+      {\large Set Arguments}
+    \end{center}
+  \end{Boxedminipage}
+\end{center}
+
+\noindent These variables control the behavior of the graphical
+interface to setting command arguments.  \texttt{C-c C-c} with point
+over a command or \texttt{S-mouse-2} with the mouse cursor over a
+command will cause a small frame to pop open with which you can set
+command arguments.  Green button with bold text are bound to pup-up
+menus --- use the mouse-2 to select an item from the menu.  Grey fields
+are for filling in strings or numbers.  Hit the \textbf{[Set Options]}
+button with \texttt{mouse-2} to insert command arguments into the
+script.  You can also use the \key{tab} key to move among the widgets
+and \key{ret} to push the buttons.
+
+\vspace{2ex}
+%
+\variable{gnuplot-gui-popup-flag}{nil}{When non-nil an argument
+setting frame will pop open whenever the \texttt{Insertions} menu is
+used.}
+%
+\variable{gnuplot-gui-plot-splot-fit-style}{'simple}{\texttt{'simple}
+  or \texttt{'complete} -- describes the extent of the list of
+  properties of for plot, splot, and fit in the GUI.}
+%
+\variable{gnuplot-gui-frame-plist}{\Star}{Property list of parameters
+  controlling the argument setting frame.  Used by XEmacs.}
+%
+\variable{gnuplot-gui-frame-parameters}{\Star}{List of parameters
+  controlling the argument setting frame.  Used by Emacs.}
+%
+\variable{gnuplot-gui-fontname-list}{\Star}{List of font available on your
+  computer to the terminal drivers.}
+%
+
+
+\begin{center}
+  \begin{Boxedminipage}{0.75\linewidth}
+    \begin{center}
+      {\large Faces}
+    \end{center}
+  \end{Boxedminipage}
+\end{center}
+
+\noindent These are various faces defined for use with gnuplot-mode.
+\vspace{2ex}
+
+%
+\variable{gnuplot-prompt-face}{firebrick}{Color of gnuplot prompt (on a
+  light background) in process buffer.  Bold and underlined on a
+  monochrome display.}
+%
+\variable{gnuplot-gui-menu-face}{dark olive green}{Color of menu
+  buttons (on a light background) in the argument setting frame.
+  Italic on a monochrome display.}
+%
+\variable{gnuplot-gui-button-face}{sienna}{Color of push buttons (on a
+  light background) in the argument setting frame.  Italic on a
+  monochrome display.}
+%
+\variable{gnuplot-gui-label-face}{dark slate blue}{Color of buttons (on
+  a light background) used to set label lists in the argument setting
+  frame.  Italic on a monochrome display.}
+%
+
+\vfill
+\hrule
+\vspace{0.5ex}
+\begin{flushleft}
+  \footnotesize{Variables marked with {\Star} have default values that
+    are too long to print here.}
+\end{flushleft}
+
+\end{document}
+
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

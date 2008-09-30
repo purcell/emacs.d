@@ -558,6 +558,23 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Gnuplot
+;;----------------------------------------------------------------------------
+(autoload 'gnuplot-mode "gnuplot" "gnuplot major mode" t)
+(autoload 'gnuplot-make-buffer "gnuplot" "open a buffer in gnuplot-mode" t)
+
+
+;;----------------------------------------------------------------------------
+;; Org-mode
+;;----------------------------------------------------------------------------
+(setq load-path (cons "~/.emacs/site-lisp/org-mode/lisp" load-path))
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-log-done t)
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+
+
+;;----------------------------------------------------------------------------
 ;; NXML
 ;;----------------------------------------------------------------------------
 (load-library "rng-auto")

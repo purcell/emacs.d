@@ -1,0 +1,45 @@
+	
+To install gnuplot-mode:
+	
+1. At the command line:
+
+      > configure
+      > make
+
+   If you use XEmacs, do "make EMACS=xemacs" (or change the EMACS
+   variable to "xemacs" in the Makefile, the run "make").
+
+   If "configure" doesn't work for you, the file "Makefile.dst" can be
+   used.  In that case do, "make -f Makefile.dst".
+
+2. Move the .elc files to a place where emacs can find them, for
+   example /usr/share/emacs/site-lisp or your personal emacs
+   directory.
+
+3. Insert the contents of the `dotemacs' file into your .emacs file
+   or system start-up file to enable gnuplot mode.
+
+4. The function `gnuplot-info-lookup-symbol' looks at the Gnuplot
+   info file that comes with this package or that can be made from
+   the Gnuplot distribution.  For that function to work, the file
+   gnuplot.info must be placed somewhere where info can find it, for
+   example /usr/info.  A line like this in your .emacs allows you to
+   put gnuplot.info any place convenient:
+     (add-to-list 'Info-default-directory-list "/path/to/file")
+
+
+
+The "configure; make" sequence may not work on all systems,
+particularly Win32 systems.  The long-winded way of making the .elc
+gpelcard.ps files is to edit each of the .el files with emacs and do
+`M-x byte-compile-file'.  Then "latex gpelcard.tex" and
+"dvips gpelcard.dvi".
+
+You will need to follow the instructions contained in the file
+Win9x/INSTALL.Win9x to get gnuplot working with Emacs on a Windows 95
+or 98 machine.
+
+
+
+Problems?  Contact gnuplot-mode's author Bruce Ravel
+<ravel@phys.washington.edu> 
