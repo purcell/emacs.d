@@ -541,8 +541,8 @@
 (global-set-key "\M-=" 'increase-default-font-height)
 (global-set-key "\M--" 'decrease-default-font-height)
 
-(tool-bar-mode nil)
-(scroll-bar-mode nil)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
 
 
 ;;----------------------------------------------------------------------------
