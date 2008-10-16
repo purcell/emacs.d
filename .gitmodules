@@ -4,3 +4,6 @@
 [submodule "site-lisp/org-mode"]
 	path = site-lisp/org-mode
 	url = git://repo.or.cz/org-mode.git
+[submodule "site-lisp/rinari"]
+	path = site-lisp/rinari
+	url = git://github.com/purcell/rinari.git
