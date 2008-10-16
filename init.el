@@ -14,6 +14,10 @@
 (setq *darcs-support-enabled* t)
 (setq *rails-support-enabled* t)
 (setq *spell-check-support-enabled* nil)
+(setq *byte-code-cache-enabled* nil)
+(setq *is-a-mac* (eq system-type 'darwin))
+(setq *is-carbon-emacs* (and *is-a-mac* (eq window-system 'mac)))
+(setq *is-cocoa-emacs* (and *is-a-mac* (eq window-system 'ns)))
 
 
 ;;----------------------------------------------------------------------------
@@ -30,13 +34,14 @@
 ;;----------------------------------------------------------------------------
 ;; Automatically byte-compile .el files
 ;;----------------------------------------------------------------------------
-(setq byte-compile-warnings t)
-(setq byte-cache-directory nil)
-(setq bcc-enabled-on-save t)
-(setq bcc-blacklist '("/\\.recentf$" "/history$" "/\\.ecb-user-layouts\\.el$" "/\\.session$"
-		      "/\\.emacs-project$" "/\\.emacs\\.desktop$" "/custom\\.el$" "/init\\.el$"
-		      "/\\.ido\\.last$" "/\\.ecb-tip-of-day\\.el$" "/\\.viper$" "/\\.recentf$"))
-(require 'byte-code-cache)
+(when *byte-code-cache-enabled*
+  (setq byte-compile-warnings t)
+  (setq byte-cache-directory nil)
+  (setq bcc-enabled-on-save t)
+  (setq bcc-blacklist '("/\\.recentf$" "/history$" "/\\.ecb-user-layouts\\.el$" "/\\.session$"
+                        "/\\.emacs-project$" "/\\.emacs\\.desktop$" "/custom\\.el$" "/init\\.el$"
+                        "/\\.ido\\.last$" "/\\.ecb-tip-of-day\\.el$" "/\\.viper$" "/\\.recentf$"))
+  (require 'byte-code-cache))
 
 
 
@@ -75,8 +80,7 @@
 ;;----------------------------------------------------------------------------
 ;; Augment search path for external programs (for OSX)
 ;;----------------------------------------------------------------------------
-(when *macbook-pro-support-enabled*
-  (setq default-input-method "MacOSX")
+(when *is-a-mac*
   (eval-after-load "woman"
     '(setq woman-manpath (append (list "/opt/local/man") woman-manpath)))
   (dolist (dir '("/usr/local/bin" "/opt/local/bin"
@@ -131,8 +135,15 @@
 ;;----------------------------------------------------------------------------
 (when *macbook-pro-support-enabled*
   (setq mac-command-modifier 'meta)
+  (setq default-input-method "MacOSX")
   ;; Make mouse wheel / trackpad scrolling less jerky
   (setq mouse-wheel-scroll-amount '(0.001))
+  (when *is-cocoa-emacs*
+    ;; Woohoo!!
+    (global-set-key "\M-`" 'ns-next-frame)
+    (global-set-key "\M-h" 'ns-do-hide-emacs)
+    (global-set-key "\M-c" 'ns-copy-including-secondary)
+    (global-set-key "\M-v" 'ns-paste-secondary))
   ;; Use Apple-w to close current buffer on OS-X (is normally bound to kill-ring-save)
   (global-set-key [(meta w)] 'kill-this-buffer))
 
@@ -511,6 +522,9 @@
 (steve-set-default-font-size)
 
 (require 'maxframe)
+(when *is-cocoa-emacs*
+  (fset 'maximize-frame 'x-maximize-frame)
+  (fset 'restore-frame 'x-restore-frame))
 (when *macbook-pro-support-enabled*
   (setq mf-max-width 1440)
   (setq mf-max-height 900)
@@ -519,8 +533,7 @@
 
 (defun maximized-p ()
   (and (<= (abs (- (mf-max-display-pixel-width) (frame-pixel-width))) (frame-char-width))
-       (<= (abs (- (mf-max-display-pixel-height) (+ mf-display-padding-height (frame-pixel-height)))) (frame-char-height))))
-(maximized-p)
+       (<= (abs (- (mf-max-display-pixel-height) (+ mf-display-padding-height (frame-pixel-height)))) (+ 5 (frame-char-height)))))
 
 (defun increment-default-font-height (delta)
   (let ((was-maximized (maximized-p))
@@ -1010,7 +1023,7 @@
 (when (or window-system (string-match "UTF-8" (shell-command-to-string "locale")))
   (setq utf-translate-cjk-mode nil) ; disable CJK coding/encoding (Chinese/Japanese/Korean characters)
   (set-language-environment 'utf-8)
-  (when *macbook-pro-support-enabled*
+  (when *is-carbon-emacs*
     (set-keyboard-coding-system 'utf-8-mac))
   (setq locale-coding-system 'utf-8)
   (set-default-coding-systems 'utf-8)
@@ -1023,18 +1036,19 @@
 ;; Color themes
 ;;----------------------------------------------------------------------------
 (require 'color-theme-autoloads)
-(color-theme-initialize)
-;; (color-theme-pierson) ; Light, favourite
-;; (color-theme-high-contrast)
-;; (color-theme-snowish)
-;; (color-theme-marquardt)
-;; (color-theme-clarity) ; dark
-;; (color-theme-dark-laptop) ; dark
-;; (color-theme-billw) ; dark
-;; (color-theme-oswald) ; dark
-(color-theme-taylor) ; dark
-;; (color-theme-standard)
+(when *is-carbon-emacs*
+  (color-theme-initialize)
+  ;; (color-theme-pierson) ; Light, favourite
+  ;; (color-theme-high-contrast)
+  ;; (color-theme-snowish)
+  ;; (color-theme-marquardt)
+  ;; (color-theme-clarity) ; dark
+  ;; (color-theme-dark-laptop) ; dark
+  ;; (color-theme-billw) ; dark
+  ;; (color-theme-oswald) ; dark
+  (color-theme-taylor) ; dark
+  ;; (color-theme-standard)
 
-;; Set default font size after setting color theme, otherwise wrong size
-;; is used for new frames
-(steve-set-default-font-size)
+  ;; Set default font size after setting color theme, otherwise wrong size
+  ;; is used for new frames
+  (steve-set-default-font-size))
