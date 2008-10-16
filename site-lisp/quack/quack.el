@@ -1041,13 +1041,13 @@ For PLT-style when `quack-pltish-fontify-keywords-p' is non-nil."
 
 (defconst quack-threesemi-h1-face 'quack-threesemi-h1-face)
 (defface  quack-threesemi-h1-face
-  '((t (:bold t :family "Helvetica" :height 1.4 :size "20pt")))
+  '((t (:bold t :family "Helvetica" :height 200)))
   "Face used for H1 headings in `;;;' text."
   :group 'quack)
 
 (defconst quack-threesemi-h2-face 'quack-threesemi-h2-face)
 (defface  quack-threesemi-h2-face
-  '((t (:bold t :family "Helvetica" :height 1.2 :size "16pt")))
+  '((t (:bold t :family "Helvetica" :height 160)))
   "Face used for H2 headings in `;;;' text."
   :group 'quack)
 
@@ -1068,9 +1068,9 @@ For PLT-style when `quack-pltish-fontify-keywords-p' is non-nil."
 (defconst quack-pltfile-dir-face 'quack-pltfile-dir-face)
 (defface  quack-pltfile-dir-face
   '((((class color))     (:bold t :foreground "white" :background "gray33"
-                                :family "Helvetica" :height 1.2 :size "20pt"))
+                                :family "Helvetica" :height 200))
     (((class grayscale)) (:bold t :foreground "white" :background "gray33"
-                                :family "Helvetica" :height 1.2 :size "20pt"))
+                                :family "Helvetica" :height 200))
     (t                   (:bold t :inverse-video t)))
   "Face used for directory headers in a decoded PLT package buffer."
   :group 'quack)
@@ -1078,9 +1078,9 @@ For PLT-style when `quack-pltish-fontify-keywords-p' is non-nil."
 (defconst quack-pltfile-file-face 'quack-pltfile-file-face)
 (defface  quack-pltfile-file-face
   '((((class color))     (:bold t :foreground "black" :background "gray66"
-                                :family "Helvetica" :height 1.2 :size "20pt"))
+                                :family "Helvetica" :height 200))
     (((class grayscale)) (:bold t :foreground "black" :background "gray66"
-                                :family "Helvetica" :height 1.2 :size "20pt"))
+                                :family "Helvetica" :height 200))
     (t                   (:bold t :inverse-video t)))
   "Face used for file headers in a decoded PLT package buffer."
   :group 'quack)
@@ -1089,12 +1089,12 @@ For PLT-style when `quack-pltish-fontify-keywords-p' is non-nil."
 (defface  quack-about-title-face
   '((((class color) (background light))
      (:bold t :family "Helvetica" :foreground "#008000"
-            :height 240 :size "24pt"))
+            :height 240))
     (((class color) (background dark))
      (:bold t :family "Helvetica" :foreground "#00f000"
-            :height 240 :size "24pt"))
+            :height 240))
     (t               (:bold t :family "Helvetica"
-                            :height 240 :size "24pt")))
+                            :height 240)))
   "Face used for Quack name in About Quack."
   :group 'quack)
 
@@ -1106,7 +1106,7 @@ For PLT-style when `quack-pltish-fontify-keywords-p' is non-nil."
 
 (defconst quack-smallprint-face 'quack-smallprint-face)
 (defface  quack-smallprint-face
-  '((t (:family "Courier" :height 80 :size "8pt")))
+  '((t (:family "Courier" :height 80)))
   "Face used for the \"small print\" in About Quack."
   :group 'quack)
 
