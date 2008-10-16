@@ -1,5 +1,16 @@
 # -*- outline -*-
 
+* Bugs
+
+`redshank-complete-form' on a slot
+  (defclass a ()
+    ((%foo |)))
+
+does not remove the leading ?%.  Refactor
+`redshank-canonical-slot-name', `redshank-accessor-name', etc.
+
+* Ideas
+
 These are random ideas which I want to implement at some point.
 Contributors looking to help out are very welcome to get inspired.
 New ideas are welcome, too, of course.
@@ -56,3 +67,6 @@ except the default slot accessor should be :reader
 
 ** import symbols with explicitly mentioned package (add :import-from clause
    to defpackage form), and shorten them.
+
+** Context menus
+<http://web.media.mit.edu/~lieber/Lieberary/Softviz/CACM-Debugging/Already-Full/Already-Full.html>

@@ -4,14 +4,14 @@ Redshank - Common Lisp Editing Extensions (for Emacs)       -*- outline -*-
 See file redshank.el for setting up Redshank mode.
 
 ** External Dependencies
-Redshank is developed and tested with GNU Emacs 22.0.91.1.  Patches to
+Redshank is developed and tested with GNU Emacs 22.2.50.1.  Patches to
 ensure interoperability with other versions of GNU Emacs and XEmacs
 are welcome.
 
 The number of Elisp library dependencies is fairly small:
 
 * Paredit 
-Version 20 is required.  Download from
+Version 21 is required.  Download from
 <http://mumble.net/~campbell/emacs/paredit.el>.
 
 * cl, skeleton, easymenu 
@@ -26,7 +26,7 @@ Instructions can be found at <http://common-lisp.net/project/slime/>.
 ** Common Lisp
 Some features require interoperation with a Common Lisp
 implementation, via SLIME.  This has been tested and is known to work
-with at least SBCL 1.0.10, OpenMCL 1.1-pre-070722 (DarwinX8664), and
+with at least SBCL 1.0.19, OpenMCL 1.1-pre-070722 (DarwinX8664), and
 CLISP 2.40, albeit with varying degrees of support.
 
 The currently best supported implementation is SBCL.  Support for

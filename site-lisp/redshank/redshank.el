@@ -1,7 +1,7 @@
 ;;; -*- Mode: Emacs-Lisp; outline-regexp: ";;;+ [^\n]\\|(" -*-
 ;;;;;; redshank.el --- Common Lisp Editing Extensions
 
-;; Copyright (C) 2006, 2007  Michael Weber
+;; Copyright (C) 2006, 2007, 2008  Michael Weber
 
 ;; Author: Michael Weber <michaelw@foldr.org>
 ;; Keywords: languages, lisp
@@ -9,21 +9,19 @@
 ;; Redshank, n.  A common Old World limicoline bird (Totanus
 ;;   calidris), having the legs and feet pale red. The spotted
 ;;   redshank (T. fuscus) is larger, and has orange-red legs.
-;;   Called also redleg and _clee_.
+;;   Called also redleg and _CLEE_.
 
 ;;;; Commentary
 ;;; Setup
 
 ;; Add this to your Emacs configuration:
 ;;
-;;   (add-to-list 'load-path "/path/to/redshank/")
-;;   (autoload 'redshank-mode "redshank"
-;;     "Minor mode for editing and refactoring (Common) Lisp code."
-;;     t)
-;;   (autoload 'turn-on-redshank-mode "redshank"
-;;     "Turn on Redshank mode.  Please see function `redshank-mode'."
-;;     t)
-;;   (add-hook '...-mode-hook 'turn-on-redshank-mode)
+;;   (require 'redshank-loader
+;;            "/path/redshank/redshank-loader")
+;;            
+;;   (eval-after-load "redshank-loader"
+;;      `(redshank-setup '(lisp-mode-hook
+;;                         slime-repl-mode-hook) t))
 ;;
 ;; Also, this mode can be enabled with M-x redshank-mode.
 ;;
@@ -41,14 +39,10 @@
 ;;     '(progn ...redefine keys, etc....))
 ;;
 ;; Some of the skeleton functions (like `redshank-in-package-skeleton' or
-;; `redshank-mode-line-skeleton') are good candidates for autoinsert:
+;; `redshank-mode-line-skeleton') are good candidates for autoinsert.
+;; See `redshank-setup' (in file redshank-loader.el) for examples.
 ;;
-;;   (add-to-list 'auto-insert-alist '(lisp-mode . redshank-in-package-skeleton))
-;;   (add-to-list 'auto-insert-alist '(asdf-mode . redshank-asdf-defsystem-skeleton))
-;;   (add-to-list 'auto-mode-alist '("\\.asdf?\\'" . asdf-mode))
-;;
-;;
-;; This code was tested with Paredit 20, and should run at least in
+;; This code was tested with Paredit 21, and should run at least in
 ;; GNU Emacs 22 and later.
 
 ;;; To Do
@@ -107,15 +101,6 @@ are not available."
   :type  'boolean
   :group 'redshank)
 
-(defcustom redshank-accessor-name-function 'redshank-accessor-name/get
-  "*Function which, given a slot-name, returns the accessor name."
-  :type  '(radio
-           (function-item redshank-accessor-name/get)
-           (function-item redshank-accessor-name/of)
-           (function-item redshank-accessor-name/%)
-           (function :tag "Other"))
-  :group 'redshank)
-
 (defcustom redshank-canonical-slot-name-function 'identity
   "*Function which, given a slot-name, returns a canonicalized
 slot name.  Use it to enforce certain slot naming style."
@@ -125,6 +110,35 @@ slot name.  Use it to enforce certain slot naming style."
            (function :tag "Other"))
   :group 'redshank)
 
+(defcustom redshank-accessor-name-function 'redshank-accessor-name/get
+  "*Function which, given a slot-name, returns the accessor name."
+  :type  '(radio
+           (function-item redshank-accessor-name/get)
+           (function-item redshank-accessor-name/of)
+           (function-item redshank-accessor-name/ref)
+           (function-item redshank-accessor-name/%)
+           (function :tag "Other"))
+  :group 'redshank)
+
+(defcustom redshank-initarg-name-function 'redshank-initarg-name/keyword
+  "*Function which, given a slot-name, returns a fitting initarg name."
+  :type  '(radio
+           (function-item redshank-initarg-name/keyword)
+           (function-item redshank-initarg-name/symbol)
+           (function :tag "Other"))
+  :group 'redshank)
+
+(defcustom redshank-canonical-package-designator-function
+  'redshank-package-designator/uninterned-symbol
+  "*Function which, given a package-name, returns a canonicalized
+package designator."
+  :type  '(radio
+           (function-item redshank-package-designator/uninterned-symbol)
+           (function-item redshank-package-designator/keyword)
+           (function-item redshank-package-designator/symbol)
+           (function-item redshank-package-designator/string)
+           (function :tag "Other"))
+  :group 'redshank)
 (defcustom redshank-licence-names
   '("BSD-style" "GPL" "LGPL" "LLGPL" "MIT" "MIT-style")
   "List of (short) licence names."
@@ -153,6 +167,20 @@ _darcs, .git)."
   :type 'string
   :group 'redshank)
 
+(defvar redshank-form-generator-alist
+  '((lisp-mode
+     ("defclass"   . redshank-defclass-skeleton)
+     ("defpackage" . redshank-defpackage-skeleton)
+     ("in-package" . redshank-in-package-skeleton)
+     ("defsystem"  . redshank-asdf-defsystem-skeleton)
+     (t            . redshank-lisp-generate-form))
+    (emacs-lisp-mode
+     (t . redshank-elisp-generate-form)))
+  "Alist of shape \((MODE . MODE-ALIST)...).  MODE-ALIST is an
+alist of shape \((KEY . GENERATOR)...), where key is a either
+a string, a function, or the symbol T, and GENERATOR a nullary
+function.")
+
 (eval-and-compile
   (defvar redshank-path
     (let ((path (or (locate-library "redshank") load-file-name)))
@@ -170,6 +198,7 @@ Emacs Lisp package."))
       [ "Condify"                   redshank-condify-form t ]
       [ "Extract to Defun"          redshank-extract-to-defun ,CONNECTEDP ]
       [ "Extract to Enclosing Let"  redshank-letify-form-up t ]
+      [ "Enclose form with Lambda"  redshank-enclose-form-with-lambda ]
       [ "Rewrite Negated Predicate" redshank-rewrite-negated-predicate t ]
       [ "Splice Progn"              redshank-maybe-splice-progn t ]
       [ "Wrap into Eval-When"       redshank-eval-whenify-form t ]
@@ -193,11 +222,14 @@ Emacs Lisp package."))
     ("e" . redshank-eval-whenify-form)
     ("f" . redshank-complete-form)
     ("l" . redshank-letify-form-up)
+    ("C-l" . redshank-enclose-form-with-lambda)
     ("n" . redshank-rewrite-negated-predicate)
     ("p" . redshank-maybe-splice-progn)
     ("x" . redshank-extract-to-defun)
     ("C" . redshank-defclass-skeleton)
     ("P" . redshank-defpackage-skeleton)
+    ("I" . redshank-in-package-skeleton)
+    ("M" . redshank-mode-line-skeleton)
     ("S" . redshank-defclass-slot-skeleton))
   "Standard key bindings for the Redshank minor mode.")
 
@@ -210,10 +242,14 @@ Emacs Lisp package."))
     (define-key map (kbd "M-<mouse-1>") 'redshank-ignore-event)
     (define-key map (kbd "M-<drag-mouse-1>") 'redshank-ignore-event)
     (define-key map (kbd "M-<down-mouse-1>") 'redshank-copy-thing-at-point)
+    (define-key map (kbd "M-S-<mouse-1>") 'redshank-ignore-event)
+    (define-key map (kbd "M-S-<drag-mouse-1>") 'redshank-ignore-event)
+    (define-key map (kbd "M-S-<down-mouse-1>") 'redshank-generate-thing-at-point)
     (easy-menu-define menu-bar-redshank map "Redshank" redshank-menu)
     map)
   "Keymap for the Redshank minor mode.")
 
+;;;###autoload
 (define-minor-mode redshank-mode
   "Minor mode for editing and refactoring (Common) Lisp code.
 
@@ -223,6 +259,7 @@ Emacs Lisp package."))
   (when redshank-mode
     (easy-menu-add menu-bar-redshank redshank-mode-map)))
 
+;;;###autoload
 (defun turn-on-redshank-mode ()
   "Turn on Redshank mode.  Please see function `redshank-mode'.
 
@@ -238,19 +275,23 @@ This function is designed to be added to hooks, for example:
        (slime-connected-p)
        (slime-eval `(cl:packagep (cl:find-package :redshank)))))
 
+(defun redshank-accessor-name/% (slot-name)
+  "Removes preceding percent signs (%) from slot names."
+  (if (string-match "^%+\\(.*\\)$" slot-name)
+      (match-string-no-properties 1 slot-name)
+    slot-name))
+
 (defun redshank-accessor-name/get (slot-name)
   "GET-SLOT style accessor names."
-  (concat "get-" slot-name))
+  (concat "get-" (redshank-accessor-name/% slot-name)))
 
 (defun redshank-accessor-name/of (slot-name)
   "SLOT-OF style accessor names."
-  (concat slot-name "-of"))
+  (concat (redshank-accessor-name/% slot-name) "-of"))
 
-(defun redshank-accessor-name/% (slot-name)
-  "Removes preceding percent signs (%) from slot names."
-  (string-match "^%+\\(.*\\)$" slot-name)
-  (or (match-string 1 slot-name)
-      slot-name))
+(defun redshank-accessor-name/ref (slot-name)
+  "SLOT-REF style accessor names."
+  (concat (redshank-accessor-name/% slot-name) "-ref"))
 
 (defun redshank-accessor-name (slot-name)
   (if (functionp redshank-accessor-name-function)
@@ -271,6 +312,18 @@ ensure certain style in naming your slots, for instance
       (funcall redshank-canonical-slot-name-function slot-name)
     slot-name))
 
+(defun redshank-initarg-name (slot-name)
+  (if (functionp redshank-initarg-name-function)
+      (funcall redshank-initarg-name-function slot-name)
+    (redshank-initarg-name/keyword slot-name)))
+
+(defun redshank-initarg-name/keyword (slot-name)
+  (concat ":" (redshank-accessor-name/% slot-name)))
+
+(defun redshank-initarg-name/symbol (slot-name)
+  (concat "'" (redshank-accessor-name/% slot-name)))
+
+;;;
 (defun redshank--looking-at-or-inside (spec)
   (let ((form-regex (concat "(" spec "\\S_"))
         (here.point (point)))
@@ -312,6 +365,36 @@ LABELS or FLET.)"
 (defun redshank--symbol-namep (symbol)
   (and (stringp symbol)
        (not (string= symbol ""))))
+
+(defun redshank--trim-whitespace (string)
+  (when (string-match "^\\s *\\(.*?\\)\\s *$" string)
+    (match-string-no-properties 1 string)))
+
+(defun redshank-canonical-package-name (package-name)
+  (and package-name (not (string= "" package-name))
+       ;; very naive
+       (lexical-let ((package-name (redshank--trim-whitespace package-name)))
+         (if (string-match "^#?:\\(.*\\)$" package-name)
+             (match-string-no-properties 1 package-name)
+           package-name))))
+
+(defun redshank-canonical-package-designator (package-name)
+  (and package-name (not (string= "" package-name))
+       (funcall redshank-canonical-package-designator-function
+                (redshank-canonical-package-name package-name))))
+
+(defun redshank-package-designator/uninterned-symbol (package-name)
+  (concat "#:" (downcase package-name)))
+
+(defun redshank-package-designator/keyword (package-name)
+  (concat ":" (downcase package-name)))
+
+(defun redshank-package-designator/symbol (package-name)
+  (downcase package-name))
+
+(defun redshank-package-designator/string (package-name)
+  (prin1-to-string (upcase package-name)))
+
 
 (defun redshank--end-of-sexp-column ()
   "Move point to end of current form, neglecting trailing whitespace."
@@ -372,6 +455,44 @@ but does otherwise nothing."
      (insert (or (progn ,@body) ""))
      (paredit-doublequote)
      nil))
+
+;; lenient variant of `slime-read-package-name'
+(defun redshank-read-package-name (prompt &optional initial-value)
+  "Read a package name from the minibuffer, prompting with PROMPT."
+  (let ((completion-ignore-case t))
+    (redshank-canonical-package-name
+     (completing-read prompt (when (and (featurep 'slime)
+                                        (redshank-connected-p))
+                               (slime-bogus-completion-alist
+                                (slime-eval
+                                 `(swank:list-all-package-names t))))
+                      nil nil initial-value nil initial-value))))
+
+(defun redshank-find-potential-buffer-package ()
+  (redshank-canonical-package-name
+   (or slime-buffer-package
+       (and (fboundp 'slime-find-buffer-package)
+            (slime-find-buffer-package))
+       (let ((case-fold-search t)
+             (regexp (concat "^(\\(cl:\\|common-lisp:\\)?defpackage\\>[ \t']*"
+                             "\\([^()]+\\)")))
+         (save-excursion
+           (when (or (re-search-backward regexp nil t)
+                     (re-search-forward  regexp nil t))
+             (match-string-no-properties 2)))))))
+
+(defun redshank--assoc-match (key alist)
+  (loop for entry in alist do
+        (cond ((stringp (car entry))
+               (when (eq t (compare-strings (car entry) 0 nil
+                                            key 0 nil
+                                            case-fold-search))
+                 (return entry)))
+              ((functionp (car entry))
+               (when (funcall (car entry) key)
+                 (return entry)))
+              ((eq t (car entry))
+               (return entry)))))
 
 ;;; ASDF
 (defun redshank-walk-filesystem (spec enter-fn leave-fn)
@@ -479,7 +600,7 @@ Uses `slime-read-system-name' if it is available."
    `(cl:progn
       (cl:pushnew (cl:pathname ,redshank-path) swank::*load-path*
                   :test 'cl:equal)
-      (swank:swank-require :redshank))))
+      (cl:ignore-errors (swank:swank-require :redshank)))))
 
 (defun redshank-slime-install ()
   "Install Redshank hook for SLIME connections."
@@ -560,12 +681,39 @@ involves macro-exanding code, and as such might have side effects."
         (insert form-string ")\n")
         (goto-char (point-min))
         (indent-sexp)
-        (kill-region-new (point-min) (point-max))
+        (paredit-hack-kill-region (point-min) (point-max))
         (message (substitute-command-keys
                   "Extracted function `%s' now on kill ring; \\[yank] to insert at point.") ;
                  name))
       (delete-region start end)
       (princ (list* name free-vars) (current-buffer)))))
+
+(defun redshank-enclose-form-with-lambda (arglist)
+  "Enclose form with lambda expression with parameter VAR.
+With prefix argument ARG, enclose ARG upward forms.
+
+Example:
+  \(foo x (bar y| z) qux)
+
+\\[redshank-enclose-form-with-lambda] RET RET yields:
+
+  \(foo x (lambda (y) (bar y| z)) qux)"
+  (interactive
+   (let ((arglist (thing-at-point 'symbol)))
+     (when (and (stringp arglist)
+                (string-match "[(]" arglist))
+       (setq arglist ""))
+     (list (read-string "Lambda arglist: " arglist))))
+  (save-excursion
+    (call-interactively 'backward-up-list)
+    (paredit-wrap-sexp +1)
+    (insert "lambda (" arglist ")")
+    (if (> (- (line-end-position) (line-beginning-position))
+           (current-fill-column))
+        (newline)
+      (insert " "))
+    (backward-up-list)
+    (indent-sexp)))
 
 (defun redshank-condify-form ()
   "Transform a Common Lisp IF form into an equivalent COND form."
@@ -686,20 +834,20 @@ If point is not in a slot form, fall back to `slime-complete-form'.
 \\<redshank-mode-map>\\[redshank-complete-form]
 
 \(defclass foo ()
-  (...
-   (slot-n |)
+  \(...
+   \(slot-n |)
    ...))
   ->
 \(defclass foo ()
-  (...
-   (slot-n :accessor get-slot-n :initarg :slot-n)|
+  \(...
+   \(slot-n :accessor get-slot-n :initarg :slot-n)|
    ...))"
   (interactive "*")
   (if (not (redshank--defclass-slot-form-at-point-p))
       (call-interactively 'slime-complete-form)
     (backward-up-list)
     (down-list)
-    (let ((slot-name (thing-at-point 'symbol)))
+    (let ((slot-name (substring-no-properties (thing-at-point 'symbol))))
       (when slot-name
         (forward-sexp)
         (just-one-space)
@@ -709,7 +857,7 @@ If point is not in a slot form, fall back to `slime-complete-form'.
               (forward-sexp)))
           (delete-region start (point)))
         (insert ":accessor " (redshank-accessor-name slot-name)
-                " :initarg :" slot-name)
+                " :initarg " (redshank-initarg-name slot-name))
         (up-list)
         (when redshank-reformat-defclass-forms
           (save-excursion
@@ -753,15 +901,73 @@ This should be bound to a mouse click event type."
              (when (redshank--region-active-p)
                (delete-region (region-beginning) (region-end)))
              (unless (or (bolp)
+                         (and (minibufferp)
+                              (= (point) (minibuffer-prompt-end)))
                          (save-excursion
                            (backward-char)
-                           (looking-at "\\s-\\|\\s(")))
+                           (looking-at "\\s-\\|\\s\(")))
                (insert " "))
-             (insert contents)
-             (unless (or (eolp) (looking-at "\\s-\\|\\s)"))
-               (insert " ")))
+             (let ((contents.start (point)))
+               (insert contents)
+               (unless (or (eolp)
+                           (and (minibufferp)
+                                (= (point) (minibuffer-prompt-end)))
+                           (looking-at "\\s-\\|\\s\)"))
+                 (insert " "))
+               (save-excursion
+                 (goto-char contents.start)
+                 (indent-sexp))))
             (t
              (message "Don't know what to copy?"))))))
+
+;;;
+(defvar redshank-thing-at-point)
+
+(defun redshank-elisp-generate-form (&optional name)
+  (interactive "*")
+  (require 'eldoc)
+  (let* ((sym (intern-soft (or name redshank-thing-at-point)))
+         (args (eldoc-function-argstring sym)))
+    (save-match-data
+      (string-match "\\`[^ )]* ?" args)
+      (setq args (substring args (match-end 0)))
+      (insert (format "(%s " sym))
+      (let ((point (point)))
+        (insert args)
+        (goto-char point)))))
+
+(defun redshank-lisp-generate-form (&optional name)
+  (interactive "*")
+  (insert "(" (or name redshank-thing-at-point) " )")
+  (backward-char +1)
+  (when (fboundp 'slime-complete-form)
+    (slime-complete-form)))
+
+(defun redshank-generate-thing-at-point (event)
+  "Generates a (mode-specific) form corresponding to the symbol at point.
+The actual generator function is determined by
+`redshank-form-generator-alist'.
+
+Generators can access the actual value dispatched on via
+REDSHANK-THING-AT-POINT."
+  (interactive "*e")
+  (let* ((echo-keystrokes 0)
+	 (start-posn (event-start event))
+	 (start-point (posn-point start-posn))
+	 (start-window (posn-window start-posn))
+         (redshank-thing-at-point
+          (with-current-buffer (window-buffer start-window)
+            (save-excursion
+              (goto-char start-point)
+              (thing-at-point 'symbol))))
+         (mode-table (assq major-mode redshank-form-generator-alist))
+         (generator (redshank--assoc-match redshank-thing-at-point
+                                           (cdr mode-table))))
+    (if generator
+        (if (interactive-p)
+            (call-interactively (cdr generator))
+          (funcall (cdr generator)))
+      (message "Don't know a generator for `%s'." redshank-thing-at-point))))
 
 ;;;; Skeletons
 (define-skeleton redshank-mode-line-skeleton
@@ -769,39 +975,45 @@ This should be bound to a mouse click event type."
   nil
   (concat ";;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp;"
           (if buffer-file-coding-system
-              (concat " Coding:"
-                      (symbol-name
-                       (coding-system-get buffer-file-coding-system
-                                          'mime-charset)))
+              (let ((coding (coding-system-get buffer-file-coding-system
+                                               'mime-charset)))
+                (if coding (concat " Coding:" (symbol-name coding))
+                  ""))
             "") " -*-")
   & \n & \n
   _)
 
 (define-skeleton redshank-in-package-skeleton
   "Inserts mode line and Common Lisp IN-PACKAGE form."
-  (slime-read-package-name "Package: ")
+  (redshank-canonical-package-designator
+   (redshank-read-package-name "Package: "
+                               (redshank-find-potential-buffer-package)))
   '(if (bobp) (redshank-mode-line-skeleton))
   '(paredit-open-parenthesis)
-  "in-package #:" str
+  "in-package " str
   '(paredit-close-parenthesis) \n
   \n _)
 
 (define-skeleton redshank-defpackage-skeleton
   "Inserts a Common Lisp DEFPACKAGE skeleton."
-  (skeleton-read "Package: " (or (ignore-errors
-                                   (file-name-sans-extension
-                                    (file-name-nondirectory
-                                     (buffer-file-name))))
-                                 "TEMP"))
-  '(paredit-open-parenthesis) "defpackage #:" str
+  (redshank-canonical-package-designator
+   (skeleton-read "Package: " (or (ignore-errors
+                                    (file-name-sans-extension
+                                     (file-name-nondirectory
+                                      (buffer-file-name))))
+                                  "TEMP")))
+  '(paredit-open-parenthesis) "defpackage " str
   \n '(paredit-open-parenthesis)
-     ":nicknames" ("Nickname: " " #:" str)
+     ":nicknames" ((redshank-canonical-package-designator
+                    (skeleton-read "Nickname: ")) " " str)
    & '(paredit-close-parenthesis) & \n
    | '(progn
         (backward-up-list)
         (kill-sexp))
   '(paredit-open-parenthesis)
-   ":use #:cl" ((downcase (slime-read-package-name "USEd package: ")) " #:" str)
+  ":use " (redshank-canonical-package-designator "cl")
+          ((redshank-canonical-package-designator
+            (redshank-read-package-name "USEd package: ")) " " str)
   '(paredit-close-parenthesis)
   '(paredit-close-parenthesis) \n
   \n _)
@@ -854,11 +1066,11 @@ This should be bound to a mouse click event type."
       ((skeleton-read "Slot: ")
        '(paredit-open-parenthesis)
        str
-       ;; Ugly, but skeleton-read _must_ have the first str literal 
+       ;; Ugly, but skeleton-read _must_ have the first str literal
        '(backward-delete-char (length str))
-       (redshank-canonical-slot-name str) 
+       (redshank-canonical-slot-name str)
        " :accessor " (redshank-accessor-name str)
-       " :initarg :" str
+       " :initarg " (redshank-initarg-name str)
        '(paredit-close-parenthesis) \n) & '(join-line)
   '(paredit-close-parenthesis)
   ;; \n "(:default-initargs " - ")" ;; add to your liking...
@@ -872,11 +1084,11 @@ This should be bound to a mouse click event type."
    '(indent-according-to-mode)
    '(paredit-open-parenthesis)
    str
-   ;; Ugly, but skeleton-read _must_ have the first str literal 
+   ;; Ugly, but skeleton-read _must_ have the first str literal
    '(backward-delete-char (length str))
-   (redshank-canonical-slot-name str)    
+   (redshank-canonical-slot-name str)
    " :accessor " (redshank-accessor-name str)
-   " :initarg :" str
+   " :initarg " (redshank-initarg-name str)
    '(paredit-close-parenthesis) \n) & '(join-line)
    _)
 
@@ -897,12 +1109,22 @@ This should be bound to a mouse click event type."
       (redshank-align-defclass-slots))))
 
 ;;;; ASDF mode
+;;;###autoload
 (define-derived-mode asdf-mode lisp-mode "ASDF"
   "Major mode for ASDF files.  This mode is derived from `lisp-mode'
 and activates minor mode `redshank-mode' by default.
 
 \\{asdf-mode-map}"
-  (redshank-mode +1))
+  (add-hook 'asdf-mode-hook 'turn-on-redshank-mode))
+
+;;;###autoload
+(defun turn-on-asdf-mode ()
+  "Turn on ASDF mode.  Please see function `asdf-mode'.
+
+This function is designed to be added to hooks, for example:
+  \(add-hook 'lisp-mode-hook 'turn-on-asdf-mode)"
+  (interactive)
+  (asdf-mode))
 
 ;;;; Initialization
 (eval-after-load "slime"
