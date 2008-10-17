@@ -73,8 +73,8 @@
 ;; Outboard initialisation files
 ;;----------------------------------------------------------------------------
 (setq load-path (cons (expand-file-name "~/.emacs.d") load-path))
-(load "load-ruby-mode.el")
-(load "load-python-mode.el")
+(load "init-ruby-mode.el")
+(load "init-python-mode.el")
 
 
 ;;----------------------------------------------------------------------------
