@@ -9,3 +9,13 @@
 
 (setq interpreter-mode-alist
       (cons '("python" . python-mode) interpreter-mode-alist))
+
+
+;;----------------------------------------------------------------------------
+;; Pymacs and Rope for Python
+;;----------------------------------------------------------------------------
+;; See http://edward.oconnor.cx/2008/02/ropemacs
+(add-hook 'python-mode-hook
+          (lambda ()
+            (require 'pymacs)
+            (pymacs-load "ropemacs" "rope-")))

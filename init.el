@@ -35,14 +35,7 @@
 ;; Automatically byte-compile .el files
 ;;----------------------------------------------------------------------------
 (when *byte-code-cache-enabled*
-  (setq byte-compile-warnings t)
-  (setq byte-cache-directory nil)
-  (setq bcc-enabled-on-save t)
-  (setq bcc-blacklist '("/\\.recentf$" "/history$" "/\\.ecb-user-layouts\\.el$" "/\\.session$"
-                        "/\\.emacs-project$" "/\\.emacs\\.desktop$" "/custom\\.el$" "/init\\.el$"
-                        "/\\.ido\\.last$" "/\\.ecb-tip-of-day\\.el$" "/\\.viper$" "/\\.recentf$"))
-  (require 'byte-code-cache))
-
+  (load "init-byte-code-cache.el"))
 
 
 ;;----------------------------------------------------------------------------
@@ -73,7 +66,6 @@
 ;; Outboard initialisation files
 ;;----------------------------------------------------------------------------
 (setq load-path (cons (expand-file-name "~/.emacs.d") load-path))
-(load "init-ruby-mode.el")
 (load "init-python-mode.el")
 
 
@@ -247,47 +239,7 @@
 ;;----------------------------------------------------------------------------
 ;; Javascript
 ;;----------------------------------------------------------------------------
-;; ;; Can't get this to work...
-;; (eval-after-load "mmm-mode"
-;;   '(progn
-;;      (load-library "javascript")
-;;      (load-library "css-mode")
-;;      (require 'mmm-sample)
-;;      (add-to-list 'mmm-mode-ext-classes-alist '(nxml-mode nil html-js))
-;;      (add-to-list 'mmm-mode-ext-classes-alist '(nxml-mode nil embedded-css))))
-(autoload 'flymake-js-load "flymake-js" "On-the-fly syntax checking of javascript" t)
-(add-hook 'javascript-mode-hook '(lambda () (flymake-js-load)))
-
-;; Spiffy new js2-mode from Steve Yegge (http://code.google.com/p/js2-mode/)
-(autoload 'js2-mode "js2" nil t)
-(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
-(setq js2-use-font-lock-faces t)
-
-(eval-after-load "mmm-mode"
-  '(progn
-     (mmm-add-group
-      'html-js2
-      '((js-script-cdata
-         :submode js2-mode
-         :face mmm-code-submode-face
-         :front "<script[^>]*>[ \t\n]*\\(//\\)?<!\\[CDATA\\[[ \t]*\n?"
-         :back "[ \t]*\\(//\\)?]]>[ \t\n]*</script>"
-         :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
-                      @ "\n" _ "\n" @ "</script>" @)))
-        (js-script
-         :submode js2-mode
-         :face mmm-code-submode-face
-         :front "<script[^>]*>[ \t]*\n?"
-         :back "[ \t]*</script>"
-         :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
-                      @ "\n" _ "\n" @ "</script>" @)))
-        (js-inline
-         :submode js2-mode
-         :face mmm-code-submode-face
-         :front "on\w+=\""
-         :back "\"")))
-     (mmm-add-mode-ext-class 'nxml-mode "\\.r?html\\(\\.erb\\)?$" 'html-js2)))
-
+(load "init-javascript.el")
 
 ;;----------------------------------------------------------------------------
 ;; Extensions -> Modes
@@ -326,48 +278,13 @@
 ;; Darcs
 ;;----------------------------------------------------------------------------
 (when *darcs-support-enabled*
-  (add-to-list 'vc-handled-backends 'DARCS)
-  (autoload 'vc-darcs-find-file-hook "vc-darcs")
-  (add-hook 'find-file-hooks 'vc-darcs-find-file-hook)
-
-  (require 'darcsum)
-  (setq darcsum-whatsnew-switches "-l")
-
-  (eval-after-load "grep"
-  '(add-to-list 'grep-find-ignored-directories "_darcs")))
+  (load "init-darcs.el"))
 
 
 ;;----------------------------------------------------------------------------
 ;; Git
 ;;----------------------------------------------------------------------------
-;;(setq load-path (cons (expand-file-name "/usr/share/doc/git-core/contrib/emacs") load-path))
-;; Downloaded from http://git.kernel.org/?p=git/git.git ;a=tree;hb=HEAD;f=contrib/emacs
-(require 'vc-git)
-(when (featurep 'vc-git) (add-to-list 'vc-handled-backends 'git))
-(require 'git)
-(autoload 'git-blame-mode "git-blame" "Minor mode for incremental blame for Git." t)
-(autoload 'gitsum "gitsum" "Make hunk-based git commits" t)
-(add-hook 'git-status-mode-hook (lambda () (require 'gitsum)))
-
-
-;;----------------------------------------------------------------------------
-;; git-svn conveniences
-;;----------------------------------------------------------------------------
-(eval-after-load "compile"
-  '(progn
-     (mapcar (lambda (defn) (add-to-list 'compilation-error-regexp-alist-alist defn))
-             (list '(git-svn-updated "^\t[A-Z]\t\\(.*\\)$" 1 nil nil 0 1)
-                   '(git-svn-needs-update "^\\(.*\\): needs update$" 1 nil nil 2 1)))
-     (mapcar (lambda (defn) (add-to-list 'compilation-error-regexp-alist defn))
-             (list 'git-svn-updated 'git-svn-needs-update))))
-
-(defun git-svn (dir)
-  (interactive "DSelect directory: ")
-  (let* ((default-directory (git-get-top-dir dir))
-         (compilation-buffer-name-function (lambda (major-mode-name) "*git-svn*")))
-    (compile (concat "git svn "
-                     (ido-completing-read "git-svn command: "
-                                          (list "rebase" "dcommit" "fetch" "log") nil t)))))
+(load "init-git.el")
 
 
 ;;----------------------------------------------------------------------------
@@ -385,37 +302,9 @@
 ;;----------------------------------------------------------------------------
 ;; File and buffer navigation
 ;;----------------------------------------------------------------------------
-;; Use C-f during file selection to switch to regular find-file
-(ido-mode t)  ; use 'buffer rather than t to use only buffer switching
-(ido-everywhere t)
-(setq ido-enable-flex-matching t)
-(setq ido-use-filename-at-point t)
-(setq ido-auto-merge-work-directories-length -1)
-
 (require 'recentf)
 (setq recentf-max-saved-items 100)
-(defun steve-ido-choose-from-recentf ()
-  "Use ido to select a recently opened file from the `recentf-list'"
-  (interactive)
-  (find-file (ido-completing-read "Open file: " recentf-list nil t)))
-(global-set-key [(meta f11)] 'steve-ido-choose-from-recentf)
-
-
-;;----------------------------------------------------------------------------
-;; ido completion in M-x
-;;----------------------------------------------------------------------------
-;; See http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings#toc5
-(defun ido-execute ()
-  (interactive)
-  (call-interactively
-   (intern
-    (ido-completing-read
-     "M-x "
-     (let (cmd-list)
-       (mapatoms (lambda (S) (when (commandp S) (setq cmd-list (cons (format "%S" S) cmd-list)))))
-       cmd-list)))))
-
-(global-set-key "\M-x" 'ido-execute)
+(load "init-ido.el")
 
 
 ;;----------------------------------------------------------------------------
@@ -554,19 +443,7 @@
 ;; ECB (Emacs Code Browser)
 ;;----------------------------------------------------------------------------
 (when *ecb-support-enabled*
-  ;; Change default location of semantic.cache files
-  (setq semanticdb-default-save-directory (expand-file-name "~/.semanticdb"))
-  (unless (file-directory-p semanticdb-default-save-directory)
-    (make-directory semanticdb-default-save-directory))
-
-  ;; Force shadowing of the Emacs-bundled speedbar (cedet's "inversion" package tries
-  ;; and fails to handle this)
-  (setq load-path (cons (concat (directory-of-library "cedet") "/../speedbar/") load-path))
-  (require 'cedet)
-  (require 'ecb-autoloads)
-
-  (add-hook 'ecb-activate-hook
-            (lambda () (setq global-semantic-idle-scheduler-mode nil))))
+  (load "init-ecb.el"))
 
 
 ;;----------------------------------------------------------------------------
@@ -603,21 +480,7 @@
 ;;----------------------------------------------------------------------------
 ;; NXML
 ;;----------------------------------------------------------------------------
-(load-library "rng-auto")
-(add-to-list 'auto-mode-alist
-              (cons (concat "\\." (regexp-opt '("xml" "xsd" "sch" "rng" "xslt" "svg" "rss") t) "\\'")
-                    'nxml-mode))
-(unify-8859-on-decoding-mode)
-(setq magic-mode-alist (cons '("<＼＼?xml " . nxml-mode) magic-mode-alist))
-(fset 'html-mode 'nxml-mode)
-(fset 'xml-mode 'nxml-mode)
-(add-hook 'nxml-mode-hook (lambda ()
-                            (make-variable-buffer-local 'ido-use-filename-at-point)
-                            (setq ido-use-filename-at-point nil)))
-(when *spell-check-support-enabled*
-  (add-hook 'nxml-mode-hook
-            (lambda ()
-              (add-to-list 'flyspell-prog-text-faces 'nxml-text-face))))
+(load "init-nxml.el")
 
 
 ;;----------------------------------------------------------------------------
@@ -633,152 +496,11 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Ruby - basics
+;; Ruby & Rails
 ;;----------------------------------------------------------------------------
-(autoload 'ruby-electric-mode "ruby-electric" "Electric brackes/quotes/keywords for Ruby source" t)
-(require 'rcodetools)
-(setq ruby-electric-expand-delimiters-list nil)  ; Only use ruby-electric for adding 'end'
-(add-hook 'ruby-mode-hook
-          (lambda () (ruby-electric-mode t)))
-(when *vi-emulation-support-enabled*
-  (add-hook 'ruby-mode-hook (lambda () (viper-change-state-to-vi))))
-
-(add-auto-mode 'ruby-mode "Rakefile$" "\.rake$" "\.rxml$" "\.rjs" ".irbrc")
-
-
-(setq compile-command "rake ")
-
-(autoload 'ri "ri-ruby" "Show ri documentation for Ruby symbols" t)
-(setq ri-ruby-script (concat (directory-of-library "ri-ruby") "ri-emacs.rb"))
-
-
-;;----------------------------------------------------------------------------
-;; Ruby - erb
-;;----------------------------------------------------------------------------
-(add-auto-mode 'html-mode "\.rhtml$")
-(eval-after-load "mmm-mode"
-  '(progn
-     (mmm-add-classes
-      '((eruby :submode ruby-mode :front "<%[#=]?" :back "-?%>"
-               :match-face (("<%#" . mmm-comment-submode-face)
-                            ("<%=" . mmm-output-submode-face)
-                            ("<%"  . mmm-code-submode-face))
-               :insert ((?% erb-code       nil @ "<%"  @ " " _ " " @ "%>" @)
-                        (?# erb-comment    nil @ "<%#" @ " " _ " " @ "%>" @)
-                        (?= erb-expression nil @ "<%=" @ " " _ " " @ "%>" @)))))
-     (mmm-add-mode-ext-class 'nxml-mode "\\.html\\.erb$" 'eruby)
-     (mmm-add-mode-ext-class 'nxml-mode "\\.rhtml$" 'eruby)
-     (mmm-add-mode-ext-class 'yaml-mode "\\.yml$" 'eruby)))
-
-
-;;----------------------------------------------------------------------------
-;; Ruby - my convention for heredocs containing SQL
-;;----------------------------------------------------------------------------
-(eval-after-load "mmm-mode"
-  '(progn
-     (mmm-add-classes
-      '((ruby-heredoc-sql :submode sql-mode :front "<<-?end_sql.*\r?\n" :back "[ \t]*end_sql" :face mmm-code-submode-face)))
-     (mmm-add-mode-ext-class 'ruby-mode "\\.rb$" 'ruby-heredoc-sql)))
-
-
-;;----------------------------------------------------------------------------
-;; Ruby - haml & sass
-;;----------------------------------------------------------------------------
-(add-auto-mode 'haml-mode "\.haml$")
-(add-auto-mode 'sass-mode "\.sass$")
-(autoload 'haml-mode "haml-mode" "Mode for editing haml files" t)
-(autoload 'sass-mode "sass-mode" "Mode for editing sass files" t)
-
-;(when *rails-support-enabled*
-;  (dolist (hook (list 'haml-mode-hook 'sass-mode-hook))
-;    (add-hook hook (lambda () (if (rails-project:root) (rails-minor-mode t))))))
-
-
-;;----------------------------------------------------------------------------
-;; Ruby - compilation
-;;----------------------------------------------------------------------------
-
-;; Jump to lines from Ruby stack traces in 'compile' mode (regexps borrowed from emacs-rails)
-(defun ruby-backtrace-line-regexp (&optional prefix suffix)
-  (concat prefix "\\[?\\([^ \f\n\r\t\v]+?\\):\\([0-9]+\\)\\(?::in\s*`\\(.*?\\)'\\)?" suffix))
-(eval-after-load "compile"
-  '(progn
-     (mapcar (lambda (defn) (add-to-list 'compilation-error-regexp-alist-alist defn))
-             (list (list 'ruby-backtrace (ruby-backtrace-line-regexp) 1 2 nil 1)
-                   (list 'ruby-test-backtrace (ruby-backtrace-line-regexp nil "\\(?:\]:\\|\n$\\)") 1 2 nil 2)))))
-
-(define-derived-mode ruby-compilation-mode compilation-mode "Compilation[ruby]"
-  "Major mode for running ruby scripts and tests."
-  (set (make-local-variable 'compilation-error-regexp-alist) '(ruby-backtrace ruby-test-backtrace)))
-
-(defun ruby-compile (command)
-  (compile command)
-  (with-current-buffer "*compilation*" (ruby-compilation-mode)))
-
-
-(require 'which-func)
-(add-to-list 'which-func-modes 'ruby-mode)
-(setq imenu-auto-rescan t)       ; ensure function names auto-refresh
-(setq imenu-max-item-length 200) ; ensure function names are not truncated
-(defun ruby-execute-current-file ()
-  "Execute the current ruby file (e.g. to execute all tests)."
-  (interactive)
-  (ruby-compile (concat "ruby " (file-name-nondirectory (buffer-file-name)))))
-(defun ruby-test-function ()
-  "Test the current ruby function (must be runnable via ruby <buffer> --name <test>)."
-  (interactive)
-  (let* ((funname (which-function))
-         (fn (and funname (and (string-match "\\(#\\|::\\)\\(test.*\\)" funname) (match-string 2 funname)))))
-    (ruby-compile (concat "ruby " (file-name-nondirectory (buffer-file-name)) (and fn (concat " --name " fn))))))
-
-; run the current buffer using Shift-F7
-(add-hook 'ruby-mode-hook (lambda () (local-set-key [S-f7] 'ruby-execute-current-file)))
-; run the current test function using F8 key
-(add-hook 'ruby-mode-hook (lambda () (local-set-key [f7] 'ruby-test-function)))
-
-(add-hook 'ruby-mode-hook (lambda () (local-set-key [f6] 'recompile)))
+(load "init-ruby-mode.el")
 (when *rails-support-enabled*
-  (add-hook 'rails-minor-mode-hook (lambda () (local-set-key [f6] 'recompile))))
-
-
-
-;;----------------------------------------------------------------------------
-; Rails (http://rubyforge.org/projects/emacs-rails/)
-;;----------------------------------------------------------------------------
-(when *rails-support-enabled*
-  (dolist (hook '(nxml-mode-hook haml-mode-hook sass-mode-hook))
-    (add-hook hook (lambda () (rinari-launch))))
-  (defun update-rails-ctags ()
-    (interactive)
-    (let ((default-directory (or (rinari-root) default-directory)))
-      (shell-command (concat "ctags -a -e -f " rinari-tags-file-name " --tag-relative -R app lib vendor test"))))
-  (require 'rinari)
-  ;(require 'rails)
-  ;(setq rails-webrick:use-mongrel t)
-  ;(setq rails-api-root (expand-file-name "~/Documents/External/rails"))
-
-  (when *ecb-support-enabled*
-    (require 'ecb)
-    ;; Flymake confuses ecb's idea of which buffers are compilation buffers
-    (defun comint-but-not-flymake-p (buf)
-      (and (comint-check-proc buf)
-           (not (buffer-local-value 'flymake-mode-line buf))))
-    (setq ecb-compilation-predicates '(comint-but-not-flymake-p))
-
-    (setq ecb-compilation-buffer-names
-          (append ecb-compilation-buffer-names
-                  '(("\\(development\\|test\\|production\\).log" . t)
-                    ("\\*R" . t))))))
-
-
-;;----------------------------------------------------------------------------
-;; Pymacs and Rope for Python
-;;----------------------------------------------------------------------------
-;; See http://edward.oconnor.cx/2008/02/ropemacs
-(add-hook 'python-mode-hook
-          (lambda ()
-            (require 'pymacs)
-            (pymacs-load "ropemacs" "rope-")))
+  (load "init-rails.el"))
 
 
 ;;----------------------------------------------------------------------------
@@ -840,103 +562,18 @@
 ;;----------------------------------------------------------------------------
 ;; Lisp / Scheme / Slime
 ;;----------------------------------------------------------------------------
-;; pretty lambda (see also slime) ->  "λ"
-;;  'greek small letter lambda' / utf8 cebb / unicode 03bb -> \u03BB / mule?!
-;; in greek-iso8859-7 -> 107  >  86 ec
-(defun pretty-lambdas ()
-  (font-lock-add-keywords
-   nil `(("(\\(lambda\\>\\)"
-          (0 (progn (compose-region (match-beginning 1) (match-end 1)
-                                    ,(make-char 'greek-iso8859-7 107))
-                    'font-lock-keyword-face))))))
-
-(autoload 'paredit-mode "paredit-beta"
-  "Minor mode for pseudo-structurally editing Lisp code." t)
-
-(defun enable-paredit (keymap)
-  (paredit-mode +1)
-  (define-key keymap (kbd "RET") 'paredit-newline))
-
-(add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
-(add-hook 'emacs-lisp-mode-hook (lambda () (enable-paredit emacs-lisp-mode-map)))
-
+(load "init-lisp.el")
 (when *common-lisp-support-enabled*
-  ;; See http://bc.tech.coop/blog/070927.html
-  (setq slime-lisp-implementations
-        '((sbcl ("sbcl") :coding-system utf-8-unix)
-          (cmucl ("cmucl") :coding-system iso-latin-1-unix)))
-  (require 'slime-autoloads)
-  (add-auto-mode 'lisp-mode "\\.cl$")
-  (global-set-key [f4] 'slime-selector)
-  (add-hook 'lisp-mode-hook (lambda ()
-                              (cond ((not (featurep 'slime))
-                                     (require 'slime)
-                                     (normal-mode)))))
-
-  (eval-after-load "slime"
-    '(progn
-       (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
-       (slime-setup '(slime-fancy slime-banner slime-asdf))
-       (setq slime-complete-symbol*-fancy t)
-       (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-       (add-hook 'slime-mode-hook 'pretty-lambdas)
-       (add-hook 'slime-mode-hook (lambda () (enable-paredit slime-mode-map)))
-       (slime-setup)))
-
-  ; From http://bc.tech.coop/blog/070515.html
-  (defun lispdoc ()
-    "Searches lispdoc.com for SYMBOL, which is by default the symbol currently under the curser"
-    (interactive)
-    (let* ((word-at-point (word-at-point))
-           (symbol-at-point (symbol-at-point))
-           (default (symbol-name symbol-at-point))
-           (inp (read-from-minibuffer
-                 (if (or word-at-point symbol-at-point)
-                     (concat "Symbol (default " default "): ")
-                   "Symbol (no default): "))))
-      (if (and (string= inp "") (not word-at-point) (not
-                                                     symbol-at-point))
-          (message "you didn't enter a symbol!")
-        (let ((search-type (read-from-minibuffer
-                            "full-text (f) or basic (b) search (default b)? ")))
-          (browse-url (concat "http://lispdoc.com?q="
-                              (if (string= inp "")
-                                  default
-                                inp)
-                              "&search="
-                              (if (string-equal search-type "f")
-                                  "full+text+search"
-                                "basic+search")))))))
-
-  (define-key lisp-mode-map (kbd "C-c l") 'lispdoc)
-
-  (autoload 'redshank-mode "redshank" "Minor mode for editing and refactoring (Common) Lisp code." t)
-  (autoload 'turn-on-redshank-mode "redshank" "Turn on Redshank mode. Please see function `redshank-mode'." t)
-  (add-hook 'lisp-mode-hook 'turn-on-redshank-mode))
-
+  (load "init-common-lisp.el"))
 (when *scheme-support-enabled*
   ; See http://bc.tech.coop/scheme/scheme-emacs.htm
   (require 'quack))
-
 
 ;;----------------------------------------------------------------------------
 ;; Haskell
 ;;----------------------------------------------------------------------------
 (when *haskell-support-enabled*
-  (load-library "haskell-site-file")
-
-  (load-library "cabal-mode")
-
-  (require 'hoogle)
-
-  (setq haskell-program-name (executable-find "ghci"))
-  (setq haskell-font-lock-symbols t)
-
-  (add-hook 'haskell-mode-hook
-            (lambda ()
-              (define-key haskell-mode-map [?\C-c h] 'hoogle-lookup)
-              (turn-on-haskell-doc-mode)
-              (turn-on-haskell-indent))))
+  (load "init-haskell.el"))
 
 
 ;;----------------------------------------------------------------------------
@@ -952,24 +589,7 @@
 ;; Add spell-checking in comments for all programming language modes
 ;;----------------------------------------------------------------------------
 (when *spell-check-support-enabled*
-  (dolist (hook '(lisp-mode-hook
-                  emacs-lisp-mode-hook
-                  scheme-mode-hook
-                  ruby-mode-hook
-                  yaml-mode
-                  python-mode-hook
-                  shell-mode-hook
-                  php-mode-hook
-                  css-mode-hook
-                  haskell-mode-hook
-                  caml-mode-hook
-                  nxml-mode-hook
-                  crontab-mode-hook
-                  perl-mode-hook
-                  tcl-mode-hook
-                  javascript-mode-hook))
-    (add-hook hook 'flyspell-prog-mode)))
-
+  (load "init-flyspell.el"))
 
 
 ;;----------------------------------------------------------------------------
