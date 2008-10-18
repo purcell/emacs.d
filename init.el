@@ -370,6 +370,15 @@
 ;;----------------------------------------------------------------------------
 ;; Window size and features
 ;;----------------------------------------------------------------------------
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+
+(load "init-maxframe")
+
+
+;;----------------------------------------------------------------------------
+;; Fonts
+;;----------------------------------------------------------------------------
 (defun steve-set-default-font (name size)
   (interactive
    (let ((current-name (face-attribute 'default :family))
@@ -391,20 +400,6 @@
 
 (steve-set-default-font-size)
 
-(require 'maxframe)
-(when *is-cocoa-emacs*
-  (fset 'maximize-frame 'x-maximize-frame)
-  (fset 'restore-frame 'x-restore-frame))
-(when *macbook-pro-support-enabled*
-  (setq mf-max-width 1440)
-  (setq mf-max-height 900)
-  (setq mf-offset-x 3))
-(add-hook 'window-setup-hook 'maximize-frame t)
-
-(defun maximized-p ()
-  (and (<= (abs (- (mf-max-display-pixel-width) (frame-pixel-width))) (frame-char-width))
-       (<= (abs (- (mf-max-display-pixel-height) (+ mf-display-padding-height (frame-pixel-height)))) (+ 5 (frame-char-height)))))
-
 (defun increment-default-font-height (delta)
   (let ((was-maximized (maximized-p))
         (new-height (+ (face-attribute 'default :height) delta)))
@@ -424,8 +419,6 @@
 (global-set-key "\M-=" 'increase-default-font-height)
 (global-set-key "\M--" 'decrease-default-font-height)
 
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
 
 
 ;;----------------------------------------------------------------------------
