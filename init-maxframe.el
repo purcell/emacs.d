@@ -8,6 +8,6 @@
   (setq mf-offset-x 3))
 (add-hook 'window-setup-hook 'maximize-frame t)
 
-(defun maximized-p ()
-  (and (<= (abs (- (mf-max-display-pixel-width) (frame-pixel-width))) (frame-char-width))
-       (<= (abs (- (mf-max-display-pixel-height) (+ mf-display-padding-height (frame-pixel-height)))) (+ 5 (frame-char-height)))))
+(defun maximized-p (&optional frame)
+  (and (<= (abs (- (mf-max-display-pixel-width) (frame-pixel-width frame))) (frame-char-width frame))
+       (<= (abs (- (mf-max-display-pixel-height) (+ mf-display-padding-height (frame-pixel-height frame)))) (+ 5 (frame-char-height frame)))))

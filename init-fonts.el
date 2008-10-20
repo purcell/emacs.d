@@ -19,12 +19,20 @@
 
 (steve-set-default-font-size)
 
+(defun steve/find-all (pred seq)
+  (let ((result (list)))
+    (dolist (i seq)
+      (when (funcall pred i)
+        (setf result (cons i result))))
+    (nreverse result)))
+
 (defun increment-default-font-height (delta)
-  (let ((was-maximized (maximized-p))
+  (let ((maximized-frames (steve/find-all 'maximized-p (frame-list)))
         (new-height (+ (face-attribute 'default :height) delta)))
     (set-face-attribute 'default nil :height new-height)
-    (if was-maximized
-        (maximize-frame))
+    (dolist (frame maximized-frames)
+      (select-frame frame)
+      (maximize-frame))
     (message "default font size is now %d" (/ new-height 10))))
 
 (defun increase-default-font-height ()
