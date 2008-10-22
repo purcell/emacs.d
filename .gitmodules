@@ -7,3 +7,6 @@
 [submodule "site-lisp/rinari"]
 	path = site-lisp/rinari
 	url = git://github.com/purcell/rinari.git
+[submodule "site-lisp/magit"]
+	path = site-lisp/magit
+	url = http://zagadka.vm.bytemark.co.uk/git/magit.git
