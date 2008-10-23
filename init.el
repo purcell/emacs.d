@@ -162,6 +162,7 @@
   ;; vi/emacs input modes, causing confusion in non-viper buffers
   (global-unset-key "\C-z")
   (setq viper-mode t)
+  (setq viper-custom-file-name (convert-standard-filename "~/.emacs.d/.viper"))
   (require 'viper)
   (require 'vimpulse))
 
