@@ -592,7 +592,7 @@
 ;; Color themes
 ;;----------------------------------------------------------------------------
 (require 'color-theme-autoloads)
-(when *is-carbon-emacs*
+(unless *is-cocoa-emacs*
   (color-theme-initialize)
   ;; (color-theme-pierson) ; Light, favourite
   ;; (color-theme-high-contrast)
