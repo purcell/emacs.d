@@ -9,6 +9,7 @@
 
 
 (require 'magit)
+(global-set-key [(meta f12)] 'magit-status)
 
 ;;----------------------------------------------------------------------------
 ;; git-svn conveniences
