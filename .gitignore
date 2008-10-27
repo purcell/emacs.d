@@ -7,3 +7,4 @@ CVS
 *~
 .cvsignore
 .*.lock
+/tramp
