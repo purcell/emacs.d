@@ -125,7 +125,7 @@
 ;;----------------------------------------------------------------------------
 ;; OS X usability tweaks
 ;;----------------------------------------------------------------------------
-(when *macbook-pro-support-enabled*
+(when *is-a-mac*
   (setq mac-command-modifier 'meta)
   (setq default-input-method "MacOSX")
   ;; Make mouse wheel / trackpad scrolling less jerky
