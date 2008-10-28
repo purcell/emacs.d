@@ -542,6 +542,7 @@
 ;;----------------------------------------------------------------------------
 ;; Conversion of line endings
 ;;----------------------------------------------------------------------------
+;; Can also use "C-x ENTER f dos" / "C-x ENTER f unix" (set-buffer-file-coding-system)
 (require 'eol-conversion)
 
 
