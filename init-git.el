@@ -9,7 +9,11 @@
 
 
 (require 'magit)
-(global-set-key [(meta f12)] 'magit-status)
+(defun magit-status-here ()
+  (interactive)
+  (magit-status default-directory))
+(global-set-key [(meta f12)] 'magit-status-here)
+(global-set-key [(shift meta f12)] 'magit-status)
 
 ;;----------------------------------------------------------------------------
 ;; git-svn conveniences
