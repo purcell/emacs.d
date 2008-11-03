@@ -357,6 +357,68 @@ EDITABLE is ignored."
   "Rename the file OLD to NEW in the darcs repository."
   (call-process vc-darcs-program-name nil nil nil "mv" old new))
 
+(defun vc-darcs-annotate-command (file buffer &optional rev)
+  (let* ((rev (vc-darcs-rev-to-hash rev file))
+         (data
+          (with-temp-buffer
+            (apply #'vc-do-command t nil vc-darcs-program-name
+                   (file-name-nondirectory file)
+                   "annotate" "--xml"
+                   (and rev (list "--match" (concat "hash " rev))))
+            (let ((output (xml-parse-region 1 (point-max))))
+              (unless (and (null (cdr output))
+                           (eq 'file (car (car output))))
+                (error "Unexpected output from darcs annotate --xml."))
+              (car output)))))
+    (with-current-buffer buffer
+      (let ((modified (assoc 'modified (cddr data))))
+        (dolist (e (cddr data))
+          (when (and (listp e)
+                     (or (eq 'normal_line (car e)) (eq 'added_line (car e))))
+            (let* ((line1
+                    (find-if
+                     #'(lambda (x) (and (stringp x) (not (equal "\n" x))))
+                     (cddr e)))
+                   (len (progn (length line1)))
+                   (l0 (if (eq ?\n (aref line1 0)) 1 0))
+                   (l1 (if (eq ?\n (aref line1 (- len 1))) (- len 1) len))
+                   (line (substring line1 l0 l1)))
+              (let* ((added-by (or (assoc 'added_by (cddr e)) modified))
+                     (patch (assoc 'patch (cddr added-by)))
+                     (rev (substring (cdr (assoc 'hash (cadr patch))) 0 61))
+                     (author (cdr (assoc 'author (cadr patch))))
+                     (date (cdr (assoc 'date (cadr patch))))
+                     (year (substring date 0 4))
+                     (month (substring date 4 6))
+                     (day (substring date 6 8))
+                     (begin (point)))
+                (insert (format "%-7s %s/%s/%s %s\n"
+                                (if (> (length author) 7)
+                                    (substring author 0 7)
+                                    author)
+                                day month year
+                                line))))))))))
+
+(defun vc-darcs-parse-integer (s)
+  (let ((value 0)
+        (index 0)
+        (len (length s)))
+    (while (< index len)
+      (setq value (+ (* 10 value) (- (aref s index) ?0)))
+      (incf index))
+    value))
+
+(defun vc-darcs-annotate-time ()
+  (when (looking-at "........[0-9]")
+    (forward-char 8)
+    (and
+     (looking-at "\\(..\\)/\\(..\\)/\\(....\\)")
+     (let ((day (vc-darcs-parse-integer (match-string 1)))
+           (month (vc-darcs-parse-integer (match-string 2)))
+           (year (vc-darcs-parse-integer (match-string 3))))
+       (vc-annotate-convert-time
+        (encode-time 0 0 0 day month year))))))
+
 ;;; protection against editing files under _darcs
 ;;; adapted from an idea by Rob Giardine
 
