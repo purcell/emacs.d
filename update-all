@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+for f in site-lisp/*/.git; do
+  echo '***' `dirname $f`
+  (cd $f/.. && git pull)
+done
+
+for f in site-lisp/*/_darcs; do
+  echo '***' `dirname $f`
+  (cd $f/.. && darcs pull --all)
+done
+
+(cd site-lisp/rinari && git pull eschulte master)
