@@ -10,4 +10,8 @@ for f in site-lisp/*/_darcs; do
   (cd $f/.. && darcs pull --all)
 done
 
+echo '***' rinari
 (cd site-lisp/rinari && git pull eschulte master)
+
+echo '***' haml
+(cd site-lisp/haml && (for f in haml sass; do curl -o $f-mode.el "http://github.com/nex3/haml/tree/master%2Fextra%2F$f-mode.el?raw=true"; done))
