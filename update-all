@@ -15,3 +15,6 @@ echo '***' rinari
 
 echo '***' haml
 (cd site-lisp/haml && (for f in haml sass; do curl -o $f-mode.el "http://github.com/nex3/haml/tree/master%2Fextra%2F$f-mode.el?raw=true"; done))
+
+echo '***' js-comint
+(cd site-lisp/js-comint && curl -o js-comint.el http://downloads.sourceforge.net/js-comint-el/js-comint.el)
