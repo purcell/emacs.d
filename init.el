@@ -194,6 +194,21 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Use regex searches by default.
+;;----------------------------------------------------------------------------
+(global-set-key "\C-s" 'isearch-forward-regexp)
+(global-set-key "\C-r" 'isearch-backward-regexp)
+(global-set-key "\C-\M-s" 'isearch-forward)
+(global-set-key "\C-\M-r" 'isearch-backward)
+
+;; Activate occur easily inside isearch
+(define-key isearch-mode-map (kbd "C-o")
+  (lambda () (interactive)
+    (let ((case-fold-search isearch-case-fold-search))
+      (occur (if isearch-regexp isearch-string (regexp-quote isearch-string))))))
+
+
+;;----------------------------------------------------------------------------
 ;; Scroll the window smoothly with the up/down arrows
 ;;----------------------------------------------------------------------------
 (require 'smooth-scrolling)
