@@ -579,19 +579,22 @@
 ;; Color themes
 ;;----------------------------------------------------------------------------
 (require 'color-theme-autoloads)
-(unless *is-cocoa-emacs*
-  (color-theme-initialize)
-  ;; (color-theme-pierson) ; Light, favourite
-  ;; (color-theme-high-contrast)
-  ;; (color-theme-snowish)
-  ;; (color-theme-marquardt)
-  ;; (color-theme-clarity) ; dark
-  ;; (color-theme-dark-laptop) ; dark
-  ;; (color-theme-billw) ; dark
-  ;; (color-theme-oswald) ; dark
-  (color-theme-taylor) ; dark
-  ;; (color-theme-standard)
+(autoload 'zenburn "zenburn" "A low contrast color theme" t)
+(autoload 'color-theme-zenburn "zenburn" "A low contrast color theme" t)
+(color-theme-initialize)
+;; (color-theme-pierson) ; Light, favourite
+;; (color-theme-high-contrast)
+;; (color-theme-snowish)
+;; (color-theme-marquardt)
+;; (color-theme-clarity) ; dark
+;; (color-theme-dark-laptop) ; dark
+;; (color-theme-billw) ; dark
+;; (color-theme-oswald) ; dark
+(color-theme-taylor) ; dark
+(set-face-attribute 'highlight nil :background "white" :foreground "black")
+;; (color-theme-zenburn) ; dark, low contrast
+;; (color-theme-standard)
 
-  ;; Set default font size after setting color theme, otherwise wrong size
-  ;; is used for new frames
-  (steve-set-default-font-size))
+;; Set default font size after setting color theme, otherwise wrong size
+;; is used for new frames
+(steve-set-default-font-size)
