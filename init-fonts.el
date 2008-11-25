@@ -45,3 +45,10 @@
 
 (global-set-key "\M-=" 'increase-default-font-height)
 (global-set-key "\M--" 'decrease-default-font-height)
+
+(defmacro preserving-default-font-size (&rest body)
+  (let ((old-size (gensym)))
+    `(let ((,old-size (face-attribute 'default :height)))
+       (prog1 (progn ,@body)
+       (set-face-attribute 'default nil :height ,old-size)))))
+
