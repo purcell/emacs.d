@@ -26,14 +26,20 @@
         (setf result (cons i result))))
     (nreverse result)))
 
+(defmacro preserving-maximization (&rest body)
+  (let ((maximized-frames (gensym)))
+    `(let ((,maximized-frames (steve/find-all 'maximized-p (frame-list))))
+       (prog1 (progn ,@body)
+         (dolist (frame ,maximized-frames)
+           (select-frame frame)
+           (maximize-frame))))))
+
+
 (defun increment-default-font-height (delta)
-  (let ((maximized-frames (steve/find-all 'maximized-p (frame-list)))
-        (new-height (+ (face-attribute 'default :height) delta)))
-    (set-face-attribute 'default nil :height new-height)
-    (dolist (frame maximized-frames)
-      (select-frame frame)
-      (maximize-frame))
-    (message "default font size is now %d" (/ new-height 10))))
+  (preserving-maximization
+   (let ((new-height (+ (face-attribute 'default :height) delta)))
+     (set-face-attribute 'default nil :height new-height)
+     (message "default font size is now %d" (/ new-height 10)))))
 
 (defun increase-default-font-height ()
   (interactive)
@@ -48,7 +54,8 @@
 
 (defmacro preserving-default-font-size (&rest body)
   (let ((old-size (gensym)))
-    `(let ((,old-size (face-attribute 'default :height)))
-       (prog1 (progn ,@body)
-       (set-face-attribute 'default nil :height ,old-size)))))
+    `(preserving-maximization
+      (let ((,old-size (face-attribute 'default :height)))
+        (prog1 (progn ,@body)
+          (set-face-attribute 'default nil :height ,old-size))))))
 
