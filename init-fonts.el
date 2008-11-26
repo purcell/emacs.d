@@ -19,21 +19,15 @@
 
 (steve-set-default-font-size)
 
-(defun steve/find-all (pred seq)
-  (let ((result (list)))
-    (dolist (i seq)
-      (when (funcall pred i)
-        (setf result (cons i result))))
-    (nreverse result)))
-
 (defmacro preserving-maximization (&rest body)
   (let ((maximized-frames (gensym)))
-    `(let ((,maximized-frames (steve/find-all 'maximized-p (frame-list))))
+    `(let ((,maximized-frames (loop for f in (frame-list)
+                                    when (maximized-p f)
+                                    collect f)))
        (prog1 (progn ,@body)
          (dolist (frame ,maximized-frames)
            (select-frame frame)
            (maximize-frame))))))
-
 
 (defun increment-default-font-height (delta)
   (preserving-maximization
@@ -58,4 +52,3 @@
       (let ((,old-size (face-attribute 'default :height)))
         (prog1 (progn ,@body)
           (set-face-attribute 'default nil :height ,old-size))))))
-
