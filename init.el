@@ -625,7 +625,3 @@
    (set-face-attribute 'default nil :background "#1f1f1f")))
 
 (high-contrast)
-
-;; Set default font size after setting color theme, otherwise wrong size
-;; is used for new frames
-(steve-set-default-font-size)

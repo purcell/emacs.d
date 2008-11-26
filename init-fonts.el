@@ -11,14 +11,6 @@
                       :width  'normal
                       :height (* 10 size)))
 
-(lexical-let ((font-name "monaco") (font-size 10))
-  ;;         ((font-name "bitstream vera sans mono"))
-  ;;         ((font-name "lucida console"))
-  (defun steve-set-default-font-size ()
-    (steve-set-default-font font-name font-size)))
-
-(steve-set-default-font-size)
-
 (defmacro preserving-maximization (&rest body)
   (let ((maximized-frames (gensym)))
     `(let ((,maximized-frames (loop for f in (frame-list)
