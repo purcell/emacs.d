@@ -80,6 +80,22 @@
 (defvar zenburn-blue-4 "#4c7073")
 (defvar zenburn-magenta "#dc8cc3")
 
+
+;; ---- http://slinky.imukuppi.org/zenburn/zenburn.vim
+;; if exists("g:zenburn_high_Contrast")
+;;     " use new darker background
+;;     hi Normal          guifg=#dcdccc guibg=#1f1f1f
+;;     hi CursorLine      guibg=#121212 gui=bold
+;;     hi Pmenu           guibg=#242424 guifg=#ccccbc
+;;     hi PMenuSel        guibg=#353a37 guifg=#ccdc90 gui=bold
+;;     hi PmenuSbar       guibg=#2e3330 guifg=#000000
+;;     hi PMenuThumb      guibg=#a0afa0 guifg=#040404 
+;;     hi MatchParen      guifg=#f0f0c0 guibg=#383838 gui=bold
+;;     hi SignColumn      guifg=#9fafaf guibg=#181818 gui=bold
+;;     hi TabLineFill     guifg=#cfcfaf guibg=#181818 gui=bold
+;;     hi TabLineSel      guifg=#efefef guibg=#1c1c1b gui=bold
+;;     hi TabLine         guifg=#b6bf98 guibg=#181818 gui=bold
+;;     hi CursorColumn    guifg=#dcdccc guibg=#2b2b2b
 (eval-after-load 'term
   '(setq ansi-term-color-vector
          (vector 'unspecified zenburn-bg
