@@ -29,6 +29,7 @@
       (progn
         (setq load-path (cons my-lisp-dir load-path))
         (normal-top-level-add-subdirs-to-load-path))))
+(setq load-path (cons (expand-file-name "~/.emacs.d") load-path))
 
 
 ;;----------------------------------------------------------------------------
@@ -60,13 +61,6 @@
 (require 'find-func)
 (defun directory-of-library (library-name)
   (file-name-as-directory (file-name-directory (find-library-name library-name))))
-
-
-;;----------------------------------------------------------------------------
-;; Outboard initialisation files
-;;----------------------------------------------------------------------------
-(setq load-path (cons (expand-file-name "~/.emacs.d") load-path))
-(load "init-python-mode")
 
 
 ;;----------------------------------------------------------------------------
@@ -444,6 +438,12 @@
 
 (add-hook 'nxml-mode-hook (lambda () (tidy-build-menu nxml-mode-map)))
 (add-hook 'html-mode-hook (lambda () (tidy-build-menu html-mode-map)))
+
+
+;;----------------------------------------------------------------------------
+;; Python
+;;----------------------------------------------------------------------------
+(load "init-python-mode")
 
 
 ;;----------------------------------------------------------------------------
