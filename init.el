@@ -75,10 +75,10 @@
 (when *is-a-mac*
   (eval-after-load "woman"
     '(setq woman-manpath (append (list "/opt/local/man") woman-manpath)))
-  (dolist (dir '("/usr/local/bin" "/opt/local/bin"
-                 "/opt/local/lib/postgresql83/bin" "~/bin"))
-    (setenv "PATH" (concat (expand-file-name dir) ":" (getenv "PATH")))
-    (setq exec-path (append (list (expand-file-name dir)) exec-path))))
+  (dolist (dir (mapcar 'expand-file-name '("/usr/local/bin" "/opt/local/bin"
+                                           "/opt/local/lib/postgresql83/bin" "~/bin")))
+    (setenv "PATH" (concat dir ":" (getenv "PATH")))
+    (setq exec-path (append (list dir) exec-path))))
 
 
 ;;----------------------------------------------------------------------------
