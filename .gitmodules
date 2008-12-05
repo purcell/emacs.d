@@ -10,3 +10,6 @@
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
 	url = git://gitorious.org/magit/mainline.git
+[submodule "site-lisp/swank-clojure"]
+	path = site-lisp/swank-clojure
+	url = git://github.com/jochu/swank-clojure.git

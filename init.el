@@ -8,6 +8,7 @@
 (setq *haskell-support-enabled* t)
 (setq *ocaml-support-enabled* t)
 (setq *common-lisp-support-enabled* t)
+(setq *clojure-support-enabled* t)
 (setq *scheme-support-enabled* t)
 (setq *macbook-pro-support-enabled* t)
 (setq *erlang-support-enabled* t)
@@ -539,6 +540,8 @@
 (load "init-lisp")
 (when *common-lisp-support-enabled*
   (load "init-common-lisp"))
+(when *clojure-support-enabled*
+  (load "init-clojure"))
 (when *scheme-support-enabled*
   ; See http://bc.tech.coop/scheme/scheme-emacs.htm
   (require 'quack))
