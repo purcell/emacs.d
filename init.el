@@ -334,6 +334,7 @@
 (require 'recentf)
 (setq recentf-max-saved-items 100)
 (load "init-ido")
+(load "init-anything")
 
 
 ;;----------------------------------------------------------------------------

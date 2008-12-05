@@ -13,6 +13,9 @@ done
 echo '***' rinari
 (cd site-lisp/rinari && git pull eschulte master)
 
+echo '*** anything'
+(cd site-lisp/anything && (for f in anything.el anything-config.el; do curl -o $f "http://www.emacswiki.org/emacs/download/$f"; done))
+
 echo '***' haml
 (cd site-lisp/haml && (for f in haml sass; do curl -o $f-mode.el "http://github.com/nex3/haml/tree/master%2Fextra%2F$f-mode.el?raw=true"; done))
 
