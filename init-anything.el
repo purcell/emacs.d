@@ -38,4 +38,4 @@
 
 (setq anything-samewindow nil)
 
-(global-set-key "\M-f10" 'anything)
+(global-set-key [\M-f10] 'anything)
