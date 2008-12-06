@@ -31,3 +31,8 @@
     (compile (concat "git svn "
                      (ido-completing-read "git-svn command: "
                                           (list "rebase" "dcommit" "fetch" "log") nil t)))))
+
+
+;; My config requires a local GitHub config if it can find it.
+;; See http://github.com/blog/180-local-github-config
+(require 'gist)
