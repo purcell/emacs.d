@@ -8,7 +8,7 @@
                                     ,(make-char 'greek-iso8859-7 107))
                     'font-lock-keyword-face))))))
 
-(autoload 'paredit-mode "paredit-beta"
+(autoload 'paredit-mode "paredit"
   "Minor mode for pseudo-structurally editing Lisp code." t)
 
 (defun enable-paredit (keymap)
