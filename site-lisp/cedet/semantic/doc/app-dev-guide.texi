@@ -128,7 +128,7 @@ developer needs to know to perform all of the tasks just listed.
 @node Searching Tag Tables
 @chapter Searching Tag Tables
 
-These functions take some key, and returns information found in a tag
+These functions take some key, and return information found in a tag
 table.  Some will return one tag (the first matching item found.)
 Others will return a list of all items matching a given criterion.
 Most of these functions work regardless of a buffer being in memory or
@@ -253,7 +253,7 @@ Optional argument @var{SEARCH-PARTS} and @var{SEARCH-INCLUDES} are passed to
 @end defun
 
 @defun semantic-brute-find-tag-by-position position streamorbuffer &optional nomedian
-Find a nonterminal covering @var{POSITION} within @var{STREAMORBUFFER}.
+Find a token covering @var{POSITION} within @var{STREAMORBUFFER}.
 @var{POSITION} is a number, or marker.  If @var{NOMEDIAN} is non-@code{nil}, don't do
 the median calculation, and return nil.
 
@@ -320,7 +320,7 @@ and is obsolete.
 @end defun
 
 @defun semantic-brute-find-first-tag-by-function function streamorbuffer &optional search-parts search-includes
-Find the first nonterminal which @var{FUNCTION} match within @var{STREAMORBUFFER}.
+Find the first tag which @var{FUNCTION} match within @var{STREAMORBUFFER}.
 @var{FUNCTION} must return non-@code{nil} if an element of @var{STREAM} will be included
 in the new list.
 
@@ -1645,7 +1645,7 @@ semantic flushes its tags table.
 
 @defvar semantic-before-toplevel-cache-flush-hook
 @anchor{semantic-before-toplevel-cache-flush-hook}
-Hooks run before the toplevel nonterminal cache is flushed.
+Hooks run before the toplevel tag cache is flushed.
 For language specific hooks, make sure you define this as a local
 hook.  This hook is called before a corresponding
 @code{semantic-after-toplevel-cache-change-hook} which is also called
@@ -1693,11 +1693,11 @@ attempts.
 Semanticdb is a database mechanism for storing tags parsed by
 @semantic{}.  The database operates in the background, saving tags as
 they are parsed between sessions.  When a file is read in, and there
-is a previously created set of tags available for it, sematnicdb will
+is a previously created set of tags available for it, semanticdb will
 save time by not parsing the file, and using the cached copy.
 
 In applications, semanticdb can provide access to the sum of all tags
-in a project or in the basic system.  This database can they be
+in a project or in the basic system.  This database can then be
 searched using a set of special routines.
 
 @menu
@@ -1723,7 +1723,7 @@ degrade service when semanticdb is not available, or to throw an
 error letting the user know it is required to be active.
 
 At the simplest level, you can ask if a given file is in the
-database, recieving a tag table.  Semanticdb will give you an
+database, receiving a tag table.  Semanticdb will give you an
 accurate set of tags just by asking.
 
 @defun semanticdb-file-stream file
@@ -1733,8 +1733,7 @@ If file has database tags available in the database, return them.
 If file does not have tags available, then load the file, and create them.
 @end defun
 
-Alternately, you can get at the table object for a file by asking for
-it.
+Alternately, you can get the table object for a file by asking for it.
 
 @defun semanticdb-file-table-object file &optional dontload
 @anchor{semanticdb-file-table-object}
@@ -1783,13 +1782,13 @@ worked on.
 * DB Data Type Search::         Searches for datatypes.
 * DB Basic Brute Search::       Searches on common tag attributes.
 * DB Advanced Search::          Complex searches on associations
-* DB Generic Brute Search::     Do It Yourself search criteria
+* DB Generic Search::           Do It Yourself search criteria
 @end menu
 
 @node DB Results
 @subsection DB Results
 
-The successful results of a search returns a special list of the
+The successful result of a search returns a special list of the
 following form:
 
 @example
@@ -2148,24 +2147,30 @@ See @dfn{semanticdb-find-translate-path} for details on @var{path}.
 associated with that tag should be loaded into a buffer.
 @end defun
 
-@node DB Generic Brute Search
-@subsection DB Generic Brute Search
+@node DB Generic Search
+@subsection DB Generic Search
 
- The generic search, @dfn{semanticdb-find-nonterminal-by-function}
- will call your function with every tag available.  (Very slow for
- system databases.)
-
-NOTE:  There is no such function.  Hopefully we can get away without
-implementing one, which will make system databases more useful.  If
-you are really stuck, you can use the following, though I don't
-recommend it.
+If you would like to write your own search routine, you can the
+generic tag collector.  It will map your function across valid
+semantic databases.
 
 @defun semanticdb-find-tags-collector function &optional path find-file-match brutish
 @anchor{semanticdb-find-tags-collector}
-Search for all tags returned by @var{function} over @var{path}.
+Collect all tags returned by @var{function} over @var{path}.
+The @var{function} must take two arguments.  The first is @var{table},
+which is a semanticdb table containing tags.  The second argument
+to @var{function} is @var{tags}.  @var{tags} may be a list of tags.  If @var{tags} is non-@code{nil}, then
+@var{function} should search the @var{tag} list, not through @var{table}.
+
 See @dfn{semanticdb-find-translate-path} for details on @var{path}.
 @var{find-file-match} indicates that any time a match is found, the file
 associated with that tag should be loaded into a buffer.
+
+Note: You should leave @var{find-file-match} as @code{nil}.  It is far more
+efficient to take the results from any search and use
+@dfn{semanticdb-strip-find-results} instead.  This argument is here
+for backward compatibility.
+
 If optional argument @var{brutish} is non-@code{nil}, then ignore include statements,
 and search all tables in this project tree.
 @end defun

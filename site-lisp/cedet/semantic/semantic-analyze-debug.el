@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-analyze-debug.el,v 1.3 2008/06/15 02:31:28 zappo Exp $
+;; X-RCS: $Id: semantic-analyze-debug.el,v 1.6 2008/12/11 13:54:12 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -87,17 +87,45 @@
   "Debug why we can't find the first entry in the CTXT PREFIX.
 Argument COMP are possible completions here."
   (let ((tab semanticdb-current-table)
+	(finderr nil)
+	(origbuf (current-buffer))
 	)
     (with-output-to-temp-buffer (help-buffer)
       (with-current-buffer standard-output
 	(princ "Unable to find prefix ")
 	(princ prefix)
-	(princ ".
+	(princ ".\n\n")
 
-The prefix ")
-	(princ prefix)
-	(princ " could not be found in the local scope,
+	;; NOTE: This line is copied from semantic-analyze-current-context.
+	;;       You will need to update both places.
+	(condition-case err
+	    (save-excursion
+	      (set-buffer origbuf)
+	      (let* ((position (or (cdr-safe (oref ctxt bounds)) (point)))
+		     (prefixtypes nil)
+		     (scope (semantic-calculate-scope position))
+		     (newprefix nil))
+		(setq newprefix (semantic-analyze-find-tag-sequence
+				 (list prefix "") scope 'prefixtypes))
+		)
+	      )
+	  (error (setq finderr err)))
+
+	(if finderr
+	    (progn
+	      (princ "The prefix lookup code threw the following error:\n  ")
+	      (prin1 finderr)
+	      (princ "\n\nTo debug this error you can do this:
+  M-x toggle-debug-on-error RET
+and then re-run the debug analyzer.\n")
+	      )
+	  ;; No find error, just not found
+	  (princ "The prefix ")
+	  (princ prefix)
+	  (princ " could not be found in the local scope,
 nor in any search tables.\n")
+	  )
+	(princ "\n")
 
 	;; Describe local scope, and why we might not be able to
 	;; find it.
@@ -213,7 +241,7 @@ with the command:
 	 (t
 	  (princ "\nSemantic has found the datatype ")
 	  (semantic-analyzer-debug-insert-tag dt)
-	  (if (or (not (eq ots dt))
+	  (if (or (not (semantic-equivalent-tag-p ots dt))
 		  (not (save-excursion
 			 (set-buffer orig-buffer)
 			 (semantic-analyze-dereference-metatype
@@ -223,13 +251,14 @@ with the command:
 				(set-buffer orig-buffer)
 				(semantic-analyze-dereference-metatype
 				 ots (oref ctxt scope)))))
-		(when (eq nexttype lasttype)
-		  (error "Debugger errorr trying to help with metatypes"))
+		(if (eq nexttype lasttype)
+		    (princ "\n  [ Debugger error trying to help with metatypes ]")
 		
-		(if (eq ots dt)
-		    (princ "\nwhich is a metatype")
-		  (princ "\nwhich is derived from metatype ")
-		  (semantic-analyzer-debug-insert-tag lasttype))
+		  (if (eq ots dt)
+		      (princ "\nwhich is a metatype")
+		    (princ "\nwhich is derived from metatype ")
+		    (semantic-analyzer-debug-insert-tag lasttype)))
+
 		(princ ".\nThe Metatype stack is:\n")
 		(princ "   ")
 		(semantic-analyzer-debug-insert-tag lasttype)

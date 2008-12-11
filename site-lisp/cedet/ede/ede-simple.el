@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: ede-simple.el,v 1.5 2008/06/17 16:21:56 zappo Exp $
+;; X-RCS: $Id: ede-simple.el,v 1.9 2008/12/10 05:05:57 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -84,7 +84,9 @@ Return nil if there isn't one.
 ROOTPROJ is nil, since we will only create a single EDE project here."
   (let ((pf (ede-simple-projectfile-for-dir dir)))
     (when pf
-      (eieio-persistent-read pf))
+      (eieio-persistent-read pf)
+      (oset pf :directory dir)
+      )
     ))
 
 (defclass ede-simple-target (ede-target)
@@ -93,7 +95,7 @@ ROOTPROJ is nil, since we will only create a single EDE project here."
 All directories need at least one target.")
 
 ;;;###autoload
-(defclass ede-simple-project (eieio-persistent ede-project)
+(defclass ede-simple-project (ede-project eieio-persistent)
   ((extension :initform ".ede")
    (file-header-line :initform ";; EDE Simple Project")
    )
@@ -104,10 +106,19 @@ Each directory needs a a project file to control it.")
   "Commit any change to PROJ to its file."
   (when (not (file-exists-p ede-simple-save-directory))
     (if (y-or-n-p (concat ede-simple-save-directory
-			  " Doesn't exist.  Create? "))
+			  " doesn't exist.  Create? "))
 	(make-directory ede-simple-save-directory)
       (error "No save directory for new project")))
   (eieio-persistent-save proj))
+
+(defmethod ede-find-subproject-for-directory ((proj ede-simple-project)
+					      dir)
+  "Return PROJ, for handling all subdirs below DIR."
+  proj)
+
+;;; TEST
+;;
+;; @TODO - write a simple test for EDE simple.
 
 (provide 'ede-simple)
 

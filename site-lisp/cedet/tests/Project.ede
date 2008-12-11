@@ -7,12 +7,17 @@
    (ede-proj-target-elisp "Lisp"
     :name "Lisp"
     :path ""
-    :source '("cedet-integ-test.el" "cit-cpp.el" "cit-el.el" "cit-texi.el" "cit-load.el" "cit-srec.el")
+    :source '("cedet-integ-test.el" "cit-cpp.el" "cit-el.el" "cit-texi.el" "cit-load.el" "cit-srec.el" "cit-gnustep.el")
     )
    (ede-proj-target-makefile-miscelaneous "templates"
     :name "templates"
     :path ""
     :source '("cit-extra-cpp.srt")
+    )
+   (ede-proj-target-makefile-miscelaneous "scripts"
+    :name "scripts"
+    :path ""
+    :source '("cit-test.sh")
     )
    )
   :metasubproject 't

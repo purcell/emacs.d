@@ -7,7 +7,7 @@
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 27 Apr 2004
 ;; Keywords: syntax
-;; X-RCS: $Id: mode-local.el,v 1.13 2008/05/17 13:00:24 zappo Exp $
+;; X-RCS: $Id: mode-local.el,v 1.14 2008/08/20 18:59:39 zappo Exp $
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -824,6 +824,9 @@ invoked interactively."
     defvar-mode-local
     )
   (def-edebug-spec define-overload
+    (&define name lambda-list stringp def-body)
+    )
+  (def-edebug-spec define-overloadable-function
     (&define name lambda-list stringp def-body)
     )
   (def-edebug-spec define-mode-local-override

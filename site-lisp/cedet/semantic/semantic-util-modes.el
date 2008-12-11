@@ -6,7 +6,7 @@
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Author: David Ponce <david@dponce.com>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-util-modes.el,v 1.61 2008/06/19 02:24:21 zappo Exp $
+;; X-RCS: $Id: semantic-util-modes.el,v 1.65 2008/11/27 12:07:52 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -126,6 +126,11 @@ Only minor modes that are locally enabled are shown in the mode line."
                    semantic-minor-modes-status)))))
   (working-mode-line-update))
 
+(defun semantic-desktop-ignore-this-minor-mode (buffer)
+  "Installed as a minor-mode initializer for Desktop mode.
+BUFFER is the buffer to not initialize a Semantic minor mode in."
+  nil)
+
 (defun semantic-add-minor-mode (toggle name &optional keymap)
   "Register a new Semantic minor mode.
 TOGGLE is a symbol which is the name of a buffer-local variable that
@@ -158,7 +163,15 @@ Optional KEYMAP is the keymap for the minor mode that will be added to
     (if mm
         (setcdr mm (list name))
       (setq semantic-minor-mode-alist (cons (list toggle name)
-                                       semantic-minor-mode-alist)))))
+                                       semantic-minor-mode-alist))))
+
+  ;; Semantic minor modes don't work w/ Desktop restore.
+  ;; This line will disable this minor mode from being restored
+  ;; by Desktop.
+  (when (boundp 'desktop-minor-mode-handlers)
+    (add-to-list 'desktop-minor-mode-handlers
+		 (cons toggle 'semantic-desktop-ignore-this-minor-mode)))
+  )
 
 (defun semantic-toggle-minor-mode-globally (mode &optional arg)
   "Toggle minor mode MODE in every Semantic enabled buffer.
@@ -257,15 +270,15 @@ enabled parse the current buffer if needed.  Return non-nil if the
 minor mode is enabled."
   (if semantic-highlight-edits-mode
       (if (not (and (featurep 'semantic) (semantic-active-p)))
-          (progn
-            ;; Disable minor mode if semantic stuff not available
-            (setq semantic-highlight-edits-mode nil)
-            (error "Buffer %s was not set up for parsing"
-                   (buffer-name)))
-        (semantic-make-local-hook 'semantic-edits-new-change-hooks)
-        (add-hook 'semantic-edits-new-change-hooks
-                  'semantic-highlight-edits-new-change-hook-fcn nil t)
-        )
+	  (progn
+	    ;; Disable minor mode if semantic stuff not available
+	    (setq semantic-highlight-edits-mode nil)
+	    (error "Buffer %s was not set up for parsing"
+		   (buffer-name)))
+	(semantic-make-local-hook 'semantic-edits-new-change-hooks)
+	(add-hook 'semantic-edits-new-change-hooks
+		  'semantic-highlight-edits-new-change-hook-fcn nil t)
+	)
     ;; Remove hooks
     (remove-hook 'semantic-edits-new-change-hooks
 		 'semantic-highlight-edits-new-change-hook-fcn t)

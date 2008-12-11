@@ -1,9 +1,9 @@
 ;;; cedet-update-changelog --- Utility for updating changelogs in CEDET.
 
-;;; Copyright (C) 2005 Eric M. Ludlam
+;;; Copyright (C) 2005, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: cedet-update-changelog.el,v 1.3 2005/09/30 20:06:39 zappo Exp $
+;; X-RCS: $Id: cedet-update-changelog.el,v 1.4 2008/08/24 16:45:53 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -67,7 +67,7 @@
   (message "Calling rcs2log on %s..."
 	   (file-name-nondirectory (directory-file-name dir)))
   (call-process "rcs2log" nil (current-buffer) nil
-		"-c" "ChangeLog")
+		"-r" "-r1.1:" "." "-c" "ChangeLog")
   (cuc-fixup-ChangeLog-names)
   (save-buffer))
 
@@ -124,6 +124,21 @@ need to be transformed into the actual values."
     (while (re-search-forward (cuc-make-search-name "surajacharya")
 			      nil t)
       (replace-match "Suraj Acharya <sacharya@gmail.com>" t t))
+    ;; Marco's Name
+    (goto-char (point-min))
+    (while (re-search-forward (cuc-make-search-name "safanaj")
+			      nil t)
+      (replace-match "Marco (Bj) Bardelli <safanaj@users.sourceforge.net>" t t))
+    ;; Anton
+    (goto-char (point-min))
+    (while (re-search-forward (cuc-make-search-name "kpoxman")
+			      nil t)
+      (replace-match "Anton V. Belyaev <kpoxman@users.sourceforge.net>" t t))
+    ;; Dan's
+    (goto-char (point-min))
+    (while (re-search-forward (cuc-make-search-name "airboss")
+			      nil t)
+      (replace-match "Dan Debertin <airboss@users.sourceforge.net>" t t))
     ))
 
 (provide 'cedet-update-changelog)

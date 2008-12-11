@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-scope.el,v 1.17 2008/07/01 21:08:48 zappo Exp $
+;; X-RCS: $Id: semantic-scope.el,v 1.26 2008/12/10 22:02:34 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -229,41 +229,47 @@ are from nesting data types."
 	   (returnlist nil)
 	   (miniscope (semantic-scope-cache "mini"))
 	   )
+      ;; In case of arg lists or some-such, throw out non-types.
+      (while (and stack (not (semantic-tag-of-class-p pparent 'type)))
+	(setq stack (cdr stack)
+	            pparent (car (cdr stack))))
+
+      ;; Step 1:
+      ;;    Analyze the stack of tags we are nested in as parents.
+      ;;
+
+      ;; If we have a pparent tag, lets go there
+      ;; an analyze that stack of tags.
+      (when (and pparent (semantic-tag-with-position-p pparent))
+	(semantic-go-to-tag pparent)
+	(setq stack (semantic-find-tag-by-overlay (point)))
+	;; Step one, find the merged version of stack in the typecache.
+	(let* ((stacknames (reverse (mapcar 'semantic-tag-name stack)))
+	       (tc nil)
+	       )
+	  ;; @todo - can we use the typecache ability to
+	  ;;         put a scope into a tag to do this?
+	  (while (and stacknames
+		      (setq tc (semanticdb-typecache-find
+				(reverse stacknames))))
+	    (setq returnlist (cons tc returnlist)
+		  stacknames (cdr stacknames)))
+	  (when (not returnlist)
+	    ;; When there was nothing from the typecache, then just
+	    ;; use what's right here.
+	    (setq stack (reverse stack))
+	    ;; Add things to STACK until we cease finding tags of class type.
+	    (while (and stack (eq (semantic-tag-class (car stack)) 'type))
+	      ;; Otherwise, just add this to the returnlist.
+	      (setq returnlist (cons (car stack) returnlist))
+	      (setq stack (cdr stack)))
+
+	    (setq returnlist (nreverse returnlist))
+	    ))
+	)
+	
       ;; Only do this level of analysis for functions.
       (when (eq (semantic-tag-class tag) 'function)
-	;; Step 1:
-	;;    Analyze the stack of tags we are nested in as parents.
-	;;
-	;; @todo - Is step 1 useful for non-function blocks?
-
-	;; If we have a pparent tag, lets go there
-	;; an analyze that stack of tags.
-	(when (and pparent (semantic-tag-with-position-p pparent))
-	  (semantic-go-to-tag pparent)
-	  (setq stack (semantic-find-tag-by-overlay (point)))
-	  ;; Step one, find the merged version of stack in the typecache.
-	  (let* ((stacknames (reverse (mapcar 'semantic-tag-name stack)))
-		 (tc nil)
-		 )
-	    ;; @todo - can we use the typecache ability to
-	    ;;         put a scope into a tag to do this?
-	    (while (and stacknames
-			(setq tc (semanticdb-typecache-find
-				  (reverse stacknames))))
-	      (setq returnlist (cons tc returnlist)
-		    stacknames (cdr stacknames)))
-	    (when (not returnlist)
-	      ;; When there was nothing from the typecache, then just
-	      ;; use what's right here.
-	      (setq stack (reverse stack))
-	      ;; Add things to STACK until we cease finding tags of class type.
-	      (while (and stack (eq (semantic-tag-class (car stack)) 'type))
-		;; Otherwise, just add this to the returnlist.
-		(setq returnlist (cons (car stack) returnlist))
-		(setq stack (cdr stack)))
-	      (setq returnlist (nreverse returnlist))))
-	  )
-	
 	;; Step 2:
 	;;   If the function tag itself has a "parent" by name, then that
 	;;   parent will exist in the scope we just calculated, so look it
@@ -318,13 +324,15 @@ are from nesting data types."
 		  (when (and (not (semantic-tag-p ptag))
 			     (semantic-tag-p (car ptag)))
 		    (setq ptag (car ptag)))
-		  (setq returnlist (cons ptag returnlist))
+		  (setq returnlist (append returnlist (list ptag)))
 		  )
 
 		(setq snlist (cdr snlist)))
+	      (setq returnlist returnlist)
 	      )))
-	
-	(nreverse returnlist)))))
+	)
+      returnlist
+      )))
 
 (define-overloadable-function semantic-analyze-scope-lineage-tags (parents scopedtypes)
   "Return the full lineage of tags from PARENTS.
@@ -349,13 +357,14 @@ be found."
     (dolist (slp parents)
       (semantic-analyze-scoped-inherited-tag-map
        slp (lambda (newparent)
-	   (let* ((prot (semantic-tag-type-superclass-protection slp newparent))
-		  (effectiveprot (cond ((eq prot 'public)
-					;; doesn't provide access to private slots?
-					'protected)
-				       (t prot))))
-	     (push (cons newparent effectiveprot) lineage)
-	     ))
+	     (let* ((pname (semantic-tag-name newparent))
+		    (prot (semantic-tag-type-superclass-protection slp pname))
+		    (effectiveprot (cond ((eq prot 'public)
+					  ;; doesn't provide access to private slots?
+					  'protected)
+					 (t prot))))
+	       (push (cons newparent effectiveprot) lineage)
+	       ))
        miniscope))
 
     lineage))
@@ -385,12 +394,13 @@ implicit \"object\"."
     ;; Loop over typelist, and find and merge all namespaces matching
     ;; the names in typelist.
     (while typelist
-      (if (string= (semantic-tag-type (car typelist)) "namespace")
-	  ;; By using the typecache, our namespaces are pre-merged.
-	  (setq typelist2 (cons (car typelist) typelist2))
-	;; Not a namespace.  Leave it off...
-	;; (setq typelist2 (cons (car typelist) typelist2))
-	)
+      (let ((tt (semantic-tag-type (car typelist))))
+	(if (and (stringp tt) (string= tt "namespace"))
+	    ;; By using the typecache, our namespaces are pre-merged.
+	    (setq typelist2 (cons (car typelist) typelist2))
+	  ;; Not a namespace.  Leave it off...
+	  ;; (setq typelist2 (cons (car typelist) typelist2))
+	  ))
       (setq typelist (cdr typelist)))
 
     ;; Loop over the types (which should be sorted by postion
@@ -468,38 +478,64 @@ the access would be 'protected.  Otherwise, access is 'public")
 	   ))
 	(t 'public)))
 
+(defun semantic-completable-tags-from-type (type)
+  "Return a list of slots that are valid completions from the list of SLOTS.
+If a tag in SLOTS has a named parent, then that implies that the
+tag is not something you can complete from within TYPE."
+  (let ((allslots (semantic-tag-components type))
+	(leftover nil)
+	)
+    (dolist (S allslots)
+      (when (or (not (semantic-tag-of-class-p S 'function))
+		(not (semantic-tag-function-parent S)))
+	(setq leftover (cons S leftover)))
+      )
+    (nreverse leftover)))
+
 (defun semantic-analyze-scoped-type-parts (type &optional scope noinherit protection)
   "Return all parts of TYPE, a tag representing a TYPE declaration.
 SCOPE is the scope object.
 NOINHERIT turns off searching of inherited tags.
 PROTECTION specifies the type of access requested, such as 'public or 'private."
-  (let* ((access (semantic-analyze-scope-calculate-access type scope))
-	 ;; SLOTS are the slots directly a part of TYPE.
-	 (allslots (semantic-tag-components type))
-	 (slots (semantic-find-tags-by-scope-protection
-		 access
-		 type allslots))
-	 (fname (semantic-tag-file-name type))
-	 ;; EXTMETH are externally defined methods that are still
-	 ;; a part of this class.
+  (if (not type)
+      nil
+    (let* ((access (semantic-analyze-scope-calculate-access type scope))
+	   ;; SLOTS are the slots directly a part of TYPE.
+	   (allslots (semantic-completable-tags-from-type type))
+	   (slots (semantic-find-tags-by-scope-protection
+		   access
+		   type allslots))
+	   (fname (semantic-tag-file-name type))
+	   ;; EXTMETH are externally defined methods that are still
+	   ;; a part of this class.
 	
-	 ;; @TODO - is this line needed??  Try w/out for a while
-	 ;; @note - I think C++ says no.  elisp might, but methods
-	 ;;         look like defuns, so it makes no difference.
-	 (extmeth nil) ; (semantic-tag-external-member-children type t))
+	   ;; @TODO - is this line needed??  Try w/out for a while
+	   ;; @note - I think C++ says no.  elisp might, but methods
+	   ;;         look like defuns, so it makes no difference.
+	   (extmeth nil) ; (semantic-tag-external-member-children type t))
 
-	 ;; INHERITED are tags found in classes that our TYPE tag
-	 ;; inherits from.  Do not do this if it was not requested.
-	 (inherited (when (not noinherit)
-		      (semantic-analyze-scoped-inherited-tags type scope
-							      access)))
-	 )
-    (when (not (semantic-tag-in-buffer-p type))
-      (dolist (tag slots)
-	(semantic--tag-put-property tag :filename fname)))
-    ;; Flatten the database output.
-    (append slots extmeth inherited)
-    ))
+	   ;; INHERITED are tags found in classes that our TYPE tag
+	   ;; inherits from.  Do not do this if it was not requested.
+	   (inherited (when (not noinherit)
+			(semantic-analyze-scoped-inherited-tags type scope
+								access)))
+	   )
+      (when (not (semantic-tag-in-buffer-p type))
+	(let ((copyslots nil))
+	  (dolist (TAG slots)
+	    ;;(semantic--tag-put-property TAG :filename fname)
+	    (if (semantic-tag-file-name TAG)
+		;; If it has a filename, just go with it...
+		(setq copyslots (cons TAG copyslots))
+	      ;; Otherwise, copy the tag w/ the guessed filename.
+	      (setq copyslots (cons (semantic-tag-copy TAG nil fname)
+				    copyslots)))
+	    )
+	  (setq slots (nreverse copyslots))
+	  ))
+      ;; Flatten the database output.
+      (append slots extmeth inherited)
+      )))
 
 (defun semantic-analyze-scoped-inherited-tags (type scope access)
   "Return all tags that TYPE inherits from.
@@ -514,7 +550,9 @@ type."
   (let ((ret nil))
     (semantic-analyze-scoped-inherited-tag-map
      type (lambda (p)
-	    (let* ((protection (semantic-tag-type-superclass-protection type p))
+	    (let* ((pname (semantic-tag-name p))
+		   (protection (semantic-tag-type-superclass-protection
+				type pname))
 		   )
 	      (if (and (eq access 'public) (not (eq protection 'public)))
 		  nil ;; Don't do it.

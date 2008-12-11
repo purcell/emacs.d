@@ -2,7 +2,7 @@
 
 ;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
-;; X-CVS: $Id: semantic-fw.el,v 1.61 2008/07/03 01:44:28 zappo Exp $
+;; X-CVS: $Id: semantic-fw.el,v 1.67 2008/11/28 20:03:14 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -66,6 +66,7 @@
       (defalias 'semantic-overlay-lists
         (lambda () (list (extent-list))))
       (defalias 'semantic-overlay-p               'extentp)
+      (defalias 'semantic-event-window        'event-window)
       (defun semantic-read-event ()
         (let ((event (next-command-event)))
           (if (key-press-event-p event)
@@ -74,6 +75,11 @@
                     (keyboard-quit)
                   c)))
           event))
+      (defun semantic-popup-menu (menu)
+	"Blockinig version of `popup-menu'"
+	(popup-menu menu)
+	;; Wait...
+	(while (popup-up-p) (dispatch-event (next-event))))
       )
   (defalias 'semantic-overlay-live-p          'overlay-buffer)
   (defalias 'semantic-make-overlay            'make-overlay)
@@ -93,6 +99,10 @@
   (defalias 'semantic-overlay-lists           'overlay-lists)
   (defalias 'semantic-overlay-p               'overlayp)
   (defalias 'semantic-read-event              'read-event)
+  (defalias 'semantic-popup-menu              'popup-menu)
+  (defun semantic-event-window (event)
+    "Extract the window from EVENT."
+    (car (car (cdr event))))
   )
 
 (if (and (not (featurep 'xemacs))
@@ -129,6 +139,25 @@
 
 (if (not (fboundp 'string-to-number))
     (defalias 'string-to-number 'string-to-int))
+
+;;; Menu Item compatibility
+;;
+(defun semantic-menu-item (item)
+  "Build an XEmacs compatible menu item from vector ITEM.
+That is remove the unsupported :help stuff."
+  (if (featurep 'xemacs)
+      (let ((n (length item))
+            (i 0)
+            slot l)
+        (while (< i n)
+          (setq slot (aref item i))
+          (if (and (keywordp slot)
+                   (eq slot :help))
+              (setq i (1+ i))
+            (setq l (cons slot l)))
+          (setq i (1+ i)))
+        (apply #'vector (nreverse l)))
+    item))
 
 ;;; Positional Data Cache
 ;;
@@ -207,7 +236,7 @@ Remove self from `post-command-hook' if it is empty."
 				   data 'moose 'exit-cache-zone)
     (if (equal (semantic-get-cache-data 'moose) data)
 	(message "Successfully retrieved cached data.")
-      (message "Failed to retrieve cached data."))
+      (error "Failed to retrieve cached data"))
     ))
 
 ;;; Obsoleting various functions & variables
@@ -366,10 +395,38 @@ calling this one."
 	   (semantic-exit-on-input 'testing
 	     (let ((inhibit-quit nil)
 		   (message-log-max nil))
-	       (while (sit-for 0)
-		 (message "Looping ...")
+	       (while t
+		 (message "Looping ... press a key to test")
 		 (semantic-throw-on-input 'test-inner-loop))
-	       'exit))))
+	       'exit)))
+  (when (input-pending-p) (read-event))
+  )
+
+;;; Special versions of Find File
+;;
+(defun semantic-find-file-noselect (file &optional nowarn rawfile wildcards)
+  "Call `find-file-noselect' with various features turned off.
+Use this when referencing a file that will be soon deleted.
+FILE, NOWARN, RAWFILE, and WILDCARDS are passed into `find-file-noselect'"
+  (let* ((recentf-exclude '(ignore))
+	 ;; This is a brave statement.  Don't waste time loading in
+	 ;; lots of modes.  Especially decoration mode can waste a lot
+	 ;; of time for a buffer we intend to kill.
+	 (semantic-init-hooks nil)
+	 ;; This disables the part of EDE that asks questions
+	 (ede-auto-add-method 'never)
+	 ;; Ask font-lock to not colorize these buffers, nor to
+	 ;; whine about it either.
+	 (font-lock-maximum-size 0)
+	 (font-lock-verbose nil)
+	 ;; Disable revision control
+	 (vc-handled-backends nil)
+	 )
+    (if (featurep 'xemacs)
+	(find-file-noselect file nowarn rawfile)
+      (find-file-noselect file nowarn rawfile wildcards))
+    ))
+
 
 ;;; Editor goodies ;-)
 ;;

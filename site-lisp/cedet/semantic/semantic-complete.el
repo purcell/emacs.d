@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-complete.el,v 1.54 2008/06/19 02:23:35 zappo Exp $
+;; X-RCS: $Id: semantic-complete.el,v 1.56 2008/12/09 19:38:14 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -1447,7 +1447,7 @@ Not meaningful return value."
 ;;; Simple displayor which performs traditional display completion,
 ;; and also focuses with highlighting.
 (defclass semantic-displayor-traditional-with-focus-highlight
-  (semantic-displayor-traditional semantic-displayor-focus-abstract)
+  (semantic-displayor-focus-abstract semantic-displayor-traditional)
   ((find-file-focus :initform t))
   "Display completions in *Completions* buffer, with focus highlight.
 A traditional displayor which can focus on a tag by showing it.
@@ -1462,9 +1462,17 @@ Focus is performed by cycling through the tags and highlighting
 one in the source buffer."
   (let* ((tablelength (semanticdb-find-result-length (oref obj table)))
 	 (focus (semantic-displayor-focus-tag obj))
-	 (tag (car focus))
-	 (table (cdr focus))
+	 ;; Raw tag info.
+	 (rtag (car focus))
+	 (rtable (cdr focus))
+	 ;; Normalize
+	 (nt (semanticdb-normalize-one-tag rtable rtag))
+	 (tag (cdr nt))
+	 (table (car nt))
 	)
+    ;; If we fail to normalize, resete.
+    (when (not tag) (setq table rtable tag rtag))
+    ;; Do the focus.
     (let ((buf (or (semantic-tag-buffer tag)
 		   (and table (semanticdb-get-buffer table)))))
       ;; If no buffer is provided, then we can make up a summary buffer.
@@ -2019,8 +2027,7 @@ completion works."
 (defun semantic-complete-jump ()
   "Jump to a semantic symbol."
   (interactive)
-  (let* ((semanticdb-search-system-databases nil)
-	 (tag (semantic-complete-read-tag-project "Symbol: ")))
+  (let* ((tag (semantic-complete-read-tag-project "Symbol: ")))
     (when (semantic-tag-p tag)
       (push-mark)
       (semantic-go-to-tag tag)
@@ -2097,7 +2104,7 @@ use `semantic-complete-analyze-inline' to complete."
 
 ;;;###autoload
 (defun semantic-complete-inline-project ()
-  "Perform prompt completion to do in buffer completion.
+  "Perform inline completion for any symbol in the current project.
 `semantic-analyze-possible-completions' is used to determine the
 possible values.
 The function returns immediately, leaving the buffer in a mode that

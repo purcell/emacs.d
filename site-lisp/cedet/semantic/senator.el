@@ -6,7 +6,7 @@
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 10 Nov 2000
 ;; Keywords: syntax
-;; X-RCS: $Id: senator.el,v 1.126 2008/06/10 00:43:44 zappo Exp $
+;; X-RCS: $Id: senator.el,v 1.129 2008/11/29 11:16:32 zappo Exp $
 
 ;; This file is not part of Emacs
 
@@ -1284,6 +1284,17 @@ filters in `senator-search-tag-filter-functions' remain active."
 	(senator-unfold-tag tag)
       (senator-fold-tag tag))))
 
+;;; Pulsing
+;;
+;; Useful for debugging parsing state.
+;;
+(defun senator-pulse-tag (&optional tag)
+  "Pulse the current TAG."
+  (interactive)
+  (let ((tag (semantic-current-tag)))
+    (when tag
+      (pulse-momentary-highlight-overlay (semantic-tag-overlay tag)))))
+
 ;;;;
 ;;;;
 ;;;;
@@ -1375,22 +1386,7 @@ Makes C/C++ language like assumptions."
 ;;;; Misc. menu stuff.
 ;;;;
 
-(defun senator-menu-item (item)
-  "Build an XEmacs compatible menu item from vector ITEM.
-That is remove the unsupported :help stuff."
-  (if (featurep 'xemacs)
-      (let ((n (length item))
-            (i 0)
-            slot l)
-        (while (< i n)
-          (setq slot (aref item i))
-          (if (and (keywordp slot)
-                   (eq slot :help))
-              (setq i (1+ i))
-            (setq l (cons slot l)))
-          (setq i (1+ i)))
-        (apply #'vector (nreverse l)))
-    item))
+(defalias 'senator-menu-item 'semantic-menu-item)
 
 ;;;;
 ;;;; The dynamic sub-menu of Semantic minor modes.
@@ -1842,6 +1838,7 @@ This is a buffer local variable.")
     (define-key km "\C-y" 'senator-yank-tag)
     (define-key km "-"    'senator-fold-tag)
     (define-key km "+"    'senator-unfold-tag)
+    (define-key km "?"    'senator-pulse-tag)
     
     km)
   "Default key bindings in senator minor mode.")
@@ -2487,14 +2484,7 @@ used by add log.")
 	    (progn
 	      (setq name
 		    (semantic-format-tag-canonical-name
-		     tag
-		     (or (semantic-current-tag-parent)
-			 (if (semantic-tag-function-parent tag)
-			     (or (semantic-find-first-tag-by-name
-				  (semantic-tag-function-parent tag)
-				  (current-buffer))
-				 (semantic-tag-function-parent
-				  tag))))))
+		     tag (semantic-current-tag-parent)))
 	      (setq ad-return-value name))
           ad-do-it))
     ad-do-it))

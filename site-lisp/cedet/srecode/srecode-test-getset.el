@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-test-getset.el,v 1.1 2008/06/08 16:15:45 zappo Exp $
+;; X-RCS: $Id: srecode-test-getset.el,v 1.2 2008/10/10 21:44:35 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -24,8 +24,9 @@
 ;;
 ;; Unit tests for the getset inserter application.
 
-;;; Code:
+(require 'cedet-utests)
 
+;;; Code:
 (defvar srecode-utest-getset-pre-fill
   "// Test Class for getset tests in c++.
 
@@ -56,6 +57,8 @@ private:
   "Test various template insertion options."
   (interactive)
 
+  (cedet-utest-log-start "srecode: getset")
+
   (save-excursion
     (let ((testbuff (find-file-noselect srecode-utest-getset-testfile))
 	  (srecode-insert-getset-fully-automatic-flag t))
@@ -68,9 +71,12 @@ private:
       (if (not (srecode-table))
 	  (error "No template table found for mode %s" major-mode))
 
-      (erase-buffer)
+      (condition-case nil
+	  (erase-buffer)
+	(error nil))
       (insert srecode-utest-getset-pre-fill)
       (goto-char (point-min))
+      (cedet-utest-log " * Test Pre-fill")
       (srecode-utest-getset-tagcheck '("public"
 				       "myClass"
 				       "myClass"
@@ -82,6 +88,7 @@ private:
       ;; Startup with fully automatic selection.
       (srecode-insert-getset)
 
+      (cedet-utest-log " * Post get-set \"StartingField\"")
       (srecode-utest-getset-tagcheck '("public"
 				       "myClass"
 				       "myClass"
@@ -98,6 +105,7 @@ private:
       (insert "\n")
       (srecode-insert-getset nil "AutoInsertField")
 
+      (cedet-utest-log " * Post get-set \"AutoInsertField\"")
       (srecode-utest-getset-tagcheck '("public"
 				       "myClass"
 				       "myClass"

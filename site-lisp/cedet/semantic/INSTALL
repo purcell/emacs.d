@@ -21,6 +21,10 @@ How to install Semantic
    Please see the documentation for those features for additional
    information about what they enable.
 
+   There is also support for Exuberent ctags if it is installed.  Use:
+
+   semantic-load-enable-all-exuberent-ctags-support
+
 3.141) Custom setup
 
    If you don't want to use one of the default mode enable functions

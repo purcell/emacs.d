@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: ede-srecode.el,v 1.1 2008/06/19 02:19:58 zappo Exp $
+;; X-RCS: $Id: ede-srecode.el,v 1.2 2008/09/01 02:53:58 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -39,6 +39,7 @@
       (error "Unable to location EDE Templates directory"))
 
     ;; Rig up the map.
+    (require 'srecode-map)
     (add-to-list 'srecode-map-load-path tmpdir)
     (srecode-map-update-map t)
     

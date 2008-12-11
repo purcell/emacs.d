@@ -1,6 +1,6 @@
 \input texinfo   @c -*-texinfo-*-
 @c
-@c $Id: ede.texi,v 1.15 2008/03/22 19:54:00 zappo Exp $
+@c $Id: ede.texi,v 1.17 2008/09/07 14:36:39 zappo Exp $
 @c
 @setfilename ede.info
 @settitle Emacs Development Environment
@@ -159,10 +159,14 @@ derivation of this is the @samp{Automake} type.
 Not all project types can be created in this way.  For example, there
 are two ways to handle Automake based projects.  One is by making an
 @emph{Automake} project with @command{ede-new}.  The other is to just write
-some automake files which @ede{} with automatically detect this, and put
+some automake files which @ede{} will automatically detect, and put
 you into a different Automake mode.  Any GNU project using Automake
 will be detected in this way, and you can use @ede{} to modify those
 Makefiles for you.
+
+If you just want to use @ede{} to know about a project so that other
+libraries, such as @semantic{}, can take advantage of some core @ede{}
+APIs, then you can use some simpler projects.  See  @xref{Simple projects}.
 
 @section Creating a subproject
 
@@ -427,8 +431,9 @@ It can be configured with minimal lisp knowledge to do header file
 lookup for @semantic{}, improving code completion performance.
 
 @menu
-* ede-cpp-root::
-* ede-simple subclassing::
+* ede-cpp-root::        This project marks the root of a C/C++ code project.
+* ede-simple subclassing:: Create your own simple project.
+* ede-emacs::		A project for working with Emacs.
 @end menu
 
 @node ede-cpp-root
@@ -561,6 +566,15 @@ of project.
 todo - Write some doc.
 
   In the meantime look in the commentary of ede-simple.el
+
+@node ede-emacs
+@subsection ede-emacs
+
+The @code{ede-emacs} project will automatically identify an Emacs
+source tree, and enable EDE project mode for it.
+
+It pre-populates the C Preprocessor symbol map for correct parsing,
+and has an optimized include file identification function.
 
 @node Extending EDE, Project, Project types, top
 @chapter Extending @ede{}

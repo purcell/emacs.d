@@ -1,0 +1,14 @@
+;; Object ctags
+;; EDE project file.
+(ede-proj-project "ctags"
+  :name "ctags"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-elisp "ctags"
+    :name "ctags"
+    :path ""
+    :source '("semantic-ectag-util.el" "semantic-ectag-lang.el" "semantic-ectag-parse.el" "semanticdb-ectag.el")
+    :aux-packages '("mode-local" "semantic-fw" "eieio" "semantic-bovine.el")
+    )
+   )
+  )

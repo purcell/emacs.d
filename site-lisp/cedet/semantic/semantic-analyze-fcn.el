@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-analyze-fcn.el,v 1.19 2008/07/01 02:52:08 zappo Exp $
+;; X-RCS: $Id: semantic-analyze-fcn.el,v 1.23 2008/10/14 00:58:31 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -60,6 +60,14 @@ Return the string NAME for no change, or a list if it needs to be split.")
   "Don't split up NAME by default."
   name)
 
+(define-overloadable-function semantic-analyze-unsplit-name (namelist)
+  "Assemble a NAMELIST into a string representing a compound name.
+Return the string representing the compound name.")
+
+(defun semantic-analyze-unsplit-name-default (namelist)
+  "Concatenate the names in NAMELIST with a . between."
+  (mapconcat 'identity namelist "."))
+
 ;;; SELECTING
 ;;
 ;; If you narrow things down to a list of tags that all mean
@@ -77,7 +85,7 @@ tags of TAGCLASS."
 
   ;; If there is a srew up and we get just one tag.. massage over it.
   (when (semantic-tag-p sequence)
-    (setq sequence (list sequence)))    
+    (setq sequence (list sequence)))
 
   ;; Filter out anything not of TAGCLASS
   (when tagclass
@@ -228,7 +236,8 @@ Argument SCOPE is the scope object with additional items in which to search."
       (setq lasttype nexttype)
       (setq nexttype (semantic-analyze-dereference-metatype lasttype scope))
       (setq idx (1+ idx))
-      (when (> idx 20) (error "Possible metatype recursion?"))
+      (when (> idx 20) (error "Possible metatype recursion for %S"
+			      (semantic-tag-name lasttype)))
       )
     lasttype))
 
@@ -248,8 +257,11 @@ SCOPE is the scope object with additional items in which to search for names."
     (let ((ans (:override
                 ;; Nothing fancy, just return type be default.
                 (throw 'default-behavior type))))
-      (semantic-analyze-dereference-metatype-1 ans scope)
-      )))
+      (cond
+       ((semantic-tag-p ans)
+	ans)
+       (t (semantic-analyze-dereference-metatype-1 ans scope))
+       ))))
 
 ;; @ TODO - the typecache can also return a stack of scope names.
 

@@ -2,7 +2,7 @@
 
 ;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
-;; X-CVS: $Id: semantic-tag.el,v 1.55 2008/06/01 02:52:31 zappo Exp $
+;; X-CVS: $Id: semantic-tag.el,v 1.61 2008/12/09 19:06:28 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -619,14 +619,16 @@ then KEEP-FILE is stored on the `:filename' property.
 This runs the tag hook `unlink-copy-hook`."
   ;; Right now, TAG is a list.
   (let ((copy (semantic-tag-clone tag name)))
+
+    ;; Keep the filename if needed.
+    (when keep-file
+      (semantic--tag-put-property
+       copy :filename (or (semantic-tag-file-name copy)
+			  (and (stringp keep-file)
+			       keep-file)
+			  )))
+
     (when (semantic-tag-with-position-p tag)
-      ;; Keep the filename if needed.
-      (when keep-file
-	(semantic--tag-put-property-no-side-effect
-	 copy :filename (or (semantic-tag-file-name copy)
-			    (and (stringp keep-file)
-				 keep-file)
-			    )))
       ;; Convert the overlay to a vector, effectively 'unlinking' the tag.
       (semantic--tag-set-overlay
        copy (vector (semantic-tag-start copy) (semantic-tag-end copy)))
@@ -686,10 +688,18 @@ That is the value defined by the `:documentation' attribute.
 Optional argument BUFFER indicates where to get the text from.
 If not provided, then only the POSITION can be provided."
   (let ((p (semantic-tag-get-attribute tag :documentation)))
-    (if (and p buffer)
-        (with-current-buffer buffer
-          (semantic-lex-token-text (car (semantic-lex p (1+ p)))))
-      p)))
+    (cond
+     ((stringp p) p) ;; it is the doc string.
+
+     ((semantic-lex-token-with-text-p p)
+      (semantic-lex-token-text p))
+
+     ((and (semantic-lex-token-without-text-p p)
+	   buffer)
+      (with-current-buffer buffer
+	(semantic-lex-token-text (car (semantic-lex p (1+ p))))))
+
+     (t nil))))
 
 ;;; Generic attributes for tags of any class.
 ;;
@@ -724,6 +734,26 @@ That is the value of the `:members' attribute."
 	   ;; A list of something, return it.
 	   supers))))
 
+(defun semantic--tag-find-parent-by-name (name supers)
+  "Find the superclass NAME in the list of SUPERS.
+If a simple search doesn't do it, try splitting up the names
+in SUPERS."
+  (let ((stag nil))
+    (setq stag (semantic-find-first-tag-by-name name supers))
+
+    (when (not stag)
+      (dolist (S supers)
+	(let* ((sname (semantic-tag-name S))
+	       (splitparts (semantic-analyze-split-name sname))
+	       (parts (if (stringp splitparts)
+			  (list splitparts)
+			(nreverse splitparts))))
+	  (when (string= name (car parts))
+	    (setq stag S))
+	  )))
+
+    stag))
+
 (defun semantic-tag-type-superclass-protection (tag parentstring)
   "Return the inheritance protection in TAG from PARENTSTRING.
 PARENTSTRING is the name of the parent being inherited.
@@ -740,7 +770,7 @@ The return protection is a symbol, 'public, 'protection, and 'private."
 	  ((and (consp supers) (stringp (car supers)))
 	   'public)
 	  ((and (consp supers) (semantic-tag-p (car supers)))
-	   (let* ((stag (semantic-find-first-tag-by-name parentstring))
+	   (let* ((stag (semantic--tag-find-parent-by-name parentstring supers))
 		  (prot (when stag
 			  (semantic-tag-get-attribute stag :protection))))
 	     (or (cdr (assoc prot '(("public" . public)

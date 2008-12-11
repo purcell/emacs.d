@@ -4,23 +4,23 @@
 # DO NOT MODIFY THIS FILE OR YOUR CHANGES MAY BE LOST.
 # EDE is the Emacs Development Environment.
 # http://cedet.sourceforge.net/ede.shtml
-# 
+#
 
 top=
 ede_FILES=Project.ede Makefile
 
 EMACS=emacs
-LOADPATH= ../common/  wisent/ bovine/  ../speedbar/ ../ede/ ../eieio/\
-    ./
+LOADPATH= ../common/  ctags/ wisent/ bovine/\
+    ../speedbar/ ../ede/ ../eieio/  ./
 LOADDEFS=semantic-loaddefs.el
-LOADDIRS=. bovine wisent
+LOADDIRS=. bovine wisent ctags symref
 init_LISP=semantic-load.el
 EMACS=emacs
 semantic_LISP=semantic.el semantic-fw.el semantic-lex.el semantic-lex-spp.el semantic-edit.el semantic-util.el semantic-tag.el semantic-tag-ls.el semantic-find.el semantic-sort.el semantic-tag-file.el semantic-tag-write.el semantic-doc.el semantic-idle.el
 utils_LISP=semantic-ast.el semantic-ctxt.el semantic-decorate.el semantic-dep.el semantic-format.el semantic-scope.el
-Database_LISP=semanticdb.el semanticdb-debug.el semanticdb-ebrowse.el semanticdb-el.el semanticdb-file.el semanticdb-find.el semanticdb-mk.el semanticdb-ref.el semanticdb-search.el semanticdb-typecache.el
+Database_LISP=semanticdb.el semanticdb-mode.el semanticdb-debug.el semanticdb-ebrowse.el semanticdb-el.el semanticdb-file.el semanticdb-find.el semanticdb-mk.el semanticdb-ref.el semanticdb-search.el semanticdb-typecache.el semanticdb-javascript.el
 tools_LISP=document-vars.el document.el semantic-adebug.el semantic-chart.el semantic-complete.el semantic-debug.el semantic-decorate-mode.el semantic-decorate-include.el semantic-elp.el semantic-grammar.el semantic-ia-sb.el semantic-ia.el semantic-imenu.el semantic-mru-bookmark.el semantic-sb.el semantic-util-modes.el senator.el
-Analyzer_LISP=semantic-analyze.el semantic-analyze-complete.el semantic-analyze-fcn.el semantic-analyze-debug.el
+Analyzer_LISP=semantic-analyze.el semantic-analyze-complete.el semantic-analyze-fcn.el semantic-analyze-debug.el semantic-analyze-refs.el
 Languages_LISP=semantic-texi.el semantic-html.el
 maintenance_LISP=semantic-ede-grammar.el
 metagrammar_SEMANTIC_GRAMMAR=semantic-grammar.wy
@@ -35,7 +35,7 @@ DISTDIR=$(top)semantic-$(VERSION)
 
 
 
-all: autoloads init semantic utils Database tools Analyzer Languages metagrammar tests example scripts wisent Tests Documentation bovinator
+all: autoloads init semantic utils Database tools Analyzer Languages metagrammar tests example scripts wisent Tests Symref Documentation ctags bovinator
 
 .PHONY: autoloads
 autoloads: 
@@ -151,9 +151,17 @@ wisent:
 Tests:
 	cd tests; $(MAKE)
 
+.PHONY:Symref
+Symref:
+	cd symref; $(MAKE)
+
 .PHONY:Documentation
 Documentation:
 	cd doc; $(MAKE)
+
+.PHONY:ctags
+ctags:
+	cd ctags; $(MAKE)
 
 .PHONY:bovinator
 bovinator:
@@ -162,7 +170,9 @@ bovinator:
 tags: 
 	cd wisent/; make $(MFLAGS) $@
 	cd tests/; make $(MFLAGS) $@
+	cd symref/; make $(MFLAGS) $@
 	cd doc/; make $(MFLAGS) $@
+	cd ctags/; make $(MFLAGS) $@
 	cd bovine/; make $(MFLAGS) $@
 
 
@@ -176,7 +186,9 @@ dist: autoloads $(metagrammar_SEMANTIC_GRAMMAR_EL)
 	cp semantic-loaddefs.el $(init_LISP) $(semantic_LISP) $(utils_LISP) $(Database_LISP) $(tools_LISP) $(Analyzer_LISP) $(Languages_LISP) $(maintenance_LISP) $(metagrammar_SEMANTIC_GRAMMAR) $(metagrammar_SEMANTIC_GRAMMAR_EL) $(tests_LISP) $(example_MISC) $(scripts_MISC) $(misc_AUX) $(ede_FILES) $(DISTDIR)
 	cd wisent; $(MAKE) $(MFLAGS) DISTDIR=$(DISTDIR)/wisent dist
 	cd tests; $(MAKE) $(MFLAGS) DISTDIR=$(DISTDIR)/tests dist
+	cd symref; $(MAKE) $(MFLAGS) DISTDIR=$(DISTDIR)/symref dist
 	cd doc; $(MAKE) $(MFLAGS) DISTDIR=$(DISTDIR)/doc dist
+	cd ctags; $(MAKE) $(MFLAGS) DISTDIR=$(DISTDIR)/ctags dist
 	cd bovine; $(MAKE) $(MFLAGS) DISTDIR=$(DISTDIR)/bovine dist
 
 Makefile: Project.ede

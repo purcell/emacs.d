@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: chart
-;; X-RCS: $Id: semantic-chart.el,v 1.12 2008/06/17 03:55:49 zappo Exp $
+;; X-RCS: $Id: semantic-chart.el,v 1.13 2008/09/03 03:13:59 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -152,7 +152,8 @@ items are charted.  TAGTABLE is passedto
 	 (plen (length p))
 	 (tab semanticdb-current-table)
 	 (tc (semanticdb-get-typecache tab))
-	 (tclen (length (oref tc stream)))
+	 (tclen (+ (length (oref tc filestream))
+		   (length (oref tc includestream))))
 	 (scope (semantic-calculate-scope))
 	 (fslen (length (oref scope fullscope)))
 	 (lvarlen (length (oref scope localvar)))

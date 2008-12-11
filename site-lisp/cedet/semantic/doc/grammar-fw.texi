@@ -118,9 +118,9 @@ The C-like syntax is replaced by Emacs Lisp syntax.
 Percent declarations are specific to @semantic{}.
 @end itemize
 
-Nevertheless, for those who are a familiar with Bison grammar
+Nevertheless, for those who are familiar with the Bison grammar
 syntax, and have some knowledge of Emacs Lisp, writing @semantic{}
-grammars won't hard.  Moreover, the grammar framework
+grammars won't prove too hard.  Moreover, the grammar framework
 provides Emacs goodies (indentation, syntax coloring, etc.) to help
 edit grammars.
 

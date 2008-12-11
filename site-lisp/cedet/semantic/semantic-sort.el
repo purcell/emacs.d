@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-sort.el,v 1.26 2008/06/10 00:43:31 zappo Exp $
+;; X-RCS: $Id: semantic-sort.el,v 1.27 2008/10/06 19:26:08 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -603,7 +603,7 @@ See `semantic-tag-external-class' for details."
 	     (m (semanticdb-find-tags-by-class
 		 (semantic-tag-class tag)
 		 (semanticdb-find-tags-by-name (semantic-tag-name tag)))))
-	(semanticdb-strip-find-results m t))
+	(semanticdb-strip-find-results m 'name))
     ;; Presumably, if the tag is faux, it is not local.
     nil
     ))

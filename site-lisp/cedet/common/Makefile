@@ -4,7 +4,7 @@
 # DO NOT MODIFY THIS FILE OR YOUR CHANGES MAY BE LOST.
 # EDE is the Emacs Development Environment.
 # http://cedet.sourceforge.net/ede.shtml
-# 
+#
 
 top=
 ede_FILES=Project.ede Makefile
@@ -19,13 +19,14 @@ LOADDIRS=.
 init_LISP=cedet-load.el
 EMACS=emacs
 setup_LISP=cedet.el
-common_LISP=cedet-autogen.el cedet-compat.el ezimage.el inversion.el pprint.el sformat.el fame.el working.el cedet-edebug.el mode-local.el cedet-files.el pulse.el data-debug.el
+common_LISP=cedet-autogen.el cedet-compat.el ezimage.el inversion.el pprint.el sformat.el fame.el working.el cedet-edebug.el mode-local.el cedet-files.el pulse.el data-debug.el cedet-global.el
+tests_LISP=cedet-utests.el
 VERSION=1.0pre5
 DISTDIR=$(top)common-$(VERSION)
 
 
 
-all: cedet.info autoloads init setup common icons
+all: cedet.info autoloads init setup common tests icons
 
 cedet.info: $(Doc_TEXINFOS)
 	$(MAKEINFO) $<
@@ -66,6 +67,15 @@ common: $(common_LISP)
 	@echo "(setq debug-on-error t)" >> $@-compile-script
 	"$(EMACS)" -batch --no-site-file -l $@-compile-script -f batch-byte-compile $^
 
+.PHONY: tests
+tests: $(tests_LISP)
+	@echo "(add-to-list 'load-path nil)" > $@-compile-script
+	for loadpath in . ${LOADPATH}; do \
+	   echo "(add-to-list 'load-path \"$$loadpath\")" >> $@-compile-script; \
+	done;
+	@echo "(setq debug-on-error t)" >> $@-compile-script
+	"$(EMACS)" -batch --no-site-file -l $@-compile-script -f batch-byte-compile $^
+
 .PHONY:icons
 icons:
 	cd icons; $(MAKE)
@@ -81,7 +91,7 @@ clean:
 
 dist: cedet.info autoloads
 	mkdir $(DISTDIR)
-	cp $(Doc_TEXINFOS) cedet.info* $(misc_AUX) cedet-loaddefs.el $(init_LISP) $(setup_LISP) $(common_LISP) $(ede_FILES) $(DISTDIR)
+	cp $(Doc_TEXINFOS) cedet.info* $(misc_AUX) cedet-loaddefs.el $(init_LISP) $(setup_LISP) $(common_LISP) $(tests_LISP) $(ede_FILES) $(DISTDIR)
 	cd icons; $(MAKE) $(MFLAGS) DISTDIR=$(DISTDIR)/icons dist
 
 Makefile: Project.ede

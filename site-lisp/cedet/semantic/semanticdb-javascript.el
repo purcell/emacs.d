@@ -1,11 +1,11 @@
 ;;; semanticdb-javascript.el --- Semantic database extensions for javascript
 
-;;; Copyright (C) 2002, 2003, 2004, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 ;;; Copyright (C) 2006 Joakim Verona
 
 ;; Author: Joakim Verona
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb-javascript.el,v 1.2 2007/02/03 13:11:21 zappo Exp $
+;; X-RCS: $Id: semanticdb-javascript.el,v 1.1 2008/09/04 22:43:05 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 

@@ -2,7 +2,7 @@
 
 ;;; Copyright (C) 2006, 2007, 2008 Eric M. Ludlam
 
-;; X-CVS: $Id: semantic-lex-spp.el,v 1.22 2008/08/03 02:12:42 zappo Exp $
+;; X-CVS: $Id: semantic-lex-spp.el,v 1.26 2008/11/14 12:20:24 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -225,6 +225,10 @@ If TOK is made of multiple tokens, convert those to text."
 				 (semantic-lex-spp-one-token-to-txt subtok))
 			       val
 			       ""))
+		   ;; If val is nil, that's probably wrong.
+		   ;; Found a system header case where this was true.
+		   ((null val) "")
+		   ;; Debug wierd stuff.
 		   (t (debug)))
 	     ))
 	  ((stringp txt)
@@ -679,16 +683,19 @@ The VALUE is a spp lexical table."
 	  (princ " . ")
 	  (let ((len (length (cdr rest))))
 	    (cond ((< len 2)
-		   (prin1 rest))
+		   (condition-case nil
+		       (prin1 rest)
+		     (error
+		      (princ "nil ;; Error writing macro\n"))))
 		  ((< len semantic-lex-spp-macro-max-length-to-save)
 		   (princ "\n              ")
 		   (condition-case nil
 		       (prin1 rest)
 		     (error
-		      (princ ";; Error writing macro")))
+		      (princ "nil ;; Error writing macro\n          ")))
 		   )
 		  (t ;; Too Long!
-		   (princ ";; Too Long!\n          ")
+		   (princ "nil ;; Too Long!\n          ")
 		   ))))
 	)
       (princ ")\n          ")

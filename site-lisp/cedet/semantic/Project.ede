@@ -9,7 +9,7 @@
     :name "autoloads"
     :path ""
     :autoload-file "semantic-loaddefs.el"
-    :autoload-dirs '("." "bovine" "wisent")
+    :autoload-dirs '("." "bovine" "wisent" "ctags" "symref")
     )
    (ede-proj-target-elisp "init"
     :name "init"
@@ -21,7 +21,7 @@
     :path ""
     :source '("semantic.el" "semantic-fw.el" "semantic-lex.el" "semantic-lex-spp.el" "semantic-edit.el" "semantic-util.el" "semantic-tag.el" "semantic-tag-ls.el" "semantic-find.el" "semantic-sort.el" "semantic-tag-file.el" "semantic-tag-write.el" "semantic-doc.el" "semantic-idle.el")
     :versionsource '("semantic.el")
-    :aux-packages '("semantic-bovine" "wisent")
+    :aux-packages '("semantic-bovine" "wisent" "semantic-ectag-util")
     )
    (ede-proj-target-elisp "utils"
     :name "utils"
@@ -31,7 +31,7 @@
    (ede-proj-target-elisp "Database"
     :name "Database"
     :path ""
-    :source '("semanticdb.el" "semanticdb-debug.el" "semanticdb-ebrowse.el" "semanticdb-el.el" "semanticdb-file.el" "semanticdb-find.el" "semanticdb-mk.el" "semanticdb-ref.el" "semanticdb-search.el" "semanticdb-typecache.el")
+    :source '("semanticdb.el" "semanticdb-mode.el" "semanticdb-debug.el" "semanticdb-ebrowse.el" "semanticdb-el.el" "semanticdb-file.el" "semanticdb-find.el" "semanticdb-mk.el" "semanticdb-ref.el" "semanticdb-search.el" "semanticdb-typecache.el" "semanticdb-javascript.el")
     )
    (ede-proj-target-elisp "tools"
     :name "tools"
@@ -42,7 +42,7 @@
    (ede-proj-target-elisp "Analyzer"
     :name "Analyzer"
     :path ""
-    :source '("semantic-analyze.el" "semantic-analyze-complete.el" "semantic-analyze-fcn.el" "semantic-analyze-debug.el")
+    :source '("semantic-analyze.el" "semantic-analyze-complete.el" "semantic-analyze-fcn.el" "semantic-analyze-debug.el" "semantic-analyze-refs.el")
     :aux-packages '("eieio" "ede")
     )
    (ede-proj-target-elisp "Languages"

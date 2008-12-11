@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-mru-bookmark.el,v 1.13 2008/08/11 14:19:37 zappo Exp $
+;; X-RCS: $Id: semantic-mru-bookmark.el,v 1.15 2008/10/10 21:37:55 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -81,11 +81,10 @@ Nice values are 'edit, 'read, 'jump, and 'mark.
 (defmethod initialize-instance :AFTER ((sbm semantic-bookmark) &rest fields)
   "Initialize the bookmark SBM with details about :tag."
   (condition-case nil
-      (progn
+      (save-excursion
 	(oset sbm filename (semantic-tag-file-name (oref sbm tag)))
-	(save-excursion
-	  (semantic-go-to-tag (oref sbm tag))
-	  (oset sbm parent (semantic-current-tag-parent))))
+	(semantic-go-to-tag (oref sbm tag))
+	(oset sbm parent (semantic-current-tag-parent)))
     (error (message "Error bookmarking tag.")))
   )
 
@@ -435,7 +434,7 @@ Useful for debugging mrub problems."
   (let* ((out semantic-mru-bookmark-ring)
 	 (ab (data-debug-new-buffer "*TAG RING ADEBUG*"))
 	 )
-    (data-debug-insert-object-fields out "]")
+    (data-debug-insert-object-slots out "]")
     ))
 
 

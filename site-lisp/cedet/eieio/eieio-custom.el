@@ -3,7 +3,7 @@
 ;;; Copyright (C) 1999, 2000, 2001, 2005, 2007, 2008 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
-;; RCS: $Id: eieio-custom.el,v 1.23 2008/06/11 01:51:45 zappo Exp $
+;; RCS: $Id: eieio-custom.el,v 1.25 2008/09/29 00:19:41 zappo Exp $
 ;; Keywords: OO, lisp
 ;;                                                                          
 ;; This program is free software; you can redistribute it and/or modify
@@ -92,7 +92,7 @@ of these.")
   "Buffer local variable in object customize buffers for the current group.")
 
  (defvar eieio-custom-ignore-eieio-co  nil
-   "When true, all customizable fields of the current object are updated.
+   "When true, all customizable slots of the current object are updated.
 Updates occur regardless of the current customization group.")
 
 (define-widget 'object-slot 'group
@@ -200,7 +200,7 @@ Optional argument IGNORE is an extraneous parameter."
 	 (obj (widget-get widget :value))
 	 (master-group (widget-get widget :eieio-group))
 	 (cv (class-v (object-class-fast obj)))
-	 (fields (aref cv class-public-a))
+	 (slots (aref cv class-public-a))
 	 (flabel (aref cv class-public-custom-label))
 	 (fgroup (aref cv class-public-custom-group))
 	 (fdoc (aref cv class-public-doc))
@@ -229,13 +229,13 @@ Optional argument IGNORE is an extraneous parameter."
 			   (capitalize (symbol-name (car groups)))))
 	  (setq groups (cdr groups)))
 	(widget-insert "\n\n")))
-    ;; Loop over all the fields, creating child widgets.
-    (while fields
+    ;; Loop over all the slots, creating child widgets.
+    (while slots
       ;; Output this slot if it has a customize flag associated with it.
       (when (and (car fcust)
 		 (or (not master-group) (member master-group (car fgroup)))
-		 (slot-boundp obj (car fields)))
-	;; In this case, this field has a custom type.  Create it's
+		 (slot-boundp obj (car slots)))
+	;; In this case, this slot has a custom type.  Create it's
 	;; children widgets.
 	(let ((type (eieio-filter-slot-type widget (car fcust)))
 	      (stuff nil))
@@ -268,13 +268,13 @@ Optional argument IGNORE is an extraneous parameter."
 					 (or
 					  (class-slot-initarg
 					   (object-class-fast obj)
-					   (car fields))
-					  (car fields)))))
+					   (car slots))
+					  (car slots)))))
 				 (capitalize
 				  (if (string-match "^:" s)
 				      (substring s (match-end 0))
 				    s)))))
-			    :value (slot-value obj (car fields))
+			    :value (slot-value obj (car slots))
 			    :doc  (if (car fdoc) (car fdoc)
 				    "Slot not Documented.")
 			    :eieio-custom-visibility 'visible
@@ -282,7 +282,7 @@ Optional argument IGNORE is an extraneous parameter."
 			   chil))
 	  )
 	)
-      (setq fields (cdr fields)
+      (setq slots (cdr slots)
 	    fdoc (cdr fdoc)
 	    fcust (cdr fcust)
 	    flabel (cdr flabel)
@@ -303,23 +303,23 @@ Optional argument IGNORE is an extraneous parameter."
 	 (chil (if (widget-get widget :eieio-show-name)
 		   (nthcdr 1 wids) wids))
 	 (cv (class-v (object-class-fast obj)))
-	 (fields (aref cv class-public-a))
+	 (slots (aref cv class-public-a))
 	 (fcust (aref cv class-public-custom)))
     ;; If there are any prefix widgets, clear them.
     ;; -- None yet
     ;; Create a batch of initargs for each slot.
-    (while (and fields chil)
+    (while (and slots chil)
       (if (and (car fcust)
 	       (or eieio-custom-ignore-eieio-co
 		   (not master-group) (member master-group (car fgroup)))
-	       (slot-boundp obj (car fields)))
+	       (slot-boundp obj (car slots)))
 	  (progn
-	    ;; Only customized fields have widgets
+	    ;; Only customized slots have widgets
 	    (let ((eieio-custom-ignore-eieio-co t))
-	      (eieio-oset obj (car fields)
+	      (eieio-oset obj (car slots)
 			  (car (widget-apply (car chil) :value-inline))))
 	    (setq chil (cdr chil))))
-      (setq fields (cdr fields)
+      (setq slots (cdr slots)
 	    fgroup (cdr fgroup)
 	    fcust (cdr fcust)))
     ;; Set any name updates on it.
@@ -428,7 +428,7 @@ Must return the created widget."
 
 (defun eieio-object-value-to-abstract (widget value)
   "For WIDGET, convert VALUE to an abstract /safe/ representation."
-  (if (object-p value) value
+  (if (eieio-object-p value) value
     (if (null value) value
       nil)))
 

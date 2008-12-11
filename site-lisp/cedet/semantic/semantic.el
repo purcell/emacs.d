@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic.el,v 1.208 2008/06/18 23:32:21 zappo Exp $
+;; X-RCS: $Id: semantic.el,v 1.209 2008/09/15 00:24:31 zappo Exp $
 
 (eval-and-compile
   ;; Other package depend on this value at compile time via inversion.
@@ -512,6 +512,11 @@ is requested."
 (semantic-varalias-obsolete 'semantic-bovination-working-type
 			    'semantic-working-type)
 
+(defvar semantic-minimum-working-buffer-size (* 1024 5)
+  "*The minimum size of a buffer before working messages are displayed.
+Buffers smaller than will parse silently.
+Bufferse larger than this will display the working progress bar.")
+
 (defsubst semantic-parser-working-message (&optional arg)
   "Return the message string displayed while parsing.
 If optional argument ARG is non-nil it is appended to the message
@@ -574,16 +579,25 @@ was marked unparseable, then do nothing, and return the cache."
    
 ;;;; Parse the whole system.
      ((semantic-parse-tree-needs-rebuild-p)
-      (working-status-forms
-          (semantic-parser-working-message (buffer-name)) "done"
-        (setq res (semantic-parse-region (point-min) (point-max)))
-        (working-status t))
+      (let ((working-status-dynamic-type
+	     (if (< (point-max) semantic-minimum-working-buffer-size)
+		 nil
+	       working-status-dynamic-type))
+	    (working-status-percentage-type
+	     (if (< (point-max) semantic-minimum-working-buffer-size)
+		 nil
+	       working-status-percentage-type))
+	    )
+	(working-status-forms
+	    (semantic-parser-working-message (buffer-name)) "done"
+	  (setq res (semantic-parse-region (point-min) (point-max)))
+	  (working-status t)))
       ;; Clear the caches when we see there were no errors.
       ;; But preserve the unmatched syntax cache and warnings!
       (let (semantic-unmatched-syntax-cache
-            semantic-unmatched-syntax-cache-check
+	    semantic-unmatched-syntax-cache-check
 	    semantic-parser-warnings)
-        (semantic-clear-toplevel-cache))
+	(semantic-clear-toplevel-cache))
       ;; Set up the new overlays
       (semantic--tag-link-list-to-buffer res)
       ;; Set up the cache with the new results

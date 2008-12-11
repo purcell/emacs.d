@@ -4,7 +4,7 @@
 ;;;   David Ponce
 
 ;; Author: David Ponce <david@dponce.com>
-;; X-RCS: $Id: semantic-java.el,v 1.15 2008/04/01 01:51:25 zappo Exp $
+;; X-RCS: $Id: semantic-java.el,v 1.16 2008/09/03 03:17:19 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -363,7 +363,7 @@ That is TAG `symbol-name' without the leading '@'."
 Return the list of FUN results.  If optional PROPERTY is non nil only
 call FUN for javadoc keyword which have a value for PROPERTY.  FUN
 receives two arguments: the javadoc keyword and its associated
-'javadoc property list. It can return any value.  Nil values are
+'javadoc property list.  It can return any value.  Nil values are
 removed from the result list."
   (delq nil
         (mapcar

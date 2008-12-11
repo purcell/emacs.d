@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semanticdb-ref.el,v 1.8 2008/05/14 02:32:55 zappo Exp $
+;; X-RCS: $Id: semanticdb-ref.el,v 1.9 2008/09/17 14:26:21 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -157,7 +157,7 @@ refreshed before dumping the result."
 				      :i-include myinc))
 	 (ab (data-debug-new-buffer "*References ADEBUG*"))
 	 )
-    (data-debug-insert-object-fields adbc "!"))
+    (data-debug-insert-object-slots adbc "!"))
   )
 
 (provide 'semanticdb-ref)

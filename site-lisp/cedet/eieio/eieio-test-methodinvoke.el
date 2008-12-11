@@ -1,10 +1,10 @@
 ;;; eieio-testsinvoke.el -- eieio tests for method invokation
 
 ;;;
-;; Copyright (C) 2005 Eric M. Ludlam
+;; Copyright (C) 2005, 2008 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
-;; RCS: $Id: eieio-test-methodinvoke.el,v 1.7 2005/09/30 20:18:18 zappo Exp $
+;; RCS: $Id: eieio-test-methodinvoke.el,v 1.8 2008/09/15 00:21:45 zappo Exp $
 ;; Keywords: oop, lisp, tools
 ;;
 ;; This program is free software; you can redistribute it and/or modify
@@ -258,5 +258,92 @@
 	     )))
   (C nil)
   (setq eieio-test-method-order-list (nreverse eieio-test-method-order-list))
+  (eieio-test-match ans)
+  )
+
+;;; Diamond Test
+;; 
+;; For a diamond shaped inheritance structure, (call-next-method) can break.
+;; As such, there are two possible orders.
+
+(defclass D-base0 () () :method-invocation-order :depth-first)
+(defclass D-base1 (D-base0) () :method-invocation-order :depth-first)
+(defclass D-base2 (D-base0) () :method-invocation-order :depth-first)
+(defclass D (D-base1 D-base2) () :method-invocation-order :depth-first)
+
+(defmethod F ((p D))
+  "D"
+  (eieio-test-method-store)
+  (call-next-method))
+
+(defmethod F ((p D-base0))
+  "D-base0"
+  (eieio-test-method-store)
+  ;; This should have no next
+  ;; (when (next-method-p) (call-next-method))
+  )
+
+(defmethod F ((p D-base1))
+  "D-base1"
+  (eieio-test-method-store)
+  (call-next-method))
+
+(defmethod F ((p D-base2))
+  "D-base2"
+  (eieio-test-method-store)
+  (when (next-method-p)
+    (call-next-method))
+  )
+
+(let ((eieio-test-method-order-list nil)
+      (ans '(
+	     (F :PRIMARY D)
+	     (F :PRIMARY D-base1)
+	     ;; (F :PRIMARY D-base2)
+	     (F :PRIMARY D-base0)
+	     )))
+  (F (D nil))
+  (setq eieio-test-method-order-list (nreverse eieio-test-method-order-list))
+  (message "%S" eieio-test-method-order-list)
+  (eieio-test-match ans)
+  )
+
+;;; Other invocation order
+
+(defclass E-base0 () () :method-invocation-order :breadth-first)
+(defclass E-base1 (E-base0) () :method-invocation-order :breadth-first)
+(defclass E-base2 (E-base0) () :method-invocation-order :breadth-first)
+(defclass E (E-base1 E-base2) () :method-invocation-order :breadth-first)
+
+(defmethod F ((p E))
+  (eieio-test-method-store)
+  (call-next-method))
+
+(defmethod F ((p E-base0))
+  (eieio-test-method-store)
+  ;; This should have no next
+  ;; (when (next-method-p) (call-next-method))
+  )
+
+(defmethod F ((p E-base1))
+  (eieio-test-method-store)
+  (call-next-method))
+
+(defmethod F ((p E-base2))
+  (eieio-test-method-store)
+  (when (next-method-p)
+    (call-next-method))
+  )
+
+(let ((eieio-test-method-order-list nil)
+      (ans '(
+	     (F :PRIMARY E)
+	     (F :PRIMARY E-base1)
+	     (F :PRIMARY E-base2)
+	     (F :PRIMARY E-base0)
+	     )))
+  (F (E nil))
+  (setq eieio-test-method-order-list (nreverse eieio-test-method-order-list))
+  (message "%S" eieio-test-method-order-list)
   (eieio-test-match ans)
   )

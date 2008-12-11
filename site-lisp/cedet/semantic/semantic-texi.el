@@ -3,7 +3,7 @@
 ;;; Copyright (C) 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-texi.el,v 1.38 2008/02/11 14:02:16 zappo Exp $
+;; X-RCS: $Id: semantic-texi.el,v 1.40 2008/10/10 21:38:37 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -387,7 +387,12 @@ Optional argument POINT is where to look for the environment."
 
 (defvar semantic-texi-command-completion-list
   (append (mapcar (lambda (a) (car a)) texinfo-section-list)
-	  texinfo-environments
+	  (condition-case nil
+	      texinfo-environments
+	    (error 
+	     ;; XEmacs doesn't use the above.  Split up its regexp
+	     (split-string texinfo-environment-regexp "\\\\|\\|\\^@\\\\(\\|\\\\)")
+	     ))
 	  ;; Is there a better list somewhere?  Here are few
 	  ;; of the top of my head.
 	  "anchor" "asis"
@@ -531,7 +536,7 @@ If TAG is nil, determine a tag based on the current position."
 	 (tags (semanticdb-strip-find-results
 		(semanticdb-with-match-any-mode
 		  (semanticdb-brute-deep-find-tags-by-name name))
-		t))
+		'name))
 	 (docstring nil)
 	 (docstringproto nil)
 	 (docstringvar nil)
@@ -647,7 +652,7 @@ If TAG is nil, it is derived from the deffn under POINT."
   (let* ((name (semantic-tag-name tag))
 	 (tags (semanticdb-fast-strip-find-results
 		(semanticdb-with-match-any-mode
-		  (semanticdb-brute-deep-find-tags-by-name name nil t))
+		  (semanticdb-brute-deep-find-tags-by-name name nil 'name))
 		))
 
 	 (done nil)

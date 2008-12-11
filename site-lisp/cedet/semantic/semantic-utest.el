@@ -1,9 +1,9 @@
 ;;; semantic-utest.el --- Tests for semantic's parsing system.
 
-;;; Copyright (C) 2003, 2004, 2007 Eric M. Ludlam
+;;; Copyright (C) 2003, 2004, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-utest.el,v 1.2 2007/02/03 03:05:06 zappo Exp $
+;; X-RCS: $Id: semantic-utest.el,v 1.7 2008/10/10 21:39:49 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -29,6 +29,7 @@
 ;; and full reparsing system, and anything else I may feel the urge
 ;; to write a test for.
 
+(require 'cedet-utests)
 (require 'semantic)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -298,10 +299,10 @@ function fun2(a,b){ //1
 (defvar semantic-utest-Makefile-buffer-contents
 "
 t1:
-    echo t1
+\techo t1
 
 t2:t1 #1
-    echo t2
+\techo t2
 
 
 "
@@ -414,11 +415,16 @@ class someClass {
 
 
 (defun semantic-utest-makebuffer (filename contents)
+  "Create a buffer for FILENAME for use in a unit test.
+Pre-fill the buffer with CONTENTS."
   (let ((buff (find-file-noselect filename)))
     (set-buffer buff)
+    (setq buffer-offer-save nil)
+    (font-lock-mode -1) ;; Font lock has issues in Emacs 23
     (erase-buffer)
     (insert contents)
     ;(semantic-fetch-tags) ;JAVE could this go here?
+    (set-buffer-modified-p nil)
     buff
     )
   )
@@ -441,17 +447,19 @@ class someClass {
 
       ;; Update tags, and show it.
       (semantic-fetch-tags)
+
       (switch-to-buffer buff)
       (sit-for 0)
       
       ;; Run the tests.
-      (message "First parsing test.")
+      ;;(message "First parsing test.")
       (semantic-utest-verify-names semantic-utest-C-name-contents)
 
-      (message "Invalid tag test.")
+      ;;(message "Invalid tag test.")
       (semantic-utest-last-invalid semantic-utest-C-name-contents '("fun2") "/\\*1\\*/" "/* Deleted this line */")
       (semantic-utest-verify-names semantic-utest-C-name-contents)
 
+      (set-buffer-modified-p nil)
       ;; Clean up
       ;; (kill-buffer buff)
       ;; (kill-buffer buff2)
@@ -463,7 +471,15 @@ class someClass {
 
 
 (defun semantic-utest-generic (testname filename contents name-contents names-removed killme insertme)
-  "generic unit test according to template, should work for languages withouth .h files, python javascript java."
+  "Generic unit test according to template.
+Should work for languages withouth .h files, python javascript java.
+TESTNAME is the name of the test.
+FILENAME is the name of the file to create.
+CONTENTS is the contents of the file to test.
+NAME-CONTENTS is the list of names that should be in the contents.
+NAMES-REMOVED is the list of names that gets removed in the removal step.
+KILLME is the name of items to be killed.
+INSERTME is the text to be inserted after the deletion."
   (save-excursion
     (let ((buff  (semantic-utest-makebuffer filename  contents))
 	  )
@@ -479,16 +495,16 @@ class someClass {
       (sit-for 0)
       
       ;; Run the tests.
-      (message "First parsing test %s." testname)
+      ;;(message "First parsing test %s." testname)
       (semantic-utest-verify-names name-contents)
 
-      (message "Invalid tag test %s." testname)
+      ;;(message "Invalid tag test %s." testname)
       (semantic-utest-last-invalid name-contents names-removed killme insertme)
       (semantic-utest-verify-names name-contents)
 
+      (set-buffer-modified-p nil)
       ;; Clean up
       ;; (kill-buffer buff)
-      ;; (kill-buffer buff2)
       ))
   (message "All %s tests passed." testname)
   )
@@ -554,16 +570,26 @@ class someClass {
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;###autoload
 (defun semantic-utest-main()
   (interactive)
   "call all utests"
+  (cedet-utest-log-start "multi-lang parsing")
+  (cedet-utest-log " * C tests...")
   (semantic-utest-C)
+  (cedet-utest-log " * Python tests...")
   (semantic-utest-Python)
+  (cedet-utest-log " * Java tests...")
   (semantic-utest-Java) 
+  (cedet-utest-log " * Javascript tests...")
   (semantic-utest-Javascript)
+  (cedet-utest-log " * Makefile tests...")
   (semantic-utest-Makefile)
+  (cedet-utest-log " * Scheme tests...")
   (semantic-utest-Scheme)
-  ;(semantic-utest-Html)
+  (cedet-utest-log " * Html tests...")
+  (semantic-utest-Html)
+  ;(cedet-utest-log " * Csharp tests...")
   ;(semantic-utest-Csharp)
   )
 

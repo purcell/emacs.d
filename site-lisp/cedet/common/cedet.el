@@ -7,7 +7,7 @@
 ;; Maintainer: CEDET developers <http://sf.net/projects/cedet>
 ;; Created: 09 Dec 2002
 ;; Keywords: syntax
-;; X-RCS: $Id: cedet.el,v 1.28 2008/07/03 01:37:53 zappo Exp $
+;; X-RCS: $Id: cedet.el,v 1.30 2008/09/02 11:24:54 zappo Exp $
 
 ;; This file is not part of Emacs
 
@@ -108,7 +108,7 @@
   
   ;; Add "<INSTALL-DIR>/cedet/common" to `load-path'.
   (add-to-list 'load-path default-directory)
-  (message "%S added to `load-path'" default-directory)
+  ;;(message "%S added to `load-path'" default-directory)
   ;; Require the inversion library.
   (require 'inversion)
   
@@ -138,7 +138,11 @@
 	  ;; Set up one of the info paths depending on if info is
 	  ;; loaded yet.	  
 	  (if (featurep 'info)
-	      (add-to-list 'Info-directory-list fulldocpath)
+	      (progn
+		(condition-case nil ; Not all emacs versions have this.
+		    (info-initialize)
+		  (error nil))
+		(add-to-list 'Info-directory-list fulldocpath))
 	    (add-to-list 'Info-default-directory-list fulldocpath))
 	  )))
 
@@ -146,15 +150,16 @@
     (require 'eieio)
 
     ;; Then run every package setup.
+    (message "Setting up CEDET packages...")
     (dolist (package-spec cedet-packages)
       (setq package (nth 0 package-spec))
-      (message "Setting up %s..." package)
       (condition-case err
-          (progn
-            (require (intern (format "%s-load" package)))
-            (message "Setting up %s...done" package))
-        (error
-         (message "%s" (error-message-string err)))))
+	  (progn
+	    (require (intern (format "%s-load" package)))
+	    )
+	(error
+	 (message "%s" (error-message-string err)))))
+    (message "Setting up CEDET packages...done")
     ))
 
 (eval-when-compile

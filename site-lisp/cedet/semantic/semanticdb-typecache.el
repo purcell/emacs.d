@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semanticdb-typecache.el,v 1.34 2008/07/01 02:53:43 zappo Exp $
+;; X-RCS: $Id: semanticdb-typecache.el,v 1.36 2008/12/10 21:12:50 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -191,7 +191,8 @@ If there is no table, create one, and fill it in."
     (while stream
       (setq new (cons (semantic-tag-copy (car stream) nil file)
 		      new))
-      (semantic--tag-put-property (car stream) :filename file)
+      ;The below is handled by the tag-copy fcn.
+      ;(semantic--tag-put-property (car new) :filename file)
       (setq stream (cdr stream)))
     (nreverse new)))
 
@@ -206,12 +207,10 @@ If there is no table, create one, and fill it in."
 
 (defsubst semanticdb-typecache-safe-tag-list (tags table)
   "Make the tag list TAGS found in TABLE safe for the typecache.
-Adds a filename if the tags are not in a buffer."
-  (if (semanticdb-in-buffer-p table)
-      tags
-    (semanticdb-typecache-apply-filename
-     (semanticdb-full-filename table)
-     tags)))
+Adds a filename and copies the tags."
+  (semanticdb-typecache-apply-filename
+   (semanticdb-full-filename table)
+   tags))
 
 ;;;###autoload
 (defun semanticdb-typecache-merge-streams (cache1 cache2)
@@ -453,7 +452,8 @@ found tag to be loaded."
 
       ;; Track most recent file.
       (setq thisfile (semantic-tag-file-name ans))
-      (when thisfile (setq lastfile thisfile))
+      (when (and thisfile (stringp thisfile))
+	(setq lastfile thisfile))
 
       ;; If we have a miss, exit, otherwise, update the stream to
       ;; the next set of members.
@@ -469,7 +469,12 @@ found tag to be loaded."
 	(find-file-noselect lastfile)
       ;; We don't want to find-file match, so instead lets
       ;; push the filename onto the return tag.
-      (semantic--tag-put-property ans :filename lastfile)
+      (when ans
+	(setq ans (semantic-tag-copy ans nil lastfile))
+	;; We used to do the below, but we would erroneously be putting
+	;; attributes on tags being shred with other lists.
+	;;(semantic--tag-put-property ans :filename lastfile)
+	)
       )
 
     (if (and ans calculated-scope)
@@ -523,6 +528,14 @@ If there isn't one, create it.
 
 ;;; DEBUG
 ;;
+(defun semanticdb-typecache-complete-flush ()
+  "Flush all typecaches referenced by the current buffer."
+  (interactive)
+  (let* ((path (semanticdb-find-translate-path nil nil)))
+    (dolist (P path)
+      (oset P pointmax nil)
+      (semantic-reset (semanticdb-get-typecache P)))))
+
 ;;;###autoload
 (defun semanticdb-typecache-dump ()
   "Dump the typecache for the current buffer."

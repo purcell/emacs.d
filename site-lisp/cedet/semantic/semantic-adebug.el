@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-adebug.el,v 1.19 2008/06/17 01:21:50 zappo Exp $
+;; X-RCS: $Id: semantic-adebug.el,v 1.23 2008/10/10 21:29:49 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -102,6 +102,7 @@ PARENT specifires any parent tag."
 (defun data-debug-insert-tag (tag prefix prebuttontext &optional parent)
   "Insert TAG into the current buffer at the current point.
 PREFIX specifies text to insert in front of TAG.
+PREBUTTONTEXT is text appearing btewen the prefix and TAG.
 Optional PARENT is the parent tag containing TAG.
 Add text properties needed to allow tag expansion later."
   (let ((start (point))
@@ -234,6 +235,49 @@ PREBUTTONTEXT is some text between prefix and the find results button."
     (insert "\n")
     ))
 
+;;;###autoload
+(defun data-debug-insert-db-and-tag-button (dbtag prefix prebuttontext)
+  "Insert a single summary of short list DBTAG of format (DB . TAG).
+PREFIX is the text that preceeds the button.
+PREBUTTONTEXT is some text between prefix and the find results button."
+  (let ((start (point))
+	(end nil)
+	(str (concat "(#<db/tag "
+		     (object-name-string (car dbtag))
+		     " / "
+		     (semantic-format-tag-name (cdr dbtag) nil t)
+		     ")"))
+	(tip nil))
+    (insert prefix prebuttontext str)
+    (setq end (point))
+    (put-text-property (- end (length str)) end 'face 'font-lock-function-name-face)
+    (put-text-property start end 'ddebug dbtag)
+    (put-text-property start end 'ddebug-indent(length prefix))
+    (put-text-property start end 'ddebug-prefix prefix)
+    (put-text-property start end 'help-echo tip)
+    (put-text-property start end 'ddebug-function
+		       'data-debug-insert-db-and-tag-from-point)
+    (insert "\n")
+    ))
+
+(defun data-debug-insert-db-and-tag-from-point (point)
+  "Insert the find results found at the find results button at POINT."
+  (let ((dbtag (get-text-property point 'ddebug))
+	(indent (get-text-property point 'ddebug-indent))
+	start end
+	)
+    (end-of-line)
+    (setq start (point))
+    (forward-char 1)
+    (data-debug-insert-thing (car dbtag) (make-string indent ? )
+			     "| DB ")
+    (data-debug-insert-tag (cdr dbtag) (concat (make-string indent ? )
+					       "| ")
+			   "TAG ")
+    (setq end (point))
+    (goto-char start)
+    ))
+
 ;;; DEBUG COMMANDS
 ;;
 ;; Various commands to output aspects of the current semantic environment.
@@ -285,7 +329,7 @@ Optional argument CTXT is the context to show."
     (if ctxt
 	(progn
 	  (setq ab (data-debug-new-buffer "*Analyzer ADEBUG*"))
-	  (data-debug-insert-object-fields ctxt "]"))
+	  (data-debug-insert-object-slots ctxt "]"))
       (message "No Context to analyze here."))))
 
 ;;;###autoload
@@ -323,9 +367,9 @@ Optional argument CTXT is the context to show."
       (princ "\nDirectory Part is: ")
       (princ default-directory)
       (princ "\nFound Database is: ")
-      (princ (object-print db))
+      (princ (eieio-object-print db))
       (princ "\nFound Table is: ")
-      (if tab (princ (object-print tab)) (princ "nil"))
+      (if tab (princ (eieio-object-print tab)) (princ "nil"))
       (princ "\n\nAction Summary: ")
       (cond
        ((and tab
@@ -355,7 +399,7 @@ Optional argument CTXT is the context to show."
 	))
       ;; Buffer isn't loaded.  The only clue we have is if the file
       ;; is somehow different from our mark in the semanticdb table.
-      (let* ((stats (file-attributes file 'integer))
+      (let* ((stats (file-attributes file))
 	     (actualsize (nth 7 stats))
 	     (actualmod (nth 5 stats))
 	     )

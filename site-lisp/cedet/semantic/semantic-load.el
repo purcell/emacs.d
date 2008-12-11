@@ -3,7 +3,7 @@
 ;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-load.el,v 1.60 2008/06/10 00:51:54 zappo Exp $
+;; X-RCS: $Id: semantic-load.el,v 1.64 2008/11/28 03:48:33 zappo Exp $
 
 ;; Semantic is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@
 (let ((dir (file-name-directory (locate-library "semantic"))))
   (add-to-list 'load-path (expand-file-name "bovine" dir))
   (add-to-list 'load-path (expand-file-name "wisent" dir))
+  (add-to-list 'load-path (expand-file-name "symref" dir))
+  (add-to-list 'load-path (expand-file-name "ctags" dir))
   (add-to-list 'Info-default-directory-list (expand-file-name "doc" dir))
   )
 
@@ -89,13 +91,13 @@ This includes:
   )
 
 (defun semantic-load-enable-code-helpers ()
-  "Enable some semantic features that provide coding assistance.
+  "Enable some semantic features that provide basic coding assistance.
 This includes `semantic-load-enable-minimum-features' plus:
   `imenu' - Lists Semantic generated tags in the menubar.
   `semantic-idle-summary-mode' - Show a summary for the tag indicated by
                                  code under point.  (intellisense)
   `senator-minor-mode' - Semantic Navigator, and global menu for all
-                         features semantic.
+                         features Semantic.
   `semantic-mru-bookmark-mode' - Provides a `switch-to-buffer' like
                        keybinding for tag names."
   (interactive)
@@ -112,6 +114,8 @@ This includes `semantic-load-enable-minimum-features' plus:
 
   (global-semantic-idle-summary-mode 1)
 
+  (global-semantic-mru-bookmark-mode 1)
+
   ;; Do this last.  This allows other minor modes to get loaded
   ;; in so they appear in the menu properly.
   (global-senator-minor-mode 1)
@@ -123,9 +127,10 @@ This includes `semantic-load-enable-minimum-features' plus:
 This includes `semantic-load-enable-code-helpers'.
   `semantic-stickyfunc-mode' - Tracks current function in header-line
                                (when available).
+  `semantic-decoration-mode' - Decorate tags based on various attributes.
+  `semantic-decoration-on-includes' - Decoration style for include files.
   `semantic-idle-completions-mode' - Provide smart symbol completion
-                                 automatically at idle time.
-  `semantic-decoration-mode' - Decorate tags based on various attributes."
+                                 automatically at idle time."
   (interactive)
 
   (global-semantic-decoration-mode 1)
@@ -146,11 +151,16 @@ This includes `semantic-load-enable-code-helpers'.
 
 (defun semantic-load-enable-excessive-code-helpers ()
   "Enable all semantic features that provide coding assistance.
-This includes all features of `semantic-load-enable-code-helpers' plus:
+This includes all features of `semantic-load-enable-gaudy-code-helpers' plus:
+  `semantic-decoration-on-*-members' - Two decoration modes that
+                    color the background of private and protected methods.
   `which-func-mode' - Display the current function in the mode line."
   (interactive)
 
-  (semantic-load-enable-code-helpers)
+  (semantic-load-enable-gaudy-code-helpers)
+
+  (semantic-toggle-decoration-style "semantic-decoration-on-private-members" t)
+  (semantic-toggle-decoration-style "semantic-decoration-on-protected-members" t)
 
   (if (fboundp #'which-func-mode)
       (add-hook 'semantic-init-hooks (lambda ()
@@ -159,6 +169,7 @@ This includes all features of `semantic-load-enable-code-helpers' plus:
 
 (defun semantic-load-enable-semantic-debugging-helpers ()
   "Enable all semantic features that assist with debugging semantic.
+It does not include `semantic-load-enable-minimum-features'.
 These modes include:
   `semantic-highlight-edits-mode' - Highlight text that has been edited
                             since the last parse step.

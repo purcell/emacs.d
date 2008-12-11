@@ -309,6 +309,9 @@ simple connected graphs and diagrams.  You can also create more
 complex UML class diagrams in it, or even bind UML diagrams directly
 to source code, navigating your source via the UML diagram.
 
+While @cogre{} does have a lot of functionality, it still needs more
+work.  Consider improving @cogre{}.
+
 Read more a bout it in
 @inforef{top, the COGRE manual, cogre}.
 
@@ -442,6 +445,10 @@ obscure features.
 
 To use the JavaScript parser:
 javascript-mode.el : @url{http://www.emacswiki.org/cgi-bin/wiki/JavaScriptMode}
+
+To use Exuberent ctags to emable Semantic support in more major modes,
+or as an extra database backend parser, install ctags:
+@url{http://ctags.sourceforge.net/}
    
 To use the UML chart generation from @code{M-x semantic-dot}
 graphviz dot programs, including @file{dotty}

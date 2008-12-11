@@ -7,7 +7,7 @@
   >  class B can access to all the members of A.
 */
 
-class A
+class Af // %2% ( ( "testfriends.cpp" ) ( "Af" "B::testB" ) )
 {
 public:
   int pubVar;
@@ -21,13 +21,17 @@ private:
 class B
 {
 public:
-  int test();
+  int testB();
+  int testAB();
 
 };
 
 
-int B::test(){
-  A classA;
+int B::testB() {
+  Af classA;
   classA.//-1-
     ; //#1# ( "privateVar" "pubVar" )
+}
+
+int B::testAB() { // %1% ( ( "testfriends.cpp" ) ( "B" "B::testAB" ) )
 }

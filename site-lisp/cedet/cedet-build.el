@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: cedet-build.el,v 1.5 2008/07/03 01:38:58 zappo Exp $
+;; X-RCS: $Id: cedet-build.el,v 1.7 2008/08/23 23:51:08 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -63,7 +63,8 @@
   "Build CEDET in a new Emacs instance started with -Q."
   (interactive)
   (let ((default-directory cedet-build-location))
-    (call-process (concat exec-directory "emacs") nil 0 nil
+    (call-process (expand-file-name invocation-name invocation-directory)
+		  nil 0 nil
                   "-Q" "-l" "cedet-build.el" "-f" "cedet-build")
     (message "Started new Emacs instance to build CEDET ...")))
 
@@ -79,10 +80,12 @@ This only works if EIEIO does not need to be compiled."
 
 (defun cedet-build-msg (fmt &rest args)
   "Show a build message."
-  (switch-to-buffer "*CEDET BYTECOMPILE*" t)
-  (goto-char (point-max))
-  (insert (apply 'format fmt args))
-  (sit-for 0))
+  (if noninteractive
+      (princ (apply 'format fmt args) t)
+    (switch-to-buffer "*CEDET BYTECOMPILE*" t)
+    (goto-char (point-max))
+    (insert (apply 'format fmt args))
+    (sit-for 0)))
 
 (defun cedet-build (&optional override-check)
   "Build CEDET via EDE.
@@ -98,7 +101,7 @@ OVERRIDE-CHECK to override cedet short-cicuit."
   (delete-other-windows)
   (erase-buffer)
   (cedet-build-msg "CEDET BYTE COMPILATION STATUS:\n\n")
-  (cedet-build-msg "STEP 1: Byte compile EIEIO...")
+  (cedet-build-msg "Step 1: Byte compile EIEIO...")
 
   ;; Get EIEIO built first.
   (save-excursion

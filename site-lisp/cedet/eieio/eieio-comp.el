@@ -1,10 +1,10 @@
 ;;; eieio-comp.el -- eieio routines to help with byte compilation
 
 ;;;
-;; Copyright (C) 1995,1996, 1998, 1999, 2000, 2001, 2002, 2005 Eric M. Ludlam
+;; Copyright (C) 1995,1996, 1998, 1999, 2000, 2001, 2002, 2005, 2008 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
-;; RCS: $Id: eieio-comp.el,v 1.13 2005/09/30 20:17:47 zappo Exp $
+;; RCS: $Id: eieio-comp.el,v 1.14 2008/09/29 00:18:57 zappo Exp $
 ;; Keywords: oop, lisp, tools
 ;;
 ;; This program is free software; you can redistribute it and/or modify
@@ -55,18 +55,22 @@ that is called but rarely.  Argument FORM is the body of the method."
   (setq form (cdr form))
   (let* ((meth (car form))
 	 (key (progn (setq form (cdr form))
-		     (cond ((eq ':BEFORE (car form))
+		     (cond ((or (eq ':BEFORE (car form))
+				(eq ':before (car form)))
 			    (setq form (cdr form))
-			    ":BEFORE ")
-			   ((eq ':AFTER (car form))
+			    ":before ")
+			   ((or (eq ':AFTER (car form))
+				(eq ':after (car form)))
 			    (setq form (cdr form))
-			    ":AFTER ")
-			   ((eq ':PRIMARY (car form))
+			    ":after ")
+			   ((or (eq ':PRIMARY (car form))
+				(eq ':primary (car form)))
 			    (setq form (cdr form))
-			    ":PRIMARY ")
-			   ((eq ':STATIC (car form))
+			    ":primary ")
+			   ((or (eq ':STATIC (car form))
+				(eq ':static (car form)))
 			    (setq form (cdr form))
-			    ":STATIC ")
+			    ":static ")
 			   (t ""))))
 	 (params (car form))
 	 (lamparams (byte-compile-defmethod-param-convert params))

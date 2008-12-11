@@ -4,7 +4,7 @@
 //#include <iostream>
 #include "testsubclass.hh"
 
-void animal::moose::setFeet(int numfeet)
+void animal::moose::setFeet(int numfeet) //^1^
 {
   if (numfeet > 4) {
     std::cerr << "Why would a moose have more than 4 feet?" << std::endl;
@@ -14,12 +14,12 @@ void animal::moose::setFeet(int numfeet)
   fFeet = numfeet;
 }
 
-int animal::moose::getFeet()
+int animal::moose::getFeet() //^2^
 {
   return fFeet;
 }
 
-void animal::moose::doNothing()
+void animal::moose::doNothing() //^3^
 {
   animal::moose foo();
 
@@ -27,17 +27,18 @@ void animal::moose::doNothing()
 }
 
 
-void deer::moose::setAntlers(bool have_antlers)
+void deer::moose::setAntlers(bool have_antlers) //^4^
 {
   fAntlers = have_antlers;
 }
 
-bool deer::moose::getAntlers()
+bool deer::moose::getAntlers() //^5^
+// %1% ( ( "testsubclass.cpp" "testsubclass.hh" ) ( "deer::moose::getAntlers" "deer::moose::doSomething" "moose" ) )
 {
   return fAntlers;
 }
 
-void deer::moose::doSomething()
+void deer::moose::doSomething() //^6^
 {
   // All these functions should be identified by semantic analyzer.
   getAntlers();
@@ -193,21 +194,21 @@ int otherFunction()
 /** Test methods within each class for types of access to the baseclass.
  */
 
-bool sneaky::antelope::testAccess()
+bool sneaky::antelope::testAccess() //^7^
 {
   this.// -12-
     // #12# ( "fAntyPrivate" "fAntyProtected" "fAntyPublic" "fQuadProtected" "fQuadPublic" "testAccess" )
     ;
 }
 
-bool sneaky::jackalope::testAccess()
+bool sneaky::jackalope::testAccess() //^8^
 {
   this.// -13-
     // #13# ( "fBunnyPrivate" "fBunnyProtected" "fBunnyPublic" "fQuadProtected" "fQuadPublic" "testAccess" )
     ;
 }
 
-bool sneaky::bugalope::testAccess()
+bool sneaky::bugalope::testAccess() //^9^
 {
   this.// -14-
     // #14# ( "fBugPrivate" "fBugProtected" "fBugPublic" "fQuadPublic" "testAccess" )

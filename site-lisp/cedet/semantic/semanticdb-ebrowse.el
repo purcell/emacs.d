@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>, Joakim Verona
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb-ebrowse.el,v 1.18 2008/03/27 02:52:22 zappo Exp $
+;; X-RCS: $Id: semanticdb-ebrowse.el,v 1.21 2008/11/20 02:55:17 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -53,12 +53,12 @@
 ;;       Call it a second time to refresh the Emacs DB with the file.
 ;;
 
-(require 'semanticdb-search)
 (eval-when-compile
   ;; For generic function searching.
   (require 'eieio)
   (require 'eieio-opt)
   )
+(require 'semanticdb-file)
 
 (eval-and-compile
   ;; Hopefully, this will allow semanticdb-ebrowse to compile under
@@ -100,7 +100,7 @@ be searched."
 (defun semanticdb-create-ebrowse-database (dir)
   "Create an EBROSE database for directory DIR.
 The database file is stored in ~/.semanticdb, or whichever directory
-is specified by `semanticdb-default-system-save-directory'."
+is specified by `semanticdb-default-save-directory'."
   (interactive "DDirectory: ")
   (setq dir (file-name-as-directory dir)) ;; for / on end
   (let* ((savein (semanticdb-ebrowse-file-for-directory dir))
@@ -155,7 +155,7 @@ is specified by `semanticdb-default-system-save-directory'."
 (defun semanticdb-load-ebrowse-caches ()
   "Load all semanticdb controlled EBROWSE caches."
   (interactive)
-  (let ((f (directory-files semanticdb-default-system-save-directory
+  (let ((f (directory-files semanticdb-default-save-directory
 			    t (concat semanticdb-ebrowse-default-file-name "-load.el$") t)))
     (while f
       (load (car f) nil t)
@@ -255,9 +255,9 @@ EML: Our database should probably remember the timestamp/checksum of
 ;; These routines deal with part of the ebrowse interface.
 (defun semanticdb-ebrowse-file-for-directory (dir)
   "Return the file name for DIR where the ebrowse BROWSE file is.
-This file should reside in `semanticdb-default-system-save-directory'."
+This file should reside in `semanticdb-default-save-directory'."
   (let* ((semanticdb-default-save-directory
-	  semanticdb-default-system-save-directory)
+	  semanticdb-default-save-directory)
 	 (B (semanticdb-file-name-directory
 	     'semanticdb-project-database-file
 	     (concat (expand-file-name dir)
@@ -380,7 +380,7 @@ If there is no database for DIRECTORY available, then
 		    (ebrowse-cs-file class)
 		    ;; Not def'd here, assume our current
 		    ;; file
-		    "unknown-proxy.hh"))
+		    (concat default-directory "/unknown-proxy.hh")))
 	 (vars (ebrowse-ts-member-functions tree))
 	 (fns (ebrowse-ts-member-variables tree))
 	 (toks nil)
@@ -425,7 +425,7 @@ Optional argument BASECLASSES specifyies a baseclass to the tree being provided.
 		      (ebrowse-cs-file (ebrowse-ts-class tree))
 		      ;; Not def'd here, assume our current
 		      ;; file
-		      "unknown-proxy.hh")))
+		      (concat default-directory "/unknown-proxy.hh"))))
 
   (let* ((tab (or (semanticdb-file-table dbe fname)
 		  (semanticdb-create-table dbe fname)))
@@ -489,12 +489,13 @@ Optional argument BASECLASSES specifyies a baseclass to the tree being provided.
 ;; Overload for converting the simple faux tag into something better.
 ;;
 (defmethod semanticdb-normalize-tags ((obj semanticdb-table-ebrowse) tags)
-  "Convert in Ebrowse database OBJ one TAG into a complete tag.
+  "Convert in Ebrowse database OBJ a list of TAGS into a complete tag.
 The default tag provided by searches exclude many features of a
-semantic parsed tag.  Look up the file for OBJ, and match TAG
+semantic parsed tag.  Look up the file for OBJ, and match TAGS
 against a semantic parsed tag that has all the info needed, and
 return that."
-  (let ((tagret nil))
+  (let ((tagret nil)
+	)
     ;; SemanticDB will automatically create a regular database
     ;; on top of the file just loaded by ebrowse during the set
     ;; buffer.  Fetch that table, and use it's tag list to look
@@ -506,15 +507,14 @@ return that."
 	  (semanticdb-set-buffer obj)
 	  (let ((ans nil))
 	    ;; Gee, it would be nice to do this, but ebrowse LIES.  Oi.
-	    (if (semantic-tag-with-position-p tag)
-		(progn
-		  (goto-char (semantic-tag-start tag))
-		  (let ((foundtag (semantic-current-tag)))
-		    ;; Make sure the discovered tag is the same as what we started with.
-		    (if (string= (semantic-tag-name tag)
-				 (semantic-tag-name foundtag))
-			;; We have a winner!
-			(setq ans foundtag)))))
+	    (when (semantic-tag-with-position-p tag)
+	      (goto-char (semantic-tag-start tag))
+	      (let ((foundtag (semantic-current-tag)))
+		;; Make sure the discovered tag is the same as what we started with.
+		(when (string= (semantic-tag-name tag)
+			       (semantic-tag-name foundtag))
+		  ;; We have a winner!
+		  (setq ans foundtag))))
 	    ;; Sometimes ebrowse lies.  Do a generic search
 	    ;; to find it within this file.
 	    (when (not ans)
@@ -529,6 +529,49 @@ return that."
 	    ))
 	(setq tags (cdr tags))))
     tagret))
+
+(defmethod semanticdb-normalize-one-tag ((obj semanticdb-table-ebrowse) tag)
+  "Convert in Ebrowse database OBJ one TAG into a complete tag.
+The default tag provided by searches exclude many features of a
+semantic parsed tag.  Look up the file for OBJ, and match TAG
+against a semantic parsed tag that has all the info needed, and
+return that."
+  (let ((tagret nil)
+	(objret nil))
+    ;; SemanticDB will automatically create a regular database
+    ;; on top of the file just loaded by ebrowse during the set
+    ;; buffer.  Fetch that table, and use it's tag list to look
+    ;; up the tag we just got, and thus turn it into a full semantic
+    ;; tag.
+    (save-excursion
+      (semanticdb-set-buffer obj)
+      (setq objret semanticdb-current-table)
+      (when (not objret)
+	;; What to do??
+	(debug))
+      (let ((ans nil))
+	;; Gee, it would be nice to do this, but ebrowse LIES.  Oi.
+	(when (semantic-tag-with-position-p tag)
+	  (goto-char (semantic-tag-start tag))
+	  (let ((foundtag (semantic-current-tag)))
+	    ;; Make sure the discovered tag is the same as what we started with.
+	    (when (string= (semantic-tag-name tag)
+			   (semantic-tag-name foundtag))
+	      ;; We have a winner!
+	      (setq ans foundtag))))
+	;; Sometimes ebrowse lies.  Do a generic search
+	;; to find it within this file.
+	(when (not ans)
+	  ;; We might find multiple hits for this tag, and we have no way
+	  ;; of knowing which one the user wanted.  Return the first one.
+	  (setq ans (semantic-deep-find-tags-by-name
+		     (semantic-tag-name tag)
+		     (semantic-fetch-tags))))
+	(if (semantic-tag-p ans)
+	    (setq tagret ans)
+	  (setq tagret (car ans)))
+	))
+    (cons objret tagret)))
 
 ;;; Search Overrides
 ;;

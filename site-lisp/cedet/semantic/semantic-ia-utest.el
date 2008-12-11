@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-ia-utest.el,v 1.12 2008/07/01 21:09:16 zappo Exp $
+;; X-RCS: $Id: semantic-ia-utest.el,v 1.17 2008/11/29 15:09:46 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -30,6 +30,7 @@
 ;; where # is 1, 2, 3, etc, and some sort of answer list.
 
 ;;; Code:
+(require 'cedet-utests)
 (require 'semantic)
 
 (defvar semantic-ia-utest-file-list
@@ -37,16 +38,21 @@
      "tests/testsubclass.cpp"
      "tests/testtypedefs.cpp"
      "tests/testfriends.cpp"
+     "tests/testusing.cpp"
      )
   "List of files with analyzer completion test points.")
 
 ;;;###autoload
-(defun semantic-ia-utest ()
-  "Run the semantic ia unit test against stored sources."
-  (interactive)
+(defun semantic-ia-utest (arg)
+  "Run the semantic ia unit test against stored sources.
+Argument ARG specifies which set of tests to run.
+ 1 - ia utests
+ 2 - regs utests
+ 3 - symrefs utests"
+  (interactive "P")
   (save-excursion
 
-    (set-buffer (find-file-noselect
+    (set-buffer (semantic-find-file-noselect
 		 (locate-library "semantic-ia-utest.el")))
 
     (let ((fl semantic-ia-utest-file-list))
@@ -56,33 +62,44 @@
       (while fl
 
 	(let ((fb (find-buffer-visiting (car fl)))
-	      (b (find-file-noselect (car fl) t)))
+	      (b (semantic-find-file-noselect (car fl) t)))
 
 	  ;; Run the test on it.
 	  (save-excursion
 	    (set-buffer b)
-	    (semantic-ia-utest-buffer))
+
+	    ;; This line will also force the include, scope, and typecache.
+	    (semantic-clear-toplevel-cache)
+	    ;; Force tags to be parsed.
+	    (semantic-fetch-tags)
+
+	    (semantic-ia-utest-log "** Starting tests in %s"
+				   (buffer-name))
+	    
+	    (when (or (not arg) (= arg 1))
+	      (semantic-ia-utest-buffer))
+	    
+	    (when (or (not arg) (= arg 2))
+	      (set-buffer b)
+	      (semantic-ia-utest-buffer-refs))
+
+	    (when (or (not arg) (= arg 3))
+	      (set-buffer b)
+	      (semantic-sr-utest-buffer-refs))
+
+	    (semantic-ia-utest-log "** Completed tests in %s\n"
+				   (buffer-name))
+	    )
 
 	  ;; If it wasn't already in memory, whack it.
 	  (when (not fb)
 	    (kill-buffer b))
 	  )
 	(setq fl (cdr fl)))))
-  (pop-to-buffer "*UTEST LOG*" t t)
-  (goto-char (point-max))
-  (search-backward "semantic-ia-utest")
-  (beginning-of-line)
-  (recenter 1)
   )
 
 (defun semantic-ia-utest-buffer ()
   "Run a unit-test pass in the current buffer."
-  (interactive)
-
-  ;; This line will also force the include, scope, and typecache.
-  (semantic-clear-toplevel-cache)
-  ;; Force tags to be parsed.
-  (semantic-fetch-tags)
 
   (let* ((idx 1)
 	 (regex-p nil)
@@ -134,7 +151,7 @@
 	    (setq pass (cons idx pass))
 	  (setq fail (cons idx fail))
 	  (semantic-ia-utest-log
-	   "Failed %d.  Desired: %S Actual %S"
+	   "  Failed %d.  Desired: %S Actual %S"
 	   idx desired actual)
 	  )
 	)
@@ -145,36 +162,205 @@
     (if fail
 	(progn
 	  (semantic-ia-utest-log
-	   "Unit tests in %s failed tests %S"
-	   (buffer-name) (reverse fail))
+	   "  Unit tests (completions) failed tests %S"
+	   (reverse fail))
 	  )
-      (semantic-ia-utest-log "Unit tests in %s passed (%d total)"
-			     (buffer-name)
+      (semantic-ia-utest-log "  Unit tests (completions) passed (%d total)"
+			     (- idx 1)))
+
+    ))
+
+(defun semantic-ia-utest-buffer-refs ()
+  "Run a unit-test pass in the current buffer."
+
+  (let* ((idx 1)
+	 (regex-p nil)
+	 (p nil)
+	 (pass nil)
+	 (fail nil)
+	 ;; Exclude unpredictable system files in the
+	 ;; header include list.
+	 (semanticdb-find-default-throttle
+	  (remq 'system semanticdb-find-default-throttle))
+	 )
+    ;; Keep looking for test points until we run out.
+    (while (save-excursion
+	     (setq regex-p (concat "//\\s-*\\^" (number-to-string idx) "^" )
+		   )
+	     (goto-char (point-min))
+	     (save-match-data
+	       (when (re-search-forward regex-p nil t)
+		 (setq p (match-beginning 0))))
+	     p)
+
+      (save-excursion
+
+	(goto-char p)
+	(forward-char -1)
+
+	(let* ((ct (semantic-current-tag))
+	       (refs (semantic-analyze-tag-references ct))
+	       (impl (semantic-analyze-refs-impl refs t))
+	       (proto (semantic-analyze-refs-proto refs t))
+	       (pf nil)
+	       )
+	  (setq
+	   pf
+	   (catch 'failed
+	     (if (and impl proto (car impl) (car proto))
+		 (let (ct2 ref2 impl2 proto2
+			   newtarget newstart)
+		   (cond
+		    ((semantic-equivalent-tag-p (car impl) ct)
+		     ;; We are on an IMPL.  Go To the proto, and find matches.
+		     (semantic-go-to-tag (car proto))
+		     (setq newtarget (car impl)
+			   newstart (car proto))
+		     )
+		    ((semantic-equivalent-tag-p (car proto) ct)
+		     ;; We are on a PROTO.  Go to the imple, and find matches
+		     (semantic-go-to-tag (car impl))
+		     (setq newtarget (car proto)
+			   newstart (car impl))
+		     )
+		    (t
+		     ;; No matches is a fail.
+		     (throw 'failed t)
+		     ))
+		   ;; Get the new tag, does it match?
+		   (setq ct2 (semantic-current-tag))
+
+		   ;; Does it match?
+		   (when (not (semantic-equivalent-tag-p ct2 newstart))
+		     (throw 'failed t))
+		   
+		   ;; Can we double-jump?
+		   (setq ref2 (semantic-analyze-tag-references ct)
+			 impl2 (semantic-analyze-refs-impl ref2 t)
+			 proto2 (semantic-analyze-refs-proto ref2 t))
+
+		   (when (or (not (and impl2 proto2))
+			     (not
+			      (and (semantic-equivalent-tag-p
+				    (car impl) (car impl2))
+				   (semantic-equivalent-tag-p
+				    (car proto) (car proto2)))))
+		     (throw 'failed t))
+		   )
+	       
+	       ;; Else, no matches at all, so another fail.
+	       (throw 'failed t)
+	       )))
+
+	   (if (not pf)
+	      ;; We passed
+	      (setq pass (cons idx pass))
+	    ;; We failed.
+	    (setq fail (cons idx fail))
+	    (semantic-ia-utest-log
+	     "  Failed %d.  For %s (Num impls %d) (Num protos %d)"
+	     idx (if ct (semantic-tag-name ct) "<No tag found>")
+	     (length impl) (length proto))
+	    ))
+
+	(setq p nil)
+	(setq idx (1+ idx))
+	
+	))
+    
+    (if fail
+	(progn
+	  (semantic-ia-utest-log
+	   "  Unit tests (refs) failed tests")
+	  )
+      (semantic-ia-utest-log "  Unit tests (refs) passed (%d total)"
+			     (- idx 1)))
+
+    ))
+
+(defun semantic-sr-utest-buffer-refs ()
+  "Run a unit-test pass in the current buffer."
+
+  ;; This line will also force the include, scope, and typecache.
+  (semantic-clear-toplevel-cache)
+  ;; Force tags to be parsed.
+  (semantic-fetch-tags)
+
+  (let* ((idx 1)
+	 (p nil)
+	 (tag nil)
+	 (desired nil)
+	 (actual-result nil)
+	 (actual nil)
+	 (pass nil)
+	 (fail nil)
+	 ;; Exclude unpredictable system files in the
+	 ;; header include list.
+	 (semanticdb-find-default-throttle
+	  (remq 'system semanticdb-find-default-throttle))
+	 )
+    ;; Keep looking for test points until we run out.
+    (while (save-excursion
+	     (setq regex-p (concat "//\\s-*\\%" (number-to-string idx) "%" )
+		   )
+	     (goto-char (point-min))
+	     (save-match-data
+	       (when (re-search-forward regex-p nil t)
+		 (setq tag (semantic-current-tag))
+		 (goto-char (match-end 0))
+		 (setq desired (read (buffer-substring (point) (point-at-eol))))
+		 ))
+	     tag)
+
+      (setq actual-result (semantic-symref-find-references-by-name
+			   (semantic-tag-name tag) 'target))
+
+      (setq actual (list (mapcar
+			  'file-name-nondirectory
+			  (semantic-symref-result-get-files actual-result))
+			 (mapcar
+			  'semantic-format-tag-canonical-name
+			  (semantic-symref-result-get-tags actual-result))))
+
+      
+      (if (equal desired actual)
+	  ;; We passed
+	  (setq pass (cons idx pass))
+	;; We failed.
+	(setq fail (cons idx fail))
+	(when (not (equal (car actual) (car desired)))
+	  (semantic-ia-utest-log
+	   "Failed FNames %d: Actual: %S Desired: %S"
+	   idx (car actual) (car desired)))
+	(when (not (equal (car (cdr actual)) (car (cdr desired))))
+	  (semantic-ia-utest-log
+	   "Failed TNames %d: Actual: %S Desired: %S"
+	   idx (car (cdr actual)) (car (cdr desired))))
+	)
+
+      (setq idx (1+ idx))
+      (setq tag nil))
+    
+    (if fail
+	(progn
+	  (semantic-ia-utest-log
+	   "  Unit tests (symrefs) failed tests")
+	  )
+      (semantic-ia-utest-log "  Unit tests (symrefs) passed (%d total)"
 			     (- idx 1)))
 
     ))
 
 (defun semantic-ia-utest-start-log ()
   "Start up a testlog for a run."
-  (let ((b (get-buffer-create "*UTEST LOG*"))
-	)
-    (save-excursion
-      (set-buffer b)
-      (goto-char (point-max))
-      (insert "\n\nsemantic-ia-utest log at ")
-      (insert (current-time-string))
-      (insert "\n\n"))))
+  ;; Redo w/ CEDET utest framework.
+  (cedet-utest-log-start "semantic: analyzer tests"))
 
 (defun semantic-ia-utest-log (&rest args)
   "Log some test results.
 Pass ARGS to format to create the log message."
-  (let ((b (get-buffer-create "*UTEST LOG*"))
-	)
-    (set-buffer b)
-    (goto-char (point-max))
-    (insert (apply 'format args))
-    (insert "\n")
-    ))
+  ;; Forward to CEDET utest framework.
+  (apply 'cedet-utest-log args))
 
 (provide 'semantic-ia-utest)
 ;;; semantic-ia-utest.el ends here

@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-dep.el,v 1.10 2008/04/11 20:02:48 zappo Exp $
+;; X-RCS: $Id: semantic-dep.el,v 1.11 2008/08/23 00:11:04 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -84,7 +84,7 @@ check both the project and system directories.")
   "Create a mode-local value of the system-dependency include path.
 MODE is the `major-mode' this name/value pairs is for.
 NAME is the name of the customizable value users will use.
-VALUE is the path to add.
+VALUE is the path (a list of strings) to add.
 DOCSTRING is a documentation string applied to the variable NAME
 users will customize.
 

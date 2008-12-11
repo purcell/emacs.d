@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-ia-sb.el,v 1.20 2008/02/02 20:03:19 zappo Exp $
+;; X-RCS: $Id: semantic-ia-sb.el,v 1.21 2008/09/08 01:47:44 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -123,6 +123,9 @@ DIRECTORY is the current directory, which is ignored, and ZERO is 0."
 	(semantic-ia-sb-string-list cnt
 				    'speedbar-tag-face
 				    'semantic-sb-token-jump))
+      ;; If this analyzer happens to point at a complete symbol, then
+      ;; see if we can dig up some documentation for it.
+      (semantic-ia-sb-show-doc analysis)
       ;; Let different classes draw more buttons.
       (semantic-ia-sb-more-buttons analysis)
       (when completions
@@ -132,6 +135,19 @@ DIRECTORY is the current directory, which is ignored, and ZERO is 0."
 					  'speedbar-tag-face
 					  'semantic-ia-sb-complete)))
       )))
+
+(defmethod semantic-ia-sb-show-doc ((context semantic-analyze-context))
+  "Show documentation about CONTEXT iff CONTEXT points at a complete symbol."
+  (let ((sym (car (reverse (oref context prefix))))
+	(doc nil))
+    (when (semantic-tag-p sym)
+      (setq doc (semantic-documentation-for-tag sym))
+      (when doc
+	(speedbar-insert-separator "Documentation")
+	(insert doc)
+	(insert "\n")
+	))
+    ))
 
 (defmethod semantic-ia-sb-more-buttons ((context semantic-analyze-context))
   "Show a set of speedbar buttons specific to CONTEXT."

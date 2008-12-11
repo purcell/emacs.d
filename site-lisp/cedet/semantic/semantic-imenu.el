@@ -5,7 +5,7 @@
 
 ;; Created By: Paul Kinnucan
 ;; Maintainer: Eric Ludlam
-;; X-RCS: $Id: semantic-imenu.el,v 1.57 2008/02/19 02:33:34 zappo Exp $
+;; X-RCS: $Id: semantic-imenu.el,v 1.58 2008/10/19 11:37:46 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -195,7 +195,9 @@ Optional argument REST is some extra stuff."
 	    (progn
 	      (if (not (eq ob (current-buffer)))
 		  (switch-to-buffer ob))
-	      (imenu-default-goto-function name os rest))
+	      (imenu-default-goto-function name os rest)
+	      (pulse-momentary-highlight-one-line (point))
+	      )
 	  ;; This should never happen, but check anyway.
 	  (message "Imenu is out of date, try again. (internal bug)")
 	  (setq imenu--index-alist nil)))
@@ -205,18 +207,25 @@ Optional argument REST is some extra stuff."
 	(let ((file (aref position 0))
 	      (pos (aref position 1)))
 	  (and file (find-file file))
-	  (imenu-default-goto-function name pos rest))
+	  (imenu-default-goto-function name pos rest)
+	  (pulse-momentary-highlight-one-line (point))
+	  )
       ;; When the POSITION is the symbol 'file-only' it means that this
       ;; is a directory index entry and there is no tags in this
       ;; file. So just jump to the beginning of the file.
       (if (eq position 'file-only)
 	  (progn
 	    (find-file name)
-	    (imenu-default-goto-function name (point-min) rest))
+	    (imenu-default-goto-function name (point-min) rest)
+	    (pulse-momentary-highlight-one-line (point))
+	    )
         ;; Probably POSITION don't came from a semantic imenu.  Try
         ;; the default imenu goto function.
         (condition-case nil
-            (imenu-default-goto-function name position rest)
+	    (progn
+	      (imenu-default-goto-function name position rest)
+	      (pulse-momentary-highlight-one-line (point))
+	      )
           (error
            (message "Semantic Imenu override problem. (Internal bug)")
            (setq imenu--index-alist nil)))))

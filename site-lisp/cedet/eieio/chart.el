@@ -1,10 +1,10 @@
 ;;; chart.el --- Draw charts (bar charts, etc)
 
-;;; Copyright (C) 1996, 1998, 1999, 2001, 2004, 2005, 2007 Eric M. Ludlam
+;;; Copyright (C) 1996, 1998, 1999, 2001, 2004, 2005, 2007, 2008 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
 ;; Version: 0.2
-;; RCS: $Id: chart.el,v 1.17 2007/02/18 17:57:07 zappo Exp $
+;; RCS: $Id: chart.el,v 1.18 2008/10/10 20:57:38 zappo Exp $
 ;; Keywords: OO, chart, graph
 ;;                                                                          
 ;; This program is free software; you can redistribute it and/or modify
@@ -608,6 +608,7 @@ SORT-PRED if desired."
 
 ;;; Test code
 
+;;;###autoload
 (defun chart-test-it-all ()
   "Test out various charting features."
   (interactive)

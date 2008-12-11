@@ -1,7 +1,7 @@
 ;;; working --- Display a "working" message in the minibuffer.
 
 ;; Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003,
-;;               2004, 2007  Eric M. Ludlam
+;;               2004, 2007, 2008  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Version: 1.5
@@ -400,7 +400,7 @@ is t to display the done string, or the percentage to display."
   (let* ((ps (if (eq percent t)
 		 (concat "... " working-donestring)
 	       (working-percent-display length percent)))
-	 (psl (+ 2 length (if (eq percent t) working-ref1 (length ps)))))
+	 (psl (+ 2 length (length ps))))
     (cond ((eq percent t)
 	   (concat (working-bar-display psl 100) " " ps))
 	  (t
@@ -414,7 +414,7 @@ is t to display the done string, or the percentage to display."
   (let* ((ps (if (eq percent t)
 		 (concat "... " working-donestring)
 	       (working-percent-display length percent)))
-	 (psl (+ 1 length (if (eq percent t) working-ref1 (length ps)))))
+	 (psl (+ 1 length (length ps))))
     (cond ((eq percent t)
 	   (concat ps " " (working-bar-display psl 100)))
 	  (t
@@ -444,7 +444,7 @@ is t to display the done string, or the percentage to display."
   (let* ((ps (if (eq percent t)
 		 (concat " ... " working-donestring)
 	       (working-percent-display length percent)))
-	 (psl (+ 1 length (if (eq percent t) working-ref1 (length ps)))))
+	 (psl (+ 1 length (length ps))))
     (cond ((eq percent t)
 	   (concat (working-bubble-display psl t)))
 	  (t
@@ -582,30 +582,32 @@ is t to display the done string, or the number to display."
 (defun working-verify-parenthesis-a ()
   "Verify all the parenthesis in an elisp program buffer."
   (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (working-status-forms "Scanning" "done"
+  (working-status-forms "Scanning" "done"
+    (save-excursion
+      (goto-char (point-min))
       (while (not (eobp))
 	;; Use default buffer position.
 	(working-status)
 	(forward-sexp 1)
 	(sleep-for 0.05)
 	)
-      (working-status t))))
+      (working-status t))
+    (sit-for 1)))
  
 (defun working-verify-parenthesis-b ()
   "Verify all the parenthesis in an elisp program buffer."
   (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (working-status-forms "Scanning" "done"
+  (working-status-forms "Scanning" "done"
+    (save-excursion
+      (goto-char (point-min))
       (while (not (eobp))
 	;; Use default buffer position.
 	(working-dynamic-status nil)
 	(forward-sexp 1)
 	(sleep-for 0.05)
 	)
-      (working-dynamic-status t))))
+      (working-dynamic-status t))
+    (sit-for 0)))
 
 (defun working-wait-for-keypress ()
   "Display funny graphics while waiting for a keypress."

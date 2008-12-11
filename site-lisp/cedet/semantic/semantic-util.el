@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-util.el,v 1.135 2008/03/18 17:46:47 zappo Exp $
+;; X-RCS: $Id: semantic-util.el,v 1.138 2008/11/28 03:02:55 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -117,6 +117,7 @@ buffer, or a filename.  If SOMETHING is nil return nil."
    ((and (featurep 'semanticdb)
 	 (semanticdb-minor-mode-p)
 	 (semanticdb-abstract-table-child-p something))
+    (semanticdb-refresh-table something)
     (semanticdb-get-tags something))
    ;; Semanticdb find-results
    ((and (featurep 'semanticdb)
@@ -243,11 +244,6 @@ STREAM is the list of tags to complete from."
        (error "No local types"))))
 
 
-;;;; Mode-specific Token information
-;;
-
-
-
 ;;; Interactive Functions for
 ;;
 (defun semantic-describe-tag (&optional tag)
@@ -259,7 +255,7 @@ If TAG is nil, describe the tag under the cursor."
   (if tag (message (semantic-format-tag-summarize tag))))
 
 
-;;; Putting keys on tokens.
+;;; Putting keys on tags.
 ;;
 (defun semantic-add-label (label value &optional tag)
   "Add a LABEL with VALUE on TAG.
@@ -286,7 +282,71 @@ If TAG is not specified, use the tag at point."
 ;;; Hacks
 ;;
 ;; Some hacks to help me test these functions
-(defun semantic-current-token (p)
+(defun semantic-describe-buffer-var-helper (varsym buffer)
+  "Display to standard out the value of VARSYM in BUFFER."
+  (let ((value (save-excursion
+		 (set-buffer buffer)
+		 (symbol-value varsym))))
+    (cond
+     ((and (consp value)
+	   (< (length value) 10))
+      ;; Draw the list of things in the list.
+      (princ (format "  %s:  #<list of %d items>\n"
+		     varsym (length value)))
+      (data-debug-insert-stuff-list
+       value "    " )
+      )
+     (t
+      ;; Else do a one-liner.
+      (data-debug-insert-thing
+       value " " (concat " " (symbol-name varsym) ": "))
+      ))))
+
+(defun semantic-describe-buffer ()
+  "Describe the semantic environment for the current buffer."
+  (interactive)
+  (let ((buff (current-buffer))
+	)
+
+    (with-output-to-temp-buffer (help-buffer)
+      (with-current-buffer standard-output
+	(princ "Semantic Configuration in ")
+	(princ (buffer-name buff))
+	(princ "\n\n")
+
+	(princ "Buffer specific configuration items:\n")
+	(let ((vars '(major-mode
+		      semantic-case-fold
+		      semantic-expand-nonterminal
+		      semantic-parser-name
+		      semantic-parse-tree-state
+		      semantic-lex-analyzer
+		      semantic-lex-reset-hooks
+		      )))
+	  (dolist (V vars)
+	    (semantic-describe-buffer-var-helper V buff)))
+
+	(princ "\nGeneral configuration items:\n")
+	(let ((vars '(semantic-inhibit-functions
+		      semantic-init-hooks
+		      semantic-init-db-hooks
+		      semantic-unmatched-syntax-hook
+		      semantic--before-fetch-tags-hook
+		      semantic-after-toplevel-bovinate-hook
+		      semantic-after-toplevel-cache-change-hook
+		      semantic-before-toplevel-cache-flush-hook
+		      semantic-dump-parse
+		      
+		      )))
+	  (dolist (V vars)
+	    (semantic-describe-buffer-var-helper V buff)))
+	
+	(princ "\n\n")
+	(mode-local-describe-bindings-2 buff)
+	)))
+  )
+
+(defun semantic-current-tag-interactive (p)
   "Display the current token.
 Argument P is the point to search from in the current buffer."
   (interactive "d")

@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-decorate-mode.el,v 1.25 2008/06/10 00:42:52 zappo Exp $
+;; X-RCS: $Id: semantic-decorate-mode.el,v 1.26 2008/09/07 11:19:10 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -515,7 +515,7 @@ Used by decoration style: `semantic-tag-boundary'."
 
 (defface semantic-decoration-on-private-members-face
   '((((class color) (background dark))
-     (:background "#100000"))
+     (:background "#200000"))
     (((class color) (background light))
      (:background "#8fffff")))
   "*Face used to show privately scoped tags in.
@@ -537,7 +537,7 @@ Use a primary decoration."
 ;;
 (defface semantic-decoration-on-protected-members-face
   '((((class color) (background dark))
-     (:background "#000010"))
+     (:background "#000020"))
     (((class color) (background light))
      (:background "#fffff8")))
   "*Face used to show protected scoped tags in.

@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede.el,v 1.103 2008/08/12 01:32:53 zappo Exp $
+;; RCS: $Id: ede.el,v 1.119 2008/12/10 15:29:59 zappo Exp $
 (defconst ede-version "1.0pre5"
   "Current version of the Emacs EDE.")
 
@@ -137,12 +137,6 @@ type is required and the load function used.")
    )
   "List of vectos defining how to determine what type of projects exist.")
 
-;;; AUTOLOADS
-;;
-;; These autoloads must appear here to avoid recursive loading.
-;;
-(require 'ede-load)
-
 ;;; Generic project information manager objects
 ;;
 ;;;###autoload
@@ -154,6 +148,7 @@ type is required and the load function used.")
 	 :label "Name"
 	 :group (default name)
 	 :documentation "Name of this target.")
+   ;; @todo - I think this should be "dir", and not "path".
    (path :initarg :path
 	 :type string
 	 ;:custom string
@@ -225,9 +220,13 @@ which files this object is interested in."
 	    :label "Version"
 	    :group (default name)
 	    :documentation "The version number used when distributing files.")
-   (file :initarg :file
-	 :type string
-	 ;; No initarg.  We don't want this saved in a file.
+   (directory :type string
+	      :initarg :directory
+	      :documentation "Directory this project is associated with.")
+   (dirinode :type number
+	     :documentation "The inode id for :directory.")
+   (file :type string
+	 :initarg :file
 	 :documentation "File name where this project is stored.")
    (rootproject ; :initarg - no initarg, don't save this slot!
     :initform nil
@@ -350,7 +349,8 @@ and target specific elements such as build variables.")
 	 :accessor ede-object-menu)
    )
   "Top level EDE project specification.
-All specific project types must derive from this project.")
+All specific project types must derive from this project."
+  :method-invocation-order :depth-first)
 
 ;;; Management variables
 ;;
@@ -390,27 +390,34 @@ Do not set this to non-nil globally.  It is used internally.")
   (interactive)
   (let ((p ede-projects)
 	(c ede-project-cache-files))
-    (set-buffer (find-file-noselect ede-project-placeholder-cache-file t))
-    (erase-buffer)
-    (insert ";; EDE project cache file.
-;; This contains a list of projects you have visited.\n(")
-    (while p
-      (when (car p)
-	(let ((f (oref (car p) file)))
-	  (when (file-exists-p f)
-	    (insert "\n  \"" f "\""))))
-      (setq p (cdr p)))
-    (while c
-      (insert "\n \"" (car c) "\"")
-      (setq c (cdr c)))
-    (insert "\n)\n")
     (condition-case nil
-	(save-buffer 0)
+	(progn
+	  (set-buffer (find-file-noselect ede-project-placeholder-cache-file t))
+	  (erase-buffer)
+	  (insert ";; EDE project cache file.
+;; This contains a list of projects you have visited.\n(")
+	  (while p
+	    (when (and (car p) (ede-project-p p))
+	      (let ((f (oref (car p) file)))
+		(when (file-exists-p f)
+		  (insert "\n  \"" f "\""))))
+	    (setq p (cdr p)))
+	  (while c
+	    (insert "\n \"" (car c) "\"")
+	    (setq c (cdr c)))
+	  (insert "\n)\n")
+	  (condition-case nil
+	      (save-buffer 0)
+	    (error
+	     (message "File %s could not be saved."
+		      ede-project-placeholder-cache-file)))
+	  (kill-buffer (current-buffer))
+	  )
       (error
-       (message "File %s could not be saved."
-		ede-project-placeholder-cache-file)))
-    (kill-buffer (current-buffer))
-    ))
+       (message "File %s could not be read."
+	       	ede-project-placeholder-cache-file))
+
+      )))
 
 (defun ede-load-cache ()
   "Load the cache of EDE projects."
@@ -458,6 +465,9 @@ Do not set this to non-nil globally.  It is used internally.")
 		     (list 'pf
 			   (list 'if (list 'obj-of-class-p
 					   obj 'ede-target)
+				 ;; @todo -I think I can change
+				 ;; this to not need ede-load-project-file
+				 ;; but I'm not sure how to test well.
 				 (list 'ede-load-project-file
 				       (list 'oref obj 'path))
 				 obj))
@@ -560,7 +570,8 @@ Argument MENU-DEF is the menu definition to use."
 	  (tskip nil))
       (if (not obj)
 	  nil
-	(setq targets (oref obj targets)
+	(setq targets (when (slot-boundp obj 'targets)
+			(oref obj targets))
 	      ede-obj (if (listp ede-object) ede-object (list ede-object)))
 	;; First, collect the build items from the project
 	(setq newmenu (append newmenu (ede-menu-items-build obj t)))
@@ -618,16 +629,22 @@ Argument MENU-DEF is the menu definition to use."
     (let* ((obj (ede-current-project))
 	   (class (if obj (object-class obj)))
 	   (menu nil))
-      (while (and class (slot-exists-p class 'menu))
-	(setq menu (append menu (oref class menu))
-	      class (class-parent class))
-	(if (listp class) (setq class (car class))))
-      (append
-       '( [ "Add Target" ede-new-target (ede-current-project) ]
-	  [ "Remove Target" ede-delete-target ede-object ]
-	  "-")
-       menu
-       )))))
+      (condition-case err
+	  (progn
+	    (while (and class (slot-exists-p class 'menu))
+	      ;;(message "Looking at class %S" class)
+	      (setq menu (append menu (oref class menu))
+		    class (class-parent class))
+	      (if (listp class) (setq class (car class))))
+	    (append
+	     '( [ "Add Target" ede-new-target (ede-current-project) ]
+		[ "Remove Target" ede-delete-target ede-object ]
+		"-")
+	     menu
+	     ))
+	(error (message "Err found: %S" err)
+	       menu)
+	)))))
 
 (defun ede-customize-forms-menu (menu-def)
   "Create a menu of the project, and targets that can be customized.
@@ -635,8 +652,9 @@ Argument MENU-DEF is the definition of the current menu."
   (easy-menu-filter-return
    (easy-menu-create-menu
     "Customize Project"
-    (let ((obj (ede-current-project))
-	  (targ nil))
+    (let* ((obj (ede-current-project))
+	   (targ (when (slot-boundp obj 'targets)
+		   (oref obj targets))))
       (when obj
 	;; Make custom menus for everything here.
 	(append (list
@@ -645,7 +663,8 @@ Argument MENU-DEF is the definition of the current menu."
 		(mapcar (lambda (o)
 			  (cons (concat "Target " (ede-name o))
 				(eieio-customize-object-group o)))
-			(oref obj targets))))))))
+			targ)))))))
+
 
 (defun ede-apply-object-keymap (&optional default)
   "Add target specific keybindings into the local map.
@@ -687,6 +706,14 @@ If optional argument CURRENT is non-nil, return sub-menu code."
 (eval-and-compile
   (autoload 'ede-dired-minor-mode "ede-dired" "EDE commands for dired" t))
 
+(defun ede-apply-target-options ()
+  "Apply options to the current buffer for the active project/target."
+  (if (ede-current-project)
+      (ede-set-project-variables (ede-current-project)))
+  (ede-apply-object-keymap)
+  (ede-apply-preprocessor-map)
+  )
+
 (defun ede-turn-on-hook ()
   "Turn on EDE minor mode in the current buffer if needed.
 To be used in hook functions."
@@ -716,24 +743,33 @@ mode.  nil means to toggle the mode."
       (if (and ede-minor-mode (not ede-constructing)
 	       (ede-directory-project-p default-directory))
 	  (progn
-	    (ede-load-project-file default-directory)
+	    (when (not (ede-directory-get-open-project default-directory))
+	      (ede-load-project-file default-directory))
 	    (setq ede-object (ede-buffer-object))
 	    (if (and (not ede-object) (ede-current-project))
 		(ede-auto-add-to-target))
-	    (if (ede-current-project)
-		(ede-set-project-variables (ede-current-project)))
-	    (ede-apply-object-keymap))
+	    (ede-apply-target-options))
 	;; If we fail to have a project here, turn it back off.
 	(if (not (interactive-p))
 	    (setq ede-minor-mode nil))))))
-  
+
+(defun ede-reset-all-buffers (onoff)
+  "Reset all the buffers due to change in EDE.
+ONOFF indicates enabling or disabling the mode."
+  (let ((b (buffer-list)))
+    (while b
+      (when (buffer-file-name (car b))
+	(ede-buffer-object (car b))
+	)
+      (setq b (cdr b)))))
+
 ;;;###autoload
 (defun global-ede-mode (arg)
   "Turn on variable `ede-minor-mode' mode when ARG is positive.
 If ARG is negative, disable.  Toggle otherwise."
   (interactive "P")
   (if (not arg)
-      (if (member 'ede-turn-on-hook find-file-hooks)
+      (if (member 'ede-turn-on-hook find-file-hook)
 	  (global-ede-mode -1)
 	(global-ede-mode 1))
     (if (or (eq arg t) (> arg 0))
@@ -748,18 +784,7 @@ If ARG is negative, disable.  Toggle otherwise."
       (remove-hook 'ecb-source-path-functions 'ede-ecb-project-paths)
       (remove-hook 'find-file-hooks 'ede-turn-on-hook)
       (remove-hook 'dired-mode-hook 'ede-turn-on-hook))
-    (let ((b (buffer-list)))
-      (while b
-	(if (buffer-file-name (car b))
-	    (save-excursion
-	      (set-buffer (car b))
-	      (ede-minor-mode arg))
-	  (save-excursion
-	    (set-buffer (car b))
-	    (if (eq major-mode 'dired-mode)
-		(ede-minor-mode arg)
-	      )))
-	(setq b (cdr b))))))
+    (ede-reset-all-buffers arg)))
 
 (defun ede-auto-add-to-target ()
   "Look for a target that wants to own the current file.
@@ -795,7 +820,7 @@ of objects with the `ede-want-file-p' method."
 			      (format "Add %s to target: " (buffer-file-name))
 			      al nil t)))
 		   (setq ans (assoc ans al))
-		   (cond ((object-p (cdr ans))
+		   (cond ((eieio-object-p (cdr ans))
 			  (ede-add-file (cdr ans)))
 			 ((eq (cdr ans) 'new)
 			  (ede-new-target))
@@ -847,10 +872,14 @@ Optional argument NAME is the name to give this project."
   (let* ((obj (object-assoc type 'name ede-project-class-files))
 	 (nobj (let ((f (oref obj file))
 		     (pf (oref obj proj-file)))
+		 ;; We are about to make something new, changing the
+		 ;; state of existing directories.
+		 (ede-project-directory-remove-hash default-directory)
 		 ;; Make sure this class gets loaded!
 		 (require f)
 		 (make-instance (oref obj class-sym)
 				:name (or name (read-string "Name: "))
+				:directory default-directory
 				:file (cond ((stringp pf)
 					     (expand-file-name pf))
 					    ((fboundp pf)
@@ -911,7 +940,9 @@ ARGS are additional arguments to pass to method sym."
   (interactive)
   (let ((toppath (ede-toplevel-project default-directory))
 	(ede-deep-rescan t))
-    (project-rescan (ede-load-project-file toppath))))
+    (project-rescan (ede-load-project-file toppath))
+    (ede-reset-all-buffers 1)
+    ))
 
 (defun ede-new-target (&rest args)
   "Create a new target specific to this type of project file.
@@ -922,7 +953,7 @@ a string \"y\" or \"n\", which answers the y/n question done interactively."
   (apply 'project-new-target (ede-current-project) args)
   (setq ede-object nil)
   (setq ede-object (ede-buffer-object (current-buffer)))
-  (ede-apply-object-keymap))
+  (ede-apply-target-options))
 
 (defun ede-new-target-custom ()
   "Create a new target specific to this type of project file."
@@ -945,7 +976,7 @@ a string \"y\" or \"n\", which answers the y/n question done interactively."
 	(setq ede-object nil)
 	(setq ede-object (ede-buffer-object (current-buffer)))
 	(setq condemned (cdr condemned))))
-    (ede-apply-object-keymap)))
+    (ede-apply-target-options)))
 
 (defun ede-add-file (target)
   "Add the current buffer to a TARGET in the current project."
@@ -968,7 +999,7 @@ a string \"y\" or \"n\", which answers the y/n question done interactively."
     (error "Can't add %s to target %s: Wrong file type"
 	   (file-name-nondirectory (buffer-file-name))
 	   (object-name target)))
-  (ede-apply-object-keymap))
+  (ede-apply-target-options))
 
 ;;;###autoload
 (defun ede-remove-file (&optional force)
@@ -988,7 +1019,7 @@ Optional argument FORCE forces the file to be removed without asking."
       (setq eo (cdr eo)))
     (setq ede-object nil)
     (setq ede-object (ede-buffer-object (current-buffer)))
-    (ede-apply-object-keymap)))
+    (ede-apply-target-options)))
 
 (defun ede-edit-file-target ()
   "Enter the project file to hand edit the current buffer's target."
@@ -1074,13 +1105,13 @@ Optional argument GROUP is the slot group to display."
     (while ov
       (if (not (assoc (car (car ov)) nv))
 	  (save-excursion
-	    (mapcar (lambda (b)
-		      (set-buffer b)
-		      (kill-local-variable (car (car ov))))
-		    (ede-project-buffers proj))))
+	    (mapc (lambda (b)
+		    (set-buffer b)
+		    (kill-local-variable (car (car ov))))
+		  (ede-project-buffers proj))))
       (setq ov (cdr ov)))
-    (mapcar (lambda (b) (ede-set-project-variables proj b))
-	    (ede-project-buffers proj))))
+    (mapc (lambda (b) (ede-set-project-variables proj b))
+	  (ede-project-buffers proj))))
 
 (defmethod eieio-done-customizing ((target ede-target))
   "Call this when a user finishes customizing TARGET."
@@ -1099,39 +1130,6 @@ Optional argument GROUP is the slot group to display."
 Return the new object created in its place."
   this
   )
-
-(defmethod ede-project-root ((this ede-project-placeholder))
-  "If a project knows it's root, return it here.
-Allows for one-project-object-for-a-tree type systems."
-  (oref this rootproject))
-
-(defmethod ede-project-root-directory ((this ede-project-placeholder)
-				       &optional file)
-  "If a project knows it's root, return it here.
-Allows for one-project-object-for-a-tree type systems.
-Optional FILE is the file to test.  It is ignored in preference
-of the anchor file for the project."
-  (file-name-directory (oref this file)))
-
-
-(defmethod ede-project-root ((this ede-project-autoload))
-  "If a project knows it's root, return it here.
-Allows for one-project-object-for-a-tree type systems."
-  nil)
-
-(defmethod ede-project-root-directory ((this ede-project-autoload)
-				       &optional file)
-  "If a project knows it's root, return it here.
-Allows for one-project-object-for-a-tree type systems.
-Optional FILE is the file to test.  If there is no FILE, use
-the current buffer."
-  (when (slot-boundp this :proj-root)
-    (let ((rootfcn (oref this proj-root)))
-      (when rootfcn
-	(condition-case nil
-	    (funcall rootfcn file)
-	  (error (funcall rootfcn)))
-	))))
 
 
 ;;; EDE project target baseline methods.
@@ -1252,7 +1250,7 @@ Do this by extracting the lowest directory name."
   "Convert path in a standard way for a given project.
 Default to making it project relative.
 Argument THIS is the project to convert PATH to."
-  (let ((pp (file-name-directory (expand-file-name (oref this file))))
+  (let ((pp (ede-project-root-directory this))
 	(fp (expand-file-name path)))
     (if (string-match (regexp-quote pp) fp)
 	(substring fp (match-end 0))
@@ -1289,6 +1287,7 @@ Argument THIS is the project to convert PATH to."
       (setq src (cdr src)))
     src))
 
+;; @todo - move to ede-files ??
 (defmethod ede-expand-filename ((this ede-project) filename &optional force)
   "Return a fully qualified file name based on project THIS.
 FILENAME should be just a filename which occurs in a directory controlled
@@ -1296,7 +1295,7 @@ by this project.
 Optional argument FORCE forces the default filename to be provided even if it
 doesn't exist."
   ;; @todo - Can Id utils do this?
-  (let ((path (file-name-directory (oref this file)))
+  (let ((path (ede-project-root-directory this))
 	(proj (oref this subproj))
 	(found nil))
     (or
@@ -1431,69 +1430,19 @@ Return nil if the project file does not exist."
 
 ;;; EDE basic functions
 ;;
-(defun ede-directory-project-p (dir)
-  "Return a project description object if DIR has a project.
-This depends on an up to date `ede-project-class-files' variable."
-  (let ((types ede-project-class-files)
-	(ret nil))
-    ;; Loop over all types, loading in the first type that we find.
-    (while (and types (not ret))
-      (if (ede-dir-to-projectfile (car types) dir)
-	  (progn
-	    ;; We found one!  Require it now since we will need it.
-	    (require (oref (car types) file))
-	    (setq ret (car types))))
-      (setq types (cdr types)))
-    ret))
-
-(defun ede-up-directory (dir)
-  "Return a path that is up one directory.
-Argument DIR is the directory to trim upwards."
-  (let* ((fad (directory-file-name dir))
-	 (fnd (file-name-directory fad)))
-    (if (string= dir fnd) ; This will catch the old string-match against
-			  ; c:/ for DOS like systems.
-	nil
-      fnd)))
-  
-(defun ede-toplevel-project-or-nil (path)
-  "Starting with PATH, find the toplevel project directory, or return nil.
-nil is returned if the current directory is not a part ofa project."
-  (if (ede-directory-project-p path)
-      (ede-toplevel-project path)
-    nil))
-
-(defun ede-toplevel-project (path)
-  "Starting with PATH, find the toplevel project directory."
-  (let* ((toppath (expand-file-name path))
-	 (newpath toppath)
-	 (proj (ede-directory-project-p path))
-	 (ans nil))
-    (if proj
-	;; If we already have a project, ask it what the root is.
-	(setq ans (ede-project-root-directory proj)))
-
-    ;; If PROJ didn't know, or there is no PROJ, then
-
-    ;; Loop up to the topmost project, and then load that single
-    ;; project, and it's sub projects.  When we are done, identify the
-    ;; sub-project object belonging to file.
-    (while (and (not ans) proj)
-      (setq toppath newpath
-	    newpath (ede-up-directory toppath))
-      (setq proj (ede-directory-project-p newpath))
-
-      (when proj
-	;; We can home someone in the middle knows too.
-	(setq ans (ede-project-root-directory proj)))
-      )
-    (or ans toppath)))
+(defun ede-add-project-to-global-list (proj)
+  "Add the project PROJ to the master list of projects."
+  (add-to-list 'ede-projects proj))
 
 ;;;###autoload
-(defun ede-load-project-file (file)
-  "Project file independent way to read in FILE."
+(defun ede-load-project-file (dir)
+  "Project file independent way to read a project in from DIR."
+  ;; Only load if something new is going on.  Flush the dirhash.
+  (ede-project-directory-remove-hash dir)
+  ;; Do the load
   ;;(message "EDE LOAD : %S" file)
-  (let* ((path (expand-file-name (file-name-directory file)))
+  (let* ((file dir)
+	 (path (expand-file-name (file-name-directory file)))
 	 (pfc (ede-directory-project-p path))
 	 (toppath nil)
 	 (o nil))
@@ -1525,7 +1474,9 @@ nil is returned if the current directory is not a part ofa project."
 	  ;; If not, get it now.
 	  (let ((ede-constructing t) (afo nil))
 	    (setq o (funcall (oref pfc load-type) toppath))
-	    (setq ede-projects (cons o ede-projects))))
+	    (when (not o)
+	      (error "Project type error: :load-type failed to create a project"))
+	    (ede-add-project-to-global-list o)))
       (let (tocheck found)
 	;; Now find the project file belonging to FILE!
 	(setq tocheck (list o))
@@ -1539,59 +1490,61 @@ nil is returned if the current directory is not a part ofa project."
 	    (setq tocheck
 		  (append (cdr tocheck) newbits))))
 	(if (not found)
-	    (error "No project for %s, but passes project-p test" file))
-	;; Now that the file has been reset inside the project object, do
-	;; the cache maintenance.
-	(setq ede-project-cache-files
-	      (delete (oref found file) ede-project-cache-files))
+	    (message "No project for %s, but passes project-p test" file)
+	  ;; Now that the file has been reset inside the project object, do
+	  ;; the cache maintenance.
+	  (setq ede-project-cache-files
+		(delete (oref found file) ede-project-cache-files)))
 	found)))))
-
-(defun ede-toplevel (&optional subproj)
-  "Return the ede project which is the root of the current project.
-Optional argument SUBPROJ indicates a subproject to start from
-instead of the current project."
-  (let* ((cp (or subproj (ede-current-project)))
-	 )
-    (or (and cp (ede-project-root cp))
-	(progn
-	  (while (ede-parent-project cp)
-	    (setq cp (ede-parent-project cp)))
-	  cp))))
 
 ;;;###autoload
 (defun ede-parent-project (&optional obj)
   "Return the project belonging to the parent directory.
 nil if there is no previous directory.
 Optional argument OBJ is an object to find the parent of."
-  (if (and obj (eq (ede-project-root obj)
-		   (oref obj file)))
+  (if (and obj (and (ede-project-root obj)
+		    (eq (ede-project-root obj)
+			(oref obj file))))
+      ;; The above case is a SHORTCUT if the project has defined
+      ;; a way to calculate the project root.
       nil ;; we are at the root.
-    (ede-load-project-file
-     (concat (ede-up-directory
-	      (if obj (file-name-directory (oref obj file))
-		default-directory))
-	     "/"))))
+    (let* ((updir (ede-up-directory
+		   (if obj (oref obj directory)
+		     default-directory)))
+	   (ans (ede-directory-get-toplevel-open-project updir)))
+      (or ans
+	(when (ede-directory-project-p updir)
+	  (ede-load-project-file
+	   (file-name-as-directory updir)))))))
 
 (defun ede-current-project (&optional dir)
   "Return the current project file.
 If optional DIR is provided, get the project for DIR instead."
-  (if dir
-      (ede-load-project-file dir)
-    (ede-load-project-file default-directory)))
+  (let* ((ldir (or dir default-directory))
+	 (ans (ede-directory-get-open-project ldir)))
+    (or ans
+	;; No open project, if this dir pass project-p, then load.
+	(when (ede-directory-project-p ldir)
+	  (ede-load-project-file ldir)))))
 
 (defun ede-buffer-object (&optional buffer)
-  "Return the target object for BUFFER."
-  (if (not buffer) (setq buffer (current-buffer)))
-  (let ((po (ede-current-project)))
-    (if po (setq ede-object (ede-find-target po buffer))))
-  (if (= (length ede-object) 1)
-      (setq ede-object (car ede-object)))
-  ede-object)
+  "Return the target object for BUFFER.
+This function clears cached values and recalculates."
+  (save-excursion
+    (if (not buffer) (setq buffer (current-buffer)))
+    (set-buffer buffer)
+    (setq ede-object nil)
+    (let ((po (ede-current-project)))
+      (if po (setq ede-object (ede-find-target po buffer))))
+    (if (= (length ede-object) 1)
+	(setq ede-object (car ede-object)))
+    ede-object))
 
 (defmethod ede-target-in-project-p ((proj ede-project) target)
   "Is PROJ the parent of TARGET?
 If TARGET belongs to a subproject, return that project file."
-  (if (memq target (oref proj targets))
+  (if (and (slot-boundp proj 'targets)
+	   (memq target (oref proj targets)))
       proj
     (let ((s (oref proj subproj))
 	  (ans nil))
@@ -1645,7 +1598,10 @@ Handles complex path issues."
 
 (defmethod ede-buffer-mine ((this ede-target) buffer)
   "Return non-nil if object THIS lays claim to the file in BUFFER."
-  (ede-target-buffer-in-sourcelist this buffer (oref this source)))
+  (condition-case nil
+      (ede-target-buffer-in-sourcelist this buffer (oref this source))
+    ;; An error implies a bad match.
+    (error nil)))
 
 
 ;;; Project mapping
@@ -1736,6 +1692,15 @@ Return the first non-nil value returned by PROC."
 ;;
 ;; These items are needed by ede-cpp-root to add better support for
 ;; configuring items for Semantic.
+(defun ede-apply-preprocessor-map ()
+  "Apply preprocessor tables onto the current buffer."
+  (when ede-object
+    (let ((map (ede-preprocessor-map ede-object)))
+      (when map
+	;; We can't do a require for the below symbol.
+	(setq semantic-lex-spp-project-macro-symbol-obarray
+	      (semantic-lex-make-spp-table map))
+	))))
 
 (defmethod ede-system-include-path ((this ede-project))
   "Get the system include path used by project THIS."
@@ -1787,10 +1752,10 @@ If VARIABLE is not project local, just use set."
     (if (and p (setq a (assoc variable (oref p local-variables))))
 	(progn
 	  (setcdr a value)
-	  (mapcar (lambda (b) (save-excursion
-				(set-buffer b)
-				(set variable value)))
-		  (ede-project-buffers p)))
+	  (mapc (lambda (b) (save-excursion
+			      (set-buffer b)
+			      (set variable value)))
+		(ede-project-buffers p)))
       (set variable value))
     (ede-commit-local-variables p))
   value)
@@ -1832,7 +1797,7 @@ Display the results as a debug list."
   (let ((ab nil))
     (when (ede-current-project)
       (setq ab (data-debug-new-buffer "*Analyzer ADEBUG*"))
-      (data-debug-insert-object-fields (ede-current-project) "")
+      (data-debug-insert-object-slots (ede-current-project) "")
       )))
 
 ;;; Hooks & Autoloads
@@ -1869,6 +1834,8 @@ Display the results as a debug list."
   "Upload auto-generated HTML to the web site.")
 
 (provide 'ede)
+
+(require 'ede-files)
 
 ;; If this does not occur after the provide, we can get a recursive
 ;; load.  Yuck!

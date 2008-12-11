@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-decorate-include.el,v 1.14 2008/07/15 01:32:07 zappo Exp $
+;; X-RCS: $Id: semantic-decorate-include.el,v 1.20 2008/12/09 19:37:17 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -36,6 +36,8 @@
 ;;; Code:
 
 ;;; FACES AND KEYMAPS
+(defvar semantic-decoratiton-mouse-3 (if (featurep 'xemacs) [ button3 ] [ mouse-3 ])
+  "The keybinding lisp object to use for binding the right mouse button.")
 
 ;;; Includes that that are in a happy state!
 ;;
@@ -47,7 +49,7 @@ Used by the decoration style: `semantic-decoration-on-includes'."
 
 (defvar semantic-decoration-on-include-map
   (let ((km (make-sparse-keymap)))
-    (define-key km [ mouse-3 ] 'semantic-decoration-include-menu)
+    (define-key km semantic-decoratiton-mouse-3 'semantic-decoration-include-menu)
     km)
   "Keymap used on includes.")
 
@@ -59,40 +61,50 @@ Used by the decoration style: `semantic-decoration-on-includes'."
   semantic-decoration-on-include-menu
   semantic-decoration-on-include-map
   "Include Menu"
-  '("Include" :visible (progn nil)
+  (list 
+   "Include"
+   (semantic-menu-item
     ["What Is This?" semantic-decoration-include-describe
      :active t
-     :help "Describe why this include has been marked this way." ]
+     :help "Describe why this include has been marked this way." ])
+   (semantic-menu-item
     ["Visit This Include" semantic-decoration-include-visit
      :active t
-     :help "Visit this include file." ]
-    "---"
+     :help "Visit this include file." ])
+   "---"
+   (semantic-menu-item
     ["Summarize includes current buffer" semantic-decoration-all-include-summary
      :active t
-     :help "Show a summary for the current buffer containing this include." ]
+     :help "Show a summary for the current buffer containing this include." ])
+   (semantic-menu-item
     ["List found includes (load unparsed)" semanticdb-find-test-translate-path
      :active t
-     :help "List all includes found for this file, and parse unparsed files." ]
+     :help "List all includes found for this file, and parse unparsed files." ])
+   (semantic-menu-item
     ["List found includes (no loading)" semanticdb-find-test-translate-path-no-loading
      :active t
-     :help "List all includes found for this file, do not parse unparsed files." ]
+     :help "List all includes found for this file, do not parse unparsed files." ])
+   (semantic-menu-item
     ["List all unknown includes" semanticdb-find-adebug-lost-includes
      :active t
-     :help "Show a list of all includes semantic cannot find for this file." ]
-    "---"
+     :help "Show a list of all includes semantic cannot find for this file." ])
+   "---"
+   (semantic-menu-item
     ["Customize System Include Path" semantic-customize-system-include-path
      :active (get 'semantic-dependency-system-include-path major-mode)
-     :help "Run customize for the system include path for this major mode." ]
+     :help "Run customize for the system include path for this major mode." ])
+   (semantic-menu-item
     ["Add a System Include Path" semantic-add-system-include
      :active t
-     :help "Add an include path for this session." ]
+     :help "Add an include path for this session." ])
+   (semantic-menu-item
     ["Remove a System Include Path" semantic-remove-system-include
      :active t
-     :help "Add an include path for this session." ]
-    ;;["" semantic-decoration-include- 
-    ;; :active t
-    ;; :help "" ]
-    ))
+     :help "Add an include path for this session." ])
+   ;;["" semantic-decoration-include- 
+   ;; :active t
+   ;; :help "" ]
+   ))
 
 ;;; Unknown Includes!
 ;;
@@ -108,7 +120,7 @@ Used by the decoration style: `semantic-decoration-on-unknown-includes'."
 (defvar semantic-decoration-on-unknown-include-map
   (let ((km (make-sparse-keymap)))
     ;(define-key km [ mouse-2 ] 'semantic-decoration-unknown-include-describe)
-    (define-key km [ mouse-3 ] 'semantic-decoration-unknown-include-menu)
+    (define-key km semantic-decoratiton-mouse-3 'semantic-decoration-unknown-include-menu)
     km)
   "Keymap used on unparsed includes.")
 
@@ -119,34 +131,43 @@ Used by the decoration style: `semantic-decoration-on-unknown-includes'."
   semantic-decoration-on-unknown-include-menu
   semantic-decoration-on-unknown-include-map
   "Unknown Include Menu"
-  '("Unknown Include" :visible (progn nil)
+  (list
+   "Unknown Include"
+   (semantic-menu-item
     ["What Is This?" semantic-decoration-unknown-include-describe
      :active t
-     :help "Describe why this include has been marked this way." ]
+     :help "Describe why this include has been marked this way." ])
+   (semantic-menu-item
     ["List all unknown includes" semanticdb-find-adebug-lost-includes
      :active t
-     :Help "Show a list of all includes semantic cannot find for this file." ]
-    "---"
+     :help "Show a list of all includes semantic cannot find for this file." ])
+   "---"
+   (semantic-menu-item
     ["Summarize includes current buffer" semantic-decoration-all-include-summary
      :active t
-     :help "Show a summary for the current buffer containing this include." ]
+     :help "Show a summary for the current buffer containing this include." ])
+   (semantic-menu-item
     ["List found includes (load unparsed)" semanticdb-find-test-translate-path
      :active t
-     :help "List all includes found for this file, and parse unparsed files." ]
+     :help "List all includes found for this file, and parse unparsed files." ])
+   (semantic-menu-item
     ["List found includes (no loading)" semanticdb-find-test-translate-path-no-loading
      :active t
-     :help "List all includes found for this file, do not parse unparsed files." ]
-    "---"
+     :help "List all includes found for this file, do not parse unparsed files." ])
+   "---"
+   (semantic-menu-item
     ["Customize System Include Path" semantic-customize-system-include-path
      :active (get 'semantic-dependency-system-include-path major-mode)
-     :help "Run customize for the system include path for this major mode." ]
+     :help "Run customize for the system include path for this major mode." ])
+   (semantic-menu-item
     ["Add a System Include Path" semantic-add-system-include
      :active t
-     :help "Add an include path for this session." ]
+     :help "Add an include path for this session." ])
+   (semantic-menu-item
     ["Remove a System Include Path" semantic-remove-system-include
      :active t
-     :help "Add an include path for this session." ]
-    ))
+     :help "Add an include path for this session." ])
+   ))
 
 ;;; Includes that need to be parsed.
 ;;
@@ -161,7 +182,7 @@ Used by the decoration style: `semantic-decoration-on-unparsed-includes'."
 
 (defvar semantic-decoration-on-unparsed-include-map
   (let ((km (make-sparse-keymap)))
-    (define-key km [ mouse-3 ] 'semantic-decoration-unparsed-include-menu)
+    (define-key km semantic-decoratiton-mouse-3 'semantic-decoration-unparsed-include-menu)
     km)
   "Keymap used on unparsed includes.")
 
@@ -173,46 +194,58 @@ Used by the decoration style: `semantic-decoration-on-unparsed-includes'."
   semantic-decoration-on-unparsed-include-menu
   semantic-decoration-on-unparsed-include-map
   "Unparsed Include Menu"
-  '("Unparsed Include" :visible (progn nil)
+  (list
+   "Unparsed Include"
+   (semantic-menu-item
     ["What Is This?" semantic-decoration-unparsed-include-describe
      :active t
-     :help "Describe why this include has been marked this way." ]
+     :help "Describe why this include has been marked this way." ])
+   (semantic-menu-item
     ["Visit This Include" semantic-decoration-include-visit
      :active t
-     :help "Visit this include file so that header file's tags can be used." ]
+     :help "Visit this include file so that header file's tags can be used." ])
+   (semantic-menu-item
     ["Parse This Include" semantic-decoration-unparsed-include-parse-include
      :active t
-     :help "Parse this include file so that header file's tags can be used." ]
+     :help "Parse this include file so that header file's tags can be used." ])
+   (semantic-menu-item
     ["Parse All Includes" semantic-decoration-unparsed-include-parse-all-includes
      :active t
-     :help "Parse all the includes so the contents can be used." ]
-    "---"
+     :help "Parse all the includes so the contents can be used." ])
+   "---"
+   (semantic-menu-item
     ["Summarize includes current buffer" semantic-decoration-all-include-summary
      :active t
-     :help "Show a summary for the current buffer containing this include." ]
+     :help "Show a summary for the current buffer containing this include." ])
+   (semantic-menu-item
     ["List found includes (load unparsed)" semanticdb-find-test-translate-path
      :active t
-     :help "List all includes found for this file, and parse unparsed files." ]
+     :help "List all includes found for this file, and parse unparsed files." ])
+   (semantic-menu-item
     ["List found includes (no loading)" semanticdb-find-test-translate-path-no-loading
      :active t
-     :help "List all includes found for this file, do not parse unparsed files." ]
+     :help "List all includes found for this file, do not parse unparsed files." ])
+   (semantic-menu-item
     ["List all unknown includes" semanticdb-find-adebug-lost-includes
      :active t
-     :help "Show a list of all includes semantic cannot find for this file." ]
-    "---"
+     :help "Show a list of all includes semantic cannot find for this file." ])
+   "---"
+   (semantic-menu-item
     ["Customize System Include Path" semantic-customize-system-include-path
      :active (get 'semantic-dependency-system-include-path major-mode)
-     :help "Run customize for the system include path for this major mode." ]
+     :help "Run customize for the system include path for this major mode." ])
+   (semantic-menu-item
     ["Add a System Include Path" semantic-add-system-include
      :active t
-     :help "Add an include path for this session." ]
+     :help "Add an include path for this session." ])
+   (semantic-menu-item
     ["Remove a System Include Path" semantic-remove-system-include
      :active t
-     :help "Add an include path for this session." ]
-    ;;["" semantic-decoration-unparsed-include- 
-    ;; :active t
-    ;; :help "" ]
-    ))
+     :help "Add an include path for this session." ])
+   ;;["" semantic-decoration-unparsed-include- 
+   ;; :active t
+   ;; :help "" ]
+   ))
 
 
 ;;; MODES
@@ -253,12 +286,14 @@ This mode provides a nice context menu on the include statements."
       ;; An unparsed file.
       (setq face 'semantic-decoration-on-unparsed-includes
 	    map semantic-decoration-on-unparsed-include-map)
-      ;; Set ourselves up for synchronization
-      (semanticdb-cache-get
-       table 'semantic-decoration-unparsed-include-cache)
-      ;; Add a dependancy.
-      (let ((table semanticdb-current-table))
-	(semanticdb-add-reference table tag))
+      (when table
+	;; Set ourselves up for synchronization
+	(semanticdb-cache-get
+	 table 'semantic-decoration-unparsed-include-cache)
+	;; Add a dependancy.
+	(let ((table semanticdb-current-table))
+	  (semanticdb-add-reference table tag))
+	)
       ))
 
     (let ((ol (semantic-decorate-tag tag
@@ -266,7 +301,7 @@ This mode provides a nice context menu on the include statements."
 				     (semantic-tag-end tag)
 				     face))
 	  )
-      (semantic-overlay-put ol 'mouse-face 'region)
+      (semantic-overlay-put ol 'mouse-face 'highlight)
       (semantic-overlay-put ol 'keymap map)
       (semantic-overlay-put ol 'help-echo
 			    "Header File : mouse-3 - Context menu")
@@ -278,7 +313,8 @@ This mode provides a nice context menu on the include statements."
   "Describe what unparsed includes are in the current buffer.
 Argument EVENT is the mouse clicked event."
   (interactive)
-  (let* ((tag (semantic-current-tag))
+  (let* ((tag (or (semantic-current-tag)
+		  (error "No tag under point")))
 	 (file (semantic-dependency-tag-file tag))
 	 (table (when file
 		  (semanticdb-file-table-object file t))))
@@ -337,19 +373,30 @@ its contents.
 	(princ (oref r file)))
       )))
 
+;;;###autoload
 (defun semantic-decoration-include-visit ()
   "Visit the included file at point."
   (interactive)
-  (semantic-go-to-tag (semantic-current-tag))
-  (switch-to-buffer (current-buffer))
-  )
+  (let ((tag  (semantic-current-tag)))
+    (unless (eq (semantic-tag-class tag) 'include)
+      (error "Point is not on an include tag"))
+    (let ((file (semantic-dependency-tag-file tag)))
+      (cond
+       ((or (not file) (not (file-exists-p file)))
+	(error "Could not location include %s"
+	       (semantic-tag-name tag)))
+       ((get-file-buffer file)
+	(switch-to-buffer (get-file-buffer file)))
+       ((stringp file)
+	(find-file file))
+       ))))
 
 (defun semantic-decoration-include-menu (event)
   "Popup a menu that can help a user understand unparsed includes.
 Argument EVENT describes the event that caused this function to be called."
   (interactive "e")
   (let* ((startwin (selected-window))
-	 (win (car (car (cdr event))))
+	 (win (semantic-event-window event))
 	 (eb (window-buffer win))
 	 )
     (select-window win t)
@@ -357,7 +404,7 @@ Argument EVENT describes the event that caused this function to be called."
       ;(goto-char (window-start win))
       (mouse-set-point event)
       (sit-for 0)
-      (popup-menu semantic-decoration-on-include-menu)
+      (semantic-popup-menu semantic-decoration-on-include-menu)
       )
     (select-window startwin)))
 
@@ -430,7 +477,8 @@ See the Semantic manual node on SemanticDB for more about search paths.")
 Argument EVENT describes the event that caused this function to be called."
   (interactive "e")
   (let* ((startwin (selected-window))
-	 (win (car (car (cdr event))))
+	 ;; This line has an issue in XEmacs.
+	 (win (semantic-event-window event))
 	 (eb (window-buffer win))
 	 )
     (select-window win t)
@@ -438,7 +486,7 @@ Argument EVENT describes the event that caused this function to be called."
       ;(goto-char (window-start win))
       (mouse-set-point event)
       (sit-for 0)
-      (popup-menu semantic-decoration-on-unknown-include-menu)
+      (semantic-popup-menu semantic-decoration-on-unknown-include-menu)
       )
     (select-window startwin)))
 
@@ -492,7 +540,7 @@ report it to cedet-devel@lists.sf.net.") )))
 Argument EVENT describes the event that caused this function to be called."
   (interactive "e")
   (let* ((startwin (selected-window))
-	 (win (car (car (cdr event))))
+	 (win (semantic-event-window event))
 	 (eb (window-buffer win))
 	 )
     (select-window win t)
@@ -500,7 +548,7 @@ Argument EVENT describes the event that caused this function to be called."
       ;(goto-char (window-start win))
       (mouse-set-point event)
       (sit-for 0)
-      (popup-menu semantic-decoration-on-unparsed-include-menu)
+      (semantic-popup-menu semantic-decoration-on-unparsed-include-menu)
       )
     (select-window startwin)))
 

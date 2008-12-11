@@ -1,9 +1,9 @@
 ;;; semanticdb-cscope.el --- Use CSCOPE databases w/ Semantic
 
-;; Copyright (C) 2007 Eric M. Ludlam
+;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semanticdb-cscope.el,v 1.2 2007/08/25 01:39:00 zappo Exp $
+;; X-RCS: $Id: semanticdb-cscope.el,v 1.3 2008/10/10 21:41:39 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -294,6 +294,9 @@ This file should reside in `semanticdb-default-system-save-directory'."
 	  (semanticdb-set-buffer obj)
 	  (let ((ans nil))
 
+
+	    ;;; TODO - recopy from ebrowse.
+
 	    ;; Below copied from ebrowse.  Does cscope lie?
 
 	    ;; Gee, it would be nice to do this, fbut ebrowse LIES.  Oi.
@@ -442,8 +445,8 @@ Return a list of tags."
 	(ab nil))
     (while db
       (when (semanticdb-project-database-cscope-p (car db))
-	(setq ab (semantic-adebug-new-buffer "*CScope Database*"))
-	(semantic-adebug-insert-thing (car db) "]" "")
+	(setq ab (data-debug-new-buffer "*CScope Database*"))
+	(data-debug-insert-thing (car db) "]" "")
 	(setq db nil))
       (setq db (cdr db)))))
 

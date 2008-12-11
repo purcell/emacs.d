@@ -3,7 +3,7 @@
 ;;; Copyright (C) 1996, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2008 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
-;; RCS: $Id: eieio-opt.el,v 1.29 2008/05/18 13:01:41 zappo Exp $
+;; RCS: $Id: eieio-opt.el,v 1.30 2008/08/15 01:21:47 zappo Exp $
 ;; Keywords: OO, lisp
 ;;                                                                          
 ;; This program is free software; you can redistribute it and/or modify
@@ -458,15 +458,6 @@ Arguments UNUSED are not used."
 	(while (re-search-forward "^\\(Private \\)?Slot:" nil t)
 	    (put-text-property (match-beginning 0) (match-end 0) 'face 'bold))
 	))))
-
-(defun eieio-help-augment-keymap ()
-  "Augment the help keymap for cool EIEIO stuff."
-  (define-key help-map "g" 'describe-generic)
-  (define-key help-map "C" 'describe-class))
-
-(if (and (boundp 'help-map) help-map)
-    (eieio-help-augment-keymap)
-  (eval-after-load 'help 'eieio-help-augment-keymap))
 
 ;;; How about showing the hierarchy in speedbar?  Cool!
 ;;

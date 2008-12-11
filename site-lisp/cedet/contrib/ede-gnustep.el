@@ -4,7 +4,7 @@
 
 ;; Author: Marco (Bj) Bardelli <bardelli.marco@gmail.com>
 ;; Keywords: project, make, gnustep, gnustep-make
-;; RCS: $Id: ede-gnustep.el,v 1.2 2008/08/07 01:29:02 zappo Exp $
+;; RCS: $Id: ede-gnustep.el,v 1.5 2008/12/11 04:00:47 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 ;;; Commentary:
 ;;
 ;; GNUstep-Make is a system (a set of makefiles) to compile various object.
-;; To write a functional GNUmakefile, we haven't to write ant rule,
+;; To write a functional GNUmakefile, we haven't to write any rule,
 ;; but only set some variables.
 
 ;; #A tipical GNUmakefile to work with GNUstep-Make:
@@ -78,12 +78,28 @@
 		  :garbagepattern '("*.o" "obj/*"))
   "Objective-C source code definition (for using with GNUstep-make).")
 
+(defvar ede-source-header-gnustep-objc
+  (ede-sourcecode "ede-gnustep-source-header-objc"
+		  :name "GNUsetp Header ObjC"
+		  :sourcepattern "\\.h$"
+;;		  :auxsourcepattern "\\.h$"
+		  :garbagepattern nil)
+  "Objective-C source code definition (for using with GNUstep-make).")
+
 (defvar ede-source-gnustep-c
   (ede-sourcecode "ede-gnustep-source-c"
 		  :name "GNUsetp C"
 		  :sourcepattern "\\.c$"
 		  :auxsourcepattern "\\.h$"
 		  :garbagepattern '("*.o" "obj/*"))
+  "C source code definition (for using with GNUstep-make).")
+
+(defvar ede-source-header-gnustep-c
+  (ede-sourcecode "ede-gnustep-source-header-c"
+		  :name "GNUsetp Header C"
+		  :sourcepattern "\\.h$"
+;;		  :auxsourcepattern "\\.h$"
+		  :garbagepattern nil)
   "C source code definition (for using with GNUstep-make).")
 
 ;; XXX @todo sources for C++ and Objective-C++
@@ -98,6 +114,7 @@
 
 
 ;; Target
+;(defclass ede-step-target (ede-proj-target) ;; may be don't need
 (defclass ede-step-target (ede-target)
   ((makefile :initarg :makefile
 	     :initform "GNUmakefile"
@@ -127,7 +144,6 @@
 		 :group make
 		 :documentation "Include directories like cpp flags -I.
 Include some dir via the -I preprocessor flag, for this target.")
-
    (auxsource :initarg :auxsource
 	      :initform nil
 	      :type list
@@ -144,68 +160,101 @@ distributed, and each should have a corresponding rule to build it.")
 "Abstract class for ede-step targets.")
 
 (defclass ede-step-target-ctool (ede-step-target)
-  ((sourcetype :initform (ede-source-gnustep-c))
+  ((sourcetype :initform (ede-source-gnustep-c
+			  ede-source-header-gnustep-c))
    (type :initform 'ctool)
    (cflags :initarg :cflags
 	   :initform nil
 	   :type list
+	   :group make
 	   :custom (repeat (string :tag "Compiler Flags")))
    (ldflags :initarg :ldflags
 	   :initform nil
 	   :type list
+	   :group make
 	   :custom (repeat (string :tag "Linker Flags"))))
   "Class for CTool targets.")
 
 (defclass ede-step-target-tool (ede-step-target)
-  ((sourcetype :initform (ede-source-gnustep-objc ede-source-gnustep-c))
+  ((sourcetype :initform (ede-source-gnustep-objc
+			  ede-source-gnustep-c
+			  ede-source-header-gnustep-c
+			  ede-source-header-gnustep-objc))
    (type :initform 'tool)
    (cflags :initarg :cflags
 	   :initform nil
 	   :type list
+	   :group make
 	   :custom (repeat (string :tag "Compiler Flags")))
    (ldflags :initarg :ldflags
 	   :initform nil
 	   :type list
+	   :group make
 	   :custom (repeat (string :tag "Linker Flags"))))
   "Class for Tool targets.")
 
 ;; FIX XXX :  _LIBS_DEPEND
 (defclass ede-step-target-clibrary (ede-step-target)
-  ((sourcetype :initform (ede-source-gnustep-c))
+  ((sourcetype :initform (ede-source-gnustep-c
+			  ede-source-header-gnustep-c))
    (type :initform 'clibrary)
+;;;    (header-install-dir :initarg :header-install-dir
+;;; 		       :initform ""
+;;; 		       :type string
+;;; 		       :group make
+;;; 		       :custom string
+;;; 		       :label "Header Installation Directory")
    (cflags :initarg :cflags
 	   :initform nil
 	   :type list
+	   :group make
 	   :custom (repeat (string :tag "Compiler Flags")))
    (ldflags :initarg :ldflags
 	   :initform nil
 	   :type list
+	   :group make
 	   :custom (repeat (string :tag "Linker Flags"))))
   "Class for CLib targets.")
 
 (defclass ede-step-target-library (ede-step-target)
-  ((sourcetype :initform (ede-source-gnustep-objc ede-source-gnustep-c))
+  ((sourcetype :initform (ede-source-gnustep-objc
+			  ede-source-gnustep-c
+			  ede-source-header-gnustep-objc
+			  ede-source-header-gnustep-c))
    (type :initform 'library)
+;;;    (header-install-dir :initarg :header-install-dir
+;;; 		       :initform ""
+;;; 		       :type string
+;;; 		       :group make
+;;; 		       :custom string
+;;; 		       :label "Header Installation Directory")
    (cflags :initarg :cflags
 	   :initform nil
 	   :type list
+	   :group make
 	   :custom (repeat (string :tag "Compiler Flags")))
    (ldflags :initarg :ldflags
 	   :initform nil
 	   :type list
+	   :group make
 	   :custom (repeat (string :tag "Linker Flags"))))
   "Class for Lib targets.")
 
 (defclass ede-step-target-application (ede-step-target)
-  ((sourcetype :initform (ede-source-gnustep-objc ede-source-gnustep-c))
+  ((sourcetype :initform (ede-source-gnustep-objc
+			  ede-source-gnustep-c
+			  ede-source-header-gnustep-objc
+			  ede-source-header-gnustep-c))
    (type :initform 'application)
    (cflags :initarg :cflags
 	   :initform nil
 	   :type list
+	   :group make
 	   :custom (repeat (string :tag "Compiler Flags")))
    (ldflags :initarg :ldflags
 	   :initform nil
 	   :type list
+	   :group make
 	   :custom (repeat (string :tag "Linker Flags"))))
   "Class for App targets.")
 
@@ -239,6 +288,7 @@ This enables the creation of your target type."
 	    (cons (cons name class) ede-step-target-alist)))))
 
 (defclass ede-step-project (ede-project)
+;(defclass ede-step-project (ede-proj-project) ;; to mix several project types, but don't solve ...
   ((init-variables
     :initarg :init-variables
     :initform nil
@@ -326,7 +376,7 @@ making a tar file.")
 ;;; Code:
 ;(defalias 'ede-proj-load 'ede-step-load)
 (defun ede-step-load (project &optional rootproj)
-  "Load a project file PROJECT.
+  "Load a project file from PROJECT directory.
 If optional ROOTPROJ is provided then ROOTPROJ is the root project
 for the tree being read in.  If ROOTPROJ is nil, then assume that
 the PROJECT being read in is the root project."
@@ -344,6 +394,7 @@ the PROJECT being read in is the root project."
 		(error "Corrupt project file"))
 	    (setq ret (eval ret))
 	    (oset ret file (concat project "ProjStep.ede"))
+	    (oset ret directory project)
 	    (oset ret rootproject rootproj)
 	    )
 	(kill-buffer " *tmp proj read*"))
@@ -493,7 +544,13 @@ MFILENAME is the makefile to generate."
 	 (progn
 	   (let ((file (oref tx source)))
 	     (while file
-	       (cond ((ede-want-file-source-p ede-source-gnustep-c (car file))
+	       (cond ((or
+		       (ede-want-file-source-p ede-source-header-gnustep-c (car file))
+		       (ede-want-file-source-p ede-source-header-gnustep-objc (car file)))
+		      (ede-pmake-insert-variable-shared
+			  (concat (oref tx name) "_HEADER_FILES")
+			(insert (car file))))
+		     ((ede-want-file-source-p ede-source-gnustep-c (car file))
 		      (ede-pmake-insert-variable-shared
 			  (concat (oref tx name) "_C_FILES")
 			(insert (car file))))
@@ -535,7 +592,18 @@ MFILENAME is the makefile to generate."
 		  (concat (oref tx name)
 			  "_INCLUDE_DIRS += " (car ldflags) "\n")))
 	       (setq incldirs (cdr incldirs))))
-	   (insert "\n"))))
+	   (insert "\n")
+;;;XXXX
+;;; 	   (if (or
+;;; 		(eq (oref tx type) 'clibrary)
+;;; 		(eq (oref tx type) 'library))
+;;; 	       (if (oref tx header-install-dir)
+;;; 		   (insert
+;;; 		    (concat
+;;; 		     (oref tx name)
+;;; 		     "_HEADER_INSTALLATION_DIR = "
+;;; 		     (oref tx header-install-dir)))))
+	   ))) ;; end of `ede-targets'
 
       ;; Yet Other project's variables
       ;; Just Additional Variables ...
@@ -710,7 +778,7 @@ Argument COMMAND is the command to use when compiling."
   (let ((pm (ede-proj-dist-makefile proj))
 	(default-directory (file-name-directory (oref proj file))))
     (ede-proj-setup-buildenvironment proj)
-    (if (string= pm "Makefile.am") (setq pm "Makefile"))
+;    (if (string= pm "Makefile.am") (setq pm "Makefile"))
     (compile (concat "make -f " pm " all"))))
 
 ;;; Target type specific compilations/debug
@@ -773,7 +841,7 @@ Handles the Makefile, or a Makefile.am configure.in combination.
 Optional argument FORCE will force items to be regenerated."
   (if (not force)
       (ede-proj-makefile-create-maybe this (ede-proj-dist-makefile this))
-    (require 'ede-pmake)
+;    (require 'ede-pmake)
     (ede-proj-makefile-create this (ede-proj-dist-makefile this)))
   ;; Rebuild all subprojects
   (ede-map-subprojects

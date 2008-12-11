@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: ede-cpp-root.el,v 1.10 2008/07/02 14:23:55 zappo Exp $
+;; X-RCS: $Id: ede-cpp-root.el,v 1.14 2008/12/10 05:06:37 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -82,6 +82,7 @@
 ;;
 ;; (ede-cpp-root-project "NAME" :file "FILENAME" :locate-fcn 'MYFCN)
 ;;
+;; Where FILENAME is a file in the root directory of the project.
 ;; Where MYFCN is a symbol for a function.  See:
 ;;
 ;; M-x describe-class RET ede-cpp-root-project RET
@@ -146,17 +147,22 @@ DIR is the directory to search from."
       (setq projs (cdr projs)))
     ans))
 
-
 ;;;###autoload
 (defun ede-cpp-root-project-file-for-dir (&optional dir)
   "Return a full file name to the project file stored in DIR."
   (let ((proj (ede-cpp-root-file-existing dir)))
     (when proj (oref proj :file))))
 
+(defvar ede-cpp-root-count 0
+  "Count number of hits to the cpp root thing.")
+
 ;;;###autoload
-(defun ede-cpp-root-project-root ()
+(defun ede-cpp-root-project-root (&optional dir)
   "Get the root directory for DIR."
-  (let ((projfile (ede-cpp-root-project-file-for-dir default-directory)))
+  (let ((projfile (ede-cpp-root-project-file-for-dir
+		   (or dir default-directory))))
+    (setq ede-cpp-root-count (1+ ede-cpp-root-count))
+    ;(debug)
     (when projfile
       (file-name-directory projfile))))
 
@@ -189,7 +195,7 @@ ROOTPROJ is nil, since there is only one project."
 All directories need at least one target.")
 
 ;;;###autoload
-(defclass ede-cpp-root-project (eieio-instance-tracker ede-project)
+(defclass ede-cpp-root-project (ede-project eieio-instance-tracker)
   ((tracking-symbol :initform 'ede-cpp-root-project-list)
    (include-path :initarg :include-path
 		 :initform '( "/include" "../include/" )
@@ -250,15 +256,36 @@ Each directory needs a a project file to control it.")
 (defmethod initialize-instance ((this ede-cpp-root-project)
 				&rest fields)
   "Make sure the :file is fully expanded."
+  ;; Add ourselves to the master list
   (call-next-method)
   (let ((f (expand-file-name (oref this :file))))
+    ;; Remove any previous entries from the main list.
+    (let ((old (eieio-instance-tracker-find (file-name-directory f)
+					    :directory 'ede-cpp-root-project-list)))
+      ;; This is safe, because :directory isn't filled in till later.
+      (when (and old (not (eq old this)))
+	(delete-instance old)))
+    ;; Basic initialization.
     (when (or (not (file-exists-p f))
 	      (file-directory-p f))
       (delete-instance this)
       (error ":file for ede-cpp-root must be a file."))
     (oset this :file f)
+    (oset this :directory (file-name-directory f))
+    (ede-project-directory-remove-hash (file-name-directory f))
+    (ede-add-project-to-global-list this)
     (unless (slot-boundp this 'targets)
-      (oset this :targets nil))))
+      (oset this :targets nil))
+    ;; We need to add ourselves to the master list.
+    ;;(setq ede-projects (cons this ede-projects))
+    ))
+
+;;; SUBPROJ Management.
+;;
+(defmethod ede-find-subproject-for-directory ((proj ede-cpp-root-project)
+					      dir)
+  "Return PROJ, for handling all subdirs below DIR."
+  proj)
 
 ;;; TARGET MANAGEMENT
 ;;
@@ -271,6 +298,8 @@ If one doesn't exist, create a new one for this directory."
 	 )
     (when (not ans)
       (setq ans (ede-cpp-root-target dir
+                 :name (file-name-nondirectory
+			(directory-file-name dir))
 		 :path dir
 		 :source nil))
       (object-add-to-list proj :targets ans)

@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-idle.el,v 1.49 2008/06/13 12:14:52 zappo Exp $
+;; X-RCS: $Id: semantic-idle.el,v 1.51 2008/09/07 14:16:02 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -436,7 +436,7 @@ Uses `semantic-idle-work-for-on-buffer' to do the work."
 		     (length errbuf)))))))
 
 (defun semantic-debug-idle-work-function ()
-  "Run the Semantic idle function with debugging turned on."
+  "Run the Semantic idle work function with debugging turned on."
   (interactive)
   (let ((debug-on-error t))
     (semantic-idle-work-core-handler)
@@ -705,27 +705,11 @@ minor mode is enabled.")
 (require 'semantic-ctxt)
 
 (defcustom semantic-idle-summary-function
-  'semantic-idle-summary-format-default
+  'semantic-format-tag-summarize-with-file
   "*Function to use when displaying tag information during idle time.
 Some useful functions are found in `semantic-format-tag-functions'."
   :group 'semantic
   :type semantic-format-tag-custom-list)
-
-(defun semantic-idle-summary-format-default (tag parent color)
-  "A special displayor for idle summary mode.
-TAG, PARENT and COLOR are pased to
-`semantic-format-tag-prototype'.  The prototype is prefixed with the
-file it came from."
-  (let ((p (semantic-format-tag-prototype tag parent color))
-	(f (semantic-tag-file-name tag))
-	)
-    (if (and f (not (string= f (buffer-file-name (current-buffer)))))
-	(format "%s: %s"
-		(semantic--format-colorize-text
-		 (file-name-nondirectory f)
-		 font-lock-string-face)
-		p)
-      p)))
 
 (defsubst semantic-idle-summary-find-current-symbol-tag (sym)
   "Search for a semantic tag with name SYM in database tables.

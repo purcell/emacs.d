@@ -1,6 +1,6 @@
 @c -*-texinfo-*-
 @c
-@c $Id: ede-projects.texi,v 1.3 2008/01/25 19:35:13 zappo Exp $
+@c $Id: ede-projects.texi,v 1.4 2008/09/07 14:35:31 zappo Exp $
 @c
 
 @c The next line is for the back-search to see what node this one
@@ -18,9 +18,12 @@
 * ede-project-placeholder ::
 *  ede-project ::
 *   ede-cpp-root-project ::
-*   ede-proj-project ::
+*   ede-emacs-project ::
 *   ede-simple-project ::
+*   ede-simple-base-project ::
+*   ede-proj-project ::
 *   project-am-makefile ::
+*   ede-step-project ::
 @end menu
 
 
@@ -85,9 +88,11 @@ If a project knows it's root, return it here.
 Allows for one-project-object-for-a-tree type systems.
 @end deffn
 
-@deffn Method ede-project-root-directory :AFTER this 
+@deffn Method ede-project-root-directory :AFTER this &optional file 
 If a project knows it's root, return it here.
 Allows for one-project-object-for-a-tree type systems.
+Optional @var{FILE} is the file to test.  It is ignored in preference
+of the anchor file for the project.
 @end deffn
 
 @deffn Method ede-project-force-load :AFTER this 
@@ -121,7 +126,7 @@ Make sure placeholder @var{THIS} is replaced with the real thing, and pass throu
 @item ede-project
 @table @asis
 @item Children:
-@w{@xref{ede-cpp-root-project},} @w{@xref{ede-proj-project},} @w{@xref{ede-simple-project},} @w{@xref{project-am-makefile}.} 
+@w{@xref{ede-cpp-root-project},} @w{@xref{ede-emacs-project},} @w{@xref{ede-simple-project},} @w{@xref{ede-simple-base-project},} @w{@xref{ede-proj-project},} @w{@xref{project-am-makefile},} @w{@xref{ede-step-project}.} 
 @end table
 
 @end table
@@ -226,8 +231,14 @@ Project local variables
 @end table
 @subsection Specialized Methods
 
-@deffn Method ede-subproject-relative-path :AFTER proj 
+@deffn Method ede-preprocessor-map :AFTER this 
+Get the pre-processor map for project @var{THIS}.
+@end deffn
+
+@deffn Method ede-subproject-relative-path :AFTER proj &optional parent-in 
 Get a path name for @var{PROJ} which is relative to the parent project.
+If PARENT is specified, then be relative to the PARENT project.
+Specifying PARENT is useful for sub-sub projects relative to the root project.
 @end deffn
 
 @deffn Method eieio-speedbar-description :AFTER obj 
@@ -244,7 +255,9 @@ Rescan the EDE proj project @var{THIS}.
 @end deffn
 
 @deffn Method ede-map-subprojects :AFTER this proc 
-For object @var{THIS}, execute @var{PROC} on all subprojects.
+For object @var{THIS}, execute @var{PROC} on all direct subprojects.
+This function does not apply @var{PROC} to sub-sub projects.
+See also @dfn{ede-map-all-subprojects}.
 @end deffn
 
 @deffn Method ede-convert-path :AFTER this path 
@@ -258,9 +271,19 @@ Return a short-name for @var{THIS} project file.
 Do this by extracting the lowest directory name.
 @end deffn
 
+@deffn Method ede-set-project-variables :AFTER project &optional buffer 
+Set variables local to @var{PROJECT} in @var{BUFFER}.
+@end deffn
+
 @deffn Method eieio-speedbar-derive-line-path :AFTER obj &optional depth 
 Return the path to @var{OBJ}.
 Optional @var{DEPTH} is the depth we start at.
+@end deffn
+
+@deffn Method ede-map-all-subprojects :AFTER this allproc 
+For object @var{THIS}, execute PROC on @var{THIS} and  all subprojects.
+This function also applies PROC to sub-sub projects.
+See also @dfn{ede-map-subprojects}.
 @end deffn
 
 @deffn Method ede-buffer-header-file :AFTER this buffer 
@@ -295,6 +318,10 @@ Build a distribution for the project based on @var{THIS} project.
 Return the list of speedbar display children for @var{THIS}.
 @end deffn
 
+@deffn Method ede-system-include-path :AFTER this 
+Get the system include path used by project @var{THIS}.
+@end deffn
+
 @deffn Method project-new-target-custom :AFTER proj 
 Create a new target.  It is up to the project @var{PROJ} to get the name.
 @end deffn
@@ -316,7 +343,7 @@ Return a list of menu items for building project @var{OBJ}.
 If optional argument @var{CURRENT} is non-@code{nil}, return sub-menu code.
 @end deffn
 
-@deffn Method project-new-target :AFTER proj 
+@deffn Method project-new-target :AFTER proj &rest args 
 Create a new target.  It is up to the project @var{PROJ} to get the name.
 @end deffn
 
@@ -382,7 +409,7 @@ Commit change to local variables in @var{PROJ}.
 @end deffn
 
 
-@node ede-cpp-root-project, ede-proj-project, ede-project, Project
+@node ede-cpp-root-project, ede-emacs-project, ede-project, Project
 @comment  node-name,  next,  previous,  up
 @section ede-cpp-root-project
 @pjindex ede-cpp-root-project
@@ -390,10 +417,22 @@ Commit change to local variables in @var{PROJ}.
 @table @asis
 @item Inheritance Tree:
 @table @code
-@item eieio-instance-tracker
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-project-placeholder}.}
+@table @code
+@item @w{@xref{ede-project}.}
 @table @code
 @item ede-cpp-root-project
 No children
+@end table
+
+@end table
+
+@end table
+
 @end table
 
 @end table
@@ -405,20 +444,6 @@ No children
 @item Slots:
 
 @table @code
-@item :name
-Type: @code{string} @*
-Default Value: @code{"Untitled"}
-
-The name used when generating distribution files.
-@refill
-
-@item :version
-Type: @code{string} @*
-Default Value: @code{"1.0"}
-
-The version number used when distributing files.
-@refill
-
 @item :file
 Type: @code{string}
 
@@ -438,69 +463,6 @@ List of tool cache configurations in this project.
 This allows any tool to create, manage, and persist project-specific settings.
 @refill
 
-@item :web-site-url
-Type: @code{string} @*
-Default Value: @code{""}
-
-URL to this projects web site.
-This is a URL to be sent to a web site for documentation.
-@refill
-
-@item :web-site-directory @*
-Default Value: @code{""}
-
-A directory where web pages can be found by Emacs.
-For remote locations use a path compatible with ange-ftp or EFS.
-You can also use TRAMP for use with rcp & scp.
-@refill
-
-@item :web-site-file @*
-Default Value: @code{""}
-
-A file which contains the home page for this project.
-This file can be relative to slot @code{web-site-directory}.
-This can be a local file, use ange-ftp, EFS, or TRAMP.
-@refill
-
-@item :ftp-site
-Type: @code{string} @*
-Default Value: @code{""}
-
-FTP site where this project's distribution can be found.
-This FTP site should be in Emacs form, as needed by @code{ange-ftp}, but can
-also be of a form used by TRAMP for use with scp, or rcp.
-@refill
-
-@item :ftp-upload-site
-Type: @code{string} @*
-Default Value: @code{""}
-
-FTP Site to upload new distributions to.
-This FTP site should be in Emacs form as needed by @code{ange-ftp}.
-If this slot is @code{nil}, then use @code{ftp-site} instead.
-@refill
-
-@item :configurations
-Type: @code{list} @*
-Default Value: @code{("debug" "release")}
-
-List of available configuration types.
-Individual target/project types can form associations between a configuration,
-and target specific elements such as build variables.
-@refill
-
-@item :configuration-default @*
-Default Value: @code{"debug"}
-
-The default configuration.
-@refill
-
-@item :local-variables @*
-Default Value: @code{nil}
-
-Project local variables
-@refill
-
 @item :include-path
 Type: @code{list} @*
 Default Value: @code{(quote ("/include" "../include/"))}
@@ -513,7 +475,30 @@ projects, this optimization can save a lot of time.
 
 Directory names in the path can be relative to the current
 buffer's @code{default-directory} (not starting with a /).  Directories
-that are relative to the project's root should start with a /.
+that are relative to the project's root should start with a /, such
+as  "/include", meaning the directory @code{include} off the project root
+directory.
+@refill
+
+@item :system-include-path
+Type: @code{list} @*
+Default Value: @code{nil}
+
+The system include path for files in this project.
+C files initialized in an ede-cpp-root-project have their semantic
+system include path set to this value.  If this is @code{nil}, then the
+semantic path is not modified.
+@refill
+
+@item :spp-table
+Type: @code{list} @*
+Default Value: @code{nil}
+
+C Preprocessor macros for your files.
+These macros might be passed in through the command line compiler, or
+are critical symbols derived from header files.  Providing header files
+macro values through this slot improves accuracy and performance.
+See @code{semantic-lex-c-preprocessor-symbol-map} for more.
 @refill
 
 @item :header-match-regexp
@@ -533,6 +518,9 @@ to use specialized local routines instead of the EDE routines.
 The function symbol must take two arguments:
   NAME - The name of the file to find.
   DIR - The directory root for this cpp-root project.
+
+It should return the fully qualified file name passed in from NAME.  If that file does not
+exist, it should return nil.
 @refill
 
 @end table
@@ -544,8 +532,21 @@ The function symbol must take two arguments:
 Make sure the @code{:file} is fully expanded.
 @end deffn
 
+@deffn Method ede-preprocessor-map :AFTER this 
+Get the pre-processor map for project @var{THIS}.
+@end deffn
+
+@deffn Method ede-set-project-variables :AFTER project &optional buffer 
+Set variables local to @var{PROJECT} in @var{BUFFER}.
+Also set up the lexical preprocessor map.
+@end deffn
+
 @deffn Method ede-cpp-root-header-file-p :AFTER proj name 
 Non @code{nil} if in @var{PROJ} the filename @var{NAME} is a header.
+@end deffn
+
+@deffn Method ede-system-include-path :AFTER this 
+Get the system include path used by project @var{THIS}.
 @end deffn
 
 @deffn Method ede-project-root :AFTER this 
@@ -567,7 +568,188 @@ If one doesn't exist, create a new one for this directory.
 @end deffn
 
 
-@node ede-proj-project, ede-simple-project, ede-cpp-root-project, Project
+@node ede-emacs-project, ede-simple-project, ede-cpp-root-project, Project
+@comment  node-name,  next,  previous,  up
+@section ede-emacs-project
+@pjindex ede-emacs-project
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-project-placeholder}.}
+@table @code
+@item @w{@xref{ede-project}.}
+@table @code
+@item ede-emacs-project
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-emacs-project
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :file
+Type: @code{string}
+
+File name where this project is stored.
+@refill
+
+@item :targets
+Type: @code{list}
+
+List of top level targets in this project.
+@refill
+
+@item :tool-cache
+Type: @code{list}
+
+List of tool cache configurations in this project.
+This allows any tool to create, manage, and persist project-specific settings.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method initialize-instance :AFTER this &rest fields 
+Make sure the @code{:file} is fully expanded.
+@end deffn
+
+@deffn Method ede-project-root :AFTER this 
+Return my root.
+@end deffn
+
+@deffn Method ede-expand-filename :AFTER proj name 
+Within this project @var{PROJ}, find the file @var{NAME}.
+Knows about how the Emacs source tree is organized.
+@end deffn
+
+@deffn Method ede-project-root-directory :AFTER this &optional file 
+Return the root for @var{THIS} Emacs project with file.
+@end deffn
+
+@deffn Method ede-find-target :AFTER proj buffer 
+Find an EDE target in @var{PROJ} for @var{BUFFER}.
+If one doesn't exist, create a new one for this directory.
+@end deffn
+
+
+@node ede-simple-project, ede-simple-base-project, ede-emacs-project, Project
+@comment  node-name,  next,  previous,  up
+@section ede-simple-project
+@pjindex ede-simple-project
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-project-placeholder}.}
+@table @code
+@item @w{@xref{ede-project}.}
+@table @code
+@item ede-simple-project
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-simple-project
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :file
+Type: @code{string}
+
+File name where this project is stored.
+@refill
+
+@item :targets
+Type: @code{list}
+
+List of top level targets in this project.
+@refill
+
+@item :tool-cache
+Type: @code{list}
+
+List of tool cache configurations in this project.
+This allows any tool to create, manage, and persist project-specific settings.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method ede-commit-project :AFTER proj 
+Commit any change to @var{PROJ} to its file.
+@end deffn
+
+
+@node ede-simple-base-project, ede-proj-project, ede-simple-project, Project
+@comment  node-name,  next,  previous,  up
+@section ede-simple-base-project
+@pjindex ede-simple-base-project
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-project-placeholder}.}
+@table @code
+@item @w{@xref{ede-project}.}
+@table @code
+@item ede-simple-base-project
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  EDE Simple project base class.
+This one project could control a tree of subdirectories.
+
+@table @asis
+@end table
+
+@node ede-proj-project, project-am-makefile, ede-simple-base-project, Project
 @comment  node-name,  next,  previous,  up
 @section ede-proj-project
 @pjindex ede-proj-project
@@ -758,13 +940,20 @@ These are removed with make clean.
 Synchronize what we know about project @var{THIS} into configure.in.
 @end deffn
 
-@deffn Method project-new-target :AFTER this 
+@deffn Method project-new-target :AFTER this &optional name type autoadd 
 Create a new target in @var{THIS} based on the current buffer.
 @end deffn
 
 @deffn Method project-compile-project :AFTER proj &optional command 
 Compile the entire current project @var{PROJ}.
 Argument @var{COMMAND} is the command to use when compiling.
+@end deffn
+
+@deffn Method ede-proj-makefile-insert-variables-new :AFTER this 
+Insert variables needed by target @var{THIS}.
+
+NOTE: Not yet in use!  This is part of an SRecode conversion of
+      EDE that is in progress.
 @end deffn
 
 @deffn Method ede-proj-makefile-configuration-variables :AFTER this configuration 
@@ -809,138 +998,7 @@ Commit change to local variables in @var{PROJ}.
 @end deffn
 
 
-@node ede-simple-project, project-am-makefile, ede-proj-project, Project
-@comment  node-name,  next,  previous,  up
-@section ede-simple-project
-@pjindex ede-simple-project
-
-@table @asis
-@item Inheritance Tree:
-@table @code
-@item eieio-persistent
-@table @code
-@item ede-simple-project
-No children
-@end table
-
-@end table
-@end table
-
-  Create a new object with name NAME of class type ede-simple-project
-
-@table @asis
-@item Slots:
-
-@table @code
-@item :file
-Type: @code{string}
-
-The save file for this persistent object.
-This must be a string, and must be specified when the new object is
-instantiated.
-@refill
-
-@item :name
-Type: @code{string} @*
-Default Value: @code{"Untitled"}
-
-The name used when generating distribution files.
-@refill
-
-@item :version
-Type: @code{string} @*
-Default Value: @code{"1.0"}
-
-The version number used when distributing files.
-@refill
-
-@item :targets
-Type: @code{list}
-
-List of top level targets in this project.
-@refill
-
-@item :tool-cache
-Type: @code{list}
-
-List of tool cache configurations in this project.
-This allows any tool to create, manage, and persist project-specific settings.
-@refill
-
-@item :web-site-url
-Type: @code{string} @*
-Default Value: @code{""}
-
-URL to this projects web site.
-This is a URL to be sent to a web site for documentation.
-@refill
-
-@item :web-site-directory @*
-Default Value: @code{""}
-
-A directory where web pages can be found by Emacs.
-For remote locations use a path compatible with ange-ftp or EFS.
-You can also use TRAMP for use with rcp & scp.
-@refill
-
-@item :web-site-file @*
-Default Value: @code{""}
-
-A file which contains the home page for this project.
-This file can be relative to slot @code{web-site-directory}.
-This can be a local file, use ange-ftp, EFS, or TRAMP.
-@refill
-
-@item :ftp-site
-Type: @code{string} @*
-Default Value: @code{""}
-
-FTP site where this project's distribution can be found.
-This FTP site should be in Emacs form, as needed by @code{ange-ftp}, but can
-also be of a form used by TRAMP for use with scp, or rcp.
-@refill
-
-@item :ftp-upload-site
-Type: @code{string} @*
-Default Value: @code{""}
-
-FTP Site to upload new distributions to.
-This FTP site should be in Emacs form as needed by @code{ange-ftp}.
-If this slot is @code{nil}, then use @code{ftp-site} instead.
-@refill
-
-@item :configurations
-Type: @code{list} @*
-Default Value: @code{("debug" "release")}
-
-List of available configuration types.
-Individual target/project types can form associations between a configuration,
-and target specific elements such as build variables.
-@refill
-
-@item :configuration-default @*
-Default Value: @code{"debug"}
-
-The default configuration.
-@refill
-
-@item :local-variables @*
-Default Value: @code{nil}
-
-Project local variables
-@refill
-
-@end table
-
-@end table
-@subsection Specialized Methods
-
-@deffn Method ede-commit-project :AFTER proj 
-Commit any change to @var{PROJ} to its file.
-@end deffn
-
-
-@node project-am-makefile,  , ede-simple-project, Project
+@node project-am-makefile, ede-step-project, ede-proj-project, Project
 @comment  node-name,  next,  previous,  up
 @section project-am-makefile
 @pjindex project-am-makefile
@@ -1004,8 +1062,8 @@ This allows any tool to create, manage, and persist project-specific settings.
 Rescan the makefile for all targets and sub targets.
 @end deffn
 
-@deffn Method project-am-subtree :AFTER ampf subpath 
-Return the sub project in @var{AMPF} specified by @var{SUBPATH}.
+@deffn Method project-am-subtree :AFTER ampf subdir 
+Return the sub project in @var{AMPF} specified by @var{SUBDIR}.
 @end deffn
 
 @deffn Method project-targets-for-file :AFTER proj 
@@ -1016,9 +1074,9 @@ Return a list of targets the project @var{PROJ}.
 Return @code{t} if object @var{THIS} lays claim to the file in @var{BUFFER}.
 @end deffn
 
-@deffn Method project-new-target :AFTER proj 
-Create a new target named NAME.
-Argument TYPE is the type of target to insert.  This is a string
+@deffn Method project-new-target :AFTER proj &optional name type 
+Create a new target named @var{NAME}.
+Argument @var{TYPE} is the type of target to insert.  This is a string
 matching something in @code{project-am-type-alist} or type class symbol.
 Despite the fact that this is a method, it depends on the current
 buffer being in order to provide a smart default target type.
@@ -1031,6 +1089,190 @@ Argument @var{COMMAND} is the command to use when compiling.
 
 @deffn Method ede-find-target :AFTER amf buffer 
 Fetch the target belonging to @var{BUFFER}.
+@end deffn
+
+
+@node ede-step-project,  , project-am-makefile, Project
+@comment  node-name,  next,  previous,  up
+@section ede-step-project
+@pjindex ede-step-project
+
+@table @asis
+@item Inheritance Tree:
+@table @code
+@item eieio-speedbar
+@table @code
+@item eieio-speedbar-directory-button
+@table @code
+@item @w{@xref{ede-project-placeholder}.}
+@table @code
+@item @w{@xref{ede-project}.}
+@table @code
+@item ede-step-project
+No children
+@end table
+
+@end table
+
+@end table
+
+@end table
+
+@end table
+@end table
+
+  Create a new object with name NAME of class type ede-step-project
+
+@table @asis
+@item Slots:
+
+@table @code
+@item :file
+Type: @code{string}
+
+File name where this project is stored.
+@refill
+
+@item :targets
+Type: @code{list}
+
+List of top level targets in this project.
+@refill
+
+@item :tool-cache
+Type: @code{list}
+
+List of tool cache configurations in this project.
+This allows any tool to create, manage, and persist project-specific settings.
+@refill
+
+@item :init-variables
+Type: @code{list} @*
+Default Value: @code{nil}
+
+Variables to set in this Makefile, at top of file.
+@refill
+
+@item :additional-variables
+Type: @code{(or null list)} @*
+Default Value: @code{nil}
+
+Arbitrary variables needed from this project.
+It is safe to leave this blank.
+@refill
+
+@item :additional-rules
+Type: @code{(or null list)} @*
+Default Value: @code{nil}
+
+Arbitrary rules and dependencies needed to make this target.
+It is safe to leave this blank.
+@refill
+
+@item :installation-domain
+Type: @code{symbol} @*
+Default Value: @code{user}
+
+Installation domain specification.
+The variable GNUSTEP_INSTALLATION_DOMAIN is setted at this value.
+@refill
+
+@item :preamble
+Type: @code{(or null list)} @*
+Default Value: @code{(quote ("GNUmakefile.preamble"))}
+
+The auxilliary makefile for additional variables.
+Included just before the specific target files.
+@refill
+
+@item :postamble
+Type: @code{(or null list)} @*
+Default Value: @code{(quote ("GNUmakefile.postamble"))}
+
+The auxilliary makefile for additional rules.
+Included just after the specific target files.
+@refill
+
+@item :metasubproject
+Type: @code{boolean} @*
+Default Value: @code{nil}
+
+Non-@code{nil} if this is a metasubproject.
+Usually, a subproject is determined by a parent project.  If multiple top level
+projects are grouped into a large project not maintained by EDE, then you need
+to set this to non-nil.  The only effect is that the @code{dist} rule will then avoid
+making a tar file.
+@refill
+
+@end table
+
+@end table
+@subsection Specialized Methods
+
+@deffn Method project-rescan :AFTER this 
+Rescan the EDE proj project @var{THIS}.
+@end deffn
+
+@deffn Method ede-proj-makefile-create :AFTER this mfilename 
+Create a GNUmakefile for all Makefile targets in @var{THIS}.
+@var{MFILENAME} is the makefile to generate.
+@end deffn
+
+@deffn Method project-update-version :AFTER this 
+The @code{:version} of project @var{THIS} has changed.
+@end deffn
+
+@deffn Method ede-buffer-mine :AFTER this buffer 
+Return @code{t} if object @var{THIS} lays claim to the file in @var{BUFFER}.
+@end deffn
+
+@deffn Method project-make-dist :AFTER this 
+Build a distribution for the project based on @var{THIS} target.
+@end deffn
+
+@deffn Method project-new-target-custom :AFTER this 
+Create a new target in @var{THIS} for custom.
+@end deffn
+
+@deffn Method ede-proj-makefile-create-maybe :AFTER this mfilename 
+Create a Makefile for all Makefile targets in @var{THIS} if needed.
+@var{MFILENAME} is the makefile to generate.
+@end deffn
+
+@deffn Method ede-proj-setup-buildenvironment :AFTER this &optional force 
+Setup the build environment for project @var{THIS}.
+Handles the Makefile, or a Makefile.am configure.in combination.
+Optional argument @var{FORCE} will force items to be regenerated.
+@end deffn
+
+@deffn Method project-new-target :AFTER this &optional name type autoadd 
+Create a new target in @var{THIS} based on the current buffer.
+@end deffn
+
+@deffn Method project-compile-project :AFTER proj &optional command 
+Compile the entire current project @var{PROJ}.
+Argument @var{COMMAND} is the command to use when compiling.
+@end deffn
+
+@deffn Method eieio-done-customizing :AFTER proj 
+Call this when a user finishes customizing this object.
+Argument @var{PROJ} is the project to save.
+@end deffn
+
+@deffn Method ede-proj-dist-makefile :AFTER this 
+Return the name of the Makefile with the DIST target in it for @var{THIS}.
+@end deffn
+
+@deffn Method ede-commit-project :AFTER proj 
+Commit any change to @var{PROJ} to its file.
+@end deffn
+
+@deffn Method project-dist-files :AFTER this 
+Return a list of files that constitutes a distribution of @var{THIS} project.
+@end deffn
+
+@deffn Method ede-commit-local-variables :AFTER proj 
+Commit change to local variables in @var{PROJ}.
 @end deffn
 
 

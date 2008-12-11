@@ -100,6 +100,8 @@ install scripts:
 ;;   decoration mode, and stickyfunc mode (plus regular code helpers)
 ;; (semantic-load-enable-guady-code-helpers)
 
+;; * This enables the use of Exuberent ctags if you have it installed.
+;; (semantic-load-enable-all-exuberent-ctags-support)
 
 ;; Enable SRecode (Template management) minor-mode.
 ;; (global-srecode-minor-mode 1)

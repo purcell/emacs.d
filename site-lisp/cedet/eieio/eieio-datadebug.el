@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: eieio-datadebug.el,v 1.1 2008/03/27 02:45:10 zappo Exp $
+;; X-RCS: $Id: eieio-datadebug.el,v 1.3 2008/09/17 14:21:46 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -30,17 +30,17 @@
 ;;; Code:
 
 ;;;###autoload
-(defun data-debug-insert-object-fields (object prefix)
-  "Insert all the fields of OBJECT.
+(defun data-debug-insert-object-slots (object prefix)
+  "Insert all the slots of OBJECT.
 PREFIX specifies what to insert at the start of each line."
   (let ((attrprefix (concat (make-string (length prefix) ? ) "] "))
 	)
-    (data-debug/eieio-insert-fields object attrprefix)
+    (data-debug/eieio-insert-slots object attrprefix)
     )
   )
 
-(defun data-debug-insert-object-fields-from-point (point)
-  "Insert the object fields found at the object button at POINT."
+(defun data-debug-insert-object-slots-from-point (point)
+  "Insert the object slots found at the object button at POINT."
   (let ((object (get-text-property point 'ddebug))
 	(indent (get-text-property point 'ddebug-indent))
 	start end
@@ -48,7 +48,7 @@ PREFIX specifies what to insert at the start of each line."
     (end-of-line)
     (setq start (point))
     (forward-char 1)
-    (data-debug-insert-object-fields object
+    (data-debug-insert-object-slots object
 					  (concat (make-string indent ? )
 						  "~ "))
     (setq end (point))
@@ -78,7 +78,7 @@ PREBUTTONTEXT is some text between PREFIX and the object button."
     (put-text-property start end 'ddebug-prefix prefix)
     (put-text-property start end 'help-echo tip)
     (put-text-property start end 'ddebug-function
-		       'data-debug-insert-object-fields-from-point)
+		       'data-debug-insert-object-slots-from-point)
     (insert "\n")
     )
   )
@@ -87,9 +87,9 @@ PREBUTTONTEXT is some text between PREFIX and the object button."
 ;;
 ;; Each object should have an opportunity to show stuff about itself.
 
-(defmethod data-debug/eieio-insert-fields ((obj eieio-default-superclass)
+(defmethod data-debug/eieio-insert-slots ((obj eieio-default-superclass)
 						prefix)
-  "Insert the fields of OBJ into the current DDEBUG buffer."
+  "Insert the slots of OBJ into the current DDEBUG buffer."
   (data-debug-insert-thing (object-name-string obj)
 				prefix
 				"Name: ")
@@ -132,10 +132,27 @@ PREBUTTONTEXT is some text between PREFIX and the object button."
   "Run ddebug against any EIEIO object OBJ"
   (let ((ab (data-debug-new-buffer 
 	     (format "*%s DDEBUG*" (object-name obj)))))
-    (data-debug-insert-object-fields obj "]"))
+    (data-debug-insert-object-slots obj "]"))
   )
 
-;;; Code:
+;;; DEBUG FUNCTIONS
+;;
+(defun eieio-debug-methodinvoke (method class)
+  "Show the method invocation order for METHOD with CLASS object."
+  (interactive "aMethod: \nXClass Expression: ")
+  (let* ((eieio-pre-method-execution-hooks
+	  (lambda (l) (throw 'moose l) ))
+	 (data
+	  (catch 'moose (eieio-generic-call
+			 method (list class))))
+	 (buf (data-debug-new-buffer "*Method Invocation*"))
+	 (data2 (mapcar (lambda (sym)
+			  (symbol-function (car sym)))
+			  data))
+	 )
+    
+    (data-debug-insert-thing data2 ">" "")))
+
 
 (provide 'eieio-datadebug)
 

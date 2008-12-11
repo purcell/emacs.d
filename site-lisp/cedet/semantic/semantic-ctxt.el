@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-ctxt.el,v 1.51 2008/06/10 00:42:40 zappo Exp $
+;; X-RCS: $Id: semantic-ctxt.el,v 1.52 2008/11/18 15:50:21 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -400,7 +400,8 @@ Depends on `semantic-type-relation-separator-character'."
 		  (progn
 		    (forward-sexp -1)
 		    ;; Skip array expressions.
-		    (while (looking-at "\\s(") (forward-sexp -1))
+		    (while (and (looking-at "\\s(") (not (bobp)))
+		      (forward-sexp -1))
 		    (forward-sexp 1)
 		    (setq end (point)))
 		(error nil))

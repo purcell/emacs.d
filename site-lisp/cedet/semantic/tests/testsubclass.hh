@@ -18,7 +18,7 @@ namespace animal {
 	      fIsValid(false)
     { }
 
-    void setFeet(int);
+    virtual void setFeet(int);
     int getFeet();
 
     void doNothing();

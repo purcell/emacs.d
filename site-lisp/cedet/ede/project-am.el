@@ -5,7 +5,7 @@
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Version: 0.0.3
 ;; Keywords: project, make
-;; RCS: $Id: project-am.el,v 1.32 2008/05/29 03:07:58 zappo Exp $
+;; RCS: $Id: project-am.el,v 1.38 2008/12/09 23:56:51 zappo Exp $
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -75,13 +75,23 @@
   :type 'sexp) ; make this be a list some day
 
 (defconst project-am-type-alist
-  '(("bin" project-am-program "bin_PROGRAMS")
-    ("sbin" project-am-program "sbin_PROGRAMS")
-    ("lib" project-am-lib "noinst_LIBS")
-    ("texinfo" project-am-texinfo "texinfo_TEXINFOS")
+  '(("bin" project-am-program "bin_PROGRAMS" t)
+    ("sbin" project-am-program "sbin_PROGRAMS" t)
+    ("lib" project-am-lib "noinst_LIBS" t)
+    ("headernoinst" project-am-header-noinst "noinst_HEADERS")
+    ("headerinst" project-am-header-inst "pgkinclude_HEADERS")
+    ("texinfo" project-am-texinfo "info_TEXINFOS")
     ("man" project-am-man "man_MANS")
-    ("lisp" project-am-lisp "lisp_LISP"))
-  "Alist of type names and the type of object to create for them.")
+    ("lisp" project-am-lisp "lisp_LISP")
+    )
+  "Alist of type names and the type of object to create for them.
+Each entry is of th form:
+  (EMACSNAME CLASS AUToMAKEVAR INDIRECT)
+where EMACSNAME is a name for Emacs to use.
+CLASS is the EDE project class to represent the target.
+AUTOMAKEVAR is the Automake variable to identify.
+INDIRECT is optional.  If it is non-nil, then the variable in
+question lists other variables that need to be looked up.")
 
 (defclass project-am-target (ede-target)
   nil
@@ -96,12 +106,24 @@
 	  :initform nil))
   "A top level program to build")
 
+(defclass project-am-header (project-am-target)
+  ()
+  "A group of misc source files, such as headers.")
+
+(defclass project-am-header-noinst (project-am-header)
+  ()
+  "A group of header files that are not installed.")
+
+(defclass project-am-header-inst (project-am-header)
+  ()
+  "A group of header files that are not installed.")
+
 (defclass project-am-lib (project-am-objectcode)
   nil
   "A top level library to build")
 
 (defclass project-am-lisp (project-am-target)
-  ((lisp :initarg :lisp :documentation "List of lisp files to build."))
+  ()
   "A group of Emacs Lisp programs to byte compile.")
 
 (defclass project-am-texinfo (project-am-target)
@@ -416,6 +438,11 @@ Kill the makefile if it was not loaded before the load."
 	(prog1 ,@forms
 	  (if (not kb) (kill-buffer (current-buffer))))))))
 (put 'project-am-with-makefile-current 'lisp-indent-function 1)
+
+(add-hook 'edebug-setup-hook
+	  (lambda ()
+	    (def-edebug-spec project-am-with-makefile-current
+	      (form def-body))))
  
 
 (defun project-am-load-makefile (path)
@@ -427,6 +454,7 @@ It does not check for existing project objects.  Use `project-am-load'."
       (let ((ampf (project-am-makefile (project-am-last-dir fn)
 				       :name (project-am-last-dir fn)
 				       :file fn)))
+	(oset ampf :directory (file-name-directory fn))
 	(make-local-variable 'ede-object)
 	(setq ede-object ampf)
 	;; Move the rescan after we set ede-object to prevent recursion
@@ -459,108 +487,134 @@ Return nil if it isn't a variable."
   (save-match-data
     (when (string-match "\\$\\s(\\([A-Za-z0-9_]+\\)\\s)" text)
       (match-string 1 text))))
-  
+
+(defun project-am-scan-for-targets (currproj dir)
+  "Scan the current Makefile.am for targets.
+CURRPROJ is the current project being scanned.
+DIR is the directory to apply to new targets."
+  (let* ((otargets (oref currproj targets))
+	 (ntargets nil)
+	 (tmp nil)
+	 )
+      (mapc
+       ;; Map all the different types
+       (lambda (typecar)
+	 (let ((macro (nth 2 typecar))
+	       (class (nth 1 typecar))
+	       (indirect (nth 3 typecar))
+	       (name (car typecar)))
+	   (if indirect
+	       ;; Map all the found objects
+	       (mapc (lambda (lstcar)
+		       (setq tmp (object-assoc lstcar 'name otargets))
+		       (when (not tmp)
+			 (setq tmp (apply class lstcar :name lstcar
+					  :path dir nil)))
+		       (project-rescan tmp)
+		       (setq ntargets (cons tmp ntargets)))
+		     (makefile-macro-file-list macro))
+	     ;; Non-indirect will have a target whos sources
+	     ;; are actual files, not names of other targets.
+	     (let ((files (makefile-macro-file-list macro)))
+	       (when files
+		 (setq tmp (object-assoc macro 'name otargets))
+		 (when (not tmp)
+		   (setq tmp (apply class macro :name macro
+				    :path dir nil)))
+		 (project-rescan tmp)
+		 (setq ntargets (cons tmp ntargets))
+		 ))
+	     )
+	   ))
+       project-am-type-alist)
+      ntargets))
 
 (defmethod project-rescan ((this project-am-makefile))
   "Rescan the makefile for all targets and sub targets."
   (project-am-with-makefile-current (file-name-directory (oref this file))
     ;;(message "Scanning %s..." (oref this file))
-    (let ((osubproj (oref this subproj))
-	  (otargets (oref this targets))
-	  (csubproj (or
-		     ;; If DIST_SUBDIRS doesn't exist, then go for the
-		     ;; static list of SUBDIRS.  The DIST version should
-		     ;; contain SUBDIRS plus extra stuff.
-		     (makefile-macro-file-list "DIST_SUBDIRS")
-		     (makefile-macro-file-list "SUBDIRS")))
-	  (csubprojexpanded nil)
-	  (nsubproj nil)
-	  ;; Targets are excluded here because they require
-	  ;; special attention.
-	  (ntargets nil)
-	  (tmp nil)
-	  ;; Here are target prefixes as strings
-	  (tp '(("bin_PROGRAMS" . project-am-program)
-		("sbin_PROGRAMS" . project-am-program)
-		("noinst_LIBRARIES" . project-am-lib)
-		("info_TEXINFOS" . project-am-texinfo)
-		("man_MANS" . project-am-man)))
-	  (path (expand-file-name default-directory))
-	  )
-      (mapcar
-       ;; Map all tye different types
-       (lambda (typecar)
-	 ;; Map all the found objects
-	 (mapcar (lambda (lstcar)
-		   (setq tmp (object-assoc lstcar 'name otargets))
-		   (if (not tmp)
-		       (setq tmp (apply (cdr typecar) lstcar
-					:name lstcar
-					:path path nil)))
-		   (project-rescan tmp)
-		   (setq ntargets (cons tmp ntargets)))
-		 (makefile-macro-file-list (car typecar))))
-       tp)
-      ;; LISP is different.  Here there is only one kind of lisp (that I know of
-      ;; anyway) so it doesn't get mapped when it is found.
-      (if (makefile-move-to-macro "lisp_LISP")
-	  (let ((tmp (project-am-lisp "lisp"
-				      :name "lisp"
-				      :path path)))
-	    (project-rescan tmp)
-	    (setq ntargets (cons tmp ntargets))))
+    (let* ((osubproj (oref this subproj))
+	   (csubproj (or
+		      ;; If DIST_SUBDIRS doesn't exist, then go for the
+		      ;; static list of SUBDIRS.  The DIST version should
+		      ;; contain SUBDIRS plus extra stuff.
+		      (makefile-macro-file-list "DIST_SUBDIRS")
+		      (makefile-macro-file-list "SUBDIRS")))
+	   (csubprojexpanded nil)
+	   (nsubproj nil)
+	   ;; Targets are excluded here because they require
+	   ;; special attention.
+	   (dir (expand-file-name default-directory))
+	   (tmp nil)
+	   (ntargets (project-am-scan-for-targets this dir))
+	   )
+
+;      ;; LISP is different.  Here there is only one kind of lisp (that I know of
+;      ;; anyway) so it doesn't get mapped when it is found.
+;      (if (makefile-move-to-macro "lisp_LISP")
+; 	  (let ((tmp (project-am-lisp "lisp"
+; 				      :name "lisp"
+; 				      :path dir)))
+; 	    (project-rescan tmp)
+; 	    (setq ntargets (cons tmp ntargets))))
+;
       ;; Now that we have this new list, chuck the old targets
       ;; and replace it with the new list of targets I just created.
       (oset this targets (nreverse ntargets))
       ;; We still have a list of targets.  For all buffers, make sure
       ;; their object still exists!
-
+ 
       ;; FIGURE THIS OUT
-    
+     
       (mapc (lambda (sp)
-	      (let ((var (project-am-extract-varname sp))
-		    )
-		(if (not var)
-		    (setq csubprojexpanded (cons sp csubprojexpanded))
-		  ;; If it is a variable, expand that variable, and keep going.
-		  (let ((varexp (makefile-macro-file-list var)))
-		    (dolist (V varexp)
-		      (setq csubprojexpanded (cons V csubprojexpanded)))))
-		))
-	    csubproj)
-
+ 	      (let ((var (project-am-extract-varname sp))
+ 		    )
+ 		(if (not var)
+ 		    (setq csubprojexpanded (cons sp csubprojexpanded))
+ 		  ;; If it is a variable, expand that variable, and keep going.
+ 		  (let ((varexp (makefile-macro-file-list var)))
+ 		    (dolist (V varexp)
+ 		      (setq csubprojexpanded (cons V csubprojexpanded)))))
+ 		))
+ 	    csubproj)
+ 
       ;; Ok, now lets look at all our sub-projects.
       (mapc (lambda (sp)
-	      (let* ((subdir (file-name-as-directory
-			      (expand-file-name 
-			       sp (file-name-directory (oref this :file)))))
-		     (submake (expand-file-name
-			       "Makefile.am"
-			       subdir)))
-		(if (string= submake (oref this :file))
-		    nil	;; don't recurse.. please!
-
-		  ;; For each project id found, see if we need to recycle,
-		  ;; and if we do not, then make a new one.  Check the deep
-		  ;; rescan value for behavior patterns.
-		  (setq tmp (object-assoc
-			     submake
-			     'file osubproj))
-		  (if (not tmp)
-		      (setq tmp (project-am-load-makefile subdir))
-		    ;; If we have tmp, then rescan it only if deep mode.
-		    (if ede-deep-rescan
-			(project-rescan tmp)))
-		  ;; Tac tmp onto our list of things to keep, but only
-		  ;; if tmp was found.
-		  (when tmp
-		    ;;(message "Adding %S" (object-print tmp))
-		    (setq nsubproj (cons tmp nsubproj)))))
-	      )
-	    (nreverse csubprojexpanded))
+ 	      (let* ((subdir (file-name-as-directory
+ 			      (expand-file-name 
+ 			       sp (file-name-directory (oref this :file)))))
+ 		     (submake (expand-file-name
+ 			       "Makefile.am"
+ 			       subdir)))
+ 		(if (string= submake (oref this :file))
+ 		    nil	;; don't recurse.. please!
+ 
+ 		  ;; For each project id found, see if we need to recycle,
+ 		  ;; and if we do not, then make a new one.  Check the deep
+ 		  ;; rescan value for behavior patterns.
+ 		  (setq tmp (object-assoc
+ 			     submake
+ 			     'file osubproj))
+ 		  (if (not tmp)
+ 		      (setq tmp 
+ 			    (condition-case nil
+ 				;; In case of problem, ignore it.
+ 				(project-am-load-makefile subdir)
+ 			      (error nil)))
+ 		    ;; If we have tmp, then rescan it only if deep mode.
+ 		    (if ede-deep-rescan
+ 			(project-rescan tmp)))
+ 		  ;; Tac tmp onto our list of things to keep, but only
+ 		  ;; if tmp was found.
+ 		  (when tmp
+ 		    ;;(message "Adding %S" (object-print tmp))
+ 		    (setq nsubproj (cons tmp nsubproj)))))
+ 	      )
+ 	    (nreverse csubprojexpanded))
       (oset this subproj nsubproj)
       ;; All elements should be updated now.
       )))
+
 
 (defmethod project-rescan ((this project-am-program))
   "Rescan object THIS."
@@ -578,15 +632,27 @@ Return nil if it isn't a variable."
 
 (defmethod project-rescan ((this project-am-man))
   "Rescan object THIS."
-  )
+  nil)
 
 (defmethod project-rescan ((this project-am-lisp))
   "Rescan the lisp sources."
-  (oset this :lisp (makefile-macro-file-list (project-am-macro this))))
+  (oset this :source (makefile-macro-file-list (project-am-macro this))))
+
+(defmethod project-rescan ((this project-am-header))
+  "Rescan the Header sources."
+  (oset this :source (makefile-macro-file-list (project-am-macro this))))
 
 (defmethod project-am-macro ((this project-am-objectcode))
   "Return the default macro to 'edit' for this object type."
   (concat (oref this :name) "_SOURCES"))
+
+(defmethod project-am-macro ((this project-am-header-noinst))
+  "Return the default macro to 'edit' for this object."
+  "noinst_HEADERS")
+
+(defmethod project-am-macro ((this project-am-header-inst))
+  "Return the default macro to 'edit' for this object."
+  "pgkinclude_HEADERS")
 
 (defmethod project-am-macro ((this project-am-texinfo))
   "Return the default macro to 'edit' for this object type."
@@ -641,7 +707,7 @@ nil means that this buffer belongs to no-one."
 (defmethod ede-buffer-mine ((this project-am-lisp) buffer)
   "Return t if object THIS lays claim to the file in BUFFER."
   (member (file-name-nondirectory (buffer-file-name buffer))
-	  (oref this :lisp)))
+	  (oref this :source)))
 
 (defmethod project-am-subtree ((ampf project-am-makefile) subdir)
   "Return the sub project in AMPF specified by SUBDIR."
@@ -760,11 +826,12 @@ files in the project."
 
 ;;; Programatic editing of a Makefile
 ;;
-(defun makefile-move-to-macro (macro)
-  "Move to the definition of MACRO.  Return t if found."
+(defun makefile-move-to-macro (macro &optional next)
+  "Move to the definition of MACRO.  Return t if found.
+If NEXT is non-nil, move to the next occurance of MACRO."
   (let ((oldpt (point)))
-    (goto-char (point-min))
-    (if (re-search-forward (concat "^" macro "\\s-*=") nil t)
+    (when (not next) (goto-char (point-min)))
+    (if (re-search-forward (concat "^\\s-*" macro "\\s-*[+:?]?=") nil t)
 	t
       (goto-char oldpt)
       nil)))
@@ -784,123 +851,19 @@ STOP-BEFORE is a regular expression matching a file name."
 (defun makefile-macro-file-list (macro)
   "Return a list of all files in MACRO."
   (save-excursion
-    (if (makefile-move-to-macro macro)
+    (goto-char (point-min))
+    (let ((lst nil))
+      (while (makefile-move-to-macro macro t)
 	(let ((e (save-excursion
 		   (makefile-end-of-command)
-		   (point)))
-	      (lst nil))
+		   (point))))
 	  (while (re-search-forward "\\s-**\\([-a-zA-Z0-9./_@$%()]+\\)\\s-*" e t)
 	    (setq lst (cons
 		       (buffer-substring-no-properties
 			(match-beginning 1)
 			(match-end 1))
-		       lst)))
-	  (nreverse lst)))))
-
-;;; Methods used in speedbar
-;;
-(defmethod ede-sb-button ((this project-am-program) depth)
-  "Create a speedbar button for object THIS at DEPTH."
-  (speedbar-make-tag-line 'angle ?+
-			  'ede-object-expand
-			  this (ede-name this)
-			  nil nil  ; nothing to jump to
-			  'speedbar-file-face depth))
-
-(defmethod ede-sb-button ((this project-am-lib) depth)
-  "Create a speedbar button for object THIS at DEPTH."
-  (speedbar-make-tag-line 'angle ?+
-			  'ede-object-expand
-			  this (ede-name this)
-			  nil nil  ; nothing to jump to
-			  'speedbar-file-face depth))
-
-(defmethod ede-sb-button ((this project-am-texinfo) depth)
-  "Create a speedbar button for object THIS at DEPTH."
-  (speedbar-make-tag-line 'bracket ?+
-			  'ede-object-expand
-			  this
-			  (ede-name this)
-			  'ede-file-find
-			  (concat (oref this :path)
-				  (oref this :name))
-			  'speedbar-file-face depth))
-
-(defmethod ede-sb-button ((this project-am-man) depth)
-  "Create a speedbar button for object THIS at DEPTH."
-  (speedbar-make-tag-line 'bracket ?? nil nil
-			  (ede-name this)
-			  'ede-file-find
-			  (concat (oref this :path)
-				  (oref this :name))
-			  'speedbar-file-face depth))
-
-(defmethod ede-sb-button ((this project-am-lisp) depth)
-  "Create a speedbar button for object THIS at DEPTH."
-  (speedbar-make-tag-line 'angle ?+
-			  'ede-object-expand
-			  this (ede-name this)
-			  nil nil  ; nothing to jump to
-			  'speedbar-file-face depth))
-
-(defmethod ede-sb-expand ((this project-am-objectcode) depth)
-  "Expand node describing something built into objectcode.
-TEXT is the text clicked on.  TOKEN is the object we are expanding from.
-INDENT is the current indentatin level."
-  (let ((sources (oref this :source)))
-    (while sources
-      (speedbar-make-tag-line 'bracket ?+
-			      'ede-tag-file
-			      (concat (oref this :path)
-				      (car sources))
-			      (car sources)
-			      'ede-file-find
-			      (concat
-			       (oref this :path)
-			       (car sources))
-			      'speedbar-file-face depth)
-      (setq sources (cdr sources)))))
-
-(defmethod ede-sb-expand ((this project-am-texinfo) depth)
-  "Expand node describing a texinfo manual.
-TEXT is the text clicked on.  TOKEN is the object we are expanding from.
-INDENT is the current indentatin level."
-  (let ((includes (oref this :include)))
-    (while includes
-      (speedbar-make-tag-line 'bracket ?+
-			      'ede-tag-file
-			      (concat (oref this :path)
-				      (car includes))
-			      (car includes)
-			      'ede-file-find
-			      (concat
-			       (oref this :path)
-			       (car includes))
-			      'speedbar-file-face depth)
-      (setq includes (cdr includes)))
-    ;; Not only do we show the included files (for future expansion)
-    ;; but we also want to display tags for this file too.
-    (ede-create-tag-buttons (concat (oref this :path)
-					   (oref this :name))
-				   depth)))
-
-(defmethod ede-sb-expand ((this project-am-lisp) depth)
-  "Expand node describing lisp code.
-TEXT is the text clicked on.  TOKEN is the object we are expanding from.
-INDENT is the current indentatin level."
-  (let ((sources (oref this :lisp)))
-    (while sources
-      (speedbar-make-tag-line 'bracket ?+
-			      'ede-tag-file
-			      (concat (oref this :path)
-				      (car sources))
-			      (car sources)
-			      'ede-file-find
-			      (concat
-			       (oref this :path)
-			       (car sources))
-			      'speedbar-file-face depth)
-      (setq sources (cdr sources)))))
+		       lst)))))
+      (nreverse lst))))
 
 (provide 'project-am)
 

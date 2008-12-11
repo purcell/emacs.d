@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-doc.el,v 1.8 2008/06/10 00:42:59 zappo Exp $
+;; X-RCS: $Id: semantic-doc.el,v 1.10 2008/09/08 01:47:19 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -52,18 +52,15 @@ If nosnarf if 'lex, then only return the lex token."
      ;; No override.  Try something simple to find documentation nearby
      (save-excursion
        (semantic-go-to-tag tag)
-       (or
-	;; Is there doc in the tag???
-	(if (semantic-tag-docstring tag)
-	    (if (stringp (semantic-tag-docstring tag))
-		(semantic-tag-docstring tag)
-	      (goto-char (semantic-tag-docstring tag))
-	      (semantic-doc-snarf-comment-for-tag nosnarf)))
-	;; Check just before the definition.
-	(semantic-documentation-comment-preceeding-tag tag nosnarf)
-	;;  Lets look for comments either after the definition, but before code:
-	;; Not sure yet.  Fill in something clever later....
-	nil)))))
+       (let ((doctmp (semantic-tag-docstring tag (current-buffer))))
+	 (or
+	  ;; Is there doc in the tag???
+	  doctmp
+	  ;; Check just before the definition.
+	  (semantic-documentation-comment-preceeding-tag tag nosnarf)
+	  ;;  Lets look for comments either after the definition, but before code:
+	  ;; Not sure yet.  Fill in something clever later....
+	  nil))))))
 
 (defun semantic-documentation-comment-preceeding-tag (&optional tag nosnarf)
   "Find a comment preceeding TAG.
@@ -114,7 +111,9 @@ If NOSNARF is 'lex, then return the lex token."
 	    (setq ct (concat (substring ct 0 (match-beginning 0))
 			     (substring ct (match-end 0)))))
 	  ;; End of a block comment.
-	  (if (and block-comment-end (string-match block-comment-end ct))
+	  (if (and (boundp 'block-comment-end)
+		   block-comment-end
+		   (string-match block-comment-end ct))
 	      (setq ct (concat (substring ct 0 (match-beginning 0))
 			       (substring ct (match-end 0)))))
 	  ;; In case it's a real string, STRIPIT.

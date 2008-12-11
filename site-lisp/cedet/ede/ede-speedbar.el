@@ -1,10 +1,10 @@
 ;;; ede-speedbar.el --- Speedbar viewing of EDE projects
 
-;;;  Copyright (C) 1998, 1999, 2000, 2001, 2003, 2005, 2007  Eric M. Ludlam
+;;;  Copyright (C) 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make, tags
-;; RCS: $Id: ede-speedbar.el,v 1.28 2007/02/19 13:47:12 zappo Exp $
+;; RCS: $Id: ede-speedbar.el,v 1.32 2008/10/10 21:47:28 zappo Exp $
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -27,10 +27,6 @@
 ;;
 ;; Display a project's hierarchy in speedbar.
 ;;
-;; For speedbar support of your object, define these:
-;; `ede-sb-button' - Create a button representing your object.
-;; `ede-sb-expand' - Create the list of sub-buttons under your button
-;;                          when it is expanded.
 
 ;;; Code:
 (require 'speedbar)
@@ -69,7 +65,7 @@
       (ede-project-child-p (speedbar-line-token)) ]
     "---"
     [ "Edit File/Tag" speedbar-edit-line
-      (not (object-p (speedbar-line-token)))]
+      (not (eieio-object-p (speedbar-line-token)))]
     [ "Expand" speedbar-expand-line
       (save-excursion (beginning-of-line)
 		      (looking-at "[0-9]+: *.\\+. "))]
@@ -80,7 +76,7 @@
     [ "Remove File from Target" ede-speedbar-remove-file-from-target
       (stringp (speedbar-line-token)) ]
     [ "Customize Project/Target" eieio-speedbar-customize-line
-      (object-p (speedbar-line-token)) ]
+      (eieio-object-p (speedbar-line-token)) ]
     [ "Edit Project File" ede-speedbar-edit-projectfile t]
     [ "Make Distribution" ede-speedbar-make-distribution
       (ede-project-child-p (speedbar-line-token)) ]
@@ -124,7 +120,7 @@ Argument DIR is the directory from which to derive the list of objects."
   "Compile/Build the project or target on this line."
   (interactive)
   (let ((obj (eieio-speedbar-find-nearest-object)))
-    (if (not (object-p obj))
+    (if (not (eieio-object-p obj))
 	nil
       (cond ((obj-of-class-p obj ede-project)
 	     (project-compile-project obj))
@@ -136,7 +132,7 @@ Argument DIR is the directory from which to derive the list of objects."
   "Return a project object for this line."
   (interactive)
   (let ((obj (eieio-speedbar-find-nearest-object)))
-    (if (not (object-p obj))
+    (if (not (eieio-object-p obj))
 	(error "Error in speedbar or ede structure")
       (if (obj-of-class-p obj ede-target)
 	  (setq obj (ede-target-parent obj)))
@@ -203,7 +199,7 @@ Optional DEPTH is the depth we start at."
     ;; If we are on a child, we need a file name too.
     (save-excursion
       (let ((lt (speedbar-line-token)))
-	(if (or (object-p lt) (stringp lt))
+	(if (or (eieio-object-p lt) (stringp lt))
 	    (eieio-speedbar-derive-line-path proj)
 	  ;; a child element is a token.  Do some work to get a filename too.
 	  (concat (eieio-speedbar-derive-line-path proj)
@@ -235,8 +231,10 @@ A plain child is a child element which is not an EIEIO object."
 
 (defmethod eieio-speedbar-object-children ((this ede-project))
   "Return the list of speedbar display children for THIS."
-  (with-slots (subproj targets) this
-    (append subproj targets)))
+  (condition-case nil
+      (with-slots (subproj targets) this
+	(append subproj targets))
+    (error nil)))
 
 (defmethod eieio-speedbar-object-children ((this ede-target))
   "Return the list of speedbar display children for THIS."
@@ -249,10 +247,10 @@ It has depth DEPTH."
     (mapcar (lambda (car)
  	      (speedbar-make-tag-line 'bracket ?+
  				      'speedbar-tag-file
- 				      (concat (oref this :path) car)
+				      car
  				      car
  				      'ede-file-find
- 				      (concat (oref this :path) car)
+ 				      car
  				      'speedbar-file-face depth))
 	    source)))
 
@@ -262,7 +260,7 @@ It has depth DEPTH."
   "Find the file TEXT at path TOKEN.
 INDENT is the current indentation level."
   (speedbar-find-file-in-frame
-   (concat (speedbar-line-directory) token))
+   (expand-file-name token (speedbar-line-directory indent)))
   (speedbar-maybee-jump-to-attached-frame))
 
 (defun ede-create-tag-buttons (filename indent)

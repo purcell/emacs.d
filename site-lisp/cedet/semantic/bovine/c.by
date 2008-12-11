@@ -7,7 +7,7 @@
 ;;         David Ponce <david@dponce.com>
 ;;         Klaus Berndl <klaus.berndl@sdm.de>
 ;;
-;; X-RCS: $Id: c.by,v 1.47 2008/07/15 01:46:03 zappo Exp $
+;; X-RCS: $Id: c.by,v 1.50 2008/11/27 18:46:08 zappo Exp $
 ;;
 ;; c.by is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -664,8 +664,8 @@ typeformbase
     (TYPE-TAG $2 $1 nil nil )
   | builtintype
     ( ,$1 )
- ;;| symbol template-specifier
- ;;  ( $1 type "class" )
+  | symbol template-specifier
+    (TYPE-TAG $1 "class" nil nil :template-specifier $2)
  ;;| namespace-symbol opt-stars opt-template-specifier
  ;;| namespace-symbol opt-template-specifier
   | namespace-symbol opt-template-specifier
@@ -950,11 +950,27 @@ arg-list
     ( )
   ;
 
+knr-varnamelist
+  : varname COMA knr-varnamelist
+    ( ,(cons $1 $3) )
+  | varname
+    ( $1 )
+  ;
+
+
+knr-one-variable-decl
+  : declmods typeformbase cv-declmods knr-varnamelist
+    ( VARIABLE-TAG (nreverse $4) $2 nil
+                   :constant-flag (if (member "const" (append $3)) t nil)
+                   :typemodifiers (delete "const" $3)
+                   )
+  ;
+
 knr-arguments
-  : variablearg SEMICOLON knr-arguments
-    ( ,(cons (car (semantic-expand-c-tag ,$1) ) ,$3) )
-  | variablearg SEMICOLON
-    ( (car (semantic-expand-c-tag ,$1)) )
+  : knr-one-variable-decl SEMICOLON knr-arguments
+    ( ,(append (semantic-expand-c-tag ,$1) ,$3) )
+  | knr-one-variable-decl SEMICOLON
+    ( ,(semantic-expand-c-tag ,$1) )
   ;
 
 arg-sub-list

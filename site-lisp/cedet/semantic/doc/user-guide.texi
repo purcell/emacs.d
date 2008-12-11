@@ -91,12 +91,14 @@ distributed apart from @semantic{}.
 For basics of configuring @semantic{} and the parts that go into it
 read the @inforef{Top, Semantic manual, semantic.info}.
 
+%c TODO - Re-organize this main topic as a set of user-cases
+
 @menu
 * speedbar::                    How to use Semantic speedbar support
 * ECB::                         Emacs Code Browser
 * imenu::                       Special support for Imenu.
 * senator::                     The Semantic Navigator
-* Analyzer::                    Analyze local context
+* Analyzer::                    Context sensitive Help & smart completion
 * Document::                    Document generation functions
 * Charts::                      Charting code statistics
 * Idle Scheduler::              The idle Scheduler and related modes
@@ -880,18 +882,20 @@ for tokens which will be charted.
 @end deffn
 
 @deffn Command semantic-chart-database-size &optional tagtable
+@anchor{semantic-chart-database-size}
 Create a bar chart representing the size of each file in semanticdb.
-Each bar represents how many toplevel nonterminals in @var{TAGTABLE}
+Each bar represents how many toplevel tags in @var{tagtable}
 exist in each database entry.
-@var{TAGTABLE} is passedto @dfn{semantic-something-to-tag-table}.
+@var{tagtable} is passed to @dfn{semantic-something-to-tag-table}.
 @end deffn
 
 @deffn Command semantic-chart-tag-complexity &optional class tagtable
-Create a bar chart representing the complexity of some tokens.
-Complexity is calculated for tokens with a tag of @var{CLASS}.  Each bar
-represents the complexity of some nonterminal in @var{TAGTABLE}.
-Only the most complex items are charted.
-@var{TAGTABLE} is passedto @dfn{semantic-something-to-tag-table}.
+@anchor{semantic-chart-tag-complexity}
+Create a bar chart representing the complexity of some tags.
+Complexity is calculated for tags of @var{class}.  Each bar represents
+the complexity of some tag in @var{tagtable}.  Only the most complex
+items are charted.  @var{tagtable} is passedto
+@dfn{semantic-something-to-tag-table}.
 @end deffn
 
 @node Idle Scheduler
@@ -927,13 +931,6 @@ This time should be short enough to ensure that idle-scheduler will be
 run as soon as Emacs is idle.
 @end deffn
 
-@deffn Option semantic-idle-scheduler-work-idle-time
-@anchor{semantic-idle-scheduler-work-idle-time}
-Time in seconds of idle before scheduling big work.
-This time should be long enough that once any big work is started, it is
-unlikely the user would be ready to type again right away.
-@end deffn
-
 @deffn Option semantic-idle-scheduler-mode-hook
 @anchor{semantic-idle-scheduler-mode-hook}
 Hook run at the end of function @dfn{semantic-idle-scheduler-mode}.
@@ -950,7 +947,9 @@ Application Developers Guide
 @inforef{Idle Scheduling, , semantic-appdev.info}.
 
 @menu
-* Reparsing Options::           
+* Reparsing Options::           Reparsing the current buffer in idle time
+* Idle Working Options::        Options for extra work done at idle time
+* Debugging Idle Time Issues::  How to produce good bug reports.
 * Idle Summary Mode::           Display prototype of symbol under cursor
 * Idle Completions Mode::       Smart completion pop-up help.
 @end menu
@@ -1000,6 +999,68 @@ Hooks run after option @code{semantic-idle-scheduler} has parsed.
 If any hook throws an error, this variable is reset to nil.
 This hook is not protected from lexical errors.
 @end defvar
+
+@node Idle Working Options
+@section Idle Working Options
+
+Similiar to the reparsing that occurs at short intervales in idle
+time, there is extra work that can be controlled to occur in idle time
+also.
+
+Idle work occurs after a longer delay, and can be very time
+consuming.  The work done includes:
+
+@table @asis
+@item Create Include Path Caches
+Create the optimized search caches needed for symbol lookup.
+@item Create Type Cache
+Create the datatype caches needed for intellisense features.
+@item Save Databases
+All file-based @semantic{} databases are saved to disk.
+@item Parse neighboring files
+All files in the same directory as the current buffer are
+speculatively parsed.
+@end table
+
+These features can be controlled with the following variables:
+
+@deffn Option semantic-idle-scheduler-work-idle-time
+@anchor{semantic-idle-scheduler-work-idle-time}
+Time in seconds of idle before scheduling big work.
+This time should be long enough that once any big work is started, it is
+unlikely the user would be ready to type again right away.
+@end deffn
+
+@deffn Option semantic-idle-work-parse-neighboring-files-flag
+@anchor{semantic-idle-work-parse-neighboring-files-flag}
+Non-@code{nil} means to parse files in the same dir as the current buffer.
+Disable to prevent lots of excessive parsing in idle time.
+@end deffn
+
+@node Debugging Idle Time Issues
+@section Debugging Idle Time Issues
+
+If you see errors produced in idle time, it could be an idication of a
+more serious issue elsewhere.  It is not enough to enable
+@code{debug-on-error}, as the idle timer tries to keep errors under
+wraps.
+
+Instead, there are two commands you can use whenever you see an idle
+error.
+
+@deffn Command semantic-debug-idle-function
+@anchor{semantic-debug-idle-function}
+Run the Semantic idle function with debugging turned on.
+@end deffn
+
+@deffn Command semantic-debug-idle-work-function
+@anchor{semantic-debug-idle-work-function}
+Run the Semantic idle work function with debugging turned on.
+@end deffn
+
+Once you identify the general location of the idle error, you can send
+the stack trace to the mailing list, or perhaps find a more focused
+way to reproduce the issue.
 
 @node Idle Summary Mode
 @section Idle Summary Mode

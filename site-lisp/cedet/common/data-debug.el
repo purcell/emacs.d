@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: data-debug.el,v 1.7 2008/06/19 01:37:49 zappo Exp $
+;; X-RCS: $Id: data-debug.el,v 1.10 2008/12/10 22:00:05 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -157,6 +157,112 @@ PREBUTTONTEXT is some text between prefix and the overlay list button."
     )
   )
 
+;;; buffers
+;;
+(defun data-debug-insert-buffer-props (buffer prefix)
+  "Insert all the parts of BUFFER.
+PREFIX specifies what to insert at the start of each line."
+  (let ((attrprefix (concat (make-string (length prefix) ? ) "# "))
+	(proplist 
+	 (list :filename (buffer-file-name buffer)
+	       :live (buffer-live-p buffer)
+	       :modified (buffer-modified-p buffer)
+	       :size (buffer-size buffer)
+	       :process (get-buffer-process buffer)
+	       :localvars (buffer-local-variables)
+	       )))
+    (data-debug-insert-property-list
+     proplist attrprefix)
+    )
+  )
+
+(defun data-debug-insert-buffer-from-point (point)
+  "Insert the buffer found at the buffer button at POINT."
+  (let ((buffer (get-text-property point 'ddebug))
+	(indent (get-text-property point 'ddebug-indent))
+	start end
+	)
+    (end-of-line)
+    (setq start (point))
+    (forward-char 1)
+    (data-debug-insert-buffer-props buffer
+				     (concat (make-string indent ? )
+					     "| "))
+    (setq end (point))
+    (goto-char start)
+    ))
+
+(defun data-debug-insert-buffer-button (buffer prefix prebuttontext)
+  "Insert a button representing BUFFER.
+PREFIX is the text that preceeds the button.
+PREBUTTONTEXT is some text between prefix and the buffer button."
+  (let ((start (point))
+	(end nil)
+	(str (format "%S" buffer))
+	(tip nil))
+    (insert prefix prebuttontext str)
+    (setq end (point))
+    (put-text-property (- end (length str)) end 'face 'font-lock-comment-face)
+    (put-text-property start end 'ddebug buffer)
+    (put-text-property start end 'ddebug-indent(length prefix))
+    (put-text-property start end 'ddebug-prefix prefix)
+    (put-text-property start end 'help-echo tip)
+    (put-text-property start end 'ddebug-function
+		       'data-debug-insert-buffer-from-point)
+    (insert "\n")
+    )
+  )
+
+;;; buffer list
+;;
+(defun data-debug-insert-buffer-list (bufferlist prefix)
+  "Insert all the parts of BUFFERLIST.
+PREFIX specifies what to insert at the start of each line."
+  (while bufferlist
+    (data-debug-insert-buffer-button (car bufferlist)
+				      prefix
+				      "")
+    (setq bufferlist (cdr bufferlist))))
+
+(defun data-debug-insert-buffer-list-from-point (point)
+  "Insert the buffer found at the buffer list button at POINT."
+  (let ((bufferlist (get-text-property point 'ddebug))
+	(indent (get-text-property point 'ddebug-indent))
+	start end
+	)
+    (end-of-line)
+    (setq start (point))
+    (forward-char 1)
+    (data-debug-insert-buffer-list bufferlist
+				    (concat (make-string indent ? )
+					    "* "))
+    (setq end (point))
+    (goto-char start)
+    ))
+
+(defun data-debug-insert-buffer-list-button (bufferlist
+					      prefix
+					      prebuttontext)
+  "Insert a button representing BUFFERLIST.
+PREFIX is the text that preceeds the button.
+PREBUTTONTEXT is some text between prefix and the buffer list button."
+  (let ((start (point))
+	(end nil)
+	(str (format "#<buffer list: %d entries>" (length bufferlist)))
+	(tip nil))
+    (insert prefix prebuttontext str)
+    (setq end (point))
+    (put-text-property (- end (length str)) end 'face 'font-lock-comment-face)
+    (put-text-property start end 'ddebug bufferlist)
+    (put-text-property start end 'ddebug-indent(length prefix))
+    (put-text-property start end 'ddebug-prefix prefix)
+    (put-text-property start end 'help-echo tip)
+    (put-text-property start end 'ddebug-function
+		       'data-debug-insert-buffer-list-from-point)
+    (insert "\n")
+    )
+  )
+
 ;;; processes
 ;;
 (defun data-debug-insert-process-props (process prefix)
@@ -264,7 +370,7 @@ PREBUTTONTEXT is some text between prefix and the stuff list button."
 			     "strings")
 			    ((semantic-tag-p ringthing)
 			     "tags")
-			    ((object-p ringthing)
+			    ((eieio-object-p ringthing)
 			     "eieio objects")
 			    ((listp ringthing)
 			     "List of somethin'")
@@ -361,7 +467,7 @@ PREBUTTONTEXT is some text between prefix and the thing."
     (put-text-property start end 'face font-lock-string-face)
     ))
 
-;;; String
+;;; Number
 (defun data-debug-insert-number (thing prefix prebuttontext)
   "Insert one symbol THING.
 A Symbol is a simple thing, but this provides some face and prefix rules.
@@ -397,6 +503,17 @@ PREBUTTONTEXT is some text between prefix and the thing."
 	  nil)
 	 )
 	)
+  )
+
+;;; Lambda Expression
+(defun data-debug-insert-lambda-expression (thing prefix prebuttontext)
+  "Insert one symbol THING.
+A Symbol is a simple thing, but this provides some face and prefix rules.
+PREFIX is the text that preceeds the button.
+PREBUTTONTEXT is some text between prefix and the thing."
+  (let ((txt (prin1-to-string thing)))
+    (data-debug-insert-simple-thing
+     txt prefix prebuttontext 'font-lock-keyword))
   )
 
 ;;; simple thing
@@ -446,12 +563,25 @@ FACE is the face to use."
     ;; find results
     (semanticdb-find-results-p . data-debug-insert-find-results-button)
    
+    ;; Elt of a find-results
+    ((lambda (thing) (and (listp thing)
+			  (semanticdb-abstract-table-child-p (car thing))
+			  (semantic-tag-p (cdr thing)))) .
+			  data-debug-insert-db-and-tag-button)
+
     ;; Overlay
     (data-debug-overlay-p . data-debug-insert-overlay-button)
 
     ;; overlay list
-    ((lambda (thing) (and (listp thing) (semantic-overlay-p (car thing)))) .
+    ((lambda (thing) (and (consp thing) (data-debug-overlay-p (car thing)))) .
      data-debug-insert-overlay-list-button)
+
+    ;; Overlay
+    (bufferp . data-debug-insert-buffer-button)
+
+    ;; overlay list
+    ((lambda (thing) (and (consp thing) (bufferp (car thing)))) .
+     data-debug-insert-buffer-list-button)
 
     ;; process
     (processp . data-debug-insert-process-button)
@@ -467,6 +597,10 @@ FACE is the face to use."
 
     ;; Ring
     (ring-p . data-debug-insert-ring-button)
+
+    ;; Lambda Expression
+    ((lambda (thing) (and (consp thing) (eq (car thing) 'lambda))) .
+     data-debug-insert-lambda-expression)
 
     ;; List of stuff
     (listp . data-debug-insert-stuff-list-button)

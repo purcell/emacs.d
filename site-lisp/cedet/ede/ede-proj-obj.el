@@ -1,10 +1,10 @@
 ;;; ede-proj-obj.el --- EDE Generic Project Object code generation support
 
-;;;  Copyright (C) 1998, 1999, 2000, 2005  Eric M. Ludlam
+;;;  Copyright (C) 1998, 1999, 2000, 2005, 2008  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-proj-obj.el,v 1.12 2005/09/30 20:17:03 zappo Exp $
+;; RCS: $Id: ede-proj-obj.el,v 1.13 2008/09/29 00:05:20 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -104,8 +104,8 @@ file.")
 (defvar ede-source-c++
   (ede-sourcecode "ede-source-c++"
 		  :name "C++"
-		  :sourcepattern "\\.cpp$"
-		  :auxsourcepattern "\\.hpp$"
+		  :sourcepattern "\\.\\(cpp\\|cc\\|cxx\\)$"
+		  :auxsourcepattern "\\.\\(hpp\\|hh?\\|hxx\\)$"
 		  :garbagepattern '("*.o" "*.obj" ".deps/*.P" ".lo"))
   "C++ source code definition.")
 

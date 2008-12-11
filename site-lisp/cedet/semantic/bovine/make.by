@@ -3,7 +3,7 @@
 ;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2008 Eric M. Ludlam
 ;;
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: make.by,v 1.13 2008/03/09 15:27:11 zappo Exp $
+;; X-RCS: $Id: make.by,v 1.14 2008/08/28 01:18:33 zappo Exp $
 ;;
 ;; make.bnf is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -151,7 +151,7 @@ varref: DOLLAR semantic-list
 	( (buffer-substring-no-properties (identity start) (identity end)) )
       ;
 
-commands: shell-command newline commands
+commands: bol shell-command newline commands
 	  ( ,$1 ,@$2 )
 	| ;;EMPTY
 	  ( )

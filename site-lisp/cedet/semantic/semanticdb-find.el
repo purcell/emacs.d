@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb-find.el,v 1.67 2008/06/15 14:38:42 zappo Exp $
+;; X-RCS: $Id: semanticdb-find.el,v 1.70 2008/11/28 03:03:33 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -430,16 +430,20 @@ a new path from the provided PATH."
 	(incfname nil)
 	nexttable)
     (cond ((null path)
+	   (semantic-refresh-tags-safe)
 	   (setq includetags (semantic-find-tags-included (current-buffer))
 		 curtable semanticdb-current-table
 		 incfname (buffer-file-name))
 	   )
 	  ((semanticdb-table-p path)
-	   (setq includetags (semantic-find-tags-included (semanticdb-get-tags path))
+	   (setq includetags (semantic-find-tags-included path)
 		 curtable path
 		 incfname (semanticdb-full-filename path))
 	   )
 	  ((bufferp path)
+	   (save-excursion
+	     (set-buffer path)
+	     (semantic-refresh-tags-safe))
 	   (setq includetags (semantic-find-tags-included path)
 		 curtable (save-excursion (set-buffer path)
 					  semanticdb-current-table)
@@ -501,6 +505,7 @@ a new path from the provided PATH."
 	    (let ((newtags
 		   (cond
 		    ((semanticdb-table-p nexttable)
+		     (semanticdb-refresh-table nexttable)
 		     ;; Use the method directly, or we will recurse
 		     ;; into ourselves here.
 		     (semanticdb-find-tags-by-class-method
@@ -846,14 +851,30 @@ instead."
 	(while tmp
 	  (let ((tab (car (car tmp)))
 		(tags (cdr (car tmp))))
-	    (if (eq find-file-match 'name)
-		(let ((f (semanticdb-full-filename tab)))
-		  (dolist (tag tags)
-		    (semantic--tag-put-property tag :filename f)
-		    ))
-	      (semanticdb-get-buffer tab))
-	    (setq output (append output
-				 (semanticdb-normalize-tags tab tags))))
+	    (dolist (T tags)
+	      ;; Normilzation gives specialty database tables a chance
+	      ;; to convert into a more stable tag format.
+	      (let* ((norm (semanticdb-normalize-one-tag tab T))
+		     (ntab (car norm))
+		     (ntag (cdr norm))
+		     (nametable ntab))
+
+		;; If it didn't normalize, use what we had.
+		(if (not norm)
+		    (setq nametable tab)
+		  (setq output (append output (list ntag))))
+
+		;; Find-file-match allows a tool to make sure the tag is
+		;; 'live', somewhere in a buffer.
+		(cond ((eq find-file-match 'name)
+		       (let ((f (semanticdb-full-filename nametable)))
+			 (semantic--tag-put-property ntag :filename f)))
+		      (find-file-match
+		       (semanticdb-get-buffer ntab))
+		      )
+
+		))
+	    )
 	  (setq tmp (cdr tmp)))
 	output)
     ;; @todo - I could use nconc, but I don't know what the caller may do with
@@ -966,7 +987,17 @@ is still made current."
     ;; If we have a hit, double-check the find-file
     ;; entry.  If the file must be loaded, then gat that table's
     ;; source file into a buffer.
-    (if anstable (semanticdb-set-buffer anstable))
+
+    (if anstable
+	(let ((norm (semanticdb-normalize-one-tag anstable ans)))
+	  (when norm
+	    ;; The normalized tags can now be found based on that
+	    ;; tags table.
+	    (semanticdb-set-buffer (car norm))
+	    ;; Now reset ans
+	    (setq ans (cdr norm))
+	    ))
+      )
     ;; Return the tag.
     ans))
 

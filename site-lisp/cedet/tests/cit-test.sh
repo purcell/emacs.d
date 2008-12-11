@@ -1,6 +1,6 @@
 #!/bin/sh
 
-EMACS=emacs;
+EMACS=emacs
 
-rm -r /tmp/CEDET_INTEG/
+rm -r /tmp/CEDET_INTEG*
 $EMACS -q -l ../common/cedet.el -l cit-load.el -f toggle-debug-on-error  -f cedet-integ-test

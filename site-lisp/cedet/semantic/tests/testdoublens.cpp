@@ -14,7 +14,7 @@ namespace Name1 {
 	;
     }
 
-    int Foo::get()
+    int Foo::get() // ^1^
     {
       p// -2-
 	// #2# ( "pMumble" "publishStuff" )
@@ -22,11 +22,11 @@ namespace Name1 {
       return 0;
     }
 
-    void Foo::publishStuff(int /* a */, int /* b */)
+    void Foo::publishStuff(int /* a */, int /* b */) // ^2^
     {
     }
 
-    void Foo::sendStuff(int /* a */, int /* b */)
+    void Foo::sendStuff(int /* a */, int /* b */) // ^3^
     {
     }
     

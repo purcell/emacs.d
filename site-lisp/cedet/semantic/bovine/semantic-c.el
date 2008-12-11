@@ -3,7 +3,7 @@
 ;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-c.el,v 1.86 2008/06/17 04:00:03 zappo Exp $
+;; X-RCS: $Id: semantic-c.el,v 1.94 2008/12/03 18:01:01 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -63,6 +63,8 @@ This function does not do any hidden buffer changes."
   )
 
 ;;; Code:
+(when (member system-type '(gnu gnu/linux darwin cygwin))
+  (semantic-gcc-setup))
 
 ;;; Pre-processor maps
 ;;
@@ -81,6 +83,8 @@ This function does not do any hidden buffer changes."
       ;; Global map entries
       (let* ((table (semanticdb-file-table-object sf)))
 	(when table
+	  (when (semanticdb-needs-refresh-p table)
+	    (semanticdb-refresh-table table))
 	  (setq filemap (append filemap (oref table lexical-table)))
 	  )
 	))
@@ -126,7 +130,9 @@ The output table will describe the symbols needed."
 		       (sexp :tag "Replacement")))
   :set (lambda (sym value)
 	 (set-default sym value)
-	 (semantic-c-reset-preprocessor-symbol-map)
+	 (condition-case nil
+	     (semantic-c-reset-preprocessor-symbol-map)
+	   (error nil))
 	 )
   )
 
@@ -141,9 +147,17 @@ to store your global macros in a more natural way."
   :type '(repeat (file :tag "File"))
   :set (lambda (sym value)
 	 (set-default sym value)
-	 (semantic-c-reset-preprocessor-symbol-map)
+	 (condition-case nil
+	     (semantic-c-reset-preprocessor-symbol-map)
+	   (error nil))
 	 )
   )
+
+;; XEmacs' autoload can't seem to byte compile the above because it
+;; directly includes the entire defcustom.  To safely execute those,
+;; it needs this next line to bootstrap in user settings w/out
+;; loading in semantic-c.el at bootstrap time.
+(semantic-c-reset-preprocessor-symbol-map)
 
 (define-lex-spp-macro-declaration-analyzer semantic-lex-cpp-define
   "A #define of a symbol with some value.
@@ -154,21 +168,27 @@ Return the the defined symbol as a special spp lex token."
   (skip-chars-forward " \t")
   (if (eolp)
       nil
-    (let* ((with-args (save-excursion
+    (let* ((name (buffer-substring-no-properties 
+		  (match-beginning 1) (match-end 1)))
+	   (with-args (save-excursion
 			(goto-char (match-end 0))
 			(looking-at "(")))
 	   (semantic-lex-spp-replacements-enabled nil)
+	   ;; Temporarilly override the lexer to include
+	   ;; special items needed inside a macro
+	   (semantic-lex-analyzer #'semantic-cpp-lexer)
 	   (raw-stream
 	    (semantic-lex-spp-stream-for-macro (save-excursion
 						 (semantic-c-end-of-macro)
 						 (point))))
+	   (cooked-stream nil)
 	   )
 
       ;; If this symbol refers to some other symbol, do a replacement.
-      ;; @todo - This really needs to handle the case of multiple
-      ;;         macros, but we'll see if we get any reports on that.
       (when (and (consp raw-stream) (consp (car raw-stream))
-		 (eq (car (car raw-stream)) 'spp-replace-replace))
+		 (eq (car (car raw-stream)) 'spp-replace-replace)
+		 (not (string= name (semantic-lex-token-text (car raw-stream))))
+		 )
 
 	;; extract the replacement.
 	(setq raw-stream (car (cdr (car raw-stream)))))
@@ -181,8 +201,31 @@ Return the the defined symbol as a special spp lex token."
       ;; Magical spp variable for end point.
       (setq semantic-lex-end-point (point))
 
+      ;; Merge the stream
+      (while raw-stream
+	(cond ((eq (semantic-lex-token-class (car raw-stream)) 'hashhash)
+	       ;; handle hashhash, by skipping it.
+	       (setq raw-stream (cdr raw-stream))
+	       ;; Now merge the symbols.
+	       (let ((prev-tok (car cooked-stream))
+		     (next-tok (car raw-stream)))
+		 (setq cooked-stream (cdr cooked-stream))
+		 (push (semantic-lex-token
+			'spp-symbol-merge
+			(semantic-lex-token-start prev-tok)
+			(semantic-lex-token-end next-tok)
+			(list prev-tok next-tok))
+		       cooked-stream)
+		 ))
+	      (t
+	       (push (car raw-stream) cooked-stream))
+	      )
+	(setq raw-stream (cdr raw-stream))
+	)
+
       ;; Return the stream.
-      raw-stream
+      ;; raw-stream
+      (nreverse cooked-stream)
       )))
 
 (define-lex-spp-macro-undeclaration-analyzer semantic-lex-cpp-undef
@@ -353,9 +396,41 @@ they are comment end characters)."
 
 
 (define-lex semantic-c-lexer
-  "Lexical Analyzer for C code."
+  "Lexical Analyzer for C code.
+Use semantic-cpp-lexer for parsing text inside a CPP macro."
   semantic-lex-ignore-whitespace
   semantic-c-lex-ignore-newline
+  ;; C preprocessor features
+  semantic-lex-cpp-define
+  semantic-lex-cpp-undef
+  semantic-lex-c-if
+  semantic-lex-c-macro-else
+  semantic-lex-c-macrobits
+  semantic-lex-c-include
+  semantic-lex-c-include-system
+  semantic-lex-c-ignore-ending-backslash
+  ;; Non-preprocessor features
+  semantic-lex-number
+  ;; Must detect C strings before symbols because of possible L prefix!
+  semantic-lex-c-string
+  semantic-lex-spp-replace-or-symbol-or-keyword
+  semantic-lex-charquote
+  semantic-lex-paren-or-list
+  semantic-lex-close-paren
+  semantic-lex-ignore-comments
+  semantic-lex-punctuation
+  semantic-lex-default-action)
+
+(define-lex-simple-regex-analyzer semantic-lex-cpp-hashhash
+  "Match ## inside a CPP macro as special."
+  "##" 'hashhash)
+
+(define-lex semantic-cpp-lexer
+  "Lexical Analyzer for CPP macros in C code."
+  semantic-lex-ignore-whitespace
+  semantic-c-lex-ignore-newline
+  ;; CPP special
+  semantic-lex-cpp-hashhash
   ;; C preprocessor features
   semantic-lex-cpp-define
   semantic-lex-cpp-undef
@@ -540,7 +615,8 @@ the regular parser."
 				    ;; name shows up as a parent of this
 				    ;; typedef.
 				    :typedef
-				    (semantic-tag-type-superclasses tag)
+				    (semantic-tag-get-attribute tag :superclasses)
+				    ;;(semantic-tag-type-superclasses tag)
 				    :documentation
 				    (semantic-tag-docstring tag))
 				   vl))
@@ -820,7 +896,8 @@ Override function for `semantic-tag-protection'."
       ;; A typedef can contain a parent who has positional children,
       ;; but that parent will not have a position.  Do this funny hack
       ;; to make sure we can apply overlays properly.
-      (semantic-tag-components (semantic-tag-type-superclasses tag))
+      (let ((sc (semantic-tag-get-attribute tag :typedef)))
+	(when (semantic-tag-p sc) (semantic-tag-components sc)))
     (semantic-tag-components-default tag)))
 
 (defun semantic-c-tag-template (tag)
@@ -914,7 +991,10 @@ If TYPE is a typedef, get TYPE's type by name or tag, and return."
   (if (and (eq (semantic-tag-class type) 'type)
 	   (string= (semantic-tag-type type) "typedef"))
       (let ((dt (semantic-tag-get-attribute type :typedef)))
-	(cond ((stringp dt) dt)
+	(cond ((and (semantic-tag-p dt)
+		    (not (semantic-analyze-tag-prototype-p dt)))
+	       dt)
+	      ((stringp dt) dt)
 	      ((consp dt) (car dt))))
     type))
 
@@ -932,11 +1012,16 @@ These are constants which are of type TYPE."
 	name
       (delete "" ans))))
 
+(define-mode-local-override semantic-analyze-unsplit-name c-mode (namelist)
+  "Assemble the list of names NAMELIST into a namespace name."
+  (mapconcat 'identity namelist "::"))
+
 (define-mode-local-override semantic-ctxt-scoped-types c-mode (&optional point)
   "Return a list of tags of CLASS type based on POINT.
 DO NOT return the list of tags encompassing point."
   (when point (goto-char (point)))
-  (let ((tagreturn nil)
+  (let ((tagsaroundpoint (semantic-find-tag-by-overlay))
+	(tagreturn nil)
 	(tmp nil))
     ;; In C++, we want to find all the namespaces declared
     ;; locally and add them to the list.
@@ -946,12 +1031,22 @@ DO NOT return the list of tags encompassing point."
     (setq tagreturn tmp)
     ;; We should also find all "using" type statements and
     ;; accept those entities in as well.
-    (setq tmp (semantic-find-tags-by-class 'using (current-buffer)))
-    (while tmp
-      (setq tagreturn (cons (semantic-tag-type (car tmp))
-			    tagreturn))
-      (setq tmp (cdr tmp)))
-
+    (setq tmp (semanticdb-find-tags-by-class 'using (current-buffer)))
+    (let ((idx 0)
+	  (len (semanticdb-find-result-length tmp)))
+      (while (< idx len)
+	(setq tagreturn (cons (semantic-tag-type (car (semanticdb-find-result-nth tmp idx))) tagreturn))
+	(setq idx (1+ idx)))
+      )
+    ;; Use the encompased types around point to also look for using statements.
+    ;;(setq tagreturn (cons "bread_name" tagreturn))
+    (while (cdr tagsaroundpoint)  ; don't search the last one
+      (setq tmp (semantic-find-tags-by-class 'using (semantic-tag-components (car tagsaroundpoint))))
+      (dolist (T tmp)
+	(setq tagreturn (cons (semantic-tag-type T) tagreturn))
+	)
+      (setq tagsaroundpoint (cdr tagsaroundpoint))
+      )
     ;; Return the stuff
     tagreturn
     ))
@@ -1070,6 +1165,92 @@ DO NOT return the list of tags encompassing point."
 
 (define-child-mode c++-mode c-mode
   "`c++-mode' uses the same parser as `c-mode'.")
+
+;;; SETUP QUERY
+;;
+(defun semantic-c-describe-environment ()
+  "Describe the Semantic features of the current C environment."
+  (interactive)
+  (if (not (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode)))
+      (error "Not usefule to query C mode in %s mode" major-mode))
+  (let ((gcc (when (boundp 'semantic-gcc-setup-data)
+	       semantic-gcc-setup-data))
+	)
+    (semantic-fetch-tags)
+
+    (with-output-to-temp-buffer "*Semantic C Environment*"
+      (when gcc
+	(princ "Calculated GCC Parameters:")
+	(dolist (P gcc)
+	  (princ "\n  ")
+	  (princ (car P))
+	  (princ " = ")
+	  (princ (cdr P))
+	  )
+	)
+
+      (princ "\n\nInclude Path Summary:\n")
+      (when ede-object
+	(princ "\n  This file's project include is handled by:\n")
+	(princ "   ")
+	(princ (object-print ede-object))
+	(princ "\n  with the system path:\n")
+	(dolist (dir (ede-system-include-path ede-object))
+	  (princ "    ")
+	  (princ dir)
+	  (princ "\n"))
+	)
+
+      (when semantic-dependency-include-path
+	(princ "\n  This file's generic include path is:\n")
+	(dolist (dir semantic-dependency-include-path)
+	  (princ "    ")
+	  (princ dir)
+	  (princ "\n")))
+
+      (when semantic-dependency-system-include-path
+	(princ "\n  This file's system include path is:\n")
+	(dolist (dir semantic-dependency-system-include-path)
+	  (princ "    ")
+	  (princ dir)
+	  (princ "\n")))
+
+      (princ "\n\nMacro Summary:\n")
+      (when semantic-lex-c-preprocessor-symbol-file
+	(princ "\n  Your CPP table is primed from these files:\n")
+	(dolist (file semantic-lex-c-preprocessor-symbol-file)
+	  (princ "    ")
+	  (princ file)
+	  (princ "\n")
+	  (princ "    in table: ")
+	  (princ (object-print (semanticdb-file-table-object file)))
+	  (princ "\n")
+	  ))
+
+      (when semantic-lex-c-preprocessor-symbol-map-builtin
+	(princ "\n  Built-in symbol map:\n")
+	(dolist (S semantic-lex-c-preprocessor-symbol-map-builtin)
+	  (princ "    ")
+	  (princ (car S))
+	  (princ " = ")
+	  (princ (cdr S))
+	  (princ "\n")
+	  ))
+
+      (when semantic-lex-c-preprocessor-symbol-map
+	(princ "\n  User symbol map:\n")
+	(dolist (S semantic-lex-c-preprocessor-symbol-map)
+	  (princ "    ")
+	  (princ (car S))
+	  (princ " = ")
+	  (princ (cdr S))
+	  (princ "\n")
+	  ))
+
+      (princ "\n\n  Use: M-x semantic-lex-spp-describe RET\n")
+      (princ "\n  to see the complete macro table.\n")
+
+      )))
 
 (provide 'semantic-c)
 

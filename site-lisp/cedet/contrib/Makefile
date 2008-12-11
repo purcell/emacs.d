@@ -18,10 +18,10 @@ LOADDIRS=.
 init_LISP=cedet-contrib-load.el
 EMACS=emacs
 setup_LISP=cedet-contrib.el
-wy_SEMANTIC_GRAMMAR=wisent-csharp.wy wisent-javascript-jv.wy wisent-ruby.wy wisent-php.wy
+wy_SEMANTIC_GRAMMAR=wisent-csharp.wy wisent-ruby.wy wisent-php.wy
 EMACS=emacs
-wy_SEMANTIC_GRAMMAR_EL=wisent-csharp-wy.el wisent-javascript-jv-wy.el wisent-ruby-wy.el wisent-php-wy.el
-lisp_LISP=wisent-csharp.el wisent-javascript.el semantic-tag-folding.el semanticdb-javascript.el eassist.el wisent-ruby.el wisent-php.el ede-gnustep.el
+wy_SEMANTIC_GRAMMAR_EL=wisent-csharp-wy.el wisent-ruby-wy.el wisent-php-wy.el
+lisp_LISP=wisent-csharp.el semantic-tag-folding.el eassist.el wisent-ruby.el wisent-php.el ede-gnustep.el
 VERSION=1.0pre5
 DISTDIR=$(top)Contrib-$(VERSION)
 

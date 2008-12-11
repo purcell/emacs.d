@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-analyze.el,v 1.75 2008/06/10 00:42:31 zappo Exp $
+;; X-RCS: $Id: semantic-analyze.el,v 1.77 2008/09/07 01:41:53 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -81,6 +81,13 @@
 (require 'semantic-analyze-fcn)
 
 ;;; Code:
+(defvar semantic-analyze-error-stack nil
+  "Collection of any errors thrown during analysis.")
+
+(defun semantic-analyze-push-error (err)
+  "Push the error in ERR-DATA onto the error stack.
+Argument ERR"
+  (push err semantic-analyze-error-stack))
 
 ;;; Analysis Classes
 ;;
@@ -117,6 +124,8 @@ See `semantic-analyze-scoped-tags' for details.")
    (buffer :initarg :buffer
 	   :type buffer
 	   :documentation "The buffer this context is derived from.")
+   (errors :initarg :errors
+	   :documentation "Any errors thrown an caught during analysis.")
    )
   "Base analysis data for a any context.")
 
@@ -222,7 +231,7 @@ Optional argument DESIRED-TYPE may be a non-type tag to analyze."
 ;; context.
 
 (define-overloadable-function semantic-analyze-find-tag-sequence (sequence &optional
-							      scope typereturn)
+							      scope typereturn throwsym)
   "Attempt to find all tags in SEQUENCE.
 Optional argument LOCALVAR is the list of local variables to use when
 finding the details on the first element of SEQUENCE in case
@@ -231,14 +240,17 @@ Optional argument SCOPE are additional terminals to search which are currently
 scoped.  These are not local variables, but symbols available in a structure
 which doesn't need to be dereferneced.
 Optional argument TYPERETURN is a symbol in which the types of all found
-will be stored.  If nil, that data is thrown away.")
+will be stored.  If nil, that data is thrown away.
+Optional argument THROWSYM specifies a symbol the throw on non-recoverable error.")
 
 (defun semantic-analyze-find-tag-sequence-default (sequence &optional
-							    scope typereturn)
+							    scope typereturn
+							    throwsym)
   "Attempt to find all tags in SEQUENCE.
 SCOPE are extra tags which are in scope.
 TYPERETURN is a symbol in which to place a list of tag classes that
-are found in SEQUENCE."
+are found in SEQUENCE.
+Optional argument THROWSYM specifies a symbol the throw on non-recoverable error."
   (let ((s sequence)			; copy of the sequence
 	(tmp nil)			; tmp find variable
 	(nexttype nil)			; a tag for the type next in sequence
@@ -269,7 +281,9 @@ are found in SEQUENCE."
       (if (and (listp tmp) (semantic-tag-p (car tmp)))
 	  (setq tmp (semantic-analyze-select-best-tag tmp)))
       (if (not (semantic-tag-p tmp))
-	  (error "Cannot find definition for \"%s\"" (car s)))
+	  (if throwsym
+	      (throw throwsym "Cannot find definition")
+	    (error "Cannot find definition for \"%s\"" (car s))))
       (setq s (cdr s))
       (setq tag (cons tmp tag)) ; tag is nil here...
       (setq fname (semantic-tag-file-name tmp))
@@ -420,7 +434,8 @@ if a cached copy of the return object is found."
 (defun semantic-analyze-current-context-default (position)
   "Analyze the current context at POSITION.
 Returns an object based on symbol `semantic-analyze-context'."
-  (let* ((context-return nil)
+  (let* ((semantic-analyze-error-stack nil)
+	 (context-return nil)
 	 (startpoint (point))
 	 (prefixandbounds (semantic-ctxt-current-symbol-and-bounds (or position (point))))
 	 (prefix (car prefixandbounds))
@@ -460,11 +475,19 @@ Returns an object based on symbol `semantic-analyze-context'."
       ;;
 
       ;; Step 2:
-      (condition-case nil
-	  ;; If we are on lame stuff, it won't be found!
-	  (setq prefix (semantic-analyze-find-tag-sequence
-			prefix scope 'prefixtypes))
-	(error nil))
+      (if debug-on-error
+	  (catch 'unfindable
+	    ;; If debug on error is on, allow debugging in this fcn.
+	    (setq prefix (semantic-analyze-find-tag-sequence
+			  prefix scope 'prefixtypes 'unfindable)))
+	;; Debug on error is off.  Capture errors and move on
+	(condition-case err
+	    ;; NOTE: This line is duplicated in
+	    ;;       semantic-analyzer-debug-global-symbol
+	    ;;       You will need to update both places.
+	    (setq prefix (semantic-analyze-find-tag-sequence
+			  prefix scope 'prefixtypes))
+	  (error (semantic-analyze-push-error err))))
 
 
       (setq function (semantic-ctxt-current-function))
@@ -472,10 +495,10 @@ Returns an object based on symbol `semantic-analyze-context'."
 	;; If we have a function, then we can get the argument
 	(setq arg (semantic-ctxt-current-argument))
 
-	(condition-case nil
+	(condition-case err
 	    (setq fntag
 		  (semantic-analyze-find-tag-sequence function scope))
-	  (error nil))
+	  (error (semantic-analyze-push-error err)))
 
 	;; fntag can have the last entry as just a string, meaning we
 	;; could not find the core datatype.  In this case, the searches
@@ -529,17 +552,18 @@ Returns an object based on symbol `semantic-analyze-context'."
 		 :prefix prefix
 		 :prefixclass prefixclass
 		 :bounds bounds
-		 :prefixtypes prefixtypes))
+		 :prefixtypes prefixtypes
+		 :errors semantic-analyze-error-stack))
 
 	;; No function, try assignment
 	(let ((assign (semantic-ctxt-current-assignment))
 	      (asstag nil))
 	  (if assign
 	      ;; We have an assignment
-	      (condition-case nil
+	      (condition-case err
 		  (setq asstag (semantic-analyze-find-tag-sequence
 				assign scope))
-		(error nil)))
+		(error (semantic-analyze-push-error err))))
 	  
 	  (if asstag
 	      (setq context-return
@@ -551,7 +575,8 @@ Returns an object based on symbol `semantic-analyze-context'."
 		     :bounds bounds
 		     :prefix prefix
 		     :prefixclass prefixclass
-		     :prefixtypes prefixtypes))
+		     :prefixtypes prefixtypes
+		     :errors semantic-analyze-error-stack))
 	  
 	    ;; TODO: Identify return value condition.
 
@@ -564,7 +589,8 @@ Returns an object based on symbol `semantic-analyze-context'."
 		   :bounds bounds
 		   :prefix prefix
 		   :prefixclass prefixclass
-		   :prefixtypes prefixtypes)))))
+		   :prefixtypes prefixtypes
+		   :errors semantic-analyze-error-stack)))))
 
       ;; Return our context.
       context-return)))
@@ -606,6 +632,7 @@ Use BUFF as a source of override methods."
   (semantic-analyze-princ-sequence (oref context prefix) "Prefix: " )
   (semantic-analyze-princ-sequence (oref context prefixclass) "Prefix Classes: ")
   (semantic-analyze-princ-sequence (oref context prefixtypes) "Prefix Types: ")
+  (semantic-analyze-princ-sequence (oref context errors) "Encountered Errors: ")
   (princ "--------\n")
   ;(semantic-analyze-princ-sequence (oref context scopetypes) "Scope Types: ")
   ;(semantic-analyze-princ-sequence (oref context scope) "Scope: ")

@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-map.el,v 1.10 2008/03/27 03:00:02 zappo Exp $
+;; X-RCS: $Id: srecode-map.el,v 1.11 2008/08/23 23:52:57 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -212,11 +212,13 @@ Optional argument RESET forces a reset of the current map."
     ;; Eventually, I want to return many maps to search through.
     (list srecode-current-map)))
 
+(eval-when-compile (require 'data-debug))
+
 ;;;###autoload
 (defun srecode-adebug-maps ()
   "Run ADEBUG on the output of `srecode-get-maps'."
   (interactive)
-  (require 'semantic-adebug)
+  (require 'data-debug)
   (let ((start (current-time))
 	(p (srecode-get-maps t)) ;; Time the reset.
 	(end (current-time))
@@ -246,7 +248,8 @@ Optional argument RESET forces a reset of the current map."
     (and (file-exists-p filename)
 	 (progn
 	   (dolist (p srecode-map-load-path)
-	     (when (string= p (substring filename 0 (length p)))
+	     (when (and (< (length p) (length filename))
+			(string= p (substring filename 0 (length p))))
 	       (setq valid t))
 	     )
 	   valid))

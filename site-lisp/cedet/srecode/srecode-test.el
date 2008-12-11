@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-test.el,v 1.2 2008/02/24 18:24:20 zappo Exp $
+;; X-RCS: $Id: srecode-test.el,v 1.3 2008/10/10 21:45:27 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@
 
 (require 'srecode-insert)
 (require 'srecode-dictionary)
+(require 'cedet-utests)
 
 ;;; Code:
 
@@ -89,7 +90,7 @@ Assumes that the current buffer is the testing buffer."
 
     ;; COMPARE THE OUTPUT
     (if (string= (oref o output) (buffer-string))
-	(message "Entry %s passed." (object-print o))
+	(cedet-utest-log " * Entry %s passed." (object-print o))
       
       (goto-char (point-max))
       (insert "\n\n ------------- ^^ actual ^^ ------------\n\n
@@ -213,6 +214,7 @@ bind \"a\""
 	  (error "No template table found for mode %s" major-mode))
 
       ;; Loop over the output testpoints.
+      (cedet-utest-log-start "srecode: templates")
       (dolist (p srecode-utest-output-entries)
 	(srecode-utest-test p)
 	)

@@ -9,6 +9,7 @@ namespace Name1 {
       typedef unsigned int Mumble;
     public:
       Foo();
+      ~Foo();
       int get();
 
     private:

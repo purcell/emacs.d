@@ -34,7 +34,12 @@
    (ede-proj-target-elisp "common"
     :name "common"
     :path ""
-    :source '("cedet-autogen.el" "cedet-compat.el" "ezimage.el" "inversion.el" "pprint.el" "sformat.el" "fame.el" "working.el" "cedet-edebug.el" "mode-local.el" "cedet-files.el" "pulse.el" "data-debug.el")
+    :source '("cedet-autogen.el" "cedet-compat.el" "ezimage.el" "inversion.el" "pprint.el" "sformat.el" "fame.el" "working.el" "cedet-edebug.el" "mode-local.el" "cedet-files.el" "pulse.el" "data-debug.el" "cedet-global.el")
+    )
+   (ede-proj-target-elisp "tests"
+    :name "tests"
+    :path ""
+    :source '("cedet-utests.el")
     )
    )
   :web-site-url "http://cedet.sourceforge.net/"
