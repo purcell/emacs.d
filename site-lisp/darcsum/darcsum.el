@@ -714,16 +714,24 @@ non-nil, in which case return all visible changes."
 
 (defvar darcsum-darcs-2-options 'not-set)
 
-(defun darcsum-start-process (subcommand args
-                                         &optional name value &rest localize)
-  "Start darcs process."
+(defun darcsum-darcs-2-options-init ()
   (if (eq darcsum-darcs-2-options 'not-set)
       ;; Check version and set proper darcsum-darcs-2-options
       (with-temp-buffer
 	(call-process darcsum-program nil t nil "--version")
 	(goto-char (point-min))
 	(setq darcsum-darcs-2-options
-	      (if (looking-at "2[.]") (list "--quiet")))))
+	      (if (looking-at "2[.]") (list "--quiet"))))))
+
+(defun darcsum-call-process (subcommand &rest args)
+  "Calls darcs process and places it's output into current buffer"
+  (darcsum-darcs-2-options-init)
+  (apply 'call-process darcsum-program nil t nil subcommand (append darcsum-darcs-2-options args)))
+
+(defun darcsum-start-process (subcommand args
+                                         &optional name value &rest localize)
+  "Start darcs process."
+    (darcsum-darcs-2-options-init)
     (let*
         ((buf (generate-new-buffer (format " *darcs %s*" subcommand)))
          (process-environment
@@ -1459,8 +1467,7 @@ directory otherwise and record change."
 	  (error "First undo pending changes in file")))
      (t
       (error "Not added file or directory")))
-    (unless (= 0 (call-process darcsum-program nil t nil
-			       "remove" path))
+    (unless (= 0 (darcsum-call-process "remove" path))
       (error "Error running `darcs remove'"))
     (darcsum-redo)))
 
@@ -1475,8 +1482,7 @@ directory otherwise and record change."
 	    change (cadr file))
       (if (memq (car change) '(newfile newdir))
 	  (with-temp-buffer
-	    (if (/= 0 (call-process
-		       darcsum-program nil t nil "add" path))
+	    (if (/= 0 (darcsum-call-process "add" path))
 		(error "Error running `darcs add' for `%s'" path)
 	      (setcar change (cdr (assoc (car change) '((newfile . addfile)
 							(newdir . adddir))))))
@@ -1894,18 +1900,17 @@ When invoked interactively, prompt for the directory to display changes for."
 				 darcsum-output-environment
                                  process-environment))
            (args (append
-                  ;; Build a list of arguments for call-process
-                  (list darcsum-program nil t nil)
-                  (list "whatsnew" "--no-summary")
+                  ;; Build a list of arguments for darcsum-call-process
+                  (list "--no-summary")
                   (darcsum-fix-switches darcsum-whatsnew-switches)
-                  ; Arguments override user preferences
+                  ;; Arguments override user preferences
                   (unless (null look-for-adds) (list "--look-for-adds"))
                   (unless (null show-context) (list "--unified"))
                   (unless (string= directory default-directory)
                     (list (file-relative-name
                            directory default-directory)))
                   nil))
-           (result (apply 'call-process args))
+           (result (apply 'darcsum-call-process "whatsnew" args))
 	   message)
       (if (/= result 0)
           (if (= result 1)
