@@ -149,8 +149,36 @@ text nested beneath them.")
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
   (set (make-local-variable 'indent-region-function) 'haml-indent-region)
   (set (make-local-variable 'parse-sexp-lookup-properties) t)
+  (setq comment-start "-#")
   (setq indent-tabs-mode nil)
   (setq font-lock-defaults '((haml-font-lock-keywords) nil t)))
+
+;; Useful functions
+
+(defun haml-comment-block ()
+  "Comment the current block of Haml code."
+  (interactive)
+  (save-excursion
+    (let ((indent (current-indentation)))
+      (back-to-indentation)
+      (insert "-#")
+      (newline)
+      (indent-to indent)
+      (beginning-of-line)
+      (haml-mark-sexp)
+      (haml-reindent-region-by haml-indent-offset))))
+
+(defun haml-uncomment-block ()
+  "Uncomment the current block of Haml code."
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (while (not (looking-at haml-comment-re))
+      (haml-up-list)
+      (beginning-of-line))
+    (haml-mark-sexp)
+    (kill-line 1)
+    (haml-reindent-region-by (- haml-indent-offset))))
 
 ;; Navigation
 
@@ -192,7 +220,7 @@ lines nested beneath it."
                          (not (bobp))
                          (> (current-indentation) indent)))
         (back-to-indentation)
-      (setq arg (+ arg (if (> arg 0) -1 1)))))))
+        (setq arg (+ arg (if (> arg 0) -1 1)))))))
 
 (defun haml-backward-sexp (&optional arg)
   "Move backward across one nested expression.
@@ -232,12 +260,16 @@ With ARG, do this that many times."
       (setq arg (- arg 1))))
   (back-to-indentation))
 
+(defun haml-mark-sexp ()
+  "Marks the next Haml block."
+  (let ((forward-sexp-function 'haml-forward-sexp))
+    (mark-sexp)))
+
 (defun haml-mark-sexp-but-not-next-line ()
-  "Marks the next Haml sexp, but puts the mark at the end of the
+  "Marks the next Haml block, but puts the mark at the end of the
 last line of the sexp rather than the first non-whitespace
 character of the next line."
-  (let ((forward-sexp-function 'haml-forward-sexp))
-    (mark-sexp))
+  (haml-mark-sexp)
   (set-mark
    (save-excursion
      (goto-char (mark))
