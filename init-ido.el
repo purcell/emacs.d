@@ -3,7 +3,7 @@
 (ido-everywhere t)
 (setq ido-enable-flex-matching t)
 (setq ido-use-filename-at-point t)
-(setq ido-auto-merge-work-directories-length -1)
+(setq ido-auto-merge-work-directories-length 0)
 
 (defun steve-ido-choose-from-recentf ()
   "Use ido to select a recently opened file from the `recentf-list'"
