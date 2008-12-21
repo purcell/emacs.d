@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.136 2008/10/27 17:41:27 rubikitch Exp $
+;; $Id: anything.el,v 1.137 2008/12/20 19:38:47 rubikitch Exp $
 
 ;; Copyright (C) 2007  Tamas Patrovics
 ;;               2008  rubikitch <rubikitch@ruby-lang.org>
@@ -208,6 +208,10 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.137  2008/12/20 19:38:47  rubikitch
+;; `anything-check-minibuffer-input-1': proper quit handling
+;; `anything-process-delayed-sources': ditto
+;;
 ;; Revision 1.136  2008/10/27 17:41:27  rubikitch
 ;; `anything-process-delayed-sources', `anything-check-minibuffer-input-1': quittable
 ;;
@@ -647,7 +651,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.136 2008/10/27 17:41:27 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.137 2008/12/20 19:38:47 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1497,6 +1501,16 @@ Attributes:
         (sources)
         (t anything-sources)))  
 
+(defvar anything-quit nil)
+(defmacro with-anything-quittable (&rest body)
+  `(let (inhibit-quit)
+     (condition-case v
+         (progn ,@body)
+       (quit (setq anything-quit t)
+             (exit-minibuffer)
+             (keyboard-quit)))))
+(put 'with-anything-quittable 'lisp-indent-function 0)
+
 ;; (@* "Core: entry point")
 (defun anything (&optional any-sources any-input any-prompt any-resume any-preselect any-buffer)
   "Select anything. In Lisp program, some optional arguments can be used.
@@ -1534,41 +1548,43 @@ already-bound variables. Yuck!
   (interactive)
   (condition-case v
       (with-anything-restore-variables
-       (let ((frameconfig (anything-current-frame/window-configuration))
-             ;; It is needed because `anything-source-name' is non-nil
-             ;; when `anything' is invoked by action. Awful global scope.
-             anything-source-name anything-in-persistent-action
-             (anything-buffer (or any-buffer anything-buffer))
-             (anything-sources (anything-normalize-sources any-sources)))
+        (let ((frameconfig (anything-current-frame/window-configuration))
+              ;; It is needed because `anything-source-name' is non-nil
+              ;; when `anything' is invoked by action. Awful global scope.
+              anything-source-name anything-in-persistent-action
+              anything-quit
+              (anything-buffer (or any-buffer anything-buffer))
+              (anything-sources (anything-normalize-sources any-sources)))
          
-         (add-hook 'post-command-hook 'anything-check-minibuffer-input)
+          (add-hook 'post-command-hook 'anything-check-minibuffer-input)
 
-         (setq anything-current-position (cons (point) (window-start)))
-         (if any-resume
-             (anything-initialize-overlays (anything-buffer-get))
-           (anything-initialize))
-         (setq anything-last-buffer anything-buffer)
-         (when any-input (setq anything-input any-input anything-pattern any-input))
-         (if anything-samewindow
-             (switch-to-buffer anything-buffer)
-           (pop-to-buffer anything-buffer))        
+          (setq anything-current-position (cons (point) (window-start)))
+          (if any-resume
+              (anything-initialize-overlays (anything-buffer-get))
+            (anything-initialize))
+          (setq anything-last-buffer anything-buffer)
+          (when any-input (setq anything-input any-input anything-pattern any-input))
+          (if anything-samewindow
+              (switch-to-buffer anything-buffer)
+            (pop-to-buffer anything-buffer))        
 
-         (unwind-protect
-             (progn
-               (if any-resume (anything-mark-current-line) (anything-update))
-               (select-frame-set-input-focus (window-frame (minibuffer-window)))
-               (anything-preselect any-preselect)
-               (let ((minibuffer-local-map anything-map))
-                 (read-string (or any-prompt "pattern: ") (if any-resume anything-pattern any-input))))
+          (unwind-protect
+              (progn
+                (if any-resume (anything-mark-current-line) (anything-update))
+                (select-frame-set-input-focus (window-frame (minibuffer-window)))
+                (anything-preselect any-preselect)
+                (let ((minibuffer-local-map anything-map))
+                  (read-string (or any-prompt "pattern: ") (if any-resume anything-pattern any-input))))
 
-           (anything-cleanup)
-           (remove-hook 'post-command-hook 'anything-check-minibuffer-input)
-           (anything-set-frame/window-configuration frameconfig))
-         (unwind-protect
-             (anything-execute-selection-action)
-           (anything-aif (get-buffer anything-action-buffer)
-               (kill-buffer it))
-           (run-hooks 'anything-after-action-hook))))
+            (anything-cleanup)
+            (remove-hook 'post-command-hook 'anything-check-minibuffer-input)
+            (anything-set-frame/window-configuration frameconfig))
+          (unless anything-quit
+            (unwind-protect
+                (anything-execute-selection-action)
+              (anything-aif (get-buffer anything-action-buffer)
+                  (kill-buffer it))
+              (run-hooks 'anything-after-action-hook)))))
     (quit
      (goto-char (car anything-current-position))
      (set-window-start (selected-window) (cdr anything-current-position))
@@ -1678,6 +1694,13 @@ to be handled."
   (let (inhibit-quit)
     (with-selected-window (minibuffer-window)
       (anything-check-new-input (minibuffer-contents)))))
+
+
+(defun anything-check-minibuffer-input-1 ()
+  (with-anything-quittable
+    (with-selected-window (minibuffer-window)
+      (anything-check-new-input (minibuffer-contents)))))
+
 (defun anything-check-new-input (input)
   "Check input string and update the anything buffer if
 necessary."
@@ -1851,7 +1874,7 @@ Cache the candidates if there is not yet a cached value."
 (defun anything-process-delayed-sources (delayed-sources)
   "Process delayed sources if the user is idle for
 `anything-idle-delay' seconds."
-  (let (inhibit-quit)
+  (with-anything-quittable
     (if (sit-for (if anything-input-idle-delay
                      (max 0 (- anything-idle-delay anything-input-idle-delay))
                    anything-idle-delay))
