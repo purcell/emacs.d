@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.137 2008/12/20 19:38:47 rubikitch Exp $
+;; $Id: anything.el,v 1.138 2008/12/21 16:56:05 rubikitch Exp $
 
 ;; Copyright (C) 2007  Tamas Patrovics
 ;;               2008  rubikitch <rubikitch@ruby-lang.org>
@@ -208,6 +208,9 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.138  2008/12/21 16:56:05  rubikitch
+;; Fixed an error when action attribute is a function symbol and press TAB,
+;;
 ;; Revision 1.137  2008/12/20 19:38:47  rubikitch
 ;; `anything-check-minibuffer-input-1': proper quit handling
 ;; `anything-process-delayed-sources': ditto
@@ -651,7 +654,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.137 2008/12/20 19:38:47 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.138 2008/12/21 16:56:05 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -762,8 +765,8 @@ Attributes:
 
 - action (mandatory if type attribute is not provided)
 
-  It is a list of (DISPLAY . FUNCTION) pairs. FUNCTION is called
-  with one parameter: the selected candidate.
+  It is a list of (DISPLAY . FUNCTION) pairs or FUNCTION.
+  FUNCTION is called with one parameter: the selected candidate.
 
   An action other than the default can be chosen from this list
   of actions for the currently selected candidate (by default
@@ -2097,23 +2100,25 @@ If action buffer is selected, back to the anything buffer."
            (error "Nothing is selected."))
          (setq anything-saved-current-source (anything-get-current-source))
          (let ((actions (anything-get-action)))
-           (with-current-buffer (get-buffer-create anything-action-buffer)
-             (erase-buffer)
-             (buffer-disable-undo)
-             (set-window-buffer (get-buffer-window anything-buffer) anything-action-buffer)
-             (set (make-local-variable 'anything-sources)
-                  `(((name . "Actions")
-                     (candidates . ,actions))))
-             (set (make-local-variable 'anything-source-filter) nil)
-             (set (make-local-variable 'anything-selection-overlay) nil)
-             (set (make-local-variable 'anything-digit-overlays) nil)
-             (anything-initialize-overlays anything-action-buffer))
-           (with-selected-window (minibuffer-window)
-             (delete-minibuffer-contents))
-           (setq anything-pattern 'dummy) ; so that it differs from the
+           (if (functionp actions)
+               (message "Sole action: %s" actions)
+             (with-current-buffer (get-buffer-create anything-action-buffer)
+               (erase-buffer)
+               (buffer-disable-undo)
+               (set-window-buffer (get-buffer-window anything-buffer) anything-action-buffer)
+               (set (make-local-variable 'anything-sources)
+                    `(((name . "Actions")
+                       (candidates . ,actions))))
+               (set (make-local-variable 'anything-source-filter) nil)
+               (set (make-local-variable 'anything-selection-overlay) nil)
+               (set (make-local-variable 'anything-digit-overlays) nil)
+               (anything-initialize-overlays anything-action-buffer))
+             (with-selected-window (minibuffer-window)
+               (delete-minibuffer-contents))
+             (setq anything-pattern 'dummy) ; so that it differs from the
                                         ; previous one
            
-           (anything-check-minibuffer-input)))))
+             (anything-check-minibuffer-input))))))
 
 ;; (@* "Core: selection")
 (defun anything-previous-line ()
