@@ -2,7 +2,7 @@
   (interactive
    (let ((current-name (face-attribute 'default :family))
          (current-height (/ (face-attribute 'default :height) 10)))
-     (list (ido-completing-read "font-name: " (mapcar (lambda (n) (list n n)) (mapcar #'car (x-font-family-list))) nil t current-name)
+     (list (ido-completing-read "font-name: " (mapcar (lambda (n) (list n n)) (steve-font-family-name-list)) nil t current-name)
            (read-number "size: " current-height))))
   (set-face-attribute 'default nil
                       :family name
@@ -10,6 +10,11 @@
                       :weight 'normal
                       :width  'normal
                       :height (* 10 size)))
+
+(defun steve-font-family-name-list ()
+  (if *is-cocoa-emacs*
+      (mapcar (lambda (n) (symbol-name n)) (x-font-family-list))
+    (x-font-family-list)))
 
 (defmacro preserving-maximization (&rest body)
   (let ((maximized-frames (gensym)))
