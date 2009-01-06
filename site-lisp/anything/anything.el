@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.138 2008/12/21 16:56:05 rubikitch Exp $
+;; $Id: anything.el,v 1.139 2009/01/05 20:15:53 rubikitch Exp $
 
 ;; Copyright (C) 2007  Tamas Patrovics
 ;;               2008  rubikitch <rubikitch@ruby-lang.org>
@@ -208,6 +208,10 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.139  2009/01/05 20:15:53  rubikitch
+;; Fixed a bug of anything action buffer.
+;; The action source should not be cached.
+;;
 ;; Revision 1.138  2008/12/21 16:56:05  rubikitch
 ;; Fixed an error when action attribute is a function symbol and press TAB,
 ;;
@@ -654,7 +658,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.138 2008/12/21 16:56:05 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.139 2009/01/05 20:15:53 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1798,46 +1802,45 @@ Cache the candidates if there is not yet a cached value."
   (let ((functions (assoc-default 'match source))
         (limit (anything-candidate-number-limit source))
         matches)
-    (if (or (equal anything-pattern "") (equal functions '(identity)))
-        (progn
-          (setq matches (anything-get-cached-candidates source))
-          (if (> (length matches) limit)
-              (setq matches 
-                    (subseq matches 0 limit))))
+    (cond ((or (equal anything-pattern "") (equal functions '(identity)))
+           (setq matches (anything-get-cached-candidates source))
+           (if (> (length matches) limit)
+               (setq matches 
+                     (subseq matches 0 limit))))
+          (t
+           (condition-case nil
+               (let ((item-count 0)
+                     (cands (anything-get-cached-candidates source))
+                     exit)
 
-      (condition-case nil
-          (let ((item-count 0)
-                (cands (anything-get-cached-candidates source))
-                exit)
+                 (unless functions
+                   (setq functions
+                         (list (lambda (candidate)
+                                 (string-match anything-pattern candidate)))))
 
-            (unless functions
-              (setq functions
-                    (list (lambda (candidate)
-                            (string-match anything-pattern candidate)))))
+                 (clrhash anything-match-hash)
+                 (dolist (function functions)
+                   (let (newmatches)
+                     (dolist (candidate cands)
+                       (when (and (not (gethash candidate anything-match-hash))
+                                  (funcall function (if (listp candidate)
+                                                        (car candidate)
+                                                      candidate)))
+                         (puthash candidate t anything-match-hash)
+                         (push candidate newmatches)
 
-            (clrhash anything-match-hash)
-            (dolist (function functions)
-              (let (newmatches)
-                (dolist (candidate cands)
-                  (when (and (not (gethash candidate anything-match-hash))
-                             (funcall function (if (listp candidate)
-                                                   (car candidate)
-                                                 candidate)))
-                    (puthash candidate t anything-match-hash)
-                    (push candidate newmatches)
+                         (when limit
+                           (incf item-count)
+                           (when (= item-count limit)
+                             (setq exit t)
+                             (return)))))
 
-                    (when limit
-                      (incf item-count)
-                      (when (= item-count limit)
-                        (setq exit t)
-                        (return)))))
+                     (setq matches (append matches (reverse newmatches)))
 
-                (setq matches (append matches (reverse newmatches)))
+                     (if exit
+                         (return)))))
 
-                (if exit
-                    (return)))))
-
-        (invalid-regexp (setq matches nil))))
+             (invalid-regexp (setq matches nil)))))
 
     (anything-aif (assoc-default 'filtered-candidate-transformer source)
         (setq matches
@@ -2108,6 +2111,7 @@ If action buffer is selected, back to the anything buffer."
                (set-window-buffer (get-buffer-window anything-buffer) anything-action-buffer)
                (set (make-local-variable 'anything-sources)
                     `(((name . "Actions")
+                       (volatile)
                        (candidates . ,actions))))
                (set (make-local-variable 'anything-source-filter) nil)
                (set (make-local-variable 'anything-selection-overlay) nil)
