@@ -170,6 +170,8 @@ or only a log for the current file."
     (let ((changes (apply #'vc-darcs-changes file flags)))
       (cadr changes))))
 
+(defun vc-darcs-revision-granularity () 'repository)
+
 (defun vc-darcs-registered (file)
   "Return non-nil if FILE is handled by darcs."
   (let* ((file (expand-file-name file))
@@ -199,7 +201,7 @@ or only a log for the current file."
     (vc-do-command t nil vc-darcs-program-name file
                    "whatsnew" "--summary")
     (goto-char (point-max))
-    (previous-line 1)
+    (forward-line -1)
     (if (looking-at "^No changes!")
         'up-to-date
         'edited)))
@@ -220,10 +222,13 @@ which can also be a directory."
          (vc-darcs-find-root file)
          t)))
 
-(defun vc-darcs-workfile-version (file)
-  "Return the current working-dir version of FILE.
+(defun vc-darcs-working-revision (file)
+  "Return the working revision of FILE.
 With darcs, this is simply the hash of the last patch that touched this file."
   (car (vc-darcs-changes file)))
+
+(defalias 'vc-darcs-workfile-version 'vc-darcs-working-revision
+  "Compatibility alias for vc-darcs-working-revision")
 
 (defun vc-darcs-workfile-unchanged-p (file)
   "Return non-nil if FILE is unchanged from the repository version."
@@ -280,9 +285,10 @@ EDITABLE is ignored."
   "Revert FILE back to the current workfile version."
   (vc-darcs-do-command "revert" 0 file "-a"))
 
-(defun vc-darcs-print-log (file)
-  "Print the logfile for the current darcs repository to the *vc* buffer."
-  (vc-darcs-do-command 'changes 'async (and (not vc-darcs-full-log) file)))
+(defun vc-darcs-print-log (file &optional buffer)
+  "Print the logfile for the current darcs repository."
+  (vc-do-command buffer 'async vc-darcs-program-name
+                 (and (not vc-darcs-full-log) file) "changes"))
 
 (defun vc-darcs-diff (file &optional rev1 rev2 buffer)
   "Show the differences in FILE between revisions REV1 and REV2."
@@ -310,6 +316,8 @@ EDITABLE is ignored."
   (let* ((c (read-from-string string))
          (n (car c)))
     (if (integerp n) n 0)))
+
+(declare-function vc-annotate-convert-time "vc-annotate" (time))
 
 (defun vc-darcs-annotate-command (file buffer &optional rev)
   "Produce an annotated display of fiLE in BUFFER.
