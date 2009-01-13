@@ -5,7 +5,7 @@
 (when *macbook-pro-support-enabled*
   (setq mf-max-width 1440)
   (setq mf-max-height 900)
-  (setq mf-offset-x 3))
+  (setq mf-offset-x 0))
 (add-hook 'window-setup-hook 'maximize-frame t)
 
 (defun maximized-p (&optional frame)
