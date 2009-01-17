@@ -645,6 +645,11 @@
 ;; (color-theme-zenburn) ; dark, low contrast
 ;; (color-theme-standard)
 
+(defun light-colors ()
+  (interactive)
+  (preserving-default-font-size
+   (color-theme-pierson)))
+
 (defun high-contrast ()
   (interactive)
   (preserving-default-font-size
