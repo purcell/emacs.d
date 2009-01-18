@@ -1,16 +1,22 @@
-;;; haml-mode.el -- Major mode for editing Haml files
-;;; Written by Nathan Weizenbaum
+;;; haml-mode.el --- Major mode for editing Haml files
 
-;;; Because Haml's indentation schema is similar
-;;; to that of YAML and Python, many indentation-related
-;;; functions are similar to those in yaml-mode and python-mode.
+;; Copyright (c) 2007, 2008 Nathan Weizenbaum
 
-;;; To install, save this somewhere and add the following to your .emacs file:
-;;;
-;;; (add-to-list 'load-path "/path/to/haml-mode.el")
-;;; (require 'haml-mode nil 't)
-;;; (add-to-list 'auto-mode-alist '("\\.haml$" . haml-mode))
-;;;
+;; Author: Nathan Weizenbaum
+;; URL: http://github.com/nex3/haml/tree/master
+;; Version: 1.0
+;; Keywords: markup, language
+
+;;; Commentary:
+
+;; Because Haml's indentation schema is similar
+;; to that of YAML and Python, many indentation-related
+;; functions are similar to those in yaml-mode and python-mode.
+
+;; To install, save this on your load path and add the following to
+;; your .emacs file:
+;;
+;; (require 'haml-mode)
 
 ;;; Code:
 
@@ -136,6 +142,8 @@ text nested beneath them.")
     (define-key map "\C-c\C-u" 'haml-up-list)
     (define-key map "\C-c\C-d" 'haml-down-list)
     (define-key map "\C-c\C-k" 'haml-kill-line-and-indent)
+    (define-key map "\C-c\C-r" 'haml-output-region)
+    (define-key map "\C-c\C-l" 'haml-output-buffer)
     map))
 
 ;;;###autoload
@@ -200,6 +208,11 @@ text nested beneath them.")
     (yank)
     (haml-indent-region (point-min) (point-max))
     (shell-command-on-region (point-min) (point-max) "haml" "haml-output")))
+
+(defun haml-output-buffer ()
+  "Displays the HTML output for entire buffer."
+  (interactive)
+  (haml-output-region (point-min) (point-max)))
 
 ;; Navigation
 
@@ -413,6 +426,9 @@ the current line."
   "Return the indentation string for `haml-indent-offset'."
   (mapconcat 'identity (make-list haml-indent-offset " ") ""))
 
-;; Setup/Activation
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.haml$" . haml-mode))
 
+;; Setup/Activation
 (provide 'haml-mode)
+;;; haml-mode.el ends here
