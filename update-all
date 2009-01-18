@@ -17,7 +17,7 @@ echo '*** anything'
 (cd site-lisp/anything && (for f in anything.el anything-config.el; do curl -o $f "http://www.emacswiki.org/emacs/download/$f"; done))
 
 echo '***' haml
-(cd site-lisp/haml && (for f in haml sass; do curl -o $f-mode.el "http://github.com/nex3/haml/tree/master%2Fextra%2F$f-mode.el?raw=true"; done))
+(cd site-lisp/haml && (for f in haml-mode.el sass-mode.el; do curl -o $f "http://github.com/nex3/haml/blob/master/extra/$f?raw=true"; done))
 
 echo '*** paredit'
 (cd site-lisp/paredit && curl -o paredit.el http://mumble.net/~campbell/emacs/paredit.el)
