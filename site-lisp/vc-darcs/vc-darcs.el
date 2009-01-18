@@ -99,12 +99,6 @@ list of arguments to pass."
   :type '(choice string (const nil))
   :group 'vc-darcs)
 
-(defcustom vc-darcs-full-log nil
-  "*Whether vc-print-log on a file recorded by darcs prints a full log
-or only a log for the current file."
-  :type 'boolean
-  :group 'vc-darcs)
-
 (defun vc-darcs-find-root (file)
   "Return the root darcs repository directory for FILE, or nil if not found."
   (vc-find-root file "_darcs"))
@@ -116,7 +110,7 @@ or only a log for the current file."
 (defun vc-darcs-do-command (command okstatus file &rest flags)
   "Run darcs COMMAND using VC-DO-COMMAND."
   (let ((arguments (cdr (assq command vc-darcs-program-arguments))))
-    (apply #'vc-do-command nil okstatus
+    (apply #'vc-do-command "*vc*" okstatus
            vc-darcs-program-name file (symbol-name command)
            (append arguments flags))))
 
@@ -241,15 +235,21 @@ With darcs, this is simply the hash of the last patch that touched this file."
         "darcs"
         (format "darcs/%s" (vc-state file)))))
 
-(defun vc-darcs-register (file &optional rev comment)
-  "Add FILE to the darcs repository, and record this.
+(defun vc-darcs-register (files &optional rev comment)
+  "Add FILES to the darcs repository, and record this.
 REV and COMMENT are ignored."
-  (vc-darcs-do-command 'add 0 file))
+  ;; Emacs 22 compatibility
+  (when (stringp files)
+    (setq files (list files)))
+  (vc-darcs-do-command 'add 0 files))
 
-(defun vc-darcs-checkin (file rev comment)
-  "Record FILE to darcs.  COMMENT is the new comment."
+(defun vc-darcs-checkin (files rev comment)
+  "Record FILES to darcs.  COMMENT is the new comment."
   (when (not (null rev))
     (error "Cannot specify check-in revision with darcs."))
+  ;; Emacs 22 compatibility
+  (when (stringp files)
+    (setq files (list files)))
   (let* ((date (format-time-string "%Y%m%d%H%M%S" nil t))
          (match (string-match "\n" comment))
          (patch-name (if match 
@@ -258,7 +258,7 @@ REV and COMMENT are ignored."
          (log (if match
                   (substring comment (match-end 0))
                   "")))
-    (vc-darcs-do-command 'record 'async nil "-a" "--pipe" file)
+    (apply #'vc-darcs-do-command 'record 'async nil "-a" "--pipe" files)
     (with-current-buffer (get-buffer "*vc*")
       (process-send-string nil
                            (format "%s\n%s\n%s\n%s"
@@ -279,16 +279,16 @@ EDITABLE is ignored."
     (when (and rev (not (equal rev (vc-darcs-workfile-version file))))
       (error "Cannot checkout old revisions with darcs."))
     (or (file-exists-p file)
-        (vc-darcs-do-command "revert" 0 file "-a"))))
+        (vc-darcs-do-command 'revert 0 file "-a"))))
 
 (defun vc-darcs-revert (file &optional contents-done)
   "Revert FILE back to the current workfile version."
-  (vc-darcs-do-command "revert" 0 file "-a"))
+  (vc-darcs-do-command 'revert 0 file "-a"))
 
 (defun vc-darcs-print-log (file &optional buffer)
   "Print the logfile for the current darcs repository."
-  (vc-do-command buffer 'async vc-darcs-program-name
-                 (and (not vc-darcs-full-log) file) "changes"))
+  (apply #'vc-do-command buffer 'async vc-darcs-program-name nil "changes"
+         files))
 
 (defun vc-darcs-diff (file &optional rev1 rev2 buffer)
   "Show the differences in FILE between revisions REV1 and REV2."
