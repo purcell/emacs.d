@@ -356,6 +356,17 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Autocomplete
+;;----------------------------------------------------------------------------
+(require 'auto-complete nil t)
+(global-auto-complete-mode t)
+(require 'ac-dabbrev)
+(setq ac-sources '(ac-source-dabbrev ac-source-words-in-buffer))
+(when *vi-emulation-support-enabled*
+  (define-key ac-complete-mode-map viper-ESC-key 'viper-intercept-ESC-key))
+
+
+;;----------------------------------------------------------------------------
 ;; When splitting window, show (other-buffer) in the new window
 ;;----------------------------------------------------------------------------
 (load "init-window-split")
