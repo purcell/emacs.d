@@ -171,7 +171,9 @@
   (setq viper-mode t)
   (setq viper-custom-file-name (convert-standard-filename "~/.emacs.d/.viper"))
   (require 'viper)
-  (require 'vimpulse))
+  (let ((clobbered-func (symbol-function 'viper-exec-change)))
+    (require 'vimpulse)
+    (fset 'viper-exec-change clobbered-func)))
 
 
 ;;----------------------------------------------------------------------------
