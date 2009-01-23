@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-texi.srt,v 1.4 2008/02/24 02:56:10 zappo Exp $
+;; X-RCS: $Id: srecode-texi.srt,v 1.5 2009/01/01 19:01:42 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ template empty :file :user :time
 \input texinfo   @c -*-texinfo-*-
 $#RCS$
 @c
-@c $Id: srecode-texi.srt,v 1.4 2008/02/24 02:56:10 zappo Exp $
+@c $Id: srecode-texi.srt,v 1.5 2009/01/01 19:01:42 zappo Exp $
 @c
 $/RCS$
 @c %**start of header
@@ -87,38 +87,38 @@ context declaration
 
 ;; Note to self: It would be cool to replace the junk in
 ;; semantic/document.el with macros from here.
-template function :blank
+template function :blank :texitag
 "Import some function tag into texinfo."
 ----
 
 @defun $NAME$$#ARGS$ $NAME$$/ARGS$
 @anchor{$NAME$}
-$TAG:semantic-documentation-for-tag$
+$TAGDOC$
 @end defun
 
 ----
 bind "f"
 
-template function-command :blank
+template function-command :blank :texitag
 "Import some function tag into texinfo."
 ----
 
 @deffn Command $NAME$$#ARGS$ $NAME$$/ARGS$
 @anchor{$NAME$}
-$TAG:semantic-documentation-for-tag$
+$TAGDOC$
 @end deffn
 
 ----
 bind "f"
 
 
-template variable :blank
+template variable :blank :texitag
 "Import some variable tag into texinfo"
 ----
 
 @defvar $NAME$$#ARGS$ $NAME$$/ARGS$
 @anchor{$NAME$}
-$TAG:semantic-tag-docstring$
+$TAGDOC$
 @end defvar
 
 ----

@@ -1,9 +1,9 @@
 ;;; semantic-mru-bookmark.el --- Automatic bookmark tracking
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-mru-bookmark.el,v 1.15 2008/10/10 21:37:55 zappo Exp $
+;; X-RCS: $Id: semantic-mru-bookmark.el,v 1.18 2009/01/10 13:31:15 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -46,6 +46,16 @@
 
 
 ;;; Code:
+
+;;; COMPATABILITY
+(eval-and-compile
+  (if (fboundp 'ring-size)
+      (defalias 'semantic-ring-size 'ring-size)
+    ;; Else, we need to add one
+    (defun semantic-ring-size (ring)
+      "Return the size of RING, the maximum number of elements it can contain."
+      (length (cddr ring))))
+  )
 
 ;;; TRACKING CORE
 ;;
@@ -112,11 +122,15 @@ Uses `semantic-go-to-tag' and highlighting."
   "Update the existing bookmark SBM.
 POINT is some important location.
 REASON is a symbol.  See slot `reason' on `semantic-bookmark'."
-  (with-slots (tag offset frequency) sbm
-    (setq offset (- point (semantic-tag-start tag)))
-    (setq frequency (1+ frequency))
-    )
-  (oset sbm reason reason)
+  (condition-case nil
+      (progn
+	(with-slots (tag offset frequency) sbm
+	  (setq offset (- point (semantic-tag-start tag)))
+	  (setq frequency (1+ frequency))
+	  )
+	(oset sbm reason reason))
+    ;; This can fail on XEmacs at miscelaneous times.
+    (error nil))
   )
 
 (defmethod semantic-mrub-preflush ((sbm semantic-bookmark))
@@ -180,7 +194,7 @@ The resulting bookmark is then sorted within the ring."
 	 (tag (semantic-mrub-find-nearby-tag (point)))
 	 (idx 0))
     (when tag
-      (while (and (not (ring-empty-p ring)) (< idx (ring-size ring)))
+      (while (and (not (ring-empty-p ring)) (< idx (semantic-ring-size ring)))
 	(if (semantic-tag-similar-p (oref (ring-ref ring idx) tag)
 				    tag)
 	    (ring-remove ring idx))
@@ -199,7 +213,7 @@ Cause tags in the ring to become unlinked."
   (let* ((ring (oref semantic-mru-bookmark-ring ring))
 	 (len (ring-length ring))
 	 (idx 0)
-	 (buf (current-buffer)))
+	 )
     (while (< idx len)
       (semantic-mrub-preflush (ring-ref ring idx))
       (setq idx (1+ idx)))))
@@ -431,9 +445,8 @@ the mru bookmark stack."
   "Display a list of items in the MRU bookmarks list.
 Useful for debugging mrub problems."
   (interactive)
-  (let* ((out semantic-mru-bookmark-ring)
-	 (ab (data-debug-new-buffer "*TAG RING ADEBUG*"))
-	 )
+  (let* ((out semantic-mru-bookmark-ring))
+    (data-debug-new-buffer "*TAG RING ADEBUG*")
     (data-debug-insert-object-slots out "]")
     ))
 

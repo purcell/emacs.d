@@ -1,9 +1,9 @@
 ;;; cedet-update-changelog --- Utility for updating changelogs in CEDET.
 
-;;; Copyright (C) 2005, 2008 Eric M. Ludlam
+;;; Copyright (C) 2005, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: cedet-update-changelog.el,v 1.4 2008/08/24 16:45:53 zappo Exp $
+;; X-RCS: $Id: cedet-update-changelog.el,v 1.5 2009/01/20 02:50:32 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -139,6 +139,11 @@ need to be transformed into the actual values."
     (while (re-search-forward (cuc-make-search-name "airboss")
 			      nil t)
       (replace-match "Dan Debertin <airboss@users.sourceforge.net>" t t))
+    ;; Jan
+    (goto-char (point-min))
+    (while (re-search-forward (cuc-make-search-name "scymtym")
+			      nil t)
+      (replace-match "Jan Moringen <scymtym@users.sourceforge.net>" t t))
     ))
 
 (provide 'cedet-update-changelog)

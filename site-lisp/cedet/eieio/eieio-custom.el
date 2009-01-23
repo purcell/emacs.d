@@ -1,9 +1,9 @@
 ;;; eieio-custom.el -- eieio object customization
 
-;;; Copyright (C) 1999, 2000, 2001, 2005, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2005, 2007, 2008, 2009 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
-;; RCS: $Id: eieio-custom.el,v 1.25 2008/09/29 00:19:41 zappo Exp $
+;; RCS: $Id: eieio-custom.el,v 1.27 2009/01/09 22:51:37 zappo Exp $
 ;; Keywords: OO, lisp
 ;;                                                                          
 ;; This program is free software; you can redistribute it and/or modify
@@ -36,11 +36,12 @@
 
 ;;; Compatibility
 ;;
-(if (featurep 'xemacs)
-    (defalias 'eieio-overlay-lists (lambda () (list (extent-list))))
-  (defalias 'eieio-overlay-lists 'overlay-lists)
+(eval-and-compile
+  (if (featurep 'xemacs)
+      (defalias 'eieio-overlay-lists (lambda () (list (extent-list))))
+    (defalias 'eieio-overlay-lists 'overlay-lists)
+    )
   )
-
 ;;; Code:
 (defclass eieio-widget-test-class nil
   ((a-string :initarg :a-string
@@ -347,18 +348,18 @@ object widget.
 Optional argument GROUP specifies a subgroup of slots to edit as a symbol.
 These groups are specified with the `:group' slot flag."
   ;; Insert check for multiple edits here.
-  (let* ((g (or group 'default))
-	 (b (switch-to-buffer (get-buffer-create
-			       (concat "*CUSTOMIZE "
-				       (object-name obj) " "
-				       (symbol-name g) "*")))))
+  (let* ((g (or group 'default)))
+    (switch-to-buffer (get-buffer-create
+		       (concat "*CUSTOMIZE "
+			       (object-name obj) " "
+			       (symbol-name g) "*")))
     (toggle-read-only -1)
     (kill-all-local-variables)
     (erase-buffer)
     (let ((all (eieio-overlay-lists)))
       ;; Delete all the overlays.
-      (mapcar 'delete-overlay (car all))
-      (mapcar 'delete-overlay (cdr all)))
+      (mapc 'delete-overlay (car all))
+      (mapc 'delete-overlay (cdr all)))
     ;; Add an apply reset option at the top of the buffer.
     (eieio-custom-object-apply-reset obj)
     (widget-insert "\n\n")

@@ -1,9 +1,9 @@
 ;;; cit-cpp.el --- C++ specific things for our integ test.
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: cit-cpp.el,v 1.1 2008/02/24 02:57:20 zappo Exp $
+;; X-RCS: $Id: cit-cpp.el,v 1.2 2009/01/10 19:00:38 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -116,7 +116,7 @@
   (cit-srecode-fill-with-stuff "include/foo.hh" cit-header-cpp-tags)
   (ede-new "Make" "Includes")
   ;; 1 e) Tell EDE where the srcs are
-  (ede-new-target "Includes" "miscelaneous" "n")
+  (ede-new-target "Includes" "miscellaneous" "n")
   (ede-add-file "Includes")
 
   (cit-srecode-fill-with-stuff "src/foo.cpp" cit-src-cpp-tags)

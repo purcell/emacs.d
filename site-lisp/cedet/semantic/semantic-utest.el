@@ -1,9 +1,9 @@
 ;;; semantic-utest.el --- Tests for semantic's parsing system.
 
-;;; Copyright (C) 2003, 2004, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2003, 2004, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-utest.el,v 1.7 2008/10/10 21:39:49 zappo Exp $
+;; X-RCS: $Id: semantic-utest.el,v 1.8 2009/01/20 02:35:17 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -516,7 +516,9 @@ INSERTME is the text to be inserted after the deletion."
 
 (defun semantic-utest-Javascript()
   (interactive)
-  (semantic-utest-generic "Javascript" "/tmp/javascripttest.js" semantic-utest-Javascript-buffer-contents  semantic-utest-Javascript-name-contents   '("fun2") "//1" "//deleted line")
+  (if (fboundp 'javascript-mode)
+      (semantic-utest-generic "Javascript" "/tmp/javascripttest.js" semantic-utest-Javascript-buffer-contents  semantic-utest-Javascript-name-contents   '("fun2") "//1" "//deleted line")
+    (message "Skipping JavaScript test: NO major mode."))
   )
 
 (defun semantic-utest-Java()
@@ -591,6 +593,8 @@ INSERTME is the text to be inserted after the deletion."
   (semantic-utest-Html)
   ;(cedet-utest-log " * Csharp tests...")
   ;(semantic-utest-Csharp)
+
+  (cedet-utest-log-shutdown "multi-lang parsing")
   )
 
 ;;; Buffer contents validation
@@ -646,8 +650,11 @@ SKIPNAMES is a list of names that should be skipped in the NAMES list."
 	       (semantic-format-tag-prototype (car table))))
     (setq names (cdr names)
 	  table (cdr table)))
-  (when names (error "Items forgotten: %S" names))
-  (when table (error "Items extra: %S" table))
+  (when names (error "Items forgotten: %S"
+		     (mapcar 'semantic-tag-name names)
+		     ))
+  (when table (error "Items extra: %S" 
+		     (mapcar 'semantic-tag-name table)))
   t)
 
 (defun semantic-utest-verify-names (name-contents &optional skipnames)

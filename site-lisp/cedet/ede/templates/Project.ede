@@ -1,0 +1,13 @@
+;; Object EDE Templates
+;; EDE project file.
+(ede-proj-project "EDE_Templates"
+  :name "EDE_Templates"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-makefile-miscelaneous "Templates"
+    :name "Templates"
+    :path ""
+    :source '("ede-make.srt")
+    )
+   )
+  )

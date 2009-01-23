@@ -1,13 +1,13 @@
 ;;; c.by -- LL grammar for C/C++ language specification
 ;;
-;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 ;; Copyright (C) 2002, 2003 David Ponce
 ;;
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;;         David Ponce <david@dponce.com>
 ;;         Klaus Berndl <klaus.berndl@sdm.de>
 ;;
-;; X-RCS: $Id: c.by,v 1.50 2008/11/27 18:46:08 zappo Exp $
+;; X-RCS: $Id: c.by,v 1.51 2009/01/10 12:58:24 zappo Exp $
 ;;
 ;; c.by is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -1104,10 +1104,15 @@ type-cast-list
   ;
 
 ;; Klaus Berndl: symbol -> namespace-symbol!
-function-call
-  : namespace-symbol PERIOD function-call ;; method call
-  | namespace-symbol MINUS GREATER function-call ;;method call
-  | namespace-symbol semantic-list
+opt-function-call-args
+  : PAREN_BLCK
+  | ;; EMPTY 
+  ;
+
+multi-stage-dereference
+  : namespace-symbol opt-function-call-args PERIOD multi-stage-dereference ;; method call
+  | namespace-symbol opt-function-call-args MINUS GREATER multi-stage-dereference ;;method call
+  | namespace-symbol opt-function-call-args
   ;
 
 string-seq
@@ -1129,11 +1134,11 @@ expr-start
 expression
   : number
     ( (identity start) (identity end) )
-  | function-call
+  | multi-stage-dereference
     ( (identity start) (identity end) )
-  | NEW function-call
+  | NEW multi-stage-dereference
     ( (identity start) (identity end) )
-  | NEW namespace-symbol
+  | NEW builtintype-types semantic-list
     ( (identity start) (identity end) )
  ;; Klaus Berndl: symbol -> namespace-symbol!
   | namespace-symbol
@@ -1152,11 +1157,5 @@ expression
   | expr-start expression
     ( (identity start) (identity end) )
   ;
-
-;; From Michael Reiher: Subject: completion of members for struct-pointers
-;;   ClassA xyz = abc().def();
-;;   ClassA xyz = abc().def;
-;;   ClassA xyz = abc.def;
-
 
 ;;; c.by ends here

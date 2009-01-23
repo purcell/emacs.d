@@ -1,10 +1,10 @@
 ;;; ede-source.el --- EDE source code object
 
-;;;  Copyright (C) 2000  Eric M. Ludlam
+;;;  Copyright (C) 2000, 2008  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-source.el,v 1.4 2005/09/30 20:17:19 zappo Exp $
+;; RCS: $Id: ede-source.el,v 1.5 2008/12/28 22:14:28 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -40,19 +40,19 @@ Such as \"C\" or \"Emacs Lisp\"")
 		  :initform ".*"
 		  :type string
 		  :documentation
-		  "Emacs regex matching sourcecode this target accepts.")
+		  "Emacs regexp matching sourcecode this target accepts.")
    (auxsourcepattern :initarg :auxsourcepattern
 		     :initform nil
 		     :type (or null string)
 		     :documentation
-		     "Emacs regex matching auxiliary source code this target accepts.
-Aux source are source code files needed for compilation, which are not comiled
+		     "Emacs regexp matching auxiliary source code this target accepts.
+Aux source are source code files needed for compilation, which are not compiled
 themselves.")
    (enable-subdirectories :initarg :enable-subdirectories
 			  :initform nil
 			  :type boolean
 			  :documentation
-			  "Non nil if this sourcecode type uses subdirectores.
+			  "Non nil if this sourcecode type uses subdirectories.
 If sourcecode always lives near the target creating it, this should be nil.
 If sourcecode can, or typically lives in a subdirectory of the owning
 target, set this to t.")
@@ -60,7 +60,7 @@ target, set this to t.")
 		   :initform nil
 		   :type list
 		   :documentation
-		   "Shell file regex matching files considered as garbage.
+		   "Shell file regexp matching files considered as garbage.
 This is a list of items added to an `rm' command when executing a `clean'
 type directive.")
    )

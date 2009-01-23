@@ -4,7 +4,7 @@
 ;; Version: 1.4
 ;; Keywords: extensions
 ;;
-;; Copyright (C) 1994, 1996, 1998, 1999, 2000, 2002 Free Software Foundation
+;; Copyright (C) 1994, 1996, 1998, 1999, 2000, 2002, 2009 Free Software Foundation
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@
 ;; and substring) to quickly scan over plain text, and then a slower
 ;; character by character scan to handle tokens.
 
-;;; $Id: sformat.el,v 1.1 2003/09/24 08:03:37 ponced Exp $
+;;; $Id: sformat.el,v 1.2 2009/01/10 00:21:12 zappo Exp $
 ;;
 ;; History
 ;;
@@ -133,7 +133,6 @@ Viable formats would be:
   (let ((Sformat-formatting t)		;Yes, we are formatting something
 	(cnt 0)				;position in string
 	(tl nil)			;temp list of extensions
-	(ln (length fmt))		;length of fmt string
 	(tc nil)			;temp char
 	(newstr "")			;the new string
 	(pcnt nil)			;% symbol flag

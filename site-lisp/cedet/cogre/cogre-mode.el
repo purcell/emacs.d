@@ -1,6 +1,6 @@
 ;;; cogre-mode.el --- Graph editing mode
 
-;;; Copyright (C) 2001, 2002, 2003, 2007 Eric M. Ludlam
+;;; Copyright (C) 2001, 2002, 2003, 2007, 2009 Eric M. Ludlam
 
 ;; This file is not part of GNU Emacs.
 
@@ -185,6 +185,7 @@ Argument MENU-DEF is the easy-menu definition."
 	mode-name "Cogre")
   (use-local-map cogre-mode-map)
   (setq truncate-lines t)
+  (set (make-local-variable 'transient-mark-mode) nil)
   (run-hooks 'cogre-mode-hook)
   (cogre-render-buffer cogre-graph t)
   )
@@ -243,7 +244,8 @@ NODETYPE is the eieio class name for the node to insert."
 	   )
       (if (interactive-p)
 	  (cogre-render-buffer cogre-graph))
-      )))
+      ;; Return the node.
+      n)))
 
 (defun cogre-new-link (mark point &optional linktype)
   "Insert a new link from the node at MARK to POINT of LINKTYPE.
@@ -254,10 +256,13 @@ LINKTYPE is the eieio class name for the link to insert."
 		     (cogre-node-at-point-interactive (point))
 		     (cogre-default-link nil current-prefix-arg)))
   (if (not linktype) (setq linktype cogre-link))
-  (make-instance linktype "Link" :start mark :end point)
-  (if (interactive-p)
-      (cogre-render-buffer cogre-graph))
-  )
+  (prog1
+      ;; Return the link.
+      (make-instance linktype "Link" :start mark :end point)
+
+    (if (interactive-p)
+	(cogre-render-buffer cogre-graph))
+    ))
 
 (defvar cogre-delete-dont-ask nil
   "Track if we should ask about deleting an object from the graph.")
@@ -338,11 +343,17 @@ If ARG is unspecified, assume 1."
   (if (interactive-p)
       (cogre-render-buffer cogre-graph)))
 
+(defun cogre-node-position ()
+  "Get the position of the node at point."
+  (let ((e (cogre-current-element (point)))
+	)
+    (if e (oref e position)
+      (error "No node at point %d" (point)))))
+
 (defun cogre-move-node-left (arg)
   "Move NODE left by ARG columns."
   (interactive "p")
-  (let* ((e (cogre-current-element (point)))
-	 (p (oref e position)))
+  (let* ((p (cogre-node-position)))
     (cogre-move-node (- (aref p 0) arg) (aref p 1))
     (if (interactive-p)
 	(cogre-render-buffer cogre-graph))))
@@ -350,8 +361,7 @@ If ARG is unspecified, assume 1."
 (defun cogre-move-node-right (arg)
   "Move NODE right by ARG columns."
   (interactive "p")
-  (let* ((e (cogre-current-element (point)))
-	 (p (oref e position)))
+  (let* ((p (cogre-node-position)))
     (cogre-move-node (+ (aref p 0) arg) (aref p 1))
     (if (interactive-p)
 	(cogre-render-buffer cogre-graph))))
@@ -359,8 +369,7 @@ If ARG is unspecified, assume 1."
 (defun cogre-move-node-up (arg)
   "Move NODE up by ARG columns."
   (interactive "p")
-  (let* ((e (cogre-current-element (point)))
-	 (p (oref e position)))
+  (let* ((p (cogre-node-position)))
     (cogre-move-node (aref p 0) (- (aref p 1) arg))
     (if (interactive-p)
 	(cogre-render-buffer cogre-graph))))
@@ -368,8 +377,7 @@ If ARG is unspecified, assume 1."
 (defun cogre-move-node-down (arg)
   "Move NODE down by ARG columns."
   (interactive "p")
-  (let* ((e (cogre-current-element (point)))
-	 (p (oref e position)))
+  (let* ((p (cogre-node-position)))
     (cogre-move-node (aref p 0) (+ (aref p 1) arg))
     (if (interactive-p)
 	(cogre-render-buffer cogre-graph))))

@@ -1,10 +1,10 @@
 @ignore
 @node Semantic Minor Modes
-@chapter Semantic Mintor Modes
+@chapter Semantic Minor Modes
 @end ignore
 
 Semantic comes with a wide range of minor-modes which use various
-features of semantic.  These modes vary widly in utility.
+features of semantic.  These modes vary widely in utility.
 
 There are some core modes that are required for smooth operations.
 Some of these are discussed in other chapters, such as @ref{Idle
@@ -201,7 +201,7 @@ the current buffer was set up for parsing.  Return non-@code{nil} if the
 minor mode is enabled.
 @end deffn
 
-Once this mode is enbled, any edit, or mark setting will add the
+Once this mode is enabled, any edit, or mark setting will add the
 current tag to your MRU bookmark ring.
 
 @table @kbd
@@ -242,7 +242,7 @@ Face used to show dirty tokens in @code{semantic-highlight-edits-mode}.
 @deffn Command semantic-show-parser-state-mode &optional arg
 Minor mode for displaying parser cache state in the modeline.
 The cache can be in one of three states.  They are
-Up to date, Partial reprase needed, and Full reparse needed.
+Up to date, Partial reparse needed, and Full reparse needed.
 The state is indicated in the modeline with the following characters:
 @table @code
 @item -

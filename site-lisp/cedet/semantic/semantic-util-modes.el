@@ -1,12 +1,12 @@
 ;;; semantic-util-modes.el --- Semantic minor modes
 
-;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 ;;; Copyright (C) 2001 David Ponce
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Author: David Ponce <david@dponce.com>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-util-modes.el,v 1.65 2008/11/27 12:07:52 zappo Exp $
+;; X-RCS: $Id: semantic-util-modes.el,v 1.66 2009/01/10 00:10:30 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -1017,7 +1017,6 @@ Argument EVENT describes the event that caused this function to be called."
   (interactive "e")
   (let* ((startwin (selected-window))
 	 (win (car (car (cdr event))))
-	 (eb (window-buffer win))
 	 )
     (select-window win t)
     (save-excursion

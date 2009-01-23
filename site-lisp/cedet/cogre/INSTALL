@@ -4,3 +4,9 @@ How to install COGRE
 
    Follow the INSTALL file in the top level of this distribution.
 
+2) Configure
+
+   You can attempt to enable the use of unicode drawing symbols
+   in COGRE graphs with the following command in your .emacs file.
+
+   (cogre-uml-enable-unicode)

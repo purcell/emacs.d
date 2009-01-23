@@ -79,7 +79,7 @@ under point, adding labels, and the all important
 @node Tag handling
 @section Tag handling
 
-A tag represents an indivudual item found in a buffer, such as a
+A tag represents an individual item found in a buffer, such as a
 function or variable.  Tag handling is handled in several source
 files.
 
@@ -116,7 +116,7 @@ has been converted into a simpler tag table.
 @item semantic-sort.el
 Sorting lists of tags in different ways.  Includes sorting a plain
 list of tags forward or backward.  Includes binning tags based on
-attributues (bucketize), and tag adoption for multiple references to
+attributes (bucketize), and tag adoption for multiple references to
 the same thing.
 
 @item semantic-doc.el

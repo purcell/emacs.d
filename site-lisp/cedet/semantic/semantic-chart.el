@@ -1,10 +1,10 @@
 ;;; semantic-util.el --- Utilities for use with semantic tag tables
 
-;;; Copyright (C) 1999, 2000, 2001, 2003, 2005, 2008 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2003, 2005, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: chart
-;; X-RCS: $Id: semantic-chart.el,v 1.13 2008/09/03 03:13:59 zappo Exp $
+;; X-RCS: $Id: semantic-chart.el,v 1.14 2009/01/20 02:32:10 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -68,20 +68,21 @@ TAGTABLE is passed to `semantic-something-to-tag-table'."
   (if (or (not (fboundp 'semanticdb-minor-mode-p))
 	  (not (semanticdb-minor-mode-p)))
       (error "Semanticdb is not enabled"))
-  (let* ((stream (semantic-something-to-tag-table (or tagtable
-						      (current-buffer))))
-	 (db semanticdb-current-database)
+  (let* ((db semanticdb-current-database)
 	 (dbt (semanticdb-get-database-tables db))
 	 (names (mapcar 'car
 			(object-assoc-list
 			 'file
 			 dbt)))
-	 (numnuts (mapcar (lambda (a)
+	 (numnuts (mapcar (lambda (dba)
 			    (prog1
-				(cons (length (car a))
-				      (car names))
+				(cons
+				 (if (slot-boundp dba 'tags)
+				     (length (oref dba tags))
+				   1)
+				 (car names))
 			      (setq names (cdr names))))
-			  (object-assoc-list 'tags dbt)))
+			  dbt))
 	 (nums nil)
 	 (fh (/ (- (frame-height) 7) 4)))
     (setq numnuts (sort numnuts (lambda (a b) (> (car a) (car b)))))

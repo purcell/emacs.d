@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: codegeneration
-;; X-RCS: $Id: srecode.el,v 1.4 2008/07/03 01:45:21 zappo Exp $
+;; X-RCS: $Id: srecode.el,v 1.5 2008/12/30 22:35:12 zappo Exp $
 
 (eval-and-compile
   ;; Other package depend on this value at compile time via inversion.
@@ -48,6 +48,7 @@
 ;; See the srecode manual for specific details.
 
 (require 'eieio)
+(require 'mode-local)
 (load "srecode-loaddefs" nil t)
 
 ;;; Code:

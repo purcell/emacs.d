@@ -1,8 +1,8 @@
 ;;; semantic-lex-spp.el --- Semantic Lexical Pre-processor
 
-;;; Copyright (C) 2006, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2006, 2007, 2008, 2009 Eric M. Ludlam
 
-;; X-CVS: $Id: semantic-lex-spp.el,v 1.26 2008/11/14 12:20:24 zappo Exp $
+;; X-CVS: $Id: semantic-lex-spp.el,v 1.29 2009/01/10 01:29:27 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -389,27 +389,25 @@ Argument BEG and END specify the bounds of SYM in the buffer."
     (let ((arg-in nil)
 	  (arg-parsed nil)
 	  (arg-split nil)
-	  (val-rest val))
+	  )
 
       ;; Check for arguments.
       (setq arg-in (semantic-lex-spp-macro-with-args val))
 
       (when arg-in
-	(let ((new-end nil))
-	  (setq val-rest (cdr val))
-	  (save-excursion
-	    (goto-char end)
-	    (setq arg-parsed
-		  (semantic-lex-spp-one-token-and-move-for-macro
-		   (point-at-eol)))
-	    (setq end (semantic-lex-token-end arg-parsed))
+	(save-excursion
+	  (goto-char end)
+	  (setq arg-parsed
+		(semantic-lex-spp-one-token-and-move-for-macro
+		 (point-at-eol)))
+	  (setq end (semantic-lex-token-end arg-parsed))
 
-	    (when (and (listp arg-parsed) (eq (car arg-parsed) 'semantic-list))
-	      (setq arg-split
-		    ;; Use lex to split up the contents of the argument list.
-		    (semantic-lex-spp-stream-for-arglist arg-parsed)
-		    ))
-	    )))
+	  (when (and (listp arg-parsed) (eq (car arg-parsed) 'semantic-list))
+	    (setq arg-split
+		  ;; Use lex to split up the contents of the argument list.
+		  (semantic-lex-spp-stream-for-arglist arg-parsed)
+		  ))
+	  ))
 
       ;; if we have something to sub in, then do it.
       (semantic-lex-spp-macro-to-macro-stream val beg end arg-split)
@@ -421,7 +419,7 @@ Argument BEG and END specify the bounds of SYM in the buffer."
   "Non-nil means do replacements when finding keywords.
 Disable this only to prevent recursive expansion issues.")
 
-(defun semantix-lex-spp-analyzer-push-tokens-for-symbol (str beg end)
+(defun semantic-lex-spp-analyzer-push-tokens-for-symbol (str beg end)
   "Push lexical tokens for the symbol or keyword STR.
 STR occurs in the current buffer between BEG and END."
   (let (sym val)
@@ -463,7 +461,7 @@ STR occurs in the current buffer between BEG and END."
   (let ((str (match-string 0))
 	(beg (match-beginning 0))
 	(end (match-end 0)))
-    (semantix-lex-spp-analyzer-push-tokens-for-symbol str beg end)))
+    (semantic-lex-spp-analyzer-push-tokens-for-symbol str beg end)))
 
 (defun semantic-lex-spp-first-token-arg-list (token)
   "If TOKEN is a semantic-list, turn it into a an SPP ARG LIST."
@@ -471,8 +469,8 @@ STR occurs in the current buffer between BEG and END."
 	     (symbolp (car token))
 	     (eq 'semantic-list (car token)))
     ;; Convert TOKEN in place.
-    (let ((argsplit (split-string (semantic-lex-token-text token)
-				  "[(), ]" t)))
+    (let ((argsplit (cedet-split-string (semantic-lex-token-text token)
+					"[(), ]" t)))
       (setcar token 'spp-arg-list)
       (setcar (nthcdr 1 token) argsplit))
     ))

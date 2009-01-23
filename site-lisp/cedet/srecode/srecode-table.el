@@ -1,6 +1,6 @@
 ;;; srecode-table.el --- Tables of Semantic Recoders
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -114,8 +114,12 @@ Tracks all the template-tables for a specific major mode.")
   "Get the SRecoder mode table for the major mode MODE.
 Optional argument SOFT indicates to not make a new one if a table
 was not found."
-  (eieio-instance-tracker-find
-   mode 'major-mode 'srecode-mode-table-list))
+  (let ((ans nil))
+    (while (and (not ans) mode)
+      (setq ans (eieio-instance-tracker-find
+		 mode 'major-mode 'srecode-mode-table-list)
+	    mode (get-mode-local-parent mode)))
+    ans))
 
 (defun srecode-make-mode-table (mode)
   "Get the SRecoder mode table for the major mode MODE."

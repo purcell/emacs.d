@@ -99,6 +99,7 @@ read the @inforef{Top, Semantic manual, semantic.info}.
 * imenu::                       Special support for Imenu.
 * senator::                     The Semantic Navigator
 * Analyzer::                    Context sensitive Help & smart completion
+* SymRef::                      Symbol Reference tools. (usages of tags)
 * Document::                    Document generation functions
 * Charts::                      Charting code statistics
 * Idle Scheduler::              The idle Scheduler and related modes
@@ -196,7 +197,7 @@ Non-@code{nil} if types should have submenus with members in them.
 @deffn Option semantic-imenu-bucketize-type-members
 Non-@code{nil} if members of a type should be grouped into buckets.
 @code{nil} means to keep them in the same order.
-Overriden to @code{nil} if @code{semantic-imenu-bucketize-file} is nil.
+Overridden to @code{nil} if @code{semantic-imenu-bucketize-file} is nil.
 @end deffn
 
 @deffn Option semantic-imenu-sort-bucket-function
@@ -339,7 +340,7 @@ the kill ring.  Retrieve that text with @kbd{C-y}.
 
 @deffn Command senator-yank-tag
 Yank a tag from the tag ring.
-The form the tag takes is differnet depending on where it is being
+The form the tag takes is different depending on where it is being
 yanked to.
 @end deffn
 
@@ -515,7 +516,7 @@ Pop up a tooltip for completion at @var{point}.
 @end deffn
 
 You can get smart completions or summary information to automatically
-popup without explicity pressing a key or running a function.
+popup without explicitly pressing a key or running a function.
 
 This is accomplished through the Idle Scheduler and related features.
 See @ref{Idle Scheduler} for more on the Scheduler.
@@ -526,7 +527,7 @@ See @ref{Idle Completions Mode}.
 @node Smart Summary
 @section Smart Summary
 
-Asside from completion, the analyzer can also be used just to show a
+Aside from completion, the analyzer can also be used just to show a
 summary of what is under point.  These routines will summarize the
 symbol in question in different ways.
 
@@ -763,7 +764,7 @@ this one.
 
 Go to the location where your unfound tag should be.  You can call
 @kbd{M-x bovinate}, and see a dump of the raw tag structure.  To see a
-navigatable tree, use @kbd{M-x semantic-adebug-bovinate} instead.  You
+navigable tree, use @kbd{M-x semantic-adebug-bovinate} instead.  You
 can then look to make sure your tag has been properly parsed.
 
 If it has not, then you may have found a parser bug.  To get a feel
@@ -783,7 +784,54 @@ you may need to update the
 to account for it.
 @end enumerate
 
+@node SymRef
+@chapter SymRef - Symbol References
+@cindex symref
 
+@semantic{} can interfaces with external symbol reference tools, like GNU
+Global.  The symref tool interface can use one of these external tools
+to collect locations where different tags or symbols may be used.
+
+There are two main command into the symref system.  They are:
+
+@deffn Command semantic-symref
+@anchor{semantic-symref}
+Find references to the current tag.
+This command uses the currently configured references tool within the
+current project to find references to the current tag. The
+references are the organized by file and the name of the function
+they are used in.
+Display the references in@dfn{semantic-symref-results-mode}
+@end deffn
+
+@deffn Command semantic-symref-symbol sym
+@anchor{semantic-symref-symbol}
+Find references to the symbol @var{sym}.
+This command uses the currently configured references tool within the
+current project to find references to the input @var{sym}. The
+references are the organized by file and the name of the function
+they are used in.
+Display the references in@dfn{semantic-symref-results-mode}
+@end deffn
+
+The results are listed by file, then by tag within those files.  You
+can expand tag hits to see the line of code a given match is on.  You
+can jump to the matched file, tag, or line from this mode.
+
+The type of external tool used for finding references determines the
+kind of results found.  Each available tool, such as GNU Global, will
+identify when it can be used.  If no such tool is available, then a
+find/grep combination will be used instead.
+
+For best results, install, and use GNU Global for your project.
+@semantic{} symref does not manage your GNU Global tables for you.
+You must manage those yourself.  The symref tool is not meant to
+replace the standard grep-like interface available with GNU Global.
+It is meant to be a starting point for tools that can take advantage
+of reference information.
+
+@@TODO - This mode is supposed to be the starting point of refactoring
+tools.  Doc those features here once they are written.
 
 @node Document
 @chapter Document
@@ -909,7 +957,7 @@ The primary job is to schedule buffer parsing in idle time.  The
 first buffer whose cache is checked is the current buffer.  After
 this, all other buffers are checked.
 
-Once that has been accomplished, sheduled idle processes that use the
+Once that has been accomplished, scheduled idle processes that use the
 semantic tag tables are run.
 
 @deffn Command global-semantic-idle-scheduler-mode &optional arg
@@ -984,7 +1032,7 @@ Typically, parsing will show messages in the minibuffer.
 This will move the parse message into the modeline.
 @end deffn
 
-@subsection Reprasing Hooks
+@subsection Reparsing Hooks
 
 @defvar semantic-before-idle-scheduler-reparse-hooks
 @anchor{semantic-before-idle-scheduler-reparse-hooks}
@@ -1003,7 +1051,7 @@ This hook is not protected from lexical errors.
 @node Idle Working Options
 @section Idle Working Options
 
-Similiar to the reparsing that occurs at short intervales in idle
+Similiar to the reparsing that occurs at short intervals in idle
 time, there is extra work that can be controlled to occur in idle time
 also.
 
@@ -1040,7 +1088,7 @@ Disable to prevent lots of excessive parsing in idle time.
 @node Debugging Idle Time Issues
 @section Debugging Idle Time Issues
 
-If you see errors produced in idle time, it could be an idication of a
+If you see errors produced in idle time, it could be an indication of a
 more serious issue elsewhere.  It is not enough to enable
 @code{debug-on-error}, as the idle timer tries to keep errors under
 wraps.
@@ -1137,7 +1185,7 @@ This mode operates by using the command
 @code{semantic-complete-inline-analyzer}.
 
 Idle completion uses the completion function
-@code{emantic-complete-analyze-inline-idle}.  Changing the behavior of
+@code{semantic-complete-analyze-inline-idle}.  Changing the behavior of
 the idle completion popups should be done through those utilities.
 
 @deffn Command semantic-complete-analyze-inline-idle
@@ -1540,7 +1588,7 @@ If you want to use some other form of backend, you can use this
 variable to choose which back end class to use for your general tag
 storage.
 
-The default is to save databases in flat files.  Alternativly, you
+The default is to save databases in flat files.  Alternatively, you
 could write a new database backend that stores tags into a database,
 or other storage system.
 
@@ -1568,14 +1616,14 @@ To use these generated tables, you would likely need to restart Emacs.
 @node Create System Databases
 @section Create System Databases
 
-If your supported langauge stores the system libraries in readilly
+If your supported language stores the system libraries in readily
 available parsable source code, you can pre-generate database files
 for them once, which will be used over and over for tools such as
 summary-mode, or the analyzer.
 
 @deffn Command semanticdb-create-ebrowse-database dir
 @anchor{semanticdb-create-ebrowse-database}
-Create an @var{ebrose} database for directory @var{dir}.
+Create an @var{ebrowse} database for directory @var{dir}.
 The database file is stored in ~/.semanticdb, or whichever directory
 is specified by @code{semanticdb-default-system-save-directory}.
 @end deffn
@@ -1610,7 +1658,7 @@ use the command @kbd{M-x semantic-debug-idle-work-function RET}.
 
 @section Analyzer debugging
 
-When the semantic analyzer provides bad or non-existant completions,
+When the semantic analyzer provides bad or non-existent completions,
 then you will need to debug the analyzer.  Place the cursor where the
 problem is, and then use the command
 @kbd{M-x semantic-analyze-debug-assist RET}.

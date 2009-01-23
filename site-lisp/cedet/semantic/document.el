@@ -1,10 +1,10 @@
 ;;; document.el --- Use the semantic parser to generate documentation.
 
-;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: doc
-;; X-RCS: $Id: document.el,v 1.35 2008/03/02 02:10:05 zappo Exp $
+;; X-RCS: $Id: document.el,v 1.36 2009/01/10 13:51:15 zappo Exp $
 
 ;; Semantic is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 ;;
 ;; NOTE: Some of the user level commands in document.el dealing with
 ;; texinfo files have been obsoleted commands in semantic-texi, which
-;; can not insert foriegn tokens.
+;; can not insert foreign tokens.
 
 (require 'sformat)
 ;; This contains most variable settings for auto-comment generation.

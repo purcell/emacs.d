@@ -1,9 +1,9 @@
 ;;; cedet-utests.el --- Run all unit tests in the CEDET suite.
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: cedet-utests.el,v 1.3 2008/12/01 20:35:20 zappo Exp $
+;; X-RCS: $Id: cedet-utests.el,v 1.6 2009/01/20 02:24:22 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -38,11 +38,15 @@
     ("ezimage images" . ezimage-image-dump)
 
     ;; WORKGING interactive tests.
-    ("working: wait-for-keypress" . working-wait-for-keypress)
+    ("working: wait-for-keypress" .
+     (lambda ()
+       (if (cedet-utest-noninteractive)
+	   (message " ** Skipping test in noninteractive mode.")
+	 (working-wait-for-keypress))))
     ("working: sleep" . working-verify-sleep)
 
     ;; PULSE
-    ("pulse interactive test" . pulse-test)
+    ("pulse interactive test" . (lambda () (pulse-test t)))
 
     ;; The EIEIO unit test suite.
     ("eieio" . (lambda () (let ((lib (locate-library "eieio-tests.el"
@@ -52,8 +56,10 @@
     ("eieio: custom" . (lambda ()
 			 (require 'eieio-custom)
 			 (customize-variable 'eieio-widge-test)))
-    ("eieio: chart" . chart-test-it-all)
-
+    ("eieio: chart" . (lambda ()
+			(if (cedet-utest-noninteractive)
+			    (message " ** Skipping test in noninteractive mode.")
+			  (chart-test-it-all))))
     ;; SEMANTIC tests
     ("semantic: lex spp table write" .
      (lambda ()
@@ -68,23 +74,37 @@
     ("semantic: C preprocessor" . semantic-utest-c)
     ("semantic: analyzer tests" . semantic-ia-utest)
     ("semanticdb: data cache" . semantic-test-data-cache)
-    ("semantic: throw-on-input" . semantic-test-throw-on-input)
+    ("semantic: throw-on-input" .
+     (lambda ()
+       (if (cedet-utest-noninteractive)
+	   (message " ** Skipping test in noninteractive mode.")
+	 (semantic-test-throw-on-input))))
 
     ;; SRecode
     ("srecode: templates" . srecode-utest-template-output)
     ("srecode: show maps" . srecode-get-maps)
     ("srecode: getset" . srecode-utest-getset-output)
+
+    ;; COGRE
+    ("cogre: graph" . cogre-utest)
+    ("cogre: uml" . cogre-uml-utest)
+
    )
   "Alist of all the ttests in CEDET we should run.")
 
 ;;;###autoload
-(defun cedet-utest ()
-  "Run the CEDET unittests."
+(defun cedet-utest (&optional exit-on-error)
+  "Run the CEDET unittests.
+Exit-on-error causes an error to be thrown on an error, instead
+of just logging the error."
   (interactive)
-  (cedet-utest-log-setup)
+  (cedet-utest-log-setup "ALL TESTS")
   (let ((tl cedet-utest-test-alist)
 	(notes nil)
-	(err nil))
+	(err nil)
+	(start (current-time))
+	(end nil)
+	)
     (dolist (T tl)
       (cedet-utest-add-log-item-start (car T))
       (setq notes nil err nil)
@@ -93,10 +113,39 @@
 	    (funcall (cdr T))
 	    )
 	(error
-	 (setq err (format "ERROR: %S" Cerr))))
+	 (setq err (format "ERROR: %S" Cerr))
+	 ;;(message "Error caught: %s" Cerr)
+	 ))
       (cedet-utest-add-log-item-done notes err)
-      ))
-  (cedet-utest-add-log-item-done "All Tests Complete" nil t))
+      (when (and exit-on-error err)
+	(message "\n ** Exiting Test Suite. ** \n")
+	(throw 'cedet-utest-exit-on-error t)
+	)
+      )
+    (setq end (current-time))
+    (cedet-utest-log-shutdown-msg "ALL TESTS" start end)
+    nil))
+
+(defun cedet-utest-noninteractive ()
+  "Return non-nil if running non-interactively."
+  (if (featurep 'xemacs)
+      (noninteractive)
+    noninteractive))
+
+;;;###autoload
+(defun cedet-utest-batch ()
+  "Run the CEDET unit tests in BATCH mode."
+  (unless (cedet-utest-noninteractive)
+    (error "`cedet-utest-batch' is to be used only with -batch"))
+  (condition-case err
+      (when (catch 'cedet-utest-exit-on-error
+	      (semantic-load-enable-minimum-features)
+	      (cedet-utest t)
+	      )
+	(kill-emacs 1))
+    (error
+     (error "Error in unit test harness:\n  %S" err))
+    ))
 
 ;;; Logging utility.
 ;;
@@ -114,45 +163,99 @@
 (defvar cedet-utest-last-log-item nil
   "Remember the last item we were logging for.")
 
-(defun cedet-utest-log-setup ()
-  "Setup a frame and buffer for unit testing."
-  (when (or (not cedet-utest-frame) (not (frame-live-p cedet-utest-frame)))
-    (setq cedet-utest-frame (make-frame cedet-utest-frame-parameters)))
-  (when (or (not cedet-utest-buffer) (not (buffer-live-p cedet-utest-buffer)))
-    (setq cedet-utest-buffer (get-buffer-create "*CEDET utest log*")))
-  (save-excursion
-    (set-buffer cedet-utest-buffer)
-    (setq cedet-utest-last-log-item nil)
-    (erase-buffer)
-    (insert "Setting up tests to run @ " (current-time-string) "\n\n"))
-  (let ((oframe (selected-frame)))
-    (unwind-protect
-	(progn
-	  (select-frame cedet-utest-frame)
-	  (switch-to-buffer cedet-utest-buffer t))
-      (select-frame oframe)))
-  )
+(defvar cedet-utest-log-timer nil
+  "During a test, track the start time.")
 
-(defun cedet-utest-show-log-end ()
-  "Show the end of the current unit test log."
-  (let* ((cb (current-buffer))
-	 (cf (selected-frame))
-	 (bw (get-buffer-window cedet-utest-buffer t))
-	 (lf (window-frame bw))
-	 )
-    (select-frame lf)
-    (select-window bw)
-    (goto-char (point-max))
-    (select-frame cf)
-    (set-buffer cb)
+(defun cedet-utest-log-setup (&optional title)
+  "Setup a frame and buffer for unit testing.
+Optional argument TITLE is the title of this testing session."
+  (setq cedet-utest-log-timer (current-time))
+  (if (cedet-utest-noninteractive)
+      (message "\n>> Setting up %s tests to run @ %s\n"
+	       (or title "")
+	       (current-time-string))
+
+    ;; Interactive mode needs a frame and buffer.
+    (when (or (not cedet-utest-frame) (not (frame-live-p cedet-utest-frame)))
+      (setq cedet-utest-frame (make-frame cedet-utest-frame-parameters)))
+    (when (or (not cedet-utest-buffer) (not (buffer-live-p cedet-utest-buffer)))
+      (setq cedet-utest-buffer (get-buffer-create "*CEDET utest log*")))
+    (save-excursion
+      (set-buffer cedet-utest-buffer)
+      (setq cedet-utest-last-log-item nil)
+      (erase-buffer)
+      (insert "Setting up "
+	      (or title "")
+	      " tests to run @ " (current-time-string) "\n\n"))
+    (let ((oframe (selected-frame)))
+      (unwind-protect
+	  (progn
+	    (select-frame cedet-utest-frame)
+	    (switch-to-buffer cedet-utest-buffer t))
+	(select-frame oframe)))
     ))
 
-(defun cedet-utest-post-command-hook ()
-  "Hook run after the current log command was run."
+(defun cedet-utest-elapsed-time (start end)
+  "Copied from elp.el.  Was elp-elapsed-time.
+Argument START and END bound the time being calculated."
+  (+ (* (- (car end) (car start)) 65536.0)
+     (- (car (cdr end)) (car (cdr start)))
+     (/ (- (car (cdr (cdr end))) (car (cdr (cdr start)))) 1000000.0)))
+
+(defun cedet-utest-log-shutdown (title &optional errorcondition)
+  "Shut-down a larger test suite.
+TITLE is the section that is done.
+ERRORCONDITION is some error that may have occured durinig testing."
+  (let ((endtime (current-time))
+	)
+    (cedet-utest-log-shutdown-msg title cedet-utest-log-timer endtime)
+    (setq cedet-utest-log-timer nil)
+    ))
+
+(defun cedet-utest-log-shutdown-msg (title startime endtime)
+  "Show a shutdown message with TITLE, STARTIME, and ENDTIME."
+  (if (cedet-utest-noninteractive)
+      (progn
+	(message "\n>> Test Suite %s ended at @ %s"
+		 title
+		 (format-time-string "%c" endtime))
+	(message "     Elapsed Time %.2f Seconds\n"
+		 (cedet-utest-elapsed-time startime endtime)))
+    
     (save-excursion
       (set-buffer cedet-utest-buffer)
       (goto-char (point-max))
-      (insert "\n\n"))
+      (insert "\n>> Test Suite " title " ended at @ "
+	      (format-time-string "%c" endtime) "\n"
+	      "     Elapsed Time "
+	      (number-to-string
+	       (cedet-utest-elapsed-time startime endtime))
+	      " Seconds"))
+    ))
+
+(defun cedet-utest-show-log-end ()
+  "Show the end of the current unit test log."
+  (unless (cedet-utest-noninteractive)
+    (let* ((cb (current-buffer))
+	   (cf (selected-frame))
+	   (bw (get-buffer-window cedet-utest-buffer t))
+	   (lf (window-frame bw))
+	   )
+      (select-frame lf)
+      (select-window bw)
+      (goto-char (point-max))
+      (select-frame cf)
+      (set-buffer cb)
+      )))
+
+(defun cedet-utest-post-command-hook ()
+  "Hook run after the current log command was run."
+    (if (cedet-utest-noninteractive)
+	(message "")
+      (save-excursion
+	(set-buffer cedet-utest-buffer)
+	(goto-char (point-max))
+	(insert "\n\n")))
     (setq cedet-utest-last-log-item nil)
     (remove-hook 'post-command-hook 'cedet-utest-post-command-hook)
     )
@@ -163,13 +266,16 @@
     (setq cedet-utest-last-log-item item)
     ;; This next line makes sure we clear out status during logging.
     (add-hook 'post-command-hook 'cedet-utest-post-command-hook)
-    (save-excursion
-      (set-buffer cedet-utest-buffer)
-      (goto-char (point-max))
-      (when (not (bolp)) (insert "\n"))
-      (insert "Running " item " ... ")
-      (sit-for 0)
-      )
+
+    (if (cedet-utest-noninteractive)
+	(message " - Running %s ..." item)
+      (save-excursion
+	(set-buffer cedet-utest-buffer)
+	(goto-char (point-max))
+	(when (not (bolp)) (insert "\n"))
+	(insert "Running " item " ... ")
+	(sit-for 0)
+	))
     (cedet-utest-show-log-end)
     ))
 
@@ -178,18 +284,24 @@
 Apply NOTES to the doneness of the log.
 Apply ERR if there was an error in previous item.
 Optional argument PRECR indicates to prefix the done msg w/ a newline."
-  (save-excursion
-    (set-buffer cedet-utest-buffer)
-    (goto-char (point-max))
-    (when precr (insert "\n"))
-    (if err
-	(insert err)
-      (insert "done")
-      (when notes (insert " (" notes ")")))
-    (insert "\n")
-    (setq cedet-utest-last-log-item nil)
-    (sit-for 0)
-    ))
+  (if (cedet-utest-noninteractive)
+      ;; Non-interactive-mode - show a message.
+      (if notes
+	  (message "   * %s {%s}" (or err "done") notes)
+	(message "   * %s" (or err "done")))
+    ;; Interactive-mode - insert into the buffer.
+    (save-excursion
+      (set-buffer cedet-utest-buffer)
+      (goto-char (point-max))
+      (when precr (insert "\n"))
+      (if err
+	  (insert err)
+	(insert "done")
+	(when notes (insert " (" notes ")")))
+      (insert "\n")
+      (setq cedet-utest-last-log-item nil)
+      (sit-for 0)
+      )))
 
 ;;; INDIVIDUAL TEST API
 ;;
@@ -199,26 +311,29 @@ Optional argument PRECR indicates to prefix the done msg w/ a newline."
 (defun cedet-utest-log-start (testname)
   "Setup the log for the test TESTNAME."
   ;; Make sure we have a log buffer.
-  (when (or (not cedet-utest-buffer)
-	    (not (buffer-live-p cedet-utest-buffer))
-	    (not (get-buffer-window cedet-utest-buffer t))
-	    )
-    (cedet-utest-log-setup))
-  ;; Add our startup message.
-  (cedet-utest-add-log-item-start testname)
-  )
+  (save-window-excursion
+    (when (or (not cedet-utest-buffer)
+	      (not (buffer-live-p cedet-utest-buffer))
+	      (not (get-buffer-window cedet-utest-buffer t))
+	      )
+      (cedet-utest-log-setup))
+    ;; Add our startup message.
+    (cedet-utest-add-log-item-start testname)
+    ))
 
 (defun cedet-utest-log(format &rest args)
   "Log the text string FORMAT.
 The rest of the ARGS are used to fill in FORMAT with `format'."
-  (save-excursion
-    (set-buffer cedet-utest-buffer)
-    (goto-char (point-max))
-    (when (not (bolp)) (insert "\n"))
-    (insert (apply 'format format args))
-    (insert "\n")
-    (sit-for 0)
-    )
+  (if (cedet-utest-noninteractive)
+      (apply 'message format args)
+    (save-excursion
+      (set-buffer cedet-utest-buffer)
+      (goto-char (point-max))
+      (when (not (bolp)) (insert "\n"))
+      (insert (apply 'format format args))
+      (insert "\n")
+      (sit-for 0)
+      ))
   (cedet-utest-show-log-end)
   )
 

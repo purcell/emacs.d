@@ -1,10 +1,10 @@
 ;;; ede-pmake.el --- EDE Generic Project Makefile code generator.
 
-;;;  Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008  Eric M. Ludlam
+;;;  Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-pmake.el,v 1.50 2008/08/23 11:56:45 zappo Exp $
+;; RCS: $Id: ede-pmake.el,v 1.52 2009/01/20 02:37:30 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@
 (defmethod ede-proj-makefile-create ((this ede-proj-project) mfilename)
   "Create a Makefile for all Makefile targets in THIS.
 MFILENAME is the makefile to generate."
-  (let ((mt nil) tmp
+  (let ((mt nil)
 	(isdist (string= mfilename (ede-proj-dist-makefile this)))
 	(depth 0)
 	)
@@ -425,7 +425,7 @@ sources variable."
 ;;; GARBAGE PATTERNS
 ;;
 (defmethod ede-proj-makefile-garbage-patterns ((this ede-proj-project))
-  "Return a list of patterns that are considred garbage to THIS.
+  "Return a list of patterns that are considered garbage to THIS.
 These are removed with make clean."
   (let ((mc (ede-map-targets
 	     this (lambda (c) (ede-proj-makefile-garbage-patterns c))))
@@ -440,7 +440,7 @@ These are removed with make clean."
     (nreverse uniq)))
 
 (defmethod ede-proj-makefile-garbage-patterns ((this ede-proj-target))
-  "Return a list of patterns that are considred garbage to THIS.
+  "Return a list of patterns that are considered garbage to THIS.
 These are removed with make clean."
   ;; Get the  the source object from THIS, and use the specified garbage.
   (let ((src (ede-target-sourcecode this))

@@ -5,7 +5,7 @@
 ;; Created: Dec 1999
 ;; Keywords: lisp
 ;;
-;; Copyright (C) 1999, 2001, 2002, 2003, 2004, 2005, 2007 Eric M. Ludlam
+;; Copyright (C) 1999, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -213,7 +213,6 @@ the buffer."
 		 (if (< 0 arg) (linemark-end entry)
 		   (linemark-begin entry))
 	       (point)))
-	 (oll nil)
 	 (dir (if (< 0 arg) 1 -1))
 	 (ofun (if (> 0 arg)
 		   'linemark-previous-overlay-change
@@ -277,7 +276,7 @@ Call the new entrie's activate method."
 
 (defmethod linemark-display ((g linemark-group) active-p)
   "Set object G to be active or inactive."
-  (mapcar (lambda (g) (linemark-display g active-p)) (oref g marks))
+  (mapc (lambda (g) (linemark-display g active-p)) (oref g marks))
   (oset g active active-p))
 
 (defmethod linemark-display ((e linemark-entry) active-p)
@@ -318,7 +317,7 @@ Call the new entrie's activate method."
 
 (defmethod linemark-delete ((g linemark-group))
   "Remove group G from linemark tracking."
-  (mapcar 'linemark-delete (oref g marks))
+  (mapc 'linemark-delete (oref g marks))
   (setq linemark-groups (delete g linemark-groups)))
 
 (defmethod linemark-delete ((e linemark-entry))

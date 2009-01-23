@@ -1,9 +1,9 @@
 ;;; semantic-scope.el --- Analyzer Scope Calculations
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-scope.el,v 1.26 2008/12/10 22:02:34 zappo Exp $
+;; X-RCS: $Id: semantic-scope.el,v 1.27 2009/01/09 23:10:46 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -176,8 +176,7 @@ types available.")
 Use `semantic-ctxt-scoped-types' to find types."
   (save-excursion
     (goto-char position)
-    (let ((tag (semantic-current-tag))
-	  (code-scoped-types nil))
+    (let ((code-scoped-types nil))
       ;; Lets ask if any types are currently scoped.  Scoped
       ;; classes and types provide their public methods and types
       ;; in source code, but are unrelated hierarchically.
@@ -227,7 +226,6 @@ are from nesting data types."
 	   (tag (car stack))
 	   (pparent (car (cdr stack)))
 	   (returnlist nil)
-	   (miniscope (semantic-scope-cache "mini"))
 	   )
       ;; In case of arg lists or some-such, throw out non-types.
       (while (and stack (not (semantic-tag-of-class-p pparent 'type)))
@@ -442,7 +440,6 @@ the access would be 'protected.  Otherwise, access is 'public")
   (cond ((semantic-scope-cache-p scope)
 	 (let ((parents (oref scope parents))
 	       (parentsi (oref scope parentinheritance))
-	       (prot 'public)
 	       )
 	   (catch 'moose
 	     ;; Investigate the parent, and see how it relates to type.
@@ -615,7 +612,6 @@ The class returned from the scope calculation is variable
 	     (scopecache
 	      (semanticdb-cache-get semanticdb-current-table
 				    semantic-scope-cache))
-	     (scope nil)
 	     )
 	(when (not (semantic-equivalent-tag-p TAG (oref scopecache tag)))
 	  (semantic-reset scopecache))

@@ -1,9 +1,9 @@
 ;;; semantic-analyze-refs.el --- Analysis of the references between tags.
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-analyze-refs.el,v 1.5 2008/11/27 18:44:21 zappo Exp $
+;; X-RCS: $Id: semantic-analyze-refs.el,v 1.6 2009/01/09 23:04:04 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -98,7 +98,7 @@ Use `semantic-analyze-current-tag' to debug this fcn."
 Optional argument IN-BUFFER indicates that the returned tag should be in an active buffer."
   (let ((allhits (oref refs rawsearchdata))
 	(impl nil)
-	(impldb nil))
+	)
     (semanticdb-find-result-mapc
      (lambda (T DB)
        "Examine T in the database DB, and sont it."
@@ -280,11 +280,11 @@ Only works for tags in the global namespace."
 	 (start (current-time))
 	 (sac (semantic-analyze-tag-references tag))
 	 (end (current-time))
-	 ab)
+	 )
     (message "Analysis took %.2f seconds." (semantic-elapsed-time start end))
     (if sac
 	(progn
-	  (setq ab (data-debug-new-buffer "*Analyzer Reference ADEBUG*"))
+	  (data-debug-new-buffer "*Analyzer Reference ADEBUG*")
 	  (data-debug-insert-object-slots sac "]"))
       (message "No Context to analyze here."))))
 

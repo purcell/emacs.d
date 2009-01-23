@@ -1,7 +1,7 @@
 ;;; working --- Display a "working" message in the minibuffer.
 
 ;; Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003,
-;;               2004, 2007, 2008  Eric M. Ludlam
+;;               2004, 2007, 2008, 2009  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Version: 1.5
@@ -612,13 +612,16 @@ is t to display the done string, or the number to display."
 (defun working-wait-for-keypress ()
   "Display funny graphics while waiting for a keypress."
   (interactive)
-  (working-status-timeout .1 "Press a key" "done"
-    (while (sit-for 10))))
+  (working-status-timeout .1 "Working Test: Press a key" "done"
+    (while (sit-for 10)))
+  (when (input-pending-p)
+    (when (fboundp 'read-event) (read-event) (read-char)))
+  )
 
 (defun working-verify-sleep ()
   "Display funny graphics while waiting for sleep to sleep."
   (interactive)
-  (working-status-call-process .1 "Zzzzz" "Snort" "sleep" nil nil nil "5"))
+  (working-status-call-process .1 "Zzzzz" "Snort" "sleep" nil nil nil "2"))
 
 (defun working-verify-mode-line ()
   "Display graphics in the mode-line for timeout."

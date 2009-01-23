@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: ede-cpp-root.el,v 1.14 2008/12/10 05:06:37 zappo Exp $
+;; X-RCS: $Id: ede-cpp-root.el,v 1.16 2008/12/19 22:51:15 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -311,7 +311,7 @@ If one doesn't exist, create a new one for this directory."
   (save-match-data
     (string-match (oref proj header-match-regexp) name)))
 
-(defmethod ede-expand-filename ((proj ede-cpp-root-project) name)
+(defmethod ede-expand-filename-impl ((proj ede-cpp-root-project) name)
   "Within this project PROJ, find the file NAME.
 This knows details about or source tree."
   ;; The slow part of the original is looping over subprojects.
@@ -342,7 +342,7 @@ This knows details about or source tree."
 	    ;; Else, do the usual.
 	    (setq ans (call-next-method)))
 	  )))
-    ans))
+    (or ans (call-next-method))))
 
 (defmethod ede-project-root ((this ede-cpp-root-project))
   "Return my root."

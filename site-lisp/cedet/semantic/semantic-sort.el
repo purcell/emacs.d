@@ -1,10 +1,10 @@
 ;;; semantic-sort.el --- Utilities for sorting and re-arranging tag tables.
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-sort.el,v 1.27 2008/10/06 19:26:08 zappo Exp $
+;; X-RCS: $Id: semantic-sort.el,v 1.28 2009/01/10 00:08:30 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -203,8 +203,7 @@ Return the sorted list."
 This must first sort the tags by name alphabetically ascending.
 For more complex uniqueness testing used by the semanticdb
 typecaching system, see `semanticdb-typecache-merge-streams'."
-  (let ((copy (copy-sequence tags))
-	(sorted (semantic-sort-tags-by-name-increasing
+  (let ((sorted (semantic-sort-tags-by-name-increasing
 		 (copy-sequence tags)))
 	(uniq nil))
     (while sorted
@@ -224,8 +223,7 @@ TAGS are removed only if they are equivalent, as can happen when
 multiple tag sources are scanned.
 For more complex uniqueness testing used by the semanticdb
 typecaching system, see `semanticdb-typecache-merge-streams'."
-  (let ((copy (copy-sequence tags))
-	(sorted (sort (copy-sequence tags)
+  (let ((sorted (sort (copy-sequence tags)
 		      (lambda (a b)
 			(cond ((not (semantic-tag-with-position-p a))
 			       t)

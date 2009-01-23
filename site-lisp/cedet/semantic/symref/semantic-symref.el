@@ -1,6 +1,6 @@
 ;;; semantic-symref.el --- Symbol Reference API
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -119,7 +119,8 @@ ARGS are the initialization arguments to pass to the created class."
   "Run the last symref data result in Data Debug."
   (interactive)
   (if semantic-symref-last-result
-      (let* ((ab (data-debug-new-buffer "*Symbol Reference ADEBUG*")))
+      (progn
+	(data-debug-new-buffer "*Symbol Reference ADEBUG*")
 	(data-debug-insert-object-slots semantic-symref-last-result "]"))
     (message "Empty results.")))
 
@@ -259,6 +260,11 @@ Returns an object of class `semantic-symref-result'."
 	      :type list
 	      :documentation
 	      "The list of files hit.")
+   (hit-text :initarg :hit-text
+	     :type list
+	     :documentation
+	     "If the result doesn't provide full lines, then fill in hit-text.
+GNU Global does completion search this way.")
    (hit-lines :initarg :hit-lines
 	      :type list
 	      :documentation
@@ -304,7 +310,6 @@ already."
     (let ((lines (oref result :hit-lines))
 	  (txt (oref (oref result :created-by) :searchfor))
 	  (searchtype (oref (oref result :created-by) :searchtype))
-	  (last nil)
 	  (ans nil)
 	  (out nil)
 	  (buffs-to-kill nil))
@@ -424,7 +429,10 @@ The symref TOOL should already contain the search criteria."
 	)
     (when answer
       (let ((answersym (if (eq (oref tool :resulttype) 'file)
-			   :hit-files :hit-lines)))
+			   :hit-files
+			 (if (stringp (car answer))
+			     :hit-text
+			   :hit-lines))))
 	(semantic-symref-result (oref tool searchfor)
 				answersym
 				answer

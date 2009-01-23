@@ -1,13 +1,13 @@
 ;;; mode-local.el --- Support for mode local facilities
 ;;
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 ;; Copyright (C) 2004, 2005 David Ponce
 ;;
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 27 Apr 2004
 ;; Keywords: syntax
-;; X-RCS: $Id: mode-local.el,v 1.14 2008/08/20 18:59:39 zappo Exp $
+;; X-RCS: $Id: mode-local.el,v 1.15 2009/01/09 22:58:30 zappo Exp $
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -154,7 +154,7 @@ This makes sure mode local init type stuff can occur."
 (add-hook 'find-file-hooks 'mode-local-post-major-mode-change)
 (add-hook 'change-major-mode-hook 'mode-local-on-major-mode-change)
 
-;;; Core bindings API
+;;; Mode lineage
 ;;
 (defsubst set-mode-local-parent (mode parent)
   "Set parent of major mode MODE to PARENT mode.
@@ -179,6 +179,17 @@ To work properly, this should be put after PARENT mode local variables
 definition."
   `(set-mode-local-parent ',mode ',parent))
 
+(defun mode-local-use-bindings-p (this-mode desired-mode)
+  "Return non-nil if THIS-MODE can use bindings of DESIRED-MODE."
+  (let ((ans nil))
+    (while (and (not ans) this-mode)
+      (setq ans (eq this-mode desired-mode))
+      (setq this-mode (get-mode-local-parent this-mode)))
+    ans))
+
+
+;;; Core bindings API
+;;
 (defvar mode-local-symbol-table nil
   "Buffer local mode bindings.
 These symbols provide a hook for a `major-mode' to specify specific

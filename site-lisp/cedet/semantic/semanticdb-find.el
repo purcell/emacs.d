@@ -1,10 +1,10 @@
 ;;; semanticdb-find.el --- Searching through semantic databases.
 
-;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb-find.el,v 1.70 2008/11/28 03:03:33 zappo Exp $
+;; X-RCS: $Id: semanticdb-find.el,v 1.75 2009/01/10 00:10:57 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -299,7 +299,7 @@ so that it can be called from the idle work handler."
 If BRUTISH is non nil, return all tables associated with PATH.
 Default action as described in `semanticdb-find-translate-path'."
   (if (semanticdb-find-results-p path)
-      ;; Perform the search over these results.
+      ;; nil means perform the search over these results.
       nil
     (if brutish
 	(semanticdb-find-translate-path-brutish-default path)
@@ -381,6 +381,10 @@ Default action as described in `semanticdb-find-translate-path'."
 Default action as described in `semanticdb-find-translate-path'."
   (let ((table (cond ((null path)
 		      semanticdb-current-table)
+		     ((bufferp path)
+		      (buffer-local-value 'semanticdb-current-table path))			
+		     ((and (stringp path) (file-exists-p path))
+		      (semanticdb-file-table-object path t))
 		     ((semanticdb-abstract-table-child-p path)
 		      path)
 		     (t nil))))
@@ -577,9 +581,8 @@ isn't in memory yet."
 (define-overloadable-function semanticdb-find-table-for-include (includetag &optional table)
   "For a single INCLUDETAG found in TABLE, find a `semanticdb-table' object
 INCLUDETAG is a semantic TAG of class 'include.
-TABLE as defined by `semantic-something-to-tag-table' to identify
-where the include tag came from.  TABLE is optional if INCLUDETAG has an
-overlay of :filename attribute."
+TABLE is a semanticdb table that identifies where INCLUDETAG came from.
+TABLE is optional if INCLUDETAG has an overlay of :filename attribute."
   )
 
 (defun semanticdb-find-table-for-include-default (includetag &optional table)
@@ -662,7 +665,11 @@ Included databases are filtered based on `semanticdb-find-default-throttle'."
 	   ;; but when it is, this is a nice fast way to skip this step.
 	   (not (semantic-tag-include-system-p includetag))
 	   ;; Don't do this if we have an EDE project.
-	   (not (and (featurep 'ede) (ede-current-project originfiledir)))
+	   (not (and (featurep 'ede)
+		     ;; Note: We don't use originfiledir here because
+		     ;; we want to know about the source file we are
+		     ;; starting from.
+		     (ede-current-project)))
 	   )
 
       (setq roots (semanticdb-current-database-list))
@@ -708,8 +715,8 @@ for details on how this list is derived."
   (let ((start (current-time))
 	(p (semanticdb-find-translate-path nil arg))
 	(end (current-time))
-	(ab (data-debug-new-buffer "*SEMANTICDB FTP ADEBUG*"))
 	)
+    (data-debug-new-buffer "*SEMANTICDB FTP ADEBUG*")
     (message "Search of tags took %.2f seconds."
 	     (semantic-elapsed-time start end))
     
@@ -730,8 +737,8 @@ for details on how this list is derived."
 	 (start (current-time))
 	 (p (semanticdb-find-translate-path nil arg))
 	 (end (current-time))
-	 (ab (data-debug-new-buffer "*SEMANTICDB FTP ADEBUG*"))
 	 )
+    (data-debug-new-buffer "*SEMANTICDB FTP ADEBUG*")
     (message "Search of tags took %.2f seconds."
 	     (semantic-elapsed-time start end))
     
@@ -742,15 +749,15 @@ for details on how this list is derived."
 Examines the variable `semanticdb-find-lost-includes'."
   (interactive)
   (require 'data-debug)
-  (let ((p (semanticdb-find-translate-path nil nil))
-	(lost semanticdb-find-lost-includes)
-	ab)
+  (semanticdb-find-translate-path nil nil)
+  (let ((lost semanticdb-find-lost-includes)
+	)
 
     (if (not lost)
 	(message "There are no unknown includes for %s"
 		 (buffer-name))
     
-      (setq ab (data-debug-new-buffer "*SEMANTICDB lost-includes ADEBUG*"))
+      (data-debug-new-buffer "*SEMANTICDB lost-includes ADEBUG*")
       (data-debug-insert-tag-list lost "*")
       )))
 
@@ -795,8 +802,8 @@ PREBUTTONTEXT is some text between prefix and the overlay button."
 Examines the variable `semanticdb-find-lost-includes'."
   (interactive)
   (require 'data-debug)
-  (let ((p (semanticdb-find-translate-path nil nil))
-	(scanned semanticdb-find-scanned-include-tags)
+  (semanticdb-find-translate-path nil nil)
+  (let ((scanned semanticdb-find-scanned-include-tags)
 	(data-debug-thing-alist
 	 (cons
 	  '((lambda (thing) (and (consp thing)
@@ -806,7 +813,7 @@ Examines the variable `semanticdb-find-lost-includes'."
 						 lost duplicate))))
 	    . semanticdb-find-adebug-insert-scanned-tag-cons)
 	  data-debug-thing-alist))
-	ab)
+	)
 
     (if (not scanned)
 	(message "There are no includes scanned %s"
@@ -869,10 +876,9 @@ instead."
 		(cond ((eq find-file-match 'name)
 		       (let ((f (semanticdb-full-filename nametable)))
 			 (semantic--tag-put-property ntag :filename f)))
-		      (find-file-match
+		      ((and find-file-match ntab)
 		       (semanticdb-get-buffer ntab))
 		      )
-
 		))
 	    )
 	  (setq tmp (cdr tmp)))
@@ -903,13 +909,18 @@ but should be good enough for debugging assertions."
 
 (defun semanticdb-find-result-prin1-to-string (result)
   "Presuming RESULT satisfies `semanticdb-find-results-p', provide a short PRIN1 output."
-  (concat "#<FIND RESULT "
-	  (mapconcat (lambda (a)
-		       (concat "(" (object-name (car a) ) " . "
-			       "#<TAG LIST " (number-to-string (length (cdr a))) ">)"))
-		     result
-		     " ")
-	  ">"))
+  (if (< (length result) 2)
+      (concat "#<FIND RESULT "
+	      (mapconcat (lambda (a)
+			   (concat "(" (object-name (car a) ) " . "
+				   "#<TAG LIST " (number-to-string (length (cdr a))) ">)"))
+			 result
+			 " ")
+	      ">")
+    ;; Longer results should have an abreviated form.
+    (format "#<FIND RESULT %d TAGS in %d FILES>"
+	    (semanticdb-find-result-length result)
+	    (length result))))
 
 ;;;###autoload
 (defun semanticdb-find-result-with-nil-p (resultp)

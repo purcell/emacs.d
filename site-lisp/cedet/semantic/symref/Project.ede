@@ -8,7 +8,7 @@
     :name "symref"
     :path ""
     :source '("semantic-symref.el" "semantic-symref-global.el" "semantic-symref-grep.el" "semantic-symref-list.el")
-    :aux-packages '("eieio" "semantic" "semantic-el" "mode-local" "ede")
+    :aux-packages '("eieio" "semantic" "semantic-el" "mode-local" "ede" "speedbar")
     )
    )
   )

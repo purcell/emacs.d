@@ -1,6 +1,6 @@
 ;;; srecode-getset.el --- 
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -64,11 +64,12 @@ will be derived."
       (error "No templates for inserting get/set"))
 
   ;; Step 1: Try to derive the tag for the class we will use
-  (let* ((start (point-marker))
-	 (class (or class-in (srecode-auto-choose-class (point))))
+  (let* ((class (or class-in (srecode-auto-choose-class (point))))
+	 (tagstart (semantic-tag-start class))
 	 (inclass (eq (semantic-current-tag-of-class 'type) class))
 	 (field nil)
 	 )
+
     (when (not class)
       (error "Move point to a class and try again"))
 
@@ -103,6 +104,12 @@ will be derived."
 	(srecode-insert-fcn temp dict)
 
 	(semantic-fetch-tags)
+	(save-excursion
+	  (goto-char tagstart)
+	  ;; Refresh our class tag.
+	  (setq class (srecode-auto-choose-class (point)))
+	  )
+
 	(let ((tmptag (semantic-deep-find-tags-by-name-regexp
 		       field (current-buffer))))
 	  (setq tmptag (semantic-find-tags-by-class 'variable tmptag))
@@ -204,16 +211,18 @@ INCLASS specifies if the cursor is already in CLASS or not."
 	(setq aftertag nil))
       )
 
-    (if (not aftertag)
-	(setq aftertag (semantic-find-first-tag-by-name
-			"public" (semantic-tag-type-members class))))
+    (when (not aftertag)
+      (setq aftertag (semantic-find-first-tag-by-name
+		      "public" (semantic-tag-type-members class))))
 
-    (if (not aftertag)
-	(setq aftertag (car (semantic-tag-type-members class))))
+    (when (not aftertag)
+      (setq aftertag (car (semantic-tag-type-members class))))
 
     (if aftertag
-	(progn
-	  (goto-char (semantic-tag-end aftertag))
+	(let ((te (semantic-tag-end aftertag)))
+	  (when (not te)
+	    (message "Unknown location for tag-end in %s:" (semantic-tag-name aftertag)))
+	  (goto-char te)
 	  ;; If there is a comment immediatly after aftertag, skip over it.
 	  (when (looking-at (concat "\\s-*\n?\\s-*" semantic-lex-comment-regex))
 	    (let ((pos (point))

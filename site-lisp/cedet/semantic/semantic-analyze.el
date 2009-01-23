@@ -1,10 +1,10 @@
 ;;; semantic-analyze.el --- Analyze semantic tags against local context
 
-;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-analyze.el,v 1.77 2008/09/07 01:41:53 zappo Exp $
+;; X-RCS: $Id: semantic-analyze.el,v 1.79 2009/01/09 23:04:18 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -253,7 +253,6 @@ are found in SEQUENCE.
 Optional argument THROWSYM specifies a symbol the throw on non-recoverable error."
   (let ((s sequence)			; copy of the sequence
 	(tmp nil)			; tmp find variable
-	(nexttype nil)			; a tag for the type next in sequence
 	(tag nil)			; tag return list
 	(tagtype nil)			; tag types return list
 	(fname nil)
@@ -436,10 +435,8 @@ if a cached copy of the return object is found."
 Returns an object based on symbol `semantic-analyze-context'."
   (let* ((semantic-analyze-error-stack nil)
 	 (context-return nil)
-	 (startpoint (point))
 	 (prefixandbounds (semantic-ctxt-current-symbol-and-bounds (or position (point))))
 	 (prefix (car prefixandbounds))
-	 (endsym (nth 1 prefixandbounds))
 	 (bounds (nth 2 prefixandbounds))
 	 ;; @todo - vv too early to really know this answer! vv
 	 (prefixclass (semantic-ctxt-current-class-list))
@@ -519,8 +516,7 @@ Returns an object based on symbol `semantic-analyze-context'."
 			     (semantic-tag-name (car ty))
 			     (semantic-tag-type-members (car ty))))
 		  (if fcn
-		    (let ((con nil)
-			  (lp fcn))
+		    (let ((lp fcn))
 		      (while lp
 			(when (semantic-tag-get-attribute (car lp)
 							  :constructor)
@@ -600,6 +596,13 @@ Returns an object based on symbol `semantic-analyze-context'."
 ;;
 ;; Friendly output of a context analysis.
 ;;
+(defmethod semantic-analyze-pulse ((context semantic-analyze-context))
+  "Pulse the region that CONTEXT affects."
+  (save-excursion
+    (set-buffer (oref context :buffer))
+    (let ((bounds (oref context :bounds)))
+      (pulse-momentary-highlight-region (car bounds) (cdr bounds)))))
+
 (defcustom semantic-analyze-summary-function 'semantic-format-tag-prototype
   "*Function to use when creating items in Imenu.
 Some useful functions are found in `semantic-format-tag-functions'."
@@ -658,6 +661,7 @@ Use BUFF as a source of override methods."
 (defun semantic-analyze-pop-to-context (context)
   "Display CONTEXT in a temporary buffer.
 CONTEXT's content is described in `semantic-analyze-current-context'."
+  (semantic-analyze-pulse context)
   (with-output-to-temp-buffer "*Semantic Context Analysis*"
     (princ "Context Type: ")
     (princ (object-name context))

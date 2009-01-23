@@ -1,12 +1,12 @@
 ;;; semantic-grammar.el --- Major mode framework for Semantic grammars
 ;;
-;; Copyright (C) 2002, 2003, 2004, 2005, 2007, 2008 David Ponce
+;; Copyright (C) 2002, 2003, 2004, 2005, 2007, 2008, 2009 David Ponce
 ;;
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 15 Aug 2002
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-grammar.el,v 1.75 2008/06/10 00:43:15 zappo Exp $
+;; X-RCS: $Id: semantic-grammar.el,v 1.76 2009/01/09 23:08:32 zappo Exp $
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -372,7 +372,7 @@ properties where to add new properties."
 
 (defun semantic-grammar-token-%put-properties (tokens)
   "For types found in TOKENS, return properties set by %put statements."
-  (let (found type props)
+  (let (found props)
     (dolist (put (semantic-find-tags-by-class 'put (current-buffer)))
       (dolist (type (cons (semantic-tag-name put)
                           (semantic-tag-get-attribute put :rest)))
@@ -1459,10 +1459,9 @@ expression then Lisp symbols are completed."
              (message "Symbols is already complete"))
             ((and (stringp ans) (string= ans sym))
              ;; Max matchable.  Show completions.
-             (let ((all (all-completions sym nonterms)))
-               (with-output-to-temp-buffer "*Completions*"
-                 (display-completion-list (all-completions sym nonterms)))
-               ))
+	     (with-output-to-temp-buffer "*Completions*"
+	       (display-completion-list (all-completions sym nonterms)))
+	     )
             ((stringp ans)
              ;; Expand the completions
              (forward-sexp -1)
@@ -1834,10 +1833,8 @@ Optional argument COLOR determines if color is added to the text."
 	(semantic-analyze-current-context point))
 
     (let* ((context-return nil)
-	   (startpoint (point))
 	   (prefixandbounds (semantic-ctxt-current-symbol-and-bounds))
 	   (prefix (car prefixandbounds))
-	   (endsym (nth 1 prefixandbounds))
 	   (bounds (nth 2 prefixandbounds))
 	   (prefixsym nil)
 	   (prefixclass (semantic-ctxt-current-class-list))

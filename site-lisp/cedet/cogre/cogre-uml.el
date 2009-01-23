@@ -1,10 +1,10 @@
 ;;; cogre-uml.el --- UML support for COGRE
 
-;;; Copyright (C) 2001, 2008 Eric M. Ludlam
+;;; Copyright (C) 2001, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: oop, uml
-;; X-RCS: $Id: cogre-uml.el,v 1.11 2008/07/03 01:41:00 zappo Exp $
+;; X-RCS: $Id: cogre-uml.el,v 1.13 2009/01/20 03:41:03 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -127,7 +127,7 @@ Argument CLASS is the class whose slots are referenced."
 			  ("_|_" "\\ /" " V ")
 			  (" /|" "< |" " \\|")
 			  ("|\\" "|/") ])
-   (horizontal-preference-ratio :initform .1)
+   (horizontal-preference-ratio :initform .0001)
    )
   "This type of link indicates that the two nodes reference infer inheritance.
 The `start' node is the child, and the `end' node is the parent.
@@ -145,6 +145,22 @@ The `start' node is the owner of the aggregation, the `end' node is
 the item being aggregated.
 This is supposed to infer that START contains END.")
 
+(defun cogre-uml-enable-unicode ()
+  "Enable use of UNICODE symbols to create COGRE graphs."
+  (interactive)
+  (oset-default cogre-inherit end-glyph [ ("\u25b3") ("\u25bd")
+					  ("\u25c1") ("\u25b7") ])
+  (oset-default cogre-aggrigate start-glyph
+		[ ("\u25c6") ("\u25c6") ("\u25c6") ("\u25c6") ] )
+
+  ;; "\u25c7" - open box like "\u25c6"
+  (setq picture-rectangle-v ?\u2502)
+  (setq picture-rectangle-h ?\u2500)
+  (setq picture-rectangle-ctl ?\u250C)
+  (setq picture-rectangle-ctr ?\u2510)
+  (setq picture-rectangle-cbl ?\u2514)
+  (setq picture-rectangle-cbr ?\u2518)
+  )
 
 (provide 'cogre-uml)
 

@@ -12,7 +12,7 @@ identifying components in a programming language source for purposes
 such as color highlighting.  This approach has proved is usefulness,
 but have limitations.
 
-@semantic{} provides a new intrastructure that goes far beyond text
+@semantic{} provides a new infrastructure that goes far beyond text
 analysis based on regular expressions.
 
 @semantic{} uses @dfn{parsers} to analyze programming language

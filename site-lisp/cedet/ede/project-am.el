@@ -1,11 +1,11 @@
 ;;; project-am.el --- A project management scheme based on automake files.
 
-;;;  Copyright (C) 1998, 1999, 2000, 2003, 2005, 2007, 2008  Eric M. Ludlam
+;;;  Copyright (C) 1998, 1999, 2000, 2003, 2005, 2007, 2008, 2009  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Version: 0.0.3
 ;; Keywords: project, make
-;; RCS: $Id: project-am.el,v 1.38 2008/12/09 23:56:51 zappo Exp $
+;; RCS: $Id: project-am.el,v 1.39 2009/01/20 02:40:48 zappo Exp $
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -502,7 +502,8 @@ DIR is the directory to apply to new targets."
 	 (let ((macro (nth 2 typecar))
 	       (class (nth 1 typecar))
 	       (indirect (nth 3 typecar))
-	       (name (car typecar)))
+	       ;(name (car typecar))
+	       )
 	   (if indirect
 	       ;; Map all the found objects
 	       (mapc (lambda (lstcar)

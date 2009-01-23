@@ -1,9 +1,9 @@
 ;;; semanticdb-ectag.el --- Database support for Exuberent CTags files.
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semanticdb-ectag.el,v 1.3 2008/10/19 12:16:06 zappo Exp $
+;; X-RCS: $Id: semanticdb-ectag.el,v 1.4 2009/01/10 00:16:57 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -74,7 +74,6 @@ version needed by Semantic ctags support."
 The argument MODE specifies the expected major mode to use in Emacs
 if FILENAME were loaded."
   (let* ((newstuff (semanticdb-create-table-for-file filename))
-	 (db (car newstuff))
 	 (table (cdr newstuff))
 	 (tags (semantic-ectag-parse-file-with-mode filename mode))
 	 )

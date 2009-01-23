@@ -97,7 +97,7 @@ An application developer needs to know
 @item how to access information about each tag.
 @end itemize
 
-This chapter describes @semantic{} fuctions and concepts an application
+This chapter describes @semantic{} functions and concepts an application
 developer needs to know to perform all of the tasks just listed.
 
 @menu
@@ -111,7 +111,7 @@ developer needs to know to perform all of the tasks just listed.
                                 conversion to text strings, language dependent
                                 queries and local context information
 * Parser Features::             Application available parser features.
-* Semantic Database::           Persistant storage of tags.
+* Semantic Database::           Persistent storage of tags.
 * Idle Scheduling::             Scheduling jobs in idle time.
 * Example Programs::            Simple programming examples.
 * Current Context::             Local context analysis.
@@ -352,7 +352,7 @@ Used in completion.
 
 @defun semantic-find-tags-by-scope-protection scopeprotection parent &optional table
 @anchor{semantic-find-tags-by-scope-protection}
-Find all tags accessable by @var{SCOPEPROTECTION}.
+Find all tags accessible by @var{SCOPEPROTECTION}.
 @var{SCOPEPROTECTION} is a symbol which can be returned by the method
 @dfn{semantic-tag-protection}.  @var{A} hard-coded order is used to determine a match.
 @var{PARENT} is a tag representing the @var{PARENT} slot needed for
@@ -374,7 +374,7 @@ These tags are defined outside the scope of the original @var{TYPE} declaration.
 
 The searching framework for semantic for tag tables has two basic
 root methods.  One is a function and the other is a macro.  The
-functional version is needed if some sort of macro conflict arrises.
+functional version is needed if some sort of macro conflict arises.
 The macro version is useful because it eliminates a level of function
 call, and is faster.
 
@@ -428,7 +428,7 @@ from largest to smallest via the start location.
 
 @defun semantic-find-tag-by-overlay-in-region start end &optional buffer
 Find all tags which exist in whole or in part between @var{START} and @var{END}.
-Uses overlays to determine positin.
+Uses overlays to determine position.
 Optional @var{BUFFER} argument specifies the buffer to use.
 
 @obsolete{semantic-find-nonterminal-by-overlay-in-region,semantic-find-tag-by-overlay-in-region}
@@ -616,8 +616,8 @@ overlays use @code{semantic-tag-add-hook} and
 @code{semantic-tag-remove-hook} too apply link and unlink hooks.
 
 This allows the secondary overlays to be automatically removed or
-added by the seconary overlay system whenever a tag's file goes in or
-out of a buffer.
+added by the secondary overlay system whenever a tag's file goes in or
+out of a buffeor.
 
 @node Tag Folding
 @section Folding
@@ -792,7 +792,7 @@ to generate the list of possible completions.
 @var{prompt} is the first part of the prompt.  Additional prompt
 is added based on the contexts full prefix.
 @var{context} is the semantic analyzer context to start with.
-@var{history} is a symbol representing a variable to stor the history in.
+@var{history} is a symbol representing a variable to store the history in.
 usually a default-tag and initial-input are available for completion
 prompts.  these are calculated from the @var{context} variable passed in.
 @end defun
@@ -912,7 +912,7 @@ Available instantiable classes are:
 @deffn Type semantic-collector-buffer-deep
 @anchor{semantic-collector-buffer-deep}
 Completion engine for tags in the current buffer.
-When searching for a tag, uses semantic  deep searche functions.
+When searching for a tag, uses semantic  deep search functions.
 Basics search only in the current buffer.
 @end deffn
 
@@ -1103,7 +1103,7 @@ would claim as a parent.
 
 @defvar semantic-format-tag-custom-list
 @anchor{semantic-format-tag-custom-list}
-A List used by customizeable variables to choose a tag to text function.
+A List used by customizable variables to choose a tag to text function.
 Use this variable in the @code{:type} field of a customizable variable.
 @end defvar
 
@@ -1433,7 +1433,7 @@ Note: @var{type} not yet implemented.
 @section Jump to a Tag
 
 Each tag has a file from which it came.  If a tag has been managed
-propertly, you can jump to it with this function:
+properly, you can jump to it with this function:
 
 @defun semantic-go-to-tag tag &optional parent
 @anchor{semantic-go-to-tag}
@@ -1870,7 +1870,7 @@ is still made current.
 @anchor{semanticdb-find-result-mapc}
 Apply @var{fcn} to each element of find @var{result} for side-effects only.
 @var{fcn} takes two arguments.  The first is a @var{tag}, and the
-second is a @var{db} from wence @var{tag} originated.
+second is a @var{db} from whence @var{tag} originated.
 Returns result.
 @end defun
 
@@ -2078,7 +2078,7 @@ that builds a cache of all datatypes on the include path.  Once this
 is built the first time, datatype lookups become very fast.
 
 Since it takes a long time to make a typecache the first time, you can
-have your tool decide if it wants to do work based on the existance of
+have your tool decide if it wants to do work based on the existence of
 a typecache.
 
 @defun semanticdb-have-typecache-p table
@@ -2205,7 +2205,7 @@ To create new EBROWSE project databases, use:
 
 @deffn Command semanticdb-create-ebrowse-database dir
 @anchor{semanticdb-create-ebrowse-database}
-Create an @var{ebrose} database for directory @var{dir}.
+Create an @var{ebrowse} database for directory @var{dir}.
 The database file is stored in ~/.semanticdb, or whichever directory
 is specified by @code{semanticdb-default-system-save-directory}.
 @end deffn
@@ -2282,7 +2282,7 @@ Reparse other buffers that need it
 Execute other scheduled semantic related operations.
 @end enumerate
 
-Care is take in the idle scheduler to exit immediatly if user input
+Care is take in the idle scheduler to exit immediately if user input
 is detected, improving editing performance.
 
 The reason for grouping these tasks together is so that the automatic
@@ -2666,7 +2666,7 @@ a buffer with the evaluated expression shown in it.
 
 @deffn Command data-debug-edebug-expr expr
 @anchor{data-debug-edebug-expr}
-Dump out the contets of some expression @var{expr} in edebug with ddebug.
+Dump out the context of some expression @var{expr} in edebug with ddebug.
 @end deffn
 
 @section App Debugger Entry Points

@@ -1,10 +1,10 @@
 ;;; semantic-idle.el --- Schedule parsing tasks in idle time
 
-;;; Copyright (C) 2003, 2004, 2005, 2006, 2008 Eric M. Ludlam
+;;; Copyright (C) 2003, 2004, 2005, 2006, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-idle.el,v 1.51 2008/09/07 14:16:02 zappo Exp $
+;; X-RCS: $Id: semantic-idle.el,v 1.52 2009/01/09 23:09:34 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -254,7 +254,9 @@ And also manages services that depend on tag values."
                                             (and (buffer-file-name b)
                                                  b))
                                         (buffer-list)))))
-           others safe mode)
+	   safe ;; This safe is not used, but could be.
+           others 
+	   mode)
       (when (semantic-idle-scheduler-enabled-p)
         (save-excursion
           ;; First, reparse the current buffer.
@@ -384,12 +386,11 @@ Uses `semantic-idle-work-for-on-buffer' to do the work."
 						   (and (buffer-file-name b)
 							b))
 					       (buffer-list)))))
-		  mode safe errbuf)
+		  safe errbuf)
 	     ;; First, handle long tasks in the current buffer.
 	     (when (semantic-idle-scheduler-enabled-p)
 	       (save-excursion
-		 (setq mode major-mode
-		       safe (semantic-idle-work-for-one-buffer (current-buffer))
+		 (setq safe (semantic-idle-work-for-one-buffer (current-buffer))
 		       )))
 	     (when (not safe) (push (current-buffer) errbuf))
 

@@ -1,10 +1,10 @@
 ;;; semantic-ia.el --- Interactive Analysis functions
 
-;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-ia.el,v 1.28 2008/12/10 22:01:43 zappo Exp $
+;; X-RCS: $Id: semantic-ia.el,v 1.29 2009/01/09 23:09:14 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -141,7 +141,6 @@ Completion options are calculated with `semantic-analyze-possible-completions'."
   (interactive "d")
   (let* ((a (semantic-analyze-current-context point))
 	 (syms (semantic-ia-get-completions a point))
-	 (pre (car (reverse (oref a prefix))))
 	 )
     ;; Complete this symbol.
     (if (not syms)
@@ -205,7 +204,6 @@ Completion options are calculated with `semantic-analyze-possible-completions'."
   (interactive "d")
   (let* ((a (semantic-analyze-current-context point))
 	 (syms (semantic-ia-get-completions a point))
-	 (w (get-buffer-window (current-buffer)))
          (x (mod (- (current-column) (window-hscroll))
                  (window-width)))
          (y (save-excursion

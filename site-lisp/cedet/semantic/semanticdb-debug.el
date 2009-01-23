@@ -1,9 +1,9 @@
 ;;; semanticdb-debug.el --- Extra level debugging routines
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semanticdb-debug.el,v 1.4 2008/03/27 02:51:24 zappo Exp $
+;; X-RCS: $Id: semanticdb-debug.el,v 1.6 2009/01/20 02:30:35 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@
   "Dump a list of all databases in Emacs memory."
   (interactive)
   (require 'data-debug)
-  (let ((ab (data-debug-new-buffer "*SEMANTICDB*"))
+  (let ((data-debug-new-buffer "*SEMANTICDB*")
 	(db semanticdb-database-list))
     (data-debug-insert-stuff-list db "*")))
 
@@ -46,12 +46,9 @@
   "Run ADEBUG on the current database."
   (interactive)
   (require 'data-debug)
-  (let ((start (current-time))
-	(p semanticdb-current-database)
-	(end (current-time))
-	(ab (data-debug-new-buffer "*SEMANTICDB ADEBUG*"))
+  (let ((p semanticdb-current-database)
 	)
-    
+    (data-debug-new-buffer "*SEMANTICDB ADEBUG*")
     (data-debug-insert-stuff-list p "*")))
 
 ;;;###autoload
@@ -59,12 +56,8 @@
   "Run ADEBUG on the current database."
   (interactive)
   (require 'data-debug)
-  (let ((start (current-time))
-	(p semanticdb-current-table)
-	(end (current-time))
-	(ab (data-debug-new-buffer "*SEMANTICDB ADEBUG*"))
-	)
-    
+  (let ((p semanticdb-current-table))
+    (data-debug-new-buffer "*SEMANTICDB ADEBUG*")
     (data-debug-insert-stuff-list p "*")))
 
 
@@ -73,12 +66,8 @@
   "Run ADEBUG on the current database."
   (interactive)
   (require 'data-debug)
-  (let ((start (current-time))
-	(p (semanticdb-current-database-list))
-	(end (current-time))
-	(ab (data-debug-new-buffer "*SEMANTICDB ADEBUG*"))
-	)
-    
+  (let ((p (semanticdb-current-database-list)))
+    (data-debug-new-buffer "*SEMANTICDB ADEBUG*")
     (data-debug-insert-stuff-list p "*")))
 
 

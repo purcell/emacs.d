@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make, tags
-;; RCS: $Id: ede-speedbar.el,v 1.32 2008/10/10 21:47:28 zappo Exp $
+;; RCS: $Id: ede-speedbar.el,v 1.33 2008/12/28 22:10:07 zappo Exp $
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -101,8 +101,6 @@
 (defun ede-speedbar-toplevel-buttons (dir)
   "Return a list of objects to display in speedbar.
 Argument DIR is the directory from which to derive the list of objects."
-  ;(list (ede-load-project-file dir))
-  (ede-load-project-file dir)
   ede-projects
   )
 

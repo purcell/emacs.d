@@ -25,7 +25,7 @@
    (ede-proj-target-elisp "examples"
     :name "examples"
     :path ""
-    :source '("tree.el" "call-tree.el" "chart.el" "eieio-speedbar.el" "linemark.el" "lmcompile.el")
+    :source '("chart.el" "eieio-speedbar.el" "linemark.el" "lmcompile.el")
     )
    (ede-proj-target-makefile-info "eieio.info"
     :name "eieio.info"
@@ -35,7 +35,7 @@
    (ede-proj-target-elisp "test"
     :name "test"
     :path ""
-    :source '("eieio-tests.el" "eieio-test-methodinvoke.el")
+    :source '("eieio-tests.el" "eieio-test-methodinvoke.el" "eieio-perftest.el")
     :partofall 'nil
     )
    (ede-proj-target-makefile-miscelaneous "Misc"

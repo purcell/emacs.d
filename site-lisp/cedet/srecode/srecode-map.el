@@ -1,9 +1,9 @@
 ;;; srecode-map.el --- Manage a template file map
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-map.el,v 1.11 2008/08/23 23:52:57 zappo Exp $
+;; X-RCS: $Id: srecode-map.el,v 1.13 2009/01/09 22:58:10 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -72,7 +72,7 @@ Each app keys to an alist of files and modes (as above.)")
   "Return the entries in MAP for major MODE."
   (let ((ans nil))
     (dolist (f (oref map files))
-      (when (eq (cdr f) mode)
+      (when (mode-local-use-bindings-p mode (cdr f))
 	(setq ans (cons f ans))))
     ans))
 
@@ -222,9 +222,10 @@ Optional argument RESET forces a reset of the current map."
   (let ((start (current-time))
 	(p (srecode-get-maps t)) ;; Time the reset.
 	(end (current-time))
-	(ab (data-debug-new-buffer "*SRECUDE ADEBUG*"))
 	)
-    
+    (message "Updating the map took %.2f seconds."
+	     (semantic-elapsed-time start end))
+    (data-debug-new-buffer "*SRECUDE ADEBUG*")
     (data-debug-insert-stuff-list p "*")))
 
 (defun srecode-maps-dump-file-list (flist)
@@ -293,14 +294,14 @@ if that file is NEW, otherwise assume the mode has not changed."
   ;;
   (let ((dirty nil))
     ;; 3) - Purge dead files from the file list.
-    (dolist (entry (copy-list (oref srecode-current-map files)))
+    (dolist (entry (copy-sequence (oref srecode-current-map files)))
       (when (not (srecode-map-file-still-valid-p
 		  (car entry) srecode-current-map))
 	(srecode-map-delete-file-entry srecode-current-map (car entry))
 	(setq dirty t)
 	))
-    (dolist (app (copy-list (oref srecode-current-map apps)))
-      (dolist (entry (copy-list (cdr app)))
+    (dolist (app (copy-sequence (oref srecode-current-map apps)))
+      (dolist (entry (copy-sequence (cdr app)))
 	(when (not (srecode-map-file-still-valid-p
 		    (car entry) srecode-current-map))
 	  (srecode-map-delete-file-entry-from-app

@@ -1,9 +1,9 @@
 ;;; semantic-c.el --- Semantic details for C
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-c.el,v 1.94 2008/12/03 18:01:01 zappo Exp $
+;; X-RCS: $Id: semantic-c.el,v 1.98 2009/01/10 00:13:39 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -255,14 +255,19 @@ Movers completely over balanced #if blocks."
     (while (and semantic-c-obey-conditional-section-parsing-flag
 		(and (not done)
 		     (re-search-forward
-		      "^\\s-*#\\(if\\(n?def\\)?\\|el\\(if\\|se\\)\\|endif\\)\\>"
+		      "^\\s-*#\\s-*\\(if\\(n?def\\)?\\|el\\(if\\|se\\)\\|endif\\)\\>"
 		      nil t)))
       (goto-char (match-beginning 0))
       (cond
-       ((looking-at "^\\s-*#if")
+       ((looking-at "^\\s-*#\\s-*if")
 	;; We found a nested if.  Skip it.
 	(c-forward-conditional 1))
-       ((looking-at "^\\s-*#\\(endif\\|else\\)\\>")
+       ((looking-at "^\\s-*#\\s-*elif")
+	;; We need to let the preprocessor analize this one.
+	(beginning-of-line)
+	(setq done t)
+	)
+       ((looking-at "^\\s-*#\\s-*\\(endif\\|else\\)\\>")
 	;; We are at the end.  Pop our state.
 	;; (semantic-lex-spp-pop-if)
 	;; Note: We include ELSE and ENDIF the same. If skip some previous
@@ -278,14 +283,18 @@ Movers completely over balanced #if blocks."
 (define-lex-regex-analyzer semantic-lex-c-if
   "Code blocks wrapped up in #if, or #ifdef.
 Uses known macro tables in SPP to determine what block to skip."
-  "^\\s-*#\\s-*\\(if\\|ifndef\\|ifdef\\|elif\\)\\s-+\\(!?defined(\\|\\)\\(\\(\\sw\\|\\s_\\)+\\))?\\s-*$"
-  (let* ((sym (buffer-substring-no-properties 
+  "^\\s-*#\\s-*\\(if\\|ifndef\\|ifdef\\|elif\\)\\s-+\\(!?defined(\\|\\)\\s-*\\(\\(\\sw\\|\\s_\\)+\\)\\(\\s-*)\\)?\\s-*$"
+  (semantic-c-do-lex-if))
+
+(defun semantic-c-do-lex-if ()
+  "Handle lexical CPP if statements."
+  (let* ((sym (buffer-substring-no-properties
 	       (match-beginning 3) (match-end 3)))
-	 (defstr (buffer-substring-no-properties 
+	 (defstr (buffer-substring-no-properties
 		  (match-beginning 2) (match-end 2)))
 	 (defined (string= defstr "defined("))
 	 (notdefined (string= defstr "!defined("))
-	 (ift (buffer-substring-no-properties 
+	 (ift (buffer-substring-no-properties
 	       (match-beginning 1) (match-end 1)))
 	 (ifdef (or (string= ift "ifdef")
 		    (and (string= ift "if") defined)
@@ -338,7 +347,7 @@ case, we must skip it since it is the ELSE part."
 
 (define-lex-regex-analyzer semantic-lex-c-macrobits
   "Ignore various forms of #if/#else/#endif conditionals."
-  "^#\\s-*\\(if\\(def\\)?\\|endif\\)"
+  "^\\s-*#\\s-*\\(if\\(n?def\\)?\\|endif\\|elif\\|else\\)"
   (semantic-c-end-of-macro)
   (setq semantic-lex-end-point (point))
   nil)
@@ -398,8 +407,6 @@ they are comment end characters)."
 (define-lex semantic-c-lexer
   "Lexical Analyzer for C code.
 Use semantic-cpp-lexer for parsing text inside a CPP macro."
-  semantic-lex-ignore-whitespace
-  semantic-c-lex-ignore-newline
   ;; C preprocessor features
   semantic-lex-cpp-define
   semantic-lex-cpp-undef
@@ -409,6 +416,9 @@ Use semantic-cpp-lexer for parsing text inside a CPP macro."
   semantic-lex-c-include
   semantic-lex-c-include-system
   semantic-lex-c-ignore-ending-backslash
+  ;; Whitespace handling
+  semantic-lex-ignore-whitespace
+  semantic-c-lex-ignore-newline
   ;; Non-preprocessor features
   semantic-lex-number
   ;; Must detect C strings before symbols because of possible L prefix!
@@ -427,8 +437,6 @@ Use semantic-cpp-lexer for parsing text inside a CPP macro."
 
 (define-lex semantic-cpp-lexer
   "Lexical Analyzer for CPP macros in C code."
-  semantic-lex-ignore-whitespace
-  semantic-c-lex-ignore-newline
   ;; CPP special
   semantic-lex-cpp-hashhash
   ;; C preprocessor features
@@ -440,6 +448,9 @@ Use semantic-cpp-lexer for parsing text inside a CPP macro."
   semantic-lex-c-include
   semantic-lex-c-include-system
   semantic-lex-c-ignore-ending-backslash
+  ;; Whitespace handling
+  semantic-lex-ignore-whitespace
+  semantic-c-lex-ignore-newline
   ;; Non-preprocessor features
   semantic-lex-number
   ;; Must detect C strings before symbols because of possible L prefix!
@@ -925,6 +936,7 @@ Argument PARENT specifies a parent type.
 Argument COLOR specifies that the string should be colorized."
   (let ((t2 (semantic-c-tag-template-specifier token))
 	(t1 (semantic-c-tag-template token))
+	;; @todo - Need to account for a parent that is a template
 	(pt1 (if parent (semantic-c-tag-template parent)))
 	(pt2 (if parent (semantic-c-tag-template-specifier parent)))
 	)
@@ -1016,7 +1028,7 @@ These are constants which are of type TYPE."
   "Assemble the list of names NAMELIST into a namespace name."
   (mapconcat 'identity namelist "::"))
 
-(define-mode-local-override semantic-ctxt-scoped-types c-mode (&optional point)
+(define-mode-local-override semantic-ctxt-scoped-types c++-mode (&optional point)
   "Return a list of tags of CLASS type based on POINT.
 DO NOT return the list of tags encompassing point."
   (when point (goto-char (point)))
@@ -1031,7 +1043,7 @@ DO NOT return the list of tags encompassing point."
     (setq tagreturn tmp)
     ;; We should also find all "using" type statements and
     ;; accept those entities in as well.
-    (setq tmp (semanticdb-find-tags-by-class 'using (current-buffer)))
+    (setq tmp (semanticdb-find-tags-by-class 'using))
     (let ((idx 0)
 	  (len (semanticdb-find-result-length tmp)))
       (while (< idx len)
@@ -1172,7 +1184,7 @@ DO NOT return the list of tags encompassing point."
   "Describe the Semantic features of the current C environment."
   (interactive)
   (if (not (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode)))
-      (error "Not usefule to query C mode in %s mode" major-mode))
+      (error "Not useful to query C mode in %s mode" major-mode))
   (let ((gcc (when (boundp 'semantic-gcc-setup-data)
 	       semantic-gcc-setup-data))
 	)

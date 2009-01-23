@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic.el,v 1.209 2008/09/15 00:24:31 zappo Exp $
+;; X-RCS: $Id: semantic.el,v 1.210 2008/12/12 04:11:00 zappo Exp $
 
 (eval-and-compile
   ;; Other package depend on this value at compile time via inversion.
@@ -264,6 +264,10 @@ setup to use Semantic."
 (defvar semantic-init-hooks nil
   "*Hooks run when a buffer is initialized with a parsing table.")
 
+(defvar semantic-init-mode-hooks nil
+  "*Hooks run when a buffer of a particular mode is initialized.")
+(make-variable-buffer-local 'semantic-init-mode-hooks)
+
 (defvar semantic-init-db-hooks nil
   "Hooks run when a buffer is initialized with a parsing table for DBs.
 This hook is for database functions which intend to swap in a tag table.
@@ -305,8 +309,10 @@ to use Semantic, and `semantic-init-hook' is run."
     (semantic-clear-toplevel-cache)
     ;; Call DB hooks before regular init hooks
     (run-hooks 'semantic-init-db-hooks)
-    ;; Lastly, set up semantic modes
+    ;; Set up semantic modes
     (run-hooks 'semantic-init-hooks)
+    ;; Set up major-mode specific semantic modes
+    (run-hooks 'semantic-init-mode-hooks)
     ))
 
 (add-hook 'mode-local-init-hook 'semantic-new-buffer-fcn)

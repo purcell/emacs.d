@@ -1,6 +1,6 @@
 ;;; wisent-comp.el --- GNU Bison for Emacs - Grammar compiler
 
-;; Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 David Ponce
+;; Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2009 David Ponce
 ;; Copyright (C) 1984, 1986, 1989, 1992, 1995, 2000, 2001
 ;; Free Software Foundation, Inc. (Bison)
 
@@ -8,7 +8,7 @@
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 30 January 2002
 ;; Keywords: syntax
-;; X-RCS: $Id: wisent-comp.el,v 1.26 2007/02/19 13:38:18 zappo Exp $
+;; X-RCS: $Id: wisent-comp.el,v 1.27 2009/01/10 00:15:37 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -1938,7 +1938,7 @@ terminated list of the I such as NUM is in R-ARG[I]."
 (defun wisent-build-relations ()
   "Build relations."
   (let (i j k rulep rp sp length nedges done state1 stateno
-          symbol1 symbol2 edge states new-includes v)
+          symbol1 symbol2 edge states v)
     (setq includes (make-vector ngotos nil)
           edge (make-vector (1+ ngotos) 0)
           states (make-vector (1+ maxrhs) 0)
@@ -2137,7 +2137,7 @@ tables so that there is no longer a conflict."
 
 (defun wisent-set-conflicts (state)
   "Find and attempt to resolve conflicts in specified STATE."
-  (let (i j k v c shiftp symbol)
+  (let (i j k v shiftp symbol)
     (unless (aref consistent state)
       (fillarray lookaheadset 0)
       
@@ -2204,7 +2204,7 @@ tables so that there is no longer a conflict."
 
 (defun wisent-count-sr-conflicts (state)
   "Count the number of shift/reduce conflicts in specified STATE."
-  (let (i j k mask shiftp symbol v)
+  (let (i j k shiftp symbol v)
     (setq src-count 0
           shiftp (aref shift-table state))
     (when shiftp
@@ -2409,7 +2409,7 @@ there are any reduce/reduce conflicts.")
 
 (defun wisent-print-reductions (state)
   "Print reductions on STATE."
-  (let (i j k v rule symbol mask m n defaulted
+  (let (i j k v symbol m n defaulted
           default-LA default-rule cmax count shiftp errp nodefault)
     (setq nodefault nil
           i 0)
@@ -2914,7 +2914,7 @@ references found in BODY, and XBODY is BODY expression with
             (add-to-list 'found body))
         (cons found body))
     ;; BODY is a list, expand inside it
-    (let (xbody sexpr bltn)
+    (let (xbody sexpr)
       ;; If backquote expand it first
       (if (wisent-backquote-p (car body))
           (setq body (macroexpand body)))
@@ -3238,8 +3238,8 @@ NONTERMS is the list of non terminal definitions (see function
   (or (and (consp grammar) (> (length grammar) 2))
       (error "Bad input grammar"))
   
-  (let (i r nt pl rhs pre dpre lst start-var assoc rules item
-          token var def tokens vars defs ep-token ep-var ep-def)
+  (let (i r rhs pre dpre lst start-var assoc rules item
+          token var def tokens defs ep-token ep-var ep-def)
     
     ;; Built-in tokens
     (setq ntokens 0 nvars 0)
@@ -3291,8 +3291,7 @@ NONTERMS is the list of non terminal definitions (see function
     
     ;; Check/Collect nonterminals
     (setq lst  (nthcdr 2 grammar)
-          defs nil
-          vars nil)
+          defs nil)
     (while lst
       (setq def (car lst)
             lst (cdr lst))

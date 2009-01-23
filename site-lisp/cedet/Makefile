@@ -1,11 +1,11 @@
 ## Makefile --- Definition file for building CEDET
 ##
-## Copyright (C) 2003, 2004, 2005, 2007, 2008 by David Ponce
+## Copyright (C) 2003, 2004, 2005, 2007, 2008, 2009 by David Ponce
 ##
 ## Author: David Ponce <david@dponce.com>
 ## Maintainer: CEDET developers <http://sf.net/projects/cedet>
 ## Created: 12 Sep 2003
-## X-RCS: $Id: Makefile,v 1.17 2008/07/03 01:29:49 zappo Exp $
+## X-RCS: $Id: Makefile,v 1.19 2009/01/20 02:41:58 zappo Exp $
 ##
 ## This program is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -58,7 +58,7 @@ INSTALL_INFO=ginstall-info
 ############### Internal part of the Makefile ###############
 CEDET_VERSION=$(shell grep "defconst cedet-version" common/cedet.el | cut -d " " -f 3)
 
-CEDET_FILES=Makefile INSTALL cedet-update-version.el PRERELEASE_CHECKLIST USING_CEDET_FROM_CVS
+CEDET_FILES=Makefile INSTALL cedet-build.el cedet-update-version.el PRERELEASE_CHECKLIST USING_CEDET_FROM_CVS
 DIST_ROOT=cedet-$(CEDET_VERSION)
 DIST_DIR=$(CEDET_HOME)/$(DIST_ROOT)
 DIST_FILE=$(DIST_DIR).tar.gz
@@ -128,6 +128,12 @@ clean:
 	-print -exec $(RM) {} \;
 
 clean-all: clean clean-elc clean-info clean-grammars clean-autoloads
+
+### UNIT TEST Harness
+## Run the master CEDET unit-test suite.
+.PHONY: utest
+utest:
+	$(EMACS) -batch -l "common/cedet.el" -f cedet-utest-batch
 
 ### Install info files
 ## Thanks Stefano Sabatini for the info install patch.

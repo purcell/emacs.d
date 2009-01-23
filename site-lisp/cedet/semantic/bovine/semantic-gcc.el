@@ -1,9 +1,9 @@
 ;;; semantic-gcc.el --- gcc querying special code for the C parser
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-gcc.el,v 1.6 2008/11/07 14:50:36 zappo Exp $
+;; X-RCS: $Id: semantic-gcc.el,v 1.7 2009/01/10 01:31:09 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -59,7 +59,7 @@ GCC-CMD is an optional command to execute instead of \"gcc\""
       ;; For any line, what do we do with it?
       (cond ((string-match "Configured with\\(:\\)" L)
 	     (let* ((parts (substring L (match-end 1)))
-		    (opts (split-string parts " " t))
+		    (opts (cedet-split-string parts " " t))
 		    )
 	       (dolist (O (cdr opts))
 		 (let* ((data (split-string O "="))

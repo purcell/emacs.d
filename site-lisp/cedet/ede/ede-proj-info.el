@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-proj-info.el,v 1.21 2008/03/02 02:10:51 zappo Exp $
+;; RCS: $Id: ede-proj-info.el,v 1.22 2008/12/28 22:11:10 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -152,7 +152,7 @@ Argument THIS is the target which needs to insert an info file."
 ;      (concat n ".info"))))
 
 (defmethod object-write ((this ede-proj-target-makefile-info))
-  "Before commiting any change to THIS, make sure the mainmenu is first."
+  "Before committing any change to THIS, make sure the mainmenu is first."
    (let ((mm (oref this mainmenu))
 	 (s (oref this source))
 	 (nl nil))

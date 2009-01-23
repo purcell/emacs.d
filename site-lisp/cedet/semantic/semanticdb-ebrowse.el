@@ -1,10 +1,10 @@
 ;;; semanticdb-ebrowse.el --- Semanticdb backend using ebrowse.
 
-;;; Copyright (C) 2005, 2006, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>, Joakim Verona
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb-ebrowse.el,v 1.21 2008/11/20 02:55:17 zappo Exp $
+;; X-RCS: $Id: semanticdb-ebrowse.el,v 1.22 2009/01/10 01:30:51 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -431,7 +431,7 @@ Optional argument BASECLASSES specifyies a baseclass to the tree being provided.
 		  (semanticdb-create-table dbe fname)))
 	 (class (ebrowse-ts-class tree))
 	 (scope (ebrowse-cs-scope class))
-	 (ns (when scope (split-string scope ":" t)))
+	 (ns (when scope (cedet-split-string scope ":" t)))
 	 (nst nil)
 	 (cls nil)
 	 )

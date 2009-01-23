@@ -4,7 +4,7 @@
 
 ;; Author: Marco (Bj) Bardelli <bardelli.marco@gmail.com>
 ;; Keywords: project, make, gnustep, gnustep-make
-;; RCS: $Id: ede-gnustep.el,v 1.5 2008/12/11 04:00:47 zappo Exp $
+;; RCS: $Id: ede-gnustep.el,v 1.6 2009/01/05 23:42:07 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -342,7 +342,7 @@ It is safe to leave this blank.")
 				       (const system))
 		       :group (default make settings)
 		       :documentation "Installation domain specification.
-The variable GNUSTEP_INSTALLATION_DOMAIN is setted at this value.")
+The variable GNUSTEP_INSTALLATION_DOMAIN is set at this value.")
    (preamble :initarg :preamble
 	     :initform '("GNUmakefile.preamble")
 	     :type (or null list)

@@ -1,10 +1,10 @@
 ;;; semantic-ia-sb.el --- Speedbar analysis display interactor
 
-;;; Copyright (C) 2002, 2003, 2004, 2006, 2008 Eric M. Ludlam
+;;; Copyright (C) 2002, 2003, 2004, 2006, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-ia-sb.el,v 1.21 2008/09/08 01:47:44 zappo Exp $
+;; X-RCS: $Id: semantic-ia-sb.el,v 1.22 2009/01/09 23:08:46 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -83,7 +83,6 @@ DIRECTORY is the current directory, which is ignored, and ZERO is 0."
   (let ((analysis nil)
 	(buffer nil)
 	(completions nil)
-	(fnargs nil)
 	(cf (selected-frame))
 	(cnt nil)
 	(mode-local-active-mode nil)

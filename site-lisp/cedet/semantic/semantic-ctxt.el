@@ -1,10 +1,10 @@
 ;;; semantic-ctxt.el --- Context calculations for Semantic tools.
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-ctxt.el,v 1.52 2008/11/18 15:50:21 zappo Exp $
+;; X-RCS: $Id: semantic-ctxt.el,v 1.54 2009/01/09 23:05:01 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -50,8 +50,10 @@ Used for identifying the end of a single command.")
 Used for identifying arguments to functions.")
 (make-variable-buffer-local 'semantic-function-argument-separation-character)
 
-;;; Local variable parsing.
+;;; Local Contexts
 ;;
+;; These context are nested blocks of code, such as code in an
+;; if clause
 (define-overloadable-function semantic-up-context (&optional point bounds-type)
   "Move point up one context from POINT.
 Return non-nil if there are no more context levels.
@@ -149,6 +151,9 @@ Return non-nil if there is no upper context."
 	    (def-edebug-spec semantic-with-buffer-narrowed-to-context
 	      (def-body))))
 
+;;; Local Variables
+;;
+;; 
 (define-overloadable-function semantic-get-local-variables (&optional point)
   "Get the local variables based on POINT's context.
 Local variables are returned in Semantic tag format.
@@ -273,7 +278,7 @@ That is a cons (LOCAL-ARGUMENTS . LOCAL-VARIABLES) where:
 Be default, uses `semantic-command-separation-character'.")
 
 (defun semantic-end-of-command-default ()
-  "Move to the beginning of the current command.
+  "Move to the end of the current command.
 Depends on `semantic-command-separation-character' to find the
 beginning and end of a command."
   (semantic-with-buffer-narrowed-to-context
@@ -336,78 +341,85 @@ beginning and end of a command."
 
 (define-overloadable-function semantic-ctxt-current-symbol (&optional point)
   "Return the current symbol the cursor is on at POINT in a list.
-This will include a list of type/field names when applicable.")
+The symbol includes all logical parts of a complex reference.
+For example, in C the statement:
+  this.that().entry
+
+Would be object `this' calling method `that' which returns some structure
+whose field `entry' is being reference.  In this case, this function
+would return the list:
+  ( \"this\" \"that\" \"entry\" )")
 
 (defun semantic-ctxt-current-symbol-default (&optional point)
   "Return the current symbol the cursor is on at POINT in a list.
 This will include a list of type/field names when applicable.
 Depends on `semantic-type-relation-separator-character'."
-  (if point (goto-char point))
-  (let* ((start (point))
-	 (fieldsep1 (mapconcat (lambda (a) (regexp-quote a))
-			       semantic-type-relation-separator-character
-			       "\\|"))
-	 ;; NOTE: The [ \n] expression below should used \\s-, but that
-	 ;; doesn't work in C since \n means end-of-comment, and isn't
-	 ;; really whitespace.
-	 (fieldsep (concat "[ \t\n\r]*\\(" fieldsep1 "\\)[ \t\n\r]*\\(\\w\\|\\s_\\)"))
-	 (case-fold-search semantic-case-fold)
-	 (symlist nil)
-	 end)
-    (with-syntax-table semantic-lex-syntax-table
-      (save-excursion
-	(cond ((looking-at "\\w\\|\\s_")
-	       ;; In the middle of a symbol, move to the end.
-	       (forward-sexp 1))
-	      ((looking-at fieldsep1)
-	       ;; We are in a find spot.. do nothing.
-	       nil
-	       )
-	      ((save-excursion
-		 (and (condition-case nil
-			  (progn (forward-sexp -1)
-				 (forward-sexp 1)
-				 t)
-			(error nil))
-		      (looking-at fieldsep1)))
-	       (setq symlist (list ""))
-	       (forward-sexp -1)
-	       ;; Skip array expressions.
-	       (while (looking-at "\\s(") (forward-sexp -1))
-	       (forward-sexp 1))
-	      )
-	;; Set our end point.
-	(setq end (point))
+  (save-excursion
+    (if point (goto-char point))
+    (let* ((fieldsep1 (mapconcat (lambda (a) (regexp-quote a))
+				 semantic-type-relation-separator-character
+				 "\\|"))
+	   ;; NOTE: The [ \n] expression below should used \\s-, but that
+	   ;; doesn't work in C since \n means end-of-comment, and isn't
+	   ;; really whitespace.
+	   (fieldsep (concat "[ \t\n\r]*\\(" fieldsep1 "\\)[ \t\n\r]*\\(\\w\\|\\s_\\)"))
+	   (case-fold-search semantic-case-fold)
+	   (symlist nil)
+	   end)
+      (with-syntax-table semantic-lex-syntax-table
+	(save-excursion
+	  (cond ((looking-at "\\w\\|\\s_")
+		 ;; In the middle of a symbol, move to the end.
+		 (forward-sexp 1))
+		((looking-at fieldsep1)
+		 ;; We are in a find spot.. do nothing.
+		 nil
+		 )
+		((save-excursion
+		   (and (condition-case nil
+			    (progn (forward-sexp -1)
+				   (forward-sexp 1)
+				   t)
+			  (error nil))
+			(looking-at fieldsep1)))
+		 (setq symlist (list ""))
+		 (forward-sexp -1)
+		 ;; Skip array expressions.
+		 (while (looking-at "\\s(") (forward-sexp -1))
+		 (forward-sexp 1))
+		)
+	  ;; Set our end point.
+	  (setq end (point))
 
-	;; Now that we have gotten started, lets do the rest.
-	(condition-case nil
-	    (while (save-excursion
-		     (forward-char -1)
-		     (looking-at "\\w\\|\\s_"))
-	      ;; We have a symbol.. Do symbol things
-	      (forward-sexp -1)
-	      (setq symlist (cons (buffer-substring-no-properties (point) end)
-				  symlist))
-	      ;; Skip the next syntactic expression backwards, then go forwards.
-	      (let ((cp (point)))
+	  ;; Now that we have gotten started, lets do the rest.
+	  (condition-case nil
+	      (while (save-excursion
+		       (forward-char -1)
+		       (looking-at "\\w\\|\\s_"))
+		;; We have a symbol.. Do symbol things
 		(forward-sexp -1)
-		(forward-sexp 1)
-		;; If we end up at the same place we started, we are at the
-		;; beginning of a buffer, or narrowed to a command and
-		;; have to stop.
-		(if (<= cp (point)) (error nil)))
-	      (if (looking-at fieldsep)
-		  (progn
-		    (forward-sexp -1)
-		    ;; Skip array expressions.
-		    (while (and (looking-at "\\s(") (not (bobp)))
-		      (forward-sexp -1))
-		    (forward-sexp 1)
-		    (setq end (point)))
-		(error nil))
-	      )
-	  (error nil)))
-      symlist)))
+		(setq symlist (cons (buffer-substring-no-properties (point) end)
+				    symlist))
+		;; Skip the next syntactic expression backwards, then go forwards.
+		(let ((cp (point)))
+		  (forward-sexp -1)
+		  (forward-sexp 1)
+		  ;; If we end up at the same place we started, we are at the
+		  ;; beginning of a buffer, or narrowed to a command and
+		  ;; have to stop.
+		  (if (<= cp (point)) (error nil)))
+		(if (looking-at fieldsep)
+		    (progn
+		      (forward-sexp -1)
+		      ;; Skip array expressions.
+		      (while (and (looking-at "\\s(") (not (bobp)))
+			(forward-sexp -1))
+		      (forward-sexp 1)
+		      (setq end (point)))
+		  (error nil))
+		)
+	    (error nil)))
+	symlist))))
 
 
 (define-overloadable-function semantic-ctxt-current-symbol-and-bounds (&optional point)

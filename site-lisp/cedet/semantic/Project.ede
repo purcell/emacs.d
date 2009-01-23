@@ -31,12 +31,13 @@
    (ede-proj-target-elisp "Database"
     :name "Database"
     :path ""
-    :source '("semanticdb.el" "semanticdb-mode.el" "semanticdb-debug.el" "semanticdb-ebrowse.el" "semanticdb-el.el" "semanticdb-file.el" "semanticdb-find.el" "semanticdb-mk.el" "semanticdb-ref.el" "semanticdb-search.el" "semanticdb-typecache.el" "semanticdb-javascript.el")
+    :source '("semanticdb.el" "semanticdb-mode.el" "semanticdb-debug.el" "semanticdb-ebrowse.el" "semanticdb-el.el" "semanticdb-file.el" "semanticdb-find.el" "semanticdb-mk.el" "semanticdb-ref.el" "semanticdb-search.el" "semanticdb-typecache.el" "semanticdb-javascript.el" "semanticdb-global.el")
+    :aux-packages '("semantic-symref")
     )
    (ede-proj-target-elisp "tools"
     :name "tools"
     :path ""
-    :source '("document-vars.el" "document.el" "semantic-adebug.el" "semantic-chart.el" "semantic-complete.el" "semantic-debug.el" "semantic-decorate-mode.el" "semantic-decorate-include.el" "semantic-elp.el" "semantic-grammar.el" "semantic-ia-sb.el" "semantic-ia.el" "semantic-imenu.el" "semantic-mru-bookmark.el" "semantic-sb.el" "semantic-util-modes.el" "senator.el")
+    :source '("semantic-adebug.el" "semantic-chart.el" "semantic-complete.el" "semantic-debug.el" "semantic-decorate-mode.el" "semantic-decorate-include.el" "semantic-elp.el" "semantic-grammar.el" "semantic-ia-sb.el" "semantic-ia.el" "semantic-imenu.el" "semantic-mru-bookmark.el" "semantic-sb.el" "semantic-util-modes.el" "senator.el")
     :aux-packages '("eieio" "ede" "speedbar" "inversion")
     )
    (ede-proj-target-elisp "Analyzer"

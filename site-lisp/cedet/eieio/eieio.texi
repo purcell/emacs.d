@@ -1,7 +1,7 @@
 
 \input texinfo   @c -*-texinfo-*-
 @c
-@c $Id: eieio.texi,v 1.60 2008/09/29 00:35:10 zappo Exp $
+@c $Id: eieio.texi,v 1.62 2009/01/14 00:00:20 zappo Exp $
 @c
 
 @c
@@ -22,7 +22,7 @@
 @copying
 This manual documents CEDET, a collection of other tools.
 
-Copyright @copyright{} 2007, 2008 Eric M. Ludlam
+Copyright @copyright{} 2007, 2008, 2009 Eric M. Ludlam
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -164,7 +164,7 @@ method matching the input type is then executed.
 Once the behavior of a class is defined, you can create a new
 object of type @code{record}.  Objects are created by calling the
 constructor.  The constructor is a function with the same name as your
-class which returns a new intance of that class. It might look like
+class which returns a new instance of that class. It might look like
 this:
 
 @example
@@ -172,7 +172,7 @@ this:
 @end example
 
 The first argument is the name given to this instance.  Each instance
-is given a name so different instances can be easilly distinguished
+is given a name so different instances can be easily distinguished
 during debugging.
 
 It can be a bit repetitive to also have a :name slot.  A handy
@@ -227,7 +227,7 @@ Imenu updates.
 @item
 Byte compilation support of methods.
 @item
-Help system extentions for classes and methods.
+Help system extensions for classes and methods.
 @item
 Automatic texinfo documentation generator.
 @item
@@ -482,12 +482,15 @@ will be evaluated at instantiation time to the value of
 @c will be identified as a function call, and be executed in place.
 
 @cindex lambda-default
+
+
 Lastly, using the function @code{lambda-default} instead of
 @code{lambda} will let you specify a lambda expression to use as the
 value, without evaluation, thus:
 @example
 :initform (lambda-default () some-variablename)
 @end example
+@@TODO - This will be deleted after fair warning.
 
 will not be evaluated at instantiation time, and the value in this
 slot will instead be @code{(lambda () some-variablename)}.
@@ -510,6 +513,7 @@ Here are some examples:
  A symbol, or nil.
  @item function
  A function symbol, or a @code{lambda-default} expression.
+
  @end table
 
 @item :allocation
@@ -897,7 +901,7 @@ it.
 @end defun
 
 In CLOS a generic call also be used to provide an argument list,
-and dispatch precidence for all the arguments.  In @eieio{},
+and dispatch precedence for all the arguments.  In @eieio{},
 dispatching only occurs for the first argument, so the @var{arglist}
 is not used.
 
@@ -1557,11 +1561,6 @@ Note that we start with eieio-default-superclass.  @xref{Default Superclass}.
 Note: new classes are consed into the inheritance lists, so the tree
 comes out upside-down.
 
-It is also possible to use the function @code{eieio-class-tree} in the
-@file{tree.el} package.  This will create an interactive tree.  Clicking
-on nodes will allow expansion/contraction of branches, or editing of a
-class.  @xref{Class Values}.
-
 @node Class Values
 @comment  node-name,  next,  previous,  up
 @chapter Class Values
@@ -1814,7 +1813,7 @@ and nothing is resolved.  This occurs when @var{method} has been
 defined, but the arguments make it impossible for @eieio{} to determine
 which method body to run.
 
-To prevent this signal from occuring in your class, implement the
+To prevent this signal from occurring in your class, implement the
 method @code{no-applicable-method} for your class.  This method is
 called when to throw this signal, so implementing this for your class
 allows you block the signal, and perform some work.
@@ -1962,11 +1961,11 @@ Some important compatability features that would be good to add are:
 @code{:around} method key.
 
 @item
-Method dispatch for bulit-in types.
+Method dispatch for built-in types.
 @item
 Method dispatch for multiple argument typing.
 @item
-Improve integrtion with the @file{cl} package.
+Improve integration with the @file{cl} package.
 @end enumerate
 
 There are also improvements to be made to allow @eieio{} to operate

@@ -1,4 +1,4 @@
-;; Object ede-proj-project
+;; Object SRecode templates
 ;; EDE project file.
 (ede-proj-project "SRecode templates"
   :name "templates"
@@ -7,7 +7,12 @@
    (ede-proj-target-makefile-miscelaneous "templates"
     :name "templates"
     :path ""
-    :source '("default.srt" "srecode-el.srt" "srecode-getset-cpp.srt" "srecode-template.srt" "srecode-cpp.srt" "srecode-wisent.srt" "srecode-expandproto-cpp.srt" "srecode-texi.srt" "srecode-test.srt")
+    :source '("default.srt" "srecode-el.srt" "srecode-getset-cpp.srt" "srecode-template.srt" "srecode-cpp.srt" "srecode-wisent.srt" "srecode-expandproto-cpp.srt" "srecode-texi.srt" "srecode-test.srt" "srecode-make.srt" "srecode-java.srt")
+    )
+   (ede-proj-target-makefile-miscelaneous "document"
+    :name "document"
+    :path ""
+    :source '("document-default.srt" "srecode-document-cpp.srt" "srecode-document-java.srt")
     )
    )
   )

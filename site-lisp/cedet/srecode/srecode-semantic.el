@@ -1,9 +1,9 @@
 ;;; srecode-semantic.el --- Semantic specific extensions to SRecode.
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-semantic.el,v 1.8 2008/03/05 04:20:36 zappo Exp $
+;; X-RCS: $Id: srecode-semantic.el,v 1.13 2009/01/20 23:42:54 scymtym Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -120,6 +120,11 @@ Assumes the cursor is in a tag of class type.  If not, throw an error."
 
 ;;; TAG in a DICTIONARY
 ;;
+(defvar srecode-semantic-apply-tag-augment-hook nil
+  "A function called for each tag added to a dictionary.
+The hook is called with two arguments, the TAG and DICT
+to be augmented.")
+
 ;;;###autoload
 (define-overload srecode-semantic-apply-tag-to-dict (tagobj dict)
   "Insert fewatures of TAGOBJ into the dictionary DICT.
@@ -143,11 +148,14 @@ variable default values, and other things."
     (srecode-dictionary-set-value dict "NAME" (semantic-tag-name tag))
     (srecode-dictionary-set-value dict "TYPE" (semantic-format-tag-type tag nil))
   
+    (run-hook-with-args 'srecode-semantic-apply-tag-augment-hook tag dict)
+
     (cond
      ;;
      ;; FUNCTION
      ;;
      ((eq (semantic-tag-class tag) 'function)
+      ;; FCN ARGS
       (let ((args (semantic-tag-function-arguments tag)))
 	(while args
 	  (let ((larg (car args))
@@ -165,10 +173,20 @@ variable default values, and other things."
 	    )
 	  ;; Next!
 	  (setq args (cdr args))))
+      ;; PARENTS
       (let ((p (semantic-tag-function-parent tag)))
 	(when p
 	  (srecode-dictionary-set-value dict "PARENT" p)
 	  ))
+      ;; EXCEPTIONS (java/c++)
+      (let ((exceptions (semantic-tag-get-attribute tag :throws)))
+	(while exceptions
+	  (let ((subdict (srecode-dictionary-add-section-dictionary
+			  dict "THROWS")))
+	    (srecode-dictionary-set-value subdict "NAME" (car exceptions))
+	    )
+	  (setq exceptions (cdr exceptions)))
+	)
       )
      ;;
      ;; VARIABLE
@@ -176,9 +194,9 @@ variable default values, and other things."
      ((eq (semantic-tag-class tag) 'variable)
       (when (semantic-tag-variable-default tag)
 	(let ((subdict (srecode-dictionary-add-section-dictionary
-			dict "DEFAULTVALUE")))
+			dict "HAVEDEFAULT")))
 	  (srecode-dictionary-set-value
-	   dict "VALUE" (semantic-tag-variable-default tag))))
+	   subdict "VALUE" (semantic-tag-variable-default tag))))
       )
      ;;
      ;; TYPE
@@ -307,8 +325,7 @@ inserted tag ENDS, and will leave point inside the inserted
 text based on any occurance of a point-inserter.  Templates such
 as `function' will leave point where code might be inserted."
   (srecode-load-tables-for-mode major-mode)
-  (let* ((tagobj (srecode-semantic-tag (semantic-tag-name tag) :prime tag))
-	 (ctxt (srecode-calculate-context))
+  (let* ((ctxt (srecode-calculate-context))
 	 (top (car ctxt))
 	 (tname (symbol-name (semantic-tag-class tag)))
 	 (dict (srecode-create-dictionary))
@@ -357,7 +374,7 @@ as `function' will leave point where code might be inserted."
 		    (semantic-tag-type tag) prototype ctxt))
 	(setq errtype (concat errtype " or " (semantic-tag-type tag)))
 	)
-       ;; A function might be an externally declaired method.
+       ;; A function might be an externally declared method.
        ((and (eq (semantic-tag-class tag) 'function)
 	     (semantic-tag-function-parent tag))
 	(setq temp (srecode-semantic-find-template
@@ -372,10 +389,15 @@ as `function' will leave point where code might be inserted."
 	     errtype top (semantic-format-tag-summarize tag)))
 
     ;; Resolve Arguments
-    (srecode-resolve-arguments temp dict)
+    (let ((srecode-semantic-selected-tag tag))
+      (srecode-resolve-arguments temp dict))
 
-    ;; Resolve TAG into the dictionary.
-    (srecode-semantic-apply-tag-to-dict tagobj dict)
+    ;; Resolve TAG into the dictionary.  We may have a :tag arg
+    ;; from the macro such that we don't need to do this.
+    (when (not (srecode-dictionary-lookup-name dict "TAG"))
+      (let ((tagobj (srecode-semantic-tag (semantic-tag-name tag) :prime tag))
+	    )
+	(srecode-semantic-apply-tag-to-dict tagobj dict)))
 
     ;; Insert dict-entries into the dictionary LAST so that previous
     ;; items can be overriden.

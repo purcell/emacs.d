@@ -1,9 +1,9 @@
 ;;; semantic-texi.el --- Semantic details for Texinfo files
 
-;;; Copyright (C) 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-texi.el,v 1.40 2008/10/10 21:38:37 zappo Exp $
+;; X-RCS: $Id: semantic-texi.el,v 1.42 2009/01/10 00:10:20 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -301,16 +301,6 @@ It would be nice to know function arguments too, but not today."
 ;;
 ;; Various override to better format texi tags.
 ;; 
-(define-mode-local-override semantic-insert-foreign-tag
-  texinfo-mode (foreign-tag)
-  "Insert TAG from a foreign buffer in TAGFILE.
-Assume TAGFILE is a source buffer, and create a documentation
-thingy from it using the `document' tool."
-  ;; This makes sure that TAG will be in an active buffer.
-  (let ((b (semantic-tag-buffer foreign-tag)))
-    ;; Now call the document insert thingy.
-    (require 'document)
-    (document-insert-texinfo foreign-tag b)))
 
 (define-mode-local-override semantic-format-tag-abbreviate
   texinfo-mode  (tag &optional parent color)
@@ -368,7 +358,6 @@ Optional argument POINT is where to look for the environment."
   "Analysis context makes no sense for texinfo.  Return nil."
   (let* ((prefixandbounds (semantic-ctxt-current-symbol-and-bounds (point)))
 	 (prefix (car prefixandbounds))
-	 (endsym (nth 1 prefixandbounds))
 	 (bounds (nth 2 prefixandbounds))
 	 (prefixclass (semantic-ctxt-current-class-list))
 	 )

@@ -1,9 +1,9 @@
 ;;; semantic-decorate-include.el --- Decoration modes for include statements
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-decorate-include.el,v 1.20 2008/12/09 19:37:17 zappo Exp $
+;; X-RCS: $Id: semantic-decorate-include.el,v 1.21 2009/01/09 23:05:29 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -336,8 +336,7 @@ its contents.
 	    (all 0))
 	(dolist (i inc)
 	  (let* ((fileinner (semantic-dependency-tag-file i))
-		 (tableinner (when fileinner
-			       (semanticdb-file-table-object fileinner t))))
+		 )
 	    (cond ((not fileinner)
 		   (setq unknown (1+ unknown)))
 		  ((number-or-marker-p (oref table pointmax))
@@ -397,7 +396,6 @@ Argument EVENT describes the event that caused this function to be called."
   (interactive "e")
   (let* ((startwin (selected-window))
 	 (win (semantic-event-window event))
-	 (eb (window-buffer win))
 	 )
     (select-window win t)
     (save-excursion
@@ -479,7 +477,6 @@ Argument EVENT describes the event that caused this function to be called."
   (let* ((startwin (selected-window))
 	 ;; This line has an issue in XEmacs.
 	 (win (semantic-event-window event))
-	 (eb (window-buffer win))
 	 )
     (select-window win t)
     (save-excursion
@@ -541,7 +538,6 @@ Argument EVENT describes the event that caused this function to be called."
   (interactive "e")
   (let* ((startwin (selected-window))
 	 (win (semantic-event-window event))
-	 (eb (window-buffer win))
 	 )
     (select-window win t)
     (save-excursion

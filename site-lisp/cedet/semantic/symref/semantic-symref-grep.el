@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-symref-grep.el,v 1.2 2008/12/04 23:27:21 zappo Exp $
+;; X-RCS: $Id: semantic-symref-grep.el,v 1.3 2008/12/13 17:23:49 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -55,6 +55,11 @@ See find -regex man page for format.")
 
 (defmethod semantic-symref-perform-search ((tool semantic-symref-tool-grep))
   "Perform a search with Grep."
+  ;; Grep doesn't support some types of searches.
+  (let ((st (oref tool :searchtype)))
+    (when (not (eq st 'symbol))
+      (error "Symref impl GREP does not support searchtype of %s" st))
+    )
   ;; Find the root of the project, and do a find-grep...
   (let* (;; Find the file patterns to use.
 	 (pat (cdr (assoc major-mode semantic-symref-filepattern-alist)))

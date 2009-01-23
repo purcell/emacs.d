@@ -1,10 +1,10 @@
 ;;; semanticdb-el.el --- Semantic database extensions for Emacs Lisp
 
-;;; Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb-el.el,v 1.29 2008/09/17 15:03:22 zappo Exp $
+;; X-RCS: $Id: semanticdb-el.el,v 1.30 2009/01/06 20:58:58 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -114,9 +114,8 @@ For Emacs Lisp system DB, there isn't one."
   "Convert tags, originating from Emacs OBJ, into standardized form."
   (let ((newtags nil))
     (dolist (T tags)
-      (let ((ot (semanticdb-normalize-one-tag obj T))
-	    ;;(db (car ot))
-	    (tag (cdr ot)))
+      (let* ((ot (semanticdb-normalize-one-tag obj T))
+	     (tag (cdr ot)))
 	(setq newtags (cons tag newtags))))
     ;; There is no promise to have files associated.
     (nreverse newtags)))
@@ -134,7 +133,10 @@ If Emacs cannot resolve this symbol to a particular file, then return nil."
 		      'defvar)
 		     ))
 	 (sym (intern (semantic-tag-name tag)))
-	 (file (symbol-file sym type))
+	 (file (condition-case err
+		   (symbol-file sym type)
+		 ;; Older [X]Emacs don't have a 2nd argument.
+		 (error (symbol-file sym))))
 	 )
     (if (or (not file) (not (file-exists-p file)))
 	;; The file didn't exist.  Return nil.

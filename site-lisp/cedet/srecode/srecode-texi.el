@@ -1,9 +1,9 @@
 ;;; srecode-texi.el --- Srecode texinfo support.
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-texi.el,v 1.4 2008/02/24 01:44:37 zappo Exp $
+;; X-RCS: $Id: srecode-texi.el,v 1.7 2009/01/10 18:49:07 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -28,8 +28,10 @@
 
 (require 'semantic)
 (require 'semantic-texi)
+(require 'srecode-semantic)
 
 ;;; Code:
+
 ;;;###autoload
 (defun srecode-texi-add-menu (newnode)
   "Add an item into the current menu.  Add @node statements as well.
@@ -108,6 +110,9 @@ Argument NEWNODE is the name of the new node."
 Adds the following:
   LEVEL - chapter, section, subsection, etc
   NEXTLEVEL - One below level"
+
+  ;; LEVEL and NEXTLEVEL calculation
+  (semantic-fetch-tags)
   (let ((tags (reverse (semantic-find-tag-by-overlay)))
 	(level nil))
     (while (and tags (not (semantic-tag-of-class-p (car tags) 'section)))
@@ -129,7 +134,145 @@ Adds the following:
 			      ("subsection" . "subsubsection")
 			      ("subsubsection" . "subsubsection")
 			      ))))
-      (srecode-dictionary-set-value dict "NEXTLEVEL" (cdr nl)))))
+      (srecode-dictionary-set-value dict "NEXTLEVEL" (cdr nl))))
+  )
+
+;;;###autoload
+(defun srecode-semantic-handle-:texitag (dict)
+  "Add macros into the dictionary DICT based on the current :tag file.
+Adds the following:
+  TAGDOC - Texinfo formatted doc string for :tag."
+
+  ;; If we also have a TAG, what is the doc?
+  (let ((tag (srecode-dictionary-lookup-name dict "TAG"))
+	(doc nil)
+	)
+
+    ;; If the user didn't apply :tag, then do so now.
+    (when (not tag)
+      (srecode-semantic-handle-:tag dict))
+    
+    (setq tag (srecode-dictionary-lookup-name dict "TAG"))
+
+    (when (not tag)
+      (error "No tag to insert for :texitag template argument"))
+
+    ;; Extract the tag out of the compound object.
+    (setq tag (oref tag :prime))
+
+    ;; Extract the doc string
+    (setq doc (semantic-documentation-for-tag tag))
+    
+    (when doc
+      (srecode-dictionary-set-value dict "TAGDOC"
+				    (srecode-texi-massage-to-texinfo
+				     tag (semantic-tag-buffer tag)
+				     doc)))
+    ))
+
+;;; OVERRIDES
+;;
+;; Override some semantic and srecode features with texi specific
+;; versions.
+
+;;;###autoload
+(define-mode-local-override semantic-insert-foreign-tag
+  texinfo-mode (foreign-tag)
+  "Insert TAG from a foreign buffer in TAGFILE.
+Assume TAGFILE is a source buffer, and create a documentation
+thingy from it using the `document' tool."
+  (let ((srecode-semantic-selected-tag foreign-tag))
+    ;; @todo - choose of the many types of tags to insert,
+    ;; or put all that logic into srecode.
+    (srecode-insert "declaration:function")))
+
+
+
+;;; Texinfo mangling.
+;;
+(defun srecode-texi-massage-to-texinfo (tag buffer string)
+  "Massage TAG's documentation from BUFFER as STRING.
+This is to take advantage of TeXinfo's markup symbols."
+  (save-excursion
+    (if buffer 
+	(progn (set-buffer buffer)
+	       (srecode-texi-texify-docstring string))
+      ;; Else, no buffer, so lets do something else
+      (with-mode-local texinfo-mode
+	(srecode-texi-texify-docstring string)))))
+
+(define-overloadable-function srecode-texi-texify-docstring
+  (docstring)
+  "Texify the doc string DOCSTRING.
+Takes plain text formatting that may exist, and converts it to
+using TeXinfo formatting.")
+
+(defun srecode-texi-texify-docstring-default (docstring)
+  "Texify the doc string DOCSTRING.
+Takes a few very generic guesses as to what the formatting is."
+  (let ((case-fold-search nil)
+	(start 0))
+    (while (string-match
+	    "\\(^\\|[^{]\\)\\<\\([A-Z0-9_-]+\\)\\>\\($\\|[^}]\\)"
+	    docstring start)
+      (let ((ms (match-string 2 docstring)))
+	;(when (eq mode 'emacs-lisp-mode)
+	;  (setq ms (downcase ms)))
+	
+	(when (not (or (string= ms "A")
+		       (string= ms "a")
+		       ))
+	  (setq docstring (concat (substring docstring 0 (match-beginning 2))
+			       "@var{"
+			       ms
+			       "}"
+			       (substring docstring (match-end 2))))))
+      (setq start (match-end 2)))
+    ;; Return our modified doc string.
+    docstring))
+
+(define-mode-local-override srecode-texi-texify-docstring emacs-lisp-mode
+  (string)
+  "Take STRING, (a normal doc string), and convert it into a texinfo string.
+For instances where CLASS is the class being referenced, do not Xref
+that class.
+
+ `function' => @dfn{function}
+ `variable' => @code{variable}
+ `class'    => @code{class} @xref{class}
+ `unknown'  => @code{unknonwn}
+ \"text\"     => ``text''
+ 'quoteme   => @code{quoteme}
+ non-nil    => non-@code{nil}
+ t          => @code{t}
+ :tag       => @code{:tag}
+ [ stuff ]  => @code{[ stuff ]}
+ Key        => @kbd{Key}     (key is C\\-h, M\\-h, SPC, RET, TAB and the like)
+ ...        => @dots{}"
+  (while (string-match "`\\([-a-zA-Z0-9<>.]+\\)'" string)
+    (let* ((vs (substring string (match-beginning 1) (match-end 1)))
+	   (v (intern-soft vs)))
+      (setq string
+	    (concat
+	     (replace-match (concat
+			     (if (fboundp v)
+				 "@dfn{" "@code{")
+			     vs "}")
+		    nil t string)))))
+  (while (string-match "\\( \\|^\\)\\(nil\\|t\\|'[-a-zA-Z0-9]+\\|:[-a-zA-Z0-9]+\\)\\([. ,]\\|$\\)" string)
+    (setq string (replace-match "@code{\\2}" t nil string 2)))
+  (while (string-match "\\( \\|^\\)\\(\\(non-\\)\\(nil\\)\\)\\([. ,]\\|$\\)" string)
+    (setq string (replace-match "\\3@code{\\4}" t nil string 2)))
+  (while (string-match "\\( \\|^\\)\\(\\[[^]]+\\]\\)\\( \\|$\\)" string)
+    (setq string (replace-match "@code{\\2}" t nil string 2)))
+  (while (string-match "\\( \\|^\\)\\(\\(\\(C-\\|M-\\|S-\\)+\\([^ \t\n]\\|RET\\|SPC\\|TAB\\)\\)\\|\\(RET\\|SPC\\|TAB\\)\\)\\( \\|\\s.\\|$\\)" string)
+    (setq string (replace-match "@kbd{\\2}" t nil string 2)))
+  (while (string-match "\"\\(.+\\)\"" string)
+    (setq string (replace-match "``\\1''" t nil string 0)))
+  (while (string-match "\\.\\.\\." string)
+    (setq string (replace-match "@dots{}" t nil string 0)))
+  ;; Also do base docstring type.
+  (srecode-texi-texify-docstring-default string))
 
 (provide 'srecode-texi)
 ;;; srecode-texi.el ends here

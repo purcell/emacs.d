@@ -1,10 +1,10 @@
 ;;; cogre.el --- COnnected GRaph Editor for Emacs
 
-;;; Copyright (C) 2001, 2002, 2003, 2005, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2001, 2002, 2003, 2005, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: graph, oop, extensions, outlines
-;; X-RCS: $Id: cogre.el,v 1.22 2008/07/03 01:40:14 zappo Exp $
+;; X-RCS: $Id: cogre.el,v 1.23 2009/01/20 02:19:46 zappo Exp $
 
 (defvar cogre-version "0.6"
   "Current version of Cogre.")
@@ -58,6 +58,12 @@
   "*Horizontal margins between nodes when they are being layed out."
   :group 'cogre
   :type 'number)
+
+(defun cogre-noninteractive ()
+  "Return non-nil if running non-interactively."
+  (if (featurep 'xemacs)
+      (noninteractive)
+    noninteractive))
 
 ;;; Classes
 ;;;###autoload
@@ -444,7 +450,9 @@ Reverses `cogre-graph-pre-serialize'."
 (defmethod cogre-entered ((element cogre-graph-element) start end)
   "Method called when the cursor enters ELEMENT.
 START and END cover the region with the property."
-  (message "%s" (object-name element)))
+  (when (not (cogre-noninteractive))
+    (message "%s" (object-name element)))
+  )
 
 (defmethod cogre-left ((element cogre-graph-element) start end)
   "Method called when the cursor exits ELEMENT.
@@ -460,18 +468,18 @@ START and END cover the region with the property."
     (cogre-erase-rectangle (aref position 0) (aref position 1)
 			   (length (car rectangle))
 			   (length rectangle))
-    (mapcar 'cogre-erase links))
+    (mapc 'cogre-erase links))
   (call-next-method))
 
 (defmethod cogre-node-links ((node cogre-node))
   "Return a list of links which reference NODE."
   (with-slots (elements) cogre-graph
     (let ((links nil))
-      (mapcar (lambda (n) (if (and (obj-of-class-p n cogre-link)
-				   (or (eq (oref n start) node)
-				       (eq (oref n end) node)))
-			      (setq links (cons n links))))
-	      elements)
+      (mapc (lambda (n) (if (and (obj-of-class-p n cogre-link)
+				 (or (eq (oref n start) node)
+				     (eq (oref n end) node)))
+			    (setq links (cons n links))))
+	    elements)
       links)))
 
 (defmethod cogre-node-rectangle  ((node cogre-node))
@@ -484,7 +492,8 @@ START and END cover the region with the property."
   (cogre-node-rectangle node)
   (with-slots (position rectangle) node
     (picture-goto-coordinate (aref position 0) (aref position 1))
-    (picture-insert-rectangle rectangle nil))
+    (picture-insert-rectangle rectangle nil)
+    )
   (call-next-method))
 
 (defmethod cogre-node-rebuild ((node cogre-node))

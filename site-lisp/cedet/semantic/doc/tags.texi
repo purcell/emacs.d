@@ -173,7 +173,7 @@ A variable, or named storage for data.
 @item include
 Statement that represents a file from which more tags can be found.
 @item package
-Statement that declairs this file's package name.
+Statement that declares this file's package name.
 @item code
 Code that has not name or binding to any other symbol, such as in a script.
 @end table
@@ -571,7 +571,7 @@ hook also executes after a database save, when all tags are first
 unlinked from the current buffer before the save.
 @item unlink-hook
 This hook is run whenever a tag is unlinked from a buffer.  This
-ocucrs during a database save, or when a tag is modified by the
+occurs during a database save, or when a tag is modified by the
 incremental parser.
 @item unlink-copy-hook
 This hook is run whenever a tag is copied.  This occurs in the

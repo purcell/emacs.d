@@ -1,9 +1,9 @@
 ;;; semantic-analyze-debug.el --- Debug the analyzer
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-analyze-debug.el,v 1.6 2008/12/11 13:54:12 zappo Exp $
+;; X-RCS: $Id: semantic-analyze-debug.el,v 1.7 2009/01/09 23:03:46 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -102,11 +102,11 @@ Argument COMP are possible completions here."
 	    (save-excursion
 	      (set-buffer origbuf)
 	      (let* ((position (or (cdr-safe (oref ctxt bounds)) (point)))
-		     (prefixtypes nil)
+		     (prefixtypes nil) ; Used as type return
 		     (scope (semantic-calculate-scope position))
-		     (newprefix nil))
-		(setq newprefix (semantic-analyze-find-tag-sequence
-				 (list prefix "") scope 'prefixtypes))
+		     )
+		(semantic-analyze-find-tag-sequence
+		 (list prefix "") scope 'prefixtypes)
 		)
 	      )
 	  (error (setq finderr err)))
@@ -149,7 +149,6 @@ Argument COMP are possible completions here."
 	 (dt (nth (1- idx) (oref ctxt prefixtypes)))
 	 (tt (semantic-tag-type prefixitem))
 	 (tab semanticdb-current-table)
-	 (tc (semanticdb-get-typecache tab))
 	 )
     (when dt (error "Missing Datatype debugger is confused"))
     (with-output-to-temp-buffer (help-buffer)
@@ -334,7 +333,6 @@ type constraint looking for the type ")
   "Test the local context parsed from the file."
   (let* ((prefixandbounds (semantic-ctxt-current-symbol-and-bounds (point)))
 	 (prefix (car prefixandbounds))
-	 (endsym (nth 1 prefixandbounds))
 	 (bounds (nth 2 prefixandbounds))
 	 )
     (when (and (or (not prefixandbounds)
@@ -381,8 +379,8 @@ or implementing a version specific to ")
 
 (defun semantic-analyzer-debug-insert-include-summary (table)
   "Display a summary of includes for the semanticdb TABLE."
-  (let ((tags (semantic-fetch-tags))
-	(inc (semantic-find-tags-by-class 'include table))
+  (semantic-fetch-tags)
+  (let ((inc (semantic-find-tags-by-class 'include table))
 	;;(path (semanticdb-find-test-translate-path-no-loading))
 	(unk
 	 (save-excursion

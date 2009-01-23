@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-dep.el,v 1.11 2008/08/23 00:11:04 zappo Exp $
+;; X-RCS: $Id: semantic-dep.el,v 1.12 2008/12/21 01:11:38 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -188,16 +188,17 @@ macro `defcustom-mode-local-semantic-dependency-system-include-path'."
 ;;; PATH SEARCH
 ;;
 ;; methods for finding files on a provided path.
-(defun semantic--dependency-find-file-on-path (file path)
+(defsubst semantic--dependency-find-file-on-path (file path)
   "Return an expanded file name for FILE on PATH."
-  (let ((p path)
-	(found nil))
-    (while (and p (not found))
-      (let ((f (expand-file-name file (car p))))
-	(if (file-exists-p f)
-	    (setq found f)))
-      (setq p (cdr p)))
-    found))
+  (locate-file file path))
+  ;;(let ((p path)
+  ;;	(found nil))
+  ;;  (while (and p (not found))
+  ;;    (let ((f (expand-file-name file (car p))))
+  ;;	(if (file-exists-p f)
+  ;;	    (setq found f)))
+  ;;    (setq p (cdr p)))
+  ;;  found))
 
 ;;;###autoload
 (defun semantic-dependency-find-file-on-path (file systemp &optional mode)

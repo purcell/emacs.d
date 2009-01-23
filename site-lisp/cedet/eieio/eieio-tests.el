@@ -1,10 +1,10 @@
 ;;; eieio-tests.el -- eieio tests routines
 
 ;;;
-;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
-;; RCS: $Id: eieio-tests.el,v 1.44 2008/09/29 00:20:45 zappo Exp $
+;; RCS: $Id: eieio-tests.el,v 1.45 2009/01/18 18:51:10 zappo Exp $
 ;; Keywords: oop, lisp, tools
 ;;
 ;; This program is free software; you can redistribute it and/or modify
@@ -55,17 +55,20 @@
 
 (condition-case msg
 
-    (progn
+    ;; Only run this test if the message framework thingy works.
+    (when (and (message "foo") (string= "foo" (current-message)))
+
       (defclass class-alloc-initarg ()
 	((throwwarning :initarg :throwwarning
 		       :allocation :class))
 	"Throw a warning mixing allocation class and an initarg.")
 
-      (if (not (string-match "Class allocated slots do not need :initarg"
-			     (current-message)))
-	  (error ":initarg and :allocation warning not thrown!"))
+      (when (not (string-match "Class allocated slots do not need :initarg"
+			       (or (current-message) "")))
+	(message "Errant message : %S" (current-message))
+	(error ":initarg and :allocation warning not thrown!"))
       )
-  (error (error msg)))
+  (error (error "%S" msg)))
   
 
 (defclass class-b ()
@@ -293,7 +296,8 @@ METHOD is the method that was attempting to be called."
 
 ;;; Test the BEFORE, PRIMARY, and AFTER method tags.
 ;;
-(load-library "eieio-test-methodinvoke.el")
+(let ((lib (locate-library  "eieio-test-methodinvoke.el")))
+  (load-file lib))
 
 ;;; Test value of a generic function call
 ;;

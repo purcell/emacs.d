@@ -15,7 +15,7 @@
 @copying
 This manual documents @cedet{}, a collection of other tools.
 
-Copyright @copyright{} 2007, 2008 Eric M. Ludlam
+Copyright @copyright{} 2007, 2008, 2009 Eric M. Ludlam
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -115,6 +115,7 @@ use the mailing list cedet-devel.net via the URL:
 * Code Completion::
 * Code Generation::	
 * C++ Features::	
+* GNU Global::	
 * GNU Free Documentation License::  
 * Index::                       
 @end menu
@@ -140,19 +141,19 @@ wrappers on top of any style of project.  @ede{} provides a backgrop
 for any other @cedet{} tool that needs to know the filesystem scope of
 a code base, where include directories might be.
 
-@semantic{} provies another mid-level layer.  @semantic{} provides a
+@semantic{} provides another mid-level layer.  @semantic{} provides a
 set of tools for developing parsers for different languages, and an
-API for searching and manipilating tags generated from your source
+API for searching and manipulating tags generated from your source
 code.  @semantic{} also provides a wide range of core tag centric
 utilities such as enhanced tag decoration, code analysis, and the
 coveted ``Smart Completion'' feature.
 
 Another mid-level tool is @srecode{} or the @i{Semantic Recoder}.
 @srecode{} is a template management system designed with the goal of
-providing a way to build code-generating applications that are easilly
-modified or extended by users.  At it's core is a template autoring
+providing a way to build code-generating applications that are easily
+modified or extended by users.  At it's core is a template authoring
 and insertion system.  A minor mode provides a simple way to insert
-tempaltes from the various template libraries.
+templates from the various template libraries.
 
 @speedbar{} is a user interface tool that provides a narrow view into
 your filesystem and tags.  Speedbar is also an API for designing other
@@ -209,7 +210,7 @@ For more details on @eieio{}, read the
 @section Semantic
 
 @semantic{} is a parser generator, lexical analyzer, parser
-development environment, parser, tag genration and management system.
+development environment, parser, tag generation and management system.
 Build on this is a persistent tag management system database and
 search utility.  Code analysis and completion generation is also
 provided.  @semantic{} includes tools such as speedbar interfaces to
@@ -378,7 +379,7 @@ user feedback explaining a delay.
 @node Installation/Basic Configuration
 @chapter Installation and Basic Configuration
 
-A complination centric version of the @cedet{} installation is in the
+A compilation centric version of the @cedet{} installation is in the
 INSTALL file in the top level @cedet{} directory.
 
 @enumerate
@@ -463,7 +464,7 @@ commentary in cogre/wisent-dot.el
 @chapter @i{JDEE} Target
 
 @i{JDEE}, or the @i{Java Development Environment}, depends on @cedet{}
-for both @eieio{}, the object sytem, and Semantic, for parsing and
+for both @eieio{}, the object system, and Semantic, for parsing and
 providing tagging information.
 
 In addition to the basic @cedet{} configuration, you will likely want to
@@ -668,7 +669,7 @@ lexical analyzer, such as @code{symbol} or @dfn{string}.  The string in the
 second position is the text that makes up the replacement.  This is
 the way to have multiple lexical symbols in a replacement.  Using the
 first way to specify text like ``foo::bar'' would not work, because :
-is a sepearate lexical symbol.
+is a separate lexical symbol.
 
 A quick way to see what you would need to insert is to place a
 definition such as:
@@ -681,8 +682,8 @@ into a @var{c} file, and do this:
 The output table will describe the symbols needed.
 @end defvar
 
-Alternatly, you can use an existing C header file, or write your own
-custom C header file, and use the ma cros in that to initialize the
+Alternately, you can use an existing C header file, or write your own
+custom C header file, and use the macros in that to initialize the
 preprocessor list.
 
 @defvar semantic-lex-c-preprocessor-symbol-file
@@ -739,6 +740,72 @@ more options for the optimization of finding your header files.
 For more on this option, including include path setting, and providing
 macro to the C pre-processor, see
 @inforef{the ede-cpp-root chapter, ede-cpp-root, ede}.
+
+
+@node GNU Global
+@chapter GNU Global
+
+Several tools in CEDET can support the use of GNU Global.  If you use
+GNU Global in your project, you should enable the use of it to enhance
+or speed up various tools in CEDET.
+
+You can download GNU Global from @url{http://www.gnu.org/software/global}
+
+To make sure your GNU Global installation is good, use the command
+
+@example
+M-x cedet-gnu-global-version-check RET
+@end example
+
+You can wrap any CEDET / GNU Global configurations in your
+@file{.emacs} file like this:
+
+@example
+(setq cedet-global-command "global") ; Change to path of global as needed
+(when (cedet-gnu-global-version-check t)  ; Is it ok?
+    ;; Configurations for GNU Global and CEDET.
+    )
+@end example
+
+@section @ede{} and GNU Global
+
+The @ede{} project system can use GNU Global to accelerate finding
+files withing a project.  The EDE command to @code{ede-find-file}
+bound to @kbd{C-c . f} is one direct application.  @semantic{} also
+makes heavy use of of the feature to find header files.
+
+To enable it, configure the variable @code{ede-locate-setup-options}.
+Something like this can work in your @file{.emacs} file.
+
+@example
+(setq ede-locate-setup-options
+      '(ede-locate-global 
+	ede-locate-base))
+@end example
+
+@section @semantic{} Database
+
+@semantic{} can use GNU Global as a back end for database searches.
+To enable it, use:
+
+@example
+(semanticdb-enable-gnu-global-databases 'c++-mode)
+@end example
+
+where the first argument is a @code{major-mode} in which to use it.
+
+@section @semantic Symref
+
+The semantic symref tool can use GNU Global to local symbol
+references.  This tool will automatically detect GNU Global and use
+it.  You can search for references via the commands:
+
+@table @code
+@item semantic-symref
+Find references to the tag under the cursor.
+@item semantic-symref-symbol
+Find references to an arbitrary symbol.
+@end table
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License

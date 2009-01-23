@@ -1,9 +1,9 @@
 ;;; pulse.el --- Pulsing Overlays
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: pulse.el,v 1.6 2008/02/28 15:29:43 zappo Exp $
+;; X-RCS: $Id: pulse.el,v 1.10 2009/01/20 02:43:00 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -192,41 +192,52 @@ Be sure to call `pulse-reset-face' after calling pulse."
 	  nil))
     ))
 
-(defun pulse-test ()
-  "Test the lightening function for pulsing a line."
+;;;###autoload
+(defun pulse-test (&optional no-error)
+  "Test the lightening function for pulsing a line.
+When optional NO-ERROR Don't throw an error if we can't run tests."
   (interactive)
   (if (not pulse-flag)
-      (error "Pulse test only works on versions of Emacs that support pulsing"))
-  (message "<Press a key> Pulse one line.")
-  (read-char)
-  (pulse-momentary-highlight-one-line (point))
-  (message "<Press a key> Pulse a region.")
-  (read-char)
-  (pulse-momentary-highlight-region (point)
-				    (save-excursion
-				      (condition-case nil
-					  (forward-char 30)
-					(error nil))
-				      (point)))
-  (message "<Press a key> Pulse line a specific color.")
-  (read-char)
-  (pulse-momentary-highlight-one-line (point) 'modeline)
-  (message "<Press a key> Pulse a pre-existing overlay.")
-  (read-char)
-  (let* ((start (point-at-bol))
-	 (end (save-excursion
-		(end-of-line)
-		(when (not (eobp))
-		  (forward-char 1))
-		(point)))
-	 (o (pulse-make-overlay start end))
-	 )
-    (pulse-momentary-highlight-overlay o)
-    (if (pulse-overlay-live-p o)
-	(pulse-overlay-delete o)
-      (error "Non-temporary overlay was deleted!"))
-    )
-  (message "Done!"))
+      (if no-error
+	  nil
+	(error (concat "Pulse test only works on versions of Emacs"
+		       " that support pulsing")))
+    ;; Run the tests
+    (when (interactive-p)
+      (message "<Press a key> Pulse one line.")
+      (read-char))
+    (pulse-momentary-highlight-one-line (point))
+    (when (interactive-p)
+      (message "<Press a key> Pulse a region.")
+      (read-char))
+    (pulse-momentary-highlight-region (point)
+				      (save-excursion
+					(condition-case nil
+					    (forward-char 30)
+					  (error nil))
+					(point)))
+    (when (interactive-p)
+      (message "<Press a key> Pulse line a specific color.")
+      (read-char))
+    (pulse-momentary-highlight-one-line (point) 'modeline)
+    (when (interactive-p)
+      (message "<Press a key> Pulse a pre-existing overlay.")
+      (read-char))
+    (let* ((start (point-at-bol))
+	   (end (save-excursion
+		  (end-of-line)
+		  (when (not (eobp))
+		    (forward-char 1))
+		  (point)))
+	   (o (pulse-make-overlay start end))
+	   )
+      (pulse-momentary-highlight-overlay o)
+      (if (pulse-overlay-live-p o)
+	  (pulse-overlay-delete o)
+	(error "Non-temporary overlay was deleted!"))
+      )
+    (when (interactive-p)
+      (message "Done!"))))
 
 
 ;;; Convenience Functions
@@ -314,6 +325,7 @@ To active pulse advice, use `pulse-enable-integration-advice'.")
 ;;;###autoload
 (defun pulse-toggle-integration-advice (arg)
   "Toggle activation of advised functions that will now pulse.
+Wint no ARG, toggle the pulse advice.
 With a negative ARG, disable pulse advice.
 With a positive ARG, enable pulse advice.
 Currently advised functions include:
@@ -327,20 +339,18 @@ Currently advised functions include:
 Pulsing via `pulse-line-hook-function' has also been added to
 the following hook:
   `next-error-hook'"
-  (interactive "p")
-  (if (numberp arg)
-      (if (< arg 0)
-	  (progn
-	    (setq pulse-command-advice-flag nil)
-	    (message "Pulse advice disabled")
-	    )
-	(setq pulse-command-advice-flag t)
-	(message "Pulse advice enabled")
-	)
-    (if pulse-command-advice-flag
-	(pulse-enable-integration-advice -1)
-      (pulse-enable-integration-advice 1))
-    ))
+  (interactive "P")
+  (if (null arg)
+      (setq pulse-command-advice-flag (not pulse-command-advice-flag))
+    (if (< (prefix-numeric-value arg) 0)
+	(setq pulse-command-advice-flag nil)
+      (setq pulse-command-advice-flag t)
+      )
+    )
+  (if pulse-command-advice-flag
+      (message "Pulse advice enabled")
+    (message "Pulse advice disabled"))
+  )
 
 (defadvice goto-line (after pulse-advice activate)
   "Cause the line that is `goto'd to pulse when the cursor gets there."

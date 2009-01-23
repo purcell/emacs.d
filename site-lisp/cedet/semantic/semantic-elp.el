@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-elp.el,v 1.12 2008/12/10 22:01:15 zappo Exp $
+;; X-RCS: $Id: semantic-elp.el,v 1.15 2008/12/21 01:08:15 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 
 (require 'elp)
 (require 'data-debug)
+(require 'semantic-adebug)
 (require 'semantic-tag-ls)
 (require 'semantic-tag-file)
 (require 'semanticdb)
@@ -49,6 +50,7 @@
     file-truename
     find-buffer-visiting
     length
+    locate-file
     nconc
     nreverse
     sort
@@ -60,7 +62,9 @@
 (defvar semantic-elp-eieio-core-list
   '(
     eieio-generic-call
+    eieio-generic-call-primary-only
     eieiomt-method-list
+    eieio-generic-form
     eieio-oref
     eieio-oset
     obj-of-class-p
@@ -70,7 +74,15 @@
 (defvar semantic-elp-ede-core-list
   '(
     ede-current-project
+    ede-directory-get-open-project
     ede-expand-filename
+    ede-expand-filename-impl
+    ede-locate-file-in-project
+    ede-locate-file-in-project-impl
+    ede-system-include-path
+    ede-toplevel
+    ede-toplevel-project
+    ede-directory-project-p
     )
   "List of EDE functions to watch out for.")
 
@@ -102,7 +114,7 @@
     semantic-tag-get-attribute
     semantic-tag-in-buffer-p
     semantic-tag-include-filename
-    semantic-tag-lessp-name-then-type
+    ;;semantic-tag-lessp-name-then-type
     semantic-tag-name
     semantic-tag-new-type
     semantic-tag-of-class-p
@@ -206,11 +218,19 @@ You may also need `semantic-elp-include-path-list'.")
     semanticdb-typecache-include-tags
     )
   "List of typecaching functions for profiling.")
+
+(defun semantic-elp-profile-typecache (tab)
+  "Profile the typecache.  Start with table TAB."
+  (let ((tc (semanticdb-get-typecache tab)))
+    (semanticdb-typecache-file-tags tab)
+    (semanticdb-typecache-include-tags tab)
+    tc))
+
 (defun semantic-elp-typecache-enable ()
   "Enable profiling for `semanticdb-get-typecache'."
-  (semantic-elp-core-enable)
+  (semantic-elp-include-path-enable)
   (elp-instrument-list semantic-elp-typecache-list)
-  (elp-set-master 'semanticdb-get-typecache)
+  (elp-set-master 'semantic-elp-profile-typecache)
   )
 
 (defvar semantic-elp-scope-list
@@ -453,7 +473,10 @@ Argument POINT is where the text is."
   ((time :initarg :time
 	 :type semantic-elp-data
 	 :documentation
-	 "Times for calculating something."))
+	 "Times for calculating something.")
+   (answer :initarg :answer
+	   :documentation
+	   "Any answer that might be useful."))
   "Simple elp object for remembering one analysis run.")
 
 (defclass semantic-elp-object-analyze (semantic-elp-object-base)
@@ -532,50 +555,56 @@ Argument NAME is the name to give the ELP data object."
 	scope scopetime
 	ctxt ctxttime
 	completion completiontime)
+    ;; Force tag table to be up to date.
+    (semantic-clear-toplevel-cache)
+    (semantic-fetch-tags)
     ;; Path translation
     (semantic-elp-include-path-enable)
-    (setq start (current-time))
-    (setq path (semanticdb-find-translate-path nil nil))
-    (setq stop (current-time))
+    (progn
+      (setq start (current-time))
+      (setq path (semanticdb-find-translate-path nil nil))
+      (setq stop (current-time)))
     (semantic-elp-results "translate-path")
     (setq pathtime semantic-elp-last-results)
     (oset pathtime :total (semantic-elapsed-time start stop))
     ;; typecache
-    (semantic-elp-typecache-enable)
-    (setq start (current-time))
     (let* ((tab semanticdb-current-table)
 	   (idx (semanticdb-get-table-index tab))
-	   (junk (oset idx type-cache nil)) ;; flush!
-	   (tc (semanticdb-get-typecache tab))
+	   (tc nil)
 	   )
-      (semanticdb-typecache-file-tags tab)
-      (semanticdb-typecache-include-tags tab)
+      (semantic-elp-typecache-enable)
+      (progn
+	(setq start (current-time))
+	(setq tc (semantic-elp-profile-typecache tab))
+	(setq stop (current-time)))
       (setq typecache tc))
-    (setq stop (current-time))
     (semantic-elp-results "typecache")
     (setq typecachetime semantic-elp-last-results)
     (oset typecachetime :total (semantic-elapsed-time start stop))
     ;; Scope
     (semantic-elp-scope-enable)
-    (setq start (current-time))
-    (setq scope (semantic-calculate-scope))
-    (setq stop (current-time))
+    (progn
+      (setq start (current-time))
+      (setq scope (semantic-calculate-scope))
+      (setq stop (current-time)))
     (semantic-elp-results "scope")
     (setq scopetime semantic-elp-last-results)
     (oset scopetime :total (semantic-elapsed-time start stop))
     ;; Analyze!
     (semantic-elp-analyze-enable)
-    (setq start (current-time))
-    (setq ctxt (semantic-analyze-current-context))
-    (setq stop (current-time))
+    (progn
+      (setq start (current-time))
+      (setq ctxt (semantic-analyze-current-context)) ; skip caching
+      (setq stop (current-time)))
     (semantic-elp-results "analyze")
     (setq ctxttime semantic-elp-last-results)
     (oset ctxttime :total (semantic-elapsed-time start stop))
     ;; Complete!
     (semantic-elp-complete-enable)
-    (setq start (current-time))
-    (setq completion (semantic-analyze-possible-completions ctxt))
-    (setq stop (current-time))
+    (progn
+      (setq start (current-time))
+      (setq completion (semantic-analyze-possible-completions ctxt))
+      (setq stop (current-time)))
     (semantic-elp-results "complete")
     (setq completiontime semantic-elp-last-results)
     (oset completiontime :total (semantic-elapsed-time start stop))
@@ -594,7 +623,7 @@ Argument NAME is the name to give the ELP data object."
       (data-debug-show elpobj)
       (setq semantic-elp-last-run elpobj)
       (let ((saveas (read-file-name "Save Profile to: " (expand-file-name "~/")
-				    "semantic.elp" nil "~/semantic.elp")))
+				    "semantic.elp" nil "semantic.elp")))
 	(oset elpobj :file saveas)
 	(eieio-persistent-save elpobj)
 	)
@@ -630,6 +659,44 @@ Argument NAME is the name to give the ELP data object."
 	)
       )))
 
+(defun semantic-elp-searchdb ()
+  "Run a semanticdb search routine with the profiler.
+The expectation is that you will edit this fcn with different
+`semanticdb-find-' routines."
+  (interactive)
+  (let ((elp-recycle-buffers-p nil)
+	(totalstart nil)
+	(totalstop nil)
+	ans time
+	)
+    ;; reset
+    (semantic-clear-toplevel-cache)
+    (semantic-fetch-tags)
+
+    ;; Path translation
+    (semantic-elp-include-path-enable)
+    (setq totalstart (current-time))
+    
+    (setq ans (semanticdb-find-tags-by-name-regexp "task" nil))
+
+    (setq totalstop (current-time))
+    (semantic-elp-results "")
+    (setq time semantic-elp-last-results)
+    (oset time :total (semantic-elapsed-time totalstart totalstop))
+    ;; build it
+    (let ((elpobj (semantic-elp-object
+		   "ELP"
+		   :total          (semantic-elapsed-time totalstart totalstop)
+		   :time	   time
+		   :answer         ans)))
+      (data-debug-show elpobj)
+      (setq semantic-elp-last-run elpobj)
+      (let ((saveas (read-file-name "Save Profile to: " (expand-file-name "~/")
+				    "semantic.elp" nil "semantic.elp")))
+	(oset elpobj :file saveas)
+	(eieio-persistent-save elpobj)
+	)
+      )))
 
 (defun semantic-elp-show-last-run ()
   "Show the last elp run."

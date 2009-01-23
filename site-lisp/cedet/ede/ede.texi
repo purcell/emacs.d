@@ -1,6 +1,6 @@
 \input texinfo   @c -*-texinfo-*-
 @c
-@c $Id: ede.texi,v 1.17 2008/09/07 14:36:39 zappo Exp $
+@c $Id: ede.texi,v 1.21 2008/12/29 04:21:02 zappo Exp $
 @c
 @setfilename ede.info
 @settitle Emacs Development Environment
@@ -112,7 +112,7 @@ will also be distributed, but the build process will also convert
 those files into some specified built thing, such as a program or
 compiled documentation.
 
-Lastly, @ede{} provides a way for other tools to easilly learn file
+Lastly, @ede{} provides a way for other tools to easily learn file
 associations.  For example, a program might need to restrict some sort
 of search to files in a single target, or need to discover the
 location of documentation or interface files.  @ede{} can provide this
@@ -177,10 +177,10 @@ an existing project.  This new project will be automatically added to
 the parent project, and will be automatically loaded when the parent
 is read.
 
-When using a project command that invovles a makefile, @ede{} uses
+When using a project command that involves a makefile, @ede{} uses
 the top-most project's makefile as a starting place for the build.  How
 the toplevel project handles subprojects in the build process is
-dependendent on that project's type.
+dependent on that project's type.
 
 @node Modifying your project, Building and Debugging, Creating a project, top
 @chapter Modifying your project
@@ -221,7 +221,7 @@ menu.
 
 A target with no files isn't very useful, so you can use @ede{} to add
 and remove files to targets.  Sometimes files can belong to multiple
-targets, and that is ok.
+targets, and that is OK.
 
 You can add files into targets with the command @command{ede-add-file}
 bound to @kbd{C-c . a}.   If there are no targets created that you
@@ -315,13 +315,13 @@ You can have any number of valid configurations too.  To add a new
 configuration, customize your project.  Work in the @samp{[Settings]}
 block for ``configurations''.  Add a new named configuration here.
 
-To switch between different active conifigurations, modify the
+To switch between different active configurations, modify the
 ``configuration default'' slot.
 
 @node Building and Debugging, Miscellaneous commands, Modifying your project, top
 @chapter Building and Debugging
 
-@ede{} assumes you are writing some sort of program, so attempts to
+@ede{} assumes you are writing some sort of program, so it attempts to
 facilitate this activity.  @ede{} will associate the current buffer with a
 target.  The target then knows how to compile or debug the given source
 file.
@@ -354,6 +354,25 @@ the project files to update the internal data structures.
 Use @command{ede-rescan-toplevel} bound to @kbd{C-c . g} to refresh
 your system.
 
+@section EDE Find File
+
+@ede{} can help you find files in your project.  Use
+@command{ede-find-file} bound to @kbd{C-c . f}.  It will prompt you
+for a name.  You can specify the name without a directory.  EDE will
+try to find a file with that name somewhere in your project.
+
+@ede{} can use external tools to help with file finding.  Configure
+the variable @code{ede-locate-setup-options} to help EDE find external
+tools.
+
+@defvar ede-locate-setup-options
+@anchor{ede-locate-setup-options}
+List of locate objects to try out by default.
+Listed in order of preference.  If the first item cannot be used in
+a particular project, then the next one is tried.
+It is always assumed that @dfn{ede-locate-base} is at end of the list.
+@end defvar
+
 @section Speedbar
 
 @ede{} also supports the speedbar package.  While speedbar works great
@@ -373,7 +392,7 @@ There are currently three types of project modes.  One is
 @samp{ede-project}, and shows up as @samp{Make} and @samp{Automake}
 when creating new projects.
 
-The other is project type handles automake projects directly from the
+The other project type handles automake projects directly from the
 automake files.  @ede{} cannot make new projects of this type, assuming
 the user will do it themselves.  Use @samp{ede-project} in
 @samp{Automake} mode to have @ede{} create @file{Makefile.am} file, and a
@@ -392,19 +411,19 @@ that use @ede{} to look up files.
 * Simple projects::             Projects @ede{} doesn't manage.
 @end menu
 
-@node Make and Automake projects, Automake direct projects, Project types, Project types
+@node Make and Automake projects
 @section Make and Automake projects
 
 A project of @samp{ede-project} type creates a file called
 @file{Project.ede} in every project directory.  This is used to track
-your configureation information.  If you configure this project to be
+your configuration information.  If you configure this project to be
 in @samp{Makefile} mode, then this project will autogenerate a
 @file{Makefile}.  If you configure it in @samp{Automake} mode a
 @file{Makefile.am} file will be created.  The automake bootstrapping
-routines will also improt and maintain a configure.am script and a
+routines will also import and maintain a configure.am script and a
 host of other files required by Automake.
 
-@node Automake direct projects, Simple projects , Make and Automake projects, Project types
+@node Automake direct projects
 @section Automake direct projects
 
 The project type that reads @file{Makefile.am} directly is derived
@@ -414,7 +433,7 @@ distributed independently.  This mode eventually became @ede{}.  The
 not generate them automatically, or create new ones.  As such, it is
 useful as a browsing tool, or as maintenance in managing file lists.
 
-@node Simple projects, , Automake direct projects, Project types
+@node Simple projects
 @section Simple Projects
 
 There can be a wide array of Simple projects.  The root for simple
@@ -434,6 +453,8 @@ lookup for @semantic{}, improving code completion performance.
 * ede-cpp-root::        This project marks the root of a C/C++ code project.
 * ede-simple subclassing:: Create your own simple project.
 * ede-emacs::		A project for working with Emacs.
+* ede-linux::		A project for working with Linux kernels.
+* Custom Locate::       Customizing how to locate files in a simple project
 @end menu
 
 @node ede-cpp-root
@@ -451,7 +472,7 @@ file-layout stuff.  If this isn't sufficient, you can subclass
 lines.  See the end of this file for an example.
 
 In the most basic case, add this to your @file{.emacs} file, modifying
-apropriate bits as needed.
+appropriate bits as needed.
 
 @example
 (ede-cpp-root-project "SOMENAME" :file "/dir/to/some/file")
@@ -524,7 +545,7 @@ To do that, you need to add an entry to the
 @code{ede-project-class-files} list, and also provide two functions to
 teach @ede{} how to load your project pattern
 
-It would oook like this:
+It would look like this:
 
 @example
 (defun MY-FILE-FOR-DIR (&optional dir)
@@ -557,7 +578,7 @@ Return nil if there isn't one."
 	     t)
 @end example
 
-This example only creates an auto-loader, and does create a new kind
+This example only creates an auto-loader, and does not create a new kind
 of project.
 
 @node ede-simple subclassing
@@ -576,6 +597,52 @@ source tree, and enable EDE project mode for it.
 It pre-populates the C Preprocessor symbol map for correct parsing,
 and has an optimized include file identification function.
 
+@node ede-linux
+@subsection ede-linux
+
+The @code{ede-linux} project will automatically identify a Linux
+Kernel source tree, and enable EDE project mode for it.
+
+It pre-populates the C Preprocessor symbol map for reasonable parsing,
+and has an optimized include file identification function.
+
+@node Custom Locate
+@subsection Custom Locate
+
+The various simple project styles all have one major drawback, which
+is that the files in the project are not completely known to EDE.
+When the EDE API is used to try and file files by some reference name
+in the project, then that could fail.
+
+@ede{} can therefore use some external locate commands, such as the unix
+``locate'' command, or ``GNU Global''.
+
+Configuration of the tool you want to use such as @code{locate}, or
+@code{global} will need to be done without the aid of @ede{}.  Once
+configured, however, @ede{} can use it.
+
+To enable one of these tools, set the variable
+@code{ede-locate-setup-options} with the names of different locate
+objects.  @ref{Miscellaneous commands}.
+
+Configure this in your @file{.emacs} before loading in CEDET or EDE.
+If you want to add support for GNU Global, your configuration would
+look like this:
+
+@example
+(setq ede-locate-setup-options '(ede-locate-global ede-locate-base))
+@end example
+
+That way, when a search needs to be done, it will first try using
+GLOBAL.  If global is not available for that directory, then it will
+revert to the base locate object.  The base object always fails to
+find a file.
+
+You can add your own locate tool but subclassing from
+@code{ede-locate-base}.  The subclass should also implement two
+methods.  See the code in @file{ede-locate.el} for GNU Global as a
+simple example.
+
 @node Extending EDE, Project, Project types, top
 @chapter Extending @ede{}
 
@@ -583,7 +650,7 @@ This chapter is intended for users who want to write new parts or fix
 bugs in @ede{}.  A knowledge of Emacs Lisp, and some @eieio{}(CLOS) is
 required.
 
-@ede{}'s dependance on @eieio{}, the CLOS package for Emacs lets @ede{} define
+@ede{}'s dependency on @eieio{}, the CLOS package for Emacs lets @ede{} define
 two object superclasses, specifically the PROJECT and TARGET.  All
 commands in @ede{} are usually meant to address the current project, or
 current target.
@@ -597,7 +664,7 @@ these methods.  For details on different types of projects,
 @ref{Project types}.  @ref{(eieio)Top}. For details on using @eieio{} to
 extending classes, and writing methods.
 
-If you intend to exted @ede{}, it is most likely that a new target type is
+If you intend to extend @ede{}, it is most likely that a new target type is
 needed in one of the existing project types.  The rest of this chapter
 will discuss extending the @code{ede-project} class, and it's targets.
 See @file{project-am.el} for basic details on adding targets to it.
@@ -609,7 +676,7 @@ you also need additional rules in the makefile, you will want to inherit
 from @code{ede-proj-target-makefile} instead.  You may want to also add
 new fields to track important information.
 
-If you are building currently unsuported code into a program or shared
+If you are building currently unsupported code into a program or shared
 library, it is unlikely you need a new target at all.  Instead you
 would need to create a new compiler or linker object that compiles
 source code of the desired type. @ref{Compiler and Linker objects}.
@@ -630,7 +697,7 @@ examples.
 @section User interface methods
 
 These methods are core behaviors associated with user commands.
-If you do not implement a method, there is a resonable default that
+If you do not implement a method, there is a reasonable default that
 may do what you need.
 
 @table @code
@@ -679,10 +746,10 @@ code.
 @item ede-buffer-mine
 Return non-nil if a buffer belongs to this target.  Used during
 association when a file is loaded.  It is generally unecessary to
-override this unless you keep auxilliary files.
+override this unless you keep auxiliary files.
 @end table
 
-These methods are used by the semantic package extentions @xref{(semantic)Top}.
+These methods are used by the semantic package extensions @xref{(semantic)Top}.
 
 @table @code
 @item ede-buffer-header-file
@@ -785,7 +852,7 @@ Here is an example for texinfo:
 
 @xref{Compilers}.
 
-When creating compiler instatiations, it may be useful to @code{clone}
+When creating compiler instantiations, it may be useful to @code{clone}
 an existing compiler variable.  Cloning allows you to only modify
 parts of the original, while keeping the rest of the same.
 Modification of the original will result in the clone also being

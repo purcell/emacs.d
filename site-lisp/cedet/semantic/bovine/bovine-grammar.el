@@ -1,12 +1,12 @@
 ;;; bovine-grammar.el --- Bovine's input grammar mode
 ;;
-;; Copyright (C) 2002, 2003, 2004, 2007 David Ponce
+;; Copyright (C) 2002, 2003, 2004, 2007, 2009 David Ponce
 ;;
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 26 Aug 2002
 ;; Keywords: syntax
-;; X-RCS: $Id: bovine-grammar.el,v 1.20 2007/02/19 13:34:13 zappo Exp $
+;; X-RCS: $Id: bovine-grammar.el,v 1.21 2009/01/10 00:16:26 zappo Exp $
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -63,7 +63,7 @@ expanded from elsewhere."
       (setq inplace t)
       )))
   (let ((macro (assq (car form) bovine--grammar-macros))
-        inlist first n q x val)
+        inlist first n q x)
     (if macro
         (bovine-grammar-expand-form
          (apply (cdr macro) (cdr form))

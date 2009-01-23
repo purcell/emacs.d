@@ -25,7 +25,7 @@
 @copying
 This manual documents Grammar Development with Semantic.
 
-Copyright @copyright{} 2004 Eric M. Ludlam
+Copyright @copyright{} 2004, 2009 Eric M. Ludlam
 Copyright @copyright{} 2004 David Ponce
 Copyright @copyright{} 2004 Richard Y. Kim
 
@@ -95,6 +95,7 @@ based language.
 @menu
 * Overview::                    
 * Grammar File::                
+* Grammar Development Cycle::	
 * Working with grammars::       
 * Adding a new grammar mode::   
 * GNU Free Documentation License::  
@@ -914,6 +915,66 @@ You can put a @dfn{footer} comment:
 At the end of the grammar.  It will not be copied to the parser file
 to avoid confusion with the Emacs Lisp library own footer.
 @end table
+
+
+@node Grammar Development Cycle
+@chapter Grammar Development Cycle
+
+When developing a grammar using the Semantic Grammar mode, the write,
+compile, test cycle takes a few steps.  The following pattern works
+well:
+
+Step 1:
+
+Make changes in the grammar file.
+
+Step 2:
+
+Press @kbd{C-c C-c} to compile the @file{.by} or @file{.wy} grammar
+file into an Emacs Lisp file, such as @file{mylanguage-wy.el}.  The
+cursor will end in this file.
+
+If you have never loaded this language before, then use
+
+@example
+M-x eval-buffer RET
+@end example
+
+to get it running.  If you have loaded a previous revision in, then
+instead use @code{eval-defun} bound to @code{C-M-x} on the changed
+generated variables.
+
+The generated variables are:
+@table @code
+@item LANG--keyword-table
+This table is modified if you changed any %keyword entries.
+@item LANG--token-table
+This table is modified if you changed any %token entries.
+@item LANG--parse-table
+This table is modified if you change the grammar.
+@item define-lex
+The lexer is modified if you change that explicit code in the .wy
+file.
+@end table
+
+Once you have reset the value of the particular part of the grammar
+you changed, switch to a buffer that you use for testing teh grammar,
+and reinitialize that buffer.  Usually this is something like
+
+@example
+M-x revert-buffer RET
+@end example
+
+or
+
+@example
+M-x LANG-mode RET
+@end example
+
+Once a buffer has been reparsed, use
+@code{semantic-show-unmatched-syntax} mode, @code{senator-pulse-tag}
+@kbd{C-c , ?}, and @kbd{M-x bovinate RET} to quickly identify success
+or failure of your changes.
 
 @node Working with grammars
 @chapter Working with grammars

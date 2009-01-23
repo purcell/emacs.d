@@ -1,9 +1,9 @@
 ;;; semantic-analyze-complete.el --- Smart Completions
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-analyze-complete.el,v 1.10 2008/06/10 00:42:26 zappo Exp $
+;; X-RCS: $Id: semantic-analyze-complete.el,v 1.11 2009/01/10 19:07:09 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -157,25 +157,23 @@ Argument CONTEXT is an object specifying the locally derived context."
     ;; Here we go.
     (if completetexttype
 
-	(setq c (semantic-find-tags-by-name-regexp
-		 (concat "^" completetext)
+	(setq c (semantic-find-tags-for-completion
+		 completetext
 		 (semantic-analyze-scoped-type-parts completetexttype scope)
 		 ))
 	      
-      (let ((expr (concat "^" completetext)))
-	;; No type based on the completetext.  This is a free-range
-	;; var or function.  We need to expand our search beyond this
-	;; scope into semanticdb, etc.
-	(setq c (nconc
-		 ;; Argument list and local variables
-		 (semantic-find-tags-by-name-regexp expr localvar)
-		 ;; The current scope
-		 (semantic-find-tags-by-name-regexp expr (oref scope fullscope))
-		 ;; The world
-		 (semantic-analyze-find-tags-by-prefix
-		  completetext))
-	      )
-	))
+      ;; No type based on the completetext.  This is a free-range
+      ;; var or function.  We need to expand our search beyond this
+      ;; scope into semanticdb, etc.
+      (setq c (nconc
+	       ;; Argument list and local variables
+	       (semantic-find-tags-for-completion completetext localvar)
+	       ;; The current scope
+	       (semantic-find-tags-for-completion completetext (oref scope fullscope))
+	       ;; The world
+	       (semantic-analyze-find-tags-by-prefix completetext))
+	    )
+      )
 
     (let ((origc c)
 	  (dtname (semantic-tag-name desired-type)))
@@ -242,9 +240,8 @@ Argument CONTEXT is an object specifying the locally derived context."
 	      (progn
 		;; Filter
 		(setq constants
-		      (semantic-find-tags-by-name-regexp
-		       (concat "^" completetext)
-		       constants))
+		      (semantic-find-tags-for-completion
+		       completetext constants))
 		;; Add to the list
 		(setq c (nconc c constants)))
 	    )))

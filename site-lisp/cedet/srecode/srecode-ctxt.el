@@ -1,6 +1,6 @@
 ;;; srecode-ctxt.el --- Derive a context from the source buffer.
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -174,9 +174,10 @@ This might add the following:
    PROTECTION - Show a protection section, and what the protection is."
   (when template
 
-    (let ((context (oref template context))
-	  (name (oref template object-name))
-	  (cc srecode-insertion-start-context))
+    (let ((name (oref template object-name))
+	  (cc srecode-insertion-start-context)
+	  ;(context (oref template context))
+	  )
   
 ;      (when (and cc
 ;		 (null (string= (car cc) context))

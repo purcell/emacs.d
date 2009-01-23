@@ -1,6 +1,6 @@
 ;;;; srecode-find.el --- Tools for finding templates in the database.
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -97,10 +97,12 @@ all template files for that application will be loaded."
 ;; Find a given template based on name, and features of the current
 ;; buffer.
 (defmethod srecode-template-get-table ((tab srecode-template-table)
-				       template-name &optional context)
+				       template-name &optional
+				       context application)
   "Find in the template in table TAB, the template with TEMPLATE-NAME.
 Optional argument CONTEXT specifies that the template should part
-of a particular context."
+of a particular context.
+The APPLICATION argument is unused."
   (if context
       ;; If a context is specified, then look it up there.
       (let ((ctxth (gethash context (oref tab contexthash))))
@@ -133,7 +135,7 @@ tables that do not belong to an application will be searched."
 	;; Recurse to the default.
 	(when (not (equal (oref tab :major-mode) 'default))
 	  (srecode-template-get-table (srecode-get-mode-table 'default)
-				      template-name context)))))
+				      template-name context application)))))
 
 ;;
 ;; Find a given template based on a key binding.

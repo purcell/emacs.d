@@ -1,9 +1,9 @@
 ;;; semantic-ia-utest.el --- Analyzer unit tests
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-ia-utest.el,v 1.17 2008/11/29 15:09:46 zappo Exp $
+;; X-RCS: $Id: semantic-ia-utest.el,v 1.20 2009/01/20 02:34:15 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -42,8 +42,11 @@
      )
   "List of files with analyzer completion test points.")
 
+(defvar semantic-ia-utest-error-log-list nil
+  "List of errors occuring during a run.")
+
 ;;;###autoload
-(defun semantic-ia-utest (arg)
+(defun semantic-ia-utest (&optional arg)
   "Run the semantic ia unit test against stored sources.
 Argument ARG specifies which set of tests to run.
  1 - ia utests
@@ -52,12 +55,14 @@ Argument ARG specifies which set of tests to run.
   (interactive "P")
   (save-excursion
 
-    (set-buffer (semantic-find-file-noselect
-		 (locate-library "semantic-ia-utest.el")))
+    (let ((fl semantic-ia-utest-file-list)
+	  (semantic-ia-utest-error-log-list nil)
+	  )
 
-    (let ((fl semantic-ia-utest-file-list))
+      (cedet-utest-log-setup "ANALYZER")
 
-      (semantic-ia-utest-start-log)
+      (set-buffer (semantic-find-file-noselect
+		   (locate-library "semantic-ia-utest.el")))
 
       (while fl
 
@@ -73,7 +78,7 @@ Argument ARG specifies which set of tests to run.
 	    ;; Force tags to be parsed.
 	    (semantic-fetch-tags)
 
-	    (semantic-ia-utest-log "** Starting tests in %s"
+	    (semantic-ia-utest-log "  ** Starting tests in %s"
 				   (buffer-name))
 	    
 	    (when (or (not arg) (= arg 1))
@@ -87,7 +92,7 @@ Argument ARG specifies which set of tests to run.
 	      (set-buffer b)
 	      (semantic-sr-utest-buffer-refs))
 
-	    (semantic-ia-utest-log "** Completed tests in %s\n"
+	    (semantic-ia-utest-log "  ** Completed tests in %s\n"
 				   (buffer-name))
 	    )
 
@@ -95,7 +100,14 @@ Argument ARG specifies which set of tests to run.
 	  (when (not fb)
 	    (kill-buffer b))
 	  )
-	(setq fl (cdr fl)))))
+	(setq fl (cdr fl)))
+
+      (cedet-utest-log-shutdown 
+       "ANALYZER"
+       (when semantic-ia-utest-error-log-list
+	 (format "%s Failures found." 
+		 (length semantic-ia-utest-error-log-list))))
+      ))
   )
 
 (defun semantic-ia-utest-buffer ()
@@ -144,15 +156,19 @@ Argument ARG specifies which set of tests to run.
 	(let ((bss (buffer-substring-no-properties (point) (point-at-eol))))
 	  (condition-case nil
 	      (setq desired (read bss))
-	    (error (setq desired (format "FAILED TO PARSE: %S"
+	    (error (setq desired (format "  FAILED TO PARSE: %S"
 					 bss)))))
 
 	(if (equal actual desired)
 	    (setq pass (cons idx pass))
 	  (setq fail (cons idx fail))
 	  (semantic-ia-utest-log
-	   "  Failed %d.  Desired: %S Actual %S"
+	   "    Failed %d.  Desired: %S Actual %S"
 	   idx desired actual)
+	  (add-to-list 'semantic-ia-utest-error-log-list
+		       (list (buffer-name) idx desired actual)
+		       )
+
 	  )
 	)
 
@@ -162,10 +178,10 @@ Argument ARG specifies which set of tests to run.
     (if fail
 	(progn
 	  (semantic-ia-utest-log
-	   "  Unit tests (completions) failed tests %S"
+	   "    Unit tests (completions) failed tests %S"
 	   (reverse fail))
 	  )
-      (semantic-ia-utest-log "  Unit tests (completions) passed (%d total)"
+      (semantic-ia-utest-log "    Unit tests (completions) passed (%d total)"
 			     (- idx 1)))
 
     ))
@@ -209,19 +225,17 @@ Argument ARG specifies which set of tests to run.
 	   (catch 'failed
 	     (if (and impl proto (car impl) (car proto))
 		 (let (ct2 ref2 impl2 proto2
-			   newtarget newstart)
+			   newstart)
 		   (cond
 		    ((semantic-equivalent-tag-p (car impl) ct)
 		     ;; We are on an IMPL.  Go To the proto, and find matches.
 		     (semantic-go-to-tag (car proto))
-		     (setq newtarget (car impl)
-			   newstart (car proto))
+		     (setq newstart (car proto))
 		     )
 		    ((semantic-equivalent-tag-p (car proto) ct)
 		     ;; We are on a PROTO.  Go to the imple, and find matches
 		     (semantic-go-to-tag (car impl))
-		     (setq newtarget (car proto)
-			   newstart (car impl))
+		     (setq newstart (car impl))
 		     )
 		    (t
 		     ;; No matches is a fail.
@@ -258,9 +272,12 @@ Argument ARG specifies which set of tests to run.
 	    ;; We failed.
 	    (setq fail (cons idx fail))
 	    (semantic-ia-utest-log
-	     "  Failed %d.  For %s (Num impls %d) (Num protos %d)"
+	     "    Failed %d.  For %s (Num impls %d) (Num protos %d)"
 	     idx (if ct (semantic-tag-name ct) "<No tag found>")
 	     (length impl) (length proto))
+	    (add-to-list 'semantic-ia-utest-error-log-list
+			 (list (buffer-name) idx)
+			 )
 	    ))
 
 	(setq p nil)
@@ -271,9 +288,9 @@ Argument ARG specifies which set of tests to run.
     (if fail
 	(progn
 	  (semantic-ia-utest-log
-	   "  Unit tests (refs) failed tests")
+	   "    Unit tests (refs) failed tests")
 	  )
-      (semantic-ia-utest-log "  Unit tests (refs) passed (%d total)"
+      (semantic-ia-utest-log "    Unit tests (refs) passed (%d total)"
 			     (- idx 1)))
 
     ))
@@ -287,8 +304,8 @@ Argument ARG specifies which set of tests to run.
   (semantic-fetch-tags)
 
   (let* ((idx 1)
-	 (p nil)
 	 (tag nil)
+	 (regex-p nil)
 	 (desired nil)
 	 (actual-result nil)
 	 (actual nil)
@@ -330,12 +347,15 @@ Argument ARG specifies which set of tests to run.
 	(setq fail (cons idx fail))
 	(when (not (equal (car actual) (car desired)))
 	  (semantic-ia-utest-log
-	   "Failed FNames %d: Actual: %S Desired: %S"
+	   "  Failed FNames %d: Actual: %S Desired: %S"
 	   idx (car actual) (car desired)))
 	(when (not (equal (car (cdr actual)) (car (cdr desired))))
 	  (semantic-ia-utest-log
-	   "Failed TNames %d: Actual: %S Desired: %S"
+	   "  Failed TNames %d: Actual: %S Desired: %S"
 	   idx (car (cdr actual)) (car (cdr desired))))
+	(add-to-list 'semantic-ia-utest-error-log-list
+		     (list (buffer-name) idx)
+		     )
 	)
 
       (setq idx (1+ idx))
@@ -344,9 +364,9 @@ Argument ARG specifies which set of tests to run.
     (if fail
 	(progn
 	  (semantic-ia-utest-log
-	   "  Unit tests (symrefs) failed tests")
+	   "    Unit tests (symrefs) failed tests")
 	  )
-      (semantic-ia-utest-log "  Unit tests (symrefs) passed (%d total)"
+      (semantic-ia-utest-log "    Unit tests (symrefs) passed (%d total)"
 			     (- idx 1)))
 
     ))

@@ -74,6 +74,18 @@ for push, pop, and peek for the active template.")
    )
   "Class defines storage for semantic recoder templates.")
 
+(defun srecode-flush-active-templates ()
+  "Flush the active template storage.
+Useful if something goes wrong in SRecode, and the active tempalte
+stack is broken."
+  (interactive)
+  (if (oref srecode-template active)
+      (when (y-or-n-p (format "%d active templates.  Flush? "
+			      (length (oref srecode-template active))))
+	(oset-default srecode-template active nil))
+    (message "No active templates to flush."))
+  )
+
 ;;; Inserters
 ;;
 ;; Each inserter object manages a different thing that
@@ -110,6 +122,20 @@ STATE is the current compilation state."
 (defmethod srecode-inserter-apply-state ((ins srecode-template-inserter) STATE)
   "For the template inserter INS, apply information from STATE."
   nil)
+
+(defmethod srecode-inserter-prin-example :STATIC ((ins srecode-template-inserter)
+						  escape-start escape-end)
+  "Insert an example using inserter INS.
+Arguments ESCAPE-START and ESCAPE-END are the current escape sequences in use."
+  (princ "   ")
+  (princ escape-start)
+  (when (and (slot-exists-p ins 'key) (oref ins key))
+    (princ (format "%c" (oref ins key))))
+  (princ "VARNAME")
+  (princ escape-end)
+  (terpri)
+  )
+
 
 ;;; Compile State
 (defclass srecode-compile-state ()
@@ -281,9 +307,6 @@ STATE is the current compilation state."
   "Compile a template tag TAG into an srecode template class.
 STATE is the current compile state as an object `srecode-compile-state'."
   (let* ((context (oref STATE context))
-	 (prompts (oref STATE prompts))
-	 (escape_start (oref STATE escape_start))
-	 (escape_end (oref STATE escape_end))
 	 (codeout  (srecode-compile-split-code
 		    tag (semantic-tag-get-attribute tag :code)
 		    STATE))
@@ -350,7 +373,6 @@ If END-NAME is specified, and the input string"
 	 (comp nil)
 	 (regex (concat "\n\\|" (regexp-quote (oref STATE escape_start))))
 	 (regexend (regexp-quote (oref STATE escape_end)))
-	 (tmp nil)
 	 )
     (while (and what (not end-token))
       (cond
@@ -361,7 +383,7 @@ If END-NAME is specified, and the input string"
 				 (match-end 0)))
 	       (namestart (match-end 0))
 	       (junk (string-match regexend what namestart))
-	       end tail name key)
+	       end tail name)
 	  ;; Add string to compiled output
 	  (when (> (length prefix) 0)
 	    (setq comp (cons prefix comp)))
@@ -488,7 +510,7 @@ A list of defined variables VARS provides a variable table."
 				   :size (length templates)))
 	(contexthash (make-hash-table :test 'equal :size 10))
 	(lp templates)
-	(name nil))
+	)
     
     (while lp
       

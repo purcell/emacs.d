@@ -1,9 +1,9 @@
 ;;; semantic-analyze-fcn.el --- Analyzer support functions.
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-analyze-fcn.el,v 1.23 2008/10/14 00:58:31 zappo Exp $
+;; X-RCS: $Id: semantic-analyze-fcn.el,v 1.24 2009/01/20 02:27:39 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -175,7 +175,6 @@ used by the analyzer debugger."
   (let ((ttype (semantic-tag-type tag))
 	(name nil)
 	(typetag nil)
-	(typecache-scope nil)
 	)
 
     ;; Is it an anonymous type?

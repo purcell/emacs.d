@@ -87,15 +87,15 @@ Copyright @copyright{} 1999, 2000, 2001, 2002, 2003, 2004 @value{AUTHOR}
 
 Semantic is bundled with support for several languages such as
 C, C++, Java, Python, etc.
-However one of the primary gols of semantic is to provide a framework
+However one of the primary goals of semantic is to provide a framework
 in which anyone can add support for other languages easily.
-In order to support a new lanaugage, one typically has to provide a
+In order to support a new language, one typically has to provide a
 lexer and a parser along with appropriate semantic actions that
 produce the end result of the parser - the semantic tags.
 
 This chapter first discusses the semantic tag data structure to
 familiarize the reader to the goal.  Then all the components necessary
-for supporting a lanaugage is discussed starting with the writing
+for supporting a language is discussed starting with the writing
 lexer, writing the parser, writing semantic rules, etc.
 Finally several parsers bundled with semantic are discussed as case
 studies.
@@ -314,7 +314,7 @@ Emacs already has advice.  @xref{(elisp)Advising Functions}.
 
 Advising is generally considered a mechanism of last resort when
 modifying or hooking into an existing package without modifying
-that sourse file.  Overload files advertise that they @i{should} be
+that source file.  Overload files advertise that they @i{should} be
 overloaded, and define syntactic sugar to do so.
 
 @node Semantic Parser Structure
@@ -509,7 +509,7 @@ properly.
 The top level lexical function @dfn{semantic-lex}, calls the function
 stored in @dfn{semantic-lex-analyzer}.  The default value is the
 function @dfn{semantic-flex} from version 1.4 of Semantic.  This will
-eventually be depricated.
+eventually be deprecated.
 
 In the default lexer, the following regular expressions which rely on syntax
 tables are used:
@@ -680,7 +680,7 @@ Each analyzer should be an analyzer created with @dfn{define-lex-analyzer}.
 Note: The order in which analyzers are listed is important.
 If two analyzers can match the same text, it is important to order the
 analyzers so that the one you want to match first occurs first.  For
-example, it is good to put a numbe analyzer in front of a symbol
+example, it is good to put a number analyzer in front of a symbol
 analyzer which might mistake a number for as a symbol.
 @end defun
 
@@ -787,7 +787,7 @@ Return either a paren token or a semantic list token depending on
 @end defspec
 
 @defspec semantic-lex-open-paren
-Detect and create an open parenthisis token.
+Detect and create an open parenthesis token.
 @end defspec
 
 @defspec semantic-lex-close-paren
@@ -829,7 +829,7 @@ While forms are running, the following variables will be locally bound:
   @code{semantic-lex-maximum-depth} - The maximum depth of semantic-list
                   for the current analysis.
   @code{semantic-lex-current-depth} - The current depth of @code{semantic-list} that has
-                  been decended.
+                  been descended.
   @code{semantic-lex-end-point} - End Point after match.
                    Analyzers should set this to a buffer location if their
                    match string does not represent the end of the matched text.
@@ -891,7 +891,7 @@ symbols returned in open and close tokens.
 @end defun
 
 These blocks is what makes the speed of semantic's Emacs Lisp based
-parsers fast.  For exmaple, by defining all text inside @{ braces @} as
+parsers fast.  For example, by defining all text inside @{ braces @} as
 a block the parser does not need to know the contents of those braces
 while parsing, and can skip them all together.
 
@@ -1035,7 +1035,7 @@ external parser.  To make your parser work, you need to have a setup
 function to replace the regular region parsing mechanism.
 
 Another external parser is in the ctags support.  The CTags parser
-overloads the same functions as the texinfo version.  Instad of using
+overloads the same functions as the texinfo version.  Instead of using
 regular expressions, however, it uses the external program
 @code{ctags}, and converts the output into the @semantic tag format.
 
@@ -1065,7 +1065,7 @@ If the buffer cache is up to date, return that.
 If the buffer cache is out of date, attempt an incremental reparse.
 If the buffer has not been parsed before, or if the incremental reparse
 fails, then parse the entire buffer.
-If a lexcial error had been previously discovered and the buffer
+If a lexical error had been previously discovered and the buffer
 was marked unparseable, then do nothing, and return the cache.
 @end defun
 
@@ -1106,7 +1106,7 @@ probably need additional modification to get things to work properly.
 
 Typically, a grammar file @file{foo.wy} will create the file
 @file{foo-wy.el}.  It is then useful to also create a file
-@file{wisent-foo.el} (or @file{sematnic-foo.el}) to contain the parser
+@file{wisent-foo.el} (or @file{semantic-foo.el}) to contain the parser
 back end, or the glue that completes the semantic support for the
 language.
 
@@ -1143,7 +1143,7 @@ Typical structure for this file is:
 ;;; Expand Function
 ;;
 ;; OPTIONAL
-;; Not all langauges are so complex as to need this function.
+;; Not all languages are so complex as to need this function.
 ;; See `semantic-tag-expand-function' for more details.
 (defun foo-tag-expand-function (tag)
   "Expand TAG into multiple tags if needed."
@@ -1213,7 +1213,7 @@ This function should take this compound tag and turn it into two tags,
 one for @var{A}, and the other for @var{B}.
 @end defvar
 
-Additionally, you can use the expand function in conjuntion with your
+Additionally, you can use the expand function in conjunction with your
 language for other types of compound statements.  For example, in
 Common Lisp Object System, you can have a definition:
 
@@ -1371,7 +1371,7 @@ the output buffer.
 
 The bovine parser is described in @inforef{top, ,bovine}.
 
-Asside using a traditional Emacs Lisp debugger on functions you
+Aside using a traditional Emacs Lisp debugger on functions you
 provide for token expansion, there is one other means of debugging
 which interactively steps over the rules in your grammar file.
 
@@ -1462,7 +1462,7 @@ Note for language authors:
   If a mode defines a language tag that has tags in it with overlays
 you should still return them with this function.
 Ignoring this step will prevent several features from working correctly.
-This function can be overriden in semantic using the
+This function can be overridden in semantic using the
 symbol @code{tag-components-with-overlays}.
 @end defun
 
@@ -1505,7 +1505,7 @@ also.
 @anchor{semantic-show-parser-state-mode}
 Minor mode for displaying parser cache state in the modeline.
 The cache can be in one of three states.  They are
-Up to date, Partial reprase needed, and Full reparse needed.
+Up to date, Partial reparse needed, and Full reparse needed.
 The state is indicated in the modeline with the following characters:
 @table @kbd
 @item -
@@ -1532,7 +1532,7 @@ parser is merging changes with the main buffer.
 
 @defvar semantic-edits-verbose-flag
 @anchor{semantic-edits-verbose-flag}
-Non-@code{nil} means the incremental perser is verbose.
+Non-@code{nil} means the incremental parser is verbose.
 If @code{nil}, errors are still displayed, but informative messages are not.
 @end defvar
 
@@ -1556,7 +1556,7 @@ If your language definition was written in BNF notation, debugging is
 quite easy.  The command @code{semantic-debug} will start you off.
 
 @deffn Command semantic-debug
-Reprase the current buffer and run in parser debug mode.
+Reparse the current buffer and run in parser debug mode.
 @end deffn
 
 While debugging, two windows are visible.  One window shows the file

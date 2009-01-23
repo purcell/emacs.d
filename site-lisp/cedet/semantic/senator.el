@@ -1,12 +1,12 @@
 ;;; senator.el --- SEmantic NAvigaTOR
 
-;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by David Ponce
+;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 by David Ponce
 
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 10 Nov 2000
 ;; Keywords: syntax
-;; X-RCS: $Id: senator.el,v 1.129 2008/11/29 11:16:32 zappo Exp $
+;; X-RCS: $Id: senator.el,v 1.134 2009/01/14 00:03:06 zappo Exp $
 
 ;; This file is not part of Emacs
 
@@ -191,6 +191,14 @@ langage behaviour."
 (defsubst senator-parse ()
   "Parse the current buffer and return the tags where to navigate."
   (semantic-fetch-tags))
+
+(defun senator-force-refresh ()
+  "Force a full refresh of the current buffer's tags.
+Throws away all the old tags, and recreates the tag database for
+this buffer."
+  (interactive)
+  (semantic-clear-toplevel-cache)
+  (senator-parse))
 
 (defsubst senator-current-tag ()
   "Return the current tag in the current buffer.
@@ -1291,9 +1299,12 @@ filters in `senator-search-tag-filter-functions' remain active."
 (defun senator-pulse-tag (&optional tag)
   "Pulse the current TAG."
   (interactive)
+  (senator-force-refresh)
   (let ((tag (semantic-current-tag)))
     (when tag
-      (pulse-momentary-highlight-overlay (semantic-tag-overlay tag)))))
+      (message "%s" (semantic-format-tag-summarize tag))
+      (pulse-momentary-highlight-overlay (semantic-tag-overlay tag)))
+    ))
 
 ;;;;
 ;;;;
@@ -1480,7 +1491,7 @@ Valid keywords include:
   ;; Turn spec into a list of specs if it is not so already.
   (if (and spec (not (consp (car spec)))) (setq spec (list spec)))
   (let ((menulist nil)
-	(item nil))
+	)
     (while spec
       (let* ((sym (car (car spec)))
 	     (pl (cdr (car spec)))
@@ -1846,6 +1857,11 @@ This is a buffer local variable.")
 (defvar senator-menu-bar
   (list
    "Senator"
+   (senator-menu-item
+    ["Force Tag Refresh"
+     senator-force-refresh
+     :active t
+     :help "Force a full reparse of the current buffer."])
    (list
     "Navigate"
     (senator-menu-item
@@ -2069,6 +2085,19 @@ This is a buffer local variable.")
        :active t
        :help "Debug why the analyzer may not be working for you."
        ])
+    )
+   (list
+    "Find References"
+    (senator-menu-item
+     ["Find This Tag"
+      semantic-symref
+      :active (semantic-current-tag)
+      :help "Find uses of the tag the cursor is in."])
+    (senator-menu-item
+     ["Find Symbol"
+      semantic-symref
+      :active t
+      :help "Find uses of any arbitrary symbol."])
     )
    (list
     "Chart"
@@ -2374,6 +2403,7 @@ If ARG is nil, then toggle."
   "Move backward to the beginning of a defun.
 Use semantic tags to navigate.
 ARG is the number of tags to navigate (not yet implemented)."
+  (senator-parse)
   (let* ((senator-highlight-found nil)
          ;; Step at beginning of next tag with class specified in
          ;; `senator-step-at-tag-classes'.
@@ -2389,6 +2419,7 @@ ARG is the number of tags to navigate (not yet implemented)."
   "Move forward to next end of defun.
 Use semantic tags to navigate.
 ARG is the number of tags to navigate (not yet implemented)."
+  (senator-parse)
   (let* ((senator-highlight-found nil)
          ;; Step at end of next tag with class specified in
          ;; `senator-step-at-tag-classes'.
@@ -2407,6 +2438,7 @@ ARG is the number of tags to navigate (not yet implemented)."
 The defun visible is the one that contains point or follows point.
 Use semantic tags to navigate."
   (interactive)
+  (senator-parse)
   (save-excursion
     (widen)
     (senator-end-of-defun)

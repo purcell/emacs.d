@@ -1,10 +1,10 @@
 ;;; semantic-find.el --- Search routines
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2008 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-find.el,v 1.24 2008/06/10 00:43:07 zappo Exp $
+;; X-RCS: $Id: semantic-find.el,v 1.26 2009/01/20 02:28:22 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -441,7 +441,7 @@ TABLE is a tag table.  See `semantic-something-to-tag-table'."
   (name streamorbuffer &optional search-parts search-include)
   "Find a tag NAME within STREAMORBUFFER.  NAME is a string.
 If SEARCH-PARTS is non-nil, search children of tags.
-If SEARCH-INCLUDE is non-nil, search include files.
+If SEARCH-INCLUDE was never implemented.
 
 Use `semantic-find-first-tag-by-name' instead."
   (let* ((stream (semantic-something-to-tag-table streamorbuffer))
@@ -590,46 +590,29 @@ used for the searching child lists.  If SEARCH-PARTS is the symbol
 'positiononly, then only children that have positional information are
 searched.
 
-If SEARCH-INCLUDES is non-nil, then all include files are also
-searched for matches.  This parameter hasn't be active for a while
-and is obsolete."
-  (let ((streamlist (list
-		     (semantic-something-to-tag-table streamorbuffer)))
-	(includes nil)			;list of includes
-	(stream nil)			;current stream
-        (tag  nil)                    ;current tag
+If SEARCH-INCLUDES has not been implemented.
+This parameter hasn't be active for a while and is obsolete."
+  (let ((stream (semantic-something-to-tag-table streamorbuffer))
 	(sl nil)			;list of tag children
 	(nl nil)			;new list
         (case-fold-search semantic-case-fold))
-    (if search-includes
-	(setq includes (semantic-brute-find-tag-by-class
-			'include (car streamlist))))
-    (while streamlist
-      (setq stream     (car streamlist)
-            streamlist (cdr streamlist))
-      (while stream
-        (setq tag  (car stream)
-              stream (cdr stream))
-	(if (not (semantic-tag-p tag))
-            ;; `semantic-tag-components-with-overlays' can return invalid
-            ;; tags if search-parts is not equal to 'positiononly
-            nil ;; Ignore them!
-          (if (funcall function tag)
-              (setq nl (cons tag nl)))
-          (and search-parts
-               (setq sl (if (eq search-parts 'positiononly)
-			    (semantic-tag-components-with-overlays tag)
-			  (semantic-tag-components tag))
-		     )
-               (setq nl (nconc nl
-                               (semantic-brute-find-tag-by-function
-                                function sl
-                                search-parts search-includes)))))))
+    (dolist (tag stream)
+      (if (not (semantic-tag-p tag))
+	  ;; `semantic-tag-components-with-overlays' can return invalid
+	  ;; tags if search-parts is not equal to 'positiononly
+	  nil ;; Ignore them!
+	(if (funcall function tag)
+	    (setq nl (cons tag nl)))
+	(and search-parts
+	     (setq sl (if (eq search-parts 'positiononly)
+			  (semantic-tag-components-with-overlays tag)
+			(semantic-tag-components tag))
+		   )
+	     (setq nl (nconc nl
+			     (semantic-brute-find-tag-by-function
+			      function sl
+			      search-parts))))))
     (setq nl (nreverse nl))
-;;;    (while includes
-;;;      (setq nl (append nl (semantic-brute-find-tag-by-function
-;;;			   
-;;;			   ))))
     nl))
 
 ;;;###autoload

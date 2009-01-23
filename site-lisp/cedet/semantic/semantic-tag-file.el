@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-tag-file.el,v 1.31 2008/10/27 01:38:52 zappo Exp $
+;; X-RCS: $Id: semantic-tag-file.el,v 1.32 2008/12/13 17:22:47 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -136,8 +136,7 @@ Depends on `semantic-dependency-include-path' for searching.  Always searches
       (setq tag-fname (semantic-tag-include-filename tag))
 
       ;; First, see if this file exists in the current EDE project
-      (if (and (not (semantic-tag-include-system-p tag))
-	       (fboundp 'ede-expand-filename) ede-minor-mode
+      (if (and (fboundp 'ede-expand-filename) ede-minor-mode
 	       (setq edefind
 		     (condition-case nil
 			 (let ((proj  (ede-toplevel)))

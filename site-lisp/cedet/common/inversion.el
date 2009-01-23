@@ -1,9 +1,9 @@
 ;;; inversion.el --- When you need something in version XX.XX
 
-;;; Copyright (C) 2002, 2003, 2005, 2006, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2002, 2003, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: inversion.el,v 1.33 2008/10/16 00:37:15 zappo Exp $
+;; X-RCS: $Id: inversion.el,v 1.34 2009/01/10 00:20:53 zappo Exp $
 
 ;;; Code:
 (defvar inversion-version "1.3"
@@ -229,7 +229,6 @@ Return:
 	(req (if (stringp minimum)
 		 (inversion-decode-version minimum)
 	       minimum))
-	(count 0)
 	)
     ;; Perform a test.
     (cond
@@ -521,8 +520,6 @@ The return list is an alist with the version string in the CAR,
 and the full path name in the CDR."
   (if (symbolp package) (setq package (symbol-name package)))
   (let ((f (inversion-locate-package-files package directory version))
-	(prefix (concat (file-name-as-directory directory)
-			package "-"))
 	(out nil))
     (while f
       (let* ((file (car f))
@@ -588,9 +585,9 @@ The package should have VERSION available for download."
 		package directory))
 	(cver (inversion-package-version package))
 	(newer nil))
-    (mapcar (lambda (f)
-	      (if (inversion-< cver (inversion-decode-version (car f)))
-		  (setq newer (cons f newer))))
+    (mapc (lambda (f)
+	    (if (inversion-< cver (inversion-decode-version (car f)))
+		(setq newer (cons f newer))))
 	    files)
     newer
     ))

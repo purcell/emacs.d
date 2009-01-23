@@ -1,9 +1,9 @@
 ;;; srecode-dictionary.el --- Dictionary code for the semantic recoder.
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-dictionary.el,v 1.5 2008/05/14 02:34:10 zappo Exp $
+;; X-RCS: $Id: srecode-dictionary.el,v 1.8 2009/01/16 01:27:37 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -355,7 +355,7 @@ FUNCTION and DICTIONARY are as for the baseclass."
   (princ "# Compound Variable #\n")
   (let ((indent (+ 4 (or indent 0)))
 	(cmp (oref cp compiled))
-	(idx 1))
+	)
     (srecode-dump-code-list cmp (make-string indent ? ))
     ))
 
@@ -399,6 +399,26 @@ STATE is the current compiler state."
 ;;; DUMP DICTIONARY
 ;;
 ;; Make a dictionary, and dump it's contents.
+
+;;;###autoload
+(defun srecode-adebug-dictionary ()
+  "Run data-debug on this mode's dictionary."
+  (interactive)
+  (require 'data-debug)
+  (let* ((modesym major-mode)
+	 (start (current-time))
+	 (junk (or (progn (srecode-load-tables-for-mode modesym)
+			  (srecode-get-mode-table modesym))
+		   (error "No table found for mode %S" modesym)))
+	 (dict (srecode-create-dictionary (current-buffer)))
+	 (end (current-time))
+	 )
+    (message "Creating a dictionary took %.2f seconds."
+	     (semantic-elapsed-time start end))
+    (data-debug-new-buffer "*SRECUDE ADEBUG*")
+    (data-debug-insert-object-slots dict "*")))
+
+;;;###autoload
 (defun srecode-dictionary-dump ()
   "Dump a typical fabricated dictionary."
   (interactive)
@@ -449,6 +469,7 @@ STATE is the current compiler state."
 		    (prin1 entry)
 		    ;(princ "\n")
 		    ))
+	     (terpri)
 	     )
 	   (oref dict namehash))
   )

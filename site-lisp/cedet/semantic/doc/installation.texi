@@ -34,7 +34,7 @@ enabling your preferred subset individually in your @file{.emacs} file.
 @anchor{semantic-load-enable-minimum-features}
 Enable the minimum number of semantic features for basic usage.
 
-These minimum features are designed to allow @semantic{} to to
+These minimum features are designed to allow @semantic{} to 
 maintain the parsing data necessary needed by various tools while
 intruding on your typical editing practices as little as possible.
 
@@ -66,7 +66,7 @@ This includes:
 @item semanticdb backend support 
 Using exuberent ctags as a semanticdb backend allows for faster
 first-time parsing of files for supported languages, such as C/C++.
-@item buffer parsing using ectags for somoe modes.
+@item buffer parsing using ectags for some modes.
 Some languages do not have regular all Lisp Semantic parsers.  This
 command enables the use of Exuberent ctags as the main parser for some
 languages, such as for Borne Shell scripts.
@@ -287,7 +287,7 @@ If any of these functions returns non-@code{nil}, the current buffer is not
 setup to use Semantic.
 @end defvar
 
-You could have this inihibit parsing in very large files, or files
+You could have this inhibit parsing in very large files, or files
 which cause particular problems to semantic.
 
 

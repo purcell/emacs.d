@@ -1,8 +1,8 @@
 ;;; semantic-fw.el --- Framework for Semantic
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
-;; X-CVS: $Id: semantic-fw.el,v 1.67 2008/11/28 20:03:14 zappo Exp $
+;; X-CVS: $Id: semantic-fw.el,v 1.70 2009/01/20 02:32:39 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -232,12 +232,17 @@ Remove self from `post-command-hook' if it is empty."
   "Test the data cache."
   (interactive)
   (let ((data '(a b c)))
-    (semantic-cache-data-to-buffer (current-buffer) (point) (+ (point) 5)
-				   data 'moose 'exit-cache-zone)
-    (if (equal (semantic-get-cache-data 'moose) data)
-	(message "Successfully retrieved cached data.")
-      (error "Failed to retrieve cached data"))
-    ))
+    (save-excursion
+      (set-buffer (get-buffer-create " *semantic-test-data-cache*"))
+      (erase-buffer)
+      (insert "The Moose is Loose")
+      (goto-char (point-min))
+      (semantic-cache-data-to-buffer (current-buffer) (point) (+ (point) 5)
+				     data 'moose 'exit-cache-zone)
+      (if (equal (semantic-get-cache-data 'moose) data)
+	  (message "Successfully retrieved cached data.")
+	(error "Failed to retrieve cached data"))
+      )))
 
 ;;; Obsoleting various functions & variables
 ;;
@@ -274,7 +279,7 @@ will throw a warning when it encounters this symbol."
 Mark OLDVARALIAS as obsolete, such that the byte compiler
 will throw a warning when it encounters this symbol."
   (make-obsolete-variable oldvaralias newvar)
-  (condition-case err
+  (condition-case nil
       (defvaralias oldvaralias newvar)
     (error
      ;; Only throw this warning when byte compiling things.
@@ -399,7 +404,8 @@ calling this one."
 		 (message "Looping ... press a key to test")
 		 (semantic-throw-on-input 'test-inner-loop))
 	       'exit)))
-  (when (input-pending-p) (read-event))
+  (when (input-pending-p) 
+    (when (fboundp 'read-event) (read-event) (read-char)))
   )
 
 ;;; Special versions of Find File

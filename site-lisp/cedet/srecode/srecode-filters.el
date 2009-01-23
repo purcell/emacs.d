@@ -1,6 +1,6 @@
 ;;; srecode-filters.el --- Filteres for use in template variables.
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -43,8 +43,7 @@
 ;;;###autoload
 (defun srecode-comment-prefix (str)
   "Prefix each line of STR with the comment prefix characters."
-  (let* ((tpl (srecode-peek srecode-template))
-	 (dict srecode-inserter-variable-current-dictionary)
+  (let* ((dict srecode-inserter-variable-current-dictionary)
 	 ;; Derive the comment characters to put in front of each line.
 	 (cs (or (and dict
 		      (srecode-dictionary-lookup-name dict "comment_prefix"))

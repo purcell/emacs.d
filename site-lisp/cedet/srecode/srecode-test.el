@@ -1,9 +1,9 @@
 ;;; srecode-test.el --- SRecode Core Template tests.
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-test.el,v 1.3 2008/10/10 21:45:27 zappo Exp $
+;; X-RCS: $Id: srecode-test.el,v 1.6 2009/01/20 03:50:19 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -62,7 +62,7 @@ Assumes that the current buffer is the testing buffer."
       (setq start (point))
       (replace-match ""))
     (when (re-search-forward "!" nil t)
-      (push-mark (match-beginning 0))
+      (push-mark (match-beginning 0) t t)
       (replace-match ""))
     (when start (goto-char start)))
 
@@ -187,6 +187,15 @@ Random text in the new template
 bind \"a\""
     :dict-entries '( "NAME" "newtemplate" "KEY" "a" )
     )
+   (srecode-utest-output
+    "column-data" :name "column-data"
+    :output "Table of Values:
+Left Justified       | Right Justified
+FIRST                |                FIRST
+VERY VERY LONG STRIN | VERY VERY LONG STRIN
+MIDDLE               |               MIDDLE
+S                    |                    S
+LAST                 |                 LAST")
    )
   "Test point entries for the template output tests.")
 
@@ -214,15 +223,18 @@ bind \"a\""
 	  (error "No template table found for mode %s" major-mode))
 
       ;; Loop over the output testpoints.
-      (cedet-utest-log-start "srecode: templates")
+      ;;(cedet-utest-log-start "srecode: templates")
+      (cedet-utest-log-setup "SRECODE Templates")
+
       (dolist (p srecode-utest-output-entries)
 	(srecode-utest-test p)
 	)
 
+      (cedet-utest-log-shutdown 
+       "SRECODE Templates"
+       nil ; How to detect a problem?
+       )
       )))
-
-
-
 
 
 

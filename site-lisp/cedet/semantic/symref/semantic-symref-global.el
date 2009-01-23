@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Eric Ludlam
 
 ;; Author: Eric Ludlam <eludlam@mathworks.com>
-;; X-RCS: $Id: semantic-symref-global.el,v 1.5 2008/12/04 02:07:48 zappo Exp $
+;; X-RCS: $Id: semantic-symref-global.el,v 1.6 2008/12/13 17:24:35 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -35,7 +35,9 @@
   "A symref tool implementation using GNU Global.
 The gnu GLOBAL command can be used to generate lists of tags in a way
 similar to that of `grep'.  This tool will parse the output to generate
-the hit list.")
+the hit list.
+
+See the function `cedet-gnu-global-search' for more details.")
 
 (defmethod semantic-symref-perform-search ((tool semantic-symref-tool-global))
   "Perform a search with GNU Global."
@@ -51,7 +53,8 @@ the hit list.")
 (defmethod semantic-symref-parse-tool-output-one-line ((tool semantic-symref-tool-global))
   "Parse one line of grep output, and return it as a match list.
 Moves cursor to end of the match."
-  (cond ((eq (oref tool :resulttype) 'file)
+  (cond ((or (eq (oref tool :resulttype) 'file)
+	     (eq (oref tool :searchtype) 'tagcompletions))
 	 ;; Search for files
 	 (when (re-search-forward "^\\([^\n]+\\)$" nil t)
 	   (match-string 1)))

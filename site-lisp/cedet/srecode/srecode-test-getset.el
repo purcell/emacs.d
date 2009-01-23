@@ -1,9 +1,9 @@
 ;;; srecode-test-getset.el --- Test the getset inserter.
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-test-getset.el,v 1.2 2008/10/10 21:44:35 zappo Exp $
+;; X-RCS: $Id: srecode-test-getset.el,v 1.3 2009/01/20 03:49:26 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ private:
   "Test various template insertion options."
   (interactive)
 
-  (cedet-utest-log-start "srecode: getset")
+  (cedet-utest-log-setup "SRECODE Get/Set")
 
   (save-excursion
     (let ((testbuff (find-file-noselect srecode-utest-getset-testfile))
@@ -103,6 +103,7 @@ private:
       (srecode-utest-getset-jumptotag "fStartingField")
       (end-of-line)
       (insert "\n")
+
       (srecode-insert-getset nil "AutoInsertField")
 
       (cedet-utest-log " * Post get-set \"AutoInsertField\"")
@@ -125,7 +126,10 @@ private:
 	(re-search-forward "miscFunction" pos))
       
       ))
-  (message "All tests passed!")
+  (cedet-utest-log-shutdown 
+   "SRECODE Get/Set"
+   nil ; How to detect a problem?
+   )
   )
 
 (defun srecode-utest-getset-tagcheck (expected-members)

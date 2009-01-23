@@ -11,7 +11,7 @@ ede_FILES=Project.ede Makefile
 
 symref_LISP=semantic-symref.el semantic-symref-global.el semantic-symref-grep.el semantic-symref-list.el
 EMACS=emacs
-LOADPATH= ../../ede/ ../../common/ ../bovine/ ../ ../../eieio/
+LOADPATH= ../../speedbar/ ../../ede/ ../../common/ ../bovine/ ../ ../../eieio/
 VERSION=2.0pre5
 DISTDIR=$(top)semantic-$(VERSION)/symref
 

@@ -1,10 +1,10 @@
 ;;; semantic-complete.el --- Routines for performing tag completion
 
-;;; Copyright (C) 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-complete.el,v 1.56 2008/12/09 19:38:14 zappo Exp $
+;; X-RCS: $Id: semantic-complete.el,v 1.58 2009/01/09 23:04:43 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -225,8 +225,6 @@ HISTORY is a symbol representing a variable to story the history in."
 	 (semantic-completion-display-engine displayor)
 	 (semantic-complete-active-default nil)
 	 (semantic-complete-current-matched-tag nil)
-	 (ans nil)
-	 (tag nil)
 	 (default-as-tag (semantic-complete-default-to-tag default-tag))
 	 (default-as-string (when (semantic-tag-p default-as-tag)
 			      (semantic-tag-name default-as-tag)))
@@ -252,14 +250,13 @@ HISTORY is a symbol representing a variable to story the history in."
     ;; Perform the Completion
     ;;
     (unwind-protect
-	(setq ans
-	      (read-from-minibuffer prompt
-				    initial-input
-				    semantic-complete-key-map
-				    nil
-				    (or history
-					'semantic-completion-default-history)
-				    default-tag))
+	(read-from-minibuffer prompt
+			      initial-input
+			      semantic-complete-key-map
+			      nil
+			      (or history
+				  'semantic-completion-default-history)
+			      default-tag)
       (semantic-collector-cleanup semantic-completion-collector-engine)
       (semantic-displayor-cleanup semantic-completion-display-engine)
       )
@@ -343,7 +340,6 @@ Return value can be:
   (let ((collector semantic-completion-collector-engine)
 	(displayor semantic-completion-display-engine)
 	(contents (semantic-completion-text))
-	match
 	matchlist
 	answer)
     (if (string= contents "")
@@ -1734,7 +1730,6 @@ completion text in ghost text."
   (let* ((tablelength (semanticdb-find-result-length (oref obj table)))
 	 (focus (semantic-displayor-focus-tag obj))
 	 (tag (car focus))
-	 (table (cdr focus))
 	 )
     (if (not tag)
 	(semantic-completion-message "No tags to focus on.")
@@ -2069,6 +2064,9 @@ will perform the completion."
   (if (and (interactive-p)
 	   (not (semantic-completion-inline-active-p)))
       (message "Inline completion not needed."))
+  ;; Since this is most likely bound to something, and not used
+  ;; at idle time, throw in a TAB for good measure.
+  (semantic-complete-inline-TAB)
   )
 
 ;;;###autoload

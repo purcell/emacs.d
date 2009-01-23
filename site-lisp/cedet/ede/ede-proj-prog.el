@@ -1,10 +1,10 @@
 ;;; ede-proj-prog.el --- EDE Generic Project program support
 
-;;;  Copyright (C) 1998, 1999, 2000, 2001, 2005  Eric M. Ludlam
+;;;  Copyright (C) 1998, 1999, 2000, 2001, 2005, 2008  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-proj-prog.el,v 1.9 2005/09/30 20:17:06 zappo Exp $
+;; RCS: $Id: ede-proj-prog.el,v 1.10 2008/12/28 22:14:04 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 	   :type list
 	   :custom (repeat (string :tag "Library"))
 	   :documentation
-	   "Libraries, such as \"m\" or \"Xt\" which this program dependso on.
+	   "Libraries, such as \"m\" or \"Xt\" which this program depends on.
 The linker flag \"-l\" is automatically prepended.  Do not include a \"lib\"
 prefix, or a \".so\" suffix.
 

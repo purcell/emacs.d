@@ -1,9 +1,9 @@
 ;;; ede-load.el --- Autoload definitions for EDE
 
-;;; Copyright (C) 2003 David Ponce
+;;; Copyright (C) 2003, 2009 David Ponce
 
 ;; Author: David Ponce <david@dponce.com>
-;; X-RCS: $Id: ede-load.el,v 1.2 2005/09/30 20:16:27 zappo Exp $
+;; X-RCS: $Id: ede-load.el,v 1.3 2009/01/10 13:30:15 zappo Exp $
 
 ;; EDE is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -26,6 +26,13 @@
 
 ;;; Code:
 ;;
+;; We need to load the base EDE tools for XEmacs which sorts
+;; the files differently in the autoloads file.
+;;
+;; This isn't that big a deal since the act of reading in the autoloads
+;; happens to have the effect of loading EDE anyway, so this saves us
+;; the trouble.
+(require 'ede)
 
 ;;; EDE autoloads
 ;;

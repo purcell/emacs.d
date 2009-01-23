@@ -18,7 +18,7 @@
    (ede-proj-target-elisp "ede"
     :name "ede"
     :path ""
-    :source '("ede.el" "ede-dired.el" "ede-source.el" "ede-util.el" "ede-system.el" "ede-speedbar.el" "ede-srecode.el" "ede-files.el")
+    :source '("ede.el" "ede-dired.el" "ede-source.el" "ede-util.el" "ede-system.el" "ede-speedbar.el" "ede-srecode.el" "ede-files.el" "ede-locate.el")
     :versionsource '("ede.el")
     :aux-packages '("eieio" "speedbar" "cedet-files" "srecode")
     )
@@ -31,7 +31,7 @@
    (ede-proj-target-elisp "projects"
     :name "projects"
     :path ""
-    :source '("project-am.el" "ede-simple.el" "ede-cpp-root.el" "ede-emacs.el")
+    :source '("project-am.el" "ede-simple.el" "ede-cpp-root.el" "ede-emacs.el" "ede-linux.el")
     :aux-packages '("eieio" "cedet-files")
     )
    (ede-proj-target-elisp "aux-lisp"
@@ -42,7 +42,7 @@
    (ede-proj-target-aux "misc"
     :name "misc"
     :path ""
-    :source '("NEWS" "README" "TODO" "ede-proj-skel.el" "ChangeLog")
+    :source '("README" "TODO" "ede-proj-skel.el" "ChangeLog")
     )
    (ede-proj-target-makefile-info "ede"
     :name "ede.info"

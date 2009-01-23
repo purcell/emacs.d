@@ -5,7 +5,7 @@
 ;; Maintainer: Eric M. Ludlam <eludlam@mathworks.com>
 ;; Keywords: lisp
 ;;
-;; Copyright (C) 2003, 2004, 2005 Eric M. Ludlam
+;; Copyright (C) 2003, 2004, 2005, 2009 Eric M. Ludlam
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -139,7 +139,6 @@ Works on grep, compile, or other type mode."
             line
             (face nil)
             (case-fold-search t)
-            (entry nil)
             (txt nil)
             )
 
@@ -202,15 +201,14 @@ Works on grep, compile, or other type mode."
 		  ))
 	    (error nil))
 
-	  (setq entry
-		(linemark-add-entry
-		 lmcompile-error-group
-		 :filename file
-		 :line line
-		 :errormarker errmark
-		 :face face
-		 :errmsg txt
-		 ))
+	  (linemark-add-entry
+	   lmcompile-error-group
+	   :filename file
+	   :line line
+	   :errormarker errmark
+	   :face face
+	   :errmsg txt
+	   )
 
 	  ))
       (setq marks (cdr marks)))))

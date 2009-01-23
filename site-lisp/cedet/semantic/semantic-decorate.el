@@ -1,10 +1,10 @@
 ;;; semantic-decorate.el --- Utilities for decorating/highlighting tokens.
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-decorate.el,v 1.16 2007/08/14 02:19:18 zappo Exp $
+;; X-RCS: $Id: semantic-decorate.el,v 1.17 2009/01/09 23:05:41 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -209,7 +209,6 @@ generated secondary overlay."
       nil
     (let* ((os (semantic-tag-start tag))
 	   (oe (semantic-tag-end tag))
-	   (to (semantic-tag-overlay tag))
 	   (o (semantic-make-overlay os oe (semantic-tag-buffer tag)))
 	   (attr (semantic-tag-secondary-overlays tag))
 	   )

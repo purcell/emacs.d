@@ -53,6 +53,11 @@
     :versionsource '("cogre.el")
     :aux-packages '("eieio" "semantic" "semantic-el" "inversion" "speedbar")
     )
+   (ede-proj-target-elisp "tests"
+    :name "tests"
+    :path ""
+    :source '("cogre-utest.el")
+    )
    )
   :web-site-url "http://cedet.sourceforge.net/cogre.shtml"
   :web-site-directory "/r@scp:shell.sourceforge.net:cedet/htdocs"

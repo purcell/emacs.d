@@ -1,9 +1,9 @@
 ;;; data-debug.el --- Datastructure Debugger
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: data-debug.el,v 1.10 2008/12/10 22:00:05 zappo Exp $
+;; X-RCS: $Id: data-debug.el,v 1.14 2009/01/20 02:46:43 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -74,7 +74,7 @@ PREFIX specifies what to insert at the start of each line."
   "Insert the overlay found at the overlay button at POINT."
   (let ((overlay (get-text-property point 'ddebug))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -82,7 +82,6 @@ PREFIX specifies what to insert at the start of each line."
     (data-debug-insert-overlay-props overlay
 				     (concat (make-string indent ? )
 					     "| "))
-    (setq end (point))
     (goto-char start)
     ))
 
@@ -122,7 +121,7 @@ PREFIX specifies what to insert at the start of each line."
   "Insert the overlay found at the overlay list button at POINT."
   (let ((overlaylist (get-text-property point 'ddebug))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -130,7 +129,6 @@ PREFIX specifies what to insert at the start of each line."
     (data-debug-insert-overlay-list overlaylist
 				    (concat (make-string indent ? )
 					    "* "))
-    (setq end (point))
     (goto-char start)
     ))
 
@@ -180,7 +178,7 @@ PREFIX specifies what to insert at the start of each line."
   "Insert the buffer found at the buffer button at POINT."
   (let ((buffer (get-text-property point 'ddebug))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -188,7 +186,6 @@ PREFIX specifies what to insert at the start of each line."
     (data-debug-insert-buffer-props buffer
 				     (concat (make-string indent ? )
 					     "| "))
-    (setq end (point))
     (goto-char start)
     ))
 
@@ -228,7 +225,7 @@ PREFIX specifies what to insert at the start of each line."
   "Insert the buffer found at the buffer list button at POINT."
   (let ((bufferlist (get-text-property point 'ddebug))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -236,7 +233,6 @@ PREFIX specifies what to insert at the start of each line."
     (data-debug-insert-buffer-list bufferlist
 				    (concat (make-string indent ? )
 					    "* "))
-    (setq end (point))
     (goto-char start)
     ))
 
@@ -287,7 +283,7 @@ PREFIX specifies what to insert at the start of each line."
   "Insert the process found at the process button at POINT."
   (let ((process (get-text-property point 'ddebug))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -295,7 +291,6 @@ PREFIX specifies what to insert at the start of each line."
     (data-debug-insert-process-props process
 				     (concat (make-string indent ? )
 					     "| "))
-    (setq end (point))
     (goto-char start)
     ))
 
@@ -338,7 +333,7 @@ PREFIX specifies what to insert at the start of each line."
   "Insert the ring found at the ring button at POINT."
   (let ((ring (get-text-property point 'ddebug))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -346,7 +341,6 @@ PREFIX specifies what to insert at the start of each line."
     (data-debug-insert-ring-contents ring
 				     (concat (make-string indent ? )
 					     "} "))
-    (setq end (point))
     (goto-char start)
     ))
 
@@ -389,6 +383,57 @@ PREBUTTONTEXT is some text between prefix and the stuff list button."
     )
   )
 
+
+;;; Hash-table 
+;;
+
+;;;###autoload
+(defun data-debug-insert-hash-table (hash-table prefix)
+  "Insert the contents of HASH-TABLE inserting PREFIX before each element."
+  (maphash
+   (lambda (key value)
+     (data-debug-insert-thing 
+      key prefix
+      (propertize "key " 'face font-lock-comment-face))
+     (data-debug-insert-thing 
+      value prefix
+      (propertize "val " 'face font-lock-comment-face)))
+   hash-table))
+
+(defun data-debug-insert-hash-table-from-point (point)
+  "Insert the contents of the hash-table button at POINT."
+  (let ((hash-table (get-text-property point 'ddebug))
+	(indent     (get-text-property point 'ddebug-indent))
+	start)
+    (end-of-line)
+    (setq start (point))
+    (forward-char 1)
+    (data-debug-insert-hash-table
+     hash-table
+     (concat (make-string indent ? ) "> "))
+    (goto-char start))
+  )
+
+(defun data-debug-insert-hash-table-button (hash-table prefix prebuttontext)
+  "Insert HASH-TABLE as expandable button with recursive prefix PREFIX and PREBUTTONTEXT in front of the button text."
+  (let ((string (propertize (format "%s" hash-table)
+			    'face 'font-lock-keyword-face)))
+    (insert (propertize 
+	     (concat prefix prebuttontext string)
+	     'ddebug        hash-table
+	     'ddebug-indent (length prefix)
+	     'ddebug-prefix prefix
+	     'help-echo
+	     (format "Hash-table\nTest: %s\nWeakness: %s\nElements: %d (of %d)"
+		     (hash-table-test hash-table)
+		     (if (hash-table-weakness hash-table) "yes" "no")
+		     (hash-table-count hash-table)
+		     (hash-table-size hash-table))
+	     'ddebug-function
+	     'data-debug-insert-hash-table-from-point)
+	    "\n"))
+  )
+
 ;;; list of stuff
 ;;
 ;; just a list.  random stuff inside.
@@ -411,7 +456,7 @@ PREFIX specifies what to insert at the start of each line."
   "Insert the stuff found at the stuff list button at POINT."
   (let ((stufflist (get-text-property point 'ddebug))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -419,7 +464,6 @@ PREFIX specifies what to insert at the start of each line."
     (data-debug-insert-stuff-list stufflist
 				  (concat (make-string indent ? )
 					  "> "))
-    (setq end (point))
     (goto-char start)
     ))
 
@@ -452,20 +496,69 @@ PREBUTTONTEXT is some text between prefix and the stuff list button."
     )
   )
 
+;;; Symbol
+;;
+
+(defun data-debug-insert-symbol-from-point (point)
+  "Insert attached properties and possibly the value of symbol at POINT."
+  (let ((symbol (get-text-property point 'ddebug))
+	(indent (get-text-property point 'ddebug-indent))
+	start)
+    (end-of-line)
+    (setq start (point))
+    (forward-char 1)
+    (when (and (not (fboundp symbol)) (boundp symbol))
+      (data-debug-insert-thing
+       (symbol-value symbol)
+       (concat (make-string indent ? ) "> ")
+       (concat 
+	(propertize "value"
+		    'face 'font-lock-comment-face)
+	" ")))
+    (data-debug-insert-property-list 
+     (symbol-plist symbol)
+     (concat (make-string indent ? ) "> "))
+    (goto-char start))
+  )
+
+(defun data-debug-insert-symbol-button (symbol prefix prebuttontext)
+  "Insert a button representing SYMBOL.
+ PREFIX is the text that preceeds the button.
+ PREBUTTONTEXT is some text between prefix and the symbol button."
+  (let ((string
+	 (cond ((fboundp symbol)
+		(propertize (concat "#'" (symbol-name symbol))
+			    'face 'font-lock-function-name-face))
+	       ((boundp symbol)
+		(propertize (concat "'" (symbol-name symbol))
+			    'face 'font-lock-variable-name-face))
+	       (t (format "'%s" symbol)))))
+    (insert (propertize 
+	     (concat prefix prebuttontext string)
+	     'ddebug          symbol
+	     'ddebug-indent   (length prefix)
+	     'ddebug-prefix   prefix
+	     'help-echo       ""
+	     'ddebug-function
+	     'data-debug-insert-symbol-from-point)
+	    "\n"))
+  )
+
 ;;; String
 (defun data-debug-insert-string (thing prefix prebuttontext)
   "Insert one symbol THING.
 A Symbol is a simple thing, but this provides some face and prefix rules.
 PREFIX is the text that preceeds the button.
 PREBUTTONTEXT is some text between prefix and the thing."
-  (insert prefix prebuttontext)
-  (let ((start (point))
-	(end nil))
-    (insert (format "\"%s\"" thing))
-    (setq end (point))
-    (insert "\n" )
-    (put-text-property start end 'face font-lock-string-face)
-    ))
+  (let ((newstr thing))
+    (while (string-match "\n" newstr)
+      (setq newstr (replace-match "\\n" t t newstr)))
+    (while (string-match "\t" newstr)
+      (setq newstr (replace-match "\\t" t t newstr)))
+    (insert prefix prebuttontext
+	    (propertize (format "\"%s\"" newstr)
+			'face font-lock-string-face)
+	    "\n" )))
 
 ;;; Number
 (defun data-debug-insert-number (thing prefix prebuttontext)
@@ -473,37 +566,10 @@ PREBUTTONTEXT is some text between prefix and the thing."
 A Symbol is a simple thing, but this provides some face and prefix rules.
 PREFIX is the text that preceeds the button.
 PREBUTTONTEXT is some text between prefix and the thing."
-  (insert prefix prebuttontext)
-  (let ((start (point))
-	(end nil))
-    (insert (format "%S" thing))
-    (setq end (point))
-    (insert "\n" )
-    (put-text-property start end 'face font-lock-string-face)
-    ))
-
-;;; Symbol
-(defun data-debug-insert-symbol (thing prefix prebuttontext)
-  "Insert one symbol THING.
-A Symbol is a simple thing, but this provides some face and prefix rules.
-PREFIX is the text that preceeds the button.
-PREBUTTONTEXT is some text between prefix and the thing."
-  (cond ((fboundp thing)
-	 (data-debug-insert-simple-thing
-	  thing prefix (concat prebuttontext "#'")
-	  'font-lock-function-name-face)
-	 )
-	((boundp thing)
-	 (data-debug-insert-simple-thing
-	  thing prefix (concat prebuttontext "'")
-	  'font-lock-variable-name-face))
-	(t
-	 (data-debug-insert-simple-thing
-	  thing prefix (concat prebuttontext "'")
-	  nil)
-	 )
-	)
-  )
+  (insert prefix prebuttontext
+	  (propertize (format "%S" thing)
+		      'face font-lock-string-face)
+	  "\n"))
 
 ;;; Lambda Expression
 (defun data-debug-insert-lambda-expression (thing prefix prebuttontext)
@@ -572,28 +638,28 @@ FACE is the face to use."
     ;; Overlay
     (data-debug-overlay-p . data-debug-insert-overlay-button)
 
-    ;; overlay list
+    ;; Overlay list
     ((lambda (thing) (and (consp thing) (data-debug-overlay-p (car thing)))) .
      data-debug-insert-overlay-list-button)
 
-    ;; Overlay
+    ;; Buffer
     (bufferp . data-debug-insert-buffer-button)
 
-    ;; overlay list
+    ;; Buffer list
     ((lambda (thing) (and (consp thing) (bufferp (car thing)))) .
      data-debug-insert-buffer-list-button)
 
-    ;; process
+    ;; Process
     (processp . data-debug-insert-process-button)
 
     ;; String
     (stringp . data-debug-insert-string)
 
-    ;; Numbers
+    ;; Number
     (numberp . data-debug-insert-number)
 
     ;; Symbol
-    (symbolp . data-debug-insert-symbol)
+    (symbolp . data-debug-insert-symbol-button)
 
     ;; Ring
     (ring-p . data-debug-insert-ring-button)
@@ -602,6 +668,9 @@ FACE is the face to use."
     ((lambda (thing) (and (consp thing) (eq (car thing) 'lambda))) .
      data-debug-insert-lambda-expression)
 
+    ;; Hash-table
+    (hash-table-p . data-debug-insert-hash-table-button)
+     
     ;; List of stuff
     (listp . data-debug-insert-stuff-list-button)
     )
@@ -801,9 +870,7 @@ Do nothing if already expanded."
 (defun data-debug-expand-or-contract-mouse (event)
   "Expand or contract anything at event EVENT."
   (interactive "e")
-  (let* ((startwin (selected-window))
-	 (win (car (car (cdr event))))
-	 (eb (window-buffer win))
+  (let* ((win (car (car (cdr event))))
 	 )
     (select-window win t)
     (save-excursion
@@ -819,15 +886,54 @@ Do nothing if already expanded."
 ;;;###autoload
 (defun data-debug-edebug-expr (expr)
   "Dump out the contets of some expression EXPR in edebug with ddebug."
-  (interactive "sExpression: ")
-  (let ((v (eval (read expr)))
-	(ab nil))
+  (interactive
+   (list (let ((minibuffer-completing-symbol t))
+	   (read-from-minibuffer "Eval: "
+				 nil read-expression-map t
+				 'read-expression-history))
+	 ))
+  (let ((v (eval expr)))
     (if (not v)
 	(message "Expression %s is nil." expr)
-      (setq ab (data-debug-new-buffer "*expression DDEBUG*"))
+      (data-debug-new-buffer "*expression DDEBUG*")
       (data-debug-insert-thing v "?" "")
       )))
-  
+
+;;;###autoload
+(defun data-debug-eval-expression (expr)
+  "Evaluate EXPR and display the value.
+If the result is something simple, show it in the echo area.
+If the result is a list or vector, then use the data debugger to display it."
+  (interactive
+   (list (let ((minibuffer-completing-symbol t))
+	   (read-from-minibuffer "Eval: "
+				 nil read-expression-map t
+				 'read-expression-history))
+	 ))
+
+  (if (null eval-expression-debug-on-error)
+      (setq values (cons (eval expr) values))
+    (let ((old-value (make-symbol "t")) new-value)
+      ;; Bind debug-on-error to something unique so that we can
+      ;; detect when evaled code changes it.
+      (let ((debug-on-error old-value))
+	(setq values (cons (eval expr) values))
+	(setq new-value debug-on-error))
+      ;; If evaled code has changed the value of debug-on-error,
+      ;; propagate that change to the global binding.
+      (unless (eq old-value new-value)
+	(setq debug-on-error new-value))))
+
+  (if (or (consp (car values)) (vectorp (car values)))
+      (let ((v (car values)))
+	(data-debug-new-buffer "*Expression*")
+	(data-debug-insert-thing v "?" ""))
+    ;; Old style
+    (prog1
+	(prin1 (car values) t)
+      (let ((str (eval-expression-print-format (car values))))
+	(if str (princ str t))))))
+
 
 (provide 'data-debug)
 

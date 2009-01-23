@@ -20,6 +20,9 @@ REQUIREMENTS:
    If you use a binary install of Emacs, you may need the .el
    files for Emacs available for some aspects of the build.
 
+   CEDET is always developed on a recent CVS build of Emacs, and often
+   takes advantage of such new features.
+
 INSTALL:
 
 You can install all these packagees at once with the CEDET build and
@@ -40,8 +43,9 @@ install scripts:
 
   c) make MAKEINFO=/usr/local/bin/makeinfo
 
-    Note: For speedbar, you may also need to byte-compile the version
-    of INFO and RMAIL that come with your version of emacs.
+    Note: For speedbar, and older versions of Emacs, you may also need
+          to byte-compile the version of INFO and RMAIL that come with
+          your version of emacs.
 
   d) make MAKEINFO=echo
 
@@ -57,7 +61,7 @@ install scripts:
 
 2.1) Build Issues
 
-  If running MAKE fails due to other issues such as bad load def
+  If running MAKE fails due to other issues such as bad loaddef
   files, custom-autoload, incomprehensible run time errors during a byte
   compilation, try these steps, then go back to step 2.
 
@@ -68,7 +72,8 @@ install scripts:
 
   If the version of Make you are using doesn't work with the CEDET
   Makefiles, (such as the version on AIX) you will need to download and
-  install GNU Make to use with these Makefiles.
+  install GNU Make to use with these Makefiles.  Alternately, 
+  see cedet-build.el
 
 3) Install load hooks into your .emacs file.  For more detail on
    any topic, see the info file common/cedet.info for more details on
@@ -82,6 +87,7 @@ install scripts:
 
 ;; Enable EDE (Project Management) features
 (global-ede-mode 1)
+
 ;; Enable EDE for a pre-existing C++ project
 ;; (ede-cpp-root-project "NAME" :file "~/myproject/Makefile")
 
@@ -98,7 +104,7 @@ install scripts:
 
 ;; * This enables even more coding tools such as the nascent intellisense mode
 ;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-;; (semantic-load-enable-guady-code-helpers)
+;; (semantic-load-enable-gaudy-code-helpers)
 
 ;; * This enables the use of Exuberent ctags if you have it installed.
 ;; (semantic-load-enable-all-exuberent-ctags-support)
@@ -178,3 +184,8 @@ OTHER REQUIREMENTS:
    To use the graphviz dot parser:
    graphviz-dot-mode.el: See the commentary in cogre/wisent-dot.el
 
+   To use Exuberent CTags to parse files:
+   http://ctags.sourceforge.net/
+
+   To use GNU Global integration:
+   http://www.gnu.org/software/global

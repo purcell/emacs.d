@@ -1,9 +1,9 @@
 ;;; semantic-adebug.el --- Semantic Application Debugger
 
-;; Copyright (C) 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-adebug.el,v 1.23 2008/10/10 21:29:49 zappo Exp $
+;; X-RCS: $Id: semantic-adebug.el,v 1.26 2009/01/20 02:27:13 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -34,6 +34,7 @@
 ;; Allow interactive navigation of the analysis process, tags, etc.
 
 (require 'data-debug)
+(require 'eieio-datadebug)
 (require 'semantic-analyze)
 
 ;;; Code:
@@ -85,7 +86,7 @@ PARENT specifires any parent tag."
   (let ((tag (get-text-property point 'ddebug))
 	(parent (get-text-property point 'ddebug-parent))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -94,7 +95,6 @@ PARENT specifires any parent tag."
 				 (concat (make-string indent ? )
 					 "| ")
 				 parent)
-    (setq end (point))
     (goto-char start)
     ))
 
@@ -143,7 +143,7 @@ Optional argument PARENT specifies the part of TAGLIST."
   (let ((taglist (get-text-property point 'ddebug))
 	(parent (get-text-property point 'ddebug-parent))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -152,7 +152,6 @@ Optional argument PARENT specifies the part of TAGLIST."
 				(concat (make-string indent ? )
 					"* ")
 				parent)
-    (setq end (point))
     (goto-char start)
 
     ))
@@ -201,7 +200,7 @@ PARENT is the tag that represents the parent of all the tags."
   "Insert the find results found at the find results button at POINT."
   (let ((findres (get-text-property point 'ddebug))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -210,7 +209,6 @@ PARENT is the tag that represents the parent of all the tags."
 				    (concat (make-string indent ? )
 					    "!* ")
 				    )
-    (setq end (point))
     (goto-char start)
     ))
 
@@ -231,7 +229,7 @@ PREBUTTONTEXT is some text between prefix and the find results button."
     (put-text-property start end 'ddebug-prefix prefix)
     (put-text-property start end 'help-echo tip)
     (put-text-property start end 'ddebug-function
-		       'data-debug-insert-taglist-from-point)
+		       'data-debug-insert-find-results-from-point)
     (insert "\n")
     ))
 
@@ -264,7 +262,7 @@ PREBUTTONTEXT is some text between prefix and the find results button."
   "Insert the find results found at the find results button at POINT."
   (let ((dbtag (get-text-property point 'ddebug))
 	(indent (get-text-property point 'ddebug-indent))
-	start end
+	start
 	)
     (end-of-line)
     (setq start (point))
@@ -274,7 +272,6 @@ PREBUTTONTEXT is some text between prefix and the find results button."
     (data-debug-insert-tag (cdr dbtag) (concat (make-string indent ? )
 					       "| ")
 			   "TAG ")
-    (setq end (point))
     (goto-char start)
     ))
 
@@ -287,14 +284,12 @@ PREBUTTONTEXT is some text between prefix and the find results button."
   (interactive)
   (let* ((start (current-time))
 	 (out (semantic-fetch-tags))
-	 (end (current-time))
-	 (ab (data-debug-new-buffer (concat "*"
-					    (buffer-name)
-					    " ADEBUG*")))
-	 )
+	 (end (current-time)))
+
     (message "Retrieving tags took %.2f seconds."
 	     (semantic-elapsed-time start end))
     
+    (data-debug-new-buffer (concat "*" (buffer-name) " ADEBUG*"))
     (data-debug-insert-tag-list out "* "))
   )
 
@@ -305,13 +300,14 @@ Display the results as a debug list."
   (interactive "sSymbol Regex: ")
   (let ((start (current-time))
 	(fr (semanticdb-find-tags-by-name-regexp regex))
-	(end (current-time))
-	(ab (data-debug-new-buffer (concat "*SEMANTICDB SEARCH: "
-					   regex
-					   " ADEBUG*"))))
+	(end (current-time)))
+
+    (data-debug-new-buffer (concat "*SEMANTICDB SEARCH: "
+				   regex
+				   " ADEBUG*"))
     (message "Search of tags took %.2f seconds."
 	     (semantic-elapsed-time start end))
-	     
+    
     (data-debug-insert-find-results fr "*")))
 
 ;;;###autoload
@@ -322,25 +318,26 @@ Optional argument CTXT is the context to show."
   (interactive)
   (let ((start (current-time))
 	(ctxt (or ctxt (semantic-analyze-current-context)))
-	(end (current-time))
-	(ab nil))
-    (message "Analysis  took %.2f seconds."
-	     (semantic-elapsed-time start end))
-    (if ctxt
-	(progn
-	  (setq ab (data-debug-new-buffer "*Analyzer ADEBUG*"))
-	  (data-debug-insert-object-slots ctxt "]"))
-      (message "No Context to analyze here."))))
+	(end (current-time)))
+    (if (not ctxt)
+	(message "No Analyzer Results")
+      (message "Analysis  took %.2f seconds."
+	       (semantic-elapsed-time start end))
+      (semantic-analyze-pulse ctxt)
+      (if ctxt
+	  (progn
+	    (data-debug-new-buffer "*Analyzer ADEBUG*")
+	    (data-debug-insert-object-slots ctxt "]"))
+	(message "No Context to analyze here.")))))
 
 ;;;###autoload
 (defun semantic-adebug-edebug-expr (expr)
   "Dump out the contets of some expression EXPR in edebug with adebug."
   (interactive "sExpression: ")
-  (let ((v (eval (read expr)))
-	(ab nil))
+  (let ((v (eval (read expr))))
     (if (not v)
 	(message "Expression %s is nil." expr)
-      (setq ab (data-debug-new-buffer "*expression ADEBUG*"))
+      (data-debug-new-buffer "*expression ADEBUG*")
       (data-debug-insert-thing v "?" "")
       )))
 
@@ -367,9 +364,9 @@ Optional argument CTXT is the context to show."
       (princ "\nDirectory Part is: ")
       (princ default-directory)
       (princ "\nFound Database is: ")
-      (princ (eieio-object-print db))
+      (princ (object-print db))
       (princ "\nFound Table is: ")
-      (if tab (princ (eieio-object-print tab)) (princ "nil"))
+      (if tab (princ (object-print tab)) (princ "nil"))
       (princ "\n\nAction Summary: ")
       (cond
        ((and tab

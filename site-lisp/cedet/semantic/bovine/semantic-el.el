@@ -1,9 +1,9 @@
 ;;; semantic-el.el --- Semantic details for Emacs Lisp
 
-;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008 Eric M. Ludlam
+;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-el.el,v 1.48 2008/09/01 15:07:53 zappo Exp $
+;; X-RCS: $Id: semantic-el.el,v 1.50 2009/01/10 00:13:51 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -182,7 +182,7 @@ See also `semantic-elisp-setup-form-parser'."
 Return a bovination list to use."
   (let* ((start (car sl))
          (end   (cdr sl))
-         (form  (read (buffer-substring start end))))
+         (form  (read (buffer-substring-no-properties start end))))
     (cond
      ;; If the first elt is a list, then it is some arbitrary code.
      ((listp (car form))
@@ -624,10 +624,11 @@ of `let' or `let*', grab those variable names."
 	  (forward-char 1)
 	  (forward-word 1)
 	  (skip-chars-forward "* \t\n")
-	  (let ((varlst (read (buffer-substring (point)
-						(save-excursion
-						  (forward-sexp 1)
-						  (point))))))
+	  (let ((varlst (read (buffer-substring-no-properties
+			       (point)
+			       (save-excursion
+				 (forward-sexp 1)
+				 (point))))))
 	    (while varlst
 	      (let* ((oneelt (car varlst))
 		     (name (if (symbolp oneelt)
@@ -815,7 +816,7 @@ fields and such to, but that is for some other day."
   "Return an abbreviated string describing tag."
   (let ((class (semantic-tag-class tag))
 	(name (semantic-format-tag-name tag parent color))
-	str)
+	)
     (cond
      ((eq class 'function)
       (concat "(" name ")"))
@@ -831,7 +832,7 @@ Make up something else.  When we go to write something that needs
 a real Emacs Lisp protype, we can fix it then."
   (let ((class (semantic-tag-class tag))
 	(name (semantic-format-tag-name tag parent color))
-	str)
+	)
     (cond
      ((eq class 'function)
       (let* ((args  (semantic-tag-function-arguments tag))

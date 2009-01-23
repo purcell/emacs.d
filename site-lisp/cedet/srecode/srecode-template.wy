@@ -1,10 +1,10 @@
 ;;; srecode-template.wy --- Semantic Recoder Template parser
 
-;; Copyright (C) 2005, 2007, 2008 Eric M. Ludlam
+;; Copyright (C) 2005, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: srecode-template.wy,v 1.9 2008/01/30 03:43:42 zappo Exp $
+;; X-RCS: $Id: srecode-template.wy,v 1.10 2009/01/09 23:01:54 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -64,7 +64,7 @@
 %token <separator> TEMPLATE_BLOCK "^----"
 
 ;;; Bland default types
-%type <property> ":\\(\\w\\|\\s_\\)+"
+%type <property> ":\\(\\w\\|\\s_\\)*"
 %token <property> property
 
 %type  <symbol>
@@ -201,7 +201,7 @@ opt-bind
 %%
 (define-lex-simple-regex-analyzer srecode-template-property-analyzer
   "Detect and create a dynamic argument properties."
-  ":\\(\\w\\|\\s_\\)+" 'property 0)
+  ":\\(\\w\\|\\s_\\)*" 'property 0)
 
 (define-lex-regex-analyzer srecode-template-separator-block
   "Detect and create a template quote block."

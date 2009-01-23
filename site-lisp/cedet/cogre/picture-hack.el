@@ -1,10 +1,10 @@
 ;;; picture-hack.el --- Updates to picture mode
 
-;;; Copyright (C) 2001 Eric M. Ludlam
+;;; Copyright (C) 2001, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: picture
-;; X-RCS: $Id: picture-hack.el,v 1.7 2005/09/30 20:07:01 zappo Exp $
+;; X-RCS: $Id: picture-hack.el,v 1.10 2009/01/20 03:40:43 zappo Exp $
 
 ;; Semantic is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -74,6 +74,33 @@
     :type 'character
     :group 'picture))
 
+(unless (boundp 'picture-rectangle-ctl)
+  (defcustom picture-rectangle-ctl   ?+
+    "*Character `picture-draw-rectangle' uses for top left corners."
+    :type 'character
+    :group 'picture))
+
+(unless (boundp 'picture-rectangle-ctr)
+  (defcustom picture-rectangle-ctr ?+
+    "*Character `picture-draw-rectangle' uses for top right corners."
+    :type 'character
+    :group 'picture)
+  )
+
+(unless (boundp 'picture-rectangle-cbr)
+  (defcustom picture-rectangle-cbr ?+
+    "*Character `picture-draw-rectangle' uses for bottom right corners."
+    :type 'character
+    :group 'picture)
+  )
+
+(unless (boundp 'picture-rectangle-cbl)
+  (defcustom picture-rectangle-cbl ?+
+    "*Character `picture-draw-rectangle' uses for bottom left corners."
+    :type 'character
+    :group 'picture)
+  )
+
 ;;; Changes to exsiting functions
 ;;
 (defun picture-insert-rectangle (rectangle &optional insertp)
@@ -91,8 +118,25 @@ Leaves the region surrounding the rectangle."
 			      (point)))))
     ;; This line is different from the one in Emacs 21, and enables
     ;; the mark to only be pushed if it is interactivly called.
-    (if (interactive-p) (push-mark))
-    (insert-rectangle rectangle)))
+    (if (interactive-p) (push-mark (point) t))
+    ;(picture-hack-insert-rectangle rectangle)
+    
+    (let ((lines rectangle)
+	  (insertcolumn (current-column))
+	  (first t))
+      (while lines
+	(or first
+	    (progn
+	      (forward-line 1)
+	      (or (bolp) (insert ?\n))
+	      (move-to-column insertcolumn t)))
+	(setq first nil)
+	;;(insert-for-yank (car lines))
+	;; No need for the above complication, as there are no yank-handlers.
+	(insert (car lines))
+	(setq lines (cdr lines))))
+    
+    ))
 
 (if (condition-case nil
 	(and (clear-rectangle 0 0 t)
@@ -208,13 +252,27 @@ The line is drawn in a rectilinear fashion."
 	  (if (/= y1 y2)
 	      (progn
 		(picture-set-motion ydir 0)
-		(apply 'picture-insert picture-rectangle-ctl 1
-		       textproperties)
+		(apply 'picture-insert
+		       (if (< x1 x2)
+			   (if (< y1 y2)
+			       picture-rectangle-ctr
+			     picture-rectangle-cbr)
+			 (if (< y1 y2)
+			     picture-rectangle-ctl
+			   picture-rectangle-cbl))
+		       1 textproperties)
 		(apply 'picture-insert picture-rectangle-v (1- (abs (- y1 y2)))
 		       textproperties)
 		(picture-set-motion 0 xdir)
-		(apply 'picture-insert picture-rectangle-ctl 1
-		       textproperties)
+		(apply 'picture-insert
+		       (if (< x1 x2)
+			   (if (< y1 y2)
+			       picture-rectangle-cbl
+			     picture-rectangle-ctl)
+			 (if (< y1 y2)
+			     picture-rectangle-cbr
+			   picture-rectangle-ctr))
+		       1 textproperties)
 		;;(setq halfway (1- halfway))
 		)
 	    (apply 'picture-insert picture-rectangle-h 1
@@ -232,13 +290,29 @@ The line is drawn in a rectilinear fashion."
       (if (/= x1 x2)
 	  (progn
 	    (picture-set-motion 0 xdir)
-	    (apply 'picture-insert picture-rectangle-ctl 1
-		   textproperties)
+	    (apply 'picture-insert
+		   (if (< y1 y2)
+		       (if (< x1 x2)
+			   picture-rectangle-cbl
+			 picture-rectangle-cbr
+			 )
+		     (if (< x1 x2)
+			 picture-rectangle-ctl
+		       picture-rectangle-ctr
+		       ))
+		   1 textproperties)
 	    (apply 'picture-insert picture-rectangle-h (1- (abs (- x1 x2)))
 		   textproperties)
 	    (picture-set-motion ydir 0)
-	    (apply 'picture-insert picture-rectangle-ctl 1
-		   textproperties)
+	    (apply 'picture-insert
+		   (if (< y1 y2)
+		       (if (< x1 x2)
+			   picture-rectangle-ctr
+			 picture-rectangle-ctl)
+		     (if (< x1 x2)
+			 picture-rectangle-cbr
+		       picture-rectangle-cbl))
+		   1 textproperties)
 	    ;(setq halfway (1- halfway))
 	    )
 	(apply 'picture-insert picture-rectangle-v 1
