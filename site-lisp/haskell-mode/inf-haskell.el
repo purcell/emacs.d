@@ -331,7 +331,11 @@ If prefix arg \\[universal-argument] is given, just reload the previous file."
              proc (concat ":cd " default-directory)))
           (setq file (file-relative-name file)))
 	(inferior-haskell-send-command
-         proc (if reload ":reload" (concat ":load \"" file "\"")))
+         proc (if reload ":reload"
+                (concat ":load \""
+                        ;; Espace the backslashes that may occur in file names.
+                        (replace-regexp-in-string "[\\\"]" "\\\\\&" file)
+                        "\"")))
 	;; Move the parsing-end marker *after* sending the command so
 	;; that it doesn't point just to the insertion point.
 	;; Otherwise insertion may move the marker (if done with
