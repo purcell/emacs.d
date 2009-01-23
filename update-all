@@ -10,6 +10,16 @@ for f in site-lisp/*/_darcs; do
   (cd $f/.. && darcs pull --all)
 done
 
+for f in site-lisp/*/.svn; do
+  echo '***' `dirname $f`
+  (cd $f/.. && svn up)
+done
+
+for f in site-lisp/*/CVS; do
+  echo '***' `dirname $f`
+  (cd $f/.. && cvs up -dP)
+done
+
 echo '***' rinari
 (cd site-lisp/rinari && git pull eschulte master)
 
