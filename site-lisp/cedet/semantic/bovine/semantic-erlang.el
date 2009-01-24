@@ -1,13 +1,13 @@
 ;;; semantic-erlang.el --- Semantic details for Erlang
 
-;; Copyright (C) 2001, 2002, 2003 Vladimir G. Sekissov
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 ;; Copyright (C) 2003 David Ponce
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2001, 2002, 2003 Vladimir G. Sekissov
 
 ;; Author: Vladimir G. Sekissov <svg@surnet.ru>
 ;;         David Ponce <david@dponce.com>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-erlang.el,v 1.5 2008/04/01 01:51:04 zappo Exp $
+;; X-RCS: $Id: semantic-erlang.el,v 1.7 2009/01/24 04:05:54 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -37,13 +37,12 @@
 (require 'semantic)
 (require 'backquote)
 (require 'semantic-erlang-by)
-(require 'erlang-edoc)
+;;(require 'erlang-edoc)
 
 ;; Depending on what elements you include specialized support for
 (eval-when-compile
   (require 'semantic-ctxt)
   (require 'semantic-imenu)
-  (require 'document)
   (require 'senator))
 
 (define-lex-simple-regex-analyzer semantic-erlang-lex-char
@@ -85,9 +84,10 @@
    imenu-create-index-function 'semantic-create-imenu-index
    semantic-type-relation-separator-character '(".")
    semantic-command-separation-character ","
-   document-comment-start "%%**"
-   document-comment-line-prefix "%%"
-   document-comment-end "%%*"
+   ;; @TODO - Move out to srecode.
+   ;;document-comment-start "%%**"
+   ;;document-comment-line-prefix "%%"
+   ;;document-comment-end "%%*"
    ;; speedbar and imenu buckets name
    semantic-symbol->name-assoc-list-for-type-parts
    ;; in type parts

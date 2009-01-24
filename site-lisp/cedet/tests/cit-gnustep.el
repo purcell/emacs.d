@@ -1,5 +1,6 @@
 ;;; cit-gnustep.el --- Test EDE GNUstep Project
 
+;; Copyright (C) 2009 Eric M. Ludlam
 ;; Copyright (C) 2008 "Marco (Bj) Bardelli"
 
 ;; Author: Marco (Bj) Bardelli <bardelli.marco@gmail.com>
@@ -28,7 +29,8 @@
 ;(require 'ede-pmake "../ede/ede-pmake.el" t)
 (require 'ede-gnustep (expand-file-name "../contrib/ede-gnustep.el") t)
 
-(require 'edebug)
+;(require 'edebug)
+
 (defun cit-ede-step-test ()
   "Test EDE GNUstep-Make Project"
 ;  (edebug)

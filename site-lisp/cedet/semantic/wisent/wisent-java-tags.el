@@ -1,12 +1,13 @@
 ;;; wisent-java-tags.el --- Java LALR parser for Emacs
 
+;; Copyright (C) 2009 Eric M. Ludlam
 ;; Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 David Ponce
 
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 15 Dec 2001
 ;; Keywords: syntax
-;; X-RCS: $Id: wisent-java-tags.el,v 1.32 2006/05/31 12:47:38 ponced Exp $
+;; X-RCS: $Id: wisent-java-tags.el,v 1.33 2009/01/24 03:47:02 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -40,8 +41,7 @@
   (require 'semantic-util)
   (require 'semantic-ctxt)
   (require 'semantic-imenu)
-  (require 'senator)
-  (require 'document))
+  (require 'senator))
 
 ;;;;
 ;;;; Simple parser error reporting function
@@ -102,9 +102,6 @@ Use the alternate LALR(1) parser."
    imenu-create-index-function 'semantic-create-imenu-index
    semantic-type-relation-separator-character '(".")
    semantic-command-separation-character ";"
-   document-comment-start "/**"
-   document-comment-line-prefix " *"
-   document-comment-end " */"
    ;; speedbar and imenu buckets name
    semantic-symbol->name-assoc-list-for-type-parts
    ;; in type parts

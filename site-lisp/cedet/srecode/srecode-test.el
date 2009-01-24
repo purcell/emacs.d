@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-test.el,v 1.6 2009/01/20 03:50:19 zappo Exp $
+;; X-RCS: $Id: srecode-test.el,v 1.7 2009/01/24 03:39:04 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -227,6 +227,7 @@ LAST                 |                 LAST")
       (cedet-utest-log-setup "SRECODE Templates")
 
       (dolist (p srecode-utest-output-entries)
+	(set-buffer testbuff) ;; XEmacs causes a buffer switch.  I don't know why
 	(srecode-utest-test p)
 	)
 

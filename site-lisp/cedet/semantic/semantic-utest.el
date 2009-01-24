@@ -3,7 +3,7 @@
 ;;; Copyright (C) 2003, 2004, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-utest.el,v 1.8 2009/01/20 02:35:17 zappo Exp $
+;; X-RCS: $Id: semantic-utest.el,v 1.9 2009/01/24 03:37:11 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -523,8 +523,11 @@ INSERTME is the text to be inserted after the deletion."
 
 (defun semantic-utest-Java()
   (interactive)
-  (semantic-utest-generic "Java" "/tmp/JavaTest.java" semantic-utest-Java-buffer-contents  semantic-utest-Java-name-contents   '("fun2") "//1" "//deleted line")
-  )
+  ;; If JDE is installed, it might mess things up depending on the version
+  ;; that was installed.
+  (let ((auto-mode-alist  '(("\\.java\\'" . java-mode))))
+    (semantic-utest-generic "Java" "/tmp/JavaTest.java" semantic-utest-Java-buffer-contents  semantic-utest-Java-name-contents   '("fun2") "//1" "//deleted line")
+    ))
 
 (defun semantic-utest-Makefile()
   (interactive)
@@ -539,8 +542,10 @@ INSERTME is the text to be inserted after the deletion."
 
 (defun semantic-utest-Html()
   (interactive)
-  (semantic-utest-generic "HTML" "/tmp/tst.html" semantic-utest-Html-buffer-contents  semantic-utest-Html-name-contents   '("fun2") "<!--1-->" "<!--deleted line-->")
-  )
+  ;; Disable html-helper auto-fill-in mode.
+  (let ((html-helper-build-new-buffer nil))
+    (semantic-utest-generic "HTML" "/tmp/tst.html" semantic-utest-Html-buffer-contents  semantic-utest-Html-name-contents   '("fun2") "<!--1-->" "<!--deleted line-->")
+    ))
 
 ;look at http://mfgames.com/linux/csharp-mode
 (defun semantic-utest-Csharp() ;; hmm i dont even know how to edit a scharp file. need a csharp mode implementation i suppose

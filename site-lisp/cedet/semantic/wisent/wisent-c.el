@@ -1,12 +1,13 @@
 ;;; wisent-c.el -- LALR parser that produces Semantic tags for C
 ;;
+;; Copyright (C) 2009 Eric M. Ludlam
 ;; Copyright (C) 2003 David Ponce
 ;;
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 13 Jun 2003
 ;; Keywords: syntax
-;; X-RCS: $Id: wisent-c.el,v 1.6 2005/09/30 20:23:04 zappo Exp $
+;; X-RCS: $Id: wisent-c.el,v 1.7 2009/01/24 03:46:40 zappo Exp $
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -291,9 +292,6 @@ Change class of IDENTIFIER tokens that are typedef to TYPEDEFNAME."
    imenu-create-index-function 'semantic-create-imenu-index
    semantic-type-relation-separator-character '("." "->")
    semantic-command-separation-character ";"
-   document-comment-start "/*"
-   document-comment-line-prefix " *"
-   document-comment-end " */"
    ;; speedbar and imenu buckets name
    ;; everywhere
    semantic-symbol->name-assoc-list

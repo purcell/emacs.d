@@ -770,7 +770,7 @@ You can wrap any CEDET / GNU Global configurations in your
 @section @ede{} and GNU Global
 
 The @ede{} project system can use GNU Global to accelerate finding
-files withing a project.  The EDE command to @code{ede-find-file}
+files within a project.  The EDE command to @code{ede-find-file}
 bound to @kbd{C-c . f} is one direct application.  @semantic{} also
 makes heavy use of of the feature to find header files.
 
@@ -780,7 +780,7 @@ Something like this can work in your @file{.emacs} file.
 @example
 (setq ede-locate-setup-options
       '(ede-locate-global 
-	ede-locate-base))
+        ede-locate-base))
 @end example
 
 @section @semantic{} Database
@@ -793,6 +793,10 @@ To enable it, use:
 @end example
 
 where the first argument is a @code{major-mode} in which to use it.
+
+GNU Global will then be used for project-wide searches as a backup
+when pre-existing @semantic{} database searches may not have parsed
+all your files.
 
 @section @semantic Symref
 

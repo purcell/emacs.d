@@ -1,9 +1,16 @@
 ;;; cedet-integ-test.el --- CEDET full integration tests.
 
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
+(eval-and-compile
+  ;; Other package depend on this value at compile time via inversion.
+
+  (defvar cit-version "1.0"
+    "Current version of Semantic.")
+
+  )
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
 ;; published by the Free Software Foundation; either version 2, or (at
@@ -56,6 +63,7 @@
 ;; 4) Delete the project
 ;;    a Make sure the semanticdb cleans up the dead cache files.
 ;;    b Make sure EDE clears this project from it's project cache.
+(require 'semantic)
 (require 'cit-cpp)
 (require 'cit-srec)
 (require 'cit-el)

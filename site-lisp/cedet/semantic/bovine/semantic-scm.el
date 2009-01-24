@@ -1,9 +1,9 @@
 ;;; semantic-scm.el --- Semantic details for Scheme (guile)
 
-;;; Copyright (C) 2001, 2002, 2003, 2004, 2008 Eric M. Ludlam
+;;; Copyright (C) 2001, 2002, 2003, 2004, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-scm.el,v 1.14 2008/04/01 01:52:10 zappo Exp $
+;; X-RCS: $Id: semantic-scm.el,v 1.15 2009/01/24 03:52:52 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@
 (require 'backquote)
 
 (eval-when-compile
-  (require 'document)
   (require 'semantic-format))
 
 ;;; Code:
@@ -95,9 +94,6 @@ syntax as specified by the syntax table."
                                             (package  . "DefineModule"))
         imenu-create-index-function 'semantic-create-imenu-index
         imenu-create-index-function 'semantic-create-imenu-index
-        document-comment-start ";;"
-        document-comment-line-prefix ";;"
-        document-comment-end "\n"
         )
   (setq semantic-lex-analyzer #'semantic-scheme-lexer)
   )

@@ -2,7 +2,7 @@
 
 ;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 
-;; X-CVS: $Id: semantic-tag.el,v 1.64 2009/01/10 00:10:08 zappo Exp $
+;; X-CVS: $Id: semantic-tag.el,v 1.65 2009/01/24 01:04:57 scymtym Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -1254,12 +1254,12 @@ This function is overridable with the symbol `insert-foreign-tag'."
 ;;; Support log modes here
 (define-mode-local-override semantic-insert-foreign-tag
   log-edit-mode (foreign-tag)
-  "Insert foriegn tags into log-edit mode."
+  "Insert foreign tags into log-edit mode."
   (insert (concat "(" (semantic-format-tag-name foreign-tag) "): ")))
 
 (define-mode-local-override semantic-insert-foreign-tag
   change-log-mode (foreign-tag)
-  "Insert foriegn tags into log-edit mode."
+  "Insert foreign tags into log-edit mode."
   (insert (concat "(" (semantic-format-tag-name foreign-tag) "): ")))
 
 

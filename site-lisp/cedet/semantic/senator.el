@@ -6,7 +6,7 @@
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 10 Nov 2000
 ;; Keywords: syntax
-;; X-RCS: $Id: senator.el,v 1.134 2009/01/14 00:03:06 zappo Exp $
+;; X-RCS: $Id: senator.el,v 1.135 2009/01/24 04:53:42 zappo Exp $
 
 ;; This file is not part of Emacs
 
@@ -2085,7 +2085,12 @@ This is a buffer local variable.")
        :active t
        :help "Debug why the analyzer may not be working for you."
        ])
-    )
+   (senator-menu-item
+    [ "Summarize includes current buffer"
+      semantic-decoration-all-include-summary
+     :active t
+     :help "Show a summary of what Semantic has done with your includes for this buffer." ])
+   )
    (list
     "Find References"
     (senator-menu-item

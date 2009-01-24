@@ -23,7 +23,7 @@
    (ede-proj-target-elisp "languages"
     :name "languages"
     :path ""
-    :source '("semantic-c.el" "semantic-el.el" "semantic-make.el" "semantic-scm.el" "semantic-java.el" "erlang-edoc.el" "semantic-erlang.el" "semantic-gcc.el")
+    :source '("semantic-c.el" "semantic-el.el" "semantic-make.el" "semantic-scm.el" "semantic-java.el" "semantic-erlang.el" "semantic-gcc.el")
     )
    )
   )

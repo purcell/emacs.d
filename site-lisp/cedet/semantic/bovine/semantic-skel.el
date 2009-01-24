@@ -1,15 +1,15 @@
 ;; NOTE TO USERS OF THIS SKELETON:
 ;;
-;; If you may want to use the wisent parser generator instead.  It
+;; You may want to use the wisent parser generator instead.  It
 ;; will generate more efficient parsers.
 
 
 ;;; semantic-skel.el --- Semantic details for skel
 
-;;; Copyright (C) 2001, 2003, 2004, 2008 Eric M. Ludlam
+;;; Copyright (C) 2001, 2003, 2004, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-skel.el,v 1.7 2008/04/01 01:52:43 zappo Exp $
+;; X-RCS: $Id: semantic-skel.el,v 1.8 2009/01/24 03:53:52 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -42,7 +42,6 @@
 (eval-when-compile
   (require 'semantic-ctxt)
   (require 'semantic-imenu)
-  (require 'document)
   (require 'senator))
 
 ;;; Code:
@@ -112,9 +111,6 @@
         imenu-create-index-function 'semantic-create-imenu-index
         semantic-type-relation-separator-character '(".")
         semantic-command-separation-character ";"
-        document-comment-start "/*"
-        document-comment-line-prefix " *"
-        document-comment-end " */"
         ;; Semantic navigation inside 'type children
         senator-step-at-tag-classes '(function variable)
         )

@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: data-debug.el,v 1.14 2009/01/20 02:46:43 zappo Exp $
+;; X-RCS: $Id: data-debug.el,v 1.15 2009/01/24 01:03:01 scymtym Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -167,7 +167,7 @@ PREFIX specifies what to insert at the start of each line."
 	       :modified (buffer-modified-p buffer)
 	       :size (buffer-size buffer)
 	       :process (get-buffer-process buffer)
-	       :localvars (buffer-local-variables)
+	       :localvars (buffer-local-variables buffer)
 	       )))
     (data-debug-insert-property-list
      proplist attrprefix)

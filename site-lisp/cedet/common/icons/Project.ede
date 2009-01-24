@@ -1,6 +1,6 @@
 ;; Object ede-proj-project
 ;; EDE project file.
-(ede-proj-project "ede-proj-project"
+(ede-proj-project "common/icons"
   :name "icons"
   :file "Project.ede"
   :targets (list 

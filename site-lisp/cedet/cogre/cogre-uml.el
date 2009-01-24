@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: oop, uml
-;; X-RCS: $Id: cogre-uml.el,v 1.13 2009/01/20 03:41:03 zappo Exp $
+;; X-RCS: $Id: cogre-uml.el,v 1.14 2009/01/24 02:29:48 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -146,7 +146,10 @@ the item being aggregated.
 This is supposed to infer that START contains END.")
 
 (defun cogre-uml-enable-unicode ()
-  "Enable use of UNICODE symbols to create COGRE graphs."
+  "Enable use of UNICODE symbols to create COGRE graphs.
+Inheritance uses math triangle on page 25a0.
+Aggregation uses math square on edge 25a0.
+Line-drawing uses line-drawing codes on page 2500."
   (interactive)
   (oset-default cogre-inherit end-glyph [ ("\u25b3") ("\u25bd")
 					  ("\u25c1") ("\u25b7") ])

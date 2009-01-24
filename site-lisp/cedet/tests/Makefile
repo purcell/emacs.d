@@ -11,6 +11,7 @@ ede_FILES=Project.ede Makefile
 
 Lisp_LISP=cedet-integ-test.el cit-cpp.el cit-el.el cit-texi.el cit-load.el cit-srec.el cit-gnustep.el
 EMACS=emacs
+LOADPATH= ../ede/ ../srecode/ ../semantic/wisent/ ../semantic/bovine/ ../semantic/ ../eieio/ ../common/
 templates_MISC=cit-extra-cpp.srt
 scripts_MISC=cit-test.sh
 VERSION=1.0

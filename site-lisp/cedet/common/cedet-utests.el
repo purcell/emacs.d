@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: cedet-utests.el,v 1.6 2009/01/20 02:24:22 zappo Exp $
+;; X-RCS: $Id: cedet-utests.el,v 1.7 2009/01/24 05:59:30 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -55,7 +55,7 @@
     ("eieio: browser" . eieio-browse)
     ("eieio: custom" . (lambda ()
 			 (require 'eieio-custom)
-			 (customize-variable 'eieio-widge-test)))
+			 (customize-variable 'eieio-widget-test)))
     ("eieio: chart" . (lambda ()
 			(if (cedet-utest-noninteractive)
 			    (message " ** Skipping test in noninteractive mode.")

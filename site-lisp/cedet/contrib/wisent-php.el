@@ -1,10 +1,10 @@
 ;;; wisent-php.el --- Php LALR parser for Emacs
 
-;; Copyright (C) 2008 Free Software Foundation
+;; Copyright (C) 2008, 2009 Free Software Foundation
 
 ;; Author: Original code for Java by David Ponce <david@dponce.com>
 ;; Keywords: syntax
-;; X-RCS: $Id: wisent-php.el,v 1.2 2008/07/03 01:41:46 zappo Exp $
+;; X-RCS: $Id: wisent-php.el,v 1.3 2009/01/24 04:08:28 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -34,8 +34,7 @@
   (require 'semantic-util)
   (require 'semantic-ctxt)
   (require 'semantic-imenu)
-  (require 'senator)
-  (require 'document))
+  (require 'senator))
 
 ;;;;
 ;;;; Simple parser error reporting function
@@ -98,9 +97,6 @@ Use the alternate LALR(1) parser."
    semantic-type-relation-separator-character '(".")
    semantic-command-separation-character ";"
    semantic-lex-comment-regex "\\(/\\*\\|//\\|#\\)"
-   ;;document-comment-start "/**"
-   ;;document-comment-line-prefix " *"
-   ;;document-comment-end " */"
    ;; speedbar and imenu buckets name
    semantic-symbol->name-assoc-list-for-type-parts
    ;; in type parts
