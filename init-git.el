@@ -7,6 +7,7 @@
 
 
 (require 'magit)
+(setq magit-save-some-buffers nil)
 (defun magit-status-here ()
   (interactive)
   (magit-status default-directory))
