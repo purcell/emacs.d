@@ -358,12 +358,23 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Yasnippet
+;;----------------------------------------------------------------------------
+(require 'yasnippet)
+;Don't map TAB to yasnippet
+;In fact, set it to something we'll never use because we'll only ever trigger it indirectly.
+(setq yas/trigger-key (kbd "C-c <kp-multiply>"))
+(yas/initialize)
+(yas/load-directory (concat (directory-of-library "yasnippet") "snippets"))
+
+
+;;----------------------------------------------------------------------------
 ;; Autocomplete
 ;;----------------------------------------------------------------------------
 (require 'auto-complete nil t)
 (global-auto-complete-mode t)
 (require 'ac-dabbrev)
-(setq ac-sources '(ac-source-dabbrev ac-source-words-in-buffer))
+(setq ac-sources '(ac-source-yasnippet ac-source-dabbrev ac-source-words-in-buffer))
 (when *vi-emulation-support-enabled*
   (define-key ac-complete-mode-map viper-ESC-key 'viper-intercept-ESC-key))
 
