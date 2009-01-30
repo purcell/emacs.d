@@ -2,7 +2,7 @@
 ;; EDE project file.
 (ede-proj-project "COGRE"
   :name "COGRE"
-  :version "0.6"
+  :version "0.7"
   :file "Project.ede"
   :targets (list 
    (semantic-ede-proj-target-grammar "wy"

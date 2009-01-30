@@ -2,7 +2,7 @@
 ;; EDE project file.
 (ede-proj-project "eieio"
   :name "eieio"
-  :version "1.1"
+  :version "1.2"
   :file "Project.ede"
   :targets (list 
    (ede-proj-target-elisp-autoloads "autoloads"

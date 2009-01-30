@@ -6,7 +6,7 @@
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Author: David Ponce <david@dponce.com>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-util-modes.el,v 1.66 2009/01/10 00:10:30 zappo Exp $
+;; X-RCS: $Id: semantic-util-modes.el,v 1.67 2009/01/31 18:12:19 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -958,6 +958,18 @@ minor mode is enabled."
   "List of tag classes which sticky func will display in the header line.")
 (make-variable-buffer-local 'semantic-stickyfunc-sticky-classes)
 
+(defun semantic-stickyfunc-tag-to-stick ()
+  "Return the tag to stick at the current point."
+  (let ((tags (nreverse (semantic-find-tag-by-overlay (point)))))
+    ;; Get rid of non-matching tags.
+    (while (and tags
+		(not (member
+		      (semantic-tag-class (car tags))
+		      semantic-stickyfunc-sticky-classes))
+		)
+      (setq tags (cdr tags)))
+    (car tags)))
+
 (defun semantic-stickyfunc-fetch-stickyline ()
   "Make the function at the top of the current window sticky.
 Capture it's function declaration, and place it in the header line.
@@ -968,16 +980,7 @@ If there is no function, disable the header line."
 	   (forward-line -1)
 	   (end-of-line)
 	   ;; Capture this function
-	   (let* ((tags (nreverse (semantic-find-tag-by-overlay (point))))
-		  (tag (progn
-			 ;; Get rid of non-matching tags.
-			 (while (and tags
-				     (not (member
-					   (semantic-tag-class (car tags))
-					   semantic-stickyfunc-sticky-classes))
-				     )
-			   (setq tags (cdr tags)))
-			 (car tags))))
+	   (let* ((tag (semantic-stickyfunc-tag-to-stick)))
 	     ;; TAG is nil if there was nothing of the apropriate type there.
 	     (if (not tag)
 		 ;; Set it to be the text under the header line
@@ -1026,9 +1029,219 @@ Argument EVENT describes the event that caused this function to be called."
       )
     (select-window startwin)))
 
+
 (semantic-add-minor-mode 'semantic-stickyfunc-mode
                          "" ;; Don't need indicator.  It's quite visible
                          semantic-stickyfunc-mode-map)
+
+
+
+;;;;
+;;;; Minor mode to make highlight the current function
+;;;;
+
+;; Highlight the first like of the function we are in if it is different
+;; from the the tag going off the top of the screen.
+
+;;;###autoload
+(defun global-semantic-highlight-func-mode (&optional arg)
+  "Toggle global use of option `semantic-highlight-func-mode'.
+If ARG is positive, enable, if it is negative, disable.
+If ARG is nil, then toggle."
+  (interactive "P")
+  (setq global-semantic-highlight-func-mode
+        (semantic-toggle-minor-mode-globally
+         'semantic-highlight-func-mode arg)))
+
+;;;###autoload
+(defcustom global-semantic-highlight-func-mode nil
+  "*If non-nil, enable global use of `semantic-highlight-func-mode'.
+When enabled, the first line of the current tag is highlighted."
+  :group 'semantic
+  :group 'semantic-modes
+  :type 'boolean
+  :require 'semantic-util-modes
+  :initialize 'custom-initialize-default
+  :set (lambda (sym val)
+         (global-semantic-highlight-func-mode (if val 1 -1))))
+
+(defcustom semantic-highlight-func-mode-hook nil
+  "*Hook run at the end of function `semantic-highlight-func-mode'."
+  :group 'semantic
+  :type 'hook)
+
+(defvar semantic-highlight-func-mode-map
+  (let ((km (make-sparse-keymap))
+	(m3  (if (featurep 'xemacs) [ button3 ] [ mouse-3 ]))
+	)
+    (define-key km m3 'semantic-highlight-func-menu)
+    km)
+  "Keymap for highlight-func minor mode.")
+
+(defvar semantic-highlight-func-popup-menu nil
+  "Menu used if the user clicks on the header line used by `semantic-highlight-func-mode'.")
+
+(easy-menu-define
+  semantic-highlight-func-popup-menu
+  semantic-highlight-func-mode-map
+  "Highlight-Func Menu"
+  '("Highlight-Func Mode"  :visible (progn nil)
+    [ "Copy Tag" senator-copy-tag
+      :active (semantic-current-tag)
+      :help "Copy the current tag to the tag ring"]
+    [ "Kill Tag" senator-kill-tag
+      :active (semantic-current-tag)
+      :help "Kill tag text to the kill ring, and copy the tag to the tag ring"
+      ]
+    [ "Copy Tag to Register" senator-copy-tag-to-register
+      :active (semantic-current-tag)
+      :help "Copy the current tag to a register"
+      ]
+    [ "Narrow To Tag" senator-narrow-to-defun
+      :active (semantic-current-tag)
+      :help "Narrow to the bounds of the current tag."]
+    [ "Fold Tag" senator-fold-tag-toggle
+      :active (semantic-current-tag)
+      :style toggle
+      :selected (let ((tag (semantic-stickyfunc-tag-to-stick)))
+		  (and tag (semantic-tag-folded-p tag)))
+      :help "Fold the current tag to one line"
+      ]
+    "---"
+    [ "About This Tag" semantic-describe-tag t])
+  )
+
+(defun semantic-highlight-func-menu (event)
+  "Popup a menu that displays things to do to the current tag.
+Argument EVENT describes the event that caused this function to be called."
+  (interactive "e")
+  (let* ((startwin (selected-window))
+	 (win (semantic-event-window event))
+	 )
+    (select-window win t)
+    (save-excursion
+      ;(goto-char (window-start win))
+      (mouse-set-point event)
+      (sit-for 0)
+      (semantic-popup-menu semantic-highlight-func-popup-menu)
+      )
+    (select-window startwin)))
+
+(defvar semantic-highlight-func-mode nil
+  "Non-nil if highlight-func minor mode is enabled.
+Use the command `semantic-highlight-func-mode' to change this variable.")
+(make-variable-buffer-local 'semantic-highlight-func-mode)
+
+(defvar semantic-highlight-func-ct-overlay nil
+  "Overlay used to highlight the tag the cursor is in.")
+(make-variable-buffer-local 'semantic-highlight-func-ct-overlay)
+
+(defface semantic-highlight-func-current-tag-face
+  '((((class color) (background dark))
+     ;; Put this back to something closer to black later.
+     (:background "gray20"))
+    (((class color) (background light))
+     (:background "gray90")))
+  "Face used to show the top of current function."
+  :group 'semantic-faces)
+
+
+(defun semantic-highlight-func-mode-setup ()
+  "Setup option `semantic-highlight-func-mode'.
+For semantic enabled buffers, highlight the first line of the
+current tag declaration."
+  (if semantic-highlight-func-mode
+      (progn
+	(unless (and (featurep 'semantic) (semantic-active-p))
+	  ;; Disable minor mode if semantic stuff not available
+	  (setq semantic-highlight-func-mode nil)
+	  (error "Buffer %s was not set up for parsing" (buffer-name)))
+	;; Setup our hook
+	(add-hook 'post-command-hook 'semantic-highlight-func-highlight-current-tag t)
+	)
+    ;; Disable highlight func mode
+    (remove-hook 'post-command-hook 'semantic-highlight-func-highlight-current-tag t)
+    )
+  semantic-highlight-func-mode)
+
+;;;###autoload
+(defun semantic-highlight-func-mode (&optional arg)
+  "Minor mode to highlight the first line of the current tag.
+Enables/disables making the header line of functions sticky.
+A function (or other tag class specified by
+`semantic-stickfunc-sticky-classes') is highlighted, meaning the
+first line which describes the rest of the construct.
+
+See `semantic-stickfunc-mode' for putting a function in the
+header line.  This mode recycles the stickyfunc configuration
+classes list.
+
+With prefix argument ARG, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-nil if the
+minor mode is enabled."
+  (interactive
+   (list (or current-prefix-arg
+             (if semantic-highlight-func-mode 0 1))))
+  (setq semantic-highlight-func-mode
+        (if arg
+            (>
+             (prefix-numeric-value arg)
+             0)
+          (not semantic-highlight-func-mode)))
+  (semantic-highlight-func-mode-setup)
+  (run-hooks 'semantic-highlight-func-mode-hook)
+  (if (interactive-p)
+      (message "Highlight-Func minor mode %sabled"
+               (if semantic-highlight-func-mode "en" "dis")))
+  semantic-highlight-func-mode)
+
+(defun semantic-highlight-func-highlight-current-tag ()
+  "Highlight the current tag under point.
+If the current tag for this buffer is different from the last time this
+function was called, move the overlay."
+  (when (and (not (minibufferp))
+	     (or (not semantic-highlight-func-ct-overlay)
+		 (eq (semantic-overlay-buffer
+		      semantic-highlight-func-ct-overlay)
+		     (current-buffer))))
+    (let* ((tag (semantic-stickyfunc-tag-to-stick))
+	   (ol semantic-highlight-func-ct-overlay))
+      (when (not ol)
+	;; No overlay in this buffer.  Make one.
+	(setq ol (semantic-make-overlay (point-min) (point-min)
+					(current-buffer) nil nil))
+	(semantic-overlay-put ol 'highlight-func t)
+	(semantic-overlay-put ol 'face 'semantic-highlight-func-current-tag-face)
+	(semantic-overlay-put ol 'keymap semantic-highlight-func-mode-map)
+	(semantic-overlay-put ol 'help-echo
+			      "Current Function : mouse-3 - Context menu")
+	(setq semantic-highlight-func-ct-overlay ol)
+	)
+
+      ;; TAG is nil if there was nothing of the apropriate type there.
+      (if (not tag)
+	  ;; No tag, make the overlay go away.
+	  (progn
+	    (semantic-overlay-put ol 'tag nil)
+	    (semantic-overlay-move ol (point-min) (point-min) (current-buffer))
+	    )
+
+	;; We have a tag, if it is the same, do nothing.
+	(unless (eq (semantic-overlay-get ol 'tag) tag)
+	  (save-excursion
+	    (goto-char (semantic-tag-start tag))
+	    (search-forward (semantic-tag-name tag) nil t)
+	    (semantic-overlay-put ol 'tag tag)
+	    (semantic-overlay-move ol (point-at-bol) (point-at-eol))
+	    )
+	  )
+	)))
+  nil)
+
+(semantic-add-minor-mode 'semantic-highlight-func-mode
+                         "" ;; Don't need indicator.  It's quite visible
+                         nil)
 
 (provide 'semantic-util-modes)
 

@@ -1,10 +1,10 @@
 ;;; ede-ede-grammar.el --- EDE support for Semantic Grammar Files
 
-;;;  Copyright (C) 2003, 2004, 2007, 2008  Eric M. Ludlam
+;;;  Copyright (C) 2003, 2004, 2007, 2008, 2009  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: semantic-ede-grammar.el,v 1.15 2008/03/11 02:33:33 zappo Exp $
+;; RCS: $Id: semantic-ede-grammar.el,v 1.16 2009/01/31 13:09:28 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -127,8 +127,9 @@ Lays claim to all -by.el, and -wy.el files."
 
 (defmethod project-compile-target ((obj semantic-ede-proj-target-grammar))
   "Compile all sources in a Lisp target OBJ."
-  (let ((cb (current-buffer))
-	(default-directory (ede-expand-filename obj ".")))
+  (let* ((cb (current-buffer))
+	 (proj (ede-target-parent obj))
+	 (default-directory (oref proj directory)))
     (mapc (lambda (src)
 	    (save-excursion
 	      (set-buffer (find-file-noselect src))

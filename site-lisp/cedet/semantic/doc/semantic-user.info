@@ -1117,6 +1117,7 @@ that can assist in programming Semantic supported langauges.
 * Menu:
 
 * Sticky Function Mode::
+* Highlight Func Mode::
 * Tag Decoration Mode::
 * MRU Bookmarks Mode::
 
@@ -1135,7 +1136,7 @@ File: semantic-user.info,  Node: Development Modes,  Prev: Code Helpers,  Up: Mi
 * Unmatched Syntax Highlighting::
 
 
-File: semantic-user.info,  Node: Sticky Function Mode,  Next: Tag Decoration Mode,  Up: Code Helpers
+File: semantic-user.info,  Node: Sticky Function Mode,  Next: Highlight Func Mode,  Up: Code Helpers
 
 10.2.1 Sticky Function Headers
 ------------------------------
@@ -1158,9 +1159,39 @@ File: semantic-user.info,  Node: Sticky Function Mode,  Next: Tag Decoration Mod
      line.
 
 
-File: semantic-user.info,  Node: Tag Decoration Mode,  Next: MRU Bookmarks Mode,  Prev: Sticky Function Mode,  Up: Code Helpers
+File: semantic-user.info,  Node: Highlight Func Mode,  Next: Tag Decoration Mode,  Prev: Sticky Function Mode,  Up: Code Helpers
 
-10.2.2 Tag Decoration Mode
+10.2.2 Highlight Func Mode
+--------------------------
+
+Highlight Func mode will put a highlight overlay over the top
+declaration line of the function or tag the point is in.  Enabling this
+feature also puts a context menu onto the declaration line providing
+easy access to some basic commands.
+
+ -- Function: semantic-highlight-func-mode &optional arg
+     Minor mode to highlight the first line of the current tag.
+     Enables/disables making the header line of functions sticky.  A
+     function (or other tag class specified by
+     `semantic-stickfunc-sticky-classes') is highlighted, meaning the
+     first line which describes the rest of the construct.
+
+     See `semantic-stickfunc-mode' for putting a function in the header
+     line.  This mode recycles the stickyfunc configuration classes
+     list.
+
+     With prefix argument ARG, turn on if positive, otherwise off.  The
+     minor mode can be turned on only if semantic feature is available
+     and the current buffer was set up for parsing.  Return non-`nil'
+     if the minor mode is enabled.
+
+ -- Function: semantic-highlight-func-current-tag-face
+     Face used to show the top of current function.
+
+
+File: semantic-user.info,  Node: Tag Decoration Mode,  Next: MRU Bookmarks Mode,  Prev: Highlight Func Mode,  Up: Code Helpers
+
+10.2.3 Tag Decoration Mode
 --------------------------
 
 Decoration mode is a harness that allows any parsed tag to be decorated
@@ -1185,7 +1216,7 @@ To enable or disable specific decorations, you can use this function:
      ARG, turn on if positive, otherwise off.  Return non-`nil' if the
      decoration style is enabled.
 
-10.2.2.1 Available decoration modes
+10.2.3.1 Available decoration modes
 ...................................
 
 There are several decoration modes that comes with semantic.
@@ -1234,7 +1265,7 @@ There are several decoration modes that comes with semantic.
           `semantic-decoration-on-unparsed-includes'.
 
 
-10.2.2.2 Create New Decoration Modes
+10.2.3.2 Create New Decoration Modes
 ....................................
 
 You can create new types of decorations using the following function:
@@ -1265,7 +1296,7 @@ You can create new types of decorations using the following function:
 
 File: semantic-user.info,  Node: MRU Bookmarks Mode,  Prev: Tag Decoration Mode,  Up: Code Helpers
 
-10.2.3 MRU Bookmarks Mode
+10.2.4 MRU Bookmarks Mode
 -------------------------
 
 MRU stands for Most Recently Used.  Semantic MRU Bookmarks track the
@@ -1294,7 +1325,7 @@ current tag to your MRU bookmark ring.
 
 File: semantic-user.info,  Node: Highlight Edits Mode,  Next: Parser State,  Up: Development Modes
 
-10.2.4 Highlight Edits Mode
+10.2.5 Highlight Edits Mode
 ---------------------------
 
 Highlight edits mode is useful mostly for debugging the incremental
@@ -1316,7 +1347,7 @@ make.
 
 File: semantic-user.info,  Node: Parser State,  Next: Unmatched Syntax Highlighting,  Prev: Highlight Edits Mode,  Up: Development Modes
 
-10.2.5 Parser State
+10.2.6 Parser State
 -------------------
 
  -- Command: semantic-show-parser-state-mode &optional arg
@@ -1346,7 +1377,7 @@ File: semantic-user.info,  Node: Parser State,  Next: Unmatched Syntax Highlight
 
 File: semantic-user.info,  Node: Unmatched Syntax Highlighting,  Prev: Parser State,  Up: Development Modes
 
-10.2.6 Unmatched Syntax Highlighting
+10.2.7 Unmatched Syntax Highlighting
 ------------------------------------
 
  -- Command: semantic-show-unmatched-syntax-mode &optional arg
@@ -2308,6 +2339,9 @@ Index
                                                               (line  20)
 * semantic-highlight-edits-mode:         Highlight Edits Mode.
                                                               (line  12)
+* semantic-highlight-func-current-tag-face: Highlight Func Mode.
+                                                              (line  28)
+* semantic-highlight-func-mode:          Highlight Func Mode. (line  12)
 * semantic-ia-complete-symbol:           Smart Completion.    (line  12)
 * semantic-ia-complete-symbol-menu:      Smart Completion.    (line  16)
 * semantic-ia-complete-tip:              Smart Completion.    (line  21)
@@ -2339,7 +2373,7 @@ Index
 * semantic-imenu-index-directory:        imenu.               (line  51)
 * semantic-imenu-sort-bucket-function:   imenu.               (line  46)
 * semantic-imenu-summary-function:       imenu.               (line  27)
-* semantic-mru-bookmark-mode:            MRU Bookmarks Mode.  (line   6)
+* semantic-mru-bookmark-mode:            MRU Bookmarks Mode.  (line  11)
 * semantic-remove-system-include:        Include paths.       (line  14)
 * semantic-show-parser-state-mode:       Parser State.        (line   7)
 * semantic-show-unmatched-syntax-mode:   Unmatched Syntax Highlighting.
@@ -2462,56 +2496,59 @@ Ref: semantic-complete-analyze-inline-idle41313
 Ref: semantic-complete-inline-analyzer-idle-displayor-class41635
 Node: Minor Modes41838
 Node: Code Helpers42416
-Node: Development Modes42835
-Node: Sticky Function Mode43061
-Node: Tag Decoration Mode44045
-Ref: semantic-decoration-mode44519
-Ref: semantic-toggle-decoration-style45091
-Ref: semantic-tag-boundary-face45626
-Ref: semantic-decoration-on-private-members-face45952
-Ref: semantic-decoration-on-protected-members-face46316
-Ref: semantic-decoration-on-includes46760
-Ref: semantic-decoration-on-unknown-includes46978
-Ref: semantic-decoration-on-unparsed-includes47180
-Ref: define-semantic-decoration-style47558
-Node: MRU Bookmarks Mode48638
-Ref: semantic-mru-bookmark-mode49053
-Node: Highlight Edits Mode49832
-Node: Parser State50773
-Node: Unmatched Syntax Highlighting51803
-Node: semanticdb52824
-Ref: semanticdb-mode-hooks54727
-Node: Semanticdb Tag Storage55071
-Ref: semanticdb-default-file-name55468
-Ref: semanticdb-default-save-directory55557
-Ref: semanticdb-persistent-path55886
-Ref: semanticdb-project-predicate-functions56610
-Ref: semanticdb-save-database-hooks57102
-Node: Semanticdb Search Configuration57254
-Node: Semanticdb Roots59084
-Ref: semanticdb-project-roots59522
-Ref: semanticdb-project-root-functions59868
-Node: Include paths60462
-Ref: semantic-add-system-include60797
-Ref: semantic-remove-system-include60991
-Ref: semantic-customize-system-include-path61189
-Node: Search Throttle61584
-Ref: semanticdb-find-default-throttle62084
-Node: Semanticdb search debugging commands63856
-Ref: semanticdb-dump-all-table-summary64883
-Ref: semanticdb-find-test-translate-path64998
-Ref: semanticdb-find-adebug-lost-includes65170
-Ref: semantic-adebug-searchdb65406
-Node: Semanticdb System Backends65511
-Ref: semanticdb-project-system-databases65871
-Ref: semanticdb-search-system-databases66425
-Node: Changing Backends66494
-Ref: semanticdb-new-database-class67033
-Node: Script Generated Cache Files67252
-Node: Create System Databases67727
-Ref: semanticdb-create-ebrowse-database68184
-Node: Debugging68376
-Node: GNU Free Documentation License72723
-Node: Index92449
+Node: Development Modes42859
+Node: Sticky Function Mode43085
+Node: Highlight Func Mode44069
+Ref: semantic-highlight-func-mode44553
+Ref: semantic-highlight-func-current-tag-face45319
+Node: Tag Decoration Mode45372
+Ref: semantic-decoration-mode45845
+Ref: semantic-toggle-decoration-style46417
+Ref: semantic-tag-boundary-face46952
+Ref: semantic-decoration-on-private-members-face47278
+Ref: semantic-decoration-on-protected-members-face47642
+Ref: semantic-decoration-on-includes48086
+Ref: semantic-decoration-on-unknown-includes48304
+Ref: semantic-decoration-on-unparsed-includes48506
+Ref: define-semantic-decoration-style48884
+Node: MRU Bookmarks Mode49964
+Ref: semantic-mru-bookmark-mode50379
+Node: Highlight Edits Mode51158
+Node: Parser State52099
+Node: Unmatched Syntax Highlighting53129
+Node: semanticdb54150
+Ref: semanticdb-mode-hooks56053
+Node: Semanticdb Tag Storage56397
+Ref: semanticdb-default-file-name56794
+Ref: semanticdb-default-save-directory56883
+Ref: semanticdb-persistent-path57212
+Ref: semanticdb-project-predicate-functions57936
+Ref: semanticdb-save-database-hooks58428
+Node: Semanticdb Search Configuration58580
+Node: Semanticdb Roots60410
+Ref: semanticdb-project-roots60848
+Ref: semanticdb-project-root-functions61194
+Node: Include paths61788
+Ref: semantic-add-system-include62123
+Ref: semantic-remove-system-include62317
+Ref: semantic-customize-system-include-path62515
+Node: Search Throttle62910
+Ref: semanticdb-find-default-throttle63410
+Node: Semanticdb search debugging commands65182
+Ref: semanticdb-dump-all-table-summary66209
+Ref: semanticdb-find-test-translate-path66324
+Ref: semanticdb-find-adebug-lost-includes66496
+Ref: semantic-adebug-searchdb66732
+Node: Semanticdb System Backends66837
+Ref: semanticdb-project-system-databases67197
+Ref: semanticdb-search-system-databases67751
+Node: Changing Backends67820
+Ref: semanticdb-new-database-class68359
+Node: Script Generated Cache Files68578
+Node: Create System Databases69053
+Ref: semanticdb-create-ebrowse-database69510
+Node: Debugging69702
+Node: GNU Free Documentation License74049
+Node: Index93775
 
 End Tag Table

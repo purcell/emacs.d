@@ -23,6 +23,7 @@ that can assist in programming Semantic supported langauges.
 
 @menu
 * Sticky Function Mode::
+* Highlight Func Mode::	
 * Tag Decoration Mode::
 * MRU Bookmarks Mode::
 @end menu
@@ -58,6 +59,38 @@ minor mode is enabled.
 @defvar semantic-stickyfunc-sticky-classes
 List of tag classes which sticky func will display in the header line.
 @end defvar
+
+@node Highlight Func Mode
+@subsection Highlight Func Mode
+@cindex semantic-highlight-func-mode
+
+Highlight Func mode will put a highlight overlay over the top
+declaration line of the function or tag the point is in.  Enabling
+this feature also puts a context menu onto the declaration line
+providing easy access to some basic commands.
+
+@defun semantic-highlight-func-mode &optional arg
+@anchor{semantic-highlight-func-mode}
+Minor mode to highlight the first line of the current tag.
+Enables/disables making the header line of functions sticky.
+A function (or other tag class specified by
+@code{semantic-stickfunc-sticky-classes}) is highlighted, meaning the
+first line which describes the rest of the construct.
+
+See @code{semantic-stickfunc-mode} for putting a function in the
+header line.  This mode recycles the stickyfunc configuration
+classes list.
+
+With prefix argument @var{ARG}, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-@code{nil} if the
+minor mode is enabled.
+@end defun
+
+@defun semantic-highlight-func-current-tag-face
+@anchor{semantic-highlight-func-current-tag-face}
+Face used to show the top of current function.
+@end defun
 
 @node Tag Decoration Mode
 @subsection Tag Decoration Mode

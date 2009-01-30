@@ -3,7 +3,7 @@
 ;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-c.el,v 1.98 2009/01/10 00:13:39 zappo Exp $
+;; X-RCS: $Id: semantic-c.el,v 1.99 2009/01/28 16:08:33 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -37,7 +37,6 @@
   (require 'semantic-ctxt)
   (require 'semantic-imenu)
   (require 'semantic-tag-ls)
-  (require 'document)
   (require 'senator)
   (require 'cc-mode))
 
@@ -1128,15 +1127,6 @@ DO NOT return the list of tags encompassing point."
 
 (defvar-mode-local c-mode semantic-command-separation-character ";"
   "Commen separation character for C")
-
-(defvar-mode-local c-mode document-comment-start "/*"
-  "Comment start string.")
-
-(defvar-mode-local c-mode document-comment-line-prefix " *"
-  "Tween line comment decoration character.")
-
-(defvar-mode-local c-mode document-comment-end " */"
-  "Comment termination string.")
 
 (defvar-mode-local c-mode senator-step-at-tag-classes '(function variable)
   "Tag classes where senator will stop at the end.")

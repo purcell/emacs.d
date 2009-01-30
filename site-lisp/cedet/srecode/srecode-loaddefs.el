@@ -563,7 +563,7 @@ Major-mode for writing srecode macros.
 ;;;***
 
 ;;;### (autoloads (srecode-utest-template-output) "srecode-test"
-;;;;;;  "srecode-test.el" (18810 50577))
+;;;;;;  "srecode-test.el" (18817 46165))
 ;;; Generated autoloads from srecode-test.el
 
 (autoload 'srecode-utest-template-output "srecode-test" "\
@@ -615,7 +615,8 @@ Adds the following:
 ;;;***
 
 ;;;### (autoloads nil nil ("srecode-document-vars.el" "srecode-extract.el"
-;;;;;;  "srecode-load.el" "srecode.el") (18810 51318 667821))
+;;;;;;  "srecode-load.el" "srecode-template-wy.el" "srecode.el")
+;;;;;;  (18821 32680 866811))
 
 ;;;***
 

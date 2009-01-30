@@ -2,7 +2,7 @@
 ;; EDE project file.
 (ede-proj-project "semantic"
   :name "semantic"
-  :version "2.0pre5"
+  :version "2.0pre6"
   :file "Project.ede"
   :targets (list 
    (ede-proj-target-elisp-autoloads "autoloads"

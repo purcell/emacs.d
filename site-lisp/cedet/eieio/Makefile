@@ -21,7 +21,7 @@ eieio_info_TEXINFOS=eieio.texi
 MAKEINFO=makeinfo
 test_LISP=eieio-tests.el eieio-test-methodinvoke.el eieio-perftest.el
 Misc_MISC=INSTALL ChangeLog NEWS
-VERSION=1.1
+VERSION=1.2
 DISTDIR=$(top)eieio-$(VERSION)
 
 

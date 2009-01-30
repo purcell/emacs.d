@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-analyze-debug.el,v 1.7 2009/01/09 23:03:46 zappo Exp $
+;; X-RCS: $Id: semantic-analyze-debug.el,v 1.8 2009/01/29 00:04:28 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -386,7 +386,43 @@ or implementing a version specific to ")
 	 (save-excursion
 	   (set-buffer (semanticdb-get-buffer table))
 	   semanticdb-find-lost-includes))
+	(ip
+	 (save-excursion
+	   (set-buffer (semanticdb-get-buffer table))
+	   semantic-dependency-system-include-path))
+	(edeobj
+	 (save-excursion
+	   (set-buffer (semanticdb-get-buffer table))
+	   ede-object))
+	(edeproj
+	 (save-excursion
+	   (set-buffer (semanticdb-get-buffer table))
+	   ede-object-project))
 	)
+
+    (princ "\n\nInclude Path Summary:")
+    (when edeobj
+	(princ "\n\nThis file's project include search is handled by the EDE object:\n")
+	(princ "  Buffer Target:  ")
+	(princ (object-print edeobj))
+	(princ "\n")
+	(when (not (eq edeobj edeproj))
+	  (princ "  Buffer Project: ")
+	  (princ (object-print edeproj))
+	  (princ "\n"))
+	(when edeproj
+	  (let ((loc (ede-get-locator-object edeproj)))
+	    (princ "  Backup Locator: ")
+	    (princ (object-print loc))
+	    (princ "\n")))
+	)
+
+    (princ "\n\nThe system include path is:\n")
+    (dolist (dir ip)
+      (princ "  ")
+      (princ dir)
+      (princ "\n"))
+
     (princ "\n\nInclude Summary: ")
     (princ (semanticdb-full-filename table))
     (princ "\n\n")

@@ -3,8 +3,8 @@
 ;;; Code:
 
 
-;;;### (autoloads (cogre-load-graph cogre) "cogre" "cogre.el" (18810
-;;;;;;  50576))
+;;;### (autoloads (cogre-load-graph cogre) "cogre" "cogre.el" (18817
+;;;;;;  46164))
 ;;; Generated autoloads from cogre.el
 
 (eieio-defclass-autoload 'cogre-graph '(eieio-persistent) "cogre" "A Connected Graph.\na connected graph contains a series of nodes and links which are\nrendered in a buffer, or serialized to disk.")
@@ -55,7 +55,7 @@ Connected Graph Editor Mode.
 ;;;***
 
 ;;;### (autoloads (cogre-uml-utest cogre-utest) "cogre-utest" "cogre-utest.el"
-;;;;;;  (18810 50576))
+;;;;;;  (18817 46164))
 ;;; Generated autoloads from cogre-utest.el
 
 (autoload 'cogre-utest "cogre-utest" "\
@@ -102,7 +102,7 @@ Setup buffer for parse.
 ;;;***
 
 ;;;### (autoloads nil nil ("cogre-load.el" "picture-hack.el" "wisent-dot-wy.el")
-;;;;;;  (18810 51326 917801))
+;;;;;;  (18821 32690 442529))
 
 ;;;***
 

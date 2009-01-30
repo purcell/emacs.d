@@ -27,7 +27,7 @@
 ;;; Code:
 
 ;(require 'ede-pmake "../ede/ede-pmake.el" t)
-(require 'ede-gnustep (expand-file-name "../contrib/ede-gnustep.el") t)
+(require 'ede-gnustep)
 
 ;(require 'edebug)
 

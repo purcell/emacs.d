@@ -71,7 +71,7 @@ Insert texinfo documentation about TAG from BUFFER.
 
 ;;;### (autoloads (semantic-bovinate-toplevel semantic-refresh-tags-safe
 ;;;;;;  semantic-fetch-tags semantic-parse-region-default) "semantic"
-;;;;;;  "semantic.el" (18810 50577))
+;;;;;;  "semantic.el" (18817 46164))
 ;;; Generated autoloads from semantic.el
 
 (autoload 'semantic-parse-region-default "semantic" "\
@@ -231,7 +231,7 @@ if a cached copy of the return object is found.
 
 ;;;### (autoloads (semantic-analyze-possible-completions semantic-analyze-tags-of-class-list)
 ;;;;;;  "semantic-analyze-complete" "semantic-analyze-complete.el"
-;;;;;;  (18810 50577))
+;;;;;;  (18820 45883))
 ;;; Generated autoloads from semantic-analyze-complete.el
 
 (autoload 'semantic-analyze-tags-of-class-list "semantic-analyze-complete" "\
@@ -261,7 +261,7 @@ in a buffer.
 ;;;***
 
 ;;;### (autoloads (semantic-analyze-debug-assist) "semantic-analyze-debug"
-;;;;;;  "semantic-analyze-debug.el" (18810 50577))
+;;;;;;  "semantic-analyze-debug.el" (18817 46164))
 ;;; Generated autoloads from semantic-analyze-debug.el
 
 (autoload 'semantic-analyze-debug-assist "semantic-analyze-debug" "\
@@ -329,7 +329,7 @@ list of semantic tokens found.
 
 ;;;### (autoloads (semantic-c-add-preprocessor-symbol semantic-default-c-setup
 ;;;;;;  semantic-lex-c-preprocessor-symbol-file semantic-lex-c-preprocessor-symbol-map)
-;;;;;;  "semantic-c" "bovine/semantic-c.el" (18810 50577))
+;;;;;;  "semantic-c" "bovine/semantic-c.el" (18817 46164))
 ;;; Generated autoloads from bovine/semantic-c.el
 
 (defvar semantic-lex-c-preprocessor-symbol-map nil "\
@@ -782,7 +782,7 @@ Non-nil if TAG is currently folded.
 
 ;;;### (autoloads (semantic-decoration-unparsed-include-do-reset
 ;;;;;;  semantic-decoration-include-visit) "semantic-decorate-include"
-;;;;;;  "semantic-decorate-include.el" (18810 50577))
+;;;;;;  "semantic-decorate-include.el" (18817 46164))
 ;;; Generated autoloads from semantic-decorate-include.el
 
 (autoload 'semantic-decoration-include-visit "semantic-decorate-include" "\
@@ -852,7 +852,7 @@ IGNORE any input arguments.
 ;;;### (autoloads (semantic-dependency-find-file-on-path semantic-customize-system-include-path
 ;;;;;;  semantic-reset-system-include semantic-remove-system-include
 ;;;;;;  semantic-add-system-include defcustom-mode-local-semantic-dependency-system-include-path)
-;;;;;;  "semantic-dep" "semantic-dep.el" (18810 50577))
+;;;;;;  "semantic-dep" "semantic-dep.el" (18817 46164))
 ;;; Generated autoloads from semantic-dep.el
 
 (defvar semantic-dependency-include-path nil "\
@@ -994,7 +994,7 @@ Convert the output tags into Semantic tags.
 ;;;***
 
 ;;;### (autoloads nil "semantic-ede-grammar" "semantic-ede-grammar.el"
-;;;;;;  (18668 41327))
+;;;;;;  (18820 45883))
 ;;; Generated autoloads from semantic-ede-grammar.el
 
 (eieio-defclass-autoload 'semantic-ede-proj-target-grammar '(ede-proj-target-makefile) "semantic-ede-grammar" "This target consists of a group of grammar files.\nA grammar target consists of grammar files that build Emacs Lisp programs for\nparsing different languages.")
@@ -1690,7 +1690,7 @@ list of possible completions.
 ;;;***
 
 ;;;### (autoloads (semantic-ia-utest) "semantic-ia-utest" "semantic-ia-utest.el"
-;;;;;;  (18810 50577))
+;;;;;;  (18821 31226))
 ;;; Generated autoloads from semantic-ia-utest.el
 
 (autoload 'semantic-ia-utest "semantic-ia-utest" "\
@@ -2270,7 +2270,7 @@ likely derived, then this function is needed.
 ;;;### (autoloads (semantic-symref-find-text semantic-symref-find-file-references-by-name
 ;;;;;;  semantic-symref-find-tags-by-completion semantic-symref-find-tags-by-regexp
 ;;;;;;  semantic-symref-find-tags-by-name semantic-symref-find-references-by-name)
-;;;;;;  "semantic-symref" "symref/semantic-symref.el" (18810 50577))
+;;;;;;  "semantic-symref" "symref/semantic-symref.el" (18821 31227))
 ;;; Generated autoloads from symref/semantic-symref.el
 
 (autoload 'semantic-symref-find-references-by-name "semantic-symref" "\
@@ -2279,8 +2279,10 @@ Optional SCOPE specifies which file set to search.  Defaults to 'project.
 Refers to `semantic-symref-tool', to determine the reference tool to use
 for the current buffer.
 Returns an object of class `semantic-symref-result'.
+TOOL-RETURN is an optional symbol, which will be assigned the tool used
+to perform the search.  This was added for use by a test harness.
 
-\(fn NAME &optional SCOPE)" t nil)
+\(fn NAME &optional SCOPE TOOL-RETURN)" t nil)
 
 (autoload 'semantic-symref-find-tags-by-name "semantic-symref" "\
 Find a list of references to NAME in the current project.
@@ -2624,13 +2626,15 @@ Run parsing test for C from the test directory.
 
 ;;;***
 
-;;;### (autoloads (semantic-stickyfunc-mode global-semantic-stickyfunc-mode
-;;;;;;  global-semantic-stickyfunc-mode semantic-show-parser-state-mode
-;;;;;;  global-semantic-show-parser-state-mode global-semantic-show-parser-state-mode
-;;;;;;  semantic-show-unmatched-syntax-mode global-semantic-show-unmatched-syntax-mode
-;;;;;;  global-semantic-show-unmatched-syntax-mode semantic-highlight-edits-mode
-;;;;;;  global-semantic-highlight-edits-mode global-semantic-highlight-edits-mode)
-;;;;;;  "semantic-util-modes" "semantic-util-modes.el" (18810 50577))
+;;;### (autoloads (semantic-highlight-func-mode global-semantic-highlight-func-mode
+;;;;;;  global-semantic-highlight-func-mode semantic-stickyfunc-mode
+;;;;;;  global-semantic-stickyfunc-mode global-semantic-stickyfunc-mode
+;;;;;;  semantic-show-parser-state-mode global-semantic-show-parser-state-mode
+;;;;;;  global-semantic-show-parser-state-mode semantic-show-unmatched-syntax-mode
+;;;;;;  global-semantic-show-unmatched-syntax-mode global-semantic-show-unmatched-syntax-mode
+;;;;;;  semantic-highlight-edits-mode global-semantic-highlight-edits-mode
+;;;;;;  global-semantic-highlight-edits-mode) "semantic-util-modes"
+;;;;;;  "semantic-util-modes.el" (18820 45883))
 ;;; Generated autoloads from semantic-util-modes.el
 
 (autoload 'global-semantic-highlight-edits-mode "semantic-util-modes" "\
@@ -2754,11 +2758,42 @@ minor mode is enabled.
 
 \(fn &optional ARG)" t nil)
 
+(autoload 'global-semantic-highlight-func-mode "semantic-util-modes" "\
+Toggle global use of option `semantic-highlight-func-mode'.
+If ARG is positive, enable, if it is negative, disable.
+If ARG is nil, then toggle.
+
+\(fn &optional ARG)" t nil)
+
+(defvar global-semantic-highlight-func-mode nil "\
+*If non-nil, enable global use of `semantic-highlight-func-mode'.
+When enabled, the first line of the current tag is highlighted.")
+
+(custom-autoload 'global-semantic-highlight-func-mode "semantic-util-modes" nil)
+
+(autoload 'semantic-highlight-func-mode "semantic-util-modes" "\
+Minor mode to highlight the first line of the current tag.
+Enables/disables making the header line of functions sticky.
+A function (or other tag class specified by
+`semantic-stickfunc-sticky-classes') is highlighted, meaning the
+first line which describes the rest of the construct.
+
+See `semantic-stickfunc-mode' for putting a function in the
+header line.  This mode recycles the stickyfunc configuration
+classes list.
+
+With prefix argument ARG, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-nil if the
+minor mode is enabled.
+
+\(fn &optional ARG)" t nil)
+
 ;;;***
 
 ;;;### (autoloads (semanticdb-file-stream semanticdb-file-table-object
 ;;;;;;  semanticdb-current-database) "semanticdb" "semanticdb.el"
-;;;;;;  (18810 50577))
+;;;;;;  (18820 45883))
 ;;; Generated autoloads from semanticdb.el
 
 (autoload 'semanticdb-current-database "semanticdb" "\
@@ -3423,8 +3458,8 @@ Dump the typecache for the current buffer's database.
 ;;;;;;  senator-search-forward senator-completion-menu-popup senator-complete-symbol
 ;;;;;;  senator-jump-regexp senator-jump senator-previous-tag senator-next-tag
 ;;;;;;  senator-step-at-start-end-tag-classes senator-step-at-tag-classes
-;;;;;;  global-senator-minor-mode) "senator" "senator.el" (18810
-;;;;;;  50577))
+;;;;;;  global-senator-minor-mode) "senator" "senator.el" (18820
+;;;;;;  45883))
 ;;; Generated autoloads from senator.el
 
 (defvar global-senator-minor-mode nil "\
@@ -3752,7 +3787,7 @@ Setup buffer for parse.
 ;;;***
 
 ;;;### (autoloads (wisent-python-default-setup) "wisent-python" "wisent/wisent-python.el"
-;;;;;;  (18668 41328))
+;;;;;;  (18817 46165))
 ;;; Generated autoloads from wisent/wisent-python.el
 
 (autoload 'wisent-python-default-setup "wisent-python" "\
@@ -3765,15 +3800,20 @@ Setup buffer for parse.
 ;;;***
 
 ;;;### (autoloads nil nil ("bovine/bovine-grammar-macros.el" "bovine/erlang-edoc.el"
-;;;;;;  "bovine/semantic-erlang.el" "bovine/semantic-java.el" "bovine/semantic-skeleton-by.el"
+;;;;;;  "bovine/semantic-c-by.el" "bovine/semantic-erlang-by.el"
+;;;;;;  "bovine/semantic-erlang.el" "bovine/semantic-java.el" "bovine/semantic-make-by.el"
+;;;;;;  "bovine/semantic-scm-by.el" "bovine/semantic-skeleton-by.el"
 ;;;;;;  "ctags/semantic-ectag-util.el" "document-vars.el" "semantic-analyze-fcn.el"
 ;;;;;;  "semantic-ast.el" "semantic-cb.el" "semantic-example.el"
 ;;;;;;  "semantic-fw.el" "semantic-grammar-wy.el" "semantic-inc.el"
 ;;;;;;  "semantic-load.el" "semantic-sb.el" "semantic-util.el" "semanticdb-el.el"
 ;;;;;;  "semanticdb-java.el" "semanticdb-javascript.el" "semanticdb-mk.el"
 ;;;;;;  "semanticdb-skel.el" "semanticdb-system.el" "wisent/semantic-wisent.el"
-;;;;;;  "wisent/wisent-calc.el" "wisent/wisent-expr.el" "wisent/wisent-grammar-macros.el"
-;;;;;;  "wisent/wisent-java.el") (18810 51289 74004))
+;;;;;;  "wisent/wisent-awk-wy.el" "wisent/wisent-calc-wy.el" "wisent/wisent-calc.el"
+;;;;;;  "wisent/wisent-cim-wy.el" "wisent/wisent-expr.el" "wisent/wisent-grammar-macros.el"
+;;;;;;  "wisent/wisent-java-tags-wy.el" "wisent/wisent-java-wy.el"
+;;;;;;  "wisent/wisent-java.el" "wisent/wisent-javascript-jv-wy.el"
+;;;;;;  "wisent/wisent-python-wy.el") (18821 32659 829421))
 
 ;;;***
 

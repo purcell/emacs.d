@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-decorate-include.el,v 1.21 2009/01/09 23:05:29 zappo Exp $
+;; X-RCS: $Id: semantic-decorate-include.el,v 1.22 2009/01/29 00:04:03 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -610,10 +610,19 @@ Argument EVENT describes the event that caused this function to be called."
 
       (princ "\nInclude Path Summary:\n\n")
       (when ede-object
-	(princ "  This file's project include is handled by the EDE object:\n")
-	(princ "    ")
+	(princ "  This file's project include search is handled by the EDE object:\n")
+	(princ "    Buffer Target:  ")
 	(princ (object-print ede-object))
 	(princ "\n")
+	(when (not (eq ede-object ede-object-project))
+	  (princ "    Buffer Project: ")
+	  (princ (object-print ede-object-project))
+	  (princ "\n"))
+	(when ede-object-project
+	  (let ((loc (ede-get-locator-object ede-object-project)))
+	    (princ "    Backup Locator: ")
+	    (princ (object-print loc))
+	    (princ "\n")))
 	)
 
       (princ "\n  This file's system include path is:\n")

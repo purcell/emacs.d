@@ -3,7 +3,7 @@
 ;; Copyright (C) 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: cogre-utest.el,v 1.5 2009/01/20 02:25:23 zappo Exp $
+;; X-RCS: $Id: cogre-utest.el,v 1.6 2009/01/28 19:38:49 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -102,7 +102,7 @@
   "Create a link between nodes located at X1/Y1 and X2/Y2.
 Link is created with the specified TYPE."
   (picture-goto-coordinate x1 y1)
-  (push-mark-command (point) t)
+  (push-mark (point) t)
   (let ((cogre-default-link type))
     (picture-goto-coordinate x2 y2)
     

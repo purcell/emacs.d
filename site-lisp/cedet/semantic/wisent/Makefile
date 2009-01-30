@@ -18,7 +18,7 @@ wy_SEMANTIC_GRAMMAR=wisent-java-tags.wy wisent-awk.wy wisent-calc.wy wisent-cim.
 EMACS=emacs
 wy_SEMANTIC_GRAMMAR_EL=wisent-java-tags-wy.el wisent-awk-wy.el wisent-calc-wy.el wisent-cim-wy.el wisent-java-wy.el wisent-python-wy.el wisent-javascript-jv-wy.el
 languages_LISP=wisent-calc.el wisent-java.el wisent-java-tags.el wisent-python.el wisent-javascript.el
-VERSION=2.0pre5
+VERSION=2.0pre6
 DISTDIR=$(top)semantic-$(VERSION)/wisent
 
 

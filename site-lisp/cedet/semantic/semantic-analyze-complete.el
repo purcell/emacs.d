@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-analyze-complete.el,v 1.11 2009/01/10 19:07:09 zappo Exp $
+;; X-RCS: $Id: semantic-analyze-complete.el,v 1.12 2009/01/31 18:28:21 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -98,7 +98,9 @@ in a buffer."
     (let* ((context (if (semantic-analyze-context-child-p context)
                         context
                       (semantic-analyze-current-context context)))
-	   (ans (:override)))
+	   (ans (if (not context)
+		    (error "Nothing to Complete.")
+		  (:override))))
       ;; If interactive, display them.
       (when (interactive-p)
 	(with-output-to-temp-buffer "*Possible Completions*"

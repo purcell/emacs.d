@@ -5,7 +5,7 @@
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Version: 0.0.3
 ;; Keywords: project, make
-;; RCS: $Id: project-am.el,v 1.39 2009/01/20 02:40:48 zappo Exp $
+;; RCS: $Id: project-am.el,v 1.40 2009/01/31 13:11:47 zappo Exp $
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -769,13 +769,15 @@ Argument FILE is the file to extract the end directory name from."
   "Return a list of files that provides documentation.
 Documentation is not for object THIS, but is provided by THIS for other
 files in the project."
-  (let ((src (append (oref this source)
-		     (oref this include)))
-	(out nil))
+  (let* ((src (append (oref this source)
+		      (oref this include)))
+	 (proj (ede-target-parent this))
+	 (dir (oref proj directory))
+	 (out nil))
     ;; Loop over all entries and expand
     (while src
       (setq out (cons
-		 (ede-expand-filename this (car src))
+		 (expand-file-name (car src) dir)
 		 out))
       (setq src (cdr src)))
     ;; return it

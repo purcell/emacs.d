@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-ia-utest.el,v 1.20 2009/01/20 02:34:15 zappo Exp $
+;; X-RCS: $Id: semantic-ia-utest.el,v 1.21 2009/01/31 22:42:42 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -37,6 +37,7 @@
   '( "tests/testdoublens.cpp"
      "tests/testsubclass.cpp"
      "tests/testtypedefs.cpp"
+     ;;"tests/testtemplates.cpp"
      "tests/testfriends.cpp"
      "tests/testusing.cpp"
      )
@@ -311,6 +312,7 @@ Argument ARG specifies which set of tests to run.
 	 (actual nil)
 	 (pass nil)
 	 (fail nil)
+	 (symref-tool-used nil)
 	 ;; Exclude unpredictable system files in the
 	 ;; header include list.
 	 (semanticdb-find-default-throttle
@@ -330,33 +332,53 @@ Argument ARG specifies which set of tests to run.
 	     tag)
 
       (setq actual-result (semantic-symref-find-references-by-name
-			   (semantic-tag-name tag) 'target))
+			   (semantic-tag-name tag) 'target
+			   'symref-tool-used))
 
-      (setq actual (list (mapcar
-			  'file-name-nondirectory
-			  (semantic-symref-result-get-files actual-result))
-			 (mapcar
-			  'semantic-format-tag-canonical-name
-			  (semantic-symref-result-get-tags actual-result))))
+      (if (not actual-result)
+	  (progn
+	    (setq fail (cons idx fail))
+	    (semantic-ia-utest-log
+	     "  Failed FNames %d: No results." idx)
+	    (semantic-ia-utest-log
+	     "  Failed Tool: %s" (object-name symref-tool-used))
+
+	    (add-to-list 'semantic-ia-utest-error-log-list
+			 (list (buffer-name) idx)
+			 )
+	    )
+
+	(setq actual (list (mapcar
+			    'file-name-nondirectory
+			    (semantic-symref-result-get-files actual-result))
+			   (mapcar
+			    'semantic-format-tag-canonical-name
+			    (semantic-symref-result-get-tags actual-result))))
 
       
-      (if (equal desired actual)
-	  ;; We passed
-	  (setq pass (cons idx pass))
-	;; We failed.
-	(setq fail (cons idx fail))
-	(when (not (equal (car actual) (car desired)))
-	  (semantic-ia-utest-log
-	   "  Failed FNames %d: Actual: %S Desired: %S"
-	   idx (car actual) (car desired)))
-	(when (not (equal (car (cdr actual)) (car (cdr desired))))
-	  (semantic-ia-utest-log
-	   "  Failed TNames %d: Actual: %S Desired: %S"
-	   idx (car (cdr actual)) (car (cdr desired))))
-	(add-to-list 'semantic-ia-utest-error-log-list
-		     (list (buffer-name) idx)
-		     )
-	)
+	(if (equal desired actual)
+	    ;; We passed
+	    (setq pass (cons idx pass))
+	  ;; We failed.
+	  (setq fail (cons idx fail))
+	  (when (not (equal (car actual) (car desired)))
+	    (semantic-ia-utest-log
+	     "  Failed FNames %d: Actual: %S Desired: %S"
+	     idx (car actual) (car desired))
+	    (semantic-ia-utest-log
+	     "  Failed Tool: %s" (object-name symref-tool-used))
+	    )
+	  (when (not (equal (car (cdr actual)) (car (cdr desired))))
+	    (semantic-ia-utest-log
+	     "  Failed TNames %d: Actual: %S Desired: %S"
+	     idx (car (cdr actual)) (car (cdr desired)))
+	    (semantic-ia-utest-log
+	     "  Failed Tool: %s" (object-name symref-tool-used))
+	    )
+	  (add-to-list 'semantic-ia-utest-error-log-list
+		       (list (buffer-name) idx)
+		       )
+	  ))
 
       (setq idx (1+ idx))
       (setq tag nil))

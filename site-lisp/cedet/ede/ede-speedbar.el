@@ -1,10 +1,10 @@
 ;;; ede-speedbar.el --- Speedbar viewing of EDE projects
 
-;;;  Copyright (C) 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008  Eric M. Ludlam
+;;;  Copyright (C) 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008, 2009  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make, tags
-;; RCS: $Id: ede-speedbar.el,v 1.33 2008/12/28 22:10:07 zappo Exp $
+;; RCS: $Id: ede-speedbar.el,v 1.34 2009/01/28 16:12:15 zappo Exp $
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -344,8 +344,10 @@ INDENT is the current indentation level."
   (define-key speedbar-file-key-map "." ede-speedbar-file-keymap)
   ;; Finally, if the FILES mode is loaded, force a refresh
   ;; of the menus and such.
-  (if (string= speedbar-initial-expansion-list-name "files")
-      (speedbar-change-initial-expansion-list "files")))
+  (when (and (string= speedbar-initial-expansion-list-name "files")
+	     (buffer-live-p speedbar-buffer)
+	     )
+    (speedbar-change-initial-expansion-list "files")))
 
 (provide 'ede-speedbar)
 

@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: tags
-;; X-RCS: $Id: semanticdb.el,v 1.131 2009/01/10 00:12:36 zappo Exp $
+;; X-RCS: $Id: semanticdb.el,v 1.132 2009/01/31 18:09:26 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -949,8 +949,7 @@ function will read in the buffer, parse it, and kill the buffer."
 				 (semantic-find-file-noselect filename t))))
 
 	;; This shouldn't ever be set.  Debug some issue here?
-	(when kill-buffer-flag
-	  (debug))
+	;; (when kill-buffer-flag (debug))
 
 	(set-buffer buffer-to-kill)
 	;; Find file should automatically do this for us.

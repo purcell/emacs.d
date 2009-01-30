@@ -1,10 +1,10 @@
 ;;; ede-proj-info.el --- EDE Generic Project texinfo support
 
-;;;  Copyright (C) 1998, 1999, 2000, 2001, 2004, 2007, 2008  Eric M. Ludlam
+;;;  Copyright (C) 1998, 1999, 2000, 2001, 2004, 2007, 2008, 2009  Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-proj-info.el,v 1.22 2008/12/28 22:11:10 zappo Exp $
+;; RCS: $Id: ede-proj-info.el,v 1.23 2009/01/31 13:12:03 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -167,13 +167,15 @@ Argument THIS is the target which needs to insert an info file."
   "Return a list of files that provides documentation.
 Documentation is not for object THIS, but is provided by THIS for other
 files in the project."
-  (let ((src (oref this source))
-	(out nil)
-	)
+  (let* ((src (oref this source))
+	 (proj (ede-target-parent this))
+	 (dir (oref proj directory))
+	 (out nil)
+	 )
     ;; convert src to full file names.
     (while src
       (setq out (cons
-		 (ede-expand-filename this (car src))
+		 (expand-file-name (car src) dir)
 		 out))
       (setq src (cdr src)))
     ;; Return it

@@ -4,9 +4,9 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: graph, oop, extensions, outlines
-;; X-RCS: $Id: cogre.el,v 1.23 2009/01/20 02:19:46 zappo Exp $
+;; X-RCS: $Id: cogre.el,v 1.24 2009/01/29 02:56:13 zappo Exp $
 
-(defvar cogre-version "0.6"
+(defvar cogre-version "0.7"
   "Current version of Cogre.")
 
 ;; This file is not part of GNU Emacs.

@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-test.el,v 1.7 2009/01/24 03:39:04 zappo Exp $
+;; X-RCS: $Id: srecode-test.el,v 1.8 2009/01/29 03:15:59 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -74,6 +74,14 @@ Assumes that the current buffer is the testing buffer."
 					   ))
 	 (srecode-handle-region-when-non-active-flag t)
 	 )
+    (when (not temp)
+      (srecode-map-update-map)
+      (setq temp (srecode-template-get-table (srecode-table)
+					     (oref o name)
+					     "test"
+					     'tests
+					     ))
+      )
     (when (not temp)
       (error "Test template \"%s\" for `%s' not loaded!"
 	     (oref o name) major-mode))
@@ -219,7 +227,7 @@ LAST                 |                 LAST")
       (srecode-load-tables-for-mode major-mode)
       (srecode-load-tables-for-mode major-mode 'tests)
 
-      (if (not (srecode-table))
+      (if (not (srecode-table major-mode))
 	  (error "No template table found for mode %s" major-mode))
 
       ;; Loop over the output testpoints.

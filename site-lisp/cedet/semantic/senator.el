@@ -6,7 +6,7 @@
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 10 Nov 2000
 ;; Keywords: syntax
-;; X-RCS: $Id: senator.el,v 1.135 2009/01/24 04:53:42 zappo Exp $
+;; X-RCS: $Id: senator.el,v 1.136 2009/01/31 18:12:45 zappo Exp $
 
 ;; This file is not part of Emacs
 
@@ -1749,6 +1749,17 @@ minor mode entry."
  '(global-semantic-stickyfunc-mode
    :help "Automatically enable sticky function mode in all Semantic buffers."
    :save global-semantic-stickyfunc-mode
+   )
+ )
+
+(senator-register-mode-menu-entry
+ "Highlight Func"
+ '(semantic-highlight-func-mode
+   :help "Cause function declaration the cursor is in be highlighted."
+   )
+ '(global-semantic-highlight-func-mode
+   :help "Automatically enable highlight function mode in all Semantic buffers."
+   :save global-semantic-highlight-func-mode
    )
  )
 

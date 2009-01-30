@@ -23,7 +23,7 @@ aux-lisp_LISP=autoconf-edit.el autoconf-compat.el
 misc_AUX=README TODO ede-proj-skel.el ChangeLog
 ede_info_TEXINFOS=ede.texi ede-projects.texi ede-targets.texi ede-sourcecode.texi ede-compilers.texi
 MAKEINFO=makeinfo
-VERSION=1.0pre5
+VERSION=1.0pre6
 DISTDIR=$(top)EDE-$(VERSION)
 
 

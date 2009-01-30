@@ -2,7 +2,7 @@
 ;; EDE project file.
 (ede-proj-project "common"
   :name "common"
-  :version "1.0pre5"
+  :version "1.0pre6"
   :file "Project.ede"
   :targets (list 
    (ede-proj-target-makefile-info "Doc"

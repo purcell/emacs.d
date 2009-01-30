@@ -128,12 +128,14 @@ ARGS are the initialization arguments to pass to the created class."
 ;;
 
 ;;;###autoload
-(defun semantic-symref-find-references-by-name (name &optional scope)
+(defun semantic-symref-find-references-by-name (name &optional scope tool-return)
   "Find a list of references to NAME in the current project.
 Optional SCOPE specifies which file set to search.  Defaults to 'project.
 Refers to `semantic-symref-tool', to determine the reference tool to use
 for the current buffer.
-Returns an object of class `semantic-symref-result'."
+Returns an object of class `semantic-symref-result'.
+TOOL-RETURN is an optional symbol, which will be assigned the tool used
+to perform the search.  This was added for use by a test harness."
   (interactive "sName: ")
   (let* ((inst (semantic-symref-instantiate
 		:searchfor name
@@ -141,6 +143,8 @@ Returns an object of class `semantic-symref-result'."
 		:searchscope (or scope 'project)
 		:resulttype 'line))
 	 (result (semantic-symref-get-result inst)))
+    (when tool-return
+      (set tool-return inst))
     (prog1
 	(setq semantic-symref-last-result result)
       (when (interactive-p)

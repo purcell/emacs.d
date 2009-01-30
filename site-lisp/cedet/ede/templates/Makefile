@@ -10,7 +10,7 @@ top=../
 ede_FILES=Project.ede Makefile
 
 Templates_MISC=ede-make.srt
-VERSION=1.0pre5
+VERSION=1.0pre6
 DISTDIR=$(top)EDE-$(VERSION)/templates
 
 

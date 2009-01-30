@@ -5,7 +5,7 @@
 ## Author: David Ponce <david@dponce.com>
 ## Maintainer: CEDET developers <http://sf.net/projects/cedet>
 ## Created: 12 Sep 2003
-## X-RCS: $Id: Makefile,v 1.19 2009/01/20 02:41:58 zappo Exp $
+## X-RCS: $Id: Makefile,v 1.20 2009/01/29 02:58:26 zappo Exp $
 ##
 ## This program is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -36,7 +36,8 @@ semantic \
 srecode \
 ede \
 cogre \
-contrib
+contrib \
+tests
 
 ## Path to your Emacs
 EMACS=emacs

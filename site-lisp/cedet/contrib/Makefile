@@ -22,7 +22,7 @@ wy_SEMANTIC_GRAMMAR=wisent-csharp.wy wisent-ruby.wy wisent-php.wy
 EMACS=emacs
 wy_SEMANTIC_GRAMMAR_EL=wisent-csharp-wy.el wisent-ruby-wy.el wisent-php-wy.el
 lisp_LISP=wisent-csharp.el semantic-tag-folding.el eassist.el wisent-ruby.el wisent-php.el ede-gnustep.el
-VERSION=1.0pre5
+VERSION=1.0pre6
 DISTDIR=$(top)Contrib-$(VERSION)
 
 

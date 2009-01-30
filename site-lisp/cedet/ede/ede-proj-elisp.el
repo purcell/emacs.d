@@ -4,7 +4,7 @@
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: project, make
-;; RCS: $Id: ede-proj-elisp.el,v 1.34 2009/01/20 02:39:37 zappo Exp $
+;; RCS: $Id: ede-proj-elisp.el,v 1.35 2009/01/31 13:12:47 zappo Exp $
 
 ;; This software is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -113,14 +113,14 @@ Lays claim to all .elc files that match .el files in this target."
 (defmethod project-compile-target ((obj ede-proj-target-elisp))
   "Compile all sources in a Lisp target OBJ.
 Bonus: Return a cons cell: (COMPILED . UPTODATE)."
-  (let ((cb (current-buffer))
-	(comp 0)
-	(utd 0))
+  (let* ((proj (ede-target-parent obj))
+	 (dir (oref proj directory))
+	 (comp 0)
+	 (utd 0))
     (mapc (lambda (src)
-	    (let* ((fsrc (ede-expand-filename obj src))
+	    (let* ((fsrc (expand-file-name src dir))
 		   (elc (concat (file-name-sans-extension fsrc) ".elc"))
 		   )
-	      (set-buffer cb)
 	      (if (or (not (file-exists-p elc))
 		      (file-newer-than-file-p fsrc elc))
 		  (progn

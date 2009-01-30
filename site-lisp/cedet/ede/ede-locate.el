@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: ede-locate.el,v 1.5 2009/01/20 02:36:56 zappo Exp $
+;; X-RCS: $Id: ede-locate.el,v 1.6 2009/01/28 19:38:20 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -174,12 +174,8 @@ configure the use of EDE locate.")
 (defmethod ede-locate-ok-in-project :static ((loc ede-locate-locate)
 					     root)
   "Is it ok to use this project type under ROOT."
-  (require 'locate)
-  (let ((lf (locate-file locate-command exec-path 
-			 '(".exe")
-			 `file-executable-p)))
-    ;; @todo - make sure lf found something.
-    t))	
+  (or (featurep 'locate) (locate-library "locate"))
+  )
 
 (defmethod ede-locate-file-in-project-impl ((loc ede-locate-locate)
 					    filesubstring)

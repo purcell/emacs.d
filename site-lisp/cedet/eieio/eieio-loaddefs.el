@@ -184,8 +184,8 @@ Argument PPATH is the path to the directory we are going to analyze.
 ;;;;;;  "e-config.el" "ecfg-menu.el" "eieio-base.el" "eieio-comp.el"
 ;;;;;;  "eieio-custom.el" "eieio-doc.el" "eieio-load.el" "eieio-speedbar.el"
 ;;;;;;  "eieio-test-methodinvoke.el" "eieio-tests.el" "eieio.el"
-;;;;;;  "eieiocomp.el" "psql.el" "widget-d.el" "widget-i.el") (18810
-;;;;;;  51286 605320))
+;;;;;;  "eieiocomp.el" "psql.el" "widget-d.el" "widget-i.el") (18821
+;;;;;;  32657 187190))
 
 ;;;***
 
