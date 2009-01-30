@@ -1,11 +1,26 @@
 NAME
     yaml-mode - Simple major mode to edit YAML file for emacs
 
+VERSION
+    0.0.3
+
 SYNOPSIS
-      # You must add path installed yaml-mode.el to load-path.
-      (autoload 'yaml-mode "yaml-mode" "YAML" t)
-      (setq auto-mode-alist
-            (append '(("\\.yml$" . yaml-mode)) auto-mode-alist))
+    To install, just drop this file into a directory in your
+    `load-path' and (optionally) byte-compile it.  To automatically
+    handle files ending in '.yml', add something like:
+
+    (require 'yaml-mode)
+    (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
+
+    to your .emacs file.
+
+    Unlike python-mode, this mode follows the Emacs convention of not
+    binding the ENTER key to `newline-and-indent'.  To get this
+    behavior, add the key definition to `yaml-mode-hook':
+
+    (add-hook 'yaml-mode-hook
+      '(lambda ()
+        (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 
 DESCRIPTION
     yaml-mode is major mode for emacs.
@@ -25,7 +40,7 @@ SETTING
     see SYNOPSIS.
 
 AUTHOR
-    Yoshiki Kurihara <kurihara@cpan.org> Copyright (C) 2002 by Free Software
+    Yoshiki Kurihara <kurihara@cpan.org> Copyright (C) 2006 by Free Software
     Foundation, Inc.
 
     This file is free software; you can redistribute it and/or modify it

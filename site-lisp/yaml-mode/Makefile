@@ -1,4 +1,4 @@
-VERSION=0.01
+VERSION=0.0.3
 EMACS = emacs
 PREFIX = /usr/local
 INSTALLLIBDIR = $(PREFIX)/share/emacs/site-lisp
@@ -21,7 +21,7 @@ uninstall:
 
 tardist:
 	mkdir yaml-mode-$(VERSION)
-	cp yaml-mode.el Makefile README yaml-mode-$(VERSION)
+	cp yaml-mode.el Makefile README Changes yaml-mode-$(VERSION)
 	tar zcvf yaml-mode-$(VERSION).tar.gz yaml-mode-$(VERSION)
 	rm -fr yaml-mode-$(VERSION)
 
