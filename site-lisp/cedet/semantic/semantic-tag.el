@@ -2,7 +2,7 @@
 
 ;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 
-;; X-CVS: $Id: semantic-tag.el,v 1.65 2009/01/24 01:04:57 scymtym Exp $
+;; X-CVS: $Id: semantic-tag.el,v 1.67 2009/02/01 16:23:14 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -594,6 +594,10 @@ FAUX tags represent constructs not found in the source code.
 You can identify a faux tag with `semantic-tag-faux-p'"
   (semantic--tag-put-property tag :faux-flag t))
 
+(defsubst semantic-tag-set-name (tag name)
+  "Set TAG name to NAME."
+  (setcar tag name))
+
 ;;; Copying and cloning tags.
 ;;
 (defsubst semantic-tag-clone (tag &optional name)
@@ -664,6 +668,69 @@ This function is for internal use only."
       (semantic--tag-put-property tag2 (car plist) (nth 1 plist))
       (setq plist (nthcdr 2 plist)))
     tag2))
+
+;;; DEEP COPIES
+;;
+(defun semantic-tag-deep-copy-one-tag (tag &optional filter)
+  "Make a deep copy of TAG, applying FILTER to each child-tag.
+Properties and overlay info are not copied.
+FILTER takes TAG as an argument, and should returns a semantic-tag. 
+It is safe for FILTER to modify the input tag and return it."
+  (when (not filter) (setq filter 'identity))
+  (when (not (semantic-tag-p tag))
+    (signal 'wrong-type-argument (list tag 'semantic-tag-p)))
+  (funcall filter (list (semantic-tag-name tag) 
+                        (semantic-tag-class tag)
+                        (semantic--tag-deep-copy-attributes
+			 (semantic-tag-attributes tag) filter)
+                        nil
+                        nil)))
+
+(defun semantic--tag-deep-copy-attributes (attrs &optional filter)
+  "Make a deep copy of ATTRS, applying FILTER to each child-tag.
+
+It is safe to modify ATTR, and return a permutaion of that list.
+
+FILTER takes TAG as an argument, and should returns a semantic-tag. 
+It is safe for FILTER to modify the input tag and return it."
+  (when (car attrs)
+    (when (not (symbolp (car attrs))) (error "Bad Attribute List in tag"))
+    (cons (car attrs) 
+          (cons (semantic--tag-deep-copy-value (nth 1 attrs) filter) 
+                (semantic--tag-deep-copy-attributes (nthcdr 2 attrs) filter)))))
+
+(defun semantic--tag-deep-copy-value (value &optional filter)
+  "Make a deep copy of VALUE, applying FILTER to each child-tag.
+
+It is safe to  modify VALUE, and return a permutaion of that list.
+
+FILTER takes TAG as an argument, and should returns a semantic-tag. 
+It is safe for FILTER to modify the input tag and return it."
+  (cond
+   ;; Another tag.
+   ((semantic-tag-p value)
+    (semantic-tag-deep-copy-one-tag value filter))
+   
+   ;; A list of more tags
+   ((and (listp value) (semantic-tag-p (car value)))
+    (semantic--tag-deep-copy-tag-list value filter))
+   
+   ;; Some arbitrary data.
+   (t value)))
+
+(defun semantic--tag-deep-copy-tag-list (tags &optional filter)
+  "Make a deep copy of TAGS, applying FILTER to each child-tag.
+
+It is safe to modify the TAGS list, and return a permutaion of that list.
+
+FILTER takes TAG as an argument, and should returns a semantic-tag. 
+It is safe for FILTER to modify the input tag and return it."
+  (when (car tags)
+    (if (semantic-tag-p (car tags))
+        (cons (semantic-tag-deep-copy-one-tag (car tags) filter) 
+              (semantic--tag-deep-copy-tag-list (cdr tags) filter))
+      (cons (car tags) (semantic--tag-deep-copy-tag-list (cdr tags) filter)))))
+
 
 ;;; Standard Tag Access
 ;;

@@ -3,7 +3,7 @@
 ;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-analyze-fcn.el,v 1.24 2009/01/20 02:27:39 zappo Exp $
+;; X-RCS: $Id: semantic-analyze-fcn.el,v 1.25 2009/02/01 16:11:05 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -172,22 +172,23 @@ Optional SCOPE represents a calculated scope in which the
 types might be found.  This can be nil.
 If NOMETADEREF, then do not dereference metatypes.  This is
 used by the analyzer debugger."
-  (let ((ttype (semantic-tag-type tag))
+  (let ((type-declaration (semantic-tag-type tag))
 	(name nil)
 	(typetag nil)
 	)
 
     ;; Is it an anonymous type?
-    (if (and ttype
-	     (semantic-tag-p ttype)
-	     (semantic-tag-of-class-p ttype 'type)
-	     (not (semantic-analyze-tag-prototype-p ttype))
+    (if (and type-declaration
+	     (semantic-tag-p type-declaration)
+	     (semantic-tag-of-class-p type-declaration 'type)
+	     (not (semantic-analyze-tag-prototype-p type-declaration))
 	     )
 	;; We have an anonymous type for TAG with children.
 	;; Use this type directly.
 	(if nometaderef
-	    ttype
-	  (semantic-analyze-dereference-metatype-stack ttype scope))
+	    type-declaration
+	  (semantic-analyze-dereference-metatype-stack
+	   type-declaration scope type-declaration))
 
       ;; Not an anonymous type.  Look up the name of this type
       ;; elsewhere, and report back.
@@ -203,7 +204,7 @@ used by the analyzer debugger."
 
 	;; No name to look stuff up with.
 	(error "Semantic tag %S has no type information"
-	       (semantic-tag-name ttype)))
+	       (semantic-tag-name type-declaration)))
 
       ;; Handle lists of tags.
       (when (and (consp typetag) (semantic-tag-p (car typetag)))
@@ -219,28 +220,30 @@ used by the analyzer debugger."
 	    (progn
 	      (semantic-scope-set-typecache
 	       scope (semantic-scope-tag-get-scope typetag))
-	      (semantic-analyze-dereference-metatype-stack typetag scope)
+	      (semantic-analyze-dereference-metatype-stack typetag scope type-declaration)
 	      )
 	  (semantic-scope-set-typecache scope nil)
 	  )))))
 
-(defun semantic-analyze-dereference-metatype-stack (type scope)
+(defun semantic-analyze-dereference-metatype-stack (type scope &optional type-declaration)
   "Dereference metatypes repeatedly until we hit a real TYPE.
 Uses `semantic-analyze-dereference-metatype'.
 Argument SCOPE is the scope object with additional items in which to search."
   (let ((lasttype type)
-	(nexttype (semantic-analyze-dereference-metatype type scope))
+        (lasttypedeclaration type-declaration)
+	(nexttype (semantic-analyze-dereference-metatype type scope type-declaration))
 	(idx 0))
-    (while (and nexttype (not (eq nexttype lasttype)))
-      (setq lasttype nexttype)
-      (setq nexttype (semantic-analyze-dereference-metatype lasttype scope))
+    (while (and nexttype (not (eq (car nexttype) lasttype)))
+      (setq lasttype (car nexttype) 
+            lasttypedeclaration (cadr nexttype))
+      (setq nexttype (semantic-analyze-dereference-metatype lasttype scope lasttypedeclaration))
       (setq idx (1+ idx))
       (when (> idx 20) (error "Possible metatype recursion for %S"
 			      (semantic-tag-name lasttype)))
       )
     lasttype))
 
-(define-overloadable-function semantic-analyze-dereference-metatype (type scope)
+(define-overloadable-function semantic-analyze-dereference-metatype (type scope &optional type-declaration)
   ;; todo - move into typecahe!!
   "Return a concrete type tag based on input TYPE tag.
 A concrete type is an actual declaration of a memory description,
@@ -253,14 +256,12 @@ Override functions need not return a real semantic tag.
 Just a name, or short tag will be ok.  It will be expanded here.
 SCOPE is the scope object with additional items in which to search for names."
   (catch 'default-behavior
-    (let ((ans (:override
-                ;; Nothing fancy, just return type be default.
-                (throw 'default-behavior type))))
-      (cond
-       ((semantic-tag-p ans)
-	ans)
-       (t (semantic-analyze-dereference-metatype-1 ans scope))
-       ))))
+    (let* ((ans-tuple (:override
+                       ;; Nothing fancy, just return type be default.
+                       (throw 'default-behavior (list type type-declaration))))           
+           (ans-type (car ans-tuple))
+           (ans-type-declaration (cadr ans-tuple)))      
+       (list (semantic-analyze-dereference-metatype-1 ans-type scope) ans-type-declaration))))
 
 ;; @ TODO - the typecache can also return a stack of scope names.
 

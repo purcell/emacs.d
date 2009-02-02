@@ -616,7 +616,7 @@ Adds the following:
 
 ;;;### (autoloads nil nil ("srecode-document-vars.el" "srecode-extract.el"
 ;;;;;;  "srecode-load.el" "srecode-template-wy.el" "srecode.el")
-;;;;;;  (18821 32680 866811))
+;;;;;;  (18822 48687 604047))
 
 ;;;***
 

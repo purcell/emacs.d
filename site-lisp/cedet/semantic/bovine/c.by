@@ -7,7 +7,7 @@
 ;;         David Ponce <david@dponce.com>
 ;;         Klaus Berndl <klaus.berndl@sdm.de>
 ;;
-;; X-RCS: $Id: c.by,v 1.51 2009/01/10 12:58:24 zappo Exp $
+;; X-RCS: $Id: c.by,v 1.52 2009/02/02 01:38:33 zappo Exp $
 ;;
 ;; c.by is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -668,8 +668,9 @@ typeformbase
     (TYPE-TAG $1 "class" nil nil :template-specifier $2)
  ;;| namespace-symbol opt-stars opt-template-specifier
  ;;| namespace-symbol opt-template-specifier
-  | namespace-symbol opt-template-specifier
-    (TYPE-TAG (car $1) "class" nil nil)
+  | namespace-symbol-for-typeformbase opt-template-specifier
+    (TYPE-TAG (car $1) "class" nil nil
+	      :template-specifier $2)
   | symbol
     ( $1 )
   ;
@@ -761,7 +762,7 @@ func-decl
           ;; Extra stuff goes in here.
           ;; Continue with the stuff we found in
           ;; this definition
-          $2 $3 $7 $9 $8 ,$1 ,$11 )
+          $2 $3 $7 $9 $8 ,$1 ,$11 ,$5)
   | opt-stars opt-class opt-destructor functionname
     opt-template-specifier
     opt-under-p
@@ -774,7 +775,7 @@ func-decl
           ;; Extra stuff goes in here.
           ;; Continue with the stuff we found in
           ;; this definition
-          $2 $3 nil $8 $7 ,$1 ,$10 )
+          $2 $3 nil $8 $7 ,$1 ,$10 ,$5)
   ;
 
 var-decl
@@ -906,6 +907,14 @@ namespace-symbol
     ( $1 )
   ;
 
+;; Don't pull an optional template specifier at the end of the
+;; namespace symbol so that it can be picked up by the type.
+namespace-symbol-for-typeformbase
+  : symbol opt-template-specifier COLON COLON namespace-symbol-for-typeformbase
+    ( (concat $1 "::" (car $5)) )
+  | symbol
+    ( $1 )
+  ;
 ;; namespace-symbol
 ;;   : symbol COLON COLON namespace-symbol
 ;;     ( (concat $1 "::" (car $4)) )

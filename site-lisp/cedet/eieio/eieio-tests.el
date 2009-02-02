@@ -4,7 +4,7 @@
 ;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 ;;
 ;; Author: <zappo@gnu.org>
-;; RCS: $Id: eieio-tests.el,v 1.45 2009/01/18 18:51:10 zappo Exp $
+;; RCS: $Id: eieio-tests.el,v 1.46 2009/02/01 20:54:40 scymtym Exp $
 ;; Keywords: oop, lisp, tools
 ;;
 ;; This program is free software; you can redistribute it and/or modify
@@ -386,7 +386,50 @@ METHOD is the method that was attempting to be called."
       (error ""))
   (unbound-slot nil)
   (error (error "Oref of unbound slot succeeded.")))
-  
+
+(defclass virtual-slot-class ()
+  ((base-value :initarg :base-value))
+  "Class has real slot :base-value and simulated slot :derived-value.")
+
+(defmethod slot-missing ((vsc virtual-slot-class)
+			 slot-name operation &optional new-value)
+  "Simulate virtual slot derived-value."
+  (cond
+   ((or (eq slot-name :derived-value)
+	(eq slot-name 'derived-value))
+    (with-slots (base-value) vsc
+      (if (eq operation 'oref)
+	  (+ base-value 1)
+	(setq base-value (- new-value 1)))))
+   (t (call-next-method)))
+  )
+
+(defvar vsca)
+(setq vsca (virtual-slot-class "vsca" :base-value 1))
+(unless (= (oref vsca :base-value) 1)
+  (error "Wrong slot value."))
+(unless (= (oref vsca :derived-value) 2)
+  (error "Wrong slot value."))
+
+(oset vsca :derived-value 3)
+(unless (= (oref vsca :base-value) 2)
+  (error "Wrong slot value."))
+(unless (= (oref vsca :derived-value) 3)
+  (error "Wrong slot value."))
+
+(oset vsca :base-value 3)
+(unless (= (oref vsca :base-value) 3)
+  (error "Wrong slot value."))
+(unless (= (oref vsca :derived-value) 4)
+  (error "Wrong slot value."))
+
+;; should also be possible to initialize instance using virtual slot
+(defvar vscb)
+(setq vscb (virtual-slot-class "vscb" :derived-value 5))
+(unless (= (oref vscb :base-value) 4)
+  (error "Wrong slot value."))
+(unless (= (oref vscb :derived-value) 5)
+  (error "Wrong slot value."))
 
 (defmethod slot-unbound ((a class-a) &rest foo)
   "If a slot in A is unbound, ignore FOO."

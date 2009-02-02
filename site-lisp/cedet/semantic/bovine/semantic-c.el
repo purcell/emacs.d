@@ -3,7 +3,7 @@
 ;;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
-;; X-RCS: $Id: semantic-c.el,v 1.99 2009/01/28 16:08:33 zappo Exp $
+;; X-RCS: $Id: semantic-c.el,v 1.101 2009/02/02 01:54:16 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -151,6 +151,26 @@ to store your global macros in a more natural way."
 	   (error nil))
 	 )
   )
+
+;;;###autoload
+(defcustom semantic-c-member-of-autocast 't
+  "Non-nil means classes with a '->' operator will cast to it's return type.
+
+For Examples:
+
+  class Foo {
+    Bar *operator->();
+  }
+
+  Foo foo;
+
+if `semantic-c-member-of-autocast' is non-nil :
+  foo->[here completion will list method of Bar]
+
+if `semantic-c-member-of-autocast' is nil :
+  foo->[here completion will list method of Foo]"
+  :group 'c
+  :type 'boolean)
 
 ;; XEmacs' autoload can't seem to byte compile the above because it
 ;; directly includes the entire defcustom.  To safely execute those,
@@ -747,6 +767,8 @@ Optional argument STAR and REF indicate the number of * and & in the typedef."
 	      :prototype-flag (if (nth 8 tokenpart) t)
 	      ;; Pure virtual
 	      :pure-virtual-flag (if (eq (nth 8 tokenpart) :pure-virtual-flag) t)
+	      ;; Template specifier.
+	      :template-specifier (nth 9 tokenpart)
 	      )))
 	 )
 	))
@@ -995,19 +1017,102 @@ handled.  A class is abstract iff it's destructor is virtual."
         (member "virtual" (semantic-tag-modifiers tag))))
    (t (semantic-tag-abstract-p-default tag parent))))
 
-(define-mode-local-override semantic-analyze-dereference-metatype
-  c-mode (type scope)
-  "Dereference TYPE as described in `semantic-analyze-dereference-metatype'.
-If TYPE is a typedef, get TYPE's type by name or tag, and return."
+(defun semantic-c-dereference-typedef (type scope &optional type-declaration)
+  "If TYPE is a typedef, get TYPE's type by name or tag, and return."         
   (if (and (eq (semantic-tag-class type) 'type)
-	   (string= (semantic-tag-type type) "typedef"))
+           (string= (semantic-tag-type type) "typedef"))
       (let ((dt (semantic-tag-get-attribute type :typedef)))
-	(cond ((and (semantic-tag-p dt)
-		    (not (semantic-analyze-tag-prototype-p dt)))
-	       dt)
-	      ((stringp dt) dt)
-	      ((consp dt) (car dt))))
-    type))
+        (cond ((and (semantic-tag-p dt)
+                    (not (semantic-analyze-tag-prototype-p dt)))
+               (list dt dt))
+              ((stringp dt) (list dt (semantic-tag dt 'type)))
+              ((consp dt) (list (car dt) dt))))
+
+    (list type type-declaration)))
+
+(defun semantic-c--instantiate-template (tag def-list spec-list)
+  "Replace TAG name according to template specification.
+DEF-LIST is the template information.
+SPEC-LIST is the template specifier of the datatype instantiated."
+  (when (and (car def-list) (car spec-list))
+
+    (when (and (string= (semantic-tag-type (car def-list)) "class") 
+               (string= (semantic-tag-name tag) (semantic-tag-name (car def-list))))
+      (semantic-tag-set-name tag (semantic-tag-name (car spec-list))))
+
+    (semantic-c--instantiate-template tag (cdr def-list) (cdr spec-list))))
+
+(defun semantic-c--template-name-1 (spec-list)
+  "return a string used to compute template class name based on SPEC-LIST
+for ref<Foo,Bar> it will return 'Foo,Bar'."
+  (when (car spec-list)
+    (let* ((endpart (semantic-c--template-name-1 (cdr spec-list)))
+	   (separator (and endpart ",")))
+      (concat (semantic-tag-name (car spec-list)) separator endpart))))
+
+(defun semantic-c--template-name (type spec-list)
+  "Return a template class name for TYPE based on SPEC-LIST.
+For a type `ref' with a template specifier of (Foo Bar) it will
+return 'ref<Foo,Bar>'."
+  (concat (semantic-tag-name type)
+	  "<" (semantic-c--template-name-1 (cdr spec-list)) ">"))
+
+(defun semantic-c-dereference-template (type scope &optional type-declaration)
+  "Dereference any template specifieres in TYPE within SCOPE.
+If TYPE is a template, return a TYPE copy with the templates types
+instantiated as specified in TYPE-DECLARATION."
+  (when (semantic-tag-p type-declaration)
+    (let ((def-list  (semantic-tag-get-attribute type :template))
+          (spec-list (semantic-tag-get-attribute type-declaration :template-specifier)))
+      (when (and def-list spec-list)
+        (setq type (semantic-tag-deep-copy-one-tag
+		    type
+		    (lambda (tag)
+		      (when (semantic-tag-of-class-p tag 'type)
+			(semantic-c--instantiate-template
+			 tag def-list spec-list))
+		      tag)
+		    ))
+        (semantic-tag-set-name type (semantic-c--template-name type spec-list))
+        (semantic-tag-put-attribute type :template nil)
+        (semantic-tag-set-faux type))))
+  (list type type-declaration))
+
+(defun semantic-c-dereference-member-of (type scope &optional type-declaration)
+  "Dereference through the `->' operator of TYPE.
+Uses the return type of the '->' operator if it is contained in TYPE.
+SCOPE is the current local scope to perform searches in.
+TYPE-DECLARATION is passed through."
+  (if semantic-c-member-of-autocast
+      (let ((operator (car (semantic-find-tags-by-name "->" (semantic-analyze-scoped-type-parts type)))))
+        (if operator 
+            (list (semantic-tag-get-attribute operator :type) (semantic-tag-get-attribute operator :type))
+          (list type type-declaration)))
+    (list type type-declaration)))
+
+
+(define-mode-local-override semantic-analyze-dereference-metatype
+  c-mode (type scope &optional type-declaration)
+  "Dereference TYPE as described in `semantic-analyze-dereference-metatype'.
+Handle typedef, template instantiation, and '->' operator."
+  (let* ((dereferencer-list '(semantic-c-dereference-typedef 
+                              semantic-c-dereference-template
+                              semantic-c-dereference-member-of))
+         (dereferencer (pop dereferencer-list))
+         (type-tuple)
+         (original-type type))
+    (while dereferencer
+      (setq type-tuple (funcall dereferencer type scope type-declaration)
+            type (car type-tuple) 
+            type-declaration (cadr type-tuple))      
+      (if (not (eq type original-type))
+          ;; we found a new type so break the dereferencer loop now ! 
+          ;; (we will be recalled with the new type expanded by 
+          ;; semantic-analyze-dereference-metatype-stack).
+          (setq dereferencer nil)        
+        ;; no new type found try the next dereferencer :
+        (setq dereferencer (pop dereferencer-list)))))
+    (list type type-declaration))
 
 (define-mode-local-override semantic-analyze-type-constants c-mode (type)
   "When TYPE is a tag for an enum, return it's parts.

@@ -6,7 +6,7 @@
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 10 Nov 2000
 ;; Keywords: syntax
-;; X-RCS: $Id: senator.el,v 1.136 2009/01/31 18:12:45 zappo Exp $
+;; X-RCS: $Id: senator.el,v 1.137 2009/02/02 00:13:42 zappo Exp $
 
 ;; This file is not part of Emacs
 
@@ -1306,6 +1306,23 @@ filters in `senator-search-tag-filter-functions' remain active."
       (pulse-momentary-highlight-overlay (semantic-tag-overlay tag)))
     ))
 
+(defun senator-adebug-tag (&optional tag)
+  "Pulse the current TAG."
+  (interactive)
+  (senator-force-refresh)
+  (let ((tag (semantic-current-tag))
+	(w (selected-window)))
+    (when tag
+      (message "%s" (semantic-format-tag-summarize tag))
+      (data-debug-new-buffer "*Senator Tag ADEBUG*")
+      (data-debug-insert-tag tag "* " "")
+      (forward-line -1)
+      (data-debug-insert-tag-parts-from-point (point))
+      (select-window w t)
+      (pulse-momentary-highlight-overlay (semantic-tag-overlay tag))
+      )
+    ))
+
 ;;;;
 ;;;;
 ;;;;
@@ -1861,6 +1878,7 @@ This is a buffer local variable.")
     (define-key km "-"    'senator-fold-tag)
     (define-key km "+"    'senator-unfold-tag)
     (define-key km "?"    'senator-pulse-tag)
+    (define-key km "/"    'senator-adebug-tag)
     
     km)
   "Default key bindings in senator minor mode.")

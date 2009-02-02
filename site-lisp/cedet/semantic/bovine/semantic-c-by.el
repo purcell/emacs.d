@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
-;; Author: Steve <steve@Mandala.local>
-;; Created: 2009-01-24 08:51:14+0100
+;; Author: Steve <steve@asma00096b9e5774>
+;; Created: 2009-02-02 10:34:35+0100
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 
@@ -1069,13 +1069,14 @@
 	 "class" nil nil :template-specifier
 	 (nth 1 vals)))
       )
-     (namespace-symbol
+     (namespace-symbol-for-typeformbase
       opt-template-specifier
       ,(semantic-lambda
 	(semantic-tag-new-type
 	 (car
 	  (nth 0 vals))
-	 "class" nil nil))
+	 "class" nil nil :template-specifier
+	 (nth 1 vals)))
       )
      (symbol
       ,(semantic-lambda
@@ -1224,7 +1225,8 @@
 	 (nth 8 vals)
 	 (nth 7 vals))
 	(nth 0 vals)
-	(nth 10 vals))
+	(nth 10 vals)
+	(nth 4 vals))
       )
      (opt-stars
       opt-class
@@ -1245,7 +1247,8 @@
 	 (nth 7 vals)
 	 (nth 6 vals))
 	(nth 0 vals)
-	(nth 9 vals))
+	(nth 9 vals)
+	(nth 4 vals))
       )
      ) ;; end func-decl
 
@@ -1509,6 +1512,29 @@
 	 (nth 0 vals)))
       )
      ) ;; end namespace-symbol
+
+    (namespace-symbol-for-typeformbase
+     (symbol
+      opt-template-specifier
+      punctuation
+      "\\`[:]\\'"
+      punctuation
+      "\\`[:]\\'"
+      namespace-symbol-for-typeformbase
+      ,(semantic-lambda
+	(list
+	 (concat
+	  (nth 0 vals)
+	  "::"
+	  (car
+	   (nth 4 vals)))))
+      )
+     (symbol
+      ,(semantic-lambda
+	(list
+	 (nth 0 vals)))
+      )
+     ) ;; end namespace-symbol-for-typeformbase
 
     (namespace-opt-class
      (symbol

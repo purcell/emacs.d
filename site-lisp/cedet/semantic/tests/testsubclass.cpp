@@ -38,6 +38,11 @@ bool deer::moose::getAntlers() //^5^
   return fAntlers;
 }
 
+bool i_dont_have_symrefs()
+// %2% ( ("testsubclass.cpp" ) ("i_dont_have_symrefs"))
+{
+}
+
 void deer::moose::doSomething() //^6^
 {
   // All these functions should be identified by semantic analyzer.

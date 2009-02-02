@@ -612,6 +612,7 @@ Narrow to @var{tag}, and execute @var{body}.
 * Tag Properties Internals::
 * Tag Overlay Internals::
 * Creating Tags::
+* Copying Tags::	
 * Misc Tag Internals::
 @end menu
 
@@ -847,6 +848,17 @@ Create a semantic tag of class @code{'code}.
 @var{attributes} is a list of additional attributes belonging to this tag.
 @end defun
 
+@node Copying Tags
+@subsection Copying Tags
+
+There are two sets of tag copying features.  The first set is
+@code{semantic-tag-clone} and @code{semantic-tag-copy} which are used
+to make quick copies that share some detailed data with the original.
+
+The second type is @code{semantic-tag-deep-copy-one-tag}, which
+replicates all the tags, and also allows filtering to mutate the tag.
+In most cases, a clone or copy is sufficient.
+
 @defun semantic-tag-clone tag &optional name
 @anchor{semantic-tag-clone}
 Clone @var{tag}, creating a new @var{tag}.
@@ -864,6 +876,14 @@ If optional argument @var{keep-file} is non-@code{nil}, and @var{tag} was linked
 buffer, the originating buffer file name is kept in the `:filename'
 property of the copied tag.
 This runs the tag hook `unlink-copy-hook`.
+@end defun
+
+@defun semantic-tag-deep-copy-one-tag tag &optional filter
+@anchor{semantic-tag-deep-copy-one-tag}
+Make a deep copy of @var{tag}, applying @var{filter} to each child-tag.
+Properties and overlay info are not copied.
+@var{filter} takes @var{tag} as an argument, and should returns a semantic-tag. 
+It is safe for @var{filter} to modify the input tag and return it.
 @end defun
 
 @node Misc Tag Internals

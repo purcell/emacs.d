@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: semantic-analyze-debug.el,v 1.8 2009/01/29 00:04:28 zappo Exp $
+;; X-RCS: $Id: semantic-analyze-debug.el,v 1.9 2009/02/01 16:12:12 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -243,13 +243,13 @@ with the command:
 	  (if (or (not (semantic-equivalent-tag-p ots dt))
 		  (not (save-excursion
 			 (set-buffer orig-buffer)
-			 (semantic-analyze-dereference-metatype
-			  ots (oref ctxt scope)))))
+			 (car (semantic-analyze-dereference-metatype
+			  ots (oref ctxt scope))))))
 	      (let ((lasttype ots)
 		    (nexttype (save-excursion
 				(set-buffer orig-buffer)
-				(semantic-analyze-dereference-metatype
-				 ots (oref ctxt scope)))))
+				(car (semantic-analyze-dereference-metatype
+				 ots (oref ctxt scope))))))
 		(if (eq nexttype lasttype)
 		    (princ "\n  [ Debugger error trying to help with metatypes ]")
 		
@@ -271,8 +271,8 @@ with the command:
 			nexttype
 			(save-excursion
 			  (set-buffer orig-buffer)
-			  (semantic-analyze-dereference-metatype
-			   nexttype (oref ctxt scope))))
+			  (car (semantic-analyze-dereference-metatype
+			   nexttype (oref ctxt scope)))))
 		  )
 		(when (not nexttype)
 		  (princ "   nil\n\n")

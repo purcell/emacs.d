@@ -261,7 +261,7 @@ in a buffer.
 ;;;***
 
 ;;;### (autoloads (semantic-analyze-debug-assist) "semantic-analyze-debug"
-;;;;;;  "semantic-analyze-debug.el" (18817 46164))
+;;;;;;  "semantic-analyze-debug.el" (18822 48510))
 ;;; Generated autoloads from semantic-analyze-debug.el
 
 (autoload 'semantic-analyze-debug-assist "semantic-analyze-debug" "\
@@ -328,8 +328,9 @@ list of semantic tokens found.
 ;;;***
 
 ;;;### (autoloads (semantic-c-add-preprocessor-symbol semantic-default-c-setup
-;;;;;;  semantic-lex-c-preprocessor-symbol-file semantic-lex-c-preprocessor-symbol-map)
-;;;;;;  "semantic-c" "bovine/semantic-c.el" (18817 46164))
+;;;;;;  semantic-c-member-of-autocast semantic-lex-c-preprocessor-symbol-file
+;;;;;;  semantic-lex-c-preprocessor-symbol-map) "semantic-c" "bovine/semantic-c.el"
+;;;;;;  (18822 48510))
 ;;; Generated autoloads from bovine/semantic-c.el
 
 (defvar semantic-lex-c-preprocessor-symbol-map nil "\
@@ -369,6 +370,25 @@ You can use this variable instead of `semantic-lex-c-preprocessor-symbol-map'
 to store your global macros in a more natural way.")
 
 (custom-autoload 'semantic-lex-c-preprocessor-symbol-file "semantic-c" nil)
+
+(defvar semantic-c-member-of-autocast 't "\
+Non-nil means classes with a '->' operator will cast to it's return type.
+
+For Examples:
+
+  class Foo {
+    Bar *operator->();
+  }
+
+  Foo foo;
+
+if `semantic-c-member-of-autocast' is non-nil :
+  foo->[here completion will list method of Bar]
+
+if `semantic-c-member-of-autocast' is nil :
+  foo->[here completion will list method of Foo]")
+
+(custom-autoload 'semantic-c-member-of-autocast "semantic-c" t)
 
 (autoload 'semantic-default-c-setup "semantic-c" "\
 Set up a buffer for semantic parsing of the C language.
@@ -1690,7 +1710,7 @@ list of possible completions.
 ;;;***
 
 ;;;### (autoloads (semantic-ia-utest) "semantic-ia-utest" "semantic-ia-utest.el"
-;;;;;;  (18821 31226))
+;;;;;;  (18822 48510))
 ;;; Generated autoloads from semantic-ia-utest.el
 
 (autoload 'semantic-ia-utest "semantic-ia-utest" "\
@@ -2384,7 +2404,7 @@ RESULTS is an object of class `semantic-symref-results'.
 ;;;### (autoloads (semantic-insert-foreign-tag semantic-obtain-foreign-tag
 ;;;;;;  semantic-tag-components-with-overlays semantic-tag-components
 ;;;;;;  semantic-tag-alias-definition) "semantic-tag" "semantic-tag.el"
-;;;;;;  (18810 50577))
+;;;;;;  (18822 48510))
 ;;; Generated autoloads from semantic-tag.el
 
 (defsubst semantic-tag-p (tag) "\
@@ -3458,8 +3478,8 @@ Dump the typecache for the current buffer's database.
 ;;;;;;  senator-search-forward senator-completion-menu-popup senator-complete-symbol
 ;;;;;;  senator-jump-regexp senator-jump senator-previous-tag senator-next-tag
 ;;;;;;  senator-step-at-start-end-tag-classes senator-step-at-tag-classes
-;;;;;;  global-senator-minor-mode) "senator" "senator.el" (18820
-;;;;;;  45883))
+;;;;;;  global-senator-minor-mode) "senator" "senator.el" (18822
+;;;;;;  48510))
 ;;; Generated autoloads from senator.el
 
 (defvar global-senator-minor-mode nil "\
@@ -3813,7 +3833,7 @@ Setup buffer for parse.
 ;;;;;;  "wisent/wisent-cim-wy.el" "wisent/wisent-expr.el" "wisent/wisent-grammar-macros.el"
 ;;;;;;  "wisent/wisent-java-tags-wy.el" "wisent/wisent-java-wy.el"
 ;;;;;;  "wisent/wisent-java.el" "wisent/wisent-javascript-jv-wy.el"
-;;;;;;  "wisent/wisent-python-wy.el") (18821 32659 829421))
+;;;;;;  "wisent/wisent-python-wy.el") (18822 48667 384082))
 
 ;;;***
 
