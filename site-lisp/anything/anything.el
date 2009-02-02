@@ -1,8 +1,8 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.139 2009/01/05 20:15:53 rubikitch Exp $
+;; $Id: anything.el,v 1.147 2009/02/02 20:51:41 rubikitch Exp $
 
-;; Copyright (C) 2007  Tamas Patrovics
-;;               2008  rubikitch <rubikitch@ruby-lang.org>
+;; Copyright (C) 2007        Tamas Patrovics
+;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
 
 ;; Author: Tamas Patrovics
 ;; Maintainer: rubikitch <rubikitch@ruby-lang.org>
@@ -97,6 +97,24 @@
 ;;   defined.
 
 ;;; (@* "Tips")
+
+;;
+;; There are many `anything' applications, using `anything' for
+;; selecting candidate. In this case, if there is one candidate or no
+;; candidate, popping up *anything* buffer is irritating. If one
+;; candidate, you want to select it at once. If no candidate, you want
+;; to quit `anything'. Set `anything-execute-action-at-once-if-one'
+;; and `anything-quit-if-no-candidate' to non-nil to remedy it. Note
+;; that setting these variables GLOBALLY is bad idea because of
+;; delayed sources. These are meant to be let-binded.
+;; See anything-etags.el for example.
+;;
+;; [EVAL IT] (install-elisp "http://www.emacswiki.org/cgi-bin/wiki/download/anything-etags.el")
+;;
+;; ex.
+;; (let ((anything-execute-action-at-once-if-one t)
+;;       (anything-quit-if-no-candidate (lambda () (message "No candidate"))))
+;;    (anything temporary-sources input))
 
 ;;
 ;; `set-frame-configuration' arises flickering. If you hate
@@ -208,6 +226,31 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.147  2009/02/02 20:51:41  rubikitch
+;; New `anything-sources' attribute: real-to-display
+;;
+;; Revision 1.146  2009/02/01 20:01:00  rubikitch
+;; Update Tips
+;;
+;; Revision 1.145  2009/02/01 19:45:53  rubikitch
+;; New variable: `anything-quit-if-no-candidate'
+;;
+;; Revision 1.144  2009/02/01 19:31:47  rubikitch
+;; fixed a typo
+;;
+;; Revision 1.143  2009/02/01 19:23:32  rubikitch
+;; New variable: `anything-execute-action-at-once-if-one'
+;;
+;; Revision 1.142  2009/02/01 19:12:34  rubikitch
+;; `anything-persistent-action-display-buffer': bug fix
+;;
+;; Revision 1.141  2009/02/01 18:25:25  rubikitch
+;; * fix docstring
+;; * New variable: `anything-selection-face'
+;;
+;; Revision 1.140  2009/01/16 16:36:25  rubikitch
+;; New variable: `anything-persistent-action-use-special-display'.
+;;
 ;; Revision 1.139  2009/01/05 20:15:53  rubikitch
 ;; Fixed a bug of anything action buffer.
 ;; The action source should not be cached.
@@ -658,7 +701,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.139 2009/01/05 20:15:53 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.147 2009/02/02 20:51:41 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -972,6 +1015,23 @@ Attributes:
   can be generated from DISPLAY, display-to-real is more
   convenient and faster.
 
+- real-to-display (optional)
+
+  Function called with one parameter; the selected candidate.
+
+  The inverse of display-to-real attribute.
+
+  The function transforms the selected candidate, which is passed
+  to the action function, for display.  The real-to-display
+  attribute provides the other way to pass other string than one
+  shown in Anything buffer.
+
+  Traditionally, it is possible to make candidates,
+  candidate-transformer or filtered-candidate-transformer
+  function return a list with (DISPLAY . REAL) pairs. But if
+  DISPLAY can be generated from REAL, real-to-display is more
+  convenient and faster.
+
 - cleanup (optional)
 
   Function called with no parameters when *anything* buffer is closed. It
@@ -1146,6 +1206,9 @@ See also `anything-set-source-filter'.")
 (defvar anything-isearch-match-face 'anything-isearch-match
   "Face for matches during incremental search.")
 
+(defvar anything-selection-face 'highlight
+  "Face for currently selected item.")
+
 (defvar anything-iswitchb-idle-delay 1
   "Show anything completions if the user is idle that many
   seconds after typing.")
@@ -1165,7 +1228,6 @@ under iswitchb. For example, I bind the character \ to
 keyboard. This way I can switch buffers with Enter and choose
 anything completions with \.")
 
-
 ;;----------------------------------------------------------------------
 
 (defvar anything-buffer "*anything*"
@@ -1175,7 +1237,7 @@ anything completions with \.")
   "Buffer showing actions.")
 
 (defvar anything-selection-overlay nil
-  "Overlay used to highlight the currently selected file.")
+  "Overlay used to highlight the currently selected item.")
 
 (defvar anything-isearch-overlay nil
   "Overlay used to highlight the current match during isearch.")
@@ -1277,6 +1339,20 @@ This flag makes `anything' a bit faster with many sources.")
   "If you hate flickering, set this variable to
  '(set-window-configuration . current-window-configuration)
 ")
+
+(defvar anything-persistent-action-use-special-display nil
+  "If non-nil, use `special-display-function' in persistent action.")
+
+(defvar anything-execute-action-at-once-if-one nil
+  "If non-nil and there is one candidate, execute the first action without selection.
+It is useful for `anything' applications.")
+
+(defvar anything-quit-if-no-candidate nil
+  "if non-nil and there is no candidate, do not display *anything* buffer and quit.
+This variable accepts a function, which is executed if no candidate.
+
+It is useful for `anything' applications.")
+
 
 (put 'anything 'timid-completion 'disabled)
 
@@ -1508,6 +1584,12 @@ Attributes:
         (sources)
         (t anything-sources)))  
 
+(defun anything-approximate-candidate-number ()
+  "Approximate Number of candidates.
+It is used to check if candidate number is 0 or 1."
+  (with-current-buffer anything-buffer
+    (1- (line-number-at-pos (1- (point-max))))))
+
 (defvar anything-quit nil)
 (defmacro with-anything-quittable (&rest body)
   `(let (inhibit-quit)
@@ -1573,16 +1655,26 @@ already-bound variables. Yuck!
           (when any-input (setq anything-input any-input anything-pattern any-input))
           (if anything-samewindow
               (switch-to-buffer anything-buffer)
-            (pop-to-buffer anything-buffer))        
+            (pop-to-buffer anything-buffer))                  
 
           (unwind-protect
               (progn
                 (if any-resume (anything-mark-current-line) (anything-update))
+                
                 (select-frame-set-input-focus (window-frame (minibuffer-window)))
                 (anything-preselect any-preselect)
-                (let ((minibuffer-local-map anything-map))
-                  (read-string (or any-prompt "pattern: ") (if any-resume anything-pattern any-input))))
-
+                (let ((ncandidate (anything-approximate-candidate-number))
+                      (minibuffer-local-map anything-map))
+                  (cond ((and anything-execute-action-at-once-if-one
+                              (= ncandidate 1))
+                         (ignore))
+                        ((and anything-quit-if-no-candidate (= ncandidate 0))
+                         (setq anything-quit t)
+                         (and (functionp anything-quit-if-no-candidate)
+                              (funcall anything-quit-if-no-candidate)))
+                        (t
+                         (read-string (or any-prompt "pattern: ")
+                                      (if any-resume anything-pattern any-input))))))
             (anything-cleanup)
             (remove-hook 'post-command-hook 'anything-check-minibuffer-input)
             (anything-set-frame/window-configuration frameconfig))
@@ -1658,7 +1750,7 @@ If TEST-MODE is non-nil, clear `anything-candidate-cache'."
 
     (setq anything-selection-overlay 
           (make-overlay (point-min) (point-min) (get-buffer buffer)))
-    (overlay-put anything-selection-overlay 'face 'highlight))
+    (overlay-put anything-selection-overlay 'face anything-selection-face))
 
   (if anything-enable-digit-shortcuts
       (unless anything-digit-overlays
@@ -1857,6 +1949,7 @@ Cache the candidates if there is not yet a cached value."
                   (,(assoc-default 'name source)
                    ,matches))))
       (let ((multiline (assoc 'multiline source))
+            (real-to-display (assoc-default 'real-to-display source))
             (start (point))
             separate)
         (anything-insert-header-from-source source)
@@ -1872,7 +1965,7 @@ Cache the candidates if there is not yet a cached value."
           (if (and multiline separate)
               (anything-insert-candidate-separator)
             (setq separate t))
-          (anything-insert-match match 'insert))
+          (anything-insert-match match 'insert real-to-display))
         
         (if multiline
             (put-text-property start (point) 'anything-multiline t))))))
@@ -1944,13 +2037,15 @@ the current pattern."
                              'anything-process-delayed-sources
                              delayed-sources)))))
 
-(defun anything-insert-match (match insert-function)
+(defun anything-insert-match (match insert-function &optional real-to-display)
   "Insert MATCH into the anything buffer. If MATCH is a list then
 insert the string inteneded to appear on the display and store
 the real value in a text property."
    (let ((start (line-beginning-position (point)))
          (string (if (listp match) (car match) match))
          (realvalue (if (listp match) (cdr match) match)))
+     (and (functionp real-to-display)
+          (setq string (funcall real-to-display realvalue)))
      (funcall insert-function string)
      ;; Some sources with candidates-in-buffer have already added
      ;; 'anything-realvalue property when creating candidate buffer.
@@ -2000,7 +2095,8 @@ the real value in a text property."
          (process-info (cdr process-assoc))
          (insertion-marker (assoc-default 'insertion-marker process-info))
          (incomplete-line-info (assoc 'incomplete-line process-info))
-         (item-count-info (assoc 'item-count process-info)))
+         (item-count-info (assoc 'item-count process-info))
+         (real-to-display (assoc-default 'real-to-display process-info)))
 
     (with-current-buffer anything-buffer
       (save-excursion
@@ -2031,7 +2127,7 @@ the real value in a text property."
 
           (setq candidates (reverse candidates))
           (dolist (candidate (anything-transform-candidates candidates process-info))
-            (anything-insert-match candidate 'insert-before-markers)
+            (anything-insert-match candidate 'insert-before-markers real-to-display)
             (incf (cdr item-count-info))
             (when (>= (cdr item-count-info) anything-candidate-number-limit)
               (anything-kill-async-process process)
@@ -2604,11 +2700,26 @@ Acceptable values of CREATE-OR-BUFFER:
 
 (defmacro with-anything-display-same-window (&rest body)
   "Make `pop-to-buffer' and `display-buffer' display in the same window."
-  `(let ((same-window-regexps '("."))
-         (pop-up-windows nil)
-         (display-buffer-function nil))
+  `(let ((display-buffer-function 'anything-persistent-action-display-buffer))
      ,@body))
 (put 'with-anything-display-same-window 'lisp-indent-function 0)
+
+(defun anything-persistent-action-display-buffer (buf &optional not-this-window)
+  "Make `pop-to-buffer' and `display-buffer' display in the same window in persistent action.
+If `anything-persistent-action-use-special-display' is non-nil and
+BUF is to be displayed by `special-display-function', use it.
+Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
+  (let* ((name (buffer-name buf))
+         display-buffer-function pop-up-windows
+         (same-window-regexps
+          (unless (and anything-persistent-action-use-special-display
+                       (or (member name
+                                   (mapcar (lambda (x) (or (car-safe x) x)) special-display-buffer-names))
+                           (remove-if-not
+                            (lambda (x) (string-match (or (car-safe x) x) name))
+                            special-display-regexps)))
+            '("."))))
+    (display-buffer buf not-this-window)))
 
 ;; scroll-other-window(-down)? for persistent-action
 (defun anything-scroll-other-window-base (command)
@@ -3098,7 +3209,8 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
           (stub run-hooks => nil)
           (stub anything-maybe-fit-frame => nil)
           (stub run-with-idle-timer => nil)
-          (let (anything-test-mode (anything-pattern ,pattern)) (anything-update))))
+          (let (anything-test-mode (anything-pattern ,pattern))
+            (anything-update))))
 
 ;;;; unit test
 ;; (install-elisp "http://www.emacswiki.org/cgi-bin/wiki/download/el-expectations.el")
@@ -4242,6 +4354,69 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
           (puthash " *00create+*/xxx" 1 anything-tick-hash)
           (kill-buffer (current-buffer)))
         (gethash " *00create+*/xxx" anything-tick-hash))
+      (desc "anything-execute-action-at-once-if-once")
+      (expect "HOGE"
+        (let ((anything-execute-action-at-once-if-one t))
+          (anything '(((name . "one test1")
+                       (candidates "hoge")
+                       (action . upcase))))))
+      (expect "ANY"
+        (let ((anything-execute-action-at-once-if-one t))
+          (anything '(((name . "one test2")
+                       (candidates "hoge" "any")
+                       (action . upcase)))
+                    "an")))
+      ;; candidates > 1
+      (expect (mock (read-string "word: " nil))
+        (let ((anything-execute-action-at-once-if-one t))
+          (anything '(((name . "one test3")
+                       (candidates "hoge" "foo" "bar")
+                       (action . identity)))
+                    nil "word: ")))
+      (desc "anything-quit-if-no-candidate")
+      (expect nil
+        (let ((anything-quit-if-no-candidate t))
+          (anything '(((name . "zero test1") (candidates) (action . upcase))))))
+      (expect 'called
+        (let (v (anything-quit-if-no-candidate (lambda () (setq v 'called))))
+          (anything '(((name . "zero test2") (candidates) (action . upcase))))
+          v))
+      (desc "real-to-display attribute")
+      (expect '(("test" ("ddd")))
+        (anything-test-candidates '(((name . "test")
+                                     (candidates "ddd")
+                                     (real-to-display . upcase)
+                                     (action . identity)))))
+      (expect "test\nDDD\n"
+        (anything-test-update '(((name . "test")
+                                 (candidates "ddd")
+                                 (real-to-display . upcase)
+                                 (action . identity)))
+                              "")
+        (with-current-buffer (anything-buffer-get) (buffer-string)))
+      (desc "real-to-display and candidates-in-buffer")
+      (expect '(("test" ("a" "b")))
+        (anything-test-candidates
+         '(((name . "test")
+            (init
+             . (lambda () (with-current-buffer (anything-candidate-buffer 'global)
+                            (erase-buffer)
+                            (insert "a\nb\n"))))
+            (candidates-in-buffer)
+            (real-to-display . upcase)
+            (action . identity)))))
+      (expect "test\nA\nB\n"
+        (stub read-string)
+        (anything
+         '(((name . "test")
+            (init
+             . (lambda () (with-current-buffer (anything-candidate-buffer 'global)
+                            (erase-buffer)
+                            (insert "a\nb\n"))))
+            (candidates-in-buffer)
+            (real-to-display . upcase)
+            (action . identity))))
+        (with-current-buffer (anything-buffer-get) (buffer-string)))
       )))
 
 
