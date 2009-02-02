@@ -342,10 +342,6 @@
 (require 'mmm-auto)
 (setq mmm-global-mode t)
 (setq mmm-submode-decoration-level 2)
-(setq-default mmm-never-modes
-              (append '(sldb-mode) '(ediff-mode) '(text-mode)
-                      '(compilation-mode) '(inferior-haskell-mode)
-                      mmm-never-modes))
 
 
 ;;----------------------------------------------------------------------------
