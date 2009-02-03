@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
-;; Author: Steve <steve@asma00096b9e5774>
-;; Created: 2009-02-02 10:34:35+0100
+;; Author: Steve <steve@mandala.as24.local>
+;; Created: 2009-02-03 17:56:22+0100
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 

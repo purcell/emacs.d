@@ -361,7 +361,7 @@ FILENAME_AS_CLASS - file converted to a Java class name.
 ;;;***
 
 ;;;### (autoloads (srecode-adebug-maps srecode-get-maps) "srecode-map"
-;;;;;;  "srecode-map.el" (18810 50577))
+;;;;;;  "srecode-map.el" (18824 28655))
 ;;; Generated autoloads from srecode-map.el
 
 (autoload 'srecode-get-maps "srecode-map" "\
@@ -563,7 +563,7 @@ Major-mode for writing srecode macros.
 ;;;***
 
 ;;;### (autoloads (srecode-utest-template-output) "srecode-test"
-;;;;;;  "srecode-test.el" (18817 46165))
+;;;;;;  "srecode-test.el" (18822 48817))
 ;;; Generated autoloads from srecode-test.el
 
 (autoload 'srecode-utest-template-output "srecode-test" "\
@@ -616,7 +616,7 @@ Adds the following:
 
 ;;;### (autoloads nil nil ("srecode-document-vars.el" "srecode-extract.el"
 ;;;;;;  "srecode-load.el" "srecode-template-wy.el" "srecode.el")
-;;;;;;  (18822 48687 604047))
+;;;;;;  (18824 30521 465928))
 
 ;;;***
 

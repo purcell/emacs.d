@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: srecode-map.el,v 1.13 2009/01/09 22:58:10 zappo Exp $
+;; X-RCS: $Id: srecode-map.el,v 1.14 2009/02/03 02:23:46 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -315,10 +315,8 @@ if that file is NEW, otherwise assume the mode has not changed."
 	  (when (and (not (backup-file-name-p f))
 		     (not (auto-save-file-name-p f))
 		     (file-readable-p f))
-	    (setq dirty
-		  (or dirty
-		      (srecode-map-validate-file-for-mode f fast))))
-
+	    (let ((fdirty (srecode-map-validate-file-for-mode f fast)))
+	      (setq dirty (or dirty fdirty))))
 	  )))
     ;; Only do the save if we are dirty, or if we are in an interactive
     ;; Emacs.
