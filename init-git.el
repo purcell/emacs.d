@@ -10,9 +10,15 @@
 (setq magit-save-some-buffers nil)
 (defun magit-status-here ()
   (interactive)
-  (magit-status default-directory))
+  (if default-directory
+      (if (magit-get-top-dir default-directory)
+          (magit-status default-directory)
+        (error "not in a git repository"))
+    (error "the current buffer has no directory")))
+
 (global-set-key [(meta f12)] 'magit-status-here)
 (global-set-key [(shift meta f12)] 'magit-status)
+
 
 ;;----------------------------------------------------------------------------
 ;; git-svn conveniences
