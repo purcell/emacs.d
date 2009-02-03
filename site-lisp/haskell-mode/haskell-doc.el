@@ -1,6 +1,6 @@
 ;;; haskell-doc.el --- show function types in echo area  -*- coding: iso-8859-1 -*-
 
-;; Copyright (C) 2004, 2005, 2006, 2007  Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2005, 2006, 2007, 2009  Free Software Foundation, Inc.
 ;; Copyright (C) 1997 Hans-Wolfgang Loidl
 
 ;; Author: Hans-Wolfgang Loidl <hwloidl@dcs.glasgow.ac.uk>
@@ -128,6 +128,10 @@
 ;;; Changelog:
 ;;  ==========
 ;;  $Log: haskell-doc.el,v $
+;;  Revision 1.30  2009-02-02 21:00:33  monnier
+;;  (haskell-doc-imported-list): Don't add current buffer
+;;  to the imported file list if it is not (yet?) visiting a file.
+;;
 ;;  Revision 1.29  2007-12-12 04:04:19  monnier
 ;;  (haskell-doc-in-code-p): New function.
 ;;  (haskell-doc-show-type): Use it.
@@ -371,7 +375,7 @@ If the identifier near point is a Prelude or one of the standard library
 functions and `haskell-doc-show-prelude' is non-nil show its type.
 
 If the identifier near point is local \(i.e. defined in this module\) check
-the `imenu' list of functions for the type. This obviously requires that
+the `imenu' list of functions for the type.  This obviously requires that
 your language mode uses `imenu'.
 
 If the identifier near point is global \(i.e. defined in an imported module\)
@@ -380,7 +384,7 @@ function.
 
 If the identifier near point is a standard strategy or a function, type related
 related to strategies and `haskell-doc-show-strategy' is non-nil show the type
-of the function. Strategies are special to the parallel execution of Haskell.
+of the function.  Strategies are special to the parallel execution of Haskell.
 If you're not interested in that just turn it off.
 
 If the identifier near point is a user defined function that occurs as key
@@ -395,8 +399,8 @@ This variable is buffer-local.")
 
 (defvar haskell-doc-index nil
  "Variable holding an alist matching file names to fct-type alists.
-The function `haskell-doc-make-global-fct-index' rebuilds this variables \(similar to an
-`imenu' rescan\).
+The function `haskell-doc-make-global-fct-index' rebuilds this variables
+\(similar to an `imenu' rescan\).
 This variable is buffer-local.")
 (make-variable-buffer-local 'haskell-doc-index)
 
@@ -1243,10 +1247,10 @@ URL is the URL of the online doc."
   '("force"  . "(NFData a) => a -> a ")
   '("sforce"  . "(NFData a) => a -> b -> b")
   )
-"alist of strategy functions and their types as defined in Strategies.lhs.")
+ "Alist of strategy functions and their types as defined in Strategies.lhs.")
 
 (defvar haskell-doc-user-defined-ids nil
- "alist of functions and strings defined by the user.")
+ "Alist of functions and strings defined by the user.")
 
 ;;@node Test membership,  , Prelude types, Constants and Variables
 ;;@subsection Test membership
@@ -1489,7 +1493,7 @@ Meant for `eldoc-documentation-function'."
 (defun haskell-doc-ask-mouse-for-type (event)
  "Read the identifier under the mouse and echo its type.
 This uses the same underlying function `haskell-doc-show-type' as the hooked
-function. Only the user interface is different."
+function.  Only the user interface is different."
  (interactive "e")
  (save-excursion
    (select-window (posn-window (event-end event)))
@@ -1667,7 +1671,7 @@ Currently, only the following is checked:
 If this line ends with a `->' or the next starts with an `->' it is a
 multi-line type \(same for `=>'\).
 `--' comments are ignored.
-ToDo: Check for matching parenthesis!. "
+ToDo: Check for matching parenthesis!."
  (save-excursion
    (let ( (here (point))
 	  (lim (progn (beginning-of-line) (point)))
@@ -1751,7 +1755,7 @@ ToDo: Also eliminate leading and trainling whitespace."
 
 ;;@cindex haskell-doc-get-imenu-info
 (defun haskell-doc-get-imenu-info (obj kind)
-  "Returns a string describing OBJ of KIND \(Variables, Types, Data\)."
+  "Return a string describing OBJ of KIND \(Variables, Types, Data\)."
   (cond ((or (eq major-mode 'haskell-hugs-mode)
              ;; GEM: Haskell Mode does not work with Haskell Doc
              ;;      under XEmacs 20.x
@@ -1778,9 +1782,11 @@ ToDo: Also eliminate leading and trainling whitespace."
 ;;@cindex haskell-doc-imported-list
 
 (defun haskell-doc-imported-list ()
-  "Return a list of the imported modules in current buffer"
+  "Return a list of the imported modules in current buffer."
   (interactive "fName of outer `include' file: ") ;  (buffer-file-name))
-  (let ((imported-file-list (list buffer-file-name)))
+  ;; Don't add current buffer to the imported file list if it is not (yet?)
+  ;; visiting a file since it leads to errors further down.
+  (let ((imported-file-list (and buffer-file-name (list buffer-file-name))))
     (widen)
     (goto-char (point-min))
     (while (re-search-forward "^\\s-*import\\s-+\\([^ \t\n]+\\)" nil t)
@@ -1798,7 +1804,7 @@ ToDo: Also eliminate leading and trainling whitespace."
 ;;@cindex haskell-doc-rescan-files
 
 (defun haskell-doc-rescan-files (filelist)
- "Does an `imenu' rescan on every file in FILELIST and returns the fct-list.
+ "Do an `imenu' rescan on every file in FILELIST and return the fct-list.
 This function switches to and potentially loads many buffers."
  (save-current-buffer
    (mapcar (lambda (f)

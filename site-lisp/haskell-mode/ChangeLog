@@ -1,3 +1,23 @@
+2009-02-02  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* inf-haskell.el (inferior-haskell-type, inferior-haskell-info):
+	Move after calling inferior-haskell-wait-for-prompt.
+	Reported by Thaju <ou2thaju@gmail.com> and
+	Jose A. Ortega Ruiz <jao@gnu.org>.
+
+2009-02-02  Juanma Barranquero  <lekktu@gmail.com>
+
+	* haskell-doc.el (haskell-doc-imported-list): Don't add current buffer
+	to the imported file list if it is not (yet?) visiting a file.
+
+2009-02-02  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* haskell-indent.el (haskell-indent-thenelse): New var.
+	(haskell-indent-closing-keyword): Use it.
+
+	* haskell-decl-scan.el (haskell-ds-generic-find-next-decl):
+	Accept qualified import names.
+
 2008-08-26  Stefan Monnier  <monnier@iro.umontreal.ca>
 
 	* inf-haskell.el (inferior-haskell-load-file): Escape backslashes (and

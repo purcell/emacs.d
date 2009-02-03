@@ -1,6 +1,6 @@
 ;;; haskell-indent.el --- "semi-intelligent" indentation module for Haskell Mode
 
-;; Copyright 2004, 2005, 2007, 2008  Free Software Foundation, Inc.
+;; Copyright 2004, 2005, 2007, 2008, 2009  Free Software Foundation, Inc.
 ;; Copyright 1997-1998  Guy Lapalme
 
 ;; Author: 1997-1998 Guy Lapalme <lapalme@iro.umontreal.ca>
@@ -1014,6 +1014,12 @@ OPEN is the start position of the comment in which point is."
                             (haskell-indent-point-to-col (match-end 0)))
                         (haskell-indent-point-to-col (point))))))))))
 
+(defcustom haskell-indent-thenelse 0
+  "If non-nil, \"then\" and \"else\" are indented.
+This is necessary in the \"do\" layout under Haskell-98.
+See http://hackage.haskell.org/trac/haskell-prime/wiki/DoAndIfThenElse"
+  :type 'integer)
+
 (defun haskell-indent-closing-keyword (start)
   (let ((open (save-excursion
                 (haskell-indent-find-matching-start
@@ -1032,7 +1038,10 @@ OPEN is the start position of the comment in which point is."
       (goto-char open)
       (if (haskell-indent-hanging-p)
           (setq open (haskell-indent-virtual-indentation start))))
-    (list (list (haskell-indent-point-to-col open)))))
+    ;; FIXME: we should try and figure out if the `if' is in a `do' layout
+    ;; before using haskell-indent-thenelse.
+    (list (list (+ (if (memq (char-after) '(?t ?e)) haskell-indent-thenelse 0)
+                   (haskell-indent-point-to-col open))))))
 
 (defcustom haskell-indent-after-keywords
   '(("where" 2 0)

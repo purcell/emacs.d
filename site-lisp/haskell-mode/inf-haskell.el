@@ -1,6 +1,6 @@
 ;;; inf-haskell.el --- Interaction with an inferior Haskell process.
 
-;; Copyright (C) 2004, 2005, 2006, 2007, 2008  Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009  Free Software Foundation, Inc.
 
 ;; Author: Stefan Monnier <monnier@iro.umontreal.ca>
 ;; Keywords: Haskell
@@ -413,8 +413,8 @@ The returned info is cached for reuse by `haskell-doc-mode'."
                    (marker-position (process-mark proc))))
               (inferior-haskell-send-command proc (concat ":type " expr))
               ;; Find new point.
-              (goto-char (point-max))
               (inferior-haskell-wait-for-prompt proc)
+              (goto-char (point-max))
               ;; Back up to the previous end-of-line.
               (end-of-line 0)
               ;; Extract the type output
@@ -459,8 +459,8 @@ The returned info is cached for reuse by `haskell-doc-mode'."
              (marker-position (process-mark proc))))
         (inferior-haskell-send-command proc (concat ":info " sym))
         ;; Find new point.
-        (goto-char (point-max))
         (inferior-haskell-wait-for-prompt proc)
+        (goto-char (point-max))
         ;; Move to previous end-of-line
         (end-of-line 0)
         (let ((result

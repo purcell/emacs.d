@@ -1,6 +1,6 @@
 ;;; haskell-decl-scan.el --- Declaration scanning module for Haskell Mode
 
-;; Copyright (C) 2004, 2005, 2007  Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2005, 2007, 2009  Free Software Foundation, Inc.
 ;; Copyright (C) 1997-1998 Graeme E Moss
 
 ;; Author: 1997-1998 Graeme E Moss <gem@cs.york.ac.uk>
@@ -395,8 +395,7 @@ positions and the type is one of the symbols \"variable\", \"datatype\",
       ;; Start and end of search space is currently just the starting
       ;; line of the declaration.
       (setq start (point)
-	    end   (progn (end-of-line) (point)))
-      (goto-char start)
+	    end   (line-end-position))
       (cond
        ;; If the start of the top-level declaration does not begin
        ;; with a starting keyword, then (if legal) must be a type
@@ -426,7 +425,7 @@ positions and the type is one of the symbols \"variable\", \"datatype\",
 	      (setq name-pos (match-beginning 1))
 	      (setq type 'class))))
        ;; Import declaration.
-       ((looking-at "import[ \t]+\\(qualified[ \t]+\\)?\\(\\sw+\\)")
+       ((looking-at "import[ \t]+\\(qualified[ \t]+\\)?\\(\\(?:\\sw\\|.\\)+\\)")
 	(setq name (haskell-ds-match-string 2))
 	(setq name-pos (match-beginning 2))
 	(setq type 'import))
@@ -486,7 +485,7 @@ datatypes) in a Haskell file for the `imenu' package."
 	 (index-type-alist '())    ;; Datatypes
 	 ;; Variables for showing progress.
 	 (bufname (buffer-name))
-	 (divisor-of-progress (max 1 (/ (point-max) 100)))
+	 (divisor-of-progress (max 1 (/ (buffer-size) 100)))
 	 ;; The result we wish to return.
 	 result)
     (goto-char (point-min))
@@ -494,7 +493,7 @@ datatypes) in a Haskell file for the `imenu' package."
     ;; starts of the top-level declarations.
     (while (< (point) (point-max))
       (message "Scanning declarations in %s... (%3d%%)" bufname
-	       (/ (point) divisor-of-progress))
+	       (/ (- (point) (point-min)) divisor-of-progress))
       ;; Grab the next declaration.
       (setq result (haskell-ds-generic-find-next-decl bird-literate))
       (if result
@@ -505,13 +504,13 @@ datatypes) in a Haskell file for the `imenu' package."
 		 (start-pos (car posns))
 		 (type (cdr result))
 		 ;; Place `(name . start-pos)' in the correct alist.
-		 (alist (cond
-			 ((eq type 'variable) 'index-var-alist)
-			 ((eq type 'datatype) 'index-type-alist)
-			 ((eq type 'class) 'index-class-alist)
-			 ((eq type 'import) 'index-imp-alist)
-			 ((eq type 'instance) 'index-inst-alist))))
-	    (set alist (cons (cons name start-pos) (eval alist))))))
+		 (sym (cdr (assq type
+                                 '((variable . index-var-alist)
+                                   (datatype . index-type-alist)
+                                   (class . index-class-alist)
+                                   (import . index-imp-alist)
+                                   (instance . index-inst-alist))))))
+	    (set sym (cons (cons name start-pos) (symbol-value sym))))))
     ;; Now sort all the lists, label them, and place them in one list.
     (message "Sorting declarations in %s..." bufname)
     (and index-type-alist
