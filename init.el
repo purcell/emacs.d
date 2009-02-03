@@ -170,10 +170,7 @@
   (global-unset-key "\C-z")
   (setq viper-mode t)
   (setq viper-custom-file-name (convert-standard-filename "~/.emacs.d/.viper"))
-  (require 'viper)
-  (let ((clobbered-func (symbol-function 'viper-exec-change)))
-    (require 'vimpulse)
-    (fset 'viper-exec-change clobbered-func)))
+  (require 'viper))
 
 
 ;;----------------------------------------------------------------------------
