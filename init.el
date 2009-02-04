@@ -422,8 +422,6 @@
 (scroll-bar-mode -1)
 
 (load "init-maxframe")
-;(when *is-cocoa-emacs*
-;  (add-to-list 'default-frame-alist '(alpha . 93)))
 
 
 ;;----------------------------------------------------------------------------
