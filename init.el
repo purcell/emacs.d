@@ -4,7 +4,6 @@
 ;; Which functionality to enable (use t or nil for true and false)
 ;;----------------------------------------------------------------------------
 (setq *vi-emulation-support-enabled* t) ; "viper-mode"
-(setq *ecb-support-enabled* t) ; Emacs code browser (IDE)
 (setq *haskell-support-enabled* t)
 (setq *ocaml-support-enabled* t)
 (setq *common-lisp-support-enabled* t)
@@ -366,8 +365,9 @@
 ;;----------------------------------------------------------------------------
 (require 'auto-complete nil t)
 (global-auto-complete-mode t)
-(require 'ac-dabbrev)
-(setq ac-sources '(ac-source-yasnippet ac-source-dabbrev ac-source-words-in-buffer))
+(when *is-cocoa-emacs*
+  (require 'ac-dabbrev)
+  (setq ac-sources '(ac-source-yasnippet ac-source-dabbrev ac-source-words-in-buffer)))
 (when *vi-emulation-support-enabled*
   (define-key ac-complete-mode-map viper-ESC-key 'viper-intercept-ESC-key))
 
@@ -422,6 +422,8 @@
 (scroll-bar-mode -1)
 
 (load "init-maxframe")
+;(when *is-cocoa-emacs*
+;  (add-to-list 'default-frame-alist '(alpha . 93)))
 
 
 ;;----------------------------------------------------------------------------
@@ -439,13 +441,6 @@
   (when (yes-or-no-p "Really delete this file?")
     (delete-file (buffer-file-name))
     (kill-this-buffer)))
-
-
-;;----------------------------------------------------------------------------
-;; ECB (Emacs Code Browser)
-;;----------------------------------------------------------------------------
-(when *ecb-support-enabled*
-  (load "init-ecb"))
 
 
 ;;----------------------------------------------------------------------------
