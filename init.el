@@ -563,6 +563,8 @@
           (lambda ()
             (require 'flymake-php)
             (flymake-mode t)))
+(autoload 'smarty-mode "smarty-mode" "Smarty Mode" t)
+(add-auto-mode 'smarty-mode "\\.tpl$")
 
 
 ;;----------------------------------------------------------------------------
