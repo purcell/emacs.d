@@ -169,7 +169,9 @@
   (global-unset-key "\C-z")
   (setq viper-mode t)
   (setq viper-custom-file-name (convert-standard-filename "~/.emacs.d/.viper"))
-  (require 'viper))
+  (require 'viper)
+  (define-key viper-insert-global-user-map (kbd "C-n") 'dabbrev-expand)
+  (define-key viper-insert-global-user-map (kbd "C-p") 'dabbrev-expand))
 
 
 ;;----------------------------------------------------------------------------
@@ -369,6 +371,8 @@
   (require 'ac-dabbrev)
   (setq ac-sources '(ac-source-yasnippet ac-source-dabbrev ac-source-words-in-buffer)))
 (when *vi-emulation-support-enabled*
+  (define-key ac-complete-mode-map (kbd "C-n") 'dabbrev-expand)
+  (define-key ac-complete-mode-map (kbd "C-p") 'dabbrev-expand)
   (define-key ac-complete-mode-map viper-ESC-key 'viper-intercept-ESC-key))
 
 
