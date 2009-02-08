@@ -38,3 +38,6 @@ echo '***' js-comint
 echo '***' autocomplete
 (cd site-lisp/auto-complete && curl -o auto-complete.el http://www.cx4a.org/pub/auto-complete.el)
 (cd site-lisp/auto-complete && curl -o ac-dabbrev.el http://www.emacswiki.org/emacs/download/ac-dabbrev.el)
+
+echo '***' mozrepl
+(cd site-lisp/moz-repl && curl -o moz.el 'http://github.com/bard/mozrepl/tree/master/chrome%2Fcontent%2Fmoz.el?raw=true')
