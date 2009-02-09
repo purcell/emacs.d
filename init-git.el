@@ -16,8 +16,7 @@
         (error "not in a git repository"))
     (error "the current buffer has no directory")))
 
-(global-set-key [(meta f12)] 'magit-status-here)
-(global-set-key [(shift meta f12)] 'magit-status)
+(global-set-key [(meta f12)] 'magit-status)
 
 
 ;;----------------------------------------------------------------------------
