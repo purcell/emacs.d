@@ -82,6 +82,19 @@
 ;; ------------------------------
 ;;
 ;;
+;; ===============
+;; Stop completion
+;; ===============
+;;
+;; Add following code to your .emacs.
+;;
+;; ------------------------------
+;; (define-key ac-complete-mode-map "\M-/" 'ac-stop)
+;; ------------------------------
+;;
+;; Now you can stop completion by pressing M-/.
+;;
+;;
 ;; =================
 ;; Completion by TAB
 ;; =================
@@ -133,6 +146,10 @@
 
 ;;; History:
 
+;; 2008-02-03 MATSUYAMA Tomohiro <t.matsuyama.pub@gmail.com>
+;;
+;;      * added ac-stop function (suggestion from Andy Stewart)
+;;
 ;; 2008-02-03 MATSUYAMA Tomohiro <t.matsuyama.pub@gmail.com>
 ;;
 ;;      * omni completion redesign
@@ -225,6 +242,7 @@
 ;; - use cl
 ;; - icon
 ;; - refactoring (especially menu)
+;; - linum.el bug (reported by Andy Stewart)
 
 ;;; Code:
 
@@ -265,6 +283,13 @@ If you specify `nil', never be started automatically."
 
 (defcustom ac-dwim nil
   "Non-nil means `auto-complete' works based on Do What I Mean."
+  :type 'boolean
+  :group 'auto-complete)
+
+(defcustom ac-override-local-map nil
+  "Non-nil mean use `ac-complete-mode-map' override local map.
+Please set it to non-nil only if you faced to some problem about 
+minor-mode keymap conflicts."
   :type 'boolean
   :group 'auto-complete)
 
@@ -360,9 +385,6 @@ using the `TARGET' that is given as a first argument.")
     map)
   "Keymap for completion.")
 
-(or (assq 'ac-completing minor-mode-map-alist)
-    (push (cons 'ac-completing ac-complete-mode-map) minor-mode-map-alist))
-
 (defvar ac-saved-local-map nil
   "Old keymap before `auto-complete' activated.")
 
@@ -428,15 +450,21 @@ using the `TARGET' that is given as a first argument.")
 
 (defun ac-activate-mode-map ()
   "Activate `ac-complete-mode-map'."
-  (setq ac-saved-local-map overriding-terminal-local-map)
-  (if (eq ac-saved-local-map ac-complete-mode-map)
-      ;; maybe never reach here
-      (setq ac-saved-local-map nil))
-  (setq overriding-terminal-local-map ac-complete-mode-map))
+  (if ac-override-local-map
+      (progn
+        (setq ac-saved-local-map overriding-terminal-local-map)
+        (if (eq ac-saved-local-map ac-complete-mode-map)
+            ;; maybe never reach here
+            (setq ac-saved-local-map nil))
+        (setq overriding-terminal-local-map ac-complete-mode-map))
+    ;; rearrange ac-mode-map pair first
+    (assq-delete-all 'ac-completing minor-mode-map-alist)
+    (push (cons 'ac-completing ac-complete-mode-map) minor-mode-map-alist)))
 
 (defun ac-deactivate-mode-map ()
   "Deactivate `ac-complete-mode-map'."
-  (when (eq overriding-terminal-local-map ac-complete-mode-map)
+  (when (and ac-override-local-map
+             (eq overriding-terminal-local-map ac-complete-mode-map))
     (setq overriding-terminal-local-map ac-saved-local-map)
     (setq ac-saved-local-map nil)))
 
@@ -515,9 +543,13 @@ using the `TARGET' that is given as a first argument.")
     (ac-abort)))
 
 (defun ac-abort ()
-  (interactive)
   "Abort completion."
   (ac-cleanup))
+
+(defun ac-stop ()
+  "Stop completiong."
+  (interactive)
+  (ac-abort))
 
 (defun ac-redraw-candidates ()
   "Redraw the menu contents."
@@ -609,9 +641,8 @@ using the `TARGET' that is given as a first argument.")
             (funcall ac-init-function)))
       (let* ((candidates
               (if (or ac-completing
-                      (eq ac-auto-start t)
-                      (and (integerp ac-auto-start)
-                           (>= (length ac-prefix) ac-auto-start)))
+                      (not (integerp ac-auto-start))
+                      (>= (length ac-prefix) ac-auto-start))
                   (save-excursion
                     (funcall ac-candidate-function))))
              (current-width (if ac-menu (ac-menu-width ac-menu) 0))
@@ -645,7 +676,8 @@ using the `TARGET' that is given as a first argument.")
 
 (defun ac-on-post-command ()
   (progn                                ; ignore-errors
-    (if (and ac-auto-start
+    (if (and (or ac-auto-start
+                 ac-completing)
              (not isearch-mode)
              (ac-trigger-command-p))
         (ac-start))))
