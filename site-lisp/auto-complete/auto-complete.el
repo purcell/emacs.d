@@ -146,9 +146,10 @@
 
 ;;; History:
 
-;; 2008-02-03 MATSUYAMA Tomohiro <t.matsuyama.pub@gmail.com>
+;; 2008-02-10 MATSUYAMA Tomohiro <t.matsuyama.pub@gmail.com>
 ;;
 ;;      * added ac-stop function (suggestion from Andy Stewart)
+;;      * added ac-override-local-map switch (suggestion from Andy Stewart)
 ;;
 ;; 2008-02-03 MATSUYAMA Tomohiro <t.matsuyama.pub@gmail.com>
 ;;
@@ -737,11 +738,15 @@ requires REQUIRES-NUM
 (defvar ac-current-sources nil
   "Current working sources.")
 
-(defvar ac-omni-completion-sources nil)
+(defvar ac-omni-completion-sources nil
+  "An alist of REGEXP and SOURCES.
+If matched regexp, switch to omni-completion mode and
+use SOURCES as `ac-sources'.")
 
 (make-variable-buffer-local 'ac-omni-completion-sources)
 
-(defvar ac-sources-omni-completion nil)
+(defvar ac-sources-omni-completion nil
+  "Non-nil means `auto-complete-mode' is now working on omni-completion.")
 
 (defun ac-sources-init ()
   "Implementation for `ac-init-function' by sources."
@@ -765,6 +770,7 @@ requires REQUIRES-NUM
       (when (looking-back (car pair))
         (setq ac-current-sources (cdr pair))
         (setq ac-sources-omni-completion t)
+        (setq ac-completing t)
         (setq point (match-end 0))))
     (or point
         (if (and ac-completing ac-sources-omni-completion)
@@ -912,9 +918,7 @@ requires REQUIRES-NUM
      . (lambda ()
          (require 'imenu)
          (setq ac-imenu-index
-               (condition-case nil
-                   (imenu--make-index-alist)
-                 (error nil)))))
+               (ignore-errors (imenu--make-index-alist)))))
     (candidates . ac-imenu-candidate))
   "Source for imenu.")
 
