@@ -650,6 +650,7 @@
 (require 'color-theme-autoloads)
 (autoload 'color-theme-zenburn "zenburn" "A low contrast color theme" t)
 (autoload 'color-theme-twilight "color-theme-twilight" "A dark color theme" t)
+(autoload 'color-theme-vivid-chalk "vivid-chalk" "A dark color theme" t)
 (color-theme-initialize)
 ;; (color-theme-pierson) ; Light, favourite
 ;; (color-theme-high-contrast)
@@ -670,7 +671,7 @@
 (defun high-contrast ()
   (interactive)
   (preserving-default-font-size
-   (color-theme-taylor)
+   (color-theme-vivid-chalk)
    (set-face-attribute 'highlight nil :background "white" :foreground "black")))
 
 (defun low-contrast ()
@@ -679,6 +680,11 @@
    (color-theme-zenburn)))
 
 (defun medium-contrast ()
+  (interactive)
+  (preserving-default-font-size
+   (color-theme-taylor)))
+
+(defun very-low-contrast ()
   (interactive)
   (preserving-default-font-size
    (color-theme-zenburn)
