@@ -655,8 +655,8 @@ using the `TARGET' that is given as a first argument.")
         (if (or reposition
                 (null ac-menu)
                 (> width current-width)
-                (< width (- current-width 20)))
-            (ac-setup point (* (ceiling (/ width 20.0)) 20)))
+                (< width (- current-width 10)))
+            (ac-setup point (* (ceiling (/ width 10.0)) 10)))
         (ac-update-candidates candidates)))))
 
 (defun ac-trigger-command-p ()
