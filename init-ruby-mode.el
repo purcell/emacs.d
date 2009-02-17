@@ -73,42 +73,11 @@
 ;; Ruby - compilation
 ;;----------------------------------------------------------------------------
 
-;; Jump to lines from Ruby stack traces in 'compile' mode (regexps borrowed from emacs-rails)
-(defun ruby-backtrace-line-regexp (&optional prefix suffix)
-  (concat prefix "\\[?\\([^ \f\n\r\t\v]+?\\):\\([0-9]+\\)\\(?::in\s*`\\(.*?\\)'\\)?" suffix))
-(eval-after-load "compile"
-  '(progn
-     (mapcar (lambda (defn) (add-to-list 'compilation-error-regexp-alist-alist defn))
-             (list (list 'ruby-backtrace (ruby-backtrace-line-regexp) 1 2 nil 1)
-                   (list 'ruby-test-backtrace (ruby-backtrace-line-regexp nil "\\(?:\]:\\|\n$\\)") 1 2 nil 2)))))
-
-(define-derived-mode ruby-compilation-mode compilation-mode "Compilation[ruby]"
-  "Major mode for running ruby scripts and tests."
-  (set (make-local-variable 'compilation-error-regexp-alist) '(ruby-backtrace ruby-test-backtrace)))
-
-(defun ruby-compile (command)
-  (compile command)
-  (with-current-buffer "*compilation*" (ruby-compilation-mode)))
-
-
-(require 'which-func)
-(add-to-list 'which-func-modes 'ruby-mode)
-(setq imenu-auto-rescan t)       ; ensure function names auto-refresh
-(setq imenu-max-item-length 200) ; ensure function names are not truncated
-(defun ruby-execute-current-file ()
-  "Execute the current ruby file (e.g. to execute all tests)."
-  (interactive)
-  (ruby-compile (concat "ruby " (file-name-nondirectory (buffer-file-name)))))
-(defun ruby-test-function ()
-  "Test the current ruby function (must be runnable via ruby <buffer> --name <test>)."
-  (interactive)
-  (let* ((funname (which-function))
-         (fn (and funname (and (string-match "\\(#\\|::\\)\\(test.*\\)" funname) (match-string 2 funname)))))
-    (ruby-compile (concat "ruby " (file-name-nondirectory (buffer-file-name)) (and fn (concat " --name " fn))))))
+(require 'ruby-compilation)
 
 ; run the current buffer using Shift-F7
-(add-hook 'ruby-mode-hook (lambda () (local-set-key [S-f7] 'ruby-execute-current-file)))
+(add-hook 'ruby-mode-hook (lambda () (local-set-key [S-f7] 'ruby-compilation-this-buffer)))
 ; run the current test function using F8 key
-(add-hook 'ruby-mode-hook (lambda () (local-set-key [f7] 'ruby-test-function)))
+(add-hook 'ruby-mode-hook (lambda () (local-set-key [f7] 'ruby-compilation-this-test)))
 
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f6] 'recompile)))
