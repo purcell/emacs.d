@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.147 2009/02/02 20:51:41 rubikitch Exp $
+;; $Id: anything.el,v 1.148 2009/02/16 23:40:22 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -226,6 +226,9 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.148  2009/02/16 23:40:22  rubikitch
+;; `real-to-display' attribute bug fix.
+;;
 ;; Revision 1.147  2009/02/02 20:51:41  rubikitch
 ;; New `anything-sources' attribute: real-to-display
 ;;
@@ -701,7 +704,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.147 2009/02/02 20:51:41 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.148 2009/02/16 23:40:22 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -2041,18 +2044,19 @@ the current pattern."
   "Insert MATCH into the anything buffer. If MATCH is a list then
 insert the string inteneded to appear on the display and store
 the real value in a text property."
-   (let ((start (line-beginning-position (point)))
-         (string (if (listp match) (car match) match))
-         (realvalue (if (listp match) (cdr match) match)))
-     (and (functionp real-to-display)
-          (setq string (funcall real-to-display realvalue)))
-     (funcall insert-function string)
-     ;; Some sources with candidates-in-buffer have already added
-     ;; 'anything-realvalue property when creating candidate buffer.
-     (unless (get-text-property start 'anything-realvalue)
-       (put-text-property start (line-end-position)
-                          'anything-realvalue realvalue)))
-  (funcall insert-function "\n"))
+  (let ((start (line-beginning-position (point)))
+        (string (if (listp match) (car match) match))
+        (realvalue (if (listp match) (cdr match) match)))
+    (and (functionp real-to-display)
+         (setq string (funcall real-to-display realvalue)))
+    (when string                        ; real-to-display may return nil
+      (funcall insert-function string)
+      ;; Some sources with candidates-in-buffer have already added
+      ;; 'anything-realvalue property when creating candidate buffer.
+      (unless (get-text-property start 'anything-realvalue)
+        (put-text-property start (line-end-position)
+                           'anything-realvalue realvalue))
+      (funcall insert-function "\n"))))
 
 (defun anything-insert-header-from-source (source)
   (let ((name (assoc-default 'name source)))
