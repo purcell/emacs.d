@@ -14,7 +14,7 @@
 (defun steve-font-family-name-list ()
   (if *is-cocoa-emacs*
       (mapcar (lambda (n) (symbol-name n)) (x-font-family-list))
-    (x-font-family-list)))
+    (mapcar #'car (x-font-family-list))))
 
 (defmacro preserving-maximization (&rest body)
   (let ((maximized-frames (gensym)))
