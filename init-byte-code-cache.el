@@ -6,3 +6,5 @@
                       "/\\.ido\\.last$" "/\\.ecb-tip-of-day\\.el$" "/\\.viper$" "/\\.recentf$"))
 (require 'byte-code-cache)
 
+
+(provide 'init-byte-code-cache)

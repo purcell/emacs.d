@@ -18,3 +18,6 @@
 (add-hook 'nxml-mode-hook
           (lambda ()
             (add-to-list 'flyspell-prog-text-faces 'nxml-text-face)))
+
+
+(provide 'init-flyspell)

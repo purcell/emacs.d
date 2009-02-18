@@ -42,14 +42,14 @@
 ;; Automatically byte-compile .el files
 ;;----------------------------------------------------------------------------
 (when *byte-code-cache-enabled*
-  (load "init-byte-code-cache"))
+  (require 'init-byte-code-cache))
 
 
 ;;----------------------------------------------------------------------------
 ;; Use elisp package manager (http://tromey.com/elpa/)
 ;;----------------------------------------------------------------------------
 (setq load-path (cons (expand-file-name "~/.emacs.d/elpa") load-path))
-(load "package")
+(require 'package)
 (package-initialize)
 
 
@@ -310,7 +310,7 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; Javascript
 ;;----------------------------------------------------------------------------
-(load "init-javascript")
+(require 'init-javascript)
 
 ;;----------------------------------------------------------------------------
 ;; Extensions -> Modes
@@ -349,13 +349,13 @@ in `exec-path', or nil if no such command exists"
 ;; Darcs
 ;;----------------------------------------------------------------------------
 (when *darcs-support-enabled*
-  (load "init-darcs"))
+  (require 'init-darcs))
 
 
 ;;----------------------------------------------------------------------------
 ;; Git
 ;;----------------------------------------------------------------------------
-(load "init-git")
+(require 'init-git)
 
 
 ;;----------------------------------------------------------------------------
@@ -371,8 +371,8 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 (require 'recentf)
 (setq recentf-max-saved-items 100)
-(load "init-ido")
-(load "init-anything")
+(require 'init-ido)
+(require 'init-anything)
 
 
 ;;----------------------------------------------------------------------------
@@ -403,7 +403,8 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; When splitting window, show (other-buffer) in the new window
 ;;----------------------------------------------------------------------------
-(load "init-window-split")
+(require 'init-window-split)
+
 
 ;;----------------------------------------------------------------------------
 ;; Desktop saving
@@ -449,13 +450,13 @@ in `exec-path', or nil if no such command exists"
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 
-(load "init-maxframe")
+(require 'init-maxframe)
 
 
 ;;----------------------------------------------------------------------------
 ;; Fonts
 ;;----------------------------------------------------------------------------
-(load "init-fonts")
+(require 'init-fonts)
 
 
 ;;----------------------------------------------------------------------------
@@ -504,7 +505,7 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; NXML
 ;;----------------------------------------------------------------------------
-(load "init-nxml")
+(require 'init-nxml)
 
 
 ;;----------------------------------------------------------------------------
@@ -522,15 +523,15 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; Python
 ;;----------------------------------------------------------------------------
-(load "init-python-mode")
+(require 'init-python-mode)
 
 
 ;;----------------------------------------------------------------------------
 ;; Ruby & Rails
 ;;----------------------------------------------------------------------------
-(load "init-ruby-mode")
+(require 'init-ruby-mode)
 (when *rails-support-enabled*
-  (load "init-rails"))
+  (require 'init-rails))
 
 
 ;;----------------------------------------------------------------------------
@@ -594,11 +595,11 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; Lisp / Scheme / Slime
 ;;----------------------------------------------------------------------------
-(load "init-lisp")
+(require 'init-lisp)
 (when *common-lisp-support-enabled*
-  (load "init-common-lisp"))
+  (require 'init-common-lisp))
 (when *clojure-support-enabled*
-  (load "init-clojure"))
+  (require 'init-clojure))
 (when *scheme-support-enabled*
   ; See http://bc.tech.coop/scheme/scheme-emacs.htm
   (require 'quack))
@@ -607,7 +608,7 @@ in `exec-path', or nil if no such command exists"
 ;; Haskell
 ;;----------------------------------------------------------------------------
 (when *haskell-support-enabled*
-  (load "init-haskell"))
+  (require 'init-haskell))
 
 
 ;;----------------------------------------------------------------------------
@@ -623,7 +624,7 @@ in `exec-path', or nil if no such command exists"
 ;; Add spell-checking in comments for all programming language modes
 ;;----------------------------------------------------------------------------
 (when *spell-check-support-enabled*
-  (load "init-flyspell"))
+  (require 'init-flyspell))
 
 
 ;;----------------------------------------------------------------------------

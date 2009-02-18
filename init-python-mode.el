@@ -19,3 +19,6 @@
           (lambda ()
             (require 'pymacs)
             (pymacs-load "ropemacs" "rope-")))
+
+
+(provide 'init-python-mode)

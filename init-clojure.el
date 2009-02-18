@@ -8,3 +8,6 @@
   "Fire up slime running the swank-clojure backend"
   (interactive)
   (slime 'clojure))
+
+
+(provide 'init-clojure)

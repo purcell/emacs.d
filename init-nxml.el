@@ -9,3 +9,6 @@
 (add-hook 'nxml-mode-hook (lambda ()
                             (make-variable-buffer-local 'ido-use-filename-at-point)
                             (setq ido-use-filename-at-point nil)))
+
+
+(provide 'init-nxml)

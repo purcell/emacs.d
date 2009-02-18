@@ -41,3 +41,6 @@
 (setq anything-input-idle-delay 0.05)
 
 (global-set-key [\M-f10] 'anything)
+
+
+(provide 'init-anything)

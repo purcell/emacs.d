@@ -15,3 +15,6 @@
     (funcall (split-window-func-with-other-buffer 'split-window-horizontally))))
 
 (global-set-key "\C-x|" 'split-window-horizontally-instead)
+
+
+(provide 'init-window-split)

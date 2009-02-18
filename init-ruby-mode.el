@@ -81,3 +81,6 @@
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f7] 'ruby-compilation-this-test)))
 
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f6] 'recompile)))
+
+
+(provide 'init-ruby-mode)

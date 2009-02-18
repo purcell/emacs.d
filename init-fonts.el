@@ -49,3 +49,6 @@
       (let ((,old-size (face-attribute 'default :height)))
         (prog1 (progn ,@body)
           (set-face-attribute 'default nil :height ,old-size))))))
+
+
+(provide 'init-fonts)

@@ -7,3 +7,7 @@
 (require 'rinari)
 
 (add-hook 'rails-minor-mode-hook (lambda () (local-set-key [f6] 'recompile)))
+
+
+
+(provide 'init-rails)

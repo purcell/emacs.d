@@ -17,3 +17,6 @@
 
 (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
 (add-hook 'emacs-lisp-mode-hook (lambda () (enable-paredit emacs-lisp-mode-map)))
+
+
+(provide 'init-lisp)

@@ -27,3 +27,6 @@
        cmd-list)))))
 
 (global-set-key "\M-x" 'ido-execute)
+
+
+(provide 'init-ido)

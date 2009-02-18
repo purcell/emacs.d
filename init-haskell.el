@@ -12,3 +12,6 @@
             (define-key haskell-mode-map [?\C-c h] 'hoogle-lookup)
             (turn-on-haskell-doc-mode)
             (turn-on-haskell-indent)))
+
+
+(provide 'init-haskell)
