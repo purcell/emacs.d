@@ -165,20 +165,9 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
-;; Pick up http_proxy & https_proxy from Mac system config using proxy-config
-;; tool available from
-;; http://www.cs.usyd.edu.au/~massad/project-proxy-config.html
+;; Network proxy configuration
 ;;----------------------------------------------------------------------------
-(when (and *is-a-mac* (find-executable "proxy-config"))
-  (defun set-proxy-vars ()
-    (interactive)
-    (loop for (varname opt) in '(("http_proxy" "-h") ("https_proxy" "-s"))
-          do (setenv varname
-                     (replace-regexp-in-string "[ \t\n]*$"
-                                               ""
-                                               (shell-command-to-string
-                                                (concat "proxy-config " opt)))))
-    (message "proxy variables updated")))
+(require 'init-proxies)
 
 
 ;;----------------------------------------------------------------------------
