@@ -30,7 +30,7 @@
           (setenv (concat proto "_proxy" proxy))
           (setq url-proxy-services
                 (append (assq-delete-all-with-test proto url-proxy-services #'equal)
-                        (list (cons proto (extract-host-and-port proxy))))))
+                        (if (not (equal "" proxy)) (list (cons proto (extract-host-and-port proxy)))))))
     (message "proxy variables updated")))
 
 
