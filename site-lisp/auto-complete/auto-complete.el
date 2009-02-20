@@ -118,18 +118,29 @@
 ;;    when only one candidate is left
 ;; b. TAB (ac-expand) behave as completion (ac-complete)
 ;;    after you select candidate
+;; c. Disapear automatically when you
+;;    complete a candidate.
 ;;
 ;; DWIM mode is enabled by default.
 ;; You can disable this feature by
 ;; setting `ac-dwim' to nil.
 ;;
 ;;
+;; ======================
+;; Change default sources
+;; ======================
+;;
+;; `ac-sources' is global local variable, so you have to
+;; call `set-default' to set default value to `ac-sources'.
+;;
+;; ------------------------------
+;; (set-default 'ac-sources '(ac-source-abbrev ac-source-words-in-buffer))
+;; ------------------------------
+;;
+;;
 ;; ==================================
 ;; Change sources for particular mode
 ;; ==================================
-;;
-;; `ac-sources' is global variable, so you have to
-;; make it local variable to change sources for particular mode like:
 ;;
 ;; ------------------------------
 ;; (add-hook 'emacs-lisp-mode-hook
@@ -146,6 +157,16 @@
 
 ;;; History:
 
+;; 2008-02-20 MATSUYAMA Tomohiro <t.matsuyama.pub@gmail.com>
+;;
+;;      * fixed menu position bug at long line (thanks rubikitch <rubikitch@ruby-lang.org>)
+;;      * made dictionary source generator (ac-define-dictionary-source)
+;;      * devided into some files (auto-complete-ruby.el, auto-complete-yasnippet.el, etc)
+;;
+;; 2008-02-19 MATSUYAMA Tomohiro <t.matsuyama.pub@gmail.com>
+;;
+;;      * added ac-trigger-commands switch
+;;
 ;; 2008-02-10 MATSUYAMA Tomohiro <t.matsuyama.pub@gmail.com>
 ;;
 ;;      * added ac-stop function (suggestion from Andy Stewart)
@@ -275,6 +296,12 @@
   :type '(list symbol)
   :group 'auto-complete)
 
+(defcustom ac-trigger-commands
+  '(self-insert-command)
+  "Trigger commands that specify whether `auto-complete' should start or not."
+  :type '(list symbol)
+  :group 'auto-complete)
+
 (defcustom ac-auto-start t
   "Non-nil means completion will be started automatically.
 Positive integer means if a length of a word you entered is larger than the value,
@@ -401,7 +428,7 @@ using the `TARGET' that is given as a first argument.")
     (setq ac-menu nil))
   (save-excursion
     (goto-char point)
-    (let ((column (current-column))
+    (let ((column (ac-current-physical-column))
           (line (line-number-at-pos)))
       (setq ac-saved-window-start (window-start))
       (setq ac-saved-window-hscroll (window-hscroll))
@@ -536,8 +563,8 @@ using the `TARGET' that is given as a first argument.")
 (defun ac-complete ()
   "Try completion."
   (interactive)
-  (let* ((string (overlay-get (ac-menu-line-overlay ac-menu ac-selection) 'real-string))
-         (action (ac-get-candidate-property 'action string)))
+  (let* ((candidate (ac-get-selected-candidate))
+         (action (ac-get-candidate-action candidate)))
     (ac-expand-1)
     (if action
         (funcall action))
@@ -607,6 +634,12 @@ using the `TARGET' that is given as a first argument.")
     (ac-deactivate-mode-map))
   (ac-redraw-candidates))
 
+(defun ac-get-selected-candidate ()
+  (overlay-get (ac-menu-line-overlay ac-menu ac-selection) 'real-string))
+
+(defun ac-get-candidate-action (candidate)
+  (ac-get-candidate-property 'action candidate))
+
 (defun ac-propertize-candidate (candidate &rest properties)
   (apply 'propertize candidate properties))
 
@@ -657,16 +690,25 @@ using the `TARGET' that is given as a first argument.")
                 (> width current-width)
                 (< width (- current-width 10)))
             (ac-setup point (* (ceiling (/ width 10.0)) 10)))
+        (if (and ac-dwim
+                 (= (length candidates) 1)
+                 (equal (car candidates) ac-prefix)
+                 (null (ac-get-candidate-action (car candidates))))
+            (setq candidates nil))
         (ac-update-candidates candidates)))))
 
 (defun ac-trigger-command-p ()
   "Return non-nil if `this-command' is a trigger command."
-  (or (eq this-command 'self-insert-command)
+  (or (memq this-command ac-trigger-commands)
       (and ac-completing
            (memq this-command
                  '(delete-backward-char
                    backward-delete-char
                    backward-delete-char-untabify)))))
+
+(defun ac-current-physical-column ()
+  "Current physical column. (not logical column)"
+  (- (point) (save-excursion (vertical-motion 0) (point))))
 
 (defun ac-on-pre-command ()
   (progn                                ; ignore-errors
@@ -735,6 +777,10 @@ requires REQUIRES-NUM
 
 (make-variable-buffer-local 'ac-sources)
 
+(defvar ac-sources-prefix-function 'ac-sources-prefix-default
+  "Default prefix function for sources.
+You should override this variable instead of ac-prefix-function.")
+
 (defvar ac-current-sources nil
   "Current working sources.")
 
@@ -775,11 +821,14 @@ use SOURCES as `ac-sources'.")
     (or point
         (if (and ac-completing ac-sources-omni-completion)
             ac-point
-          (progn
-            (require 'thingatpt)
-            (setq ac-current-sources ac-sources)
-            (setq ac-sources-omni-completion nil)
-            (car-safe (bounds-of-thing-at-point 'symbol)))))))
+          (setq ac-current-sources ac-sources)
+          (setq ac-sources-omni-completion nil)
+          (funcall ac-sources-prefix-function)))))
+
+(defun ac-sources-prefix-default ()
+  "Default implementation for `ac-sources-prefix-function'."
+  (require 'thingatpt)
+  (car-safe (bounds-of-thing-at-point 'symbol)))
 
 (defun ac-sources-candidate ()
   "Implementation for `ac-cadidates-function' by sources."
@@ -808,6 +857,11 @@ use SOURCES as `ac-sources'.")
             (setcdr (nthcdr (1- ac-limit) (copy-sequence cand)) nil))
         (setq candidates (append candidates cand))))
     (delete-dups candidates)))
+
+
+
+
+;;;; Standard sources
 
 (defun ac-candidate-words-in-buffer ()
   "Default implemention for `ac-candidate-function'."
@@ -873,21 +927,6 @@ use SOURCES as `ac-sources'.")
   '((candidates . ac-filename-candidate))
   "Source for completing file name.")
 
-;; TODO rename
-(defun ac-semantic-candidate (prefix)
-  (when (require 'semantic-ia nil t)
-    (if (memq major-mode
-              '(c-mode c++-mode jde-mode java-mode))
-        (mapcar 'semantic-tag-name
-                (ignore-errors
-                  (or (semantic-ia-get-completions
-                       (semantic-analyze-current-context) (point))
-                      (senator-find-tag-for-completion (regexp-quote prefix))))))))
-
-(defvar ac-source-semantic
-  '((candidates . (lambda () (all-completions ac-prefix (ac-semantic-candidate ac-prefix)))))
-  "Source for semantic.")
-
 (defvar ac-imenu-index nil
   "Imenu index.")
 
@@ -922,56 +961,12 @@ use SOURCES as `ac-sources'.")
     (candidates . ac-imenu-candidate))
   "Source for imenu.")
 
-(defun ac-yasnippet-candidate-1 (table)
-  (let ((hashtab (yas/snippet-table-hash table))
-        (parent (yas/snippet-table-parent table))
-        candidates)
-    (maphash (lambda (key value)
-               (push key candidates))
-             hashtab)
-    (setq candidates (all-completions ac-prefix (nreverse candidates)))
-    (if parent
-        (setq candidates
-              (append candidates (ac-yasnippet-candidate-1 parent))))
-    candidates))
-
-(defun ac-yasnippet-candidate ()
-  (when (require 'yasnippet nil t)
-    (let ((table (yas/snippet-table major-mode)))
-      (if table
-          (ac-yasnippet-candidate-1 table)))))
-
-(defface ac-yasnippet-menu-face
-  '((t (:background "sandybrown" :foreground "black")))
-  "Face for yasnippet candidate menu."
-  :group 'auto-complete)
-
-(defface ac-yasnippet-selection-face
-  '((t (:background "coral3" :foreground "white")))
-  "Face for the yasnippet selected candidate."
-  :group 'auto-complete)
-
-(defvar ac-source-yasnippet
-  '((candidates . ac-yasnippet-candidate)
-    (action . yas/expand)
-    (limit . 3)
-    (menu-face . ac-yasnippet-menu-face)
-    (selection-face . ac-yasnippet-selection-face))
-  "Source for Yasnippet.")
-
-(when (require 'rcodetools nil t)
-  (defvar ac-source-rcodetools
-    `((init . (lambda ()
-                (condition-case x
-                    (rct-exec-and-eval rct-complete-command-name "--completion-emacs-icicles")
-                  (error) (setq rct-method-completion-table nil))))
-      (candidates . (lambda ()
-                      (all-completions
-                       ac-prefix
-                       (mapcar
-                        (lambda (completion)
-                          (replace-regexp-in-string "\t.*$" "" (car completion)))
-                        rct-method-completion-table)))))))
+(defmacro ac-define-dictionary-source (name list)
+  "Define dictionary source named `NAME'.
+`LIST' is a list of string.
+This is useful if you just want to define a dictionary/keywords source."
+  `(defvar ,name
+     '((candidates . (lambda () (all-completions ac-prefix ,list))))))
 
 
 
