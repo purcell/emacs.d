@@ -9,8 +9,8 @@
 ;; Copyright (C) 2009, Andy Stewart, all rights reserved.
 ;; Created: 2009-02-16 21:38:23
 ;; Version: 0.1
-;; Last-Updated: 2009-02-16 23:36:54
-;;           By: Andy Stewart
+;; Last-Updated: 19 22:07:55 2009 (+0100)
+;;           By: thierry
 ;; URL: http://www.emacswiki.org/emacs/download/anything-config.el
 ;; Keywords: anything, anything-config
 ;; Compatibility: GNU Emacs 22 ~ 23
@@ -145,6 +145,10 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2009/02/20
+;;   * Thierry Volpiatto:
+;;      * Fix the bug of `anything-c-source-imenu'.
 ;;
 ;; 2009/02/16
 ;;   * Andy Stewart:
@@ -663,6 +667,8 @@ word in the function's name, e.g. \"bb\" is an abbrev for
 (defvar anything-c-cached-imenu-tick nil)
 (make-variable-buffer-local 'anything-c-cached-imenu-tick)
 
+(setq imenu-auto-rescan t)
+
 (defun anything-imenu-create-candidates (entry)
   (if (listp (cdr entry))
       (mapcan (lambda (sub)
@@ -685,6 +691,7 @@ word in the function's name, e.g. \"bb\" is an abbrev for
                       (let ((tick (buffer-modified-tick)))
                         (if (eq anything-c-cached-imenu-tick tick)
                             anything-c-cached-imenu-candidates
+                          (setq imenu--index-alist nil)
                           (setq anything-c-cached-imenu-tick tick
                                 anything-c-cached-imenu-candidates
                                 (condition-case nil
@@ -695,17 +702,30 @@ word in the function's name, e.g. \"bb\" is an abbrev for
                                              (if anything-c-imenu-index-filter
                                                  (funcall anything-c-imenu-index-filter index)
                                                index))))
-                                  (error nil))))))))
+                                  (error nil)))
+                          (setq anything-c-cached-imenu-candidates
+                                (mapcar #'(lambda (x)
+                                            (if (stringp x)
+                                                x
+                                              (car x)))
+                                        anything-c-cached-imenu-candidates)))))))
     (volatile)
-    (action . (lambda (entry)
-                (let ((path (split-string entry anything-c-imenu-delimiter))
-                      (alist anything-c-cached-imenu-alist))
-                  (imenu
-                   (progn
-                     (while path
-                       (setq alist (assoc (car path) alist)
-                             path (cdr path)))
-                     alist)))))))
+    (persistent-action . (lambda (elm)
+                           (anything-c-imenu-default-action elm)
+                           (if (fboundp 'anything-traverse-occur-color-current-line)
+                               (anything-traverse-occur-color-current-line))))
+    (action . (lambda (elm)
+                (anything-c-imenu-default-action elm)))))
+
+(defun anything-c-imenu-default-action (elm)
+  (let ((path (split-string elm anything-c-imenu-delimiter))
+        (alist anything-c-cached-imenu-alist))
+    (if (> (length path) 1)
+        (progn
+          (setq alist (assoc (car path) alist))
+          (setq elm (cadr path))
+          (imenu (assoc elm alist)))
+      (imenu (assoc elm alist)))))
 
 ;;;; File Cache
 (defvar anything-c-source-file-cache-initialized nil)
