@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.150 2009/02/20 22:58:18 rubikitch Exp $
+;; $Id: anything.el,v 1.158 2009/02/24 06:39:20 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -30,9 +30,9 @@
 
 ;;
 ;; Start with M-x anything, narrow the list by typing some pattern,
-;; select with up/down/pgup/pgdown, choose with enter, left/right
-;; moves between sources. With TAB actions can be selected if the
-;; selected candidate has more than one possible action.
+;; select with up/down/pgup/pgdown/C-p/C-n/C-v/M-v, choose with enter,
+;; left/right moves between sources. With TAB actions can be selected
+;; if the selected candidate has more than one possible action.
 ;;
 ;; Note that anything.el provides only the framework and some example
 ;; configurations for demonstration purposes. See anything-config.el
@@ -97,6 +97,15 @@
 ;;   defined.
 
 ;;; (@* "Tips")
+
+;;
+;; To mark a candidate, press C-SPC as normal Emacs marking. To go to
+;; marked candidate, press M-[ or M-].
+
+;;
+;; `anything-map' is now Emacs-standard key bindings by default. If
+;; you are using `iswitchb', execute `anything-iswitchb-setup'. Then
+;; some key bindings are adjusted to `iswitchb'.
 
 ;;
 ;; There are many `anything' applications, using `anything' for
@@ -215,17 +224,37 @@
 ;;
 ;;   - process status indication
 ;;
-;;   - results from async sources should appear in the order they are
-;;     specified in anything-sources
-;;
 ;;   - async sources doesn't honor digit-shortcut-count
 ;;
 ;;   - anything-candidate-number-limit can't be nil everywhere
-;;
-;;   - support multi line candidates
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.158  2009/02/24 06:39:20  rubikitch
+;; suppress compile warnings.
+;;
+;; Revision 1.157  2009/02/23 22:51:43  rubikitch
+;; New function: `anything-document-attribute'
+;;
+;; Revision 1.156  2009/02/23 21:36:09  rubikitch
+;; New Variable: `anything-display-source-at-screen-top'
+;;
+;; Revision 1.155  2009/02/23 21:30:52  rubikitch
+;; New command: `anything-at-point'
+;;
+;; Revision 1.154  2009/02/23 08:57:54  rubikitch
+;; Visible Mark
+;;
+;; Revision 1.153  2009/02/23 08:38:57  rubikitch
+;; update doc
+;;
+;; Revision 1.152  2009/02/23 08:32:17  rubikitch
+;; More key bindings.
+;;
+;; Revision 1.151  2009/02/23 08:21:24  rubikitch
+;; `anything-map' is now Emacs-standard key bindings by default.
+;; After evaluating `anything-iswitchb-setup'. some key bindings are adjusted to iswitchb.
+;;
 ;; Revision 1.150  2009/02/20 22:58:18  rubikitch
 ;; Cancel timer in `anything-cleanup'.
 ;;
@@ -710,7 +739,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.150 2009/02/20 22:58:18 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.158 2009/02/24 06:39:20 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1094,6 +1123,9 @@ Attributes:
   "*If t then the first nine matches can be selected using
   Ctrl+<number>.")
 
+(defvar anything-display-source-at-screen-top t
+  "*If t, `anything-next-source' and `anything-previous-source'
+  display candidates at the top of screen.")
 
 (defvar anything-candidate-number-limit 50
   "*Do not show more candidates than this limit from inidividual
@@ -1137,8 +1169,12 @@ See also `anything-set-source-filter'.")
   (let ((map (copy-keymap minibuffer-local-map)))
     (define-key map (kbd "<down>") 'anything-next-line)
     (define-key map (kbd "<up>") 'anything-previous-line)
+    (define-key map (kbd "C-n")     'anything-next-line)
+    (define-key map (kbd "C-p")     'anything-previous-line)
     (define-key map (kbd "<prior>") 'anything-previous-page)
     (define-key map (kbd "<next>") 'anything-next-page)
+    (define-key map (kbd "M-v")     'anything-previous-page)
+    (define-key map (kbd "C-v")     'anything-next-page)
     (define-key map (kbd "<right>") 'anything-next-source)
     (define-key map (kbd "<left>") 'anything-previous-source)
     (define-key map (kbd "<RET>") 'anything-exit-minibuffer)
@@ -1152,37 +1188,34 @@ See also `anything-set-source-filter'.")
     (define-key map (kbd "C-8") 'anything-select-with-digit-shortcut)
     (define-key map (kbd "C-9") 'anything-select-with-digit-shortcut)
     (define-key map (kbd "C-i") 'anything-select-action)
+    (define-key map (kbd "C-z") 'anything-execute-persistent-action)
+
+    (define-key map (kbd "C-o") 'anything-next-source)
+    (define-key map (kbd "C-M-v") 'anything-scroll-other-window)
+    (define-key map (kbd "C-M-y") 'anything-scroll-other-window-down)
+    (define-key map (kbd "C-SPC") 'anything-toggle-visible-mark)
+    (define-key map (kbd "M-[") 'anything-prev-visible-mark)
+    (define-key map (kbd "M-]") 'anything-next-visible-mark)
+
+    (define-key map (kbd "C-s") 'anything-isearch)
+    (define-key map (kbd "C-r") 'undefined)
     ;; the defalias is needed because commands are bound by name when
     ;; using iswitchb, so only commands having the prefix anything-
     ;; get rebound
     (defalias 'anything-previous-history-element 'previous-history-element)
-    ;; C-p is used instead of M-p, because anything uses ESC
-    ;; (currently hardcoded) for `anything-iswitchb-cancel-anything' and
-    ;; Emacs handles ESC and Meta as synonyms, so ESC overrides
-    ;; other commands with Meta prefix.
-    ;;
-    ;; Note that iswitchb uses M-p and M-n by default for history
-    ;; navigation, so you should bind C-p and C-n in
-    ;; `iswitchb-mode-map' if you use the history keys and don't want
-    ;; to use different keys for iswitchb while anything is not yet
-    ;; kicked in. These keys are not bound automatically by anything
-    ;; in `iswitchb-mode-map' because they (C-n at least) already have
-    ;; a standard iswitchb binding which you might be accustomed to.
-    (define-key map (kbd "C-p") 'anything-previous-history-element)
     (defalias 'anything-next-history-element 'next-history-element)
-    (define-key map (kbd "C-n") 'anything-next-history-element)
-    ;; Binding M-s is used instead of C-s, because C-s has a binding in
-    ;; iswitchb.  You can rebind it, of course.
-    (define-key map (kbd "M-s") 'anything-isearch)
-    ;; unbind C-r to prevent problems during anything-isearch
-    (define-key map (kbd "C-r") nil)
+    (define-key map (kbd "M-p") 'anything-previous-history-element)
+    (define-key map (kbd "M-n") 'anything-next-history-element)
     map)
-  "Keymap for anything.")
+  "Keymap for anything.
 
+If you execute `anything-iswitchb-setup', some keys are modified.
+See `anything-iswitchb-setup-keys'.")
 
 (defvar anything-isearch-map
   (let ((map (copy-keymap (current-global-map))))
     (define-key map (kbd "<return>") 'anything-isearch-default-action)
+    (define-key map (kbd "<RET>") 'anything-isearch-default-action)
     (define-key map (kbd "C-i") 'anything-isearch-select-action)
     (define-key map (kbd "C-g") 'anything-isearch-cancel)
     (define-key map (kbd "M-s") 'anything-isearch-again)
@@ -1483,6 +1516,10 @@ If NO-UPDATE is non-nil, skip executing `anything-update'."
   (unless no-init (anything-funcall-foreach 'init))
   (unless no-update (anything-update)))
 
+(defvar anything-compile-source-functions
+  '(anything-compile-source--type anything-compile-source--dummy anything-compile-source--candidates-in-buffer)
+  "Functions to compile elements of `anything-sources' (plug-in).")
+
 (defun anything-get-sources ()
   "Return compiled `anything-sources', which is memoized.
 
@@ -1713,6 +1750,16 @@ already-bound variables. Yuck!
        anything-last-sources anything-sources)
    nil nil t nil any-buffer))
 
+(defun anything-at-point (&optional any-sources any-input any-prompt any-resume any-preselect any-buffer)
+  "Same as `anything' except when C-u is pressed, the initial input is the symbol at point."
+  (interactive)
+  (anything any-sources
+            (if current-prefix-arg
+                (concat "\\b" (thing-at-point 'symbol) "\\b"
+                        (if (featurep 'anything-match-plugin) " " ""))
+              any-input)
+            any-prompt any-resume any-preselect any-buffer))
+
 ;; (@* "Core: initialize")
 (defun anything-initialize ()
   "Initialize anything settings and set up the anything buffer."
@@ -1798,12 +1845,6 @@ to be handled."
                                'anything-check-minibuffer-input-1))))
 
 (defun anything-check-minibuffer-input-1 ()
-  (let (inhibit-quit)
-    (with-selected-window (minibuffer-window)
-      (anything-check-new-input (minibuffer-contents)))))
-
-
-(defun anything-check-minibuffer-input-1 ()
   (with-anything-quittable
     (with-selected-window (minibuffer-window)
       (anything-check-new-input (minibuffer-contents)))))
@@ -1818,9 +1859,6 @@ necessary."
     (anything-update)))
 
 ;; (@* "Core: source compiler")
-(defvar anything-compile-source-functions
-  '(anything-compile-source--type anything-compile-source--dummy anything-compile-source--candidates-in-buffer)
-  "Functions to compile elements of `anything-sources' (plug-in).")
 (defvar anything-compile-source-functions-default anything-compile-source-functions
   "Plug-ins this file provides.")
 (defun anything-compile-sources (sources funcs)
@@ -1833,6 +1871,35 @@ Anything plug-ins are realized by this function."
            do (setq source (funcall f source))
            finally (return source)))
    sources))  
+
+;; (@* "Core: plug-in attribute documentation hack")
+(defvar anything-additional-attributes nil)
+(defun anything-document-attribute (attribute short-doc &optional long-doc)
+  "Register ATTRIBUTE documentation introduced by plug-in.
+SHORT-DOC is displayed beside attribute name.
+LONG-DOC is displayed below attribute name and short documentation."
+  (if long-doc
+      (setq short-doc (concat "(" short-doc ")"))
+    (setq long-doc short-doc
+          short-doc ""))
+  (add-to-list 'anything-additional-attributes attribute t)
+  (put attribute 'anything-attrdoc
+       (concat "- " (symbol-name attribute) " " short-doc "\n\n" long-doc "\n")))
+(put 'anything-document-attribute 'lisp-indent-function 2)
+
+(defadvice documentation-property (after anything-document-attribute activate)
+  "Hack to display plug-in attributes' documentation as `anything-sources' docstring."
+  (when (eq symbol 'anything-sources)
+    (setq ad-return-value
+          (concat ad-return-value "++++ Additional attributes by plug-ins ++++\n"
+                  (mapconcat (lambda (sym) (get sym 'anything-attrdoc))
+                             anything-additional-attributes
+                             "\n")))))
+;; (describe-variable 'anything-sources)
+;; (documentation-property 'anything-sources 'variable-documentation)
+;; (progn (ad-disable-advice 'documentation-property 'after 'anything-document-attribute) (ad-update 'documentation-property)) 
+
+
 
 ;; (@* "Core: all candidates")
 (defun anything-get-candidates (source)
@@ -2339,7 +2406,12 @@ UNIT and DIRECTION."
       (if (eobp)
           (forward-line -1))
 
-      (anything-mark-current-line))))
+      (anything-mark-current-line)
+      (if (and anything-display-source-at-screen-top (eq unit 'source))
+      (save-selected-window
+        (select-window (get-buffer-window anything-buffer 'visible))
+        (set-window-start (selected-window)
+                          (save-excursion (forward-line -1) (point))))))))
 
 
 (defun anything-mark-current-line ()
@@ -2745,6 +2817,71 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
   (interactive)
   (anything-scroll-other-window-base 'scroll-other-window-down))
 
+;; (@* "Utility: Visible Mark")
+(defface anything-visible-mark
+  '((((min-colors 88) (background dark))
+     (:background "green1" :foreground "black"))
+    (((background dark)) (:background "green" :foreground "black"))
+    (((min-colors 88)) (:background "green1"))
+    (t (:background "green")))
+  "Face for visible mark."
+  :group 'anything)
+(defvar anything-visible-mark-face 'anything-visible-mark)
+(defvar anything-visible-mark-overlays nil)
+
+(defun anything-clear-visible-mark ()
+  (mapc 'delete-overlay anything-visible-mark-overlays)
+  (setq anything-visible-mark-overlays nil))
+(add-hook 'anything-after-initialize-hook 'anything-clear-visible-mark)
+
+(defun anything-toggle-visible-mark ()
+  (interactive)
+  (with-anything-window
+    (anything-aif (loop for o in anything-visible-mark-overlays
+                        when (equal (line-beginning-position) (overlay-start o))
+                        do (return o))
+        ;; delete
+        (progn (delete-overlay it)
+               (delq it anything-visible-mark-overlays))
+      (let ((o (make-overlay (line-beginning-position) (1+ (line-end-position)))))
+        (overlay-put o 'face anything-visible-mark-face)
+        (overlay-put o 'source (assoc-default 'name (anything-get-current-source)))
+        (overlay-put o 'string (buffer-substring (overlay-start o) (overlay-end o)))
+        (add-to-list 'anything-visible-mark-overlays o)))))
+(defun anything-revive-visible-mark ()
+  (interactive)
+  (with-current-buffer anything-buffer
+    (loop for o in anything-visible-mark-overlays do
+          (goto-char (point-min))
+          (when (search-forward (overlay-get o 'string) nil t)
+            (forward-line -1)
+            (when (save-excursion
+                    (goto-char (anything-get-previous-header-pos))
+                    (equal (overlay-get o 'source)
+                           (buffer-substring (line-beginning-position) (line-end-position))))
+              (move-overlay o (line-beginning-position) (1+ (line-end-position))))))))
+(add-hook 'anything-update-hook 'anything-revive-visible-mark)
+
+(defun anything-next-visible-mark (&optional prev)
+  (interactive)
+  (with-anything-window
+    (setq anything-visible-mark-overlays
+          (sort* anything-visible-mark-overlays
+                 '< :key 'overlay-start))
+    (let ((i (position-if (lambda (o) (< (point) (overlay-start o)))
+                          anything-visible-mark-overlays)))
+      (when prev
+          (if (not i) (setq i (length anything-visible-mark-overlays)))
+          (if (equal (point) (overlay-start (nth (1- i) anything-visible-mark-overlays)))
+              (setq i (1- i))))
+      (when i
+        (goto-char (overlay-start (nth (if prev (1- i) i) anything-visible-mark-overlays)))
+        (anything-mark-current-line)))))
+
+(defun anything-prev-visible-mark ()
+  (interactive)
+  (anything-next-visible-mark t))
+
 ;; (@* "Utility: Incremental search within results")
 
 (defvar anything-isearch-original-global-map nil
@@ -3007,7 +3144,10 @@ If the user is idle for `anything-iswitchb-idle-delay' seconds
 after typing something into iswitchb then anything candidates are
 shown for the current iswitchb input.
 
-ESC cancels anything completion and returns to normal iswitchb."
+ESC cancels anything completion and returns to normal iswitchb.
+
+Some key bindings in `anything-map' is modified.
+See also `anything-iswitchb-setup-keys'."
   (interactive)
 
   (require 'iswitchb)
@@ -3027,9 +3167,39 @@ ESC cancels anything completion and returns to normal iswitchb."
     (if anything-iswitchb-candidate-selected
         (anything-execute-selection-action)
       ad-do-it))
-
+  (anything-iswitchb-setup-keys)
   (message "Iswitchb integration is activated."))
 
+(defun anything-iswitchb-setup-keys ()
+  "Modify `anything-map' for anything-iswitchb users.
+
+C-p is used instead of M-p, because anything uses ESC
+ (currently hardcoded) for `anything-iswitchb-cancel-anything' and
+Emacs handles ESC and Meta as synonyms, so ESC overrides
+other commands with Meta prefix.
+
+Note that iswitchb uses M-p and M-n by default for history
+navigation, so you should bind C-p and C-n in
+`iswitchb-mode-map' if you use the history keys and don't want
+to use different keys for iswitchb while anything is not yet
+kicked in. These keys are not bound automatically by anything
+in `iswitchb-mode-map' because they (C-n at least) already have
+a standard iswitchb binding which you might be accustomed to.
+
+Binding M-s is used instead of C-s, because C-s has a binding in
+iswitchb.  You can rebind it AFTER `anything-iswitchb-setup'.
+
+Unbind C-r to prevent problems during anything-isearch."
+  (define-key anything-map (kbd "C-s") nil)
+  (define-key anything-map (kbd "M-p") nil)
+  (define-key anything-map (kbd "M-n") nil)
+  (define-key anything-map (kbd "M-v") nil)
+  (define-key anything-map (kbd "C-v") nil)
+  (define-key anything-map (kbd "C-p") 'anything-previous-history-element)
+  (define-key anything-map (kbd "C-n") 'anything-next-history-element)
+  (define-key anything-map (kbd "M-s") nil)
+  (define-key anything-map (kbd "M-s") 'anything-isearch)
+  (define-key anything-map (kbd "C-r") nil))
 
 (defun anything-iswitchb-minibuffer-setup ()
   (when (eq this-command 'iswitchb-buffer)
