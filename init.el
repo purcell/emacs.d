@@ -391,9 +391,11 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 (require 'auto-complete nil t)
 (global-auto-complete-mode t)
-(when *is-cocoa-emacs*
-  (require 'ac-dabbrev)
-  (setq ac-sources '(ac-source-yasnippet ac-source-dabbrev ac-source-words-in-buffer)))
+(if *is-cocoa-emacs*
+    (progn
+      (require 'ac-dabbrev)
+      (setq ac-sources '(ac-source-yasnippet ac-source-dabbrev ac-source-words-in-buffer)))
+  (setq ac-sources '(ac-source-yasnippet ac-source-words-in-buffer)))
 (when *vi-emulation-support-enabled*
   (define-key ac-complete-mode-map (kbd "C-n") 'dabbrev-expand)
   (define-key ac-complete-mode-map (kbd "C-p") 'dabbrev-expand)
