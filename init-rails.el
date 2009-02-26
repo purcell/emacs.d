@@ -1,4 +1,4 @@
-(dolist (hook '(nxml-mode-hook haml-mode-hook sass-mode-hook))
+(dolist (hook '(nxml-mode-hook haml-mode-hook sass-mode-hook magit-mode-hook))
   (add-hook hook (lambda () (rinari-launch))))
 (defun update-rails-ctags ()
   (interactive)
