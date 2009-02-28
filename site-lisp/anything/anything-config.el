@@ -3,7 +3,7 @@
 ;; Filename: anything-config.el
 
 ;; Description: Predefined configurations for `anything.el'
-;; Time-stamp: <2009-02-25 18:15:32 (JST) rubikitch>
+;; Time-stamp: <2009-02-27 17:38:59 (JST) rubikitch>
 ;; Author: Tassilo Horn <tassilo@member.fsf.org>
 ;; Maintainer: Tassilo Horn <tassilo@member.fsf.org>
 ;;             Andy Stewart <lazycat.manatee@gmail.com>
@@ -12,7 +12,7 @@
 ;; Copyright (C) 2009, Andy Stewart, all rights reserved.
 ;; Copyright (C) 2009, rubikitch, all rights reserved.
 ;; Created: 2009-02-16 21:38:23
-;; Version: 0.3.5
+;; Version: 0.3.7
 ;; URL: http://www.emacswiki.org/emacs/download/anything-config.el
 ;; Keywords: anything, anything-config
 ;; Compatibility: GNU Emacs 22 ~ 23
@@ -125,6 +125,10 @@
 
 ;;; Change log:
 ;;
+;; 2009/02/27
+;;   * rubikitch:
+;;      * Improve `anything-c-shorten-home-path'.
+;;      * Fix bug of `anything-c-source-emacs-source-defun'.
 ;; 2009/02/25
 ;;   * rubikitch:
 ;;      * Fix bug in `anything-c-source-register' (thanks Thierry).
@@ -1482,7 +1486,7 @@ utility mdfind.")
 (defvar anything-c-source-emacs-source-defun
   '((name . "Emacs Source DEFUN")
     (headline . "DEFUN\\|DEFVAR")
-    (condition . (string-match "/emacs22.+/src/.+c$" (or buffer-file-name "")))))
+    (condition . (string-match "/emacs2[0-9].+/src/.+c$" (or buffer-file-name "")))))
 ;; (anything 'anything-c-source-emacs-source-defun)
 
 (defvar anything-c-source-emacs-lisp-expectations
@@ -2072,7 +2076,7 @@ other candidate transformers."
   (mapcar (lambda (file)
             (let ((home (replace-regexp-in-string "\\\\" "/" ; stupid Windows...
                                                   (getenv "HOME"))))
-              (if (string-match home file)
+              (if (and (stringp file) (string-match home file))
                   (cons (replace-match "~" nil nil file) file)
                 file)))
           files))
