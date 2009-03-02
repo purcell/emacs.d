@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.162 2009/02/28 01:24:13 rubikitch Exp $
+;; $Id: anything.el,v 1.166 2009/03/03 10:35:57 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -116,7 +116,8 @@
 ;;
 ;; `anything-map' is now Emacs-standard key bindings by default. If
 ;; you are using `iswitchb', execute `anything-iswitchb-setup'. Then
-;; some key bindings are adjusted to `iswitchb'.
+;; some key bindings are adjusted to `iswitchb'. Note that
+;; anything-iswitchb is not maintained.
 
 ;;
 ;; There are many `anything' applications, using `anything' for
@@ -241,6 +242,19 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.166  2009/03/03 10:35:57  rubikitch
+;; Set default `anything-input-idle-delay' to 0.1
+;;
+;; Revision 1.165  2009/03/03 07:14:42  rubikitch
+;; Make sure to run `anything-update-hook' after processing delayed sources.
+;;
+;; Revision 1.164  2009/03/02 01:51:40  rubikitch
+;; better error handling.
+;;
+;; Revision 1.163  2009/03/01 05:15:00  rubikitch
+;; anything-iswitchb and anything-isearch are marked as unmaintained.
+;; (document change only)
+;;
 ;; Revision 1.162  2009/02/28 01:24:13  rubikitch
 ;; Symbols are now acceptable as candidate.
 ;;
@@ -763,7 +777,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.162 2009/02/28 01:24:13 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.166 2009/03/03 10:35:57 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1175,7 +1189,7 @@ Attributes:
   character typed, only if the user hesitates a bit.")
 
 
-(defvar anything-input-idle-delay nil
+(defvar anything-input-idle-delay 0.1
   "The user has to be idle for this many seconds, before ALL candidates are collected.
 Unlink `anything-input-idle', it is also effective for non-delayed sources.
 If nil, candidates are collected immediately. ")
@@ -1431,6 +1445,7 @@ It is useful for `anything' applications.")
 (defvar anything-match-hash (make-hash-table :test 'equal))
 (defvar anything-cib-hash (make-hash-table :test 'equal))
 (defvar anything-tick-hash (make-hash-table :test 'equal))
+(defvar anything-issued-errors nil)
 
 ;; (@* "Programming Tools")
 (defmacro anything-aif (test-form then-form &rest else-forms)
@@ -1716,7 +1731,7 @@ already-bound variables. Yuck!
               (anything-sources (anything-normalize-sources any-sources)))
          
           (add-hook 'post-command-hook 'anything-check-minibuffer-input)
-
+          (add-hook 'minibuffer-setup-hook 'anything-print-error-messages)
           (setq anything-current-position (cons (point) (window-start)))
           (if any-resume
               (anything-initialize-overlays (anything-buffer-get))
@@ -1746,6 +1761,7 @@ already-bound variables. Yuck!
                          (read-string (or any-prompt "pattern: ")
                                       (if any-resume anything-pattern any-input))))))
             (anything-cleanup)
+            (remove-hook 'minibuffer-setup-hook 'anything-print-error-messages)
             (remove-hook 'post-command-hook 'anything-check-minibuffer-input)
             (anything-set-frame/window-configuration frameconfig))
           (unless anything-quit
@@ -1793,6 +1809,7 @@ already-bound variables. Yuck!
   (run-hooks 'anything-before-initialize-hook)
   (setq anything-current-buffer (current-buffer))
   (setq anything-buffer-file-name buffer-file-name)
+  (setq anything-issued-errors nil)
   (setq anything-compiled-sources nil)
   (setq anything-saved-current-source nil)
   ;; Call the init function for sources where appropriate
@@ -2053,8 +2070,7 @@ Cache the candidates if there is not yet a cached value."
                 (assoc-default 'name source))
                nil)))))
 
-(defun anything-log-error (&rest args)
-  (apply 'message args))
+;; (anything '(((name . "error")(candidates . (lambda () (hage))) (action . identity))))
 
 (defun anything-process-source (source)
   "Display matches from SOURCE according to its settings."
@@ -2105,9 +2121,10 @@ Cache the candidates if there is not yet a cached value."
                        (= (overlay-start anything-selection-overlay)
                           (overlay-end anything-selection-overlay)))
               (goto-char (point-min))
-              (save-excursion (run-hooks 'anything-update-hook))
               (anything-next-line)))
-
+          (save-excursion
+            (goto-char (point-min))
+            (run-hooks 'anything-update-hook))
           (anything-maybe-fit-frame)))))
 
 ;; (@* "Core: *anything* buffer contents")
@@ -2141,7 +2158,6 @@ the current pattern."
       (goto-char (point-min))
       (save-excursion (run-hooks 'anything-update-hook))
       (anything-next-line)
-
       (setq delayed-sources (nreverse delayed-sources))
       (if anything-test-mode
           (dolist (source delayed-sources)
@@ -2523,6 +2539,18 @@ UNIT and DIRECTION."
 (defun anything-pos-candidate-separator-p ()
   "Return t if the current line is a candidate separator."
   (get-text-property (line-beginning-position) 'anything-candidate-separator))
+
+;; (@* "Core: error handling")
+(defun anything-log-error (&rest args)
+  "Accumulate error messages into `anything-issued-errors'."
+  (let ((msg (apply 'format args)))
+    (unless (member msg anything-issued-errors)
+      (add-to-list 'anything-issued-errors msg))))
+
+(defun anything-print-error-messages ()
+  "Print error messages in `anything-issued-errors'."
+  (message "%s" (mapconcat 'identity (reverse anything-issued-errors) "\n")))
+
 
 ;; (@* "Core: misc")
 (defun anything-kill-buffer-hook ()
@@ -2926,7 +2954,7 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
   (interactive)
   (anything-next-visible-mark t))
 
-;; (@* "Utility: Incremental search within results")
+;; (@* "Utility: Incremental search within results (unmaintained)")
 
 (defvar anything-isearch-original-global-map nil
   "Original global map before Anything isearch is started.")
@@ -2970,7 +2998,7 @@ occurrence of the current pattern.")
 
 
 (defun anything-isearch ()
-  "Start incremental search within results."
+  "Start incremental search within results. (UNMAINTAINED)"
   (interactive)
   (if (zerop (buffer-size (get-buffer (anything-buffer-get))))
       (message "There are no results.")
@@ -3169,7 +3197,7 @@ occurrence of the current pattern.")
   (setq anything-isearch-message-suffix ""))
 
 
-;; (@* "Utility: Iswitchb integration")
+;; (@* "Utility: Iswitchb integration (unmaintained)")
 
 (defvar anything-iswitchb-candidate-selected nil
   "Indicates whether an anything candidate is selected from iswitchb.")
@@ -3182,7 +3210,7 @@ occurrence of the current pattern.")
 
 
 (defun anything-iswitchb-setup ()
-  "Integrate anything completion into iswitchb.
+  "Integrate anything completion into iswitchb (UNMAINTAINED).
 
 If the user is idle for `anything-iswitchb-idle-delay' seconds
 after typing something into iswitchb then anything candidates are

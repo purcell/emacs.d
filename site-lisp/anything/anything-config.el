@@ -3,16 +3,18 @@
 ;; Filename: anything-config.el
 
 ;; Description: Predefined configurations for `anything.el'
-;; Time-stamp: <2009-02-27 17:38:59 (JST) rubikitch>
+;; Time-stamp: <2009-03-02 10:27:26 (JST) rubikitch>
 ;; Author: Tassilo Horn <tassilo@member.fsf.org>
 ;; Maintainer: Tassilo Horn <tassilo@member.fsf.org>
 ;;             Andy Stewart <lazycat.manatee@gmail.com>
 ;;             rubikitch    <rubikitch@ruby-lang.org>
+;;             Thierry Volpiatto <thierry.volpiatto@gmail.com>
 ;; Copyright (C) 2007 ~ 2009, Tassilo Horn, all rights reserved.
 ;; Copyright (C) 2009, Andy Stewart, all rights reserved.
 ;; Copyright (C) 2009, rubikitch, all rights reserved.
+;; Copyright (C) 2009, Thierry Volpiatto, all rights reserved.
 ;; Created: 2009-02-16 21:38:23
-;; Version: 0.3.7
+;; Version: 0.3.8
 ;; URL: http://www.emacswiki.org/emacs/download/anything-config.el
 ;; Keywords: anything, anything-config
 ;; Compatibility: GNU Emacs 22 ~ 23
@@ -64,13 +66,15 @@
 ;;  Buffer:
 ;;     `anything-c-source-buffers'          (Buffers)
 ;;     `anything-c-source-buffer-not-found' (Create buffer)
+;;     `anything-c-source-buffers+'         (Buffers)
 ;;  File:
-;;     `anything-c-source-file-name-history'    (File Name History)
-;;     `anything-c-source-files-in-current-dir' (Files from Current Directory)
-;;     `anything-c-source-file-cache'           (File Cache)
-;;     `anything-c-source-locate'               (Locate)
-;;     `anything-c-source-recentf'              (Recentf)
-;;     `anything-c-source-ffap-guesser'         (File at point)
+;;     `anything-c-source-file-name-history'     (File Name History)
+;;     `anything-c-source-files-in-current-dir'  (Files from Current Directory)
+;;     `anything-c-source-files-in-current-dir+' (Files from Current Directory)
+;;     `anything-c-source-file-cache'            (File Cache)
+;;     `anything-c-source-locate'                (Locate)
+;;     `anything-c-source-recentf'               (Recentf)
+;;     `anything-c-source-ffap-guesser'          (File at point)
 ;;  Help:
 ;;     `anything-c-source-man-pages'  (Manual Pages)
 ;;     `anything-c-source-info-pages' (Info Pages)
@@ -84,9 +88,12 @@
 ;;     `anything-c-source-emacs-functions'              (Emacs Functions)
 ;;     `anything-c-source-emacs-functions-with-abbrevs' (Emacs Functions)
 ;;  Bookmark:
-;;     `anything-c-source-bookmarks'     (Bookmarks)
-;;     `anything-c-source-bookmark-set'  (Set Bookmark)
-;;     `anything-c-source-w3m-bookmarks' (W3m Bookmarks)
+;;     `anything-c-source-bookmarks'       (Bookmarks)
+;;     `anything-c-source-bookmark-set'    (Set Bookmark)
+;;     `anything-c-source-bookmarks-ssh'   (Bookmarks-ssh)
+;;     `anything-c-source-bookmarks-su'    (Bookmarks-su)
+;;     `anything-c-source-bookmarks-local' (Bookmarks-Local)
+;;     `anything-c-source-w3m-bookmarks'   (W3m Bookmarks)
 ;;  Library:
 ;;     `anything-c-source-elisp-library-scan' (Elisp libraries (Scan))
 ;;  Programming:
@@ -124,7 +131,22 @@
 ;;     `anything-c-source-occur'              (Occur)
 
 ;;; Change log:
-;;
+;; 2009/03/02
+;;   * rubikitch:
+;;      * Add `anything-c-skip-current-file'.
+;;      * Rewrite `anything-test-sources' to modern fashion.
+;; 2009/03/01
+;;   * Thierry Volpiatto:
+;;      * Add myself as new maintainer.
+;;      * Add `anything-c-sources-buffers+'.
+;;      * Add action to buffers in `anything-type-attributes'.
+;;      * Add `anything-c-source-files-in-current-dir+'.
+;;      * Add multiline attribute to `anything-c-source-register'.
+;;      * Add `anything-c-source-bookmarks-local'.
+;;      * Add `anything-c-source-bookmarks-su'.
+;;      * Add `anything-c-source-bookmarks-ssh'.
+;;      * Add actions to bookmarks in `anything-type-attributes'.
+;;      * Improve `anything-c-source-w3m-bookmarks'.
 ;; 2009/02/27
 ;;   * rubikitch:
 ;;      * Improve `anything-c-shorten-home-path'.
@@ -371,18 +393,13 @@ they will be displayed with face `file-name-shadow' if
   (anything-set-source-filter '("Kill Ring")))
 
 (defun anything-test-sources ()
-  "Insert source to buffer `*scratch*' for test."
+  "List all anything sources for test.
+The output is sexps which are evaluated by \\[eval-last-sexp]."
   (interactive)
-  (switch-to-buffer "*scratch*")
-  (goto-char (point-max))
-  (insert "\n")
-  (save-excursion
-    (insert
-     "(setq anything-sources-old anything-sources)\n"
-     "(setq anything-sources anything-sources-old)\n"
-     (mapconcat (lambda (sym) (format "(setq anything-sources (list %s))" sym))
-                (apropos-internal "^anything-c-source" #'boundp)
-                "\n"))))
+  (with-output-to-temp-buffer "*Anything Test Sources*"
+    (mapc (lambda (s) (princ (format ";; (anything '%s)\n" s)))
+          (apropos-internal "^anything-c-source" #'boundp))
+    (pop-to-buffer standard-output)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utilities Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun anything-nest (&rest same-as-anything)
@@ -566,6 +583,70 @@ buffer that is not the current buffer."
     (type . buffer)))
 ;; (anything 'anything-c-source-buffer-not-found)
 
+;;; Buffers+
+(defface anything-dir-heading '((t (:foreground "Blue" :background "Pink")))
+  "*Face used for directory headings in dired buffers."
+  :group 'anything)
+
+(defface anything-file-name
+    '((t (:foreground "Blue")))
+  "*Face used for file names (without suffixes) in dired buffers."
+  :group 'anything)
+
+(defface anything-dir-priv
+    '((t (:foreground "DarkRed" :background "LightGray")))
+  "*Face used for directory privilege indicator (d) in dired buffers."
+  :group 'anything)
+
+(defvar anything-c-buffers-face1 'anything-dir-priv)
+(defvar anything-c-buffers-face2 'font-lock-type-face)
+(defvar anything-c-buffers-face3 'italic)
+(defun anything-c-highlight-buffers (buffers)
+  (let ((cand-mod (loop for i in buffers
+                     if (rassoc (get-buffer i) dired-buffers)
+                     collect (propertize i
+                                         'face anything-c-buffers-face1
+                                         'help-echo (car (rassoc (get-buffer i) dired-buffers)))
+                     if (buffer-file-name (get-buffer i))
+                     collect (propertize i
+                                         'face anything-c-buffers-face2
+                                         'help-echo (buffer-file-name (get-buffer i)))
+                     if (and (not (rassoc (get-buffer i) dired-buffers))
+                             (not (buffer-file-name (get-buffer i))))
+                     collect (propertize i
+                                         'face anything-c-buffers-face3))))
+    cand-mod))
+
+(defvar anything-c-source-buffers+
+  '((name . "Buffers")
+    (candidates . anything-c-buffer-list)
+    (volatile)
+    (type . buffer)
+    (candidate-transformer . (lambda (candidates)
+                               (anything-c-compose
+                                (list candidates)
+                                '(anything-c-highlight-buffers
+                                  anything-c-skip-boring-buffers))))
+    (persistent-action . (lambda (name)
+                           (flet ((kill (item)
+                                    (with-current-buffer item
+                                      (if (and (buffer-modified-p)
+                                               (buffer-file-name (current-buffer)))
+                                          (progn
+                                            (save-buffer)
+                                            (kill-buffer item))
+                                          (kill-buffer item))))
+                                  (goto (item)
+                                    (switch-to-buffer item)))
+                             (if current-prefix-arg
+                                 (progn
+                                   (kill name)
+                                   (anything-delete-current-selection))
+                                 (goto name)))))))
+
+;; (anything 'anything-c-source-buffers+)
+
+
 ;;;; <File>
 ;;; File name history
 (defvar anything-c-source-file-name-history
@@ -588,6 +669,38 @@ buffer that is not the current buffer."
     (volatile)
     (type . file)))
 ;; (anything 'anything-c-source-files-in-current-dir)
+
+(defvar anything-c-files-face1 'anything-dir-priv)
+(defvar anything-c-files-face2 'anything-file-name)
+(defun anything-c-highlight-files (files)
+  (let ((cand-mod (loop for i in files
+                     if (file-directory-p i)
+                     collect (propertize (file-name-nondirectory i)
+                                         'face anything-c-files-face1
+                                         'help-echo (expand-file-name i))
+                     else
+                     collect (propertize (file-name-nondirectory i)
+                                         'face anything-c-files-face2
+                                         'help-echo (expand-file-name i)))))
+    cand-mod))
+
+
+(defvar anything-c-source-files-in-current-dir+
+  '((name . "Files from Current Directory")
+    (init . (lambda ()
+              (setq anything-c-default-directory
+                    (expand-file-name default-directory))))
+    (candidates . (lambda ()
+                    (directory-files
+                     anything-c-default-directory t)))
+    (candidate-transformer . (lambda (candidates)
+                               (anything-c-compose
+                                (list candidates)
+                                '(anything-c-highlight-files))))
+    (volatile)
+    (type . file)))
+
+;; (anything 'anything-c-source-files-in-current-dir+)
 
 ;;; File Cache
 (defvar anything-c-source-file-cache-initialized nil)
@@ -911,19 +1024,119 @@ word in the function's name, e.g. \"bb\" is an abbrev for
                                  (buffer-substring start (1- end)))))
                 (with-current-buffer buf (insert str))))))))))
 
+;;; Special bookmarks
+(defvar anything-c-source-bookmarks-ssh
+  '((name . "Bookmarks-ssh")
+    (init . (lambda ()
+              (require 'bookmark)))
+    (candidates . (lambda ()
+                    (let (lis-all
+                          lis-ssh)
+                      (setq lis-all (bookmark-all-names))
+                      (setq lis-ssh (loop for i in lis-all
+                                       if (string-match "^(ssh)" i)
+                                       collect i))
+                      (sort lis-ssh 'string-lessp))))
+    (type . bookmark))
+  "See (info \"(emacs)Bookmarks\").")
+;; (anything 'anything-c-source-bookmarks-ssh)
+
+(defvar anything-c-source-bookmarks-su
+  '((name . "Bookmarks-su")
+    (init . (lambda ()
+              (require 'bookmark)))
+    (candidates . (lambda ()
+                    (let (lis-all
+                          lis-su)
+                      (setq lis-all (bookmark-all-names))
+                      (setq lis-su (loop for i in lis-all
+                                      if (string-match "^(su)" i)
+                                      collect i))
+                      (sort lis-su 'string-lessp))))
+    (candidate-transformer . (lambda (candidates)
+                               (anything-c-compose
+                                (list candidates)
+                                '(anything-c-highlight-bookmark-su))))
+    
+    (type . bookmark))
+  "See (info \"(emacs)Bookmarks\").")
+;; (anything 'anything-c-source-bookmarks-su)
+
+(defface anything-bookmarks-su-face '((t (:foreground "red")))
+  "TRAVERSEDIR face."
+  :group 'traverse-faces)
+
+(defvar anything-c-bookmarks-face1 'anything-dir-heading)
+(defvar anything-c-bookmarks-face2 'anything-file-name)
+(defvar anything-c-bookmarks-face3 'anything-bookmarks-su-face)
+
+(defun tv-root-logged-p ()
+  (catch 'break
+    (dolist (i (mapcar #'buffer-name
+                       (buffer-list)))
+      (when (string-match "*tramp/su ." i)
+        (throw 'break t)))))
+
+
+(defun anything-c-highlight-bookmark-su (files)
+  (if (tv-root-logged-p)
+      (anything-c-highlight-bookmark files)
+      (anything-c-highlight-not-logged files)))
+
+(defun anything-c-highlight-not-logged (files)
+  (let ((cand-mod (loop for i in files
+                     collect (propertize i
+                                         'face anything-c-bookmarks-face3))))
+    cand-mod))
+
+(defun anything-c-highlight-bookmark (files)
+  (let ((cand-mod (loop for i in files
+                     if (file-directory-p (bookmark-get-filename i))
+                     collect (propertize i
+                                         'face anything-c-bookmarks-face1)
+                     else
+                     collect (propertize i
+                                         'face anything-c-bookmarks-face2))))
+    cand-mod))
+
+(defvar anything-c-source-bookmarks-local
+  '((name . "Bookmarks-Local")
+    (init . (lambda ()
+              (require 'bookmark)))
+    (candidates . (lambda ()
+                    (let (lis-all
+                          lis-loc)
+                      (setq lis-all (bookmark-all-names))
+                      (setq lis-loc (loop for i in lis-all
+                                       if (and (not (string-match "^(ssh)" i))
+                                               (not (string-match "^(su)" i)))
+                                       collect i))
+                      (sort lis-loc 'string-lessp))))
+    (candidate-transformer . (lambda (candidates)
+                               (anything-c-compose
+                                (list candidates)
+                                '(anything-c-highlight-bookmark))))
+    (type . bookmark))
+  "See (info \"(emacs)Bookmarks\").")
+;; (anything 'anything-c-source-bookmarks-local)
+
 
 ;; W3m bookmark
 (unless (and (require 'w3m nil t)
              (require 'w3m-bookmark nil t))
   (defvar w3m-bookmark-file "~/.w3m/bookmark.html"))
-(defvar anything-w3m-bookmarks-regexp ">[^><]+[^</a>]+[a-z)0-9]+")
+;; (defvar anything-w3m-bookmarks-regexp ">[^><]+[^</a>]+[a-z)0-9]+")
+
+(defface anything-w3m-bookmarks-face '((t (:foreground "cyan1" :underline t)))
+  "Face for w3m bookmarks" :group 'anything)
+
+(defvar anything-w3m-bookmarks-regexp ">[^><]+.[^</a>]")
 (defun anything-w3m-bookmarks-to-alist ()
-  "Translate w3m bookmark to alist."
   (let ((bookmarks-alist)
         (url)
         (title))
     (with-temp-buffer
-      (insert-file-contents w3m-bookmark-file)
+      (insert-file-contents w3m-bookmark-file) ;; or w3m-bookmark-file
       (goto-char (point-min))
       (while (not (eobp))
         (forward-line)
@@ -936,62 +1149,6 @@ word in the function's name, e.g. \"bb\" is an abbrev for
             (setq title (match-string 0)))
           (push (cons title url) bookmarks-alist))))
     (setq bookmarks-alist (reverse bookmarks-alist))))
-
-
-(defun anything-c-w3m-bookmarks-get-value (elm)
-  "Get value of w3m bookmark element ELM."
-  (let ((value
-         (replace-regexp-in-string "\"" ""
-                                   (cdr (assoc elm
-                                               anything-c-w3m-bookmarks-alist)))))
-    value))
-
-(defun anything-c-w3m-browse-bookmark (elm &optional use-firefox new-tab)
-  "Browse w3m bookmark element ELM.
-If USE-FIREFOX is non-nil, use firefox browse.
-If NEW-TAB is non-nil, browse page in new tab."
-  (let* ((fn (if use-firefox
-                 'browse-url-firefox
-               'w3m-browse-url))
-         (arg (if (and (eq fn 'w3m-browse-url)
-                       new-tab)
-                  t
-                nil)))
-    (funcall fn (anything-c-w3m-bookmarks-get-value elm) arg)))
-
-(defun anything-c-highlight-w3m-bookmarks (books)
-  "Highlight w3m bookmark with BOOKS."
-  (let ((cand-mod (loop for i in books
-                        collect (propertize i
-                                            'face 'underline))))
-    cand-mod))
-
-(defun anything-c-w3m-delete-bookmark (elm)
-  "Delete w3m bookmark element ELM."
-  (save-excursion
-    (find-file-literally w3m-bookmark-file)
-    (goto-char (point-min))
-    (when (re-search-forward elm nil t)
-      (beginning-of-line)
-      (delete-region (point)
-                     (line-end-position))
-      (delete-blank-lines))
-    (save-buffer (current-buffer))
-    (kill-buffer (current-buffer))))
-
-(defun anything-c-w3m-rename-bookmark (elm)
-  "Rename w3m bookmark element ELM."
-  (let* ((old-title (replace-regexp-in-string ">" "" elm))
-         (new-title (read-string "NewTitle: " old-title)))
-    (save-excursion
-      (find-file-literally w3m-bookmark-file)
-      (goto-char (point-min))
-      (when (re-search-forward (concat elm "<") nil t)
-        (goto-char (1- (point)))
-        (delete-backward-char (length old-title))
-        (insert new-title))
-      (save-buffer (current-buffer))
-      (kill-buffer (current-buffer)))))
 
 (defvar anything-c-w3m-bookmarks-alist nil)
 (defvar anything-c-source-w3m-bookmarks
@@ -1007,11 +1164,7 @@ If NEW-TAB is non-nil, browse page in new tab."
                                          (list candidates)
                                          '(anything-c-highlight-w3m-bookmarks))))
     (action . (("Browse Url" . (lambda (candidate)
-                                 (if (> (length (w3m-list-buffers)) 1)
-                                     (progn
-                                       (set-buffer anything-current-buffer)
-                                       (anything-c-w3m-browse-bookmark candidate))
-                                   (anything-c-w3m-browse-bookmark candidate))))
+                                 (anything-c-w3m-browse-bookmark candidate)))
                ("Copy Url" . (lambda (elm)
                                (kill-new (anything-c-w3m-bookmarks-get-value elm))))
                ("Browse Url Firefox" . (lambda (candidate)
@@ -1023,9 +1176,61 @@ If NEW-TAB is non-nil, browse page in new tab."
     (persistent-action . (lambda (candidate)
                            (if current-prefix-arg
                                (anything-c-w3m-browse-bookmark candidate t)
-                             (anything-c-w3m-browse-bookmark candidate nil t))))
+                               (anything-c-w3m-browse-bookmark candidate nil t))))
     (delayed)
     (volatile)))
+
+(defun anything-c-w3m-bookmarks-get-value (elm)
+  (let ((value
+         (replace-regexp-in-string "\"" ""
+                                   (cdr (assoc elm
+                                               anything-c-w3m-bookmarks-alist)))))
+    value))
+
+(defun anything-c-w3m-browse-bookmark (elm &optional use-firefox new-tab)
+  (let* ((fn (if use-firefox
+                 'browse-url-firefox
+                 'w3m-browse-url))
+         (arg (if (and (eq fn 'w3m-browse-url)
+                       new-tab)
+                  t
+                  nil)))
+    (funcall fn (anything-c-w3m-bookmarks-get-value elm) arg)))
+
+
+(defun anything-c-highlight-w3m-bookmarks (books)
+  (let ((cand-mod (loop for i in books
+                     collect (propertize i
+                                         'face 'anything-w3m-bookmarks-face
+                                         'help-echo (anything-c-w3m-bookmarks-get-value i)))))
+    cand-mod))
+
+
+(defun anything-c-w3m-delete-bookmark (elm)
+  (save-excursion
+    (find-file-literally w3m-bookmark-file)
+    (goto-char (point-min))
+    (when (re-search-forward elm nil t)
+      (beginning-of-line)
+      (delete-region (point)
+                     (line-end-position))
+      (delete-blank-lines))
+    (save-buffer (current-buffer))
+    (kill-buffer (current-buffer))))
+
+(defun anything-c-w3m-rename-bookmark (elm)
+  (let* ((old-title (replace-regexp-in-string ">" "" elm))
+         (new-title (read-string "NewTitle: " old-title)))
+    (save-excursion
+      (find-file-literally w3m-bookmark-file)
+      (goto-char (point-min))
+      (when (re-search-forward (concat elm "<") nil t)
+        (goto-char (1- (point))) 
+        (delete-backward-char (length old-title))
+        (insert new-title))
+      (save-buffer (current-buffer))
+      (kill-buffer (current-buffer)))))
+
 ;; (anything 'anything-c-source-w3m-bookmarks)
 
 ;;;; <Library>
@@ -1404,6 +1609,7 @@ utility mdfind.")
 (defvar anything-c-source-register
   '((name . "Registers")
     (candidates . anything-c-registers)
+    (multiline)
     (action ("insert" . insert))))
 
 ;; based on list-register.el
@@ -1607,7 +1813,8 @@ removed."
                                              (calc-eval anything-pattern)
                                            (error "error")))))
     (volatile)
-    (action ("Do Nothing" . ignore))))
+    (action ("Copy result to kill-ring" . (lambda (elm)
+                                     (kill-new elm))))))
 ;; (anything 'anything-c-source-calculation-result)
 
 ;;; Google Suggestions
@@ -2056,10 +2263,13 @@ displayed with the `file-name-shadow' face if available."
   (anything-c-shadow-entries files anything-c-boring-file-regexp))
 
 (defun anything-c-skip-boring-files (files)
-  "Files matching `anything-c-boring-file-regexp' will be
-skipped."
+  "Files matching `anything-c-boring-file-regexp' will be skipped."
   (anything-c-skip-entries files anything-c-boring-file-regexp))
 ;; (anything-c-skip-boring-files '("README" "/src/.svn/hoge"))
+
+(defun anything-c-skip-current-file (files)
+  "Current file will be skipped."
+  (remove (buffer-file-name anything-current-buffer) files))
 
 (defun anything-c-w32-pathname-transformer (args)
   "Change undesirable features of windows pathnames to ones more acceptable to
@@ -2417,6 +2627,10 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
                 ("Switch to buffer other window" . switch-to-buffer-other-window)
                 ("Switch to buffer other frame" . switch-to-buffer-other-frame)))
           ("Display buffer"   . display-buffer)
+          ("Revert buffer" . (lambda (elm)
+                               (with-current-buffer elm
+                                 (when (buffer-modified-p)
+                                   (revert-buffer t t)))))
           ("Kill buffer"      . kill-buffer))
          (candidate-transformer . anything-c-skip-boring-buffers))
         (file
@@ -2440,6 +2654,7 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
                                     (anything-c-compose
                                      (list candidates)
                                      '(anything-c-w32-pathname-transformer
+                                       anything-c-skip-current-file
                                        anything-c-skip-boring-files
                                        anything-c-shorten-home-path)))))
         (command (action ("Call interactively" . anything-c-call-interactively)
@@ -2472,8 +2687,14 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
                                       (anything-c-compose
                                        (list actions candidate)
                                        '(anything-c-transform-sexp-eval-command-sexp)))))
-        (bookmark (action ("Jump to bookmark" . bookmark-jump)
-                          ("Delete bookmark" . bookmark-delete)))
+        ;; (bookmark (action ("Jump to bookmark" . bookmark-jump)
+        ;;                   ("Delete bookmark" . bookmark-delete)))
+        (bookmark (action ("Jump to bookmark" . (lambda (candidate)
+                                                  (bookmark-jump candidate)
+                                                  (anything-update)))
+                          ("Delete bookmark" . bookmark-delete)
+                          ("Rename bookmark" . bookmark-rename)
+                          ("Relocate bookmark" . bookmark-relocate)))
         (line (display-to-real . anything-c-display-to-real-line)
               (action ("Go to Line" . anything-c-action-line-goto)))))
 
