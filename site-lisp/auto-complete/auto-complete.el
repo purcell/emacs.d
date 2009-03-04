@@ -265,6 +265,7 @@
 ;; - icon
 ;; - refactoring (especially menu)
 ;; - linum.el bug (reported by Andy Stewart)
+;; - flymake bug (reported by TiagoCamargo)
 
 ;;; Code:
 
