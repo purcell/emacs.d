@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.166 2009/03/03 10:35:57 rubikitch Exp $
+;; $Id: anything.el,v 1.174 2009/03/12 19:12:24 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -242,6 +242,31 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.174  2009/03/12 19:12:24  rubikitch
+;; New API: `define-anything-type-attribute'
+;;
+;; Revision 1.173  2009/03/11 08:10:32  rubikitch
+;; Update doc
+;;
+;; Revision 1.172  2009/03/10 17:11:58  rubikitch
+;; `candidate-transformer', `filtered-candidate-transformer',
+;; `action-transformer' attributes: accept a list of functions
+;;
+;; Revision 1.171  2009/03/09 18:49:44  rubikitch
+;; New command: `anything-quit-and-find-file'
+;;
+;; Revision 1.170  2009/03/09 18:46:11  rubikitch
+;; New API: `anything-run-after-quit'
+;;
+;; Revision 1.169  2009/03/09 10:02:49  rubikitch
+;; Set candidate-number-limit attribute for actions.
+;;
+;; Revision 1.168  2009/03/07 21:01:10  rubikitch
+;; Bug workaround
+;;
+;; Revision 1.167  2009/03/06 04:13:42  rubikitch
+;; Fix doc
+;;
 ;; Revision 1.166  2009/03/03 10:35:57  rubikitch
 ;; Set default `anything-input-idle-delay' to 0.1
 ;;
@@ -777,7 +802,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.166 2009/03/03 10:35:57 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.174 2009/03/12 19:12:24 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -957,11 +982,12 @@ Attributes:
 
 - candidate-transformer (optional)
 
-  It's a function called with one argument when the completion
-  list from the source is built. The argument is the list of
-  candidates retrieved from the source. The function should
-  return a transformed list of candidates which will be used for
-  the actual completion.
+  It's a function or a list of functions called with one argument
+  when the completion list from the source is built. The argument
+  is the list of candidates retrieved from the source. The
+  function should return a transformed list of candidates which
+  will be used for the actual completion.  If it is a list of
+  functions, it calls each function sequentially.
 
   This can be used to transform or remove items from the list of
   candidates.
@@ -1001,9 +1027,11 @@ Attributes:
 
 - action-transformer (optional)
 
-  It's a function called with two arguments when the action list
-  from the source is assembled. The first argument is the list of
-  actions, the second is the current selection.
+  It's a function or a list of functions called with two
+  arguments when the action list from the source is
+  assembled. The first argument is the list of actions, the
+  second is the current selection.  If it is a list of functions,
+  it calls each function sequentially.
 
   The function should return a transformed action list.
 
@@ -1240,6 +1268,8 @@ See also `anything-set-source-filter'.")
 
     (define-key map (kbd "C-s") 'anything-isearch)
     (define-key map (kbd "C-r") 'undefined)
+    (define-key map (kbd "C-x C-f") 'anything-quit-and-find-file)
+
     ;; the defalias is needed because commands are bound by name when
     ;; using iswitchb, so only commands having the prefix anything-
     ;; get rebound
@@ -1604,7 +1634,8 @@ Attributes:
            (actions (assoc-default 'action source)))
 
       (anything-aif (assoc-default 'action-transformer source)
-          (funcall it actions (anything-get-selection))
+          ;; (funcall it actions (anything-get-selection))
+          (anything-composed-funcall-with-source source it actions (anything-get-selection))
         actions))))
 
 (defun anything-get-current-source ()
@@ -1643,6 +1674,36 @@ Attributes:
 (defun anything-current-buffer-is-modified ()
   "Return non-nil when `anything-current-buffer' is modified since `anything' was invoked."
   (anything-buffer-is-modified anything-current-buffer))
+
+(defun anything-run-after-quit (function &rest args)
+  "Perform an action after quitting `anything'.
+The action is to call FUNCTION with arguments ARGS."
+  (setq anything-quit t)
+  (apply 'run-with-idle-timer 0 nil function args)
+  (anything-exit-minibuffer))
+
+(defun define-anything-type-attribute (type definition &optional doc)
+  "Register type attribute of TYPE as DEFINITION with DOC.
+DOC is displayed in `anything-type-attributes' docstring.
+
+Use this function is better than setting `anything-type-attributes' directly."
+  (anything-add-type-attribute type definition)
+  (and doc (anything-document-type-attribute type doc))
+  nil)
+
+(defvar anything-additional-attributes nil)
+(defun anything-document-attribute (attribute short-doc &optional long-doc)
+  "Register ATTRIBUTE documentation introduced by plug-in.
+SHORT-DOC is displayed beside attribute name.
+LONG-DOC is displayed below attribute name and short documentation."
+  (if long-doc
+      (setq short-doc (concat "(" short-doc ")"))
+    (setq long-doc short-doc
+          short-doc ""))
+  (add-to-list 'anything-additional-attributes attribute t)
+  (put attribute 'anything-attrdoc
+       (concat "- " (symbol-name attribute) " " short-doc "\n\n" long-doc "\n")))
+(put 'anything-document-attribute 'lisp-indent-function 2)
 
 ;; (@* "Core: tools")
 (defun anything-current-frame/window-configuration ()
@@ -1685,6 +1746,21 @@ It is used to check if candidate number is 0 or 1."
              (keyboard-quit)))))
 (put 'with-anything-quittable 'lisp-indent-function 0)
 
+(defun anything-compose (arg-lst func-lst)
+  "Call each function in FUNC-LST with the arguments specified in ARG-LST.
+The result of each function will be the new `car' of ARG-LST.
+
+This function allows easy sequencing of transformer functions."
+  (dolist (func func-lst)
+    (setcar arg-lst (apply func arg-lst)))
+  (car arg-lst))
+
+(defun anything-composed-funcall-with-source (source funcs &rest args)
+  (if (functionp funcs)
+      (apply 'anything-funcall-with-source source funcs args)
+    (apply 'anything-funcall-with-source
+           source (lambda (&rest args) (anything-compose args funcs)) args)))
+
 ;; (@* "Core: entry point")
 (defun anything (&optional any-sources any-input any-prompt any-resume any-preselect any-buffer)
   "Select anything. In Lisp program, some optional arguments can be used.
@@ -1713,6 +1789,7 @@ already-bound variables. Yuck!
 - ANY-PRESELECT
 
   Initially selected candidate. Specified by exact candidate or a regexp.
+  Note that it is not working with delayed sources.
 
 - ANY-BUFFER
 
@@ -1917,20 +1994,8 @@ Anything plug-ins are realized by this function."
    sources))  
 
 ;; (@* "Core: plug-in attribute documentation hack")
-(defvar anything-additional-attributes nil)
-(defun anything-document-attribute (attribute short-doc &optional long-doc)
-  "Register ATTRIBUTE documentation introduced by plug-in.
-SHORT-DOC is displayed beside attribute name.
-LONG-DOC is displayed below attribute name and short documentation."
-  (if long-doc
-      (setq short-doc (concat "(" short-doc ")"))
-    (setq long-doc short-doc
-          short-doc ""))
-  (add-to-list 'anything-additional-attributes attribute t)
-  (put attribute 'anything-attrdoc
-       (concat "- " (symbol-name attribute) " " short-doc "\n\n" long-doc "\n")))
-(put 'anything-document-attribute 'lisp-indent-function 2)
 
+;; `anything-document-attribute' is public API.
 (defadvice documentation-property (after anything-document-attribute activate)
   "Hack to display plug-in attributes' documentation as `anything-sources' docstring."
   (when (eq symbol 'anything-sources)
@@ -1942,8 +2007,6 @@ LONG-DOC is displayed below attribute name and short documentation."
 ;; (describe-variable 'anything-sources)
 ;; (documentation-property 'anything-sources 'variable-documentation)
 ;; (progn (ad-disable-advice 'documentation-property 'after 'anything-document-attribute) (ad-update 'documentation-property)) 
-
-
 
 ;; (@* "Core: all candidates")
 (defun anything-get-candidates (source)
@@ -1969,7 +2032,7 @@ SOURCE."
 (defun anything-transform-candidates (candidates source)
   "Transform CANDIDATES according to candidate transformers."
   (anything-aif (assoc-default 'candidate-transformer source)
-      (anything-funcall-with-source source it candidates)
+      (anything-composed-funcall-with-source source it candidates)
     candidates))
 
 
@@ -2059,7 +2122,7 @@ Cache the candidates if there is not yet a cached value."
 
                   (anything-aif (assoc-default 'filtered-candidate-transformer source)
                       (setq matches
-                            (anything-funcall-with-source source it matches source)))
+                            (anything-composed-funcall-with-source source it matches source)))
                   matches))))
     (if debug-on-error
         (funcall doit)
@@ -2343,7 +2406,9 @@ If action buffer is selected, back to the anything buffer."
                (set (make-local-variable 'anything-sources)
                     `(((name . "Actions")
                        (volatile)
-                       (candidates . ,actions))))
+                       (candidates . ,actions)
+                       ;; Override `anything-candidate-number-limit'
+                       (candidate-number-limit . 9999))))
                (set (make-local-variable 'anything-source-filter) nil)
                (set (make-local-variable 'anything-selection-overlay) nil)
                (set (make-local-variable 'anything-digit-overlays) nil)
@@ -2570,12 +2635,13 @@ UNIT and DIRECTION."
              (boundp 'fit-frame-inhibit-fitting-flag)
              (not fit-frame-inhibit-fitting-flag)
              (anything-window))
-    (with-anything-window
-      (fit-frame nil nil nil t)
-      (modify-frame-parameters
-       (selected-frame)
-       `((left . ,(- (x-display-pixel-width) (+ (frame-pixel-width) 7)))
-         (top . 0)))))) ; The (top . 0) shouldn't be necessary (Emacs bug).
+    (ignore-errors
+      (with-anything-window
+        (fit-frame nil nil nil t)
+        (modify-frame-parameters
+         (selected-frame)
+         `((left . ,(- (x-display-pixel-width) (+ (frame-pixel-width) 7)))
+           (top . 0))))))) ; The (top . 0) shouldn't be necessary (Emacs bug).
 
 (defun anything-preselect (candidate-or-regexp)
   (when candidate-or-regexp
@@ -2615,6 +2681,27 @@ UNIT and DIRECTION."
   (anything-aif (assoc-default 'type source)
       (append source (assoc-default it anything-type-attributes) nil)
     source))
+
+;; `define-anything-type-attribute' is public API.
+
+(defun anything-add-type-attribute (type definition)
+  (anything-aif (assq type anything-type-attributes)
+      (setq anything-type-attributes (delete it anything-type-attributes)))
+  (push (cons type definition) anything-type-attributes))
+
+(defvar anything-types nil)
+(defun anything-document-type-attribute (type doc)
+  (add-to-list 'anything-types type t)
+  (put type 'anything-typeattrdoc
+       (concat "- " (symbol-name type) "\n\n" doc "\n")))
+
+(defadvice documentation-property (after anything-document-type-attribute activate)
+  "Hack to display type attributes' documentation as `anything-type-attributes' docstring."
+  (when (eq symbol 'anything-type-attributes)
+    (setq ad-return-value
+          (concat ad-return-value "\n\n++++ Types currently defined ++++\n"
+                  (mapconcat (lambda (sym) (get sym 'anything-typeattrdoc))
+                             anything-types "\n")))))
 
 ;; (@* "Built-in plug-in: dummy")
 (defun anything-dummy-candidate (candidate source)
@@ -2953,6 +3040,13 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
 (defun anything-prev-visible-mark ()
   (interactive)
   (anything-next-visible-mark t))
+
+;; (@* "Utility: `find-file' integration")
+(defun anything-quit-and-find-file ()
+  "Drop into `find-file' from `anything' like `iswitchb-find-file'.
+This command is a simple example of `anything-run-after-quit'."
+  (interactive)
+  (anything-run-after-quit 'call-interactively 'find-file))
 
 ;; (@* "Utility: Incremental search within results (unmaintained)")
 
@@ -3802,17 +3896,17 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
             (anything-test-candidates sources))))
       (expect '(("BAR" ("modified")))
         (let ((sources1 '(((name . "FOO")
-                          (candidates
-                           . (lambda ()
-                               (if (anything-current-buffer-is-modified)
-                                   '("modified")
-                                 '("unmodified")))))))
+                           (candidates
+                            . (lambda ()
+                                (if (anything-current-buffer-is-modified)
+                                    '("modified")
+                                  '("unmodified")))))))
               (sources2 '(((name . "BAR")
-                          (candidates
-                           . (lambda ()
-                               (if (anything-current-buffer-is-modified)
-                                   '("modified")
-                                 '("unmodified"))))))))
+                           (candidates
+                            . (lambda ()
+                                (if (anything-current-buffer-is-modified)
+                                    '("modified")
+                                  '("unmodified"))))))))
           (with-temp-buffer
             (clrhash anything-tick-hash)
             (insert "1")
@@ -3820,17 +3914,17 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
             (anything-test-candidates sources2))))
       (expect '(("FOO" ("unmodified")))
         (let ((sources1 '(((name . "FOO")
-                          (candidates
-                           . (lambda ()
-                               (if (anything-current-buffer-is-modified)
-                                   '("modified")
-                                 '("unmodified")))))))
+                           (candidates
+                            . (lambda ()
+                                (if (anything-current-buffer-is-modified)
+                                    '("modified")
+                                  '("unmodified")))))))
               (sources2 '(((name . "BAR")
-                          (candidates
-                           . (lambda ()
-                               (if (anything-current-buffer-is-modified)
-                                   '("modified")
-                                 '("unmodified"))))))))
+                           (candidates
+                            . (lambda ()
+                                (if (anything-current-buffer-is-modified)
+                                    '("modified")
+                                  '("unmodified"))))))))
           (with-temp-buffer
             (clrhash anything-tick-hash)
             (insert "1")
@@ -3839,17 +3933,17 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
             (anything-test-candidates sources1))))
       (expect '(("BAR" ("unmodified")))
         (let ((sources1 '(((name . "FOO")
-                          (candidates
-                           . (lambda ()
-                               (if (anything-current-buffer-is-modified)
-                                   '("modified")
-                                 '("unmodified")))))))
+                           (candidates
+                            . (lambda ()
+                                (if (anything-current-buffer-is-modified)
+                                    '("modified")
+                                  '("unmodified")))))))
               (sources2 '(((name . "BAR")
-                          (candidates
-                           . (lambda ()
-                               (if (anything-current-buffer-is-modified)
-                                   '("modified")
-                                 '("unmodified"))))))))
+                           (candidates
+                            . (lambda ()
+                                (if (anything-current-buffer-is-modified)
+                                    '("modified")
+                                  '("unmodified"))))))))
           (with-temp-buffer
             (clrhash anything-tick-hash)
             (insert "1")
@@ -3858,17 +3952,17 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
             (anything-test-candidates sources2))))
       (expect '(("BAR" ("modified")))
         (let ((sources1 '(((name . "FOO")
-                          (candidates
-                           . (lambda ()
-                               (if (anything-current-buffer-is-modified)
-                                   '("modified")
-                                 '("unmodified")))))))
+                           (candidates
+                            . (lambda ()
+                                (if (anything-current-buffer-is-modified)
+                                    '("modified")
+                                  '("unmodified")))))))
               (sources2 '(((name . "BAR")
-                          (candidates
-                           . (lambda ()
-                               (if (anything-current-buffer-is-modified)
-                                   '("modified")
-                                 '("unmodified"))))))))
+                           (candidates
+                            . (lambda ()
+                                (if (anything-current-buffer-is-modified)
+                                    '("modified")
+                                  '("unmodified"))))))))
           (with-temp-buffer
             (clrhash anything-tick-hash)
             (insert "1")
@@ -4572,10 +4666,10 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
       (desc "header-name attribute")
       (expect "original is transformed"
         (anything-test-update '(((name . "original")
-                                         (candidates "1")
-                                         (header-name
-                                          . (lambda (name)
-                                              (format "%s is transformed" name)))))
+                                 (candidates "1")
+                                 (header-name
+                                  . (lambda (name)
+                                      (format "%s is transformed" name)))))
                               "")
         (with-current-buffer (anything-buffer-get)
           (buffer-string)
@@ -4697,6 +4791,75 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
          '(((name . "test")
             (candidates (sym . realsym) ("str" . "realstr"))))
          "str"))
+      (desc "multiple transformers")
+      (expect '(("test" ("<FOO>")))
+        (anything-test-candidates
+         '(((name . "test")
+            (candidates "foo")
+            (candidate-transformer
+             . (lambda (cands)
+                 (anything-compose (list cands)
+                                   (list (lambda (c) (mapcar 'upcase c))
+                                         (lambda (c) (list (concat "<" (car c) ">")))))))))))
+      (expect '("<FOO>")
+        (anything-composed-funcall-with-source
+         '((name . "test"))
+         (list (lambda (c) (mapcar 'upcase c))
+               (lambda (c) (list (concat "<" (car c) ">"))))
+         '("foo"))
+        )
+      (expect '(("test" ("<FOO>")))
+        (anything-test-candidates
+         '(((name . "test")
+            (candidates "foo")
+            (candidate-transformer
+             (lambda (c) (mapcar 'upcase c))
+             (lambda (c) (list (concat "<" (car c) ">"))))))))
+      (expect '(("test" ("<BAR>")))
+        (anything-test-candidates
+         '(((name . "test")
+            (candidates "bar")
+            (filtered-candidate-transformer
+             (lambda (c s) (mapcar 'upcase c))
+             (lambda (c s) (list (concat "<" (car c) ">"))))))))
+      (expect '(("find-file" . find-file)
+                ("view-file" . view-file))
+        (stub zerop => nil)
+        (stub anything-get-current-source
+              => '((name . "test")
+                   (action)
+                   (action-transformer
+                    . (lambda (a s)
+                        (anything-compose
+                         (list a s)
+                         (list (lambda (a s) (push '("view-file" . view-file) a))
+                               (lambda (a s) (push '("find-file" . find-file) a))))))))
+        (anything-get-action))
+      (expect '(("find-file" . find-file)
+                ("view-file" . view-file))
+        (stub zerop => nil)
+        (stub anything-get-current-source
+              => '((name . "test")
+                   (action)
+                   (action-transformer
+                    (lambda (a s) (push '("view-file" . view-file) a))
+                    (lambda (a s) (push '("find-file" . find-file) a)))))
+        (anything-get-action))
+      (desc "define-anything-type-attribute")
+      (expect '((file (action . find-file)))
+        (let (anything-type-attributes)
+          (define-anything-type-attribute 'file '((action . find-file)))
+          anything-type-attributes))
+      (expect '((file (action . find-file)))
+        (let ((anything-type-attributes '((file (action . view-file)))))
+          (define-anything-type-attribute 'file '((action . find-file)))
+          anything-type-attributes))
+      (expect '((file (action . find-file))
+                (buffer (action . switch-to-buffer)))
+        (let (anything-type-attributes)
+          (define-anything-type-attribute 'buffer '((action . switch-to-buffer)))
+          (define-anything-type-attribute 'file '((action . find-file)))
+          anything-type-attributes))
       )))
 
 
