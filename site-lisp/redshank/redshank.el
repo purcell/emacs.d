@@ -90,7 +90,7 @@
 
 (defcustom redshank-install-lisp-support t
   "*Install Lisp-side support for Redshank.
-If enabled, the REDSHANK package into a running Lisp when
+If enabled, load the REDSHANK package into a running Lisp when
 connecting via SLIME.  If disabled, some of Redshank's functions
 are not available."
   :type  'boolean
@@ -665,12 +665,13 @@ definition is placed on the kill ring.
 
 A best effort is made to determine free variables in the marked
 region and make them parameters of the extracted function.  This
-involves macro-exanding code, and as such might have side effects."
+involves macro-expanding code, and as such might have side effects."
   (interactive "*r\nsName for extracted function: ")
   (let* ((form-string (buffer-substring-no-properties start end))
          (free-vars (slime-eval `(redshank:free-vars-for-emacs
                                   ,(concat "(locally " form-string ")")
-                                  ,(or package (slime-current-package)))
+                                  ,(or package (slime-pretty-package-name
+                                                (slime-current-package))))
                                 package)))
     (flet ((princ-to-string (o)
              (with-output-to-string
