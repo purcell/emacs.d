@@ -2574,6 +2574,9 @@ directory, open this directory."
   (when anything-in-persistent-action
     (anything-persistent-highlight-point (point-at-bol) (point-at-eol))))
 
+(defun anything-find-file-as-root (candidate)
+  (find-file (concat "/su::" (expand-file-name candidate))))
+
 ;; borrowed from etags.el
 ;; (anything-c-goto-line-with-adjustment (line-number-at-pos) ";; borrowed from etags.el")
 (defun anything-c-goto-line-with-adjustment (line line-content)
@@ -3072,8 +3075,10 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
   `((action
      ,@(if pop-up-frames
            '(("Find file other window" . find-file-other-window)
-             ("Find file" . find-file))
+             ("Find file" . find-file)
+             ("Find file as root" . anything-find-file-as-root))
          '(("Find file" . find-file)
+           ("Find file as root" . anything-find-file-as-root)
            ("Find file other window" . find-file-other-window)
            ("Find file other frame" . find-file-other-frame)))
      ("Open dired in file's directory" . anything-c-open-dired)
