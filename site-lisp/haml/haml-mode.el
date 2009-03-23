@@ -62,9 +62,9 @@ The function can also return a positive integer to indicate
 a specific level to which the current line could be indented.")
 
 (defvar haml-block-openers
-  `("^ *\\([%\\.#][^ \t]*\\)\\(\\[.*\\]\\)?\\({.*}\\)?\\(\\[.*\\]\\)?[ \t]*$"
-    "^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$"
-    ,(concat "^ *-[ \t]*\\("
+  `("^ *\\([%\\.#][a-z_:\\-]*\\)+\\({.*}\\)?\\(\\[.*\\]\\)?[><]*[ \t]*$"
+    "^ *[&!]?[-=~].*do[ \t]*\\(|.*|[ \t]*\\)?$"
+    ,(concat "^ *[&!][-=~][ \t]*\\("
              (regexp-opt '("if" "unless" "while" "until" "else"
                            "begin" "elsif" "rescue" "ensure" "when"))
              "\\)")
@@ -77,21 +77,20 @@ text nested beneath them.")
 ;; Font lock
 
 (defun haml-nested-regexp (re)
-  (concat "^\\( *\\)" re "\n\\(?:\\(?:\\1 .*\\| *\\)\n\\)*"))
+  (concat "^\\( *\\)" re "\\(\n\\(?:\\(?:\\1 .*\\| *\\)\n\\)*\\(?:\\1 .*\\| *\\)?\\)?"))
 
 (defconst haml-font-lock-keywords
-  `((,(haml-nested-regexp "-#.*")  0 font-lock-comment-face)
+  `((,(haml-nested-regexp "\\(?:-#\\|/\\).*")  0 font-lock-comment-face)
     (,(haml-nested-regexp ":\\w+") 0 font-lock-string-face)
     (haml-highlight-interpolation  1 font-lock-variable-name-face prepend)
     (haml-highlight-ruby-tag       1 font-lock-preprocessor-face)
     (haml-highlight-ruby-script    1 font-lock-preprocessor-face)
     ("^ *\\(\t\\)"                 1 'haml-tab-face)
     ("^!!!.*"                      0 font-lock-constant-face)
-    ("| *$"                        0 font-lock-string-face)
-    ("^[ \t]*\\(/.*\\)$"           1 font-lock-comment-face append)))
+    ("| *$"                        0 font-lock-string-face)))
 
-(defconst haml-filter-re "^ *\\(:\\)\\w+")
-(defconst haml-comment-re "^ *\\(-\\)\\#")
+(defconst haml-filter-re "^ *:\\w+")
+(defconst haml-comment-re "^ *\\(?:-\\#\\|/\\)")
 
 (defun haml-fontify-region-as-ruby (beg end)
   "Use Ruby's font-lock variables to fontify the region between BEG and END."
@@ -99,6 +98,7 @@ text nested beneath them.")
     (save-match-data
       (let ((font-lock-keywords ruby-font-lock-keywords)
             (font-lock-syntactic-keywords ruby-font-lock-syntactic-keywords)
+            font-lock-keywords-only
             font-lock-extend-region-functions
             font-lock-keywords-case-fold-search)
         ;; font-lock-fontify-region apparently isn't inclusive,
@@ -107,7 +107,7 @@ text nested beneath them.")
 
 (defun haml-highlight-ruby-script (limit)
   "Highlight a Ruby script expression (-, =, or ~)."
-  (when (re-search-forward "^ *\\([-=~]\\) \\(.*\\)$" limit t)
+  (when (re-search-forward "^ *\\(-\\|[&!]?[=~]\\) \\(.*\\)$" limit t)
     (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))))
 
 (defun haml-highlight-ruby-tag (limit)
@@ -124,12 +124,10 @@ For example, this will highlight all of the following:
   (when (re-search-forward "^ *[%.#]" limit t)
     (let ((eol (save-excursion (end-of-line) (point))))
       (forward-char -1)
-      ;; Clear any existing fontification
-      (put-text-property (point) eol 'font-lock-face nil)
 
       ;; Highlight tag, classes, and ids
       (while (looking-at "[.#%][a-z_:\\-]*")
-        (put-text-property (match-beginning 0) (match-end 0) 'font-lock-face
+        (put-text-property (match-beginning 0) (match-end 0) 'face
                            (case (char-after)
                              (?% font-lock-function-name-face)
                              (?# font-lock-keyword-face)
@@ -144,7 +142,7 @@ For example, this will highlight all of the following:
 
       ;; Highlight attr hashes
       (when (eq (char-after) ?\{)
-        (let ((beg (point)))
+        (let ((beg (+ 1 (point))))
           (haml-limited-forward-sexp eol)
 
           ;; Check for multiline
@@ -181,9 +179,6 @@ For example, this will highlight all of the following:
         (haml-limited-forward-sexp limit)
         (haml-fontify-region-as-ruby (+ 1 beg) (point)))
 
-      ;; Highlight the end of the interpolation. 
-      ;; The font-lock-face property gets overwritten by `haml-highlight-ruby-tag',
-      ;; so we just use face instead.
       (when (eq (char-before) ?})
         (put-text-property (- (point) 1) (point)
                            'face font-lock-variable-name-face))
@@ -288,7 +283,7 @@ whichever comes first."
   (set (make-local-variable 'parse-sexp-lookup-properties) t)
   (setq comment-start "-#")
   (setq indent-tabs-mode nil)
-  (setq font-lock-defaults '((haml-font-lock-keywords) nil t)))
+  (setq font-lock-defaults '((haml-font-lock-keywords) t t)))
 
 ;; Useful functions
 
