@@ -133,6 +133,7 @@
 ;;     `anything-c-source-evaluation-result'  (Evaluation Result)
 ;;     `anything-c-source-calculation-result' (Calculation Result)
 ;;     `anything-c-source-google-suggest'     (Google Suggest)
+;;     `anything-c-source-surfraw'            (Surfraw)
 ;;     `anything-c-source-jabber-contacts'    (Jabber Contacts)
 ;;     `anything-c-source-call-source'        (Call anything source)
 ;;     `anything-c-source-occur'              (Occur)
@@ -2095,6 +2096,87 @@ removed."
       (push (match-string 1 str) items)
       (setq start (1+ (match-end 1))))
     items))
+
+;;; Surfraw
+;;; Need external program surfraw.
+;;; http://surfraw.alioth.debian.org/
+
+(defun anything-c-build-elvi-alist ()
+  "Build elvi alist.
+A list of search engines."
+  (let* ((elvi-list
+          (with-temp-buffer
+            (call-process "surfraw" nil t nil
+                          "-elvi")
+            (split-string (buffer-string) "\n")))
+         (elvi-alist
+          (let (line)
+            (loop for i in elvi-list
+               do
+               (setq line (split-string i))
+               collect (cons (first line) (mapconcat #'(lambda (x) x) (cdr line) " "))))))
+    elvi-alist))
+
+(defun anything-c-surfraw-sort-elvi (&optional only-fav)
+  "Sort elvi alist according to `anything-c-surfraw-favorites'."
+  (let* ((elvi-alist (anything-c-build-elvi-alist))
+         (fav-alist (loop for j in anything-c-surfraw-favorites
+                      collect (assoc j elvi-alist)))
+         (rest-elvi (loop for i in elvi-alist
+                         if (not (member i fav-alist))
+                         collect i)))
+    (if only-fav
+        fav-alist
+        (append fav-alist rest-elvi))))
+
+(defun anything-c-surfraw-get-url (engine pattern)
+  "Get search url from `engine' for `anything-pattern'."
+  (with-temp-buffer
+    (apply #'call-process "surfraw" nil t nil
+           `(,engine
+             "-p"
+             ,anything-pattern))
+    (buffer-string)))
+
+
+;; user variables
+(defvar anything-c-surfraw-favorites '("google" "wikipedia"
+                                       "yahoo" "translate"
+                                       "codesearch" "genpkg"
+                                       "genportage" "fast" 
+                                       "filesearching" "currency")
+  "All elements of this list will appear first in results.")
+(defvar anything-c-surfraw-use-only-favorites nil
+  "If non-nil use only `anything-c-surfraw-favorites'.")
+
+(defvar anything-c-surfraw-elvi nil)
+(defvar anything-c-surfraw-cache nil)
+(defvar anything-c-source-surfraw
+  '((name . "Surfraw")
+    (init . (lambda ()
+              (unless anything-c-surfraw-cache
+                (setq anything-c-surfraw-elvi (anything-c-surfraw-sort-elvi
+                                               anything-c-surfraw-use-only-favorites))
+                (setq anything-c-surfraw-cache
+                      (loop for i in anything-c-surfraw-elvi 
+                         if (car i)
+                         collect (car i))))))
+    (candidates . (lambda ()
+                    (loop for i in anything-c-surfraw-cache
+                       for s = (anything-c-surfraw-get-url i anything-pattern)
+                       collect (concat (propertize i
+                                                   'face '((:foreground "green"))
+                                                   'help-echo (cdr (assoc i anything-c-surfraw-elvi)))
+                                       ">>>" (replace-regexp-in-string "\n" "" s)))))
+    (action . (("Browse" . (lambda (candidate)
+                             (let ((url (second (split-string candidate ">>>"))))
+                               (browse-url url))))))
+    (volatile)
+    (requires-pattern . 3)
+    (multiline)
+    (delayed)))
+
+;; (anything 'anything-c-source-surfraw)
 
 ;;; Jabber Contacts (jabber.el)
 (defun anything-c-jabber-online-contacts ()

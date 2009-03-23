@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.174 2009/03/12 19:12:24 rubikitch Exp $
+;; $Id: anything.el,v 1.175 2009/03/22 19:10:37 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -242,6 +242,9 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.175  2009/03/22 19:10:37  rubikitch
+;; New Variable: `anything-scroll-amount'
+;;
 ;; Revision 1.174  2009/03/12 19:12:24  rubikitch
 ;; New API: `define-anything-type-attribute'
 ;;
@@ -802,7 +805,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.174 2009/03/12 19:12:24 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.175 2009/03/22 19:10:37 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1462,6 +1465,10 @@ It is useful for `anything' applications.")
 This variable accepts a function, which is executed if no candidate.
 
 It is useful for `anything' applications.")
+
+(defvar anything-scroll-amount nil
+  "Scroll amount used by `anything-scroll-other-window' and `anything-scroll-other-window-down'.
+If you prefer scrolling line by line, set this value to 1.")
 
 
 (put 'anything 'timid-completion 'disabled)
@@ -2970,11 +2977,15 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
 (defun anything-scroll-other-window ()
   "Scroll other window (not *Anything* window) upward."
   (interactive)
-  (anything-scroll-other-window-base 'scroll-up))
+  (anything-scroll-other-window-base (lambda ()
+                                       (interactive)
+                                       (scroll-up anything-scroll-amount))))
 (defun anything-scroll-other-window-down ()
   "Scroll other window (not *Anything* window) downward."
   (interactive)
-  (anything-scroll-other-window-base 'scroll-down))
+  (anything-scroll-other-window-base (lambda ()
+                                       (interactive)
+                                       (scroll-down anything-scroll-amount))))
 
 ;; (@* "Utility: Visible Mark")
 (defface anything-visible-mark
