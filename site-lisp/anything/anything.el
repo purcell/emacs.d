@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.175 2009/03/22 19:10:37 rubikitch Exp $
+;; $Id: anything.el,v 1.175 2009/03/22 19:10:37 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -243,7 +243,7 @@
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
 ;; Revision 1.175  2009/03/22 19:10:37  rubikitch
-;; New Variable: `anything-scroll-amount'
+;; New Variable: `anything-scroll-amount' (thx. ThierryVolpiatto)
 ;;
 ;; Revision 1.174  2009/03/12 19:12:24  rubikitch
 ;; New API: `define-anything-type-attribute'
@@ -805,7 +805,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.175 2009/03/22 19:10:37 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.175 2009/03/22 19:10:37 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")

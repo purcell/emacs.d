@@ -81,6 +81,7 @@
 ;;     `anything-c-source-locate'                (Locate)
 ;;     `anything-c-source-recentf'               (Recentf)
 ;;     `anything-c-source-ffap-guesser'          (File at point)
+;;     `anything-c-source-ffap-line'             (File/Lineno at point)
 ;;  Help:
 ;;     `anything-c-source-man-pages'  (Manual Pages)
 ;;     `anything-c-source-info-pages' (Info Pages)
@@ -369,7 +370,8 @@ they will be displayed with face `file-name-shadow' if
   "Preconfigured `anything' for opening files.
 ffap -> recentf -> buffer -> bookmark -> file-cache -> files-in-current-dir -> locate"
   (interactive)
-  (anything '(anything-c-source-ffap-guesser
+  (anything '(anything-c-source-ffap-line
+              anything-c-source-ffap-guesser
               anything-c-source-recentf
               anything-c-source-buffers+
               anything-c-source-bookmarks
@@ -710,6 +712,7 @@ buffer that is not the current buffer."
 (defvar anything-c-buffers-face1 'anything-dir-priv)
 (defvar anything-c-buffers-face2 'font-lock-type-face)
 (defvar anything-c-buffers-face3 'italic)
+(eval-when-compile (require 'dired))
 (defun anything-c-highlight-buffers (buffers)
   (require 'dired)
   (loop for i in buffers
@@ -867,6 +870,7 @@ if `recentf-max-saved-items' is too small, set it to 500.")
 ;; (anything 'anything-c-source-recentf)
 
 ;;; ffap
+(eval-when-compile (require 'ffap))
 (defvar anything-c-source-ffap-guesser
   '((name . "File at point")
     (init . (lambda () (require 'ffap)))
@@ -877,6 +881,46 @@ if `recentf-max-saved-items' is too small, set it to 500.")
                         (list it))))
     (type . file)))
 ;; (anything 'anything-c-source-ffap-guesser)
+
+;;; ffap with line number
+(defun anything-c-ffap-file-line-at-point ()
+  "Get (FILENAME . LINENO) at point."
+  (anything-aif (let (ffap-alist) (ffap-file-at-point))
+      (save-excursion
+        (beginning-of-line)
+        (when (and (search-forward it nil t)
+                   (looking-at ":\\([0-9]+\\)"))
+          (cons it (string-to-number (match-string 1)))))))
+
+(defvar anything-c-ffap-line-location nil
+  "(FILENAME . LINENO) used by `anything-c-source-ffap-line'.
+It is cleared after jumping line.")
+
+(defun anything-c-ffap-line-candidates ()
+  (with-current-buffer anything-current-buffer
+    (setq anything-c-ffap-line-location (anything-c-ffap-file-line-at-point)))
+  (when anything-c-ffap-line-location
+    (destructuring-bind (file . line) anything-c-ffap-line-location
+      (list (cons (format "%s (line %d)" file line) file)))))
+
+;;; Goto line after opening file by `anything-c-source-ffap-line'.
+(defun anything-c-ffap-line-goto-line ()
+  (when (car anything-c-ffap-line-location)
+    (unwind-protect
+        (ignore-errors
+          (with-selected-window (get-buffer-window
+                                 (get-file-buffer (car anything-c-ffap-line-location)))
+            (goto-line (cdr anything-c-ffap-line-location))))
+      (setq anything-c-ffap-line-location nil))))
+(add-hook 'anything-after-action-hook 'anything-c-ffap-line-goto-line)
+
+(defvar anything-c-source-ffap-line
+  '((name . "File/Lineno at point")
+    (init . (lambda () (require 'ffap)))
+    (candidates . anything-c-ffap-line-candidates)
+    (type . file)))
+;; (anything 'anything-c-source-ffap-line)
+
 
 ;;;; <Help>
 ;;; Man Pages
@@ -1077,6 +1121,7 @@ word in the function's name, e.g. \"bb\" is an abbrev for
 
 ;;;; <Bookmark>
 ;;; Bookmarks
+(eval-when-compile (require 'bookmark))
 (defvar anything-c-source-bookmarks
   '((name . "Bookmarks")
     (init . (lambda ()
@@ -1212,6 +1257,7 @@ http://www.nongnu.org/bm/")
 
 
 ;; W3m bookmark
+(eval-when-compile (require 'w3m-bookmark nil t))
 (unless (and (require 'w3m nil t)
              (require 'w3m-bookmark nil t))
   (defvar w3m-bookmark-file "~/.w3m/bookmark.html"))
@@ -1379,6 +1425,7 @@ STRING is string to match."
 (defvar anything-c-cached-imenu-tick nil)
 (make-variable-buffer-local 'anything-c-cached-imenu-tick)
 
+(eval-when-compile (require 'imenu))
 (setq imenu-auto-rescan t)
 
 (defun anything-imenu-create-candidates (entry)
@@ -1484,6 +1531,7 @@ http://ctags.sourceforge.net/")
 ;; (anything 'anything-c-source-ctags)
 
 ;; Semantic
+(eval-when-compile (require 'semantic nil t))
 (defun anything-semantic-construct-candidates (tags depth)
   (when (require 'semantic nil t)
     (apply 'append
@@ -1594,6 +1642,7 @@ http://www.emacswiki.org/cgi-bin/wiki/download/simple-call-tree.el")
 
 http://www.emacswiki.org/cgi-bin/wiki/download/auto-document.el")
 
+(eval-when-compile (require 'auto-document nil t))
 (defun anything-command-and-options-candidates ()
   (with-current-buffer anything-current-buffer
     (when (and (require 'auto-document nil t)
@@ -2100,6 +2149,16 @@ removed."
 ;;; Surfraw
 ;;; Need external program surfraw.
 ;;; http://surfraw.alioth.debian.org/
+;; user variables
+(defvar anything-c-surfraw-favorites '("google" "wikipedia"
+                                       "yahoo" "translate"
+                                       "codesearch" "genpkg"
+                                       "genportage" "fast" 
+                                       "filesearching" "currency")
+  "All elements of this list will appear first in results.")
+(defvar anything-c-surfraw-use-only-favorites nil
+  "If non-nil use only `anything-c-surfraw-favorites'.")
+
 
 (defun anything-c-build-elvi-alist ()
   "Build elvi alist.
@@ -2139,16 +2198,6 @@ A list of search engines."
     (buffer-string)))
 
 
-;; user variables
-(defvar anything-c-surfraw-favorites '("google" "wikipedia"
-                                       "yahoo" "translate"
-                                       "codesearch" "genpkg"
-                                       "genportage" "fast" 
-                                       "filesearching" "currency")
-  "All elements of this list will appear first in results.")
-(defvar anything-c-surfraw-use-only-favorites nil
-  "If non-nil use only `anything-c-surfraw-favorites'.")
-
 (defvar anything-c-surfraw-elvi nil)
 (defvar anything-c-surfraw-cache nil)
 (defvar anything-c-source-surfraw
@@ -2170,7 +2219,10 @@ A list of search engines."
                                        ">>>" (replace-regexp-in-string "\n" "" s)))))
     (action . (("Browse" . (lambda (candidate)
                              (let ((url (second (split-string candidate ">>>"))))
-                               (browse-url url))))))
+                               (browse-url url))))
+               ("Browse firefox" . (lambda (candidate)
+                                     (let ((url (second (split-string candidate ">>>"))))
+                                       (browse-url-firefox url t))))))
     (volatile)
     (requires-pattern . 3)
     (multiline)
@@ -2654,7 +2706,7 @@ directory, open this directory."
   (anything-aif (anything-attr 'after-jump-hook)
       (funcall it))
   (when anything-in-persistent-action
-    (anything-persistent-highlight-point (point-at-bol) (point-at-eol))))
+    (anything-match-line-color-current-line)))
 
 (defun anything-find-file-as-root (candidate)
   (find-file (concat "/su::" (expand-file-name candidate))))
@@ -2720,37 +2772,21 @@ It is added to `extended-command-history'.
     (call-interactively (anything-c-symbolify cmd-or-name))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Persistent Action Helpers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar anything-c-persistent-highlight-overlay
-  (make-overlay (point) (point)))
-
-(defun anything-persistent-highlight-point (start &optional end buf face rec)
-  (goto-char start)
-  (when (overlayp anything-c-persistent-highlight-overlay)
-    (move-overlay anything-c-persistent-highlight-overlay
-                  start
-                  (or end (line-end-position))
-                  buf))
-  (overlay-put anything-c-persistent-highlight-overlay 'face (or face 'highlight))
-  (when rec
-    (recenter)))
-
-(add-hook 'anything-cleanup-hook
-          (lambda ()
-            (when (overlayp anything-c-persistent-highlight-overlay)
-              (delete-overlay anything-c-persistent-highlight-overlay))))
+(defalias 'anything-persistent-highlight-point 'anything-match-line-color-current-line)
 
 (defvar anything-match-line-overlay-face nil)
-(defvar anything-match-line-overlay nil)
-(defun anything-match-line-color-current-line ()
+(defvar anything-match-line-overlay (make-overlay (point) (point)))
+(defun anything-match-line-color-current-line (&optional start end buf face rec)
   "Highlight and underline current position"
-  (if (not anything-match-line-overlay)
-      (setq anything-match-line-overlay
-            (make-overlay
-             (line-beginning-position) (1+ (line-end-position))))
-    (move-overlay anything-match-line-overlay
-                  (line-beginning-position) (1+ (line-end-position))))
+  (move-overlay anything-match-line-overlay
+                (or start (line-beginning-position))
+                (or end (1+ (line-end-position)))
+                buf)
   (overlay-put anything-match-line-overlay
-               'face anything-match-line-overlay-face))
+               'face (or face anything-match-line-overlay-face))
+  (when rec
+    (goto-char start)
+    (recenter)))
 
 (defface anything-overlay-line-face '((t (:background "IndianRed4" :underline t)))
   "Face for source header in the anything buffer." :group 'anything)
@@ -2759,8 +2795,7 @@ It is added to `extended-command-history'.
 
 (add-hook 'anything-cleanup-hook #'(lambda ()
                                      (when anything-match-line-overlay
-                                       (delete-overlay anything-match-line-overlay)
-                                       (setq anything-match-line-overlay nil))))
+                                       (delete-overlay anything-match-line-overlay))))
 
 (add-hook 'anything-after-persistent-action-hook #'(lambda ()
                                                      (when anything-match-line-overlay
