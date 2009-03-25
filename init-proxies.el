@@ -24,6 +24,7 @@
 
   (defun mac-set-proxy-vars ()
     (interactive)
+    (require 'url)
     (loop for proto in '("http" "https")
           for proxy = (mac-configured-proxy proto)
           do
