@@ -8,7 +8,7 @@
 
 (require 'magit)
 (setq magit-save-some-buffers nil)
-(setq magit-process-popup-time 1)
+(setq magit-process-popup-time 4)
 
 (defun magit-status-somedir ()
   (interactive)
