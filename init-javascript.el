@@ -8,7 +8,7 @@
 ;;      (add-to-list 'mmm-mode-ext-classes-alist '(nxml-mode nil embedded-css))))
 (autoload 'flymake-js-load "flymake-js" "On-the-fly syntax checking of javascript" t)
 (add-hook 'javascript-mode-hook '(lambda ()
-                                   (when (filename-has-extension-p)
+                                   (when (filename-has-extension-p (list "js"))
                                      (require 'flymake)
                                      (flymake-js-load))))
 
