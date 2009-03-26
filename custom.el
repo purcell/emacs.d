@@ -42,7 +42,6 @@
  '(indent-tabs-mode nil)
  '(inhibit-startup-screen t)
  '(make-backup-files nil)
- '(mmm-never-modes (quote (sldb-mode ediff-mode text-mode compilation-mode inferior-haskell-mode org-agenda-mode org agenda-mode help-mode Info-mode dired-mode comint-mode telnet-mode shell-mode eshell-mode forms-mode)))
  '(mouse-yank-at-point t)
  '(org-agenda-files (quote ("~/Documents/general.org" "~/Projects/rails-runit/TODO" "~/.emacs.d/TODO" "~/Projects/racetempo.org" "~/Projects/autoscout/as24.org" "~/Projects/looktothestars-admin/ltts.org" "~/Projects/sproglogs-admin/sproglogs.org")))
  '(org-agenda-include-diary t)

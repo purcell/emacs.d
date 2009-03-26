@@ -370,7 +370,7 @@ in `exec-path', or nil if no such command exists"
 ;; Multiple major modes
 ;;----------------------------------------------------------------------------
 (require 'mmm-auto)
-(setq mmm-global-mode t)
+(setq mmm-global-mode 'buffers-with-submode-classes)
 (setq mmm-submode-decoration-level 2)
 
 
