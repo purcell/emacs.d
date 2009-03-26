@@ -70,6 +70,14 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Easy way to check that we're operating on a specific file type
+;;----------------------------------------------------------------------------
+(defun filename-has-extension-p (extensions)
+  (and buffer-file-name
+       (string-match (concat "\\." (regexp-opt extensions t) "\\($\\|\\.\\)") buffer-file-name)))
+
+
+;;----------------------------------------------------------------------------
 ;; Locate executables
 ;;----------------------------------------------------------------------------
 (defun find-executable (name)
