@@ -22,3 +22,6 @@
 [submodule "site-lisp/twilight"]
 	path = site-lisp/twilight
 	url = git://github.com/crafterm/twilight-emacs.git
+[submodule "site-lisp/markdown-mode"]
+	path = site-lisp/markdown-mode
+	url = git://github.com/defunkt/markdown-mode.git

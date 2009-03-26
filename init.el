@@ -341,6 +341,12 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
+;; Markdown-mode
+;;----------------------------------------------------------------------------
+(autoload 'markdown-mode "markdown-mode" "Mode for editing Markdown documents" t)
+
+
+;;----------------------------------------------------------------------------
 ;; Regex-tool
 ;;----------------------------------------------------------------------------
 (autoload 'regex-tool "regex-tool" "Mode for exploring regular expressions" t)
