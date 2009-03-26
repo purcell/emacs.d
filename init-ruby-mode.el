@@ -68,6 +68,11 @@
 (autoload 'haml-mode "haml-mode" "Mode for editing haml files" t)
 (autoload 'sass-mode "sass-mode" "Mode for editing sass files" t)
 
+(add-hook 'haml-mode-hook (lambda ()
+                            (require 'css-mode)
+                            (unless (boundp 'javascript-mode)
+                              (load "javascript"))))
+
 
 ;;----------------------------------------------------------------------------
 ;; Ruby - compilation
