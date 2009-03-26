@@ -525,18 +525,6 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
-;; Integration with tidy for html + xml
-;;----------------------------------------------------------------------------
-(autoload 'tidy-buffer "tidy" "Run Tidy HTML parser on current buffer" t)
-(autoload 'tidy-parse-config-file "tidy" "Parse the `tidy-config-file'" t)
-(autoload 'tidy-save-settings "tidy" "Save settings to `tidy-config-file'" t)
-(autoload 'tidy-build-menu  "tidy" "Install an options menu for HTML Tidy." t)
-
-(add-hook 'nxml-mode-hook (lambda () (tidy-build-menu nxml-mode-map)))
-(add-hook 'html-mode-hook (lambda () (tidy-build-menu html-mode-map)))
-
-
-;;----------------------------------------------------------------------------
 ;; Python
 ;;----------------------------------------------------------------------------
 (require 'init-python-mode)
