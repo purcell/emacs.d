@@ -82,28 +82,100 @@ text nested beneath them.")
 (defconst haml-font-lock-keywords
   `((,(haml-nested-regexp "\\(?:-#\\|/\\).*")  0 font-lock-comment-face)
     (,(haml-nested-regexp ":\\w+") 0 font-lock-string-face)
-    (haml-highlight-interpolation  1 font-lock-variable-name-face prepend)
-    (haml-highlight-ruby-tag       1 font-lock-preprocessor-face)
-    (haml-highlight-ruby-script    1 font-lock-preprocessor-face)
-    ("^ *\\(\t\\)"                 1 'haml-tab-face)
-    ("^!!!.*"                      0 font-lock-constant-face)
-    ("| *$"                        0 font-lock-string-face)))
+    (haml-highlight-ruby-filter-block     1 font-lock-preprocessor-face)
+    (haml-highlight-css-filter-block      1 font-lock-preprocessor-face)
+    (haml-highlight-textile-filter-block  1 font-lock-preprocessor-face)
+    (haml-highlight-markdown-filter-block 1 font-lock-preprocessor-face)
+    (haml-highlight-js-filter-block       1 font-lock-preprocessor-face)
+    (haml-highlight-interpolation         1 font-lock-variable-name-face prepend)
+    (haml-highlight-ruby-tag              1 font-lock-preprocessor-face)
+    (haml-highlight-ruby-script           1 font-lock-preprocessor-face)
+    ("^ *\\(\t\\)"                        1 'haml-tab-face)
+    ("^!!!.*"                             0 font-lock-constant-face)
+    ("| *$"                               0 font-lock-string-face)))
 
 (defconst haml-filter-re "^ *:\\w+")
 (defconst haml-comment-re "^ *\\(?:-\\#\\|/\\)")
 
-(defun haml-fontify-region-as-ruby (beg end)
-  "Use Ruby's font-lock variables to fontify the region between BEG and END."
+(defun haml-fontify-region (beg end keywords syntax-table syntactic-keywords)
   (save-excursion
     (save-match-data
-      (let ((font-lock-keywords ruby-font-lock-keywords)
-            (font-lock-syntactic-keywords ruby-font-lock-syntactic-keywords)
+      (let ((font-lock-keywords keywords)
+            (font-lock-syntax-table syntax-table)
+            (font-lock-syntactic-keywords syntactic-keywords)
+            (font-lock-multiline 'undecided)
             font-lock-keywords-only
             font-lock-extend-region-functions
             font-lock-keywords-case-fold-search)
         ;; font-lock-fontify-region apparently isn't inclusive,
         ;; so we have to move the beginning back one char
         (font-lock-fontify-region (- beg 1) end)))))
+
+(defun haml-fontify-region-as-ruby (beg end)
+  "Use Ruby's font-lock variables to fontify the region between BEG and END."
+  (haml-fontify-region beg end ruby-font-lock-keywords nil
+                       ruby-font-lock-syntactic-keywords))
+
+(defun haml-handle-filter (filter-name limit fn)
+  "Call `fn' with `beg' and `end' params if a :filter-name block is found."
+  (when (re-search-forward (haml-nested-regexp (concat ":" filter-name)) limit t)
+    (funcall fn (+ 2 (match-beginning 2)) (match-end 2))))
+
+(defun haml-fontify-filter-region (filter-name limit &rest fontify-region-args)
+  "Find a filter block of type `filter-name' and call `haml-fontify-region'
+with the provided args."
+  (haml-handle-filter filter-name limit
+                      (lambda (beg end)
+                        (apply 'haml-fontify-region
+                               (append (list beg end)
+                                       fontify-region-args)))))
+
+(defun haml-highlight-ruby-filter-block (limit)
+  "Highlight a Ruby script expression inside ':ruby' filter block."
+  (haml-handle-filter "ruby" limit 'haml-fontify-region-as-ruby))
+
+(defun haml-highlight-css-filter-block (limit)
+  "Highlight CSS inside ':css' filter block.
+
+For this to work, you must first load css-mode, e.g. in `haml-mode-hook'.
+Tested with the css-mode.el shipped with Emacs 23."
+  (if (boundp 'css-font-lock-keywords)
+      (haml-fontify-filter-region "css" limit css-font-lock-keywords nil nil)))
+
+(defun haml-highlight-js-filter-block (limit)
+  "Highlight Javascript inside ':javascript' filter block.
+
+For this to work, you must first load Karl Landström's 'javascript.el'
+e.g. in `haml-mode-hook'."
+  (if (boundp 'js-font-lock-keywords-3)
+      (haml-fontify-filter-region "javascript"
+                                  limit
+                                  js-font-lock-keywords-3
+                                  javascript-mode-syntax-table
+                                  nil)))
+
+(defun haml-highlight-textile-filter-block (limit)
+  "Highlight Textile inside ':textile' filter block.
+
+Note that the results are not perfect, since textile-mode expects
+certain constructs such as 'h1.' to be at the beginning of a line,
+and indented haml filter blocks always have leading whitespace.
+
+For this to work, you must first load 'textile-mode.el'
+e.g. in `haml-mode-hook'."
+  (if (boundp 'textile-font-lock-keywords)
+      (haml-fontify-filter-region "textile" limit textile-font-lock-keywords nil nil)))
+
+(defun haml-highlight-markdown-filter-block (limit)
+  "Highlight Markdown inside ':markdown' filter block.
+
+For this to work, you must first load 'markdown-mode.el'
+e.g. in `haml-mode-hook'."
+  (if (boundp 'markdown-mode-font-lock-keywords)
+      (haml-fontify-filter-region "markdown" limit
+                                  markdown-mode-font-lock-keywords
+                                  markdown-mode-syntax-table
+                                  nil)))
 
 (defun haml-highlight-ruby-script (limit)
   "Highlight a Ruby script expression (-, =, or ~)."
