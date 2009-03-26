@@ -94,6 +94,8 @@
 ;;  Function:
 ;;     `anything-c-source-emacs-functions'              (Emacs Functions)
 ;;     `anything-c-source-emacs-functions-with-abbrevs' (Emacs Functions)
+;;  Variable:
+;;     `anything-c-source-emacs-variables' (Emacs Variables)
 ;;  Bookmark:
 ;;     `anything-c-source-bookmarks'       (Bookmarks)
 ;;     `anything-c-source-bookmark-set'    (Set Bookmark)
@@ -197,6 +199,8 @@
 ;;    Run `anything-create' from `anything' as a fallback.
 ;;  `anything-create'
 ;;    Do many create actions from STRING.
+;;  `anything-c-set-variable'
+;;    Set value to VAR interactively.
 ;;  `anything-c-adaptive-save-history'
 ;;    Save history information to file given by `anything-c-adaptive-history-file'.
 ;;
@@ -621,6 +625,7 @@ The match is done with `string-match'."
 (defun anything-c-kill-new (string &optional replace yank-handler)
   "STRING is symbol or string."
   (kill-new (anything-c-stringify string) replace yank-handler))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Prefix argument in action ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TODO
 (defvar anything-current-prefix-arg nil
@@ -1118,6 +1123,17 @@ word in the function's name, e.g. \"bb\" is an abbrev for
                           (setq str (concat (substring str 0 (1- (length str))) "$"))
                           (setq anything-c-function-abbrev-regexp str))))))))
 ;; (anything 'anything-c-source-emacs-functions-with-abbrevs)
+
+;;;; <Variable>
+;;; Emacs variables
+(defvar anything-c-source-emacs-variables
+  '((name . "Emacs Variables")
+    (candidates . (lambda ()
+                    (sort (all-completions "" obarray 'boundp) 'string-lessp)))
+    (type . variable)
+    (requires-pattern . 2))
+  "Source for completing Emacs variables.")
+;; (anything 'anything-c-source-emacs-variables)
 
 ;;;; <Bookmark>
 ;;; Bookmarks
@@ -2771,22 +2787,34 @@ It is added to `extended-command-history'.
   (let ((current-prefix-arg anything-current-prefix-arg))
     (call-interactively (anything-c-symbolify cmd-or-name))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Persistent Action Helpers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defalias 'anything-persistent-highlight-point 'anything-match-line-color-current-line)
+(defun anything-c-set-variable (var)
+  "Set value to VAR interactively."
+  (interactive)
+  (let ((sym (anything-c-symbolify var)))
+    (set sym (eval-minibuffer (format "Set %s: " var)
+                              (prin1-to-string (symbol-value sym))))))
+;; (setq hh 12)
+;; (anything-c-set-variable 'hh)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Persistent Action Helpers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar anything-match-line-overlay-face nil)
-(defvar anything-match-line-overlay (make-overlay (point) (point)))
+(defvar anything-match-line-overlay nil)
+
 (defun anything-match-line-color-current-line (&optional start end buf face rec)
   "Highlight and underline current position"
-  (move-overlay anything-match-line-overlay
-                (or start (line-beginning-position))
-                (or end (1+ (line-end-position)))
-                buf)
+  (let ((args (list (or start (line-beginning-position))
+                    (or end (1+ (line-end-position)))
+                    buf)))
+    (if (not anything-match-line-overlay)
+        (setq anything-match-line-overlay (apply 'make-overlay args))
+      (apply 'move-overlay anything-match-line-overlay args)))
   (overlay-put anything-match-line-overlay
                'face (or face anything-match-line-overlay-face))
   (when rec
     (goto-char start)
     (recenter)))
+
+(defalias 'anything-persistent-highlight-point 'anything-match-line-color-current-line)
 
 (defface anything-overlay-line-face '((t (:background "IndianRed4" :underline t)))
   "Face for source header in the anything buffer." :group 'anything)
@@ -2795,7 +2823,8 @@ It is added to `extended-command-history'.
 
 (add-hook 'anything-cleanup-hook #'(lambda ()
                                      (when anything-match-line-overlay
-                                       (delete-overlay anything-match-line-overlay))))
+                                       (delete-overlay anything-match-line-overlay)
+                                       (setq anything-match-line-overlay nil))))
 
 (add-hook 'anything-after-persistent-action-hook #'(lambda ()
                                                      (when anything-match-line-overlay
@@ -3226,6 +3255,13 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
     (action-transformer anything-c-transform-function-call-interactively)
     (candidate-transformer anything-c-mark-interactive-functions))
   "Function. (string or symbol)")
+
+(define-anything-type-attribute 'variable
+  '((action ("Describe variable" . anything-c-describe-variable)
+            ("Add variable to kill ring" . anything-c-kill-new)
+            ("Go to variable's definition" . anything-c-find-variable)
+            ("Set variable" . anything-c-set-variable)))
+  "Variable.")
 
 (define-anything-type-attribute 'sexp
   '((action ("Eval s-expression" . (lambda (c) (eval (read c))))
