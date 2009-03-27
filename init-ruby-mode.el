@@ -70,8 +70,9 @@
 
 (add-hook 'haml-mode-hook (lambda ()
                             (require 'css-mode)
-                            (unless (boundp 'javascript-mode)
-                              (load "javascript"))))
+                            (require 'textile-mode)
+                            (require 'markdown-mode)
+                            (require 'javascript-mode "javascript")))
 
 
 ;;----------------------------------------------------------------------------
