@@ -23,6 +23,13 @@
 (eval-when-compile (require 'cl))
 (require 'ruby-mode)
 
+;; Additional (optional) libraries for fontification
+(require 'css-mode nil nil)
+(require 'textile-mode nil nil)
+(require 'markdown-mode nil nil)
+(require 'javascript-mode "javascript" nil)
+
+
 ;; User definable variables
 
 (defgroup haml nil
@@ -137,16 +144,16 @@ with the provided args."
 (defun haml-highlight-css-filter-block (limit)
   "Highlight CSS inside ':css' filter block.
 
-For this to work, you must first load css-mode, e.g. in `haml-mode-hook'.
-Tested with the css-mode.el shipped with Emacs 23."
+For this to work, 'css-mode.el' must be available, as is automatically
+the case in Emacs 23."
   (if (boundp 'css-font-lock-keywords)
       (haml-fontify-filter-region "css" limit css-font-lock-keywords nil nil)))
 
 (defun haml-highlight-js-filter-block (limit)
   "Highlight Javascript inside ':javascript' filter block.
 
-For this to work, you must first load Karl Landström's 'javascript.el'
-e.g. in `haml-mode-hook'."
+For this to work, Karl Landström's 'javascript.el' must be available,
+e.g. by installing it from ELPA."
   (if (boundp 'js-font-lock-keywords-3)
       (haml-fontify-filter-region "javascript"
                                   limit
@@ -161,16 +168,14 @@ Note that the results are not perfect, since textile-mode expects
 certain constructs such as 'h1.' to be at the beginning of a line,
 and indented haml filter blocks always have leading whitespace.
 
-For this to work, you must first load 'textile-mode.el'
-e.g. in `haml-mode-hook'."
+For this to work, 'textile-mode.el' must be available."
   (if (boundp 'textile-font-lock-keywords)
       (haml-fontify-filter-region "textile" limit textile-font-lock-keywords nil nil)))
 
 (defun haml-highlight-markdown-filter-block (limit)
   "Highlight Markdown inside ':markdown' filter block.
 
-For this to work, you must first load 'markdown-mode.el'
-e.g. in `haml-mode-hook'."
+For this to work, 'markdown-mode.el' must be available."
   (if (boundp 'markdown-mode-font-lock-keywords)
       (haml-fontify-filter-region "markdown" limit
                                   markdown-mode-font-lock-keywords
