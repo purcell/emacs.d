@@ -405,11 +405,14 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 (require 'auto-complete nil t)
 (global-auto-complete-mode t)
-(if *is-cocoa-emacs*
-    (progn
-      (require 'ac-dabbrev)
-      (setq ac-sources '(ac-source-yasnippet ac-source-dabbrev ac-source-words-in-buffer)))
-  (setq ac-sources '(ac-source-yasnippet ac-source-words-in-buffer)))
+(setq ac-auto-start 3)
+(set-default 'ac-sources
+             (if (> emacs-major-version 22)
+                 (progn
+                   (require 'ac-dabbrev)
+                   '(ac-source-dabbrev ac-source-words-in-buffer))
+               ;; dabbrev is very slow in emacs 22
+               '(ac-source-words-in-buffer)))
 (when *vi-emulation-support-enabled*
   (define-key ac-complete-mode-map (kbd "C-n") 'dabbrev-expand)
   (define-key ac-complete-mode-map (kbd "C-p") 'dabbrev-expand)
