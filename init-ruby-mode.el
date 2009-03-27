@@ -35,7 +35,7 @@
 ;; Ruby - erb
 ;;----------------------------------------------------------------------------
 (add-auto-mode 'html-mode "\.rhtml$")
-(eval-after-load "mmm-mode"
+(eval-after-load "mmm-vars"
   '(progn
      (mmm-add-classes
       '((eruby :submode ruby-mode :front "<%[#=]?" :back "-?%>"

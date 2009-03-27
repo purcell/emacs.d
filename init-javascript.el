@@ -18,7 +18,7 @@
 (setq js2-use-font-lock-faces t)
 (setq js2-mode-must-byte-compile nil)
 
-(eval-after-load "mmm-mode"
+(eval-after-load "mmm-vars"
   '(progn
      (mmm-add-group
       'html-js
