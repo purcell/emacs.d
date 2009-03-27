@@ -416,7 +416,9 @@ with point at the start of the new region."
 	(overlay-put back-ovl 'match match-back)))
     ;; Update everything and run all the hooks
     (mmm-save-all
-     (goto-char (overlay-start region-ovl))
+     (if (overlay-start region-ovl)
+         ;; This happens if a zero-width region is immediately evaporated
+         (goto-char (overlay-start region-ovl)))
      (mmm-set-current-submode submode)
      (mmm-set-local-variables submode)
      (mmm-run-submode-hook submode)
