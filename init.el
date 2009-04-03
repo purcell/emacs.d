@@ -207,6 +207,12 @@ in `exec-path', or nil if no such command exists"
   (define-key viper-insert-global-user-map (kbd "C-p") 'dabbrev-expand))
 
 
+;; Work around a problem in Cocoa emacs, wherein setting the cursor coloring
+;; is incredibly slow; viper sets the cursor very frequently in insert mode
+(when (and *vi-emulation-support-enabled* *is-cocoa-emacs*)
+  (defun viper-change-cursor-color (new-color &optional frame)))
+
+
 ;;----------------------------------------------------------------------------
 ;; Show a marker in the left fringe for lines not in the buffer
 ;;----------------------------------------------------------------------------
