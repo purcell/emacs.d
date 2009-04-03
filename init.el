@@ -169,7 +169,8 @@ in `exec-path', or nil if no such command exists"
     (global-set-key (kbd "M-c") 'ns-copy-including-secondary)
     (global-set-key (kbd "M-v") 'ns-paste-secondary))
   ;; Use Apple-w to close current buffer on OS-X (is normally bound to kill-ring-save)
-  (global-set-key [(meta w)] 'kill-this-buffer))
+  (when *vi-emulation-support-enabled*
+    (global-set-key [(meta w)] 'kill-this-buffer)))
 
 
 ;;----------------------------------------------------------------------------
