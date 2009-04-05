@@ -201,12 +201,12 @@
 ;;
 
 (defun darcsum-change-add-flag (change flag)
-  "Add FLAG on CHANGE."
+  "To CHANGE, add FLAG."
   (if (not (memq flag (cadr change)))
       (setcar (cdr change) (cons flag (cadr change)))))
 
 (defun darcsum-change-remove-flag (change flag)
-  "Remove FLAG on CHANGE."
+  "From CHANGE, remove FLAG."
   (if (memq flag (cadr change))
       (setcar (cdr change) (delq flag (cadr change)))))
 
@@ -215,7 +215,7 @@
   (setcar (cdr change) nil))
 
 (defun darcsum-change-toggle-flag (change flag)
-  "Toggle FLAG on CHANGE."
+  "On CHANGE, toggle FLAG."
   (if (memq flag (cadr change))
       (setcar (cdr change) (delq flag (cadr change)))
     (setcar (cdr change) (cons flag (cadr change)))))
@@ -257,7 +257,7 @@
   (darcsum-change-remove-flag change 'hide))
 
 (defun darcsum-changeset-any-p (changeset predicate)
-  "Return t if PREDICATE is true for any change in CHANGESET."
+  "Operating on CHANGESET, return t if PREDICATE is true for any change."
   (catch 'exit
     (ignore
      (let (file change)
@@ -279,7 +279,7 @@
   (darcsum-changeset-any-p changeset (function darcsum-change-visible-p)))
 
 (defun darcsum-changeset-all-p (changeset predicate)
-  "Return t if PREDICATE is true for all change in CHANGESET."
+  "Operating on CHANGESET, return t if PREDICATE is true for all changes."
   (not (catch 'exit
 	 (ignore
 	  (let (file change)
@@ -297,7 +297,7 @@
   (darcsum-changeset-all-p changeset (function darcsum-change-visible-p)))
 
 (defun darcsum-changeset-find (changeset predicate)
-  "Return changes selected by PREDICATE from CHANGESET."
+  "From CHANGESET, return changes selected by PREDICATE."
   (let (file change found)
     (dolist (file changeset)
       (let (changes)
@@ -368,7 +368,7 @@ The function `make-temp-file' is preferred, but if it is not available,
 	(funcall func change)))))
 
 (defun darcsum-remove-changeset (changeset remove)
-  "Remove REMOVE from the CHANGESET."
+  "From CHANGESET, remove REMOVE."
   (let (file change)
     (dolist (file remove)
       (let ((fentry (assoc (car file) changeset)))
@@ -397,7 +397,7 @@ The function `make-temp-file' is preferred, but if it is not available,
      (if (numberp r) r (or (cdr (assq r darcsum-item-numeric-alist)) 0))))
 
 (defun darcsum-add-changeset (changeset add)
-  "Add ADD to CHANGESET."
+  "To CHANGESET, add ADD."
   (let (file fentry change)
     (dolist (file add)
       (if (setq fentry (assoc (car file) changeset))
@@ -410,7 +410,7 @@ The function `make-temp-file' is preferred, but if it is not available,
   (sort changeset))
 
 (defun darcsum-merge-changeset (data changeset)
-  "Merge CHANGESET into the DATA.
+  "Merge into DATA the CHANGESET.
 
 Currently this simply moves 'mark and 'hide from DATA to CHANGESET."
   ;;;;;;; TODO: commute new patches
@@ -609,7 +609,7 @@ Currently this simply moves 'mark and 'hide from DATA to CHANGESET."
 
 (defun darcsum-insert-file-line (title path end visible marked
 				       &optional line-type changes)
-  "Insert per-file line into buffer"
+  "Insert per-file line into buffer."
   (let ((begin (point)))
     (if (and marked changes)
 	(setq marked (darcsum-changeset-all-marked-p
@@ -641,7 +641,7 @@ Currently this simply moves 'mark and 'hide from DATA to CHANGESET."
 ;;; Code to determine the current changeset in darcsum-mode
 
 (defun darcsum-changeset-at-point (&optional invisible-too)
-  "Return changeset at current point"
+  "Return changeset at current point."
   (let ((data (get-text-property (point) 'darcsum-line-change)))
     (if invisible-too
         data
@@ -702,7 +702,7 @@ non-nil, in which case return all visible changes."
       (progn
          (set-window-configuration (car darcsum-window-configuration-temp))
          (goto-char (cadr darcsum-window-configuration-temp)))
-    (error "No window configuration to restore.")))
+    (error "No window configuration to restore")))
 
 (defsubst darcsum-changes-handled ()
   (if (buffer-live-p darcsum-parent-buffer)
@@ -724,9 +724,12 @@ non-nil, in which case return all visible changes."
 	      (if (looking-at "2[.]") (list "--quiet"))))))
 
 (defun darcsum-call-process (subcommand &rest args)
-  "Calls darcs process and places it's output into current buffer"
+  "Calls darcs process with SUBCOMMAND and puts output in the current buffer.
+Optional remaining arguments are passed on as options to the darcs command.
+Convenience wrapper for `darcsum-start-process'."
   (darcsum-darcs-2-options-init)
-  (apply 'call-process darcsum-program nil t nil subcommand (append darcsum-darcs-2-options args)))
+  (apply 'call-process darcsum-program nil t nil subcommand
+	 (append darcsum-darcs-2-options args) ) )
 
 (defun darcsum-start-process (subcommand args
                                          &optional name value &rest localize)
@@ -822,6 +825,11 @@ non-nil, in which case return all visible changes."
           (message waiting)
           (kill-buffer (current-buffer))))
 
+       ((looking-at "\\(.*\n\\)*This operation will make unrevert impossible!
+Proceed\\?.*")
+        (process-send-string proc "y")
+        (delete-region (point-min) (match-end 0)))
+	
        ((looking-at "\\(.*\n\\)*Shall I amend this patch\\?.*")
         (process-send-string proc "y")
         (delete-region (point-min) (match-end 0)))
@@ -874,6 +882,9 @@ non-nil, in which case return all visible changes."
             (delete-region (point-min) end))))))))
 
 (defun darcsum-really-record ()
+  "Function run via callback from `darcsum-record' when actually committing.
+Takes care of passing the selected changeset and the commit log message to
+`darcs record'."
   (interactive)
   (let ((tempfile (darcsum-make-temp-file "darcsum"))
         (parent-buf darcsum-parent-buffer)
@@ -915,7 +926,7 @@ Otherwise, only changes which are selected to be displayed in the buffer
 				 (function
 				  (lambda (change)
 				    (memq (car change) '(newdir newfile)))))
-	(error "You have to add new directories and files first."))
+	(error "You have to add new directories and files first"))
     (switch-to-buffer-other-window (setq buf (get-buffer-create "*darcs comment*")))
     (if (fboundp 'log-edit)
 	;; TODO: add SETUP (nil?) and LISTFUN arguments?  See also `vc-log-edit'
@@ -929,7 +940,7 @@ C-c C-c to record.")
     (run-hooks 'darcsum-comment-hook)))
 
 (defun darcsum-send (recipient)
-  "Send selected changeset via email."
+  "Send selected changeset via email to RECIPIENT."
   (interactive "sSend changes to: ")
   (message "Sending changes...")
   (darcsum-start-process
@@ -938,6 +949,7 @@ C-c C-c to record.")
    'darcsum-parent-buffer (current-buffer)
    'darcsum-process-arg recipient))
 
+;;;###autoload
 (defun darcsum-changes (&optional how-many)
   "Show the changes in another buffer.  Optional argument HOW-MANY limits
 the number of changes shown, counting from the most recent changes."
@@ -1026,7 +1038,7 @@ pulling from the same repository may cause repository corruption.\n")
 		 ;; If darcsum-amend-confirmation-function is nil, don't prompt
 		 (or
 		  (not (functionp darcsum-amend-confirmation-function))
-		  (funcall darcsum-amend-confirmation-function 
+		  (funcall darcsum-amend-confirmation-function
 			   "Amend this latest changeset? (see WARNINGS) ") )) )
 	    (kill-buffer history-buffer))
           (when amend
@@ -1106,6 +1118,7 @@ If called with a positive argument then move N comments backward."
 	(message "No later changes")))))
 
 (defun darcsum-query-kill-buffer ()
+  "Kill the `darcsum-query-mode' buffer."
   (interactive)
   (kill-this-buffer)
   (delete-window))
@@ -1225,15 +1238,15 @@ VIEW non-nil means open in View mode."
       (recenter '(4)))))
 
 (defun darcsum-find-file-other-window ()
-  "Select a buffer containing the file with current change in another window"
-"possibly moving point to the change's location."
+  "Select a buffer containing the file with current change in another window,
+possibly moving point to the change's location."
   (interactive)
   (darcsum-check-darcsum-mode)
   (darcsum-find-file t))
 
 (defun darcsum-goto ()
-  "Select a buffer containing the file with current change in another window"
-"possibly moving point to the change's location."
+  "Select a buffer containing the file with current change in another window,
+possibly moving point to the change's location."
   (interactive)
   (darcsum-check-darcsum-mode)
   (darcsum-find-file t))
@@ -1293,7 +1306,7 @@ it for later commit."
 (defun darcsum-refresh (&optional line)
   "Refresh the visualization of the changesets.
 
-If LINE is not nil, move to LINE. Otherwise, stay on current line."
+If LINE is not nil, move to LINE.  Otherwise, stay on current line."
   (interactive)
   (darcsum-check-darcsum-mode)
   (let ((inhibit-redisplay t))
@@ -1375,7 +1388,7 @@ With ARG, mark and move that many times."
 
 (defun darcsum-apply-and-next-entity (func next-p &optional arg backward)
   "Apply FUNC to current changeset and move forward until NEXT-P changeset.
-With ARG, mark and move that many times. With BACKWARD, move to previous.
+With ARG, mark and move that many times.  With BACKWARD, move to previous.
 Return nil if there is no changeset matching NEXT-P."
   (let ((started (point))
 	changeset
@@ -1441,12 +1454,12 @@ Return nil if there is no changeset matching NEXT-P."
   (darcsum-refresh))
 
 (defun darcsum-remove ()
-  "Remove a file from the repository.
+  "Remove an added, unrecorded file or directory from the repository.
 
-This runs darcs remove (which undoes accidental addfile or adddir).
-
-If you want to remove an existing file or directory, remove file or
-directory otherwise and record change."
+This runs `darcs remove', which is used to undo `darcs add'.
+\(If you want to remove an existing file or directory with a recorded
+history, remove the file or directory by other means, and simply record
+this change.\)"
   (interactive)
   (darcsum-check-darcsum-mode)
   (let ((changeset (darcsum-changeset-at-point t))
@@ -1681,7 +1694,7 @@ Inserts the entry in the darcs comment file instead of the ChangeLog."
         (insert ": ")))))
 
 (defvar darcsum-mode-abbrev-table nil
-  "Abbrev table used while in darcsum-mode mode.")
+  "Abbrev table used while in `darcsum-mode' mode.")
 (define-abbrev-table 'darcsum-mode-abbrev-table ())
 
 (global-set-key "\C-xD" 'darcsum-add-comment)
@@ -1793,7 +1806,7 @@ darcsum-display-with-existing-buffer is nil)."
     (darcsum-refresh 0)
     (darcsum-next-line 0)
     (unless (darcsum-changeset-all-visible-p darcsum-data)
-      (message 
+      (message
        "Press %s to show all changes"
        (darcsum-where-is (function darcsum-show))))
     (switch-to-buffer (current-buffer))))
@@ -1804,9 +1817,9 @@ darcsum-display-with-existing-buffer is nil)."
   :group 'darcsum)
 
 (defun darcsum-new-buffer (&optional dir subdir)
-  "Generate new darcsum buffer for (SUBDIR in DIR)."
+  "Generate new darcsum buffer in DIR for SUBDIR."
   (setq dir (file-name-nondirectory
-	     (directory-file-name (file-name-directory 
+	     (directory-file-name (file-name-directory
 				   (or dir default-directory)))))
   (if (string= subdir ".")
       (setq subdir nil))
@@ -1823,7 +1836,7 @@ darcsum-display-with-existing-buffer is nil)."
     (current-buffer)))
 
 (defun darcsum-find-buffer (&optional dir subdir)
-  "Get existing darcsum buffer (for SUBDIR in DIR)."
+  "Get existing darcsum buffer in DIR for SUBDIR."
   (catch 'exit
     (ignore
      (let (buffer locals mode buffer-dir)
@@ -1840,7 +1853,7 @@ darcsum-display-with-existing-buffer is nil)."
 (defun darcsum-where-is (command)
   "Return the representation of key sequences that invoke specified COMMAND."
   (let ((keys (where-is-internal command)))
-    (if keys 
+    (if keys
         (if (featurep 'xemacs)
             (sorted-key-descriptions keys)
           (mapconcat 'key-description keys ", "))

@@ -2,7 +2,7 @@
 (autoload 'vc-darcs-find-file-hook "vc-darcs")
 (add-hook 'find-file-hooks 'vc-darcs-find-file-hook)
 
-(require 'darcsum)
+(load "50darcsum")
 (setq darcsum-whatsnew-switches "-l")
 
 (eval-after-load "grep"
