@@ -2938,6 +2938,22 @@ other candidate transformers."
                    list)
           finally (return (nreverse list)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Marked candidates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun anything-c-list-marked-candidate ()
+  (interactive)
+  (let (marked-candidates)
+    (with-anything-window
+      (goto-char (point-min))
+      (beginning-of-line)
+      (while (anything-next-visible-mark)
+        (push (buffer-substring-no-properties (point-at-bol) (point-at-eol)) marked-candidates)))
+    marked-candidates))
+
+(defvar anything-c-marked-candidate-list nil)
+(defadvice anything-select-action (before save-marked-candidates () activate)
+  (setq anything-c-marked-candidate-list (anything-c-list-marked-candidate)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Adaptive Sorting of Candidates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar anything-c-adaptive-done nil
   "nil if history information is not yet stored for the current
@@ -3201,6 +3217,22 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
   (unless recenter
     (set-window-start (get-buffer-window anything-current-buffer) (point))))
 
+(defun anything-revert-buffer (candidate)
+  (with-current-buffer candidate
+    (when (buffer-modified-p)
+      (revert-buffer t t))))
+
+(defun anything-revert-marked-buffers (candidate)
+  (dolist (i anything-c-marked-candidate-list)
+    (anything-revert-buffer i)))
+
+(defun anything-kill-marked-buffers (candidate)
+  (dolist (i anything-c-marked-candidate-list)
+    (kill-buffer i)))
+
+(defun anything-delete-marked-files (candidate)
+  (dolist (i anything-c-marked-candidate-list)
+    (anything-c-delete-file i)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Setup ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -3214,11 +3246,10 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
            ("Switch to buffer other window" . switch-to-buffer-other-window)
            ("Switch to buffer other frame" . switch-to-buffer-other-frame)))
      ("Display buffer"   . display-buffer)
-     ("Revert buffer" . (lambda (elm)
-                          (with-current-buffer elm
-                            (when (buffer-modified-p)
-                              (revert-buffer t t)))))
-     ("Kill buffer"      . kill-buffer))
+     ("Revert buffer" . anything-revert-buffer)
+     ("Revert Marked buffers" . anything-revert-marked-buffers)
+     ("Kill buffer" . kill-buffer)
+     ("Kill Marked buffers" . anything-kill-marked-buffers))
     (candidate-transformer . anything-c-skip-boring-buffers))
   "Buffer or buffer name.")
 
@@ -3234,6 +3265,7 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
            ("Find file other frame" . find-file-other-frame)))
      ("Open dired in file's directory" . anything-c-open-dired)
      ("Delete file" . anything-c-delete-file)
+     ("Delete Marked files" . anything-delete-marked-files)
      ("Open file externally" . anything-c-open-file-externally)
      ("Open file with default tool" . anything-c-open-file-with-default-tool))
     (action-transformer anything-c-transform-file-load-el
