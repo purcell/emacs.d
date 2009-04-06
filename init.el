@@ -572,10 +572,7 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; CSS mode
 ;;----------------------------------------------------------------------------
-(autoload 'css-mode "css-mode" "Mode for editing CSS files" t)
-(setq cssm-indent-function #'cssm-c-style-indenter)
-(add-auto-mode 'css-mode "\\.css$")
-
+(require 'init-css)
 
 ;;----------------------------------------------------------------------------
 ;; YAML mode
