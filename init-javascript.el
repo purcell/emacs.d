@@ -41,7 +41,8 @@
          :face mmm-code-submode-face
          :front "on\w+=\""
          :back "\"")))
-     (mmm-add-mode-ext-class 'nxml-mode "\\.r?html\\(\\.erb\\)?$" 'html-js)))
+     (dolist (mode (list 'html-mode 'nxml-mode))
+       (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?$" 'html-js))))
 
 (require 'js-comint)
 (setq inferior-js-program-command "/opt/local/bin/js")

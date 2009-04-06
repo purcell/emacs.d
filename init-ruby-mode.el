@@ -45,8 +45,8 @@
                :insert ((?% erb-code       nil @ "<%"  @ " " _ " " @ "%>" @)
                         (?# erb-comment    nil @ "<%#" @ " " _ " " @ "%>" @)
                         (?= erb-expression nil @ "<%=" @ " " _ " " @ "%>" @)))))
-     (add-to-list 'mmm-mode-ext-classes-alist (list 'nxml-mode "\\.html\\.erb$" 'eruby) t)
-     (add-to-list 'mmm-mode-ext-classes-alist (list 'nxml-mode "\\.rhtml$" 'eruby) t)
+     (dolist (mode (list 'html-mode 'nxml-mode))
+       (add-to-list 'mmm-mode-ext-classes-alist (list mode "\\.r?html\\(\\.erb\\)?$" 'eruby) t))
      (add-to-list 'mmm-mode-ext-classes-alist (list 'yaml-mode "\\.yaml$" 'eruby))))
 
 
