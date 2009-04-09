@@ -162,6 +162,8 @@
 ;;    Show `minibuffer-history'.
 ;;  `anything-gentoo'
 ;;    Start anything with only gentoo sources.
+;;  `anything-kill-buffers'
+;;    You can continuously kill buffer you selected.
 ;;  `anything-insert-buffer-name'
 ;;    Insert buffer name.
 ;;  `anything-insert-symbol'
@@ -420,6 +422,20 @@ You may bind this command to C-r in minibuffer-local-map / minibuffer-local-comp
   (interactive)
   (anything '(anything-c-source-gentoo
               anything-c-source-use-flags)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Anything Applications ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun anything-kill-buffers ()
+  "You can continuously kill buffer you selected."
+  (interactive)
+  (anything
+   '(((name . "Kill Buffers")
+      (candidates . anything-c-buffer-list)
+      (action
+       ("Kill Buffer" . (lambda (candidate)
+                          (kill-buffer candidate)
+                          (anything-kill-buffers)
+                          )))))
+   nil nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
