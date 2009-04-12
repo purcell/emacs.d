@@ -14,7 +14,14 @@
     (delete-other-windows)
     (funcall (split-window-func-with-other-buffer 'split-window-horizontally))))
 
+(defun split-window-vertically-instead ()
+  (interactive)
+  (save-excursion
+    (delete-other-windows)
+    (funcall (split-window-func-with-other-buffer 'split-window-vertically))))
+
 (global-set-key "\C-x|" 'split-window-horizontally-instead)
+(global-set-key "\C-x_" 'split-window-vertically-instead)
 
 
 (provide 'init-window-split)
