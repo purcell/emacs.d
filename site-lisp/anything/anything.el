@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.175 2009/03/22 19:10:37 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.176 2009/04/08 14:48:15 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -242,6 +242,9 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.176  2009/04/08 14:48:15  rubikitch
+;; bug fix in `anything-candidate-buffer'
+;;
 ;; Revision 1.175  2009/03/22 19:10:37  rubikitch
 ;; New Variable: `anything-scroll-amount' (thx. ThierryVolpiatto)
 ;;
@@ -805,7 +808,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.175 2009/03/22 19:10:37 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.176 2009/04/08 14:48:15 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -2877,8 +2880,12 @@ Acceptable values of CREATE-OR-BUFFER:
          buf)
     (when create-or-buffer
       (if (bufferp create-or-buffer)
-          (add-to-list 'anything-candidate-buffer-alist
-                       (cons anything-source-name create-or-buffer))
+          (setq anything-candidate-buffer-alist
+                (cons (cons anything-source-name create-or-buffer)
+                      (delete (assoc anything-source-name anything-candidate-buffer-alist)
+                              anything-candidate-buffer-alist)))
+        (add-to-list 'anything-candidate-buffer-alist
+                     (cons anything-source-name create-or-buffer))
         (when (eq create-or-buffer 'global)
           (loop for b in (buffer-list)
                 if (string-match (format "^%s" (regexp-quote gbufname)) (buffer-name b))
@@ -4109,6 +4116,16 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
             (anything-candidate-buffer buf)
             (prog1 (buffer-string)
               (kill-buffer (current-buffer))))))
+      (expect "buf1"
+        (let (anything-candidate-buffer-alist
+              (anything-source-name "foo")
+              (buf1 (get-buffer-create "buf1"))
+              (buf2 (get-buffer-create "buf2")))
+          (anything-candidate-buffer buf1)
+          (anything-candidate-buffer buf2)
+          (prog1 (buffer-name (anything-candidate-buffer buf1))
+            (kill-buffer buf1)
+            (kill-buffer buf2))))
       (desc "action attribute")
       (expect "foo"
         (anything-test-candidates
