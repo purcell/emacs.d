@@ -1,8 +1,9 @@
 (autoload 'ruby-mode "ruby-mode" "Mode for editing ruby source files" t)
-(setq auto-mode-alist
-      (cons '("\\.rb$" . ruby-mode) auto-mode-alist))
 (setq interpreter-mode-alist
       (cons '("ruby" . ruby-mode) interpreter-mode-alist))
+
+(add-auto-mode 'ruby-mode "\\.rb$" "Rakefile$" "\.rake$" "\.rxml$" "\.rjs" ".irbrc")
+
 
 (autoload 'run-ruby "inf-ruby" "Run an inferior Ruby process")
 (autoload 'inf-ruby-keys "inf-ruby"
@@ -12,7 +13,7 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Ruby - basics
+;; Ruby - Electric mode
 ;;----------------------------------------------------------------------------
 (autoload 'ruby-electric-mode "ruby-electric" "Electric brackes/quotes/keywords for Ruby source" t)
 (require 'rcodetools)
@@ -20,12 +21,13 @@
 (add-hook 'ruby-mode-hook
           (lambda () (ruby-electric-mode t)))
 
+
+;;----------------------------------------------------------------------------
+;; Ruby - misc
+;;----------------------------------------------------------------------------
 ;; For some unknown reason, viper starts off in insert mode inside ruby-mode buffers
 (when *vi-emulation-support-enabled*
   (add-hook 'ruby-mode-hook (lambda () (viper-change-state-to-vi))))
-
-(add-auto-mode 'ruby-mode "Rakefile$" "\.rake$" "\.rxml$" "\.rjs" ".irbrc")
-
 
 (setq compile-command "rake ")
 
