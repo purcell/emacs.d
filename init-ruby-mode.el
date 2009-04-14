@@ -13,6 +13,13 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Ruby - flymake
+;;----------------------------------------------------------------------------
+(require 'flymake-ruby)
+(add-hook 'ruby-mode-hook 'flymake-ruby-load) ;; This must happen before the viper-related hook below
+
+
+;;----------------------------------------------------------------------------
 ;; Ruby - Electric mode
 ;;----------------------------------------------------------------------------
 (autoload 'ruby-electric-mode "ruby-electric" "Electric brackes/quotes/keywords for Ruby source" t)
