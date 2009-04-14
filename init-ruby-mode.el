@@ -15,8 +15,9 @@
 ;;----------------------------------------------------------------------------
 ;; Ruby - flymake
 ;;----------------------------------------------------------------------------
+(setq flymake-log-level 3)
 (require 'flymake-ruby)
-(add-hook 'ruby-mode-hook 'flymake-ruby-load) ;; This must happen before the viper-related hook below
+(add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
 
 ;;----------------------------------------------------------------------------
@@ -34,7 +35,7 @@
 ;;----------------------------------------------------------------------------
 ;; For some unknown reason, viper starts off in insert mode inside ruby-mode buffers
 (when *vi-emulation-support-enabled*
-  (add-hook 'ruby-mode-hook (lambda () (viper-change-state-to-vi))))
+  (add-to-list 'viper-vi-state-mode-list 'ruby-mode))
 
 (setq compile-command "rake ")
 
