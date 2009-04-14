@@ -19,6 +19,8 @@
 (setq ruby-electric-expand-delimiters-list nil)  ; Only use ruby-electric for adding 'end'
 (add-hook 'ruby-mode-hook
           (lambda () (ruby-electric-mode t)))
+
+;; For some unknown reason, viper starts off in insert mode inside ruby-mode buffers
 (when *vi-emulation-support-enabled*
   (add-hook 'ruby-mode-hook (lambda () (viper-change-state-to-vi))))
 
