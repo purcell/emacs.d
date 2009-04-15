@@ -21,4 +21,14 @@
             (pymacs-load "ropemacs" "rope-")))
 
 
+;;----------------------------------------------------------------------------
+;; On-the-fly syntax checking via flymake
+;;----------------------------------------------------------------------------
+(setq flymake-python-pyflakes-executable "pyflakes-2.6")
+(require 'flymake-python)
+
+(add-hook 'python-mode-hook 'flymake-python-load)
+
+
+
 (provide 'init-python-mode)
