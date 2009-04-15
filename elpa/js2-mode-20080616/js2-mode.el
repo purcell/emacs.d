@@ -1,17 +1,3 @@
-;;; js2.el -- an improved JavaScript editing mode
-;;;
-;;; This file was auto-generated on Mon Jun 16 01:46:45 2008 from files:
-;;;  js2-vars.el
-;;;  js2-util.el
-;;;  js2-scan.el
-;;;  js2-messages.el
-;;;  js2-ast.el
-;;;  js2-highlight.el
-;;;  js2-browse.el
-;;;  js2-parse.el
-;;;  js2-indent.el
-;;;  js2-mode.el
-
 ;;; js2-mode.el --- an improved JavaScript editing mode
 
 ;; Author:  Steve Yegge (steve.yegge@gmail.com)
@@ -11654,6 +11640,3 @@ it marks the next defun after the ones already marked."
 (provide 'js2-mode)
 
 ;;; js2-mode.el ends here
-
-
-;;; js2.el ends here
