@@ -14,7 +14,7 @@
 
 ;; On-the-fly syntax checking
 (autoload 'flymake-js-load "flymake-js" "On-the-fly syntax checking of javascript" t)
-(unless (eq 'js2-mode-hook preferred-javascript-mode)
+(unless (eq 'js2-mode-hook preferred-javascript-mode-hook)
   (add-hook preferred-javascript-mode-hook 'flymake-js-load))
 
 
