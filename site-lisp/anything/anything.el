@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.176 2009/04/08 14:48:15 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.177 2009/04/20 02:17:16 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -242,6 +242,9 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.177  2009/04/20 02:17:16  rubikitch
+;; New commands: `anything-yank-selection', `anything-kill-selection-and-quit'
+;;
 ;; Revision 1.176  2009/04/08 14:48:15  rubikitch
 ;; bug fix in `anything-candidate-buffer'
 ;;
@@ -808,7 +811,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.176 2009/04/08 14:48:15 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.177 2009/04/20 02:17:16 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -3065,6 +3068,24 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
 This command is a simple example of `anything-run-after-quit'."
   (interactive)
   (anything-run-after-quit 'call-interactively 'find-file))
+
+;; (@* "Utility: Selection Paste")
+(defun anything-yank-selection ()
+  "Set minibuffer contents to current selection."
+  (interactive)
+  (delete-minibuffer-contents)
+  (insert (anything-get-selection)))
+
+(defun anything-kill-selection-and-quit ()
+  "Store current selection to kill ring.
+You can paste it by typing C-y."
+  (interactive)
+  (anything-run-after-quit
+   (lambda (sel)
+     (kill-new sel)
+     (message "Killed: %s" sel))
+   (anything-get-selection)))
+
 
 ;; (@* "Utility: Incremental search within results (unmaintained)")
 
