@@ -20,9 +20,6 @@ for f in site-lisp/*/CVS; do
   (cd $f/.. && cvs up -dP)
 done
 
-echo '***' rinari
-(cd site-lisp/rinari && git pull eschulte master)
-
 echo '*** anything'
 (cd site-lisp/anything && (for f in anything.el anything-config.el; do curl -o $f "http://www.emacswiki.org/emacs/download/$f"; done))
 
