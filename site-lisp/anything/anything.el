@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.177 2009/04/20 02:17:16 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.179 2009/04/20 16:35:44 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -242,6 +242,15 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.179  2009/04/20 16:35:44  rubikitch
+;; New keybindings in anything-map:
+;;   C-c C-d: `anything-delete-current-selection'
+;;   C-c C-y: `anything-yank-selection'
+;;   C-c C-k: `anything-kill-selection-and-quit'
+;;
+;; Revision 1.178  2009/04/20 16:18:58  rubikitch
+;; New variable: `anything-display-function'
+;;
 ;; Revision 1.177  2009/04/20 02:17:16  rubikitch
 ;; New commands: `anything-yank-selection', `anything-kill-selection-and-quit'
 ;;
@@ -811,7 +820,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.177 2009/04/20 02:17:16 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.179 2009/04/20 16:35:44 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1279,6 +1288,10 @@ See also `anything-set-source-filter'.")
     (define-key map (kbd "C-r") 'undefined)
     (define-key map (kbd "C-x C-f") 'anything-quit-and-find-file)
 
+    (define-key map (kbd "C-c C-d") 'anything-delete-current-selection)
+    (define-key map (kbd "C-c C-y") 'anything-yank-selection)
+    (define-key map (kbd "C-c C-k") 'anything-kill-selection-and-quit)
+
     ;; the defalias is needed because commands are bound by name when
     ;; using iswitchb, so only commands having the prefix anything-
     ;; get rebound
@@ -1476,6 +1489,9 @@ It is useful for `anything' applications.")
   "Scroll amount used by `anything-scroll-other-window' and `anything-scroll-other-window-down'.
 If you prefer scrolling line by line, set this value to 1.")
 
+(defvar anything-display-function 'anything-default-display-buffer
+  "Function to display *anything* buffer.
+It is `anything-default-display-buffer' by default, which affects `anything-samewindow'.")
 
 (put 'anything 'timid-completion 'disabled)
 
@@ -1828,10 +1844,7 @@ already-bound variables. Yuck!
             (anything-initialize))
           (setq anything-last-buffer anything-buffer)
           (when any-input (setq anything-input any-input anything-pattern any-input))
-          (if anything-samewindow
-              (switch-to-buffer anything-buffer)
-            (pop-to-buffer anything-buffer))                  
-
+          (anything-display-buffer anything-buffer)
           (unwind-protect
               (progn
                 (if any-resume (anything-mark-current-line) (anything-update))
@@ -1892,6 +1905,14 @@ already-bound variables. Yuck!
                         (if (featurep 'anything-match-plugin) " " ""))
               any-input)
             any-prompt any-resume any-preselect any-buffer))
+
+;; (@* "Core: Display *anything* buffer")
+(defun anything-display-buffer (buf)
+  "Display *anything* buffer."
+  (funcall anything-display-function buf))
+
+(defun anything-default-display-buffer (buf)
+  (funcall (if anything-samewindow 'switch-to-buffer 'pop-to-buffer) buf))
 
 ;; (@* "Core: initialize")
 (defun anything-initialize ()
