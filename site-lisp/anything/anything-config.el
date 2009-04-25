@@ -196,6 +196,10 @@
 ;;    List all anything sources for test.
 ;;  `anything-select-source'
 ;;    Select source.
+;;  `anything-emms-stream-edit-bookmark'
+;;    Change the information of current emms-stream bookmark from anything.
+;;  `anything-emms-stream-delete-bookmark'
+;;    Delete an emms-stream bookmark from anything.
 ;;  `anything-call-source'
 ;;    Call anything source.
 ;;  `anything-call-source-from-anything'
@@ -2270,6 +2274,45 @@ A list of search engines."
 ;; (anything 'anything-c-source-surfraw)
 
 ;;; Emms
+
+(defun anything-emms-stream-edit-bookmark (elm)
+  "Change the information of current emms-stream bookmark from anything."
+  (interactive)
+  (let* ((cur-buf anything-current-buffer)
+         (bookmark (assoc elm emms-stream-list))
+         (name     (read-from-minibuffer "Description: "
+                                         (nth 0 bookmark)))
+         (url      (read-from-minibuffer "URL: "
+                                         (nth 1 bookmark)))
+         (fd       (read-from-minibuffer "Feed Descriptor: "
+                                         (int-to-string (nth 2 bookmark))))
+         (type     (read-from-minibuffer "Type (url, streamlist, or lastfm): "
+                                         (format "%s" (car (last bookmark))))))
+    (save-excursion
+      (emms-streams)
+      (when (re-search-forward (concat "^" name) nil t)
+        (beginning-of-line)
+        (emms-stream-delete-bookmark)
+        (emms-stream-add-bookmark name url (string-to-number fd) type)
+        (emms-stream-save-bookmarks-file)
+        (emms-stream-quit)
+        (switch-to-buffer cur-buf)))))
+
+(defun anything-emms-stream-delete-bookmark (elm)
+  "Delete an emms-stream bookmark from anything."
+  (interactive)
+  (let* ((cur-buf anything-current-buffer)
+         (bookmark (assoc elm emms-stream-list))
+         (name (nth 0 bookmark)))
+    (save-excursion
+      (emms-streams)
+      (when (re-search-forward (concat "^" name) nil t)
+        (beginning-of-line)
+        (emms-stream-delete-bookmark)
+        (emms-stream-save-bookmarks-file)
+        (emms-stream-quit)
+        (switch-to-buffer cur-buf)))))
+
 (defvar anything-c-source-emms-streams
   '((name . "Emms Streams")
     (init . (lambda ()
@@ -2280,7 +2323,9 @@ A list of search engines."
                            (let* ((stream (assoc elm emms-stream-list))
                                   (fn (intern (concat "emms-play-" (symbol-name (car (last stream))))))
                                   (url (second stream)))
-                             (funcall fn url))))))
+                             (funcall fn url))))
+               ("Delete" . anything-emms-stream-delete-bookmark)
+               ("Edit" . anything-emms-stream-edit-bookmark)))
     (volatile)))
 ;; (anything 'anything-c-source-emms-streams)
 
