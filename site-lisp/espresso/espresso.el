@@ -4,8 +4,8 @@
 ;; Author: Karl Landstrom <karl.landstrom@brgeight.se>
 ;; Author: Daniel Colascione <dan.colascione@gmail.com>
 ;; Maintainer: Daniel Colascione <dan.colascione@gmail.com>
-;; Version: 4
-;; Date: 2009-01-06
+;; Version: 5
+;; Date: 2009-04-30
 ;; Keywords: languages, oop, javascript
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -49,10 +49,10 @@
 ;; General Remarks:
 ;;
 ;; XXX: This mode assumes that block comments are not nested inside block
-;; XXX: comments and that strings do not contain line breaks.
+;; XXX: comments
 ;;
-;; Exported names start with "espresso-" whereas private names start
-;; with "espresso--".
+;; Exported names start with "espresso-"; private names start with
+;; "espresso--".
 ;;
 ;; Code:
 
@@ -61,11 +61,360 @@
 (require 'cc-mode)
 (require 'font-lock)
 (require 'newcomment)
+(require 'thingatpt)
 
 (eval-when-compile
   (require 'cl))
 
-;;; User customization
+(declaim (optimize (speed 0) (safety 3))) ; XXX: change for release
+
+;;; Constants
+
+(defconst espresso--name-start-re "[a-zA-Z_$]"
+  "Matches the first character of a Espresso identifier. No grouping")
+
+(defconst espresso--stmt-delim-chars "^;{}?:")
+
+(defconst espresso--name-re (concat espresso--name-start-re
+                                    "\\(?:\\s_\\|\\sw\\)*")
+  "Matches a Javascript identifier. No grouping.")
+
+(defconst espresso--dotted-name-re
+  (concat espresso--name-re "\\(?:\\." espresso--name-re "\\)*")
+  "Matches a dot-separated sequence of Javascript names")
+
+(defconst espresso--cpp-name-re espresso--name-re
+  "Matches a C preprocessor name")
+
+(defconst espresso--opt-cpp-start "^\\s-*#\\s-*\\([[:alnum:]]+\\)"
+  "Regexp matching the prefix of a cpp directive including the directive
+name, or nil in languages without preprocessor support.  The first
+submatch surrounds the directive name.")
+
+(defconst espresso--plain-method-re
+  (concat "^\\s-*?\\(" espresso--dotted-name-re "\\)\\.prototype"
+          "\\.\\(" espresso--name-re "\\)\\s-*?=\\s-*?\\(function\\)\\_>")
+  "Regexp matching an old-fashioned explicit prototype \"method\"
+  declaration. Group 1 is a (possibly-dotted) class name, group 2
+  is a method name, and group 3 is the 'function' keyword." )
+
+(defconst espresso--plain-class-re
+  (concat "^\\s-*\\(" espresso--dotted-name-re "\\)\\.prototype"
+          "\\s-*=\\s-*{")
+  "Regexp matching an old-fashioned explicit prototype \"class\"
+  declaration, as in Class.prototype = { method1: ...} ")
+
+(defconst espresso--mp-class-decl-re
+  (concat "^\\s-*var\\s-+"
+          "\\(" espresso--name-re "\\)"
+          "\\s-*=\\s-*"
+          "\\(" espresso--dotted-name-re
+          "\\)\\.extend\\(?:Final\\)?\\s-*(\\s-*{?\\s-*$")
+  "var NewClass = BaseClass.extend(")
+
+(defconst espresso--prototype-obsolete-class-decl-re
+  (concat "^\\s-*\\(?:var\\s-+\\)?"
+          "\\(" espresso--dotted-name-re "\\)"
+          "\\s-*=\\s-*Class\\.create()")
+  "var NewClass = Class.create()")
+
+(defconst espresso--prototype-objextend-class-decl-re-1
+  (concat "^\\s-*Object\\.extend\\s-*("
+          "\\(" espresso--dotted-name-re "\\)"
+          "\\s-*,\\s-*{"))
+
+(defconst espresso--prototype-objextend-class-decl-re-2
+  (concat "^\\s-*\\(?:var\\s-+\\)?"
+          "\\(" espresso--dotted-name-re "\\)"
+          "\\s-*=\\s-*Object\\.extend\\s-*\("))
+
+(defconst espresso--prototype-class-decl-re
+  (concat "^\\s-*\\(?:var\\s-+\\)?"
+          "\\(" espresso--name-re "\\)"
+          "\\s-*=\\s-*Class\\.create\\s-*(\\s-*"
+          "\\(?:\\(" espresso--dotted-name-re "\\)\\s-*,\\s-*\\)?{?")
+  "var NewClass = Class.create({")
+
+;; Parent class name(s) (yes, multiple inheritance in Javascript) are
+;; matched with dedicated font-lock matchers
+(defconst espresso--dojo-class-decl-re
+  (concat "^\\s-*dojo\\.declare\\s-*(\"\\(" espresso--dotted-name-re "\\)"))
+
+(defconst espresso--extjs-class-decl-re-1
+  (concat "^\\s-*Ext\\.extend\\s-*("
+          "\\s-*\\(" espresso--dotted-name-re "\\)"
+          "\\s-*,\\s-*\\(" espresso--dotted-name-re "\\)")
+  "ExtJS class declaration (style 1)")
+
+(defconst espresso--extjs-class-decl-re-2
+  (concat "^\\s-*\\(?:var\\s-+\\)?"
+          "\\(" espresso--name-re "\\)"
+          "\\s-*=\\s-*Ext\\.extend\\s-*(\\s-*"
+          "\\(" espresso--dotted-name-re "\\)")
+  "ExtJS class declaration (style 2)")
+
+(defconst espresso--mochikit-class-re
+  (concat "^\\s-*MochiKit\\.Base\\.update\\s-*(\\s-*"
+          "\\(" espresso--dotted-name-re "\\)")
+  "MochiKit class declaration?")
+
+(defconst espresso--dummy-class-style
+  '(:name "[Automatically Generated Class]"))
+
+(defconst espresso--class-styles
+  `((:name            "Plain"
+     :class-decl      ,espresso--plain-class-re
+     :prototype       t
+     :contexts        (toplevel)
+     :framework       javascript)
+
+    (:name            "MochiKit"
+     :class-decl      ,espresso--mochikit-class-re
+     :prototype       t
+     :contexts        (toplevel)
+     :framework       mochikit)
+
+    (:name            "Prototype (Obsolete)"
+     :class-decl      ,espresso--prototype-obsolete-class-decl-re
+     :contexts        (toplevel)
+     :framework       prototype)
+
+    (:name            "Prototype (Modern)"
+     :class-decl      ,espresso--prototype-class-decl-re
+     :contexts        (toplevel)
+     :framework       prototype)
+
+    (:name            "Prototype (Object.extend)"
+     :class-decl      ,espresso--prototype-objextend-class-decl-re-1
+     :prototype       t
+     :contexts        (toplevel)
+     :framework       prototype)
+
+    (:name            "Prototype (Object.extend) 2"
+     :class-decl      ,espresso--prototype-objextend-class-decl-re-2
+     :prototype       t
+     :contexts        (toplevel)
+     :framework       prototype)
+
+    (:name            "Dojo"
+     :class-decl      ,espresso--dojo-class-decl-re
+     :contexts        (toplevel)
+     :framework       dojo)
+
+    (:name            "ExtJS (style 1)"
+     :class-decl      ,espresso--extjs-class-decl-re-1
+     :prototype       t
+     :contexts        (toplevel)
+     :framework       extjs)
+
+    (:name            "ExtJS (style 2)"
+     :class-decl      ,espresso--extjs-class-decl-re-2
+     :contexts        (toplevel)
+     :framework       extjs)
+
+    (:name            "Merrill Press"
+     :class-decl      ,espresso--mp-class-decl-re
+     :contexts        (toplevel)
+     :framework       merrillpress))
+
+  "A list of class definition styles.
+
+A class definition style is a plist with the following keys:
+
+:name is a human-readable name of the class type
+
+:class-decl is a regular expression giving the start of the
+class. Its first group must match the name of its class. If there
+is a parent class, the second group should match, and it should
+be the name of the class.
+
+If :prototype is present and non-nil, the parser will merge
+declarations for this constructs with others at the same lexical
+level that have the same name. Otherwise, multiple definitions
+will create multiple top-level entries. Don't use :prototype
+unnecessarily: it has an associated cost in performance.
+
+If :strip-prototype is present and non-nil, then if the class
+name as matched contains
+")
+
+(defconst espresso--available-frameworks
+  (loop with available-frameworks
+        for style in espresso--class-styles
+        for framework = (plist-get style :framework)
+        unless (memq framework available-frameworks)
+        collect framework into available-frameworks
+        finally return available-frameworks)
+
+  "List of available frameworks symbols")
+
+(defconst espresso--function-heading-1-re
+  (concat
+   "^\\s-*function\\s-+\\(" espresso--name-re "\\)")
+  "Regular expression matching the start of a function header. Match group 1
+is the name of the function.")
+
+(defconst espresso--function-heading-2-re
+  (concat
+   "^\\s-*\\(" espresso--name-re "\\)\\s-*:\\s-*function\\_>")
+  "Regular expression matching the start of a function entry in
+  an associative array. Match group 1 is the name of the function.")
+
+(defconst espresso--function-heading-3-re
+  (concat
+   "^\\s-*\\(?:var\\s-+\\)?\\(" espresso--dotted-name-re "\\)"
+   "\\s-*=\\s-*function\\_>")
+  "Matches a line in the form var MUMBLE = function. Match group
+  1 is MUMBLE.")
+
+(defconst espresso--macro-decl-re
+  (concat "^\\s-*#\\s-*define\\s-+\\(" espresso--cpp-name-re "\\)\\s-*(")
+  "Regular expression matching a CPP macro definition up to the opening
+parenthesis. Match group 1 is the name of the function.")
+
+(defun espresso--regexp-opt-symbol (list)
+  "Like regexp-opt, but surround the optimized regular expression
+with `\\\\_<' and `\\\\_>'."
+  (concat "\\_<" (regexp-opt list t) "\\_>"))
+
+(defconst espresso--keyword-re
+  (espresso--regexp-opt-symbol
+   '("abstract" "break" "case" "catch" "class" "const"
+     "continue" "debugger" "default" "delete" "do" "else"
+     "enum" "export" "extends" "final" "finally" "for"
+     "function" "goto" "if" "implements" "import" "in"
+     "instanceof" "interface" "native" "new" "package"
+     "private" "protected" "public" "return" "static"
+     "super" "switch" "synchronized" "throw"
+     "throws" "transient" "try" "typeof" "var" "void" "let"
+     "volatile" "while" "with"))
+  "Regular expression matching any JavaScript keyword.")
+
+(defconst espresso--basic-type-re
+  (espresso--regexp-opt-symbol
+   '("boolean" "byte" "char" "double" "float" "int" "long"
+     "short" "void"))
+  "Regular expression matching any predefined type in JavaScript.")
+
+(defconst espresso--constant-re
+  (espresso--regexp-opt-symbol '("false" "null" "undefined"
+                                 "true" "arguments" "this"))
+  "Regular expression matching any future reserved words in JavaScript.")
+
+
+(defconst espresso--font-lock-keywords-1
+  (list
+   "\\_<import\\_>"
+   (list espresso--function-heading-1-re 1 font-lock-function-name-face)
+   (list espresso--function-heading-2-re 1 font-lock-function-name-face))
+  "Level one font lock.")
+
+(defconst espresso--font-lock-keywords-2
+  (append espresso--font-lock-keywords-1
+          (list (list espresso--keyword-re 1 font-lock-keyword-face)
+                (cons espresso--basic-type-re font-lock-type-face)
+                (cons espresso--constant-re font-lock-constant-face)))
+  "Level two font lock.")
+
+;; espresso--pitem is the basic building block of the lexical
+;; database. When one refesr to a real part of the buffer, the region
+;; of text to which it refers is split into a conceptual header and
+;; body. Consider the (very short) block described by a hypothetical
+;; espresso--pitem:
+;;
+;;   function foo(a,b,c) { return 42; }
+;;   ^                    ^            ^
+;;   |                    |            |
+;;   +- h-begin           +- h-end     +- b-end
+;;
+;; (Remember that these are buffer positions, and therefore point
+;; between characters, not at them. An arrow drawn to a character
+;; indicates the corresponding position is between that character and
+;; the one immediately preceding it.)
+;;
+;; The header is the region of text [h-begin, h-end], and is
+;; the text needed to unambiguously recognize the start of the
+;; construct. If the entire header is not present, the construct is
+;; not recognized at all. No other pitems may be nested inside the
+;; header.
+;;
+;; The body is the region [h-end, b-end]. It may contain nested
+;; espresso--pitem instances. The body of a pitem may be empty: in
+;; that case, b-end is equal to header-end.
+;;
+;; The three points obey the following relationship:
+;;
+;;   h-begin < h-end <= b-end
+;;
+;; We put a text property in the buffer on the character *before*
+;; h-end, and if we see it, on the character *before* b-end.
+;;
+;; The text property for h-end, espresso--pstate, is actually a list
+;; of all espresso--pitem instances open after the marked character.
+;;
+;; The text property for b-end, espresso--pend, is simply the
+;; espresso--pitem that ends after the marked character. (Because
+;; pitems always end when the paren-depth drops below a critical
+;; value, and because we can only drop one level per character, only
+;; one pitem may end at a given character.)
+;;
+;; In the structure below, we only store h-begin and (sometimes)
+;; b-end. We can trivially and quickly find h-end by going to h-begin
+;; and searching for an espresso--pstate text property. Since no other
+;; espresso--pitem instances can be nested inside the header of a
+;; pitem, the location after the character with this text property
+;; must be h-end.
+;;
+;; espresso--pitem instances, are never modified (with the exception
+;; of the b-end field), and instead copied and changed in the process.
+;; (The exception and its caveats for b-end is described below.)
+;;
+
+(defstruct (espresso--pitem (:type list))
+  ;; IMPORTANT: Do not alter the offsets of fields within the list.
+  ;; Various bits of code depend on their positions, particularly
+  ;; anything that manipulates the children list.
+
+  ;; List of children inside this pitem's body
+  (children nil :read-only t)
+
+  ;; When we reach this paren depth after h-end, the pitem ends
+  (paren-depth nil :read-only t)
+
+  ;; Symbol or class-style plist if this is a class
+  (type nil :read-only t)
+
+  ;; See above
+  (h-begin nil :read-only t)
+
+  ;; List of strings giving the parts of the name of this pitem (e.g.,
+  ;; '("MyClass" "myMethod"), or t if this pitem is anonymous
+  (name nil :read-only t)
+
+  ;; THIS FIELD IS MUTATED, and its value is shared by all copies of
+  ;; this pitem: when we copy-and-modify pitem instances, we share
+  ;; their tail structures, so all the copies actually have the same
+  ;; terminating cons cell, which we modify directly.
+  ;;
+  ;; The field value is either a number (buffer location) or nil if
+  ;; unknown.
+  ;;
+  ;; If the field's value is greater than `espresso--cache-end', the
+  ;; value is stale and must be treated as if it were nil. Conversely,
+  ;; if this field is nil, it is guaranteed that this pitem is open up
+  ;; to at least `espresso--cache-end'. (This property is handy when
+  ;; computing whether we're inside a given pitem.)
+  ;;
+  (b-end nil))
+
+(defconst espresso--initial-pitem
+  (make-espresso--pitem
+   :paren-depth most-negative-fixnum
+   :type 'toplevel)
+
+  "The pitem we start parsing with")
+
+;;; User Customization
 
 (defgroup espresso nil
   "Customization variables for `espresso-mode'."
@@ -90,18 +439,30 @@ current line is indented when certain punctuations are inserted."
   :type 'boolean
   :group 'espresso)
 
+(defcustom espresso-flat-functions nil
+  "Treat nested functions as if they were top-level functions for
+function movement, marking, and so on."
+  :type 'boolean
+  :group 'espresso)
+
+(defcustom espresso-enabled-frameworks espresso--available-frameworks
+  "Select which frameworks espresso-mode will recognize.
+
+Turn off some frameworks you seldom use to improve performance.
+The set of recognized frameworks can also be overriden on a
+per-buffer basis."
+  :type (cons 'set (loop for framework in espresso--available-frameworks
+                         collect (list 'const framework)))
+  :group 'espresso)
+
 ;;; KeyMap
 
-(defvar espresso-mode-map nil
-  "Keymap used in Espresso mode.")
+(defvar espresso-mode-map (make-sparse-keymap)
+  "Keymap for espresso-mode")
 
-(unless espresso-mode-map
-  (setq espresso-mode-map (make-sparse-keymap)))
-
-(when espresso-auto-indent-flag
-  (mapc (lambda (key)
-	  (define-key espresso-mode-map key 'espresso-insert-and-indent))
-	'("{" "}" "(" ")" ":" ";" ",")))
+(mapc (lambda (key)
+        (define-key espresso-mode-map key 'espresso-insert-and-indent))
+	'("{" "}" "(" ")" ":" ";" ","))
 
 (defun espresso-insert-and-indent (key)
   "Runs the command bound to KEY in the global keymap, and if
@@ -109,8 +470,9 @@ we're not in a string or comment, indents the current line."
   (interactive (list (this-command-keys)))
   (call-interactively (lookup-key (current-global-map) key))
   (let ((syntax (save-restriction (widen) (syntax-ppss))))
-    (unless (nth 8 syntax)
-      (indent-according-to-mode))))
+    (and (not (nth 8 syntax))
+         espresso-auto-indent-flag
+         (indent-according-to-mode))))
 
 ;;; Syntax table and parsing
 
@@ -121,64 +483,152 @@ we're not in a string or comment, indents the current line."
     table)
   "Syntax table used in Espresso mode.")
 
-(defconst espresso--name-start-re "[a-zA-Z_$]"
-  "Matches the first character of a Espresso identifier. No grouping")
+(defvar espresso--quick-match-re nil
+  "Autogenerated regular expression to match buffer constructs")
 
-(defconst espresso--stmt-delim-chars "^;{}?:")
+(defvar espresso--quick-match-re-func nil
+  "Autogenerated regular expression to match buffer constructs
+and functions")
 
-(defconst espresso--name-re (concat espresso--name-start-re
-                                    "\\(?:\\s_\\|\\sw\\)*")
-  "Matches a Javascript name. No grouping.")
+(make-variable-buffer-local 'espresso--quick-match-re)
+(make-variable-buffer-local 'espresso--quick-match-re-func)
 
-(defconst espresso--dotted-name-re
-  (concat espresso--name-re "\\(?:\\." espresso--name-re "\\)*")
-  "Matches a dot-separated sequence of Javascript names")
+(defvar espresso--cache-end 1
+  "Last place in the buffer the function cache is valid")
+(make-variable-buffer-local 'espresso--cache-end)
 
-(defconst espresso--cpp-name-re espresso--name-re
-  "Matches a C preprocessor name")
+(defvar espresso--last-parse-pos nil
+  "Last place we parsed up to in espresso--ensure-cache")
+(make-variable-buffer-local 'espresso--last-parse-pos)
 
-(defconst espresso--opt-cpp-start "^\\s-*#\\s-*\\([[:alnum:]]+\\)"
-  " Regexp matching the prefix of a cpp directive including the directive
-name, or nil in languages without preprocessor support.  The first
-submatch surrounds the directive name.")
+(defvar espresso--state-at-last-parse-pos nil
+  "pstate at espresso--last-parse-pos")
+(make-variable-buffer-local 'espresso--state-at-last-parse-pos)
 
+(defun espresso--flatten-list (list)
+  (loop for item in list
+        nconc (cond ((consp item)
+                     (espresso--flatten-list item))
 
-(defconst espresso--class-decls
-  `(; var NewClass = BaseClass.extend(
-    ,(concat "^\\s-*\\_<var\\_>\\s-+"
-             "\\(" espresso--dotted-name-re "\\)"
-             "\\s-*=" "\\s-*"
-             "\\(" espresso--dotted-name-re
-             "\\)\\.extend\\(?:Final\\)?\\s-*(")
+                    (item (list item)))))
 
-    ; NewClass: BaseClass.extend( ; for nested classes
-    ,(concat "^\\s-*"
-             "\\(" espresso--dotted-name-re "\\):"
-             "\\s-*\\(" espresso--dotted-name-re
-             "\\)\\.extend\\(?:Finak\\)?\\s-*("))
-  "List of regular expressions that can match class definitions.
-Each one must set match group 1 to the name of the class being
-defined, and optionally, group 2 to the name of the base class.")
+(defun espresso--maybe-join (prefix separator suffix &rest list)
+  "If LIST contains any element that is not nil, return its
+non-nil elements, separated by SEPARATOR, prefixed by PREFIX, and
+ended with SUFFIX as with `concat'. Otherwise, if LIST is empty,
+return nil. If any element in LIST is itself a list, flatten that
+element."
+  (setq list (espresso--flatten-list list))
+  (when list
+    (concat prefix (mapconcat #'identity list separator) suffix)))
 
-(defun espresso--regexp-opt-symbol (list)
-  "Like regexp-opt, but surround the optimized regular expression
-with `\\\\_<' and `\\\\_>'."
-  (concat "\\_<" (regexp-opt list t) "\\_>"))
+(defun espresso--update-quick-match-re ()
+  "Update espresso--quick-match-re based on the current set of
+enabled frameworks"
+  (setq espresso--quick-match-re
+        (espresso--maybe-join
+         "^[ \t]*\\(?:" "\\|" "\\)"
+
+         ;; #define mumble
+         "#define[ \t]+[a-zA-Z_]"
+
+         (when (memq 'extjs espresso-enabled-frameworks)
+           "Ext\\.extend")
+
+         (when (memq 'prototype espresso-enabled-frameworks)
+           "Object\\.extend")
+
+          ;; var mumble = THING (
+         (espresso--maybe-join
+          "\\(?:var[ \t]+\\)?[a-zA-Z_$0-9.]+[ \t]*=[ \t]*\\(?:"
+          "\\|"
+          "\\)[ \t]*\("
+
+          (when (memq 'prototype espresso-enabled-frameworks)
+                    "Class\\.create")
+
+          (when (memq 'extjs espresso-enabled-frameworks)
+            "Ext\\.extend")
+
+          (when (memq 'merrillpress espresso-enabled-frameworks)
+            "[a-zA-Z_$0-9]+\\.extend\\(?:Final\\)?"))
+
+         (when (memq 'dojo espresso-enabled-frameworks)
+           "dojo\\.declare[ \t]*\(")
+
+         (when (memq 'mochikit espresso-enabled-frameworks)
+           "MochiKit\\.Base\\.update[ \t]*\(")
+
+         ;; mumble.prototypeTHING
+         (espresso--maybe-join
+          "[a-zA-Z_$0-9.]+\\.prototype\\(?:" "\\|" "\\)"
+
+          (when (memq 'javascript espresso-enabled-frameworks)
+            '( ;; foo.prototype.bar = function(
+              "\\.[a-zA-Z_$0-9]+[ \t]*=[ \t]*function[ \t]*\("
+
+              ;; mumble.prototype = {
+              "[ \t]*=[ \t]*{")))))
+
+  (setq espresso--quick-match-re-func
+        (concat "function\\|" espresso--quick-match-re)))
+
+(defun espresso--forward-text-property (propname)
+  "Move over the next value of PROPNAME in the buffer. If found,
+return that value and leave point after the character having that
+value, otherwise return nil and leave point at EOB."
+  (let ((next-value (get-text-property (point) propname)))
+    (if next-value
+        (forward-char)
+
+      (goto-char (next-single-property-change
+                  (point) propname nil (point-max)))
+      (unless (eobp)
+        (setq next-value (get-text-property (point) propname))
+        (forward-char)))
+
+    next-value))
+
+(defun espresso--backward-text-property (propname)
+    "Move over the previous value of PROPNAME in the buffer. If found,
+return that value and leave point just before the character that
+has that value, otherwise return nil and leave point at BOB."
+    (unless (bobp)
+      (let ((prev-value (get-text-property (1- (point)) propname)))
+        (if prev-value
+            (backward-char)
+
+          (goto-char (previous-single-property-change
+                      (point) propname nil (point-min)))
+
+          (unless (bobp)
+            (backward-char)
+            (setq prev-value (get-text-property (point) propname))))
+
+        prev-value)))
+
+(defsubst espresso--forward-pstate ()
+  (espresso--forward-text-property 'espresso--pstate))
+
+(defsubst espresso--backward-pstate ()
+  (espresso--backward-text-property 'espresso--pstate))
 
 (defun espresso--re-search-forward-inner (regexp &optional bound count)
   "Auxiliary function for `espresso--re-search-forward'."
   (let ((parse)
+        str-terminator
         (orig-macro-end (save-excursion
                           (when (espresso--beginning-of-macro)
                             (c-end-of-macro)
-                            (point))))
-        (saved-point (point-min)))
+                            (point)))))
     (while (> count 0)
       (re-search-forward regexp bound)
-      (setq parse (parse-partial-sexp saved-point (point)))
-      (cond ((nth 3 parse)
+      (setq parse (syntax-ppss))
+      (cond ((setq str-terminator (nth 3 parse))
+             (when (eq str-terminator t)
+               (setq str-terminator ?/))
              (re-search-forward
-              (concat "\\([^\\]\\|^\\)" (string (nth 3 parse)))
+              (concat "\\([^\\]\\|^\\)" (string str-terminator))
               (save-excursion (end-of-line) (point)) t))
             ((nth 7 parse)
              (forward-line))
@@ -190,8 +640,7 @@ with `\\\\_<' and `\\\\_>'."
                   (espresso--beginning-of-macro))
              (c-end-of-macro))
             (t
-             (setq count (1- count))))
-      (setq saved-point (point))))
+             (setq count (1- count))))))
   (point))
 
 
@@ -223,20 +672,22 @@ as normal text.
 (defun espresso--re-search-backward-inner (regexp &optional bound count)
   "Auxiliary function for `espresso--re-search-backward'."
   (let ((parse)
+        str-terminator
         (orig-macro-start
          (save-excursion
            (and (espresso--beginning-of-macro)
-                (point))))
-        (saved-point (point-min)))
+                (point)))))
     (while (> count 0)
       (re-search-backward regexp bound)
       (when (and (> (point) (point-min))
                  (save-excursion (backward-char) (looking-at "/[/*]")))
         (forward-char))
-      (setq parse (parse-partial-sexp saved-point (point)))
-      (cond ((nth 3 parse)
+      (setq parse (syntax-ppss))
+      (cond ((setq str-terminator (nth 3 parse))
+             (when (eq str-terminator t)
+               (setq str-terminator ?/))
              (re-search-backward
-              (concat "\\([^\\]\\|^\\)" (string (nth 3 parse)))
+              (concat "\\([^\\]\\|^\\)" (string str-terminator))
               (save-excursion (beginning-of-line) (point)) t))
             ((nth 7 parse)
              (goto-char (nth 8 parse)))
@@ -275,59 +726,421 @@ If inside a macro when called, treat the macro as normal text.
 
 
 (defun espresso--forward-function-decl ()
+  "Move forward over a function declaration with point at the
+'function' keyword. Return no-nil if this is a
+syntactically-correct non-expression function, nil otherwise.
+Specifically, return the name of the function, or t if the name
+could not be determined."
   (assert (looking-at "\\_<function\\_>"))
-  (forward-word)
-  (forward-comment most-positive-fixnum)
-  (skip-chars-forward "^(")
-  (unless (eobp)
-    (forward-list)
+  (let ((name t))
+    (forward-word)
     (forward-comment most-positive-fixnum)
-    (skip-chars-forward "^{"))
-  t)
+    (when (looking-at espresso--name-re)
+      (setq name (match-string-no-properties 0))
+      (goto-char (match-end 0)))
+    (forward-comment most-positive-fixnum)
+    (and (eq (char-after) ?\( )
+         (ignore-errors (forward-list) t)
+         (progn (forward-comment most-positive-fixnum)
+                (and (eq (char-after) ?{)
+                     name)))))
+
+(defun espresso--function-prologue-beginning (&optional pos)
+  "Return the start of the function prologue that contains POS,
+or nil if we're not in a function prologue. A function prologue
+is everything from the start of the 'function' keyword up to and
+including the opening brace. POS defaults to point."
+
+  (save-excursion
+    (let ((pos (or pos (point))))
+      (skip-syntax-backward "w_")
+      (and (or (looking-at "\\_<function\\_>")
+               (espresso--re-search-backward "\\_<function\\_>" nil t))
+
+           (save-match-data (goto-char (match-beginning 0))
+                            (espresso--forward-function-decl))
+
+           (<= pos (point))
+           (match-beginning 0)))))
+
+(defun espresso--beginning-of-defun-raw ()
+  "Internal helper for espresso--beginning-of-defun. Go to
+previous defun-beginning and return the parse state for it, or
+nil if we went all the way back to bob and don't find anything."
+  (espresso--ensure-cache)
+  (let (pstate)
+    (while (and (setq pstate (espresso--backward-pstate))
+                (not (eq 'function (espresso--pitem-type (car pstate))))))
+    (and (not (bobp)) pstate)))
+
+(defun espresso--pstate-is-toplevel-defun (pstate)
+  "If PSTATE represents a non-empty top-level defun, return the
+top-most pitem. Otherwise, return nil."
+  (loop for pitem in pstate
+        with func-depth = 0
+        with func-pitem
+        if (eq 'function (espresso--pitem-type pitem))
+        do (incf func-depth)
+        and do (setq func-pitem pitem)
+        finally return (if (eq func-depth 1) func-pitem)))
+
+(defun espresso--beginning-of-defun-nested ()
+  "Internal helper for espresso--beginning-of-defun"
+
+  (or
+   ;; Look for the smallest function that encloses point...
+   (loop for pitem in (espresso--parse-state-at-point)
+         if (and (eq 'function (espresso--pitem-type pitem))
+                 (espresso--inside-pitem-p pitem))
+         do (goto-char (espresso--pitem-h-begin pitem))
+         and return t)
+
+   ;; ...and if that isn't found, look for the previous top-level
+   ;; defun
+   (loop for pstate = (espresso--backward-pstate)
+         while pstate
+         if (espresso--pstate-is-toplevel-defun pstate)
+         do (goto-char (espresso--pitem-h-begin it))
+         and return t)))
+
+(defun espresso--beginning-of-defun-flat ()
+  "Internal helper for espresso--beginning-of-defun"
+
+  (let ((pstate (espresso--beginning-of-defun-raw)))
+    (when pstate
+      (goto-char (espresso--pitem-h-begin (car pstate))))))
 
 (defun espresso--beginning-of-defun ()
-  (cond ((espresso--re-search-backward "\\_<function\\_>" (point-min) t)
-         (let ((pos (point)))
-           (save-excursion
-             (forward-line 0)
-             (when (looking-at espresso--function-heading-2-re)
-               (setq pos (match-beginning 1))))
-           (goto-char pos)))
+  "Used as beginning-of-defun-function"
 
-        (t
-         (goto-char (point-min)))))
+  ;; If we're just past the end of a function, the user probably wants
+  ;; to go to the beginning of *that* function
+  (when (eq (char-before) ?})
+    (backward-char))
+
+  (let ((prologue-begin (espresso--function-prologue-beginning)))
+    (cond ((and prologue-begin (< prologue-begin (point)))
+           (goto-char prologue-begin))
+
+          (espresso-flat-functions
+           (espresso--beginning-of-defun-flat))
+          (t
+           (espresso--beginning-of-defun-nested)))))
+
+(defun espresso--flush-caches (&optional beg ignored)
+  "Flush syntax cache info after position BEG. BEG defaults to
+point-min, flushing the entire cache."
+  (interactive)
+  (setq beg (or beg (save-restriction (widen) (point-min))))
+  (setq espresso--cache-end (min espresso--cache-end beg)))
+
+(defmacro espresso--debug (&rest arguments)
+  ;; `(message ,@arguments)
+  )
+
+(defun espresso--ensure-cache--pop-if-ended (open-items paren-depth)
+  (let ((top-item (car open-items)))
+    (when (<= paren-depth (espresso--pitem-paren-depth top-item))
+      (assert (not (get-text-property (1- (point)) 'espresso-pend)))
+      (put-text-property (1- (point)) (point) 'espresso--pend top-item)
+      (setf (espresso--pitem-b-end top-item) (point))
+      (setq open-items
+            ;; open-items must contain at least two items for this to
+            ;; work, but because we push a dummy item to start with,
+            ;; that assumption holds.
+            (cons (espresso--pitem-add-child (second open-items) top-item)
+                  (cddr open-items)))))
+
+  open-items)
+
+(defmacro espresso--ensure-cache--update-parse ()
+  "Helper for use inside espresso--ensure-cache. Updates parsing
+information up to point. Refers to parse, prev-parse-point,
+goal-point, and open-items bound lexically in the body of
+`espresso--ensure-cache'."
+  `(progn
+     (setq goal-point (point))
+     (goto-char prev-parse-point)
+     (while (progn
+              (setq open-items (espresso--ensure-cache--pop-if-ended
+                                open-items (car parse)))
+              ;; Make sure parse-partial-sexp doesn't stop because we *entered*
+              ;; the given depth -- i.e., make sure we're deeper than the target
+              ;; depth.
+              (assert (> (nth 0 parse)
+                         (espresso--pitem-paren-depth (car open-items))))
+              (setq parse (parse-partial-sexp
+                           prev-parse-point goal-point
+                           (espresso--pitem-paren-depth (car open-items))
+                           nil parse))
+
+              (let ((overlay (make-overlay prev-parse-point (point))))
+                (overlay-put overlay 'face '(:background "red"))
+                (unwind-protect
+;;                     (progn
+;;                       (espresso--debug "parsed: %S" parse)
+;;                       (sit-for 1))
+                  (delete-overlay overlay)))
+
+              (setq prev-parse-point (point))
+              (< (point) goal-point)))
+
+     (setq open-items (espresso--ensure-cache--pop-if-ended
+                       open-items (car parse)))))
+
+(defun espresso--show-cache-at-point ()
+  (interactive)
+  (require 'pp)
+  (let ((prop (get-text-property (point) 'espresso--pstate)))
+    (with-output-to-temp-buffer "*Help*"
+      (pp prop))))
+
+(defun espresso--split-name (string)
+  "Splits a name into its dot-separated parts. Also removes any prototype parts from
+the split name."
+  (save-match-data
+    (split-string string "\\." t)))
+
+(defun espresso--guess-function-name (position)
+  "Guess the name of the function at POSITION, which should be
+the just after the end of the word 'function'. Return the name of
+the function or nil if the name could not be guessed. Clobbers
+match data."
+
+  (save-excursion
+    (goto-char position)
+    (forward-line 0)
+    (cond
+     ((looking-at espresso--function-heading-3-re)
+      (and (eq (match-end 0) position)
+           (match-string-no-properties 1)))
+
+     ((looking-at espresso--function-heading-2-re)
+      (and (eq (match-end 0) position)
+           (match-string-no-properties 1))))))
+
+(defun espresso--clear-stale-cache ()
+  ;; Clear any endings that occur after point
+  (let (end-prop)
+    (save-excursion
+      (while (setq end-prop (espresso--forward-text-property
+                             'espreso--pend))
+        (setf (espresso--pitem-b-end end-prop) nil))))
+
+  ;; Remove any cache properties after this point
+  (remove-text-properties (point) (point-max)
+                          '(espresso--pstate t espresso--pend t)))
+
+(defun espresso--ensure-cache (&optional limit stop-on-end)
+  "Ensures brace cache is valid up to the character before LIMIT.
+LIMIT defaults to point. If STOP-ON-END is non-nil, it must be a
+pitem instance, and espresso--ensure-cache will return when the
+given item ends instead of parsing all the way to LIMIT."
+  (setq limit (or limit (point)))
+  (when (< espresso--cache-end limit)
+
+    (c-save-buffer-state
+        (open-items
+         orig-match-start
+         orig-match-end
+         orig-depth
+         parse
+         prev-parse-point
+         name
+         case-fold-search
+         filtered-class-styles
+         new-item
+         goal-point
+         end-prop)
+
+      ;; Figure out which class styles we need to look for
+      (setq filtered-class-styles
+            (loop for style in espresso--class-styles
+                  if (memq (plist-get style :framework)
+                           espresso-enabled-frameworks)
+                  collect style))
+
+      (save-excursion
+        (save-restriction
+          (widen)
+
+          ;; Find last known good position
+          (goto-char espresso--cache-end)
+          (unless (bobp)
+            (setq open-items (get-text-property
+                              (1- (point)) 'espresso--pstate))
+
+            (unless open-items
+              (goto-char (previous-single-property-change
+                          (point) 'espresso--pstate nil (point-min)))
+
+              (unless (bobp)
+                (setq open-items (get-text-property (1- (point))
+                                                    'espresso--pstate))
+                (assert open-items))))
+
+          (unless open-items
+            ;; Make a placeholder for the top-level definition
+            (setq open-items (list espresso--initial-pitem)))
+
+          (setq parse (syntax-ppss))
+          (setq prev-parse-point (point))
+
+          (espresso--clear-stale-cache)
+
+          (narrow-to-region (point-min) limit)
+
+          (loop while (re-search-forward espresso--quick-match-re-func nil t)
+                for orig-match-start = (goto-char (match-beginning 0))
+                for orig-match-end = (match-end 0)
+                do (espresso--ensure-cache--update-parse)
+                for orig-depth = (nth 0 parse)
+
+                ;; Each of these conditions should return non-nil if
+                ;; we should add a new item and leave point at the end
+                ;; of the new item's header (h-end in the
+                ;; espresso--pitem diagram). This point is the one
+                ;; after the last character nweed to unambiguously
+                ;; detect this construct. If one of these evaluates to
+                ;; nil, the location of the point is ignored.
+                if (cond
+                    ;; In comment or string
+                    ((nth 8 parse) nil)
+
+                    ;; Regular function declaration
+                    ((and (looking-at "\\_<function\\_>")
+                          (setq name (espresso--forward-function-decl)))
+
+                     (when (eq name t)
+                       (setq name (or (espresso--guess-function-name
+                                       orig-match-end)
+                                      t)))
+
+                     ;; Guess function name if we don't have one from
+                     ;; the function preamble
+                     (when (and (eq name t)
+                                (save-excursion
+                                  (goto-char orig-match-end)
+                                  (forward-line 0)
+                                  (looking-at
+                                   espresso--function-heading-2-re)))
+
+                       (setq name (match-string-no-properties 1)))
+
+                     (assert (eq (char-after) ?{))
+                     (forward-char)
+                     (make-espresso--pitem
+                      :paren-depth orig-depth
+                      :h-begin orig-match-start
+                      :type 'function
+                      :name (if (eq name t)
+                                name
+                              (espresso--split-name name))))
+
+                    ;; Macro
+                    ((looking-at espresso--macro-decl-re)
+
+                     ;; Macros often contain unbalanced parentheses.
+                     ;; Make sure that h-end is at the textual end of
+                     ;; the macro no matter what the parenthesis say.
+                     (c-end-of-macro)
+                     (espresso--ensure-cache--update-parse)
+
+                     (make-espresso--pitem
+                      :paren-depth (nth 0 parse)
+                      :h-begin orig-match-start
+                      :type 'macro
+                      :name (list (match-string-no-properties 1))))
+
+                    ;; "Prototype function" declaration
+                    ((looking-at espresso--plain-method-re)
+                     (goto-char (match-beginning 3))
+                     (when (save-match-data
+                             (espresso--forward-function-decl))
+                       (forward-char)
+                       (make-espresso--pitem
+                        :paren-depth orig-depth
+                        :h-begin orig-match-start
+                        :type 'function
+                        :name (nconc (espresso--split-name
+                                      (match-string-no-properties 1))
+                                     (list (match-string-no-properties 2))))))
+
+                    ;; Class definition
+                    ((loop with syntactic-context =
+                           (espresso--syntactic-context-from-pstate open-items)
+                           for class-style in filtered-class-styles
+                           if (and (memq syntactic-context
+                                         (plist-get class-style :contexts))
+                                   (looking-at (plist-get class-style :class-decl)))
+                           do (goto-char (match-end 0))
+                           and return
+                           (make-espresso--pitem
+                            :paren-depth orig-depth
+                            :h-begin orig-match-start
+                            :type class-style
+                            :name (espresso--split-name
+                                   (match-string-no-properties 1))))))
+
+                do (espresso--ensure-cache--update-parse)
+                and do (push it open-items)
+                and do (put-text-property
+                        (1- (point)) (point) 'espresso--pstate open-items)
+                else do (goto-char orig-match-end))
+
+          (goto-char limit)
+          (espresso--ensure-cache--update-parse)
+          (setq espresso--cache-end limit)
+          (setq espresso--last-parse-pos limit)
+          (setq espresso--state-at-last-parse-pos open-items)
+          )))))
+
+(defun espresso--end-of-defun-flat ()
+  "Internal helper for espresso--end-of-defun"
+  (loop while (espresso--re-search-forward "}" nil t)
+        do (espresso--ensure-cache)
+        if (get-text-property (1- (point)) 'espresso--pend)
+        if (eq 'function (espresso--pitem-type it))
+        return t
+        finally do (goto-char (point-max))))
+
+(defun espresso--end-of-defun-nested ()
+  "Internal helper for espresso--end-of-defun"
+  (let ((this-end (save-excursion
+                    (and (espresso--beginning-of-defun-nested)
+                         (progn (espresso--forward-function-decl)
+                                (forward-list)))))
+        found)
+
+    (if (and this-end (< (point) this-end))
+        ;; We're already inside a function; just go to its end.
+        (goto-char this-end)
+
+      ;; Otherwise, go to the end of the next function...
+      (while (and (espresso--re-search-forward "\\_<function\\_>" nil t)
+                  (not (setq found (progn
+                                     (goto-char (match-beginning 0))
+                                     (espresso--forward-function-decl))))))
+
+      (if found (forward-list)
+        ;; ... or eob.
+        (goto-char (point-max))))))
 
 (defun espresso--end-of-defun ()
+  "Used as end-of-defun-function"
   ;; look for function backward. if we're inside it, go to that
   ;; function's end. otherwise, search for the next function's end and
   ;; go there
-  (unless (looking-at "\\_<")
-    (skip-syntax-backward "w_"))
+  (if espresso-flat-functions
+      (espresso--end-of-defun-flat)
 
-  (let ((orig-point (point)) pos)
-    (when (or (looking-at "\\_<function\\_>")
-              (espresso--re-search-backward "\\_<function\\_>" (point-min) t))
-      (goto-char (match-beginning 0))
-      (let* ((func-loc (point))
-             (opening-brace-loc (progn (espresso--forward-function-decl)
-                                       (point))))
+  (let ((prologue-begin (espresso--function-prologue-beginning)))
+    (cond ((and prologue-begin (<= prologue-begin (point)))
+           (goto-char prologue-begin)
+           (espresso--forward-function-decl)
+           (forward-list))
 
-        (cond ((and (<= func-loc orig-point)
-                    (<= orig-point opening-brace-loc))
-               (setq pos opening-brace-loc))
-
-              ((/= 0 (nth 0 (parse-partial-sexp
-                             opening-brace-loc orig-point 0)))
-               (setq pos opening-brace-loc)))))
-
-    (cond
-     (pos (goto-char pos)
-          (forward-list))
-
-     ((espresso--re-search-forward "\\_<function\\_>" (point-max) t)
-      (espresso--end-of-defun))
-
-     (t (goto-char (point-max))))))
+          (t (espresso--end-of-defun-nested))))))
 
 (defun espresso--beginning-of-macro (&optional lim)
   (let ((here (point)))
@@ -361,7 +1174,7 @@ If inside a macro when called, treat the macro as normal text.
 (defun espresso--forward-syntactic-ws (&optional lim)
   "Simple implementation of c-forward-syntactic-ws"
   (save-restriction
-    (when lim (narrow-to-region (point-min) min))
+    (when lim (narrow-to-region (point-min) lim))
     (let ((pos (point)))
       (while (progn
                (forward-comment most-positive-fixnum)
@@ -372,75 +1185,63 @@ If inside a macro when called, treat the macro as normal text.
                        pos
                      (setq pos (point)))))))))
 
-;;; Font Lock
+(defun espresso--up-nearby-list ()
+  "Like (up-list -1), but only considers lists that end nearby"
+  (save-restriction
+    ;; Look at a very small region so our compuation time doesn't
+    ;; explode in pathological cases.
+    (narrow-to-region (max (point-min) (- (point) 500)) (point))
+    (up-list -1)))
 
 (defun espresso--inside-param-list-p ()
   "Return non-nil iff point is inside a function parameter list."
-  (condition-case err
-      (save-excursion
-	(up-list -1)
-	(and (looking-at "(")
-	     (progn (forward-symbol -1)
-		    (or (looking-at "function")
-			(progn (forward-symbol -1) (looking-at "function"))))))
-    (error nil)))
+  (ignore-errors
+    (save-excursion
+      (espresso--up-nearby-list)
+      (and (looking-at "(")
+           (progn (forward-symbol -1)
+                  (or (looking-at "function")
+                      (progn (forward-symbol -1)
+                             (looking-at "function"))))))))
 
-(defconst espresso--function-heading-1-re
-  (concat
-   "^\\s-*function\\s-+\\(" espresso--name-re "\\)")
-  "Regular expression matching the start of a function header. Match group 1
-is the name of the function.")
+(defun espresso--inside-dojo-class-list-p ()
+  "Return non-nil iff point is inside a Dojo multiple-inheritance
+class block."
+  (ignore-errors
+    (save-excursion
+      (espresso--up-nearby-list)
+      (let ((list-begin (point)))
+        (forward-line 0)
+        (and (looking-at espresso--dojo-class-decl-re)
+             (goto-char (match-end 0))
+             (looking-at "\"\\s-*,\\s-*\\[")
+             (eq (match-end 0) (1+ list-begin)))))))
 
-(defconst espresso--function-heading-2-re
-  (concat
-   "^\\s-*\\(" espresso--name-re "\\)\\s-*:\\s-*function\\_>")
-  "Regular expression matching the start of a function entry in
-  an associative array. Match group 1 is the name of the function.")
+(defun espresso--syntax-begin-function ()
+  (when (< espresso--cache-end (point))
+    (goto-char (max (point-min) espresso--cache-end)))
 
-(defconst espresso--macro-decl-re
-  (concat "^\\s-*#\\s-*define\\s-+\\(" espresso--cpp-name-re "\\)\\s-*(")
-  "Regular expression matching a CPP macro definition up to the opening
-parenthesis. Match group 1 is the name of the function.")
+  (let ((pitem))
+    (while (and (setq pitem (car (espresso--backward-pstate)))
+                (not (eq 0 (espresso--pitem-paren-depth pitem)))))
 
-(defconst espresso--keyword-re
-  (espresso--regexp-opt-symbol
-   '("abstract" "break" "case" "catch" "class" "const"
-     "continue" "debugger" "default" "delete" "do" "else"
-     "enum" "export" "extends" "final" "finally" "for"
-     "function" "goto" "if" "implements" "import" "in"
-     "instanceof" "interface" "native" "new" "package"
-     "private" "protected" "public" "return" "static"
-     "super" "switch" "synchronized" "throw"
-     "throws" "transient" "try" "typeof" "var" "void"
-     "volatile" "while" "with"))
-  "Regular expression matching any JavaScript keyword.")
+    (when pitem
+      (goto-char (espresso--pitem-h-begin pitem )))))
 
-(defconst espresso--basic-type-re
-  (espresso--regexp-opt-symbol
-   '("boolean" "byte" "char" "double" "float" "int" "long"
-     "short" "void"))
-  "Regular expression matching any predefined type in JavaScript.")
-
-(defconst espresso--constant-re
-  (espresso--regexp-opt-symbol '("false" "null" "undefined"
-                                 "true" "arguments" "this"))
-  "Regular expression matching any future reserved words in JavaScript.")
+;;; Font Lock
 
 
-(defconst espresso--font-lock-keywords-1
-  (list
-   "\\_<import\\_>"
-   (list espresso--function-heading-1-re 1 font-lock-function-name-face)
-   (list espresso--function-heading-2-re 1 font-lock-function-name-face))
-  "Level one font lock.")
 
-(defconst espresso--font-lock-keywords-2
-  (append espresso--font-lock-keywords-1
-          (list (list espresso--keyword-re 1 font-lock-keyword-face)
-                (cons espresso--basic-type-re font-lock-type-face)
-                (cons espresso--constant-re font-lock-constant-face)))
-  "Level two font lock.")
+(defun espresso--make-framework-matcher (framework &rest regexps)
+  "Create a byte-compiled function that only matches the given
+regular expressions (that concatenation of REGEXPS) if FRAMEWORK
+is in espresso-enabled-frameworks"
 
+  (setq regexps (apply #'concat regexps))
+  (byte-compile
+   `(lambda (limit)
+      (when (memq (quote ,framework) espresso-enabled-frameworks)
+        (re-search-forward ,regexps limit t)))))
 
 ;; Limitations with variable declarations: There seems to be no
 ;; sensible way to highlight variables occuring after an initialized
@@ -464,9 +1265,64 @@ parenthesis. Match group 1 is the name of the function.")
 
     ,@espresso--font-lock-keywords-2
 
+    ("\\.\\(prototype\\)\\_>"
+     (1 font-lock-constant-face))
+
+    ;; Highlights class being declared, in parts
+    (espresso--class-decl-matcher
+     ,(concat "\\(" espresso--name-re "\\)\\(?:\\.\\|.*$\\)")
+     (goto-char (match-beginning 1))
+     nil
+     (1 font-lock-type-face))
+
+    ;; Highlights parent class, in parts, if available
+    (espresso--class-decl-matcher
+     ,(concat "\\(" espresso--name-re "\\)\\(?:\\.\\|.*$\\)")
+     (goto-char (or (match-beginning 2) (point-at-eol)))
+     nil
+     (1 font-lock-type-face))
+
+    ;; Highlights parent class
+    (espresso--class-decl-matcher
+     (2 font-lock-type-face nil t))
+
+    ;; Dojo needs its own matcher to override the string highlighting
+    (,(espresso--make-framework-matcher
+       'dojo
+       "^\\s-*dojo\\.declare\\s-*(\""
+       "\\(" espresso--dotted-name-re "\\)"
+       "\\(?:\"\\s-*,\\s-*\\(" espresso--dotted-name-re "\\)\\)?")
+     (1 font-lock-type-face t)
+     (2 font-lock-type-face nil t))
+
+    ;; Match Dojo base classes. Of course Mojo has to be different
+    ;; from everything else under the sun...
+    (,(espresso--make-framework-matcher
+       'dojo
+       "^\\s-*dojo\\.declare\\s-*(\""
+       "\\(" espresso--dotted-name-re "\\)\"\\s-*,\\s-*\\[")
+     ,(concat "[[,]\\s-*\\(" espresso--dotted-name-re "\\)\\s-*"
+              "\\(?:\\].*$\\)?")
+     (backward-char)
+     (end-of-line)
+     (1 font-lock-type-face))
+
+    ;; continued Dojo base-class list
+    (,(espresso--make-framework-matcher
+       'dojo
+       "^\\s-*" espresso--dotted-name-re "\\s-*[],]")
+     ,(concat "\\(" espresso--dotted-name-re "\\)"
+              "\\s-*\\(?:\\].*$\\)?")
+     (if (save-excursion (backward-char)
+                         (espresso--inside-dojo-class-list-p))
+         (forward-symbol -1)
+       (end-of-line))
+     (end-of-line)
+     (1 font-lock-type-face))
+
     ;; variable declarations
     ,(list
-      (concat "\\_<\\(const\\|var\\)\\_>\\|" espresso--basic-type-re)
+      (concat "\\_<\\(const\\|var\\|let\\)\\_>\\|" espresso--basic-type-re)
       (list (concat "\\(" espresso--name-re "\\)"
                     "\\s-*\\([=;].*\\|\\_<in\\_>.*\\|,\\|/[/*]\\|$\\)")
             nil
@@ -503,28 +1359,96 @@ parenthesis. Match group 1 is the name of the function.")
                  (forward-symbol -1)
                (end-of-line))
             '(end-of-line)
-            '(0 font-lock-variable-name-face)))
+            '(0 font-lock-variable-name-face))))
 
-    ;; class declarations
-    ,@(mapcar #'(lambda (x)
-                  `(,x
-                    (1 font-lock-type-face t t)
-                    (2 font-lock-type-face t t)))
-
-              espresso--class-decls))
   "Level three font lock.")
 
+(defun espresso--inside-pitem-p (pitem)
+  "Return whether point is inside the given pitem's header or body"
+  (espresso--ensure-cache)
+  (assert (espresso--pitem-h-begin pitem))
+  (assert (espresso--pitem-paren-depth pitem))
+
+  (and (> (point) (espresso--pitem-h-begin pitem))
+       (or (null (espresso--pitem-b-end pitem))
+           (> (espresso--pitem-b-end pitem) (point)))))
+
+(defun espresso--parse-state-at-point ()
+  "Get a list of espresso--pitem instances that apply to point,
+most specific first. In the worst case, the current toplevel
+instance will be returned."
+
+  (save-excursion
+    (save-restriction
+      (widen)
+      (espresso--ensure-cache)
+      (let* ((bound (if (eobp) (point) (1+ (point))))
+             (pstate (or (save-excursion
+                           (espresso--backward-pstate))
+                         (list espresso--initial-pitem))))
+
+        ;; Loop until we either hit a pitem at BOB or pitem ends after
+        ;; point (or at point if we're at eob)
+        (loop for pitem = (car pstate)
+              until (or (eq (espresso--pitem-type pitem)
+                            'toplevel)
+                        (espresso--inside-pitem-p pitem))
+              do (pop pstate))
+
+        pstate))))
+
+(defun espresso--syntactic-context-from-pstate (pstate)
+  "Return the syntactic context corresponding to PSTATE"
+  (let ((type (espresso--pitem-type (car pstate))))
+    (cond ((memq type '(function macro))
+           type)
+
+          ((consp type)
+           'class)
+
+          (t 'toplevel))))
+
+(defun espresso-syntactic-context ()
+  "Get the current syntactic context of point. When called
+interatively, also display a message with that context."
+  (interactive)
+  (let* ((syntactic-context (espresso--syntactic-context-from-pstate
+                             (espresso--parse-state-at-point))))
+
+    (when (interactive-p)
+      (message "Syntactic context: %s" syntactic-context))
+
+    syntactic-context))
+
+(defun espresso--class-decl-matcher (limit)
+  "Fontifies according to espresso--class-styles"
+  (loop initially (espresso--ensure-cache limit)
+        while (re-search-forward espresso--quick-match-re limit t)
+        for orig-end = (match-end 0)
+        do (goto-char (match-beginning 0))
+        if (loop for style in espresso--class-styles
+                 for decl-re = (plist-get style :class-decl)
+                 if (and (memq (plist-get style :framework)
+                               espresso-enabled-frameworks)
+                         (memq (espresso-syntactic-context)
+                               (plist-get style :contexts))
+                         decl-re
+                         (looking-at decl-re))
+                 do (goto-char (match-end 0))
+                 and return t)
+        return t
+        else do (goto-char orig-end)))
 
 (defconst espresso--font-lock-keywords
   '(espresso--font-lock-keywords-3 espresso--font-lock-keywords-1
                                    espresso--font-lock-keywords-2
-                            espresso--font-lock-keywords-3)
+                                   espresso--font-lock-keywords-3)
   "See `font-lock-keywords'.")
 
 ;; Note: Javascript cannot continue a regular expression literal
 ;; across lines
 (defconst espresso--regexp-literal
-  "[=(,]\\(?:\\s-\\|\n\\)*\\(/\\)[^/*]\\(?:.*?[^\\]\\)?\\(/\\)"
+  "[=(,:]\\(?:\\s-\\|\n\\)*\\(/\\)[^/*]\\(?:.*?[^\\]\\)?\\(/\\)"
   "Match a regular expression literal. Match groups 1 and 2 are
 the characters forming the beginning and end of the literal")
 
@@ -695,84 +1619,266 @@ returns nil."
     (let ((fill-paragraph-function 'c-fill-paragraph))
       (c-fill-paragraph justify))))
 
-;;; Imenu
+;;; Type database and Imenu
+
+;; We maintain a cache of semantic information, i.e., the classes and
+;; functions we've encountered so far. In order to avoid having to
+;; re-parse the buffer on every change, we cache the parse state at
+;; each interesting point in the buffer. Each parse state is a
+;; modified copy of the previous one, or in the case of the first
+;; parse state, the empty state.
+;;
+;; The parse state itself is just a stack of espresso--pitem
+;; instances. It starts off containing one element that is never
+;; closed, that is initially espresso--initial-pitem.
+;;
+
+
+(defun espresso--pitem-format (pitem)
+  (let ((name (espresso--pitem-name pitem))
+        (type (espresso--pitem-type pitem)))
+
+    (format "name:%S type:%S"
+            name
+            (if (atom type)
+                type
+              (plist-get type :name)))))
+
+(defun espresso--make-merged-item (item child name-parts)
+  "Internal helper for espresso--splice-into-items. Return a new
+item that is the result of merging CHILD into ITEM. NAME-PARTS is
+a list of parts of the name of CHILD that we haven't consumed
+yet."
+
+  (espresso--debug "espresso--make-merged-item: {%s} into {%s}"
+                   (espresso--pitem-format child)
+                   (espresso--pitem-format item))
+
+  ;; If the item we're merging into isn't a class, make it into one
+  (unless (consp (espresso--pitem-type item))
+    (espresso--debug "espresso--make-merged-item: changing dest into class")
+    (setq item (make-espresso--pitem
+                :children (list item)
+
+                ;; Use the child's class-style if it's available
+                :type (if (atom (espresso--pitem-type child))
+                          espresso--dummy-class-style
+                  (espresso--pitem-type child))
+
+                :name (espresso--pitem-strname item))))
+
+  ;; Now we can merge either a function or a class into a class
+  (cons (cond
+         ((cdr name-parts)
+          (espresso--debug "espresso--make-merged-item: recursing")
+          ;; if we have more name-parts to go before we get to the
+          ;; bottom of the class hierarchy, call the merger
+          ;; recursively
+          (espresso--splice-into-items (car item) child
+                                       (cdr name-parts)))
+
+         ((atom (espresso--pitem-type child))
+          (espresso--debug "espresso--make-merged-item: straight merge")
+          ;; Not merging a class, but something else, so just prepend
+          ;; it
+          (cons child (car item)))
+
+         (t
+          ;; Otherwise, merge the new child's items into those
+          ;; of the new class
+          (espresso--debug "espresso--make-merged-item: merging class contents")
+          (append (car child) (car item))))
+        (cdr item)))
+
+(defun espresso--pitem-strname (pitem)
+  "Last part of the name of PITEM as a string or symbol"
+  (let ((name (espresso--pitem-name pitem)))
+    (if (consp name)
+        (car (last name))
+      name)))
+
+(defun espresso--splice-into-items (items child name-parts)
+  "Non-destructively inserts CHILD into the item list ITEMS in
+the proper place as given by NAME-PARTS. If a class doesn't
+exist in the tree, create it. Return the new items list.
+NAME-PARTS is a list of strings given the broken-down class
+name of the item to insert."
+
+  (let ((top-name (car name-parts))
+        (item-ptr items)
+        new-items last-new-item new-cons item)
+
+    (espresso--debug "espresso--splice-into-items: name-parts: %S items:%S"
+             name-parts
+             (mapcar #'espresso--pitem-name items))
+
+    (assert (stringp top-name))
+    (assert (> (length top-name) 0))
+
+    ;; If top-name isn't found in items, then we build a copy of items
+    ;; and throw it away. But that's okay, since most of the time, we
+    ;; *will* find an instance.
+
+    (while (and item-ptr
+                (cond ((equal (espresso--pitem-strname (car item-ptr)) top-name)
+                       ;; Okay, we found an entry with the right name. Splice
+                       ;; the merged item into the list...
+                       (setq new-cons (cons (espresso--make-merged-item
+                                             (car item-ptr) child
+                                             name-parts)
+                                            (cdr item-ptr)))
+
+                       (if last-new-item
+                           (setcdr last-new-item new-cons)
+                         (setq new-items new-cons))
+
+                       ;; ...and terminate the loop
+                       nil)
+
+                      (t
+                       ;; Otherwise, copy the current cons and move onto the
+                       ;; text. This is tricky; we keep track of the tail of
+                       ;; the list that begins with new-items in
+                       ;; last-new-item.
+                       (setq new-cons (cons (car item-ptr) nil))
+                       (if last-new-item
+                           (setcdr last-new-item new-cons)
+                         (setq new-items new-cons))
+                       (setq last-new-item new-cons)
+
+                       ;; Go to the next cell in items
+                       (setq item-ptr (cdr item-ptr))))))
+
+    (if item-ptr
+        ;; Yay! We stopped because we found something, not because
+        ;; we ran out of items to search. Just return the new
+        ;; list.
+        (progn
+          (espresso--debug "search succeeded: %S" name-parts)
+          new-items)
+
+      ;; We didn't find anything. If the child is a class and we don't
+      ;; have any classes to drill down into, just push that class;
+      ;; otherwise, make a fake class and carry on.
+      (espresso--debug "search failed: %S" name-parts)
+      (cons (if (cdr name-parts)
+                ;; We have name-parts left to process. Make a fake
+                ;; class for this particular part...
+                (make-espresso--pitem
+                 ;; ...and recursively digest the rest of the name
+                 :children (espresso--splice-into-items
+                            nil child (cdr name-parts))
+                 :type espresso--dummy-class-style
+                 :name top-name)
+
+              ;; Otherwise, this is the only name we have, so stick
+              ;; the item on the front of the list
+              child)
+            items))))
+
+(defun espresso--pitem-add-child (pitem child)
+  "Copy espresso--pitem PITEM and while copying, push CHILD onto
+its list of children."
+
+  (assert (integerp (espresso--pitem-h-begin child)))
+  (assert (if (consp (espresso--pitem-name child))
+              (loop for part in (espresso--pitem-name child)
+                    always (stringp part))
+            t))
+
+  ;; This trick works because we know (based on our defstructs) that
+  ;; the child list is always the first element, and so the second
+  ;; element and beyond can be shared when we make our "copy".
+  (cons
+
+   (let ((name (espresso--pitem-name child))
+         (type (espresso--pitem-type child)))
+
+     (cond ((cdr-safe name) ; true if a list of at least two elements
+            ;; Use slow path because we need class lookup
+            (espresso--splice-into-items (car pitem) child name))
+
+           ((and (consp type)
+                 (plist-get type :prototype))
+
+            ;; Use slow path because we need class merging. We know
+            ;; name is a list here because down in
+            ;; `espresso--ensure-cache', we made sure to only add
+            ;; class entries with lists for :name
+            (assert (consp name))
+            (espresso--splice-into-items (car pitem) child name))
+
+           (t
+            ;; Fast path
+            (cons child (car pitem)))))
+
+   (cdr pitem)))
+
+
+(defun espresso--pitems-to-imenu (pitems unknown-ctr)
+  "Convert list of pitems PITEMS to imenu format"
+
+  (let (imenu-items pitem pitem-type pitem-name subitems)
+
+    (while (setq pitem (pop pitems))
+      (setq pitem-type (espresso--pitem-type pitem))
+      (setq pitem-name (espresso--pitem-strname pitem))
+      (when (eq pitem-name t)
+        (setq pitem-name (format "[unknown %s]"
+                                 (incf (car unknown-ctr)))))
+
+      (cond
+       ((memq pitem-type '(function macro))
+        (assert (integerp (espresso--pitem-h-begin pitem)))
+        (push (cons pitem-name
+                    (espresso--pitem-h-begin pitem))
+              imenu-items))
+
+       ((consp pitem-type)
+        (setq subitems (espresso--pitems-to-imenu
+                        (espresso--pitem-children pitem)
+                        unknown-ctr))
+        (cond (subitems
+               (push (cons pitem-name subitems)
+                     imenu-items))
+
+              ((espresso--pitem-h-begin pitem)
+               (assert (integerp (espresso--pitem-h-begin pitem)))
+               (setq subitems (list
+                               (cons "[empty]"
+                                     (set-marker
+                                      (make-marker)
+                                      (espresso--pitem-h-begin pitem)))))
+               (push (cons pitem-name subitems)
+                     imenu-items))))
+
+       (t (error "Unknown item type: %S" pitem-type))))
+
+    imenu-items))
 
 (defun espresso--imenu-create-index ()
-  (let ((search-re (mapconcat (lambda (x)
-                                (concat "\\(" x "\\)"))
-                              (list espresso--function-heading-1-re
-                                    espresso--function-heading-2-re
-                                    (concat "\\(?:"
-                                            (mapconcat
-                                             #'identity
-                                             espresso--class-decls "\\|")
-                                            "\\)")
-                                    espresso--macro-decl-re)
-                              "\\|"))
-        entries parent-entries ends tmp syntax)
-    (save-excursion
-      (save-restriction
-        (widen)
-        (goto-char (point-min))
+  "Creates an imenu index for the current buffer"
+  (save-excursion
+    (save-restriction
+      (widen)
+      (goto-char (point-max))
+      (espresso--ensure-cache)
+      (assert (eq espresso--last-parse-pos (point)))
+      (let ((state espresso--state-at-last-parse-pos)
+            (unknown-ctr (cons -1 nil)))
 
-        (while (re-search-forward search-re (point-max) t)
-          (goto-char (match-beginning 0))
-          (setq syntax (syntax-ppss))
-          (unless (or (nth 3 syntax) (nth 4 syntax))
-            (while (and ends (>= (point) (car ends)))
-              (setq tmp     (nreverse entries)
-                    entries (pop parent-entries))
+         ;; Make sure everything is closed
+        (while (cdr state)
+          (setq state
+            (cons (espresso--pitem-add-child (second state) (car state))
+                  (cddr state))))
 
-              (unless tmp
-                (setq tmp (list
-                           (cons "[empty]" (set-marker (make-marker)
-                                                       (car ends))))))
+        (assert (= (length state) 1))
 
-              (pop ends)
-
-              (setcdr (car entries) tmp))
-
-            (cond ((and (not parent-entries) ; regular function or macro
-                        (or (looking-at espresso--function-heading-1-re)
-                            (looking-at espresso--macro-decl-re)))
-
-                   (push (cons (match-string-no-properties 1)
-                               (set-marker (make-marker) (match-beginning 1)))
-                         entries))
-
-                  ;; does one of the espresso--class-decls regexps match?
-                  ((let ((r espresso--class-decls))
-                     (while (and r (not (looking-at (car r) )))
-                       (setq r (cdr r)))
-                     r)
-
-                   (push (cons
-                          (match-string-no-properties 1)
-                          nil)
-                         entries)
-                   (push entries parent-entries)
-                   (setq entries nil)
-                   (goto-char (match-end 1))
-                   (condition-case err
-                       (forward-list)
-                     (error nil))
-                   (push (point) ends))
-
-
-                  ((and parent-entries
-                        (looking-at espresso--function-heading-2-re))
-                   (push (cons (match-string-no-properties 1)
-                               (set-marker (make-marker) (match-beginning 1)))
-                         entries))))
-
-          (goto-char (match-end 0)))
-
-        (while parent-entries
-          (setq tmp     (nreverse entries)
-                entries (pop parent-entries))
-            (setcdr (car entries) tmp))))
-
-    (nreverse entries)))
+        ;; Convert the new-finalized state into what imenu expects
+        (espresso--pitems-to-imenu
+         (car (espresso--pitem-children state))
+         unknown-ctr)))))
 
 (defun espresso--which-func-joiner (parts)
   (mapconcat #'identity parts "."))
@@ -791,6 +1897,7 @@ Key bindings:
 
   (use-local-map espresso-mode-map)
   (set-syntax-table espresso-mode-syntax-table)
+
   (set (make-local-variable 'indent-line-function) 'espresso-indent-line)
   (set (make-local-variable 'beginning-of-defun-function)
        'espresso--beginning-of-defun)
@@ -798,7 +1905,6 @@ Key bindings:
        'espresso--end-of-defun)
 
   (set (make-local-variable 'open-paren-in-column-0-is-defun-start) nil)
-
   (set (make-local-variable 'font-lock-defaults)
        (list espresso--font-lock-keywords
 	     nil nil nil nil
@@ -815,6 +1921,12 @@ Key bindings:
   (setq comment-end "")
   (set (make-local-variable 'fill-paragraph-function)
        'espresso-c-fill-paragraph)
+
+  ;; Parse cache
+  (add-hook 'before-change-functions #'espresso--flush-caches t t)
+
+  ;; Frameworks
+  (espresso--update-quick-match-re)
 
   ;; Imenu
   (setq imenu-case-fold-search nil)
@@ -835,6 +1947,9 @@ Key bindings:
 
   (let ((c-buffer-is-cc-mode t))
     (c-setup-paragraph-variables))
+
+  (set (make-local-variable 'syntax-begin-function)
+       #'espresso--syntax-begin-function)
 
   ;; Important to fontify the whole buffer syntactically! If we don't,
   ;; then we might have regular expression literals that aren't marked
