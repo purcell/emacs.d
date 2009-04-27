@@ -46,6 +46,10 @@
 ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" . espresso-mode))
 ;;    (autoload 'espresso-mode "espresso" nil t)
 ;;
+;; After that, type M-x byte-compile-file and have Emacs byte-compile
+;; this file. Performance is vastly better when this file is
+;; byte-compiled.
+;;
 ;; General Remarks:
 ;;
 ;; XXX: This mode assumes that block comments are not nested inside block
@@ -457,12 +461,14 @@ per-buffer basis."
 
 ;;; KeyMap
 
-(defvar espresso-mode-map (make-sparse-keymap)
+(defvar espresso-mode-map
+  (let ((keymap (make-sparse-keymap)))
+    (mapc (lambda (key)
+            (define-key keymap key #'espresso-insert-and-indent))
+          '("{" "}" "(" ")" ":" ";" ","))
+    (define-key keymap [(control ?c) (meta ?:)] #'espresso-js-eval)
+    keymap)
   "Keymap for espresso-mode")
-
-(mapc (lambda (key)
-        (define-key espresso-mode-map key 'espresso-insert-and-indent))
-	'("{" "}" "(" ")" ":" ";" ","))
 
 (defun espresso-insert-and-indent (key)
   "Runs the command bound to KEY in the global keymap, and if
@@ -896,10 +902,15 @@ goal-point, and open-items bound lexically in the body of
       (pp prop))))
 
 (defun espresso--split-name (string)
-  "Splits a name into its dot-separated parts. Also removes any prototype parts from
-the split name."
-  (save-match-data
-    (split-string string "\\." t)))
+  "Splits a name into its dot-separated parts. Also removes any
+prototype parts from the split name (unless the name is just
+\"prototype\" to start with, that is)."
+  (let ((name (save-match-data
+                (split-string string "\\." t))))
+    (unless (and (= (length name) 1)
+                 (equal (car name) "prototype"))
+
+      (setq name (remove "prototype" name)))))
 
 (defun espresso--guess-function-name (position)
   "Guess the name of the function at POSITION, which should be
@@ -1072,7 +1083,8 @@ given item ends instead of parsing all the way to LIMIT."
                            for class-style in filtered-class-styles
                            if (and (memq syntactic-context
                                          (plist-get class-style :contexts))
-                                   (looking-at (plist-get class-style :class-decl)))
+                                   (looking-at (plist-get class-style
+                                                          :class-decl)))
                            do (goto-char (match-end 0))
                            and return
                            (make-espresso--pitem
@@ -1229,9 +1241,6 @@ class block."
       (goto-char (espresso--pitem-h-begin pitem )))))
 
 ;;; Font Lock
-
-
-
 (defun espresso--make-framework-matcher (framework &rest regexps)
   "Create a byte-compiled function that only matches the given
 regular expressions (that concatenation of REGEXPS) if FRAMEWORK
@@ -1445,8 +1454,9 @@ interatively, also display a message with that context."
                                    espresso--font-lock-keywords-3)
   "See `font-lock-keywords'.")
 
-;; Note: Javascript cannot continue a regular expression literal
-;; across lines
+;; XXX: Javascript can continue a regexp literal across lines so long
+;; as the newline is escaped with \. Account for that in the regexp
+;; below.
 (defconst espresso--regexp-literal
   "[=(,:]\\(?:\\s-\\|\n\\)*\\(/\\)[^/*]\\(?:.*?[^\\]\\)?\\(/\\)"
   "Match a regular expression literal. Match groups 1 and 2 are
@@ -1863,25 +1873,456 @@ its list of children."
       (widen)
       (goto-char (point-max))
       (espresso--ensure-cache)
-      (assert (eq espresso--last-parse-pos (point)))
-      (let ((state espresso--state-at-last-parse-pos)
-            (unknown-ctr (cons -1 nil)))
+      (assert (or (= (point-min) (point-max))
+                  (eq espresso--last-parse-pos (point))))
+      (when espresso--last-parse-pos
+        (let ((state espresso--state-at-last-parse-pos)
+              (unknown-ctr (cons -1 nil)))
 
-         ;; Make sure everything is closed
-        (while (cdr state)
-          (setq state
-            (cons (espresso--pitem-add-child (second state) (car state))
-                  (cddr state))))
+          ;; Make sure everything is closed
+          (while (cdr state)
+            (setq state
+                  (cons (espresso--pitem-add-child (second state) (car state))
+                        (cddr state))))
 
-        (assert (= (length state) 1))
+          (assert (= (length state) 1))
 
-        ;; Convert the new-finalized state into what imenu expects
-        (espresso--pitems-to-imenu
-         (car (espresso--pitem-children state))
-         unknown-ctr)))))
+          ;; Convert the new-finalized state into what imenu expects
+          (espresso--pitems-to-imenu
+           (car (espresso--pitem-children state))
+           unknown-ctr))))))
 
 (defun espresso--which-func-joiner (parts)
   (mapconcat #'identity parts "."))
+
+;;; MozRepl integration
+
+(require 'moz nil t)
+(require 'json nil t)
+
+(put 'espresso-moz-bad-rpc 'error-conditions '(error timeout))
+(put 'espresso-moz-bad-rpc 'error-message "Mozilla RPC Error")
+
+(put 'espresso-js-error 'error-conditions '(error js-error))
+(put 'espresso-js-error 'error-message "Javascript Error")
+
+(defun espresso--wait-for-matching-output (process regexp timeout)
+  "Wait TIMEOUT seconds for PROCESS to output something that
+matches REGEXP. On timeout, return nil. On success, return t with
+match data set."
+  (with-current-buffer (process-buffer process)
+    (loop with start-pos = (marker-position (process-mark process))
+          with end-time = (+ (float-time) timeout)
+          for time-left = (- end-time (float-time))
+          while (> time-left 0)
+          do (accept-process-output process time-left nil t)
+          do (goto-char (process-mark process))
+          if (looking-back regexp start-pos)
+          return t
+          finally do (signal 'espresso-moz-bad-rpc
+                             (list (format "No output matching %S" regexp))))))
+
+(defstruct espresso--js-handle
+  ;; Integer, mirrors the value we see in JS
+  (id nil :read-only t)
+
+  ;; Process to which this thing belongs, or nil if this is a special,
+  ;; immortal handle
+  (process nil))
+
+(defvar espresso--js-references nil
+  "Maps Elisp Javascript proxy objects to their Javascript IDs.
+This variable is local to the MozRepl process buffer.")
+(make-variable-buffer-local 'espresso--js-references)
+
+(defvar espresso--js-process nil
+  "The last process object we saw in this buffer")
+(make-variable-buffer-local 'espresso--js-process)
+
+(defconst espresso--js-global
+  (make-espresso--js-handle :id -1)
+  "Handle of the current Javascript global object. Never appears
+as the value of an expression: i.e., you can send this to
+Javascript, but you will never receive it in reply.")
+
+(defconst espresso--js-null
+  (make-espresso--js-handle :id 0)
+  "Handle of Javascript null")
+
+(defconst espresso--js-true
+  (make-espresso--js-handle :id 1)
+  "Handle of Javascript true")
+
+(defconst espresso--js-false
+  (make-espresso--js-handle :id 2)
+  "Handle of Javascript false")
+
+(defconst espresso--js-undefined
+  (make-espresso--js-handle :id 3)
+  "Handle of Javascript undefined")
+
+(defconst espresso--js-getprop
+  (make-espresso--js-handle :id 4)
+  "Handle of the getprop pseudo-function")
+
+(defconst espresso--js-putprop
+  (make-espresso--js-handle :id 5)
+  "Handle of the putprop pseudo-function")
+
+(defconst espresso--js-delprop
+  (make-espresso--js-handle :id 6)
+  "Handle of the elprop pseudo-function")
+
+(defconst espresso--js-typeof
+  (make-espresso--js-handle :id 7)
+  "Handle of the typeof pseudo-function")
+
+(defconst espresso--js-repl
+  (make-espresso--js-handle :id 8)
+  "Handle of the REPL itself")
+
+(defun espresso--make-handle-hash ()
+  "Make a Javascript handle table"
+  (loop with table = (make-hash-table :test 'eq :weakness t)
+        for special-value in (list espresso--js-null
+                                   espresso--js-true
+                                   espresso--js-false
+                                   espresso--js-undefined
+                                   espresso--js-getprop
+                                   espresso--js-putprop
+                                   espresso--js-delprop
+                                   espresso--js-typeof
+                                   espresso--js-repl)
+        do (puthash (espresso--js-handle-id special-value)
+                    special-value table)
+        finally return table))
+
+(defconst espresso--moz-interactor
+  (replace-regexp-in-string
+   "[ \n]+" " "
+"(function(repl) {
+  repl.defineInteractor('espresso', {
+    onStart: function onStart(repl) {
+      if(!repl._espressoObjects) {
+        repl._espressoObjects = ({
+          /*  -1: current global object, */
+          0: null,
+          1: true,
+          2: false,
+          3: undefined,
+          4: this._getProp,
+          5: this._putProp,
+          6: this._delProp,
+          7: this._typeOf,
+          8: repl});
+        repl._espressoExceptionObjects = {};
+        repl._espressoLastID = 8;
+        repl._espressoGC = this._espressoGC;
+        repl._espressoReplID = 'espresso_' + (Date.now() + Math.random());
+      }
+    },
+
+    _espressoGC: function _espressoGC(ids_in_use) {
+      var objects = this._espressoObjects;
+      var exobjects = this._espressoExceptionObjects;
+      var keys = [];
+      var num_freed = 0;
+
+      for(var pn in objects) {
+        keys.push(Number(pn));
+      }
+
+      keys.sort(function(x, y) x - y);
+      ids_in_use.sort(function(x, y) x - y);
+      var i = 0;
+      var j = 0;
+
+      while(i < ids_in_use.length && j < keys.length) {
+        var id = ids_in_use[i++];
+        while(j < keys.length && keys[j] !== id) {
+          var k_id = keys[j++];
+          delete objects[k_id][this._espressoReplID];
+          delete objects[k_id];
+          delete exobjects[k_id];
+          ++num_freed;
+        }
+        ++j;
+      }
+
+      while(j < keys.length) {
+        var k_id = keys[j++];
+        delete objects[k_id][this._espressoReplID];
+        delete objects[k_id];
+        delete exobjects[k_id];
+        ++num_freed;
+      }
+
+      return num_freed;
+    },
+
+    _getProp: function _getProp(propname) {
+      return this[propname];
+    },
+
+    _putProp: function _putProp(propname, value) {
+      this[propname] = value;
+    },
+
+    _delProp: function _delProp(propname) {
+      delete this[propname];
+    },
+
+    _typeOf: function _typeOf(thing) {
+      return typeof thing;
+    },
+
+    getPrompt: function getPrompt(repl) {
+      return 'EVAL>'
+    },
+
+    _lookupObject: function _lookupObject(repl, id) {
+      if(id === -1) { return window; }
+      var ret = repl._espressoObjects[id];
+      if(ret === undefined && id !== 3) {
+        throw new Error('No object with id:' + id);
+      }
+      return ret;
+    },
+
+    _findOrAllocateObject: function _findOrAllocateObject(repl, value) {
+      if(value.constructor === Object) {
+        for(var id in repl._espressoExceptionObjects) {
+          id = Number(id);
+          var obj = repl._espressoExceptionObjects[id];
+          if(obj === value) {
+            return id;
+          }
+        }
+
+        var id = ++repl._espressoLastID;
+        repl._espressoObjects[id] = repl._espressoExceptionObjects[id] = value;
+        return id;
+      }
+
+      var repl_id = repl._espressoReplID;
+      if(value[repl_id] !== undefined) {
+        return value[repl_id];
+      }
+
+      var id = value[repl_id] = ++repl._espressoLastID;
+      repl._espressoObjects[id] = value;
+      return id;
+    },
+
+    _fixupList: function fixupList(repl, list) {
+      for(var i = 0; i < list.length; ++i) {
+        if(list[i] instanceof Array) {
+          this._fixupList(repl, list[i]);
+        } else if(typeof list[i] === 'object') {
+          list[i] = this._lookupObject(repl, list[i].objid);
+        }
+      }
+    },
+
+    handleInput: function handleInput(repl, input) {
+      try {
+        var parts = eval(input);
+        this._fixupList(repl, parts);
+        var value = parts[0].apply(parts[1], parts.slice(2));
+        if(value === null || value === true || value === false ||
+          value === undefined || typeof value === 'object' |
+          typeof value === 'function')
+        {
+          var ret = ['objid', this._findOrAllocateObject(repl, value) ];
+        } else {
+          var ret = ['atom', value ];
+        }
+      } catch(x) {
+        var ret = ['error', x.toString() ];
+      }
+
+      var JSON = Components.classes['@mozilla.org/dom/json;1'].createInstance(Components.interfaces.nsIJSON);
+      repl.print(JSON.encode(ret));
+      repl.popInteractor();
+      repl._prompt();
+    }
+  });
+})
+")
+
+  "String to set MozRepl up into a simple-minded evaluation mode")
+
+(defun espresso--js-encode-value (x)
+  "Marshall the given value for JS. Strings and numbers get
+JSON-encoded. Lists (including nil) are made into Javascript
+array literals and their contents encoded with
+espresso--js-encode-value."
+
+  (cond ((stringp x) (json-encode-string x))
+        ((numberp x) (json-encode-number x))
+        ((espresso--js-handle-p x)
+
+         ;; Check that the handle hasn't expired
+         (and (espresso--js-handle-process x)
+              (not (eq (espresso--js-handle-process x)
+                       (inferior-moz-process)))
+              (error "Stale JS handle"))
+
+         (format "{objid:%s}" (espresso--js-handle-id x)))
+
+        ((listp x)
+         (concat
+          "[" (mapconcat #'espresso--js-encode-value x ",") "]"))
+
+        (t
+         (error "Unrecognized item: %S" x))))
+
+(defconst espresso--js-prompt-regexp
+  "repl[0-9]*> $")
+
+(defun espresso--js-funcall-raw (function thisp arguments)
+  "Call the Mozilla function FUNCTION with this set to THISP and
+the rest of the given arguments."
+
+  (inferior-moz-process) ; Called for side-effect
+  (let ((argstr (espresso--js-encode-value
+                 (append (list function thisp)
+                         arguments))))
+
+    (with-current-buffer inferior-moz-buffer
+      (goto-char (point-max))
+
+      (unless (eq (inferior-moz-process) espresso--js-process)
+        ;; Do some initialization the first time we see a process
+        (setq espresso--js-process (inferior-moz-process))
+        (setq espresso--js-references (espresso--make-handle-hash))
+
+        ;; Send interactor
+        (comint-send-string espresso--js-process
+                            espresso--moz-interactor)
+        (comint-send-string espresso--js-process
+                            (concat "(" moz-repl-name ");\n"))
+        (espresso--wait-for-matching-output
+         (inferior-moz-process) espresso--js-prompt-regexp 10))
+
+      ;; Mark next line to be sent as special
+      (insert "repl.pushInteractor('espresso');")
+      (comint-send-input nil t)
+      (espresso--wait-for-matching-output
+       (inferior-moz-process) "EVAL>$" 10)
+
+      ;; Actual funcall
+      (insert argstr)
+      (comint-send-input nil t)
+      (espresso--wait-for-matching-output
+       (inferior-moz-process) espresso--js-prompt-regexp 30)
+      (goto-char comint-last-input-end)
+
+      ;; Read the result
+      (let* ((json-array-type 'list)
+             (result (prog1 (json-read)
+                       (goto-char (point-max)))))
+        (ecase (intern (first result))
+          (atom (second result))
+          (objid
+           (or (gethash (second result)
+                        espresso--js-references)
+               (puthash (second result)
+                        (make-espresso--js-handle
+                         :id (second result)
+                         :process (inferior-moz-process))
+                        espresso--js-references)))
+
+          (error (signal 'espresso-js-error (list (second result))))))
+      )))
+
+(defun espresso--js-funcall (function &rest arguments)
+  "Call the function identified by FUNCTION with the given
+ARGUMENTS. FUNCTION is either a Javascript handle, in which case
+it is called directly, a string that is looked up on the global
+object, or a list of properties as for `espresso--js-get'. Except
+in the third case, the `this' value will be null. In the third
+case, the `this' value will be the second-to-list value looked
+up."
+
+  (let ((thisp espresso--js-null))
+    (cond ((espresso--js-handle-p function))
+          ((stringp function)
+           (setq function (espresso--js-get function)))
+          ((null (cdr function))
+           (setq function (espresso--js-get (car function))))
+          (t
+           (setq thisp (apply #'espresso--js-get
+                              (butlast function 1)))
+           (setq function (espresso--js-get thisp
+                                            (car (last function))))))
+
+    (espresso--js-funcall-raw function thisp arguments)))
+
+
+(defun espresso--js-get (object &rest props)
+  "Get the given property of the Javascript object OBJECT. If
+more than one property is listed, the property lookups are
+chained. If OBJECT is a string or number, treat OBJECT and all
+subsequent PROPS as a lookup against the global object. "
+
+  (when (or (stringp object) (numberp object))
+    (setq props (cons object props))
+    (setq object espresso--js-global))
+
+  (assert (loop for prop in props
+                always (or (stringp prop) (numberp prop))))
+  (assert (espresso--js-handle-p object))
+
+  (if props
+      (let ((result (espresso--js-funcall-raw
+                     espresso--js-getprop object
+                     (list (car props)))))
+
+        (if (cdr props)
+            (apply #'espresso--js-get result (cdr props))
+          result))
+    object))
+
+(defun espresso-js-gc ()
+  "Tell the repl about any objects we don't reference anymore"
+  (interactive)
+
+  (when (buffer-live-p inferior-moz-buffer)
+    (with-current-buffer inferior-moz-buffer
+      (save-excursion
+        (goto-char (point-max))
+        (when (and espresso--js-references
+                   (looking-back espresso--js-prompt-regexp
+                                 (save-excursion (forward-line 0) (point))))
+          (let* ((keys (loop for x being the hash-keys
+                            of espresso--js-references
+                            collect x))
+                 (num (espresso--js-funcall
+                       (list espresso--js-repl "_espressoGC")
+                       keys)))
+
+            (when (interactive-p)
+              (message "Cleaned %s entries" num))
+
+            num))))))
+
+(defun espresso-js-eval (js)
+  "Evaluate the Javascript contained in JS and return the
+JSON-decoded result"
+  (interactive "MJavascript to evaluate: ")
+  (let ((result (espresso--js-funcall "eval" js)))
+    (when (interactive-p)
+      (message "%S" result))
+    result))
+
+(defmacro espresso--with-js-context (&body forms)
+  "Execute FORMS in a new MozRepl context"
+  `(progn
+     (espresso--js-funcall (concat moz-repl-name ".enter") [])
+     (unwind-protect
+         (progn ,@forms)
+       (espresso--js-funcall (concat moz-repl-name ".back")))))
 
 ;;; Main Function
 
@@ -1953,11 +2394,12 @@ Key bindings:
 
   ;; Important to fontify the whole buffer syntactically! If we don't,
   ;; then we might have regular expression literals that aren't marked
-  ;; as strings, which will screw up parse-partial-sexp, scan-lists, etc.
-  ;; and and produce maddening "unbalanced parenthesis" errors. When we attempt
-  ;; to find the error and scroll to the portion of the buffer containing the problem,
-  ;; JIT-lock will apply the correct syntax to the regular expresion literal and
-  ;; the problem will mysteriously disappear.
+  ;; as strings, which will screw up parse-partial-sexp, scan-lists,
+  ;; etc. and and produce maddening "unbalanced parenthesis" errors.
+  ;; When we attempt to find the error and scroll to the portion of
+  ;; the buffer containing the problem, JIT-lock will apply the
+  ;; correct syntax to the regular expresion literal and the problem
+  ;; will mysteriously disappear.
   (font-lock-set-defaults)
 
   (let (font-lock-keywords) ; leaves syntactic keywords intact
