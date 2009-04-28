@@ -72,7 +72,6 @@
  '(transient-mark-mode t)
  '(truncate-lines nil)
  '(truncate-partial-width-windows nil)
- '(uniquify-buffer-name-style nil nil (uniquify))
  '(visible-bell t)
  '(whitespace-check-indent-whitespace t)
  '(whitespace-display-in-modeline nil)
