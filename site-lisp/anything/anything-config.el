@@ -164,6 +164,8 @@
 ;;    Show `minibuffer-history'.
 ;;  `anything-gentoo'
 ;;    Start anything with only gentoo sources.
+;;  `anything-surfraw-only'
+;;    Launch only anything-surfraw.
 ;;  `anything-kill-buffers'
 ;;    You can continuously kill buffer you selected.
 ;;  `anything-insert-buffer-name'
@@ -428,6 +430,29 @@ You may bind this command to C-r in minibuffer-local-map / minibuffer-local-comp
   (interactive)
   (anything '(anything-c-source-gentoo
               anything-c-source-use-flags)))
+
+(defun anything-surfraw-only ()
+  "Launch only anything-surfraw.
+If region is marked set anything-pattern to region.
+With one prefix arg search symbol at point.
+With two prefix args allow choosing in which symbol to search."
+  (interactive)
+  (let (search pattern)
+    (cond ((region-active-p)
+           (setq pattern (buffer-substring (region-beginning) (region-end))))
+          ((equal current-prefix-arg '(4))
+           (setq pattern (thing-at-point 'symbol)))
+          ((equal current-prefix-arg '(16))
+           (setq search
+                 (intern
+                  (completing-read "Search in: "
+                                   (list "symbol" "sentence" "sexp" "line" "word"))))
+           (setq pattern (thing-at-point search))))
+    (if pattern
+        (progn
+          (setq pattern (replace-regexp-in-string "\n" "" pattern))
+          (anything 'anything-c-source-surfraw pattern))
+        (anything 'anything-c-source-surfraw))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Anything Applications ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun anything-kill-buffers ()
