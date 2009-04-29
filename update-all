@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+function emacswiki_get {
+  curl -o $1 "http://www.emacswiki.org/emacs/download/$1"
+}
+
 for f in site-lisp/*/.git; do
   echo '***' `dirname $f`
   (cd $f/.. && git pull)
@@ -21,7 +25,7 @@ for f in site-lisp/*/CVS; do
 done
 
 echo '*** anything'
-(cd site-lisp/anything && (for f in anything.el anything-config.el; do curl -o $f "http://www.emacswiki.org/emacs/download/$f"; done))
+(cd site-lisp/anything && (for f in anything.el anything-config.el; do emacswiki_get $f; done))
 
 echo '***' haml
 (cd site-lisp/haml && (for f in haml-mode.el sass-mode.el; do curl -o $f "http://github.com/nex3/haml/blob/master/extra/$f?raw=true"; done))
@@ -38,3 +42,6 @@ echo '***' autocomplete
 
 echo '***' mozrepl
 (cd site-lisp/moz-repl && curl -o moz.el 'http://github.com/bard/mozrepl/tree/master/chrome%2Fcontent%2Fmoz.el?raw=true')
+
+echo '***' twit
+(cd site-lisp/twit && emacswiki_get twit.el)

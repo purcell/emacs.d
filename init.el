@@ -15,6 +15,7 @@
 (setq *rails-support-enabled* t)
 (setq *spell-check-support-enabled* nil)
 (setq *byte-code-cache-enabled* nil)
+(setq *twitter-support-enabled* nil)
 (setq *is-a-mac* (eq system-type 'darwin))
 (setq *is-carbon-emacs* (and *is-a-mac* (eq window-system 'mac)))
 (setq *is-cocoa-emacs* (and *is-a-mac* (eq window-system 'ns)))
@@ -324,6 +325,13 @@ in `exec-path', or nil if no such command exists"
 ;; Luke Gorrie's "lively.el"
 ;;----------------------------------------------------------------------------
 (autoload 'lively "lively" "Interactively updating text" t)
+
+
+;;----------------------------------------------------------------------------
+;; Twitter
+;;----------------------------------------------------------------------------
+(when *twitter-support-enabled*
+  (require 'init-twitter))
 
 
 ;;----------------------------------------------------------------------------
