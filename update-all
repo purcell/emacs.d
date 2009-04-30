@@ -41,7 +41,7 @@ echo '***' autocomplete
 (cd site-lisp/auto-complete && curl -o ac-dabbrev.el http://www.emacswiki.org/emacs/download/ac-dabbrev.el)
 
 echo '***' mozrepl
-(cd site-lisp/moz-repl && curl -o moz.el 'http://github.com/bard/mozrepl/tree/master/chrome%2Fcontent%2Fmoz.el?raw=true')
+(cd site-lisp/moz-repl && curl -o moz.el 'http://github.com/bard/mozrepl/blob/master/chrome/content/moz.el?raw=true')
 
 echo '***' twit
 (cd site-lisp/twit && emacswiki_get twit.el)
