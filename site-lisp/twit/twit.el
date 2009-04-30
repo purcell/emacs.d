@@ -1,5 +1,5 @@
 ;;; Twit.el --- interface with twitter.com
-(defvar twit-version-number "0.1.0")
+(defvar twit-version-number "0.1.1")
 ;; Copyright (c) 2007 Theron Tlax
 ;;           (c) 2008-2009 Jonathan Arkell
 ;; Time-stamp: <2007-03-19 18:33:17 thorne>
@@ -91,6 +91,18 @@
 ;; Feel free to hack on this if you like, and post it back to
 ;; the emacswiki.  Just be sure to increment the version number
 ;; and write a change to the change log. 
+;;
+;; From versions 0.1.0 onwards, versions are incremented like so:
+;; <major>.<minor>.<bugfix/feature>
+;;
+;; Major versions are only incremented when a release is considered
+;; truely stable (i.e. no memory leaks) and doesn't have any bugs.
+;;
+;; Minor version increments happen when there are significant changes
+;; to the file (like changing twit-post-function to twit-post-status)
+;;
+;; bugfix/feature releases are incremented when new features are added
+;; or bugs are fixed, that have little impact.
 
 ;;; Testing: 
 ;; Best way to test it in default mode: 
@@ -200,6 +212,8 @@
 ;;          - Properly Makred my own, and Therons changes in the changelog.
 ;;          - Added macro for displaying tiwtter buffers
 ;;          - commentary, installing, and other documentation improved.
+;; * 0.1.1  - Fixed image bug with filename collisions.
+;;          - Fixed bug with twit-follow-recent-tweets
 
 ;;; Bugs:
 ;; * Follow-recent-tweets might have a serious memory leak.  This
@@ -214,6 +228,8 @@
 ;; v1.0 release
 ;; - optionally authenticate via open-auth instead of http auth.
 ;; - Fix memory leak.
+;; - Fix zebra tables
+;; - fix the mark getting hosed.
 ;;
 ;; Post 1.0
 ;; - make the user images float right.  (thanks busytoby)
@@ -492,7 +508,7 @@ search."
 (defconst twit-friend-list-url
   (concat twit-base-url "/statuses/friends.xml"))
 (defconst twit-mentions-url
-  (concat twit-base-url "/statuses/mentions.xml"))
+  (concat twit-base-url "/statuses/mentions.xml?page=%s"))
 
 (defconst twit-rate-limit-file
   (concat twit-base-url "/account/rate_limit_status.xml"))
@@ -798,7 +814,7 @@ It is in the format of (timestamp user-id message) ")
   ;; this needs more TLC
   (if twit-debug-mem (message (garbage-collect))))
 
-;;* tweet direct write
+;;* tweet direct write image
 (defun twit-write-tweet (tweet &optional filter-tweets times-through)
   "Inserts a tweet into the current buffer.
 `tweet' should be an xml parsed node, which could be a message node or a status node.
@@ -810,7 +826,7 @@ It is in the format of (timestamp user-id message) ")
 		 (user-name (xml-first-childs-value user-info 'name))
 		 (location (xml-first-childs-value user-info 'location))
 		 (user-img (if twit-show-user-images
-					   (twit-get-user-image (xml-first-childs-value user-info 'profile_image_url))
+					   (twit-get-user-image (xml-first-childs-value user-info 'profile_image_url) user-id)
 					   nil))
 		 
 		 (timestamp (xml-first-childs-value tweet 'created_at))
@@ -889,16 +905,16 @@ It is in the format of (timestamp user-id message) ")
 
 ;;* image todo
 ; This should check to see if the url is stored locally, and if so, don't retrieve
-(defun twit-get-user-image (url)
+(defun twit-get-user-image (url user-id)
   "Retrieve the user image from the list, or from the URL"
   (let ((img (assoc url twit-user-image-list)))
 	(if (and img (not (bufferp (cdr img))))
 		(cdr (assoc url twit-user-image-list))
-		(if (file-exists-p (concat twit-user-image-dir "/" (file-name-nondirectory url)))
-			(let ((img (create-image (concat twit-user-image-dir "/" (file-name-nondirectory url)))))
+		(if (file-exists-p (concat twit-user-image-dir "/" user-id "-" (file-name-nondirectory url)))
+			(let ((img (create-image (concat twit-user-image-dir "/" user-id "-" (file-name-nondirectory url)))))
 			  (add-to-list 'twit-user-image-list (cons url img))
 			  img)
-			(let ((url-buffer (url-retrieve url 'twit-write-user-image (list url))))
+			(let ((url-buffer (url-retrieve url 'twit-write-user-image (list url user-id))))
 			  (if url-buffer
 				  (progn
 				   (add-to-list 'twit-user-image-list (cons url url-buffer))
@@ -907,9 +923,9 @@ It is in the format of (timestamp user-id message) ")
 			  nil)))))
 
 ;;* image todo
-(defun twit-write-user-image (status url)
+(defun twit-write-user-image (status url user-id)
   "Called by twit-get-user-image, this performs the actual writing of the status url."
-  (let ((image-file-name (concat twit-user-image-dir "/" (file-name-nondirectory url))))
+  (let ((image-file-name (concat twit-user-image-dir "/" user-id "-" (file-name-nondirectory url))))
 	(when (not (file-directory-p twit-user-image-dir))
 		  (make-directory twit-user-image-dir))
 	(setq buffer-file-coding-system 'no-conversion)
@@ -1039,6 +1055,14 @@ It is in the format of (timestamp user-id message) ")
     (back-to-indentation)
     (thing-at-point 'word))))
 
+
+(defun twit-check-page-prefix (page)
+   "For use with an interactive function.  Checks the prefix arg, and returns a valid page."
+   (if (or (null page)
+		   (<= page 1))
+	   1
+	   page))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Main interactive functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1158,7 +1182,7 @@ long."
 
 You can change the time between each check by customizing `tiwt-follow-idle-interval'."
   (interactive)
-  (twit-show-recent-tweets)
+  (twit-show-recent-tweets nil)
   (twit-verify-and-set-rate-limit (twit-get-rate-limit))
   (setq twit-rate-limit-timer (run-with-timer twit-rate-limit-interval twit-rate-limit-interval 'twit-get-and-set-async-rate-limit))
   (setq twit-timer (run-with-timer twit-shadow-follow-idle-interval twit-shadow-follow-idle-interval 'twit-follow-recent-tweets-timer-function)))
@@ -1188,9 +1212,7 @@ empty.  This is being worked on.
 
 Patch version from Ben Atkin."
   (interactive "P")
-  (when (or (null page)
-			(<= page 1))
-		(setq page 1))
+  (setq page (twit-check-page-prefix page))
   (let ((b (get-buffer-create "*Twit-recent*")))
     (display-buffer b)
     (with-current-buffer b
@@ -1219,14 +1241,6 @@ Note that this is currently \"in beta\". It will get better."
 											   (url-hexify-string term))
 									   "GET"))))
 
-(defun twit-search-at-to-me ()
-  "Run a twitter search for any @user messages addressed to you."
-  (interactive)
-  (with-twitter-buffer (concat "*Twit-Search-@" twit-user "*")
-	(twit-write-search (twit-parse-xml (format twit-search-url
-											   (url-hexify-string (concat "@" twit-user)))
-									   "GET"))))
-
 ;;* direct refactorme show interactive memoryleak
 ;; minor modes might be a cause of the memoryleak, see about removing them
 ;;;###autoload
@@ -1235,9 +1249,7 @@ Note that this is currently \"in beta\". It will get better."
 
 With a numeric prefix argument, it will skip to that page like `twit-show-recent-tweets'."
    (interactive "P")
-   (when (or (null page)
-			 (<= page 1))
-		 (setq page 1))
+   (setq page (twit-check-page-prefix page))
    (let ((b (get-buffer-create "*Twit-direct*")))
 	 (display-buffer b)
 	 (with-current-buffer b
@@ -1254,6 +1266,25 @@ With a numeric prefix argument, it will skip to that page like `twit-show-recent
 		(text-mode)
 		(toggle-read-only 1)
 		(use-local-map twit-status-mode-map))))
+
+;;* at-you show interactive
+;;###autoload
+(defun twit-show-at-tweets (page)
+  "Display a list of tweets that were @ you.
+
+With a numeric prefix argument, it will skip to that page like `twit-show-recent-tweets'."
+  (interactive "P")
+  (setq page (twit-check-page-prefix page))
+  (with-twitter-buffer (concat "*Twit-at-" twit-user "*")
+    (twit-insert-with-overlay-attributes (format-time-string (concat "Twit @" twit-user ": %c\n"))
+										 '((face . "twit-title-face")))
+	(let ((times-through 0))
+	  (dolist (status-node (xml-get-children (cadr (twit-parse-xml (format twit-mentions-url page) "GET")) 'status))
+			  (twit-write-tweet status-node t times-through)
+			  (setq times-through (+ 1 times-through))))))
+
+(defalias 'twit-search-at-to-me 'twit-show-at-tweets
+  "Aliased to `twit-show-at-tweets', does the same thing with a better interface.")
 
 ;;* mode
 ;;;###autoload
