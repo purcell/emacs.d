@@ -45,3 +45,6 @@ echo '***' mozrepl
 
 echo '***' twit
 (cd site-lisp/twit && emacswiki_get twit.el)
+
+echo '***' lacarte
+(cd site-lisp/lacarte && emacswiki_get lacarte.el)

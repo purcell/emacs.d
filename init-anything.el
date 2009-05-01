@@ -5,6 +5,7 @@
         anything-c-source-buffers
         anything-c-source-recentf
         anything-c-source-files-in-current-dir
+        anything-c-source-lacarte
         anything-c-source-emacs-commands
         anything-c-source-emacs-functions
         anything-c-source-minibuffer-history))
