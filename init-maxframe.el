@@ -6,7 +6,7 @@
   (setq mf-max-width 1440)
   (setq mf-max-height 900)
   (setq mf-offset-x 0))
-(add-hook 'window-setup-hook 'maximize-frame t)
+(add-hook 'after-make-window-system-frame-hooks 'maximize-frame t)
 
 (defun maximized-p (&optional frame)
   (and (<= (abs (- (mf-max-display-pixel-width) (frame-pixel-width frame))) (frame-char-width frame))

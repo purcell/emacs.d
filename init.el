@@ -103,6 +103,28 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
+;; Add hooks to allow conditional setup of window-system and console frames
+;;----------------------------------------------------------------------------
+(defvar after-make-console-frame-hooks '()
+  "Hooks to run after creating a new TTY frame")
+(defvar after-make-window-system-frame-hooks '()
+  "Hooks to run after creating a new window-system frame")
+
+(defun run-after-make-frame-hooks (frame)
+  "Selectively run either `after-make-console-frame-hooks' or
+`after-make-window-system-frame-hooks'"
+  (select-frame frame)
+  (run-hooks (if window-system
+                 'after-make-window-system-frame-hooks
+               'after-make-console-frame-hooks)))
+
+(add-hook 'after-make-frame-functions 'run-after-make-frame-hooks)
+(add-hook 'after-init-hook
+      (lambda ()
+        (run-after-make-frame-hooks (selected-frame))))
+
+
+;;----------------------------------------------------------------------------
 ;; Console-specific set-up
 ;;----------------------------------------------------------------------------
 (defun fix-up-xterm-control-arrows ()
@@ -111,13 +133,13 @@ in `exec-path', or nil if no such command exists"
   (define-key function-key-map "\e[1;5C" [C-right])
   (define-key function-key-map "\e[1;5D" [C-left]))
 
-(unless window-system
-  (progn
-    (fix-up-xterm-control-arrows)
-    (xterm-mouse-mode 1) ; Mouse in a terminal (Use shift to paste with middle button)
-    (mwheel-install)
-    (menu-bar-mode nil) ; Use F10 from minibuffer to get menus
-    ))
+(add-hook 'after-make-console-frame-hooks
+          (lambda ()
+            (fix-up-xterm-control-arrows)
+            (xterm-mouse-mode 1) ; Mouse in a terminal (Use shift to paste with middle button)
+            (mwheel-install)
+            (menu-bar-mode 0) ; Use F10 from minibuffer to get menus
+            ))
 
 
 ;;----------------------------------------------------------------------------

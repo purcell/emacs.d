@@ -41,8 +41,10 @@
    (color-theme-zenburn)
    (set-face-attribute 'default nil :background "#1f1f1f")))
 
-(high-contrast)
 
+(set-variable 'color-theme-is-global nil)
+(add-hook 'after-make-window-system-frame-hooks 'high-contrast)
+(add-hook 'after-make-console-frame-hooks 'color-theme-emacs-21)
 
 
 (provide 'init-themes)
