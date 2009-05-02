@@ -1,5 +1,5 @@
 ;;; Twit.el --- interface with twitter.com
-(defvar twit-version-number "0.1.1")
+(defvar twit-version-number "0.2.0")
 ;; Copyright (c) 2007 Theron Tlax
 ;;           (c) 2008-2009 Jonathan Arkell
 ;; Time-stamp: <2007-03-19 18:33:17 thorne>
@@ -80,7 +80,6 @@
 ;; security problems are dealt with. 
 ;;
 
-
 ;;; Notes:
 ;; `twit-user' gets my vote for variable name of the year.  Ditto
 ;; `twit-mode' for mode names.
@@ -108,7 +107,7 @@
 ;; Best way to test it in default mode: 
 ;;   emacs --no-site-file --no-init-file
 ;; In scratch buffer:
-
+;; (load "~/my-elisp/twit.el")
 
 ;;; History:
 ;; Originally by theron tlax <thorne@timbral.net> 2007-3-16 
@@ -211,15 +210,32 @@
 ;;            features.  More and better searches to come.
 ;;          - Properly Makred my own, and Therons changes in the changelog.
 ;;          - Added macro for displaying tiwtter buffers
-;;          - commentary, installing, and other documentation improved.
-;; * 0.1.1  - Fixed image bug with filename collisions.
-;;          - Fixed bug with twit-follow-recent-tweets
+;;          - commentary, installing, and other documentation improved. (JA)
+;; * 0.1.1  - Fixed image bug with filename collisions. (thanks @learnemacs)
+;;          - Fixed bug with twit-follow-recent-tweets (thanks @busytoby) (JA)
+;; * 0.2.0  - Added the ability to follow people.
+;;          - changed underlying code.  twit-post-function is now a general
+;;            function for POSTing api messages to twitter.  twit-post-status
+;;            is the specific function to post a status message.
+;;          - Display of favorite tweets
+;;          - Raw posting of favorite tweets
+;;          - Post favorite tweets with *, remove favorites with - 
+;;          - infrastructure to handle reply-to's a lot better (coming soon)
+;;          - hitting 's' when the point is on a #tag or @name will search
+;;            that entity.
+;;          - @names have basic keymaps, like a)dd p)ost to and d)irect msg
+;;          - Regex for determining what is and isn't a hashtag should be
+;;            better.
 
 ;;; Bugs:
 ;; * Follow-recent-tweets might have a serious memory leak.  This
 ;;   probably has to do with the temporary buffers that are being created
 ;; * zebra tables are hosed with filtering
 ;; * too much Unilinguality.  Multi-lingual messages would be ideal.
+;; * Arg.  the mark gets hosed by twit.el.  This needs to be fixed soon.
+;;   (found by wilane)
+;; * notifications are bunk and need to be re-jiggered, and fit in with
+;;   at searches and direct messagse
 
 ;; Please report bugs to the twit emacs wiki page at:
 ;;   http://www.emacswiki.org/cgi-bin/wiki/TwIt
@@ -230,6 +246,9 @@
 ;; - Fix memory leak.
 ;; - Fix zebra tables
 ;; - fix the mark getting hosed.
+;; - make follow smarter, and give the latest tweet id as an arg
+;; - make follow general, so direct messages and at messages are
+;;   updated.
 ;;
 ;; Post 1.0
 ;; - make the user images float right.  (thanks busytoby)
@@ -424,6 +443,15 @@ search."
   "Title Area of the recent tweets buffer."
   :group 'twit)
 
+(defface twit-hash-at-face
+  '((((class color) (background light))
+	 (:foreground "GoldenRod3"))
+	(((class color) (background dark))
+	 (:foreground "GoldenRod"))
+	(t (:underline "white")))
+  "Face to show @msgs in"
+  :group 'twit)
+
 (defface twit-zebra-1-face
   '((((class color) (background light))
 	 (:background "gray89"))
@@ -449,6 +477,16 @@ search."
   "Color of twit.el errors."
   :group 'twit)
 
+(defface twit-favorite-face
+  '((((class color))
+	 (:family "mono"
+	  :weight bold
+	  :height 2.0
+	  :foreground "gold1"))
+	(t (:underline white)))
+  "Face for displaying the favorite"
+  :group 'twit)
+
 (defface twit-fail-whale-face
   '((((class color))
 	 (:family "mono"
@@ -468,6 +506,10 @@ search."
 	("f" . twit-list-followers)
 	("p" . twit-post)
     ("d" . twit-direct)
+	("*" . twit-add-favorite)
+	("-" . twit-remove-favorite)
+	("a" . twit-add-friend)
+	("k" . twit-remove-friend)
 	("h" . twit-mode-help)
 	("?" . twit-mode-help)))
 
@@ -494,13 +536,14 @@ search."
 (defvar twit-first-time-through nil)
 
 
+;;* const url
 (defconst twit-base-search-url "http://search.twitter.com")
-(defconst twit-base-url "http://twitter.com")
+(defconst twit-base-url "https://twitter.com")
 
 (defconst twit-update-url 
   (concat twit-base-url "/statuses/update.xml"))
 (defconst twit-puplic-timeline-file
-  (concat twit-base-url "/statuses/public_timeline.xml"))
+  (concat twit-base-url "/statuses/public_timeline.xml?page=%s"))
 (defconst twit-friend-timeline-file
   (concat twit-base-url "/statuses/friends_timeline.xml?page=%s"))
 (defconst twit-followers-file
@@ -518,9 +561,20 @@ search."
 (defconst twit-direct-msg-get-url
   (concat twit-base-url "/direct_messages.xml"))
 
+(defconst twit-add-friend-url
+  (concat twit-base-url "/friendships/create/%s.xml"))
+(defconst twit-remove-friend-url
+  (concat twit-base-url "/friendships/destroy/%s.xml"))
+
+(defconst twit-add-favorite-url
+  (concat twit-base-url "/favorites/create/%s.xml"))
+(defconst twit-remove-favorite-url
+  (concat twit-base-url "/favorites/destroy/%s.xml"))
+
 (defconst twit-search-url
   (concat twit-base-search-url "/search.atom?q=%s"))
 
+;;* const msg
 (defconst twit-post-success-msg 
   "Post sent!")
 (defconst twit-direct-success-msg
@@ -531,6 +585,28 @@ search."
 (defconst twit-too-long-msg 
   "Post not sent because length exceeds 140 characters")
 
+(defconst twit-add-friend-success-msg
+  "Friend successfully added!")
+(defconst twit-add-friend-fail-msg
+  "Friend addition failed.")
+
+(defconst twit-remove-friend-success-msg
+  "Friend successfully removed!")
+(defconst twit-remove-friend-fail-msg
+  "Friend removal failed.")
+
+(defconst twit-add-favorite-success-msg
+  "Tweet set to favorite")
+(defconst twit-add-favorite-fail-msg
+  "Setting tweet to favorite failed.")
+
+(defconst twit-remove-favorite-success-msg
+  "Tweet removed as favorite,")
+(defconst twit-remove-favorite-fail-msg
+  "Tweet favorite removal failed.")
+
+
+;;* const
 (defconst twit-standard-rate-limit 100)
 
 (defconst twit-rate-limit-offset 5
@@ -539,22 +615,36 @@ search."
 (defconst twit-rate-limit-interval (* 2 60 60)
   "Every 2 Hours check for rate limiting.")
 
+;;* const regex
 (defconst twit-filter-at-tweets-retweet-regex "\\bRT[ :]*@"
   "Retweets are tweets that do contain at messages that might be actually interesting.")
 
+(defconst twit-hash-at-regex "\\([#@][a-zA-Z0-9$%!^&*_-+=.]+\\)"
+  "Regular expression form for matching hashtags (#) and directions (@).")
+
+;; regex testing:
+;; @_miaux #twit.el #foo @foo @foo-bar 
+
+
+;;* const
 (defconst twit-request-headers `(("X-Twitter-Client" . "twit.el")
 								 ("X-Twitter-Client-Version" . ,twit-version-number)
 								 ("X-Twitter-Client-URL" . "http://www.emacswiki.org/cgi-bin/emacs/twit.el")))
 
+;;* macro
 (defmacro with-twitter-buffer (buffer-name &rest forms)
-  "Create a twitter buffer with name BUFFER-NAME, and execute FORMS."
-  `(let ((b (get-buffer-create ,buffer-name)))
-	 (display-buffer b)
-	 (with-current-buffer b
-	   (toggle-read-only 0)
-	   ,@forms
-	   (toggle-read-only 1)
-	   (use-local-map twit-status-mode-map))))
+  "Create a twitter buffer with name BUFFER-NAME, and execute FORMS.
+
+The value returned is the current buffer."
+  `(with-current-buffer (get-buffer-create ,buffer-name)
+	(buffer-disable-undo)
+	(toggle-read-only 0)
+	(kill-region (point-min) (point-max))
+	,@forms
+	(toggle-read-only 1)
+	(use-local-map twit-status-mode-map)
+	(goto-char (point-min))
+	(current-buffer)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Internal Library Functions
@@ -703,12 +793,12 @@ This will give us a Guarantee that our posting atually did work."
   (cond
     ((null err) (twit-alert success-msg))
 	(t (twit-alert error-msg)
-	   (message "Post HTTP error was: %s" err)
-	   (if twit-debug (message ("%s" buffer-string)))))
+	   (message "Post HTTP error was: %s\n(_x____}<\n" err)
+	   (if twit-debug (message "%s" (buffer-string)))))
   (kill-buffer (current-buffer)))
 
 ;;* post status
-(defun twit-post-function (url post)
+(defun twit-post-status (url post)
   (let ((url-request-method "POST")
 	(url-request-data (concat "source=twit.el&status=" (url-hexify-string post)))
         ;; these headers don't actually do anything (yet?) -- the 
@@ -726,6 +816,19 @@ This will give us a Guarantee that our posting atually did work."
 		(url-request-headers twit-request-headers))
 	(if twit-debug (twit-alert url-request-data))
 	(url-retrieve twit-direct-msg-send-url 'twit-handle-post (list twit-direct-success-msg twit-post-failed-msg))))
+
+;; post helper
+(defun twit-post-function (url data success-msg fail-msg)
+  "Send a generalized POST request to twitter."
+  (let ((url-request-method "POST")
+		(url-request-data (concat data
+								  (if (string-equal "" data)
+									  "?"
+									  "&")
+								  "source=twit.el"))
+		(url-request-headers twit-request-headers))
+	(if twit-debug (twit-alert (format "Posting to %s with %s" url data)))
+	(url-retrieve url 'twit-handle-post (list success-msg fail-msg))))
 
 ;;* rate 
 (defun twit-parse-rate-limit (xml)
@@ -788,10 +891,6 @@ It is in the format of (timestamp user-id message) ")
 ;;; xml parsing is a little hacky and needs work.
 ;;* tweets write memoryleak last-tweet
 (defun twit-write-recent-tweets (xml-data) 
-  (buffer-disable-undo)
-  (delete-region (point-min) (point-max))
-  (twit-insert-with-overlay-attributes (format-time-string "Last updated: %c\n")
-									   '((face . "twit-title-face")))
   (if (twit-header-error-p (twit-parse-header (car xml-data)))
 	  (twit-display-error xml-data)
 	  (let* ((first-tweet (xml-first-child (cadr xml-data) 'status))
@@ -821,7 +920,8 @@ It is in the format of (timestamp user-id message) ")
 `filter-tweets' is an optional boolean to disregard filtering.
 `times-through' is an integer representing the number of times a tweet has been
   displayed, for zebra-tabling."
-  (let* ((user-info (or (xml-first-child tweet 'user) (xml-first-child tweet 'sender)))
+  (let* ((tweet-id (xml-first-childs-value tweet 'id))
+		 (user-info (or (xml-first-child tweet 'user) (xml-first-child tweet 'sender)))
 		 (user-id (or (xml-first-childs-value user-info 'screen_name) "??"))
 		 (user-name (xml-first-childs-value user-info 'name))
 		 (location (xml-first-childs-value user-info 'location))
@@ -832,7 +932,8 @@ It is in the format of (timestamp user-id message) ")
 		 (timestamp (xml-first-childs-value tweet 'created_at))
 		 (message (xml-substitute-special (xml-first-childs-value tweet 'text)))
 		 (src-info (xml-first-childs-value tweet 'source))
-		 
+         (favorite (xml-first-childs-value tweet 'favorited))
+
 		 (overlay-start 0)
 		 (overlay-end 0))
 	
@@ -856,7 +957,13 @@ It is in the format of (timestamp user-id message) ")
 				(insert " ")
 				(insert-image user-img)
 				(insert " "))
-					  
+
+		  (insert " ")
+          (if (string-equal "true" favorite)
+			  (twit-insert-with-overlay-attributes "*" '((face . "twit-favorite-face")))
+			  (insert "  "))
+		  (insert " ")
+		  
 		  (twit-insert-with-overlay-attributes (format "%25s" 
 													   (concat user-id
 															   (if user-name
@@ -864,7 +971,7 @@ It is in the format of (timestamp user-id message) ")
 																   "")))
 											   '((face . "twit-author-face")))
 		  (insert ": ")
-		  (twit-insert-with-overlay-attributes message
+		  (twit-insert-with-overlay-attributes (twit-keymap-and-fontify-ats message)
 											   '((face . "twit-message-face")))
 		  (insert "\n")
 					  
@@ -878,9 +985,47 @@ It is in the format of (timestamp user-id message) ")
 				 '((face . "twit-info-face"))))
 		  (setq overlay-end (point))
 		  (let ((o (make-overlay overlay-start overlay-end)))
-			(overlay-put o 'face (if (= 0 (% times-through 2))
-									 "twit-zebra-1-face"
-									 "twit-zebra-2-face"))))))
+			(overlay-put o 
+						 'face (if (= 0 (% times-through 2))
+								   "twit-zebra-1-face"
+								   "twit-zebra-2-face"))
+			(overlay-put o 'twit-id tweet-id)
+			(overlay-put o 'twit-user user-id)))))
+
+;;* write helper
+(defun twit-write-title (title &rest args)
+  "Helper function to write out a title bar for a twit buffer."
+  (twit-insert-with-overlay-attributes (apply 'format title args)
+									   '((face . "twit-title-face"))))
+
+;;* write helper
+(defun twit-keymap-and-fontify-ats (message)
+  "Scan through message, and fontify and keymap all #foo and @foo."
+  (if (not (string-match twit-hash-at-regex message))
+	  message
+	  (replace-regexp-in-string twit-hash-at-regex
+								(lambda (str)
+								  (let ((map (make-sparse-keymap))
+										(type (substring str 0 1))
+										(thing (substring str 1)))
+								    (cond ((string-equal "@" type)
+										   (define-key map "s" 'twit-search)
+										   (define-key map "d" 'twit-direct)
+										   (define-key map "p" 'twit-post))
+										  ((string-equal "#" type)
+										   (define-key map "s" 'twit-search))
+										  (t (error "Unreachable state in twit-keymap-and-fontify-ats!")))
+									(setq str (propertize str
+														  'face 'twit-hash-at-face
+														  'pointer 'hand
+														  'keymap map))
+									(when (string-equal "@" type)
+										  (setq str  (propertize str 'twit-user thing)))
+									(propertize str 'twit-search (concat type thing))))
+								message)))
+
+(defmacro twit-hash-at-interactive (cmd str)
+  `(lambda () (interactive) (,cmd ,str)))
 
 ;;* search write
 (defun twit-write-search (atom-data)
@@ -888,19 +1033,27 @@ It is in the format of (timestamp user-id message) ")
   (buffer-disable-undo)
   (delete-region (point-min) (point-max))
   (twit-display-error atom-data)
-  (twit-insert-with-overlay-attributes (format "Search: %s \n" (xml-first-childs-value (cadr atom-data) 'title))
-									   '((face . "twit-title-face")))
+  (twit-write-title "Search (%s): %s \n" (xml-first-childs-value (cadr atom-data) 'title) (format-time-string "%c"))
   (dolist (entry-node (xml-get-children (cadr atom-data) 'entry))
 	 (let* ((message (xml-first-childs-value entry-node 'title))
 			(user (xml-first-childs-value (xml-first-child entry-node 'author) 'name))
 			(user-img (xml-get-attribute (xml-first-child entry-node 'link) 'href)))
 	   (insert (format "%30s: %s\n" user message)))))
 
-;;* image
+
+;;; Helper function to insert text into buffer, add an overlay and
+;;; apply the supplied attributes to the overlay
+;;* helper write
+(defun twit-insert-with-overlay-attributes (text attributes)
+  (let ((start (point)))
+    (insert text)
+    (let ((overlay (make-overlay start (point))))
+      (dolist (spec attributes)
+			  (overlay-put overlay (car spec) (cdr spec))))))
+
+;;* image var
 (defvar twit-user-image-list 'nil
   "List containing all user images")
-
-;;* image
 (setq twit-user-image-list 'nil)
 
 ;;* image todo
@@ -944,16 +1097,17 @@ It is in the format of (timestamp user-id message) ")
   "Timer function for recent tweets, called via a timer"
   (twit-parse-xml-async (format twit-friend-timeline-file 1) 'twit-follow-recent-tweets-async-callback))
 
-;;* recent async 
+;;* recent async timer
 (defun twit-follow-recent-tweets-async-callback (status url xml)
+  "Callback function, called by `twit-follow-recent-tweets-timer-function'"
   (when (not status)
 		(save-window-excursion
-		 (set-buffer (get-buffer-create "*Twit-recent*"))
-		 (toggle-read-only 0)
-		 (twit-write-recent-tweets xml)
-		 (toggle-read-only 1))))
+		 (save-excursion
+		  (with-twitter-buffer "*Twit-recent*"
+			(twit-write-title "Following Recent tweets: %s\n" (format-time-string "%c"))
+		    (twit-write-recent-tweets xml))))))
 
-;;* rate
+;;* rate var
 (defvar twit-last-rate-limit
   twit-standard-rate-limit
   "What is the previous rate limit?")
@@ -990,22 +1144,33 @@ It is in the format of (timestamp user-id message) ")
 		   (twit-follow-recent-tweets)))
 	(setq twit-last-rate-limit limit))) 
 
-;;* friends 
-(defun twit-get-friends ()
-  "Get a list of friends."
-  (save-excursion
-   (loop for screen_name in
-		 (loop for user in
-			   (xml-get-children (cadr (twit-parse-xml twit-friend-list-url "GET"))
-								 'user)
-			   collect (eighth user))
-		 collect (third screen_name))))
+;;*friends var
+(defvar twit-get-friends-cache nil
+  "A cache of the friends from twit-get-friends.  For completing reads.")
+
+;;* friends
+(defun twit-get-friends (&optional cached)
+  "Get a list of friends.
+
+This also sets the variable get-friends-cache."
+  (when (null cached)
+		(setq twit-get-friends-cache		
+			  (save-window-excursion
+			   (save-excursion 
+				(loop for screen_name in
+					  (loop for user in
+							(xml-get-children (cadr (twit-parse-xml twit-friend-list-url "GET"))
+											  'user)
+							collect (eighth user))
+					  collect (third screen_name))))))
+  twit-get-friends-cache)
 
 ;;* friends at-filter var
 (defvar twit-at-friends-cache 'nil
   "A cached list of the people who you are following, with a @ in front of their name."
   )
 (setq twit-at-friends-cache 'nil)  ; provided here so it cacn be eval-ed to reload friends cache.
+
 ;;* friends at-filter
 (defun twit-at-message-was-from-friend (tweet)
   "Tell us if the text in the tweet contains an @ that we care about."
@@ -1025,10 +1190,13 @@ It is in the format of (timestamp user-id message) ")
 	  (twit-at-message-was-from-friend "@jonnay is the bomb")
 	  (twit-at-message-was-from-friend "@sunnay is the bomb"))
 
+
+;;* todochiku
 ;;; funciton to integrade with growl.el or todochiku.el
 (defun twit-todochiku ()
   (todochiku-message "twit.el" (format "From %s:\n%s" (cadr twit-last-tweet) (caddr twit-last-tweet)) (todochiku-icon 'social)))
 
+;;* helper refactorme
 (defun twit-grab-author-of-tweet ()
   (let* ((find-overlays-specifying (lambda (prop)
                                      (let ((overlays (overlays-at (point)))
@@ -1055,6 +1223,14 @@ It is in the format of (timestamp user-id message) ")
     (back-to-indentation)
     (thing-at-point 'word))))
 
+;;* twit property helper
+(defun twit-get-text-property (propname)
+  "Return a property named PROPNAME or nil if not available.
+
+This is the reverse of get-char-property, because it checks text properties first."
+  (or (get-text-property (point) propname)
+	  (get-char-property (point) propname)))
+
 
 (defun twit-check-page-prefix (page)
    "For use with an interactive function.  Checks the prefix arg, and returns a valid page."
@@ -1079,7 +1255,7 @@ This will attempt to do a completing read based on the people you
 are following, if you have images turned on."
   (interactive
     (list (let ((friends (mapcar (lambda (s) (substring s 1)) twit-at-friends-cache))
-				(cur-author (twit-grab-author-of-tweet)))
+				(cur-author (twit-get-text-property 'twit-user)))
 			(completing-read (if cur-author
 								 (concat "To (" cur-author "): ")
 								 "To: ")
@@ -1094,7 +1270,7 @@ are following, if you have images turned on."
 	  (error twit-too-long-msg)
       (twit-direct-message user msg)))
 
-;;* post interactive
+;;* post interactive tweet
 ;;;###autoload
 (defun twit-post (prefix)
   "Send a post to twitter.com.
@@ -1104,7 +1280,8 @@ post; thereafter just for post text.  Posts must be <= 140 chars
 long.
 
 A prefix argument will prompt you for your post in reply to a
-specific author that hte cursor is nearest to.
+specific author that hte cursor is nearest to.  This behavior may
+become deprecated.
 "
   (interactive "P")
   (let* ((reply-to (when prefix 
@@ -1116,64 +1293,130 @@ specific author that hte cursor is nearest to.
                                       (concat "@" reply-to " ")))))
     (if (> (length post) 140)
 		(error twit-too-long-msg)
-		(twit-post-function twit-update-url post))))
+		(twit-post-status twit-update-url post))))
 
-;;* post interactive
+;;* post interactive tweet
 ;;;###autoload
 (defun twit-post-region (start end)
   "Send text in the region as a post to twitter.com.
-Uses `twit-post-function' to do the dirty work and to obtain
+Uses `twit-post-status' to do the dirty work and to obtain
 needed user and password information.  Posts must be <= 140 chars
 long."
   (interactive "r")
   (let ((post (buffer-substring start end)))
     (if (> (length post) 140)
 	(error twit-too-long-msg)
-    (twit-post-function twit-update-url post))))
+    (twit-post-status twit-update-url post))))
 
 ;;* post interactive
 ;;;###autoload
 (defun twit-post-buffer ()
   "Post the entire contents of the current buffer to twitter.com.
-Uses `twit-post-function' to do the dirty work and to obtain
+Uses `twit-post-status' to do the dirty work and to obtain
 needed user and password information.  Posts must be <= 140 chars
 long."
   (interactive)
   (let ((post (buffer-substring (point-min) (point-max))))
     (if (> (length post) 140)
 	    (error twit-too-long-msg)
-	    (twit-post-function twit-update-url post))))
+	    (twit-post-status twit-update-url post))))
+
+;;* friend post add
+(defun twit-add-friend (user)
+  "User name of person you want to follow."
+  (interactive (list (let ((author (twit-get-text-property 'twit-user)))
+					   (completing-read (format "Add Friend%s: " (if author (concat "(" author ")") ""))
+										nil
+										nil
+										nil
+										nil
+										nil
+										author))))
+  (twit-post-function (format twit-add-friend-url user)
+					  (concat "follow=true&screen_name=" (url-hexify-string user))
+					  twit-add-friend-success-msg
+					  twit-add-friend-fail-msg))
+
+;;* friend post remove
+(defun twit-remove-friend (user)
+  "User name of person you want to follow."
+  (interactive (list (let ((author (twit-get-text-property 'twit-user)))
+					   (completing-read  (format "Remove Friend%s: " (if author
+																		 (concat " (" author ")")
+																		 ""))
+										 (twit-get-friends t)
+										 nil
+										 t
+										 nil
+										 nil
+										 author))))
+  (twit-post-function (format twit-remove-friend-url user)
+					  (concat "screen_name=" (url-hexify-string user))
+					  twit-remove-friend-success-msg
+					  twit-remove-friend-fail-msg))
+
+;;* favorite add post
+(defun twit-add-favorite (post)
+  "Add a post as a favorite."
+  (interactive (list (read-from-minibuffer (format "Tweet to Favorite (%s): " (twit-get-text-property 'twit-id))
+										   nil
+										   nil
+										   nil
+										   nil
+										   (twit-get-text-property 'twit-id))))
+  (twit-post-function (format twit-add-favorite-url (if (not (string-equal "" post))
+														post
+														(twit-get-text-property 'twit-id)))
+					  ""
+					  twit-add-favorite-success-msg
+					  twit-add-favorite-fail-msg))
+
+;;* favorite remove post
+(defun twit-remove-favorite (post)
+  "Add a post as a favorite."
+  (interactive (list (read-from-minibuffer (format "Remove Tweet From Favorites (%s): " (twit-get-text-property 'twit-id))
+										   nil
+										   nil
+										   nil
+										   nil
+										   (twit-get-text-property 'twit-id))))
+  (twit-post-function (format twit-remove-favorite-url (if (not (string-equal "" post))
+														   post
+														   (twit-get-text-property 'twit-id)))
+					  ""
+					  twit-remove-favorite-success-msg
+					  twit-remove-favorite-fail-msg))
 
 ;;* show followers refactorme interactive memoryleak
 ;; minor modes might be a cause of the memoryleak, see about removing them
+;; this is too delicate, depending on the order of the xml elements, and not
+;; the actual xml elements. 
 ;;;###autoload
 (defun twit-list-followers ()
   "Display a list of all your twitter.com followers' names."
   (interactive)
-  (pop-to-buffer "*Twit-followers*")
-  (kill-region (point-min) (point-max))
-  (loop for name in 
-        (loop for name in
-              (loop for user in 
-                    (xml-get-children
-                     (cadr (twit-parse-xml twit-followers-file "GET")) 'user)
-                    collect (sixth user))
-              collect (third name))
-        do (insert (concat name "\n")))
-  ;; set up mode as with twit-show-recent-tweets
-  (text-mode)
-  (use-local-map twit-followers-mode-map))
+  (pop-to-buffer
+   (with-twitter-buffer "*Twit-followers*"
+						(loop for name in 
+							  (loop for name in
+									(loop for user in 
+										  (xml-get-children
+										   (cadr (twit-parse-xml twit-followers-file "GET")) 'user)
+										  collect (sixth user))
+									collect (third name))
+							  do (insert (concat name "\n"))))))
 
-;;; Helper function to insert text into buffer, add an overlay and
-;;; apply the supplied attributes to the overlay
-;;* helper write
-(defun twit-insert-with-overlay-attributes (text attributes)
-  (let ((start (point)))
-    (insert text)
-    (let ((overlay (make-overlay start (point))))
-      (dolist (spec attributes)
-        (overlay-put overlay (car spec) (cdr spec))))))
-
+;;* show friends interactive
+;;;###autoload
+(defun twit-show-friends ()
+   "Display a list of all your friends."
+   (interactive)
+   (pop-to-buffer
+	(with-twitter-buffer "*Twit-friends*"
+						 (let ((friends (twit-get-friends)))
+						   (twit-write-title (format "Friends (%s):\n" (length friends)))
+						   (loop for f in friends do
+								 (insert (propertize (concat f "\n") 'twit-user f)))))))
 
 ;;* twit follow timer interactive
 ;;;###autoload
@@ -1199,7 +1442,7 @@ You can change the time between each check by customizing `tiwt-follow-idle-inte
 ;;* tweet show refactorme interactive memoryleak
 ;; minor modes might be a cause of the memoryleak, see about removing them
 ;;;###autoload
-(defun twit-show-recent-tweets (page)
+(defun twit-show-recent-tweets (&optional page)
   "Display a list of the most recent tweets from people you're following.
 
 You can use a prefix argument (C-u <number>) to skip between pages.  If you are
@@ -1213,17 +1456,11 @@ empty.  This is being worked on.
 Patch version from Ben Atkin."
   (interactive "P")
   (setq page (twit-check-page-prefix page))
-  (let ((b (get-buffer-create "*Twit-recent*")))
-    (display-buffer b)
-    (with-current-buffer b
-      (toggle-read-only 0)
-      (twit-write-recent-tweets (twit-parse-xml (format twit-friend-timeline-file page) "GET"))
-      ;; !set up some sensible mode and useful bindings
-      (text-mode)
-      (toggle-read-only 1)
-	  (use-local-map twit-status-mode-map))))
+  (pop-to-buffer (with-twitter-buffer "*Twit-recent*"
+									  (twit-write-title "Recent Tweets: %s\n" (format-time-string "%c"))
+									  (twit-write-recent-tweets (twit-parse-xml (format twit-friend-timeline-file page) "GET"))))  )
 
-;;* search helper
+;;* search helper var
 (defvar twit-this-sessions-searches 'nil
   "A variable to store any searches that the user has already searched for this session.")
 
@@ -1232,14 +1469,18 @@ Patch version from Ben Atkin."
   "Run a twitter search for TERM.
 Note that this is currently \"in beta\". It will get better."
   (interactive (list (completing-read "Search Term: "
-									  (append twit-completing-searches twit-this-sessions-searches))))
+									  (append twit-completing-searches twit-this-sessions-searches)
+									  nil
+									  nil
+									  (twit-get-text-property 'twit-search))))
   (when (not (or (member term twit-completing-searches)
 				 (member term twit-this-sessions-searches)))
 		(setq twit-this-sessions-searches (cons term twit-this-sessions-searches)))
-  (with-twitter-buffer (concat "*Twit-Search-" (url-hexify-string term) "*")
-	(twit-write-search (twit-parse-xml (format twit-search-url
-											   (url-hexify-string term))
-									   "GET"))))
+  (pop-to-buffer
+   (with-twitter-buffer (concat "*Twit-Search-" (url-hexify-string term) "*")
+						(twit-write-search (twit-parse-xml (format twit-search-url
+																   (url-hexify-string term))
+														   "GET")))))
 
 ;;* direct refactorme show interactive memoryleak
 ;; minor modes might be a cause of the memoryleak, see about removing them
@@ -1250,22 +1491,13 @@ Note that this is currently \"in beta\". It will get better."
 With a numeric prefix argument, it will skip to that page like `twit-show-recent-tweets'."
    (interactive "P")
    (setq page (twit-check-page-prefix page))
-   (let ((b (get-buffer-create "*Twit-direct*")))
-	 (display-buffer b)
-	 (with-current-buffer b
-	    (toggle-read-only 0)
-		(buffer-disable-undo)
-		(delete-region (point-min) (point-max))
-		(twit-insert-with-overlay-attributes (format-time-string "Direct messages: %c\n") '((face . "twit-title-face")))
-
-		(let ((times-through 0))
-		  (dolist (msg-node (xml-get-children (cadr (twit-parse-xml (format twit-direct-msg-get-url page) "GET")) 'direct_message))
-				  (twit-write-tweet msg-node nil times-through)
-				  (setq times-through (+ 1 times-through))))
-
-		(text-mode)
-		(toggle-read-only 1)
-		(use-local-map twit-status-mode-map))))
+   (pop-to-buffer
+	(with-twitter-buffer "*Twit-direct*"
+						 (twit-write-title "Direct Messages since: %s\n" (format-time-string "%c"))
+						 (let ((times-through 0))
+						   (dolist (msg-node (xml-get-children (cadr (twit-parse-xml (format twit-direct-msg-get-url page) "GET")) 'direct_message))
+								   (twit-write-tweet msg-node nil times-through)
+								   (setq times-through (+ 1 times-through)))))))
 
 ;;* at-you show interactive
 ;;###autoload
@@ -1275,13 +1507,13 @@ With a numeric prefix argument, it will skip to that page like `twit-show-recent
 With a numeric prefix argument, it will skip to that page like `twit-show-recent-tweets'."
   (interactive "P")
   (setq page (twit-check-page-prefix page))
-  (with-twitter-buffer (concat "*Twit-at-" twit-user "*")
-    (twit-insert-with-overlay-attributes (format-time-string (concat "Twit @" twit-user ": %c\n"))
-										 '((face . "twit-title-face")))
-	(let ((times-through 0))
-	  (dolist (status-node (xml-get-children (cadr (twit-parse-xml (format twit-mentions-url page) "GET")) 'status))
-			  (twit-write-tweet status-node t times-through)
-			  (setq times-through (+ 1 times-through))))))
+  (pop-to-buffer
+   (with-twitter-buffer (concat "*Twit-at-" twit-user "*")
+						(twit-write-title "Twit @%s: %s \n" twit-user (format-time-string "%c"))				   
+						(let ((times-through 0))
+						  (dolist (status-node (xml-get-children (cadr (twit-parse-xml (format twit-mentions-url page) "GET")) 'status))
+								  (twit-write-tweet status-node t times-through)
+								  (setq times-through (+ 1 times-through)))))))
 
 (defalias 'twit-search-at-to-me 'twit-show-at-tweets
   "Aliased to `twit-show-at-tweets', does the same thing with a better interface.")
@@ -1306,7 +1538,6 @@ Null prefix argument turns off the mode.
  :global t
  :group 'twit
  :version twit-version-number)
-
 (provide 'twit)
 
 ;;; twit.el ends here
