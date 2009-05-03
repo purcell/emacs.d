@@ -124,13 +124,16 @@
 ;;  Register:
 ;;     `anything-c-source-register' (Registers)
 ;;  Headline Extraction:
-;;     `anything-c-source-fixme'                   (TODO/FIXME/DRY comments)
-;;     `anything-c-source-rd-headline'             (RD HeadLine)
-;;     `anything-c-source-oddmuse-headline'        (Oddmuse HeadLine)
-;;     `anything-c-source-emacs-source-defun'      (Emacs Source DEFUN)
-;;     `anything-c-source-emacs-lisp-expectations' (Emacs Lisp Expectations)
-;;     `anything-c-source-emacs-lisp-toplevels'    (Emacs Lisp Toplevel / Level 4 Comment / Linkd Star)
-;;     `anything-c-source-org-headline'            (Org HeadLine)
+;;     `anything-c-source-fixme'                            (TODO/FIXME/DRY comments)
+;;     `anything-c-source-rd-headline'                      (RD HeadLine)
+;;     `anything-c-source-oddmuse-headline'                 (Oddmuse HeadLine)
+;;     `anything-c-source-emacs-source-defun'               (Emacs Source DEFUN)
+;;     `anything-c-source-emacs-lisp-expectations'          (Emacs Lisp Expectations)
+;;     `anything-c-source-emacs-lisp-toplevels'             (Emacs Lisp Toplevel / Level 4 Comment / Linkd Star)
+;;     `anything-c-source-org-headline'                     (Org HeadLine)
+;;     `anything-c-source-yaoddmuse-emacswiki-edit-or-view' (Yaoddmuse Edit or View (EmacsWiki))
+;;     `anything-c-source-yaoddmuse-emacswiki-post-library' (Yaoddmuse Post library (EmacsWiki))
+;;     `anything-c-source-eev-anchor'                       (Anchors)
 ;;  Misc:
 ;;     `anything-c-source-picklist'           (Picklist)
 ;;     `anything-c-source-bbdb'               (BBDB)
@@ -198,6 +201,10 @@
 ;;    List all anything sources for test.
 ;;  `anything-select-source'
 ;;    Select source.
+;;  `anything-yaoddmuse-emacswiki-edit-or-view'
+;;    Edit or View EmacsWiki page.
+;;  `anything-yaoddmuse-emacswiki-post-library'
+;;    Post library to EmacsWiki.
 ;;  `anything-emms-stream-edit-bookmark'
 ;;    Change the information of current emms-stream bookmark from anything.
 ;;  `anything-emms-stream-delete-bookmark'
@@ -2058,6 +2065,139 @@ See http://orgmode.org for the latest version.")
           (org-make-link-string (concat "*" (match-string 1)))))))
 
 ;; (anything 'anything-c-source-org-headline)
+
+;;; Anything yaoddmuse
+;; Be sure to have yaoddmuse.el installed
+;; install-elisp may be required if you want to install elisp file from here.
+(defvar anything-yaoddmuse-use-cache-file nil)
+(defvar anything-c-yaoddmuse-cache-file "~/.emacs.d/yaoddmuse-cache.el")
+(defvar anything-c-yaoddmuse-ew-cache nil)
+(defvar anything-c-source-yaoddmuse-emacswiki-edit-or-view
+  '((name . "Yaoddmuse Edit or View (EmacsWiki)")
+    (candidates . (lambda ()
+                    (if anything-yaoddmuse-use-cache-file
+                        (condition-case nil
+                            (progn
+                              (unless anything-c-yaoddmuse-ew-cache
+                                (load anything-c-yaoddmuse-cache-file)
+                                (setq anything-c-yaoddmuse-ew-cache
+                                      (gethash "EmacsWiki" yaoddmuse-pages-hash)))
+                              anything-c-yaoddmuse-ew-cache)
+                          (error nil))
+                        (yaoddmuse-update-pagename t)
+                        (gethash "EmacsWiki" yaoddmuse-pages-hash))))
+    (action . (("Edit page" . (lambda (candidate)
+                                (yaoddmuse-edit "EmacsWiki" candidate)))
+               ("Browse page" . (lambda (candidate)
+                                  (yaoddmuse-browse-page "EmacsWiki" candidate)))
+               ("Browse page other window" . (lambda (candidate)
+                                               (if (one-window-p)
+                                                   (split-window-vertically))
+                                               (yaoddmuse-browse-page "EmacsWiki" candidate)))
+               ("Browse diff" . (lambda (candidate)
+                                  (yaoddmuse-browse-page-diff "EmacsWiki" candidate)))
+               ("Copy URL" . (lambda (candidate)
+                               (kill-new (yaoddmuse-url "EmacsWiki" candidate))
+                               (message "Have copy page %s's URL to yank." candidate)))
+               ("Create page" . (lambda (candidate)
+                                  (yaoddmuse-edit "EmacsWiki" anything-input)))
+               ("Update cache" . (lambda (candidate)
+                                   (if anything-yaoddmuse-use-cache-file
+                                       (progn
+                                         (anything-yaoddmuse-cache-pages t)
+                                         (setq anything-c-yaoddmuse-ew-cache
+                                               (gethash "EmacsWiki" yaoddmuse-pages-hash)))
+                                       (yaoddmuse-update-pagename))))))
+    (action-transformer anything-c-yaoddmuse-action-transformer))) 
+
+;; (anything 'anything-c-source-yaoddmuse-emacswiki-edit-or-view)
+
+(defvar anything-c-source-yaoddmuse-emacswiki-post-library
+  '((name . "Yaoddmuse Post library (EmacsWiki)")
+    (init . (anything-yaoddmuse-init))
+    (candidates-in-buffer)
+    (action . (("Post library and Browse" . (lambda (candidate)
+                                              (yaoddmuse-post-file (find-library-name candidate)
+                                                                   "EmacsWiki"
+                                                                   (file-name-nondirectory (find-library-name candidate))
+                                                                   nil t)))
+               ("Post library" . (lambda (candidate)
+                                   (yaoddmuse-post-file (find-library-name candidate)
+                                                        "EmacsWiki"
+                                                        (file-name-nondirectory (find-library-name candidate)))))))))
+
+;; (anything 'anything-c-source-yaoddmuse-emacswiki-post-library)
+
+(defun anything-c-yaoddmuse-action-transformer (actions candidate)
+  "Allow the use of `install-elisp' only on elisp files."
+  (if (string-match "\.el$" candidate)
+      (append actions '(("Install Elisp" . (lambda (elm)
+                                             (install-elisp-from-emacswiki elm)))))
+      actions))
+
+(defun anything-yaoddmuse-cache-pages (&optional load)
+  "Fetch the list of files on emacswiki and create cache file.
+If load is non--nil load the file and feed `yaoddmuse-pages-hash'."
+  (interactive)
+  (yaoddmuse-update-pagename)
+  (save-excursion
+    (find-file anything-c-yaoddmuse-cache-file)
+    (erase-buffer)
+    (insert "(puthash \"EmacsWiki\" '(")
+    (loop for i in (gethash "EmacsWiki" yaoddmuse-pages-hash)
+       do
+          (insert (concat "(\"" (car i) "\") ")))
+    (insert ") yaoddmuse-pages-hash)\n")
+    (save-buffer)
+    (kill-buffer (current-buffer))
+    (when (or current-prefix-arg
+              load)
+      (load anything-c-yaoddmuse-cache-file))))
+
+(defun anything-yaoddmuse-emacswiki-edit-or-view ()
+  "Edit or View EmacsWiki page."
+  (interactive)
+  (anything 'anything-c-source-yaoddmuse-emacswiki-edit-or-view))
+
+(defun anything-yaoddmuse-emacswiki-post-library ()
+  "Post library to EmacsWiki."
+  (interactive)
+  (anything 'anything-c-source-yaoddmuse-emacswiki-post-library))
+
+(defun anything-yaoddmuse-init ()
+  "Init anything buffer status."
+  (let ((anything-buffer (anything-candidate-buffer 'global))
+        (library-list (yaoddmuse-get-library-list)))
+    (with-current-buffer anything-buffer
+      ;; Insert library name.
+      (dolist (library library-list)
+        (insert (format "%s\n" library)))
+      ;; Sort lines.
+      (sort-lines nil (point-min) (point-max)))))
+
+;;; Eev anchors
+(defvar anything-c-source-eev-anchor
+  '((name . "Anchors")
+    (init . (lambda ()
+              (setq anything-c-eev-anchor-buffer
+                    (current-buffer))))
+    (candidates . (lambda ()
+                    (condition-case nil
+                        (save-excursion
+                          (with-current-buffer anything-c-eev-anchor-buffer
+                            (goto-char (point-min))
+                            (let (anchors)
+                              (while (re-search-forward (format ee-anchor-format "\\([^\.].+\\)") nil t)
+                                (push (match-string-no-properties 1) anchors))
+                              (setq anchors (reverse anchors)))))
+                      (error nil))))
+    (persistent-action . (lambda (item)
+                           (ee-to item)
+                           (anything-match-line-color-current-line)))
+    (action . (("Goto link" . (lambda (item)
+                                (ee-to item)))))))
+
+;; (anything 'anything-c-source-eev-anchor)
 
 ;;;; <Misc>
 ;;; Picklist
