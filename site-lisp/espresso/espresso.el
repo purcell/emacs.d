@@ -2015,16 +2015,13 @@ Javascript, but you will never receive it in reply.")
           6: this._delProp,
           7: this._typeOf,
           8: repl});
-        repl._espressoExceptionObjects = {};
         repl._espressoLastID = 8;
         repl._espressoGC = this._espressoGC;
-        repl._espressoReplID = 'espresso_' + (Date.now() + Math.random());
       }
     },
 
     _espressoGC: function _espressoGC(ids_in_use) {
       var objects = this._espressoObjects;
-      var exobjects = this._espressoExceptionObjects;
       var keys = [];
       var num_freed = 0;
 
@@ -2041,9 +2038,7 @@ Javascript, but you will never receive it in reply.")
         var id = ids_in_use[i++];
         while(j < keys.length && keys[j] !== id) {
           var k_id = keys[j++];
-          delete objects[k_id][this._espressoReplID];
           delete objects[k_id];
-          delete exobjects[k_id];
           ++num_freed;
         }
         ++j;
@@ -2051,9 +2046,7 @@ Javascript, but you will never receive it in reply.")
 
       while(j < keys.length) {
         var k_id = keys[j++];
-        delete objects[k_id][this._espressoReplID];
         delete objects[k_id];
-        delete exobjects[k_id];
         ++num_freed;
       }
 
@@ -2090,26 +2083,15 @@ Javascript, but you will never receive it in reply.")
     },
 
     _findOrAllocateObject: function _findOrAllocateObject(repl, value) {
-      if(value.constructor === Object) {
-        for(var id in repl._espressoExceptionObjects) {
-          id = Number(id);
-          var obj = repl._espressoExceptionObjects[id];
-          if(obj === value) {
-            return id;
-          }
+      for(var id in repl._espressoObjects) {
+        id = Number(id);
+        var obj = repl._espressoObjects[id];
+        if(obj === value) {
+          return id;
         }
-
-        var id = ++repl._espressoLastID;
-        repl._espressoObjects[id] = repl._espressoExceptionObjects[id] = value;
-        return id;
       }
 
-      var repl_id = repl._espressoReplID;
-      if(value[repl_id] !== undefined) {
-        return value[repl_id];
-      }
-
-      var id = value[repl_id] = ++repl._espressoLastID;
+      var id = ++repl._espressoLastID;
       repl._espressoObjects[id] = value;
       return id;
     },
