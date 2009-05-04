@@ -1,5 +1,5 @@
 ;;; Twit.el --- interface with twitter.com
-(defvar twit-version-number "0.2.0")
+(defvar twit-version-number "0.2.1")
 ;; Copyright (c) 2007 Theron Tlax
 ;;           (c) 2008-2009 Jonathan Arkell
 ;; Time-stamp: <2007-03-19 18:33:17 thorne>
@@ -91,6 +91,10 @@
 ;; the emacswiki.  Just be sure to increment the version number
 ;; and write a change to the change log. 
 ;;
+;; Mutli-user support is still very experimental right now.
+;; use the macro `with-twitter-auth' to temporarily switch auth.
+;; This needs better support, coming soon.
+;;
 ;; From versions 0.1.0 onwards, versions are incremented like so:
 ;; <major>.<minor>.<bugfix/feature>
 ;;
@@ -108,6 +112,8 @@
 ;;   emacs --no-site-file --no-init-file
 ;; In scratch buffer:
 ;; (load "~/my-elisp/twit.el")
+;; (twit-show-recent-tweets)
+;; (twit-follow-recent-tweets)
 
 ;;; History:
 ;; Originally by theron tlax <thorne@timbral.net> 2007-3-16 
@@ -209,7 +215,7 @@
 ;;          - Searches started.  Right now its just the bare minimum of
 ;;            features.  More and better searches to come.
 ;;          - Properly Makred my own, and Therons changes in the changelog.
-;;          - Added macro for displaying tiwtter buffers
+;;          - Added macro for displaying twitter buffers
 ;;          - commentary, installing, and other documentation improved. (JA)
 ;; * 0.1.1  - Fixed image bug with filename collisions. (thanks @learnemacs)
 ;;          - Fixed bug with twit-follow-recent-tweets (thanks @busytoby) (JA)
@@ -226,6 +232,20 @@
 ;;          - @names have basic keymaps, like a)dd p)ost to and d)irect msg
 ;;          - Regex for determining what is and isn't a hashtag should be
 ;;            better.
+;; - 0.2.1  - Fixed a bug that put the list of tweets on the kill ring.
+;;          - removed twit-grab-author-of-tweet, (its superceeded by
+;;            (twit-get-text-property 'twit-user)  
+;;          - added with-twit-auth macro, so that you can use more then
+;;            one twitter account.  Better support forthcoming)
+;;          - fixed potential auth bug with https
+;;          - added function to visit url (current url, users twit url)
+;;          - fixed regex for @tweets and #tags.
+;;          - tweaked get-friends
+;;          - made twit-filter-at-tweets use get-friends cache, so you
+;;            don't need images on.
+;;          - Added ascii logo to title bar  
+;;          - fixed a bug in image retrieval that would try to retrieve
+;;            the image through a POST method instead of GET. (JA)
 
 ;;; Bugs:
 ;; * Follow-recent-tweets might have a serious memory leak.  This
@@ -243,17 +263,14 @@
 ;;; Roadmap (todo):
 ;; v1.0 release
 ;; - optionally authenticate via open-auth instead of http auth.
-;; - Fix memory leak.
 ;; - Fix zebra tables
 ;; - fix the mark getting hosed.
 ;; - make follow smarter, and give the latest tweet id as an arg
 ;; - make follow general, so direct messages and at messages are
 ;;   updated.
-;;
+;; - finish exposing the rest of the twitter api (public timeline, etc.)
 ;; Post 1.0
 ;; - make the user images float right.  (thanks busytoby)
-;; - Make @names a different color, and make them hot, so that hitting return on them will take you
-;;   to their page
 ;; - Integrate the other twit.el that is out there.  Looks like it might have some serious sexxxy to it.
 
 ;;; Code:
@@ -265,17 +282,7 @@
 (eval-when-compile
   (require 'cl))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defvar twit-status-mode-map (make-sparse-keymap))
-(defvar twit-followers-mode-map (make-sparse-keymap))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Cusomtization functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;* custom helper refactorme
 (defun twit-set-user-pass (sym val)
   "Set the username/password pair after a customization.
 
@@ -293,14 +300,17 @@ error."
     (let ((twit-pass-var 'twit-pass))
 	  (when (and (not (string= (symbol-value twit-pass-var) ""))   
 				 (not (string= twit-user "")))
-			(let ((old-storage (assoc "twitter.com:80" (symbol-value url-basic-auth-storage))))
-			  (when old-storage 
-					(set url-basic-auth-storage (delete old-storage (symbol-value url-basic-auth-storage)))))
-			(set url-basic-auth-storage
-				 (cons (list "twitter.com:80"
-							 (cons "Twitter API"
-								   (base64-encode-string (format "%s:%s" twit-user (symbol-value twit-pass-var)))))
-					   (symbol-value url-basic-auth-storage)))))
+			(let ((old-http-storage (assoc "twitter.com:80" (symbol-value url-basic-auth-storage)))
+				  (old-https-storage (assoc "twitter.com:443" (symbol-value url-basic-auth-storage)))
+				  (auth-pair (cons "Twitter API" (base64-encode-string (format "%s:%s" twit-user (symbol-value twit-pass-var))))))
+			  (when old-http-storage 
+					(set url-basic-auth-storage (delete old-http-storage (symbol-value url-basic-auth-storage))))
+			  (when old-https-storage
+					(set url-basic-auth-storage (delete old-https-storage (symbol-value url-basic-auth-storage))))
+			  (set url-basic-auth-storage
+				   (cons (list "twitter.com:443" auth-pair)
+						 (cons (list "twitter.com:80" auth-pair)
+							   (symbol-value url-basic-auth-storage)))))))
 	(void-variable nil)))
 
 ;; Use this when testing the basic storage engine.
@@ -309,9 +319,7 @@ error."
 	  (set url-basic-auth-storage nil)
 	  )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Customizations
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;* custom
 (defgroup twit nil
   "twit.el is an emacs package for interfacing with Twitter (http://www.twitter.com)
 a microblogging service.  The twit.el package provides you with the ability to post
@@ -410,10 +418,7 @@ search."
   :type '(repeat string)
   :group 'twit)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Faces
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;* face
 (defface twit-message-face
   '((default
 	  :family "helv"
@@ -436,11 +441,28 @@ search."
 
 (defface twit-title-face
   '((((class color) (background light))
-	 (:background "PowderBlue" :underline "DeepSkyBlue"))
+	 (:background "PowderBlue"
+	  :underline "DeepSkyBlue"
+	  :box (:line-width 2 :color "PowderBlue" :style 0)))
 	(((class color) (background dark))
-	 (:background "PowderBlue" :underline "DeepSkyBlue" :foreground "Black"))
+	 (:background "PowderBlue"
+	  :underline "DeepSkyBlue"
+	  :box (:line-width 2 :color "PowderBlue" :style 0)
+	  :foreground "Black"))
 	(t (:underline "white")))
   "Title Area of the recent tweets buffer."
+  :group 'twit)
+
+(defface twit-logo-face
+  '((((class color))
+	 (:family "mono"
+	  :weight bold
+      :height 1.5
+      :box (:line-width 2 :color "PowderBlue" :style 0)	  
+	  :background "Yellow3" :foreground "Yellow1"
+	  :underline "DeepSkyBlue"))
+	(t (:inverse)))
+  "(^)o<"
   :group 'twit)
 
 (defface twit-hash-at-face
@@ -454,18 +476,18 @@ search."
 
 (defface twit-zebra-1-face
   '((((class color) (background light))
-	 (:background "gray89"))
+	 (:background "gray89" :box (:line-width 2 :color "gray89" :style 0)))
 	(((class color) (background dark))
-	 (:background "grey15"))
+	 (:background "grey15" :box (:line-width 2 :color "gray15" :style 0)))
 	(t (:inverse)))
   "Color one of zebra-striping of recent tweets and followers list."
   :group 'twit)
 
 (defface twit-zebra-2-face
   '((((class color) (background light))
-	 (:background "AliceBlue" :inverse))
+	 (:background "AliceBlue" :box (:line-width 2 :color "AliceBlue" :style 0)))
 	(((class color) (background dark))
-	 (:background "MidnightBlue")))
+	 (:background "MidnightBlue" :box (:line-width 2 :color "MidnightBlue" :style 0))))
   "Color two of zebra-striping of recent tweets and followers list."
   :group 'twit)
 
@@ -476,6 +498,12 @@ search."
 	(t (:inverse)))
   "Color of twit.el errors."
   :group 'twit)
+
+(defface twit-url-face
+   '((default
+ 	  :weight bold))
+   "Face for showing hyperlinks"
+   :group 'twit)
 
 (defface twit-favorite-face
   '((((class color))
@@ -498,9 +526,14 @@ search."
   "(_x___}<"
   :group 'twit)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; More variables and constants
-;; 'r' key for reloading/refreshing the buffer
+;;* var keymap
+(defvar twit-status-mode-map (make-sparse-keymap)
+  "Keymap for status messages and direct messages")
+
+(defvar twit-followers-mode-map (make-sparse-keymap)
+  "Keymap for showing followers and friends")
+
+;;* var keymap
 (defvar twit-key-list
   '(("s" . twit-show-recent-tweets)
 	("f" . twit-list-followers)
@@ -516,15 +549,26 @@ search."
 (define-key twit-status-mode-map "r" 'twit-show-recent-tweets)
 (define-key twit-followers-mode-map "r" 'twit-list-followers)
 
-
+;;* var keymap
 (dolist (info twit-key-list)
   (define-key twit-status-mode-map (car info) (cdr info))
   (define-key twit-followers-mode-map (car info) (cdr info)))
 
+;;* var keymap
+(defvar twit-user-keymap (make-sparse-keymap)
+  "Keymap for a user")
+
+(define-key twit-user-keymap "s" 'twit-search)
+(define-key twit-user-keymap "d" 'twit-direct)
+(define-key twit-user-keymap "p" 'twit-post-to)
+(define-key twit-user-keymap "g" 'twit-visit-link)
+
+;;* interactive keymap
 (defun twit-mode-help ()
 	(interactive)
 	(message "Help: %s" (append twit-key-list '(("r" . "Reload Current Page")))))
 
+;; *var 
 (defvar twit-timer
   nil
   "Timer object that handles polling the followers")
@@ -619,8 +663,13 @@ search."
 (defconst twit-filter-at-tweets-retweet-regex "\\bRT[ :]*@"
   "Retweets are tweets that do contain at messages that might be actually interesting.")
 
-(defconst twit-hash-at-regex "\\([#@][a-zA-Z0-9$%!^&*_-+=.]+\\)"
+(defconst twit-at-regex "@\\([a-zA-Z0-9_]+\\)")
+
+(defconst twit-hash-at-regex "\\([#@][a-zA-Z0-9_.]+\\)"
   "Regular expression form for matching hashtags (#) and directions (@).")
+
+(defconst twit-url-regex "\\(http://[a-zA-Z0-9.]+\.[a-zA-Z0-9%#;~/.=+&$,?@]+\\)"
+   "Regular expression for urls.")
 
 ;; regex testing:
 ;; @_miaux #twit.el #foo @foo @foo-bar 
@@ -639,17 +688,26 @@ The value returned is the current buffer."
   `(with-current-buffer (get-buffer-create ,buffer-name)
 	(buffer-disable-undo)
 	(toggle-read-only 0)
-	(kill-region (point-min) (point-max))
+	(delete-region (point-min) (point-max))
 	,@forms
 	(toggle-read-only 1)
 	(use-local-map twit-status-mode-map)
 	(goto-char (point-min))
 	(current-buffer)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Internal Library Functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;* helper
+;;* macro auth
+(defmacro with-twitter-auth (user pass &rest forms)
+  "Execute FORMS with the twiter authorization of USER and PASS.
+
+This forms the very basic support for multi-user twittering.
+See the very end of this file for an example.
+"
+  `(let ((,url-basic-auth-storage
+		  (list (list "twitter.com:80" (cons "Twitter API" (base64-encode-string (format "%s:%s" ,user ,pass))))
+				(list "twitter.com:443" (cons "Twitter API" (base64-encode-string (format "%s:%s" ,user ,pass)))))))
+	 ,@forms))
+
+;;* helper todochiku
 (defun twit-alert (msg &optional title)
   "Send some kind of alert to the user.  
 If todochiku is available, use that.  Instead, just message the user."
@@ -662,13 +720,13 @@ If todochiku is available, use that.  Instead, just message the user."
 ;;; General purpose library to wrap twitter.com's api
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;* xmlparse refactorme
+;;* xmlparse
 (defun twit-parse-xml (url method)
   "Retrieve file at URL and parse with `xml-parse-fragment'.
 Emacs' url package will prompt for authentication info if required.
 
 Note that this parses the entire HTTP request as an xml fragment
-and not the response.  THIS BEHAVIOR IS SUBJECT TO CHANGE!"
+and not the response."
   (let ((result nil)
 		(url-request-method method))
     (save-window-excursion
@@ -683,7 +741,7 @@ and not the response.  THIS BEHAVIOR IS SUBJECT TO CHANGE!"
   "Parse the header fragment, and come back with some status codes.
 
 This returns the HTTP status (for now) as a list of three elements.
-(HTTP/Version code Description)
+ (HTTP/Version code Description)
 
 The header fragment should be the first text node from the parsed
 xml.
@@ -717,7 +775,7 @@ pain where uesrs can't see why they have blank timelines."
 		 ((200) "Everything is A OK!")
 		 ((304) "Nothing Changed.")
 		 ((400) "Bad Request. (probably rate limited)")
-		 ((401) "Not Authorized.  You need to log in, or your login/password is incorrect.")
+		 ((401) "Not Authorized.  You need to log in, or your login/password is incorrect.\nIf this is the first time you have tried to use a twitter command\nenter your password and try again.")
 		 ((403) "You are FORBIDDEN")
 		 ((404) "Not Found.  404'ed!")
 		 ((406) "Something is bropken with twit.el's search!")
@@ -752,7 +810,7 @@ pain where uesrs can't see why they have blank timelines."
 
 ;;* xmlparse var
 (defvar twit-async-buffer 'nil
-  "Buffer that stores the temporary XML result for tiwt.el")
+  "Buffer that stores the temporary XML result for twit.el")
 
 ;;* xmlparse async
 (defun twit-parse-xml-async (url callback)
@@ -889,7 +947,7 @@ It is in the format of (timestamp user-id message) ")
 		(car (xml-node-children (xml-first-child node addr)))))
 
 ;;; xml parsing is a little hacky and needs work.
-;;* tweets write memoryleak last-tweet
+;;* tweets write last-tweet
 (defun twit-write-recent-tweets (xml-data) 
   (if (twit-header-error-p (twit-parse-header (car xml-data)))
 	  (twit-display-error xml-data)
@@ -907,7 +965,6 @@ It is in the format of (timestamp user-id message) ")
 			  (run-hooks 'twit-new-tweet-hook))))
   
   ;; go back to top so we see the latest messages
-  (goto-address)
   (goto-char (point-min))
 
   ;; this needs more TLC
@@ -969,9 +1026,10 @@ It is in the format of (timestamp user-id message) ")
 															   (if user-name
 																   (concat " (" user-name ")")
 																   "")))
-											   '((face . "twit-author-face")))
+											   `((keymap . ,twit-user-keymap)
+												 (face . "twit-author-face")))
 		  (insert ": ")
-		  (twit-insert-with-overlay-attributes (twit-keymap-and-fontify-ats message)
+		  (twit-insert-with-overlay-attributes (twit-keymap-and-fontify-message message)
 											   '((face . "twit-message-face")))
 		  (insert "\n")
 					  
@@ -995,34 +1053,50 @@ It is in the format of (timestamp user-id message) ")
 ;;* write helper
 (defun twit-write-title (title &rest args)
   "Helper function to write out a title bar for a twit buffer."
-  (twit-insert-with-overlay-attributes (apply 'format title args)
+  (twit-insert-with-overlay-attributes (concat (propertize "(^)o<" 'face 'twit-logo-face)
+											   " "
+											   (apply 'format title args))
 									   '((face . "twit-title-face"))))
 
 ;;* write helper
-(defun twit-keymap-and-fontify-ats (message)
+(defun twit-keymap-and-fontify-message (message)
   "Scan through message, and fontify and keymap all #foo and @foo."
-  (if (not (string-match twit-hash-at-regex message))
-	  message
-	  (replace-regexp-in-string twit-hash-at-regex
-								(lambda (str)
-								  (let ((map (make-sparse-keymap))
-										(type (substring str 0 1))
-										(thing (substring str 1)))
-								    (cond ((string-equal "@" type)
-										   (define-key map "s" 'twit-search)
-										   (define-key map "d" 'twit-direct)
-										   (define-key map "p" 'twit-post))
-										  ((string-equal "#" type)
-										   (define-key map "s" 'twit-search))
-										  (t (error "Unreachable state in twit-keymap-and-fontify-ats!")))
-									(setq str (propertize str
-														  'face 'twit-hash-at-face
-														  'pointer 'hand
-														  'keymap map))
-									(when (string-equal "@" type)
-										  (setq str  (propertize str 'twit-user thing)))
-									(propertize str 'twit-search (concat type thing))))
-								message)))
+  (when (string-match twit-hash-at-regex message)
+		(setq message (replace-regexp-in-string
+					   twit-hash-at-regex
+					   (lambda (str)
+						 (let ((map (make-sparse-keymap))
+							   (type (substring str 0 1))
+							   (thing (substring str 1)))
+						   (cond ((string-equal "@" type)
+								  (setq map twit-user-keymap))
+								 ((string-equal "#" type)
+								  (define-key map "s" 'twit-search))
+								 (t (error "Unreachable state in twit-keymap-and-fontify-ats!")))
+						   (setq str (propertize str
+												 'face 'twit-hash-at-face
+												 'pointer 'hand
+												 'keymap map))
+						   (when (string-equal "@" type)
+								 (setq str  (propertize str 'twit-user thing)))
+						   (propertize str 'twit-search (concat type thing))))
+					   message)))
+  (when (string-match twit-url-regex message)
+		(setq message (replace-regexp-in-string
+					   twit-url-regex
+					   (lambda (str)
+						 (let ((map (make-sparse-keymap)))
+						   (define-key map "g" 'twit-visit-link)
+						   (define-key map [mouse-1] 'twit-visit-link)
+						   (define-key map [mouse 2] 'twit-visit-link)
+						   (define-key map [mouse-3] 'twit-visit-link)
+						   (propertize str
+									   'face 'twit-url-face
+									   'pointer 'hand
+									   'twit-url str
+									   'keymap map)))
+					   message)))
+  message)
 
 (defmacro twit-hash-at-interactive (cmd str)
   `(lambda () (interactive) (,cmd ,str)))
@@ -1031,7 +1105,7 @@ It is in the format of (timestamp user-id message) ")
 (defun twit-write-search (atom-data)
   "This function writes atom-based search data."
   (buffer-disable-undo)
-  (delete-region (point-min) (point-max))
+  (erase-buffer)
   (twit-display-error atom-data)
   (twit-write-title "Search (%s): %s \n" (xml-first-childs-value (cadr atom-data) 'title) (format-time-string "%c"))
   (dolist (entry-node (xml-get-children (cadr atom-data) 'entry))
@@ -1056,8 +1130,7 @@ It is in the format of (timestamp user-id message) ")
   "List containing all user images")
 (setq twit-user-image-list 'nil)
 
-;;* image todo
-; This should check to see if the url is stored locally, and if so, don't retrieve
+;;* image
 (defun twit-get-user-image (url user-id)
   "Retrieve the user image from the list, or from the URL"
   (let ((img (assoc url twit-user-image-list)))
@@ -1067,7 +1140,8 @@ It is in the format of (timestamp user-id message) ")
 			(let ((img (create-image (concat twit-user-image-dir "/" user-id "-" (file-name-nondirectory url)))))
 			  (add-to-list 'twit-user-image-list (cons url img))
 			  img)
-			(let ((url-buffer (url-retrieve url 'twit-write-user-image (list url user-id))))
+			(let* ((url-request-method "GET")
+				   (url-buffer (url-retrieve url 'twit-write-user-image (list url user-id))))
 			  (if url-buffer
 				  (progn
 				   (add-to-list 'twit-user-image-list (cons url url-buffer))
@@ -1075,7 +1149,7 @@ It is in the format of (timestamp user-id message) ")
 				  (twit-alert (format "Warning, couldn't load %s " url)))
 			  nil)))))
 
-;;* image todo
+;;* image fixme kill-ring
 (defun twit-write-user-image (status url user-id)
   "Called by twit-get-user-image, this performs the actual writing of the status url."
   (let ((image-file-name (concat twit-user-image-dir "/" user-id "-" (file-name-nondirectory url))))
@@ -1153,7 +1227,8 @@ It is in the format of (timestamp user-id message) ")
   "Get a list of friends.
 
 This also sets the variable get-friends-cache."
-  (when (null cached)
+  (when (or (null twit-get-friends-cache)
+			(null cached))
 		(setq twit-get-friends-cache		
 			  (save-window-excursion
 			   (save-excursion 
@@ -1165,25 +1240,16 @@ This also sets the variable get-friends-cache."
 					  collect (third screen_name))))))
   twit-get-friends-cache)
 
-;;* friends at-filter var
-(defvar twit-at-friends-cache 'nil
-  "A cached list of the people who you are following, with a @ in front of their name."
-  )
-(setq twit-at-friends-cache 'nil)  ; provided here so it cacn be eval-ed to reload friends cache.
-
 ;;* friends at-filter
 (defun twit-at-message-was-from-friend (tweet)
   "Tell us if the text in the tweet contains an @ that we care about."
-  (when (null twit-at-friends-cache)
-		(setq twit-at-friends-cache
-			  (mapcar (lambda (s) (concat "@" s))
-					  (cons twit-user (twit-get-friends)))))
-  (let ((at-regex "@\\([a-zA-Z0-9]+\\b\\)+")
-		(found-match nil))
+  (let ((found-match nil)
+		(twit-at-friends (mapcar (lambda (s) (concat "@" s))
+								 (cons twit-user (twit-get-friends t)))))
 	(while  (and (not found-match)
-				 (string-match at-regex tweet))
+				 (string-match twit-at-regex tweet))
 			(setq found-match (member (match-string 0 tweet) twit-at-friends-cache))
-			(setq tweet (substring tweet (+ 1 (string-match at-regex tweet)))))
+			(setq tweet (substring tweet (+ 1 (string-match twit-at-regex tweet)))))
 	found-match))
 
 (when nil
@@ -1195,33 +1261,6 @@ This also sets the variable get-friends-cache."
 ;;; funciton to integrade with growl.el or todochiku.el
 (defun twit-todochiku ()
   (todochiku-message "twit.el" (format "From %s:\n%s" (cadr twit-last-tweet) (caddr twit-last-tweet)) (todochiku-icon 'social)))
-
-;;* helper refactorme
-(defun twit-grab-author-of-tweet ()
-  (let* ((find-overlays-specifying (lambda (prop)
-                                     (let ((overlays (overlays-at (point)))
-                                           found)
-                                       (while overlays
-                                         (let ((overlay (car overlays)))
-                                           (if (overlay-get overlay prop)
-                                               (setq found (cons overlay found))))
-                                         (setq overlays (cdr overlays)))
-                                       found)))
-         (find-overlays-matching (lambda (prop value)
-                                   (let ((overlays (funcall find-overlays-specifying prop))
-                                         match)
-                                     (when overlays
-                                       (dolist (overlay overlays)
-                                         (let ((val (overlay-get overlay prop)))
-                                           (if (equalp val value)
-                                               (setq match val)))))
-                                     match))))
-  (save-excursion
-    (while (and (not (funcall find-overlays-matching 'face "twit-author-face"))
-                (not (eq (point) (point-min))))
-      (goto-char (previous-overlay-change (point))))
-    (back-to-indentation)
-    (thing-at-point 'word))))
 
 ;;* twit property helper
 (defun twit-get-text-property (propname)
@@ -1264,7 +1303,7 @@ are following, if you have images turned on."
 							 nil
 							 nil
 							 nil
-							 (twit-grab-author-of-tweet)))
+							 cur-author))
 		  (read-string "Message: ")))
   (if (> (length msg) 140)
 	  (error twit-too-long-msg)
@@ -1285,13 +1324,22 @@ become deprecated.
 "
   (interactive "P")
   (let* ((reply-to (when prefix 
-                     (twit-grab-author-of-tweet)))
+                     (twit-get-text-property 'twit-user)))
          (post (twit-query-for-post (if reply-to
                                         (concat "Reply to " reply-to)
                                       "Post") 
                                     (when reply-to
                                       (concat "@" reply-to " ")))))
     (if (> (length post) 140)
+		(error twit-too-long-msg)
+		(twit-post-status twit-update-url post))))
+
+;;* post interactive keymap
+(defun twit-post-to ()
+  "Posts to a particular user.  Mostly used by keymaps."
+  (interactive)
+  (let ((post (twit-query-for-post "Reply To: " (concat "@" (twit-get-text-property 'twit-user) " "))))
+	(if (> (length post) 140)
 		(error twit-too-long-msg)
 		(twit-post-status twit-update-url post))))
 
@@ -1387,7 +1435,7 @@ long."
 					  twit-remove-favorite-success-msg
 					  twit-remove-favorite-fail-msg))
 
-;;* show followers refactorme interactive memoryleak
+;;* show followers interactive
 ;; minor modes might be a cause of the memoryleak, see about removing them
 ;; this is too delicate, depending on the order of the xml elements, and not
 ;; the actual xml elements. 
@@ -1416,14 +1464,16 @@ long."
 						 (let ((friends (twit-get-friends)))
 						   (twit-write-title (format "Friends (%s):\n" (length friends)))
 						   (loop for f in friends do
-								 (insert (propertize (concat f "\n") 'twit-user f)))))))
+								 (insert (propertize (concat f "\n")
+													 'twit-user f
+													 'keymap twit-user-keymap)))))))
 
 ;;* twit follow timer interactive
 ;;;###autoload
 (defun twit-follow-recent-tweets ()
   "Sets up a timer, and shows you the most recent tweets approx every 90 seconds.
 
-You can change the time between each check by customizing `tiwt-follow-idle-interval'."
+You can change the time between each check by customizing `twit-follow-idle-interval'."
   (interactive)
   (twit-show-recent-tweets nil)
   (twit-verify-and-set-rate-limit (twit-get-rate-limit))
@@ -1439,7 +1489,7 @@ You can change the time between each check by customizing `tiwt-follow-idle-inte
   (cancel-timer twit-timer)
   (cancel-timer twit-rate-limit-timer))
 
-;;* tweet show refactorme interactive memoryleak
+;;* tweet show  interactive 
 ;; minor modes might be a cause of the memoryleak, see about removing them
 ;;;###autoload
 (defun twit-show-recent-tweets (&optional page)
@@ -1482,7 +1532,7 @@ Note that this is currently \"in beta\". It will get better."
 																   (url-hexify-string term))
 														   "GET")))))
 
-;;* direct refactorme show interactive memoryleak
+;;* direct show interactive
 ;; minor modes might be a cause of the memoryleak, see about removing them
 ;;;###autoload
 (defun twit-show-direct-tweets (page)
@@ -1518,6 +1568,16 @@ With a numeric prefix argument, it will skip to that page like `twit-show-recent
 (defalias 'twit-search-at-to-me 'twit-show-at-tweets
   "Aliased to `twit-show-at-tweets', does the same thing with a better interface.")
 
+(defun twit-visit-link ()
+   "Vist a link under the point.
+
+If the point is under a hyperlink, goto that link.
+If the point is under an @user, go to that users page.
+Otherwise goto the authors page."
+  (interactive)
+  (browse-url (or (twit-get-text-property 'twit-url)
+	   		      (when (twit-get-text-property 'twit-user) (concat "http://twitter.com/" (twit-get-text-property 'twit-user))))))
+
 ;;* mode
 ;;;###autoload
 (define-minor-mode twit-mode 
@@ -1540,4 +1600,51 @@ Null prefix argument turns off the mode.
  :version twit-version-number)
 (provide 'twit)
 
+
+;;* testing auth
+(when nil
+
+	  (with-twitter-auth "twit_el" twit-pass
+		(message "auth: %s" (symbol-value url-basic-auth-storage))
+		(twit-post-status twit-update-url "Testing again.  Hopefully authentication works this time."))
+
+	  (with-twitter-auth "jonnay" twit-pass
+		(message "auth: %s" (symbol-value url-basic-auth-storage))
+		(twit-show-recent-tweets))
+	  
+	  )
+
+;;* testing 
+(when nil
+
+	  (shell-command "emacs --no-site-file --no-init-file &" nil nil)
+;; copy/paste to new emacs instance.
+(load "~/my-elisp/twit.el")
+(twit-show-recent-tweets)
+(twit-follow-recent-tweets)
+	  )
+
+;;* posting
+(when nil
+	  (let* ((summary " - 0.2.1  - Fixed a bug that put the list of tweets on the kill ring.
+         - removed twit-grab-author-of-tweet, (its superceeded by
+           (twit-get-text-property 'twit-user)  
+         - added with-twit-auth macro, so that you can use more then
+           one twitter account.  Better support forthcoming)
+         - fixed potential auth bug with https
+         - added function to visit url (current url, users twit url)
+         - fixed regex for @tweets and #tags.
+         - tweaked get-friends
+         - made twit-filter-at-tweets use get-friends cache, so you
+           don't need images on.
+         - Added ascii logo to title bar 
+         - fixed a bug in image retrieval that would try to retrieve
+           the image through a POST method instead of GET." )
+			 (short-summary "LOTS of Bug fixing, basic multi-account support, custom url support.")
+			 (twit-post (concat "New #twit.el: http://www.emacswiki.org/emacs-en/twit.el. " short-summary)))
+		(yaoddmuse-post-library "twit.el" "EmacsWiki" "twit.el" summary t)
+		(twit-post-status twit-update-url twit-post)
+		(with-twit-auth "twit_el" twit-pass (twit-post-status twit-update-url twit-post))
+		(twit-show-recent-tweets))
+	  )
 ;;; twit.el ends here
