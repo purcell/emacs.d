@@ -1,3 +1,9 @@
+(defvar *window-system-color-theme* 'color-theme-pierson
+  "Color theme to use in window-system frames")
+(defvar *tty-color-theme* 'color-theme-emacs-nw
+  "Color theme to use in TTY frames")
+
+
 (require 'color-theme-autoloads)
 (autoload 'color-theme-zenburn "zenburn" "A low contrast color theme" t)
 (autoload 'color-theme-twilight "color-theme-twilight" "A dark color theme" t)
@@ -14,37 +20,27 @@
 ;; (color-theme-zenburn) ; dark, low contrast
 ;; (color-theme-standard)
 
-(defun light-colors ()
+(defun color-theme-my-vivid-chalk ()
   (interactive)
-  (preserving-default-font-size
-   (color-theme-pierson)))
+  (color-theme-vivid-chalk)
+  (set-face-attribute 'highlight nil :background "white" :foreground "black"))
 
-(defun high-contrast ()
+(defun color-theme-my-zenburn-low-contrast ()
   (interactive)
-  (preserving-default-font-size
-   (color-theme-vivid-chalk)
-   (set-face-attribute 'highlight nil :background "white" :foreground "black")))
+  (color-theme-zenburn)
+  (set-face-attribute 'default nil :background "#1f1f1f"))
 
-(defun low-contrast ()
-  (interactive)
-  (preserving-default-font-size
-   (color-theme-zenburn)))
 
-(defun medium-contrast ()
-  (interactive)
+(defun apply-color-theme (theme-fn)
   (preserving-default-font-size
-   (color-theme-taylor)))
-
-(defun very-low-contrast ()
-  (interactive)
-  (preserving-default-font-size
-   (color-theme-zenburn)
-   (set-face-attribute 'default nil :background "#1f1f1f")))
+   (funcall theme-fn)))
 
 
 (set-variable 'color-theme-is-global nil)
-(add-hook 'after-make-window-system-frame-hooks 'high-contrast)
-(add-hook 'after-make-console-frame-hooks 'color-theme-emacs-21)
+(add-hook 'after-make-window-system-frame-hooks
+          (lambda () (apply-color-theme *window-system-color-theme*)))
+(add-hook 'after-make-console-frame-hooks
+          (lambda () (apply-color-theme *tty-color-theme*)))
 
 
 (provide 'init-themes)
