@@ -48,3 +48,6 @@ echo '***' twit
 
 echo '***' lacarte
 (cd site-lisp/lacarte && emacswiki_get lacarte.el)
+
+echo '***' paredit
+(cd site-lisp/paredit && curl -o paredit.el http://mumble.net/~campbell/emacs/paredit-beta.el)
