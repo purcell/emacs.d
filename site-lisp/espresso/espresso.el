@@ -1931,13 +1931,16 @@ match data set."
   (process nil))
 
 (defvar espresso--js-references nil
-  "Maps Elisp Javascript proxy objects to their Javascript IDs.
-This variable is local to the MozRepl process buffer.")
-(make-variable-buffer-local 'espresso--js-references)
+  "Maps Elisp Javascript proxy objects to their Javascript IDs.")
 
 (defvar espresso--js-process nil
-  "The last process object we saw in this buffer")
-(make-variable-buffer-local 'espresso--js-process)
+  "The last MozRepl process object we saw")
+
+(defvar espresso--js-gc-idle-timer nil
+  "Idle timer for cleaning up JS object references")
+
+(defvar espresso--js-last-gcs-done nil
+  "Last number of gcs we GCed with")
 
 (defconst espresso--js-global
   (make-espresso--js-handle :id -1)
@@ -1981,6 +1984,10 @@ Javascript, but you will never receive it in reply.")
   (make-espresso--js-handle :id 8)
   "Handle of the REPL itself")
 
+(defconst espresso--js-new
+  (make-espresso--js-handle :id 9)
+  "Handle to the new pseudo-func")
+
 (defun espresso--make-handle-hash ()
   "Make a Javascript handle table"
   (loop with table = (make-hash-table :test 'eq :weakness t)
@@ -1992,7 +1999,8 @@ Javascript, but you will never receive it in reply.")
                                    espresso--js-putprop
                                    espresso--js-delprop
                                    espresso--js-typeof
-                                   espresso--js-repl)
+                                   espresso--js-repl
+                                   espresso--js-new)
         do (puthash (espresso--js-handle-id special-value)
                     special-value table)
         finally return table))
@@ -2014,8 +2022,9 @@ Javascript, but you will never receive it in reply.")
           5: this._putProp,
           6: this._delProp,
           7: this._typeOf,
-          8: repl});
-        repl._espressoLastID = 8;
+          8: repl,
+          9: this._callNew});
+        repl._espressoLastID = 9;
         repl._espressoGC = this._espressoGC;
       }
     },
@@ -2069,6 +2078,20 @@ Javascript, but you will never receive it in reply.")
       return typeof thing;
     },
 
+    _callNew: function(constructor) {
+      var s = 'new constructor(';
+      for(var i = 1; i < arguments.length; ++i) {
+        if(i != 1) {
+          s += ',';
+        }
+
+        s += 'arguments[' + i + ']';
+      }
+
+      s += ')';
+      return eval(s);
+    },
+
     getPrompt: function getPrompt(repl) {
       return 'EVAL>'
     },
@@ -2077,7 +2100,7 @@ Javascript, but you will never receive it in reply.")
       if(id === -1) { return window; }
       var ret = repl._espressoObjects[id];
       if(ret === undefined && id !== 3) {
-        throw new Error('No object with id:' + id);
+        throw new Error('No object with id:' + id + '(' + typeof id + ')');
       }
       return ret;
     },
@@ -2218,6 +2241,15 @@ the rest of the given arguments."
           (error (signal 'espresso-js-error (list (second result))))))
       )))
 
+(defun espresso--js-new (constructor &rest arguments)
+  "Call CONSTRUCTOR as a constructor (as with new), with the
+given arguments ARGUMENTS. CONSTRUCTOR is a JS handle, a string,
+or a list of these things."
+
+  (espresso--js-funcall-raw espresso--js-new espresso--js-null
+                            (cons (espresso--js-get constructor)
+                                  arguments)))
+
 (defun espresso--js-funcall (function &rest arguments)
   "Call the function identified by FUNCTION with the given
 ARGUMENTS. FUNCTION is either a Javascript handle, in which case
@@ -2266,28 +2298,46 @@ subsequent PROPS as a lookup against the global object. "
           result))
     object))
 
-(defun espresso-js-gc ()
-  "Tell the repl about any objects we don't reference anymore"
+(defun espresso-js-gc (&optional force)
+  "Tell the repl about any objects we don't reference anymore.
+With argument, run even if no intervening GC has happened."
   (interactive)
 
-  (when (buffer-live-p inferior-moz-buffer)
-    (with-current-buffer inferior-moz-buffer
-      (save-excursion
-        (goto-char (point-max))
-        (when (and espresso--js-references
+  (when force
+    (setq espresso--js-last-gcs-done nil))
+
+  (let ((this-gcs-done gcs-done) keys num)
+    (when (and espresso--js-references
+               (boundp 'inferior-moz-buffer)
+               (buffer-live-p inferior-moz-buffer)
+               ;; Don't bother running unless we've had an intervening
+               ;; garbage collection; without a gc, nothing is deleted
+               ;; from the weak hash table, so it's pointless telling
+               ;; MozRepl about that references we still hold
+               (not (eq espresso--js-last-gcs-done this-gcs-done))
+
+               ;; Are we looking at a normal prompt? Make sure not to
+               ;; interrupt the user if he's doing something
+               (with-current-buffer inferior-moz-buffer
+                 (save-excursion
+                   (goto-char (point-max))
                    (looking-back espresso--js-prompt-regexp
-                                 (save-excursion (forward-line 0) (point))))
-          (let* ((keys (loop for x being the hash-keys
-                            of espresso--js-references
-                            collect x))
-                 (num (espresso--js-funcall
-                       (list espresso--js-repl "_espressoGC")
-                       keys)))
+                                 (save-excursion (forward-line 0) (point))))))
 
-            (when (interactive-p)
-              (message "Cleaned %s entries" num))
+      (setq keys (loop for x being the hash-keys
+                       of espresso--js-references
+                       collect x))
+      (setq num (espresso--js-funcall
+                 (list espresso--js-repl "_espressoGC")
+                 keys))
 
-            num))))))
+      (setq espresso--js-last-gcs-done this-gcs-done)
+      (when (interactive-p)
+        (message "Cleaned %s entries" num))
+
+      num)))
+
+(run-with-idle-timer 30 t #'espresso-js-gc)
 
 (defun espresso-js-eval (js)
   "Evaluate the Javascript contained in JS and return the
@@ -2295,16 +2345,47 @@ JSON-decoded result"
   (interactive "MJavascript to evaluate: ")
   (let ((result (espresso--js-funcall "eval" js)))
     (when (interactive-p)
-      (message "%S" result))
+      (message "%s" (espresso--js-funcall "String" result)))
     result))
 
-(defmacro espresso--with-js-context (&body forms)
+(defmacro espresso--with-js-context (&rest forms)
   "Execute FORMS in a new MozRepl context"
   `(progn
-     (espresso--js-funcall (concat moz-repl-name ".enter") [])
+     (espresso--js-funcall (list espresso--js-repl "enter")
+                           (espresso--js-new "Object"))
      (unwind-protect
          (progn ,@forms)
-       (espresso--js-funcall (concat moz-repl-name ".back")))))
+       (espresso--js-funcall (list espresso--js-repl "back")))))
+
+(defun espresso--get-tabs ()
+  "Enumerate all the contexts available"
+
+  (loop with window-mediator = (espresso--js-funcall
+                                '("Components" "classes"
+                                  "@mozilla.org/appshell/window-mediator;1"
+                                  "getService")
+                                (espresso--js-get "Components"
+                                                  "interfaces"
+                                                  "nsIWindowMediator"))
+
+        with enumerator = (espresso--js-funcall
+                           `(,window-mediator "getEnumerator")
+                           espresso--js-null)
+
+        while (eq (espresso--js-funcall `(,enumerator "hasMoreElements"))
+                  espresso--js-true)
+        for window = (espresso--js-funcall `(,enumerator "getNext"))
+        collect window
+
+        for gbrowser = (espresso--js-get window "gBrowser")
+        if (espresso--js-handle-p gbrowser)
+        nconc (loop for x below (espresso--js-get
+                                 gbrowser "browsers" "length")
+                    collect (espresso--js-get
+                             gbrowser "browsers" x "currentURI" "spec"))
+        )
+
+  )
 
 ;;; Main Function
 
