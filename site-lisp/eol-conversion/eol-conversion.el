@@ -78,12 +78,12 @@ TYPE should be one of the symbols: unix, dos, mac."
   (interactive "*")
   (set-buffer-eol-conversion 'mac))
 
-(define-key global-map (vector '(control x) '(control m) ?:)
-  'set-buffer-eol-conversion-unix)
-(define-key global-map (vector '(control x) '(control m) ?\\)
-  'set-buffer-eol-conversion-dos)
-(define-key global-map (vector '(control x) '(control m) ?/)
-  'set-buffer-eol-conversion-mac)
+;(define-key global-map (vector '(control x) '(control m) ?:)
+;  'set-buffer-eol-conversion-unix)
+;(define-key global-map (vector '(control x) '(control m) ?\\)
+;  'set-buffer-eol-conversion-dos)
+;(define-key global-map (vector '(control x) '(control m) ?/)
+;  'set-buffer-eol-conversion-mac)
 
 (easy-menu-add-item			; (map path item &optional before)
  nil '("edit") "--")
