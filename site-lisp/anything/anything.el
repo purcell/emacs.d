@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.179 2009/04/20 16:35:44 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.181 2009/05/04 19:05:03 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -242,6 +242,13 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.181  2009/05/04 19:05:03  rubikitch
+;; * `anything-yank-selection' and `anything-kill-selection-and-quit' handles display string now.
+;; * `anything-get-selection': Added optional arguments.
+;;
+;; Revision 1.180  2009/05/03 19:03:34  rubikitch
+;; Add `anything-input' to `minibuffer-history' even if `anything' is quit.
+;;
 ;; Revision 1.179  2009/04/20 16:35:44  rubikitch
 ;; New keybindings in anything-map:
 ;;   C-c C-d: `anything-delete-current-selection'
@@ -820,7 +827,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.179 2009/04/20 16:35:44 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.181 2009/05/04 19:05:03 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1642,14 +1649,18 @@ Attributes:
     (setq anything-compiled-sources
           (anything-compile-sources anything-sources anything-compile-source-functions)))))
 
-(defun* anything-get-selection (&optional (buffer anything-buffer))
-  "Return the currently selected item or nil."
+(defun* anything-get-selection (&optional (buffer nil buffer-s) (force-display-part))
+  "Return the currently selected item or nil.
+if BUFFER is nil or unspecified, use anything-buffer as default value.
+If FORCE-DISPLAY-PART is non-nil, return the display string."
+  (setq buffer (if (and buffer buffer-s) buffer anything-buffer))
   (unless (zerop (buffer-size (get-buffer buffer)))
     (with-current-buffer buffer
       (let ((selection
-             (or (get-text-property (overlay-start
-                                     anything-selection-overlay)
-                                    'anything-realvalue)
+             (or (and (not force-display-part)
+                      (get-text-property (overlay-start
+                                          anything-selection-overlay)
+                                         'anything-realvalue))
                  (buffer-substring-no-properties
                   (overlay-start anything-selection-overlay)
                   (1- (overlay-end anything-selection-overlay))))))
@@ -1874,6 +1885,7 @@ already-bound variables. Yuck!
                   (kill-buffer it))
               (run-hooks 'anything-after-action-hook)))))
     (quit
+     (setq minibuffer-history (cons anything-input minibuffer-history))
      (goto-char (car anything-current-position))
      (set-window-start (selected-window) (cdr anything-current-position))
      nil)))
@@ -3095,7 +3107,7 @@ This command is a simple example of `anything-run-after-quit'."
   "Set minibuffer contents to current selection."
   (interactive)
   (delete-minibuffer-contents)
-  (insert (anything-get-selection)))
+  (insert (anything-get-selection nil t)))
 
 (defun anything-kill-selection-and-quit ()
   "Store current selection to kill ring.
@@ -3105,7 +3117,7 @@ You can paste it by typing C-y."
    (lambda (sel)
      (kill-new sel)
      (message "Killed: %s" sel))
-   (anything-get-selection)))
+   (anything-get-selection nil t)))
 
 
 ;; (@* "Utility: Incremental search within results (unmaintained)")
