@@ -1,9 +1,13 @@
 ;;; -*- Mode: Emacs-Lisp; outline-regexp: "\n;;;;+" -*-
 
 ;;;;;; Paredit: Parenthesis-Editing Minor Mode
-;;;;;; Version 21
+;;;;;; Version 22 (beta)
 
-;;; Copyright (c) 2008, Taylor R. Campbell
+;;; NOTE:  THIS IS A BETA VERSION OF PAREDIT.  USE AT YOUR OWN RISK.
+;;; THIS FILE IS SUBJECT TO CHANGE, AND NOT SUITABLE FOR DISTRIBUTION
+;;; BY PACKAGE MANAGERS SUCH AS APT, PKGSRC, MACPORTS, &C.
+
+;;; Copyright (c) 2008, 2009, Taylor R. Campbell
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are permitted provided that the following conditions
@@ -34,7 +38,7 @@
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ;;; This file is permanently stored at
-;;;   <http://mumble.net/~campbell/emacs/paredit-21.el>.
+;;;   <http://mumble.net/~campbell/emacs/paredit-22.el>.
 ;;;
 ;;; The currently released version of paredit is available at
 ;;;   <http://mumble.net/~campbell/emacs/paredit.el>.
@@ -174,8 +178,8 @@
 
 ;;; This assumes Unix-style LF line endings.
 
-(defconst paredit-version 21)
-(defconst paredit-beta-p nil)
+(defconst paredit-version 22)
+(defconst paredit-beta-p t)
 
 (eval-and-compile
 
@@ -232,8 +236,14 @@ Signal an error if no clause matches."
 (defvar paredit-mode-map (make-sparse-keymap)
   "Keymap for the paredit minor mode.")
 
+;;;###autoload
 (define-minor-mode paredit-mode
   "Minor mode for pseudo-structurally editing Lisp code.
+With a prefix argument, enable Paredit Mode even if there are
+  imbalanced parentheses in the buffer.
+Paredit behaves badly if parentheses are imbalanced, so exercise
+  caution when forcing Paredit Mode to be enabled, and consider
+  fixing imbalanced parentheses instead.
 \\<paredit-mode-map>"
   :lighter " Paredit"
   ;; If we're enabling paredit-mode, the prefix to this code that
@@ -979,10 +989,34 @@ If the point is in a string or a comment, fill the paragraph instead,
           (paredit-in-comment-p))
       (fill-paragraph argument)
     (save-excursion
+      (end-of-defun)
       (beginning-of-defun)
       (indent-sexp))))
 
 ;;;; Comment Insertion
+
+;;; This is all a horrible, horrible hack, primarily for GNU Emacs 21,
+;;; in which there is no `comment-or-uncomment-region'.
+
+(autoload 'comment-forward "newcomment")
+(autoload 'comment-normalize-vars "newcomment")
+(autoload 'comment-region "newcomment")
+(autoload 'comment-search-forward "newcomment")
+(autoload 'uncomment-region "newcomment")
+
+(defun paredit-initialize-comment-dwim ()
+  (require 'newcomment)
+  (if (not (fboundp 'comment-or-uncomment-region))
+      (defalias 'comment-or-uncomment-region
+        (lambda (beginning end &optional argument)
+          (interactive "*r\nP")
+          (if (save-excursion (goto-char beginning)
+                              (comment-forward (point-max))
+                              (<= end (point)))
+              (uncomment-region beginning end argument)
+              (comment-region beginning end argument)))))
+  (defalias 'paredit-initialize-comment-dwim 'comment-normalize-vars)
+  (comment-normalize-vars))
 
 (defun paredit-comment-dwim (&optional argument)
   "Call the Lisp comment command you want (Do What I Mean).
@@ -1012,38 +1046,22 @@ At the top level, where indentation is calculated to be at column 0,
              (comment-kill (if (integerp argument) argument nil))
              (comment-indent)))
         (t (paredit-insert-comment))))
-
-;;; This is all a horrible, horrible hack, primarily for GNU Emacs 21,
-;;; in which there is no `comment-or-uncomment-region'.
-
-(defun paredit-initialize-comment-dwim ()
-  (require 'newcomment)
-  (if (not (fboundp 'comment-or-uncomment-region))
-      (defalias 'comment-or-uncomment-region
-        (lambda (beginning end &optional argument)
-         (interactive "*r\nP")
-         (funcall (if (save-excursion (goto-char beginning)
-                                      (comment-forward (point-max))
-                                      (<= end (point)))
-                      'uncomment-region
-                      'comment-region)
-                  beginning end argument))))
-  (defalias 'paredit-initialize-comment-dwim 'comment-normalize-vars)
-  (comment-normalize-vars))
 
 (defun paredit-comment-on-line-p ()
+  "True if there is a comment on the line following point.
+This is expected to be called only in `paredit-comment-dwim'; do not
+  call it elsewhere."
   (save-excursion
     (beginning-of-line)
     (let ((comment-p nil))
       ;; Search forward for a comment beginning.  If there is one, set
       ;; COMMENT-P to true; if not, it will be nil.
-      (while (progn (setq comment-p
-                          (search-forward ";" (point-at-eol)
-                                          ;; t -> no error
-                                          t))
-                    (and comment-p
-                         (or (paredit-in-string-p)
-                             (paredit-in-char-p (1- (point))))))
+      (while (progn
+               (setq comment-p          ;t -> no error
+                     (comment-search-forward (point-at-eol) t))
+               (and comment-p
+                    (or (paredit-in-string-p)
+                        (paredit-in-char-p (1- (point))))))
         (forward-char))
       comment-p)))
 
@@ -1054,35 +1072,28 @@ At the top level, where indentation is calculated to be at column 0,
         (code-before-p
          (save-excursion (paredit-skip-whitespace nil (point-at-bol))
                          (not (bolp)))))
-    (if (and (bolp)
-             ;; We have to use EQ 0 here and not ZEROP because ZEROP
-             ;; signals an error if its argument is non-numeric, but
-             ;; CALCULATE-LISP-INDENT may return nil.
-             (eq (let ((indent (calculate-lisp-indent)))
-                   (if (consp indent)
-                       (car indent)
-                     indent))
-                 0))
-        ;; Top-level comment
-        (progn (if code-after-p (save-excursion (newline)))
-               (insert ";;; "))
-      (if code-after-p
-          ;; Code comment
-          (progn (if code-before-p
-                     ;++ Why NEWLINE-AND-INDENT here and not just
-                     ;++ NEWLINE, or PAREDIT-NEWLINE?
-                     (newline-and-indent))
+    (cond ((and (bolp)
+                (let ((indent
+                       (let ((indent (calculate-lisp-indent)))
+                         (if (consp indent) (car indent) indent))))
+                  (and indent (zerop indent))))
+           ;; Top-level comment
+           (if code-after-p (save-excursion (newline)))
+           (insert ";;; "))
+          ((or code-after-p (not code-before-p))
+           ;; Code comment
+           (if code-before-p (newline))
+           (lisp-indent-line)
+           (insert ";; ")
+           (if code-after-p
+               (save-excursion
+                 (newline)
                  (lisp-indent-line)
-                 (insert ";; ")
-                 ;; Move the following code.  (NEWLINE-AND-INDENT will
-                 ;; delete whitespace after the comment, though, so use
-                 ;; NEWLINE & LISP-INDENT-LINE manually here.)
-                 (save-excursion (newline)
-                                 (lisp-indent-line)))
-          ;; Margin comment
-          (progn (indent-to comment-column
-                            1)          ; 1 -> force one leading space
-                 (insert ?\; ))))))
+                 (indent-sexp))))
+          (t
+           ;; Margin comment
+           (indent-to comment-column 1) ; 1 -> force one leading space
+           (insert ?\; )))))
 
 ;;;; Character Deletion
 
@@ -1456,6 +1467,29 @@ With a numeric prefix argument N, do `kill-line' that many times."
 ;;                              nil nil parse-state)
          )
         (t parse-state)))
+
+(defun paredit-copy-as-kill ()
+  "Save in the kill ring the region that `paredit-kill' would kill."
+  (interactive)
+  (save-excursion
+    (if (paredit-in-char-p)
+        (backward-char 2))
+    (let ((beginning (point))
+          (eol (point-at-eol)))
+      (let ((end-of-list-p (paredit-forward-sexps-to-kill beginning eol)))
+        (if end-of-list-p (progn (up-list) (backward-char)))
+        (copy-region-as-kill beginning
+                             (cond (kill-whole-line
+                                    (or (save-excursion
+                                          (paredit-skip-whitespace t)
+                                          (and (not (eq (char-after) ?\; ))
+                                               (point)))
+                                        (point-at-eol)))
+                                   ((and (not end-of-list-p)
+                                         (eq (point-at-eol) eol))
+                                    eol)
+                                   (t
+                                    (point))))))))
 
 ;;;; Cursor and Screen Movement
 
@@ -1671,25 +1705,33 @@ With a prefix argument N, kill only the following N S-expressions."
 (defun paredit-raise-sexp (&optional n)
   "Raise the following S-expression in a tree, deleting its siblings.
 With a prefix argument N, raise the following N S-expressions.  If N
-  is negative, raise the preceding N S-expressions."
+  is negative, raise the preceding N S-expressions.
+If the point is on an S-expression, such as a string or a symbol, not
+  between them, that S-expression is considered to follow the point."
   (interactive "p")
-  (paredit-lose-if-not-in-sexp 'paredit-raise-sexp)
-  ;; Select the S-expressions we want to raise in a buffer substring.
-  (let* ((bound (save-excursion (forward-sexp n) (point)))
-         (sexps (if (and n (< n 0))
-                    (buffer-substring bound
-                                      (paredit-point-at-sexp-end))
-                    (buffer-substring (paredit-point-at-sexp-start)
-                                      bound))))
-    ;; Move up to the list we're raising those S-expressions out of and
-    ;; delete it.
-    (backward-up-list)
-    (delete-region (point) (save-excursion (forward-sexp) (point)))
-    (save-excursion (insert sexps))     ; Insert & reindent the sexps.
-    (save-excursion (let ((n (abs (or n 1))))
-                      (while (> n 0)
-                        (paredit-forward-and-indent)
-                        (setq n (1- n)))))))
+  (save-excursion
+    (cond ((paredit-in-string-p)
+           (goto-char (car (paredit-string-start+end-points))))
+          ((paredit-in-char-p)
+           (backward-sexp))
+          ((paredit-in-comment-p)
+           (error "No S-expression to raise in comment.")))
+    ;; Select the S-expressions we want to raise in a buffer substring.
+    (let* ((bound (save-excursion (forward-sexp n) (point)))
+           (sexps (if (and n (< n 0))
+                      (buffer-substring bound
+                                        (paredit-point-at-sexp-end))
+                      (buffer-substring (paredit-point-at-sexp-start)
+                                        bound))))
+      ;; Move up to the list we're raising those S-expressions out of and
+      ;; delete it.
+      (backward-up-list)
+      (delete-region (point) (save-excursion (forward-sexp) (point)))
+      (save-excursion (insert sexps))   ; Insert & reindent the sexps.
+      (save-excursion (let ((n (abs (or n 1))))
+                        (while (> n 0)
+                          (paredit-forward-and-indent)
+                          (setq n (1- n))))))))
 
 (defun paredit-convolute-sexp (&optional n)
   "Convolute S-expressions.
@@ -1810,7 +1852,7 @@ If in a string, move the opening double-quote forward by one
 Automatically reindent the newly barfed S-expression with respect to
   its new enclosing form."
   (interactive)
-  (paredit-lose-if-not-in-sexp 'paredit-forward-slurp-sexp)
+  (paredit-lose-if-not-in-sexp 'paredit-forward-barf-sexp)
   (save-excursion
     (up-list)                           ; Up to the end of the list to
     (let ((close (char-before)))        ;   save and delete the closing
@@ -1882,7 +1924,7 @@ If in a string, move the opening double-quote backward by one
 Automatically reindent the barfed S-expression and the form from which
   it was barfed."
   (interactive)
-  (paredit-lose-if-not-in-sexp 'paredit-forward-slurp-sexp)
+  (paredit-lose-if-not-in-sexp 'paredit-backward-barf-sexp)
   (save-excursion
     (backward-up-list)
     (let ((open (char-after)))
