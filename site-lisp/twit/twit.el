@@ -1,5 +1,5 @@
 ;;; Twit.el --- interface with twitter.com
-(defvar twit-version-number "0.2.1")
+(defvar twit-version-number "0.2.2")
 ;; Copyright (c) 2007 Theron Tlax
 ;;           (c) 2008-2009 Jonathan Arkell
 ;; Time-stamp: <2007-03-19 18:33:17 thorne>
@@ -246,6 +246,7 @@
 ;;          - Added ascii logo to title bar  
 ;;          - fixed a bug in image retrieval that would try to retrieve
 ;;            the image through a POST method instead of GET. (JA)
+;; - 0.2.2  - fixed botched refactoring of twit-at-friends-cache  (JA)
 
 ;;; Bugs:
 ;; * Follow-recent-tweets might have a serious memory leak.  This
@@ -1248,7 +1249,7 @@ This also sets the variable get-friends-cache."
 								 (cons twit-user (twit-get-friends t)))))
 	(while  (and (not found-match)
 				 (string-match twit-at-regex tweet))
-			(setq found-match (member (match-string 0 tweet) twit-at-friends-cache))
+			(setq found-match (member (match-string 0 tweet) twit-at-friends))
 			(setq tweet (substring tweet (+ 1 (string-match twit-at-regex tweet)))))
 	found-match))
 
@@ -1293,7 +1294,7 @@ tweet as the default recipient.
 This will attempt to do a completing read based on the people you
 are following, if you have images turned on."
   (interactive
-    (list (let ((friends (mapcar (lambda (s) (substring s 1)) twit-at-friends-cache))
+    (list (let ((friends (mapcar (lambda (s) (substring s 1)) (twit-get-friends)))
 				(cur-author (twit-get-text-property 'twit-user)))
 			(completing-read (if cur-author
 								 (concat "To (" cur-author "): ")
@@ -1626,25 +1627,12 @@ Null prefix argument turns off the mode.
 
 ;;* posting
 (when nil
-	  (let* ((summary " - 0.2.1  - Fixed a bug that put the list of tweets on the kill ring.
-         - removed twit-grab-author-of-tweet, (its superceeded by
-           (twit-get-text-property 'twit-user)  
-         - added with-twit-auth macro, so that you can use more then
-           one twitter account.  Better support forthcoming)
-         - fixed potential auth bug with https
-         - added function to visit url (current url, users twit url)
-         - fixed regex for @tweets and #tags.
-         - tweaked get-friends
-         - made twit-filter-at-tweets use get-friends cache, so you
-           don't need images on.
-         - Added ascii logo to title bar 
-         - fixed a bug in image retrieval that would try to retrieve
-           the image through a POST method instead of GET." )
-			 (short-summary "LOTS of Bug fixing, basic multi-account support, custom url support.")
+	  (let* ((summary " - 0.2.2  - fixed botched refactoring of twit-at-friends-cache")
+			 (short-summary "Fixed error (can't find var twit-at-friends-cache.")
 			 (twit-post (concat "New #twit.el: http://www.emacswiki.org/emacs-en/twit.el. " short-summary)))
 		(yaoddmuse-post-library "twit.el" "EmacsWiki" "twit.el" summary t)
 		(twit-post-status twit-update-url twit-post)
-		(with-twit-auth "twit_el" twit-pass (twit-post-status twit-update-url twit-post))
+		(with-twitter-auth "twit_el" twit-pass (twit-post-status twit-update-url twit-post))
 		(twit-show-recent-tweets))
 	  )
 ;;; twit.el ends here
