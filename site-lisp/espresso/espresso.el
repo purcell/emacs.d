@@ -4,7 +4,7 @@
 ;; Author: Karl Landstrom <karl.landstrom@brgeight.se>
 ;; Author: Daniel Colascione <dan.colascione@gmail.com>
 ;; Maintainer: Daniel Colascione <dan.colascione@gmail.com>
-;; Version: 5
+;; Version: 6
 ;; Date: 2009-04-30
 ;; Keywords: languages, oop, javascript
 
@@ -62,15 +62,15 @@
 
 ;;; Code
 
-(require 'cc-mode)
-(require 'font-lock)
-(require 'newcomment)
-(require 'thingatpt)
+(eval-and-compile
+  (require 'cc-mode)
+  (require 'font-lock)
+  (require 'newcomment)
+  (require 'thingatpt))
 
 (eval-when-compile
-  (require 'cl))
-
-(declaim (optimize (speed 0) (safety 3))) ; XXX: change for release
+  (require 'cl)
+  (proclaim '(optimize (speed 0) (safety 3))))
 
 ;;; Constants
 
@@ -455,8 +455,9 @@ function movement, marking, and so on."
 Turn off some frameworks you seldom use to improve performance.
 The set of recognized frameworks can also be overriden on a
 per-buffer basis."
-  :type (cons 'set (loop for framework in espresso--available-frameworks
-                         collect (list 'const framework)))
+  :type (cons 'set (mapcar (lambda (x)
+                             (cons 'const x))
+                           espresso--available-frameworks))
   :group 'espresso)
 
 ;;; KeyMap
@@ -1263,6 +1264,9 @@ is in espresso-enabled-frameworks"
 ;; highlighted. To get correct fontification, every line with variable
 ;; declarations must contain a `var' keyword.
 
+(defvar espresso--tmp-location nil)
+(make-variable-buffer-local 'espresso--tmp-location)
+
 (defconst espresso--font-lock-keywords-3
   `(
     ;; This goes before keywords-2 so it gets used preferentially
@@ -1287,8 +1291,18 @@ is in espresso-enabled-frameworks"
     ;; Highlights parent class, in parts, if available
     (espresso--class-decl-matcher
      ,(concat "\\(" espresso--name-re "\\)\\(?:\\.\\|.*$\\)")
-     (goto-char (or (match-beginning 2) (point-at-eol)))
-     nil
+     (if (match-beginning 2)
+         (progn
+           (setq espresso--tmp-location (match-end 2))
+           (goto-char espresso--tmp-location)
+           (insert "=")
+           (goto-char (match-beginning 2)))
+       (setq espresso--tmp-location nil)
+       (goto-char (point-at-eol)))
+     (when espresso--tmp-location
+       (save-excursion
+         (goto-char espresso--tmp-location)
+         (delete-char 1)))
      (1 font-lock-type-face))
 
     ;; Highlights parent class
@@ -1824,6 +1838,11 @@ its list of children."
 
    (cdr pitem)))
 
+(defun espresso--maybe-make-marker (location)
+  "Make LOCATION into a marker if imenu-use-markers"
+  (if imenu-use-markers
+      (set-marker (make-marker) location)
+    location))
 
 (defun espresso--pitems-to-imenu (pitems unknown-ctr)
   "Convert list of pitems PITEMS to imenu format"
@@ -1841,10 +1860,11 @@ its list of children."
        ((memq pitem-type '(function macro))
         (assert (integerp (espresso--pitem-h-begin pitem)))
         (push (cons pitem-name
-                    (espresso--pitem-h-begin pitem))
+                    (espresso--maybe-make-marker
+                     (espresso--pitem-h-begin pitem)))
               imenu-items))
 
-       ((consp pitem-type)
+       ((consp pitem-type) ; class definition
         (setq subitems (espresso--pitems-to-imenu
                         (espresso--pitem-children pitem)
                         unknown-ctr))
@@ -1856,8 +1876,7 @@ its list of children."
                (assert (integerp (espresso--pitem-h-begin pitem)))
                (setq subitems (list
                                (cons "[empty]"
-                                     (set-marker
-                                      (make-marker)
+                                     (espresso--maybe-make-marker
                                       (espresso--pitem-h-begin pitem)))))
                (push (cons pitem-name subitems)
                      imenu-items))))
