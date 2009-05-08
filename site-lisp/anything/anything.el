@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.181 2009/05/04 19:05:03 rubikitch Exp $
+;; $Id: anything.el,v 1.182 2009/05/08 18:28:18 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -242,6 +242,9 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.182  2009/05/08 18:28:18  rubikitch
+;; Bug fix: `anything-attr' is usable in `header-name' function.
+;;
 ;; Revision 1.181  2009/05/04 19:05:03  rubikitch
 ;; * `anything-yank-selection' and `anything-kill-selection-and-quit' handles display string now.
 ;; * `anything-get-selection': Added optional arguments.
@@ -827,7 +830,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.181 2009/05/04 19:05:03 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.182 2009/05/08 18:28:18 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -2302,7 +2305,7 @@ the real value in a text property."
   (let ((name (assoc-default 'name source)))
     (anything-insert-header name
                             (anything-aif (assoc-default 'header-name source)
-                                (funcall it name)))))
+                                (anything-funcall-with-source source it name)))))
 
 (defun anything-insert-header (name &optional display-string)
   "Insert header of source NAME into the anything buffer."
