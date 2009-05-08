@@ -302,6 +302,7 @@ with `\\\\_<' and `\\\\_>'."
 
 (defconst espresso--constant-re
   (espresso--regexp-opt-symbol '("false" "null" "undefined"
+                                 "Infinity"
                                  "true" "arguments" "this"))
   "Regular expression matching any future reserved words in JavaScript.")
 
