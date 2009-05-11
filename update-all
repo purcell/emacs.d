@@ -51,3 +51,6 @@ echo '***' lacarte
 
 echo '***' paredit
 (cd site-lisp/paredit && curl -o paredit.el http://mumble.net/~campbell/emacs/paredit-beta.el)
+
+echo '***' revive
+(cd site-lisp/revive && curl -o revive.el http://www.gentei.org/~yuuji/software/revive.el)
