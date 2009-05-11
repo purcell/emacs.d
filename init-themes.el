@@ -8,6 +8,7 @@
 (autoload 'color-theme-zenburn "zenburn" "A low contrast color theme" t)
 (autoload 'color-theme-twilight "color-theme-twilight" "A dark color theme" t)
 (autoload 'color-theme-vivid-chalk "vivid-chalk" "A dark color theme" t)
+(autoload 'color-theme-tango-2 "color-theme-tango-2" "A dark color theme" t)
 (color-theme-initialize)
 ;; (color-theme-pierson) ; Light, favourite
 ;; (color-theme-high-contrast)
