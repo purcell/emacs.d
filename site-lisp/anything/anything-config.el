@@ -5,7 +5,6 @@
 ;; Description: Predefined configurations for `anything.el'
 ;; Author: Tassilo Horn <tassilo@member.fsf.org>
 ;; Maintainer: Tassilo Horn <tassilo@member.fsf.org>
-;;             Andy Stewart <lazycat.manatee@gmail.com>
 ;;             rubikitch    <rubikitch@ruby-lang.org>
 ;;             Thierry Volpiatto <thierry.volpiatto@gmail.com>
 ;; Copyright (C) 2007 ~ 2009, Tassilo Horn, all rights reserved.
@@ -13,7 +12,7 @@
 ;; Copyright (C) 2009, rubikitch, all rights reserved.
 ;; Copyright (C) 2009, Thierry Volpiatto, all rights reserved.
 ;; Created: 2009-02-16 21:38:23
-;; Version: 0.4.0
+;; Version: 0.4.1
 ;; URL: http://www.emacswiki.org/emacs/download/anything-config.el
 ;; Keywords: anything, anything-config
 ;; Compatibility: GNU Emacs 22 ~ 23
@@ -149,9 +148,10 @@
 ;;     `anything-c-source-create'             (Create)
 ;;     `anything-c-source-minibuffer-history' (Minibuffer History)
 ;;  System:
-;;     `anything-c-source-gentoo'        (Portage sources)
-;;     `anything-c-source-use-flags'     (Use Flags)
-;;     `anything-c-source-emacs-process' (Emacs Process)
+;;     `anything-c-source-xrandr-change-resolution' (Change Resolution)
+;;     `anything-c-source-gentoo'                   (Portage sources)
+;;     `anything-c-source-use-flags'                (Use Flags)
+;;     `anything-c-source-emacs-process'            (Emacs Process)
 
 ;;; Commands:
 ;;
@@ -201,6 +201,8 @@
 ;;    List all anything sources for test.
 ;;  `anything-select-source'
 ;;    Select source.
+;;  `anything-yaoddmuse-cache-pages'
+;;    Fetch the list of files on emacswiki and create cache file.
 ;;  `anything-yaoddmuse-emacswiki-edit-or-view'
 ;;    Edit or View EmacsWiki page.
 ;;  `anything-yaoddmuse-emacswiki-post-library'
@@ -2652,6 +2654,30 @@ See also `anything-create--actions'."
 
 ;; (anything 'anything-c-source-minibuffer-history)
 ;;;; <System>
+
+;;; X RandR resolution change
+;;; FIXME I do not care multi-display.
+(defvar anything-c-xrandr-output "VGA")
+(defvar anything-c-xrandr-screen "0")
+(defvar anything-c-source-xrandr-change-resolution
+  '((name . "Change Resolution")
+    (candidates
+     . (lambda ()
+         (with-temp-buffer
+           (call-process "xrandr" nil (current-buffer) nil
+                         "--screen" anything-c-xrandr-screen "-q")
+           (goto-char 1)
+           (loop while (re-search-forward "   \\([0-9]+x[0-9]+\\)" nil t)
+                 collect (match-string 1)))))
+    (action
+     ("Change Resolution" . (lambda (mode)
+                              (call-process "xrandr" nil nil nil
+                                            "--screen" anything-c-xrandr-screen
+                                            "--output" anything-c-xrandr-output
+                                            "--mode" mode))))))
+;; (anything 'anything-c-source-xrandr-change-resolution)
+
+
 
 ;; Sources for gentoo users
 
