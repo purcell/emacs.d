@@ -120,9 +120,6 @@ in `exec-path', or nil if no such command exists"
                'after-make-console-frame-hooks)))
 
 (add-hook 'after-make-frame-functions 'run-after-make-frame-hooks)
-(add-hook 'after-init-hook
-      (lambda ()
-        (run-after-make-frame-hooks (selected-frame))))
 
 
 ;;----------------------------------------------------------------------------

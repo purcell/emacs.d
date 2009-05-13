@@ -32,16 +32,15 @@
   (set-face-attribute 'default nil :background "#1f1f1f"))
 
 
-(defun apply-color-theme (theme-fn)
+(defun apply-best-color-theme-for-frame-type (frame)
   (preserving-default-font-size
-   (funcall theme-fn)))
+   (funcall (if window-system
+		*window-system-color-theme*
+	      *tty-color-theme*))))
 
-
+(setq color-theme-is-cumulative nil)
 (set-variable 'color-theme-is-global nil)
-(add-hook 'after-make-window-system-frame-hooks
-          (lambda () (apply-color-theme *window-system-color-theme*)))
-(add-hook 'after-make-console-frame-hooks
-          (lambda () (apply-color-theme *tty-color-theme*)))
-
+(add-hook 'after-make-frame-functions 'apply-best-color-theme-for-frame-type)
+(apply-best-color-theme-for-frame-type (selected-frame))
 
 (provide 'init-themes)
