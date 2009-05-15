@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.182 2009/05/08 18:28:18 rubikitch Exp $
+;; $Id: anything.el,v 1.183 2009/05/15 01:50:46 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -242,6 +242,9 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.183  2009/05/15 01:50:46  rubikitch
+;; typo
+;;
 ;; Revision 1.182  2009/05/08 18:28:18  rubikitch
 ;; Bug fix: `anything-attr' is usable in `header-name' function.
 ;;
@@ -830,7 +833,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.182 2009/05/08 18:28:18 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.183 2009/05/15 01:50:46 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -3387,7 +3390,7 @@ shown for the current iswitchb input.
 
 ESC cancels anything completion and returns to normal iswitchb.
 
-Some key bindings in `anything-map' is modified.
+Some key bindings in `anything-map' are modified.
 See also `anything-iswitchb-setup-keys'."
   (interactive)
 
