@@ -69,6 +69,7 @@
   (require 'imenu)
   (require 'etags)
   (require 'thingatpt)
+  (require 'ring)
   (require 'moz nil t)
   (require 'json nil t))
 
@@ -463,6 +464,14 @@ per-buffer basis."
   :type (cons 'set (mapcar (lambda (x)
                              (cons 'const x))
                            espresso--available-frameworks))
+  :group 'espresso)
+
+(defcustom espresso-js-switch-tabs
+  (and (memq system-type '(darwin)) t)
+  "Non-nil if Emacs should display tabs while selecting them.
+  Useful only if the windowing system has a good mechanism for
+  preventing Firefox from stealing the keyboard focus."
+  :type 'boolean
   :group 'espresso)
 
 ;;; KeyMap
@@ -2041,7 +2050,8 @@ buffer. Pushes a mark onto the tag ring just like `find-tag'."
 (put 'espresso-js-error 'error-conditions '(error js-error))
 (put 'espresso-js-error 'error-message "Javascript Error")
 
-(defun espresso--wait-for-matching-output (process regexp timeout &optional start)
+(defun espresso--wait-for-matching-output
+  (process regexp timeout &optional start)
   "Wait TIMEOUT seconds for PROCESS to output something that
 matches REGEXP. On timeout, return nil. On success, return t with
 match data set. If START is non-nil, look for output starting
@@ -2051,6 +2061,7 @@ from START. Otherwise, use the current value of `process-mark'."
                                (marker-position (process-mark process)))
           with end-time = (+ (float-time) timeout)
           for time-left = (- end-time (float-time))
+          do (goto-char (point-max))
           if (looking-back regexp start-pos) return t
           while (> time-left 0)
           do (accept-process-output process time-left nil t)
@@ -2063,7 +2074,11 @@ from START. Otherwise, use the current value of `process-mark'."
   (id nil :read-only t)
 
   ;; Process to which this thing belongs
-  (process nil))
+  (process nil :read-only t))
+
+(defun espresso--js-handle-expired-p (x)
+  (not (eq (espresso--js-handle-process x)
+           (inferior-moz-process))))
 
 (defvar espresso--js-references nil
   "Maps Elisp Javascript proxy objects to their Javascript IDs.")
@@ -2134,6 +2149,10 @@ from START. Otherwise, use the current value of `process-mark'."
     },
 
     _parsePropDescriptor: function _parsePropDescriptor(parts) {
+      if(typeof parts === 'string') {
+        parts = [ parts ];
+      }
+
       var obj = parts[0];
       var start = 1;
 
@@ -2205,6 +2224,10 @@ from START. Otherwise, use the current value of `process-mark'."
 
       s += ')';
       return eval(s);
+    },
+
+    _callEval: function(thisobj, js) {
+      return eval.call(thisobj, js);
     },
 
     getPrompt: function getPrompt(repl) {
@@ -2392,9 +2415,7 @@ espresso--js-encode-value."
         ((symbolp x) (format "{objid:%S}" (symbol-name x)))
         ((espresso--js-handle-p x)
 
-         ;; Check that the handle hasn't expired
-         (unless (eq (espresso--js-handle-process x)
-                     (inferior-moz-process))
+         (when (espresso--js-handle-expired-p x)
            (error "Stale JS handle"))
 
          (format "{objid:%s}" (espresso--js-handle-id x)))
@@ -2408,7 +2429,7 @@ espresso--js-encode-value."
         (t
          (error "Unrecognized item: %S" x))))
 
-(defconst espresso--js-prompt-regexp "repl[0-9]*> $")
+(defconst espresso--js-prompt-regexp "\\(repl[0-9]*\\)> $")
 (defconst espresso--js-repl-prompt-regexp "^EVAL>$")
 (defvar espresso--js-repl-depth 0)
 
@@ -2451,7 +2472,8 @@ espresso--js-encode-value."
         (espresso--js-wait-for-eval-prompt)
 
       ;; Otherwise, tell Mozilla to enter the interactor mode
-      (insert "repl.pushInteractor('espresso')")
+      (insert (match-string-no-properties 1)
+              ".pushInteractor('espresso')")
       (comint-send-input nil t)
       (espresso--wait-for-matching-output
        (inferior-moz-process) espresso--js-repl-prompt-regexp 1))
@@ -2483,6 +2505,18 @@ espresso--js-encode-value."
           collect (append (list 'list ''espresso--funcall
                                 '(list 'interactor "_getProp"))
                           (espresso--optimize-arglist (cdr item)))
+          else if (eq (car-safe item) 'js>)
+          collect (append (list 'list ''espresso--funcall
+                                '(list 'interactor "_putProp"))
+
+                          (if (atom (cadr item))
+                              (list (cadr item))
+                            (list
+                             (append
+                              (list 'list ''espresso--funcall
+                                    '(list 'interactor "_mkArray"))
+                              (espresso--optimize-arglist (cadr item)))))
+                          (espresso--optimize-arglist (cddr item)))
           else if (eq (car-safe item) 'js!)
           collect (destructuring-bind (ignored function &rest body) item
                     (append (list 'list ''espresso--funcall
@@ -2497,7 +2531,7 @@ espresso--js-encode-value."
 (defmacro with-espresso-js (&rest forms)
   "Runs FORMS with the Mozilla repl set up for espresso commands.
 Inside the lexical scope of `with-espresso-js', `js?', `js!',
-`js-new', `js<', `js>', and `js-array-as-list' are defined."
+`js-new', `js-eval', `js-list', `js<', `js>', and are defined."
 
   `(progn
      (espresso--js-enter-repl)
@@ -2510,6 +2544,7 @@ Inside the lexical scope of `with-espresso-js', `js?', `js!',
                                       (espresso--optimize-arglist function))
                               function)
                            ,@(espresso--optimize-arglist body)))
+
                     (js-new (function &rest body)
                             `(espresso--js-new
                               ,(if (consp function)
@@ -2517,6 +2552,16 @@ Inside the lexical scope of `with-espresso-js', `js?', `js!',
                                          (espresso--optimize-arglist function))
                                  function)
                               ,@body))
+
+                    (js-eval (thisobj js)
+                            `(espresso--js-eval
+                              ,@(espresso--optimize-arglist
+                                 (list thisobj js))))
+
+                    (js-list (&rest arguments)
+                             `(espresso--js-list
+                               ,@(espresso--optimize-arglist arguments)))
+
                     (js< (&rest body) `(espresso--js-get
                                         ,@(espresso--optimize-arglist body)))
                     (js> (props value)
@@ -2529,8 +2574,7 @@ Inside the lexical scope of `with-espresso-js', `js?', `js!',
                            ,@(espresso--optimize-arglist (list value))
                            ))
                     (js-handle? (arg) `(espresso--js-handle-p ,arg)))
-           (symbol-macrolet ((js-array-as-list espresso--js-array-as-list))
-             ,@forms))
+           ,@forms)
        (espresso--js-leave-repl))))
 
 (defvar espresso--js-array-as-list nil
@@ -2594,6 +2638,17 @@ or a list of these things."
          '(interactor "_callNew")
          constructor arguments))
 
+(defun espresso--js-eval (thisobj js)
+  (espresso--js-funcall '(interactor "_callEval") thisobj js))
+
+(defun espresso--js-list (&rest arguments)
+  "Return a Lisp array that is the result of evaluating each of
+  the elements of ARGUMENTS"
+
+  (let ((espresso--js-array-as-list t))
+    (apply #'espresso--js-funcall '(interactor "_mkArray")
+           arguments)))
+
 (defun espresso--js-get (&rest props)
   (apply #'espresso--js-funcall '(interactor "_getProp") props))
 
@@ -2642,60 +2697,230 @@ With argument, run even if no intervening GC has happened."
 
 (defun espresso-js-eval (js)
   "Evaluate the Javascript contained in JS and return the
-JSON-decoded result"
+JSON-decoded result. eval must be called using this function
+because it is special to the Javascript interpreter."
   (interactive "MJavascript to evaluate: ")
   (with-espresso-js
-   (let ((result (js! "eval" js)))
+   (let* ((context (espresso--get-js-context))
+          (content-window (ecase (car context)
+                            (window (cdr context))
+                            (browser (js< (cdr context)
+                                          "contentWindow" "wrappedJSObject"))))
+          (result (js-eval content-window js)))
+
      (when (interactive-p)
        (message "%s" (js! "String" result)))
      result)))
 
 (defun espresso--get-tabs ()
-  "Enumerate all the contexts available"
+  "Enumerate all the contexts available. Each one is a list:
+
+   The list is (TITLE URL BROWSER TAB TABBROWSER) for content documents
+   The list is (TITLE URL WINDOW) for windows
+
+   All tabs of a given window are grouped together. The most
+   recent window is first. Within each window, the tabs are
+   returned left-to-right.
+"
+  (with-espresso-js
+   (let (windows)
+
+     (loop with window-mediator = (js! ("Components" "classes"
+                                        "@mozilla.org/appshell/window-mediator;1"
+                                        "getService")
+                                       (js< "Components" "interfaces"
+                                            "nsIWindowMediator"))
+           with enumerator = (js! (window-mediator "getEnumerator") nil)
+
+           while (js? (js! (enumerator "hasMoreElements")))
+           for window = (js! (enumerator "getNext"))
+           for window-info = (js-list window
+                                      (js< window "document" "title")
+                                      (js! (window "location" "toString"))
+                                      (js< window "closed")
+                                      (js< window "windowState"))
+
+           unless (or (js? (fourth window-info))
+                      (eq (fifth window-info) 2))
+           do (push window-info windows))
+
+     (loop for window-info in windows
+           for window = (first window-info)
+           collect (list (second window-info)
+                         (third window-info)
+                         window)
+
+           for gbrowser = (js< window "gBrowser")
+           if (js-handle? gbrowser)
+           nconc (loop
+                  for x below (js< gbrowser "browsers" "length")
+                  collect (js-list (js< gbrowser
+                                        "browsers"
+                                        x
+                                        "contentDocument"
+                                        "title")
+
+                                   (js! (gbrowser
+                                         "browsers"
+                                         x
+                                         "contentWindow"
+                                         "location"
+                                         "toString"))
+                                   (js< gbrowser
+                                        "browsers"
+                                        x)
+
+                                   (js! (gbrowser
+                                         "tabContainer"
+                                         "childNodes"
+                                         "item")
+                                        x)
+
+                                   gbrowser))))))
+
+(defvar espresso-read-tab-history nil)
+
+(defun espresso--read-tab (prompt)
+  "Read a Mozilla tab with prompt PROMPT. Return a cons of (TYPE . OBJECT).
+TYPE is either 'window or 'tab, and OBJECT is a Javascript handle
+to a ChromeWindow or a browser, respectively."
+
+  ;; Prime IDO
+  (unless ido-mode
+    (ido-mode t)
+    (ido-mode nil))
 
   (with-espresso-js
-   (loop with window-mediator = (js! ("Components" "classes"
-                                      "@mozilla.org/appshell/window-mediator;1"
-                                      "getService")
-                                 (js< "Components" "interfaces"
-                                      "nsIWindowMediator"))
+   (lexical-let ((tabs (espresso--get-tabs)) selected-tab-name selected-tab
+                 prev-hitab)
 
-         with enumerator = (js! (window-mediator "getEnumerator") nil)
+     ;; Disambiguate names
+     (setq tabs (loop with tab-names = (make-hash-table :test 'equal)
+                      for tab in tabs
+                      for cname = (format "%s (%s)" (second tab) (first tab))
+                      for num = (incf (gethash cname tab-names -1))
+                      if (> num 0)
+                      do (setq cname (format "%s <%d>" cname num))
+                      collect (cons cname tab)))
 
-         while (js? (js! (enumerator "hasMoreElements")))
-         for window = (js! (enumerator "getNext"))
-         collect (list (js< window "title")
-                       (js! (window "location" "toString"))
-                       window)
+     (labels ((find-tab-by-cname
+               (cname)
+               (loop for tab in tabs
+                     if (equal (car tab) cname)
+                     return (cdr tab)))
 
-         for gbrowser = (js< window "gBrowser")
-         if (js-handle? gbrowser)
-         nconc (loop
-                with js-array-as-list = t
-                for x below (js< gbrowser "browsers" "length")
-                collect (js! ('interactor "_mkArray")
-                             (js< gbrowser
-                                  "browsers"
-                                  x
-                                  "contentDocument"
-                                  "title")
+              (mogrify-highlighting
+               (hitab unhitab)
 
-                             (js! (gbrowser
-                                   "browsers"
-                                   x
-                                   "contentWindow"
-                                   "location"
-                                   "toString"))
-                             (js< gbrowser
-                                  "browsers"
-                                  x
-                                  "contentWindow"))))))
+               ;; Hack to reduce the number of
+               ;; round-trips to mozilla
+               (let (cmds)
+                 (cond
+                  ;; Highlighting tab
+                  ((fourth hitab)
+                   (push '(js! ((fourth hitab) "setAttribute")
+                               "style"
+                               "color: red; font-weight: bold")
+                         cmds)
 
-(defun espresso--read-tab ()
-  "Read a Mozilla tab. "
-  )
+                   ;; Highlight window proper
+                   (push '(js! ((third hitab)
+                                "setAttribute")
+                               "style"
+                               "border: 8px solid red")
+                         cmds)
+
+                   ;; Select tab, when appropriate
+                   (when espresso-js-switch-tabs
+                     (push
+                      '(js> ((fifth hitab) "selectedTab") (fourth hitab))
+                      cmds)))
+
+                  ;; Hilighting whole window
+                  ((third hitab)
+                   (push '(js! ((third hitab) "document"
+                                "documentElement" "setAttribute")
+                               "style"
+                               (concat "-moz-appearance: none;"
+                                       "border: 8px solid red;"))
+                         cmds)))
+
+                 (cond
+                  ;; Unhighlighting tab
+                  ((fourth unhitab)
+                   (push '(js! ((fourth unhitab) "setAttribute") "style" "")
+                         cmds)
+                   (push '(js! ((third unhitab) "setAttribute") "style" "")
+                         cmds))
+
+                  ;; Unhighlighting window
+                  ((third unhitab)
+                   (push '(js! ((third unhitab) "document"
+                                "documentElement" "setAttribute")
+                               "style" "")
+                         cmds)))
+
+                 (eval (list 'with-espresso-js
+                             (cons 'js-list (nreverse cmds))))))
+
+              (command-hook
+               ()
+               (let* ((tab (find-tab-by-cname (car ido-matches))))
+                 (mogrify-highlighting tab prev-hitab)
+                 (setq prev-hitab tab)))
+
+              (setup-hook
+               ()
+               ;; Fiddle with the match list a bit: if our first match
+               ;; is a tabbrowser window, rotate the match list until
+               ;; the active tab comes up
+               (let ((matched-tab (find-tab-by-cname (car ido-matches))))
+                 (when (and matched-tab
+                            (null (fourth matched-tab))
+                            (equal "navigator:browser"
+                                   (js! ((third matched-tab)
+                                         "document"
+                                         "documentElement"
+                                         "getAttribute")
+                                        "windowtype")))
+
+                   (loop with tab-to-match = (js< (third matched-tab)
+                                                  "gBrowser"
+                                                  "selectedTab")
+
+                         with index = 0
+                         for match in ido-matches
+                         for candidate-tab = (find-tab-by-cname match)
+                         if (eq (fourth candidate-tab) tab-to-match)
+                         do (setq ido-cur-list (ido-chop ido-cur-list match))
+                         and return t)))
+
+               (add-hook 'post-command-hook #'command-hook t t)))
 
 
+       (unwind-protect
+           (setq selected-tab-cname
+                 (let ((ido-minibuffer-setup-hook
+                        (cons #'setup-hook ido-minibuffer-setup-hook)))
+                   (ido-completing-read
+                    prompt
+                    (mapcar #'car tabs)
+                    nil t nil
+                    'espresso-read-tab-history)))
+
+         (when prev-hitab
+           (mogrify-highlighting nil prev-hitab)
+           (setq prev-hitab nil)))
+
+       (add-to-history 'espresso-read-tab-history selected-tab-cname)
+
+       (setq selected-tab (loop for tab in tabs
+                                if (equal (car tab) selected-tab-cname)
+                                return (cdr tab)))
+
+       (if (fourth selected-tab)
+           (cons 'browser (third selected-tab))
+         (cons 'window (third selected-tab)))))))
 
 (defun espresso--guess-eval-defun-info (pstate)
   "Internal helper for `espresso-eval-defun'. Returns a list (NAME . CLASSPARTS),
@@ -2725,6 +2950,32 @@ and NAME is the name of the function part."
   (insert "hello world")
   )
 
+(defvar espresso--js-context nil
+  "The current JS context. This is a cons like the one returned
+from `espresso--read-tab'. Change with
+`espresso-set-js-context'.")
+
+(defun espresso-set-js-context (context)
+  "Set the Javascript context to CONTEXT, reading from the user
+if interactive"
+  (interactive (list (espresso--read-tab "Javascript Context: ")))
+  (setq espresso--js-context context))
+
+(defun espresso--get-js-context ()
+  "Return a valid JS context. If one hasn't been set, or if it's
+stale, ask the user for a new one."
+
+  (with-espresso-js
+   (when (or (null espresso--js-context)
+             (espresso--js-handle-expired-p (cdr espresso--js-context))
+             (ecase (car espresso--js-context)
+               (window (js? (js< (cdr espresso--js-context) "closed")))
+               (browser (not (js? (js< (cdr espresso--js-context)
+                                       "contentDocument"))))))
+     (setq espresso--js-context (espresso--read-tab "Javascript Context: ")))
+
+   espresso--js-context))
+
 (defun espresso-eval-defun ()
   "Update some Mozilla tab with defun containing point or after
 point"
@@ -2733,8 +2984,8 @@ point"
   ;; This function works by generating a temporary file that contains
   ;; the function we'd like to insert. We then use the elisp-js bridge
   ;; to command mozilla to load this file by inserting a script tag
-  ;; into head. This way, debuggers and such will have a way to find
-  ;; the source of the just-inserted function.
+  ;; into the document we set. This way, debuggers and such will have
+  ;; a way to find the source of the just-inserted function.
   ;;
   ;; We delete the temporary file if there's an error, but otherwise
   ;; we add an unload event listener on the Mozilla side to delete the
