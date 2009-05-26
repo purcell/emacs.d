@@ -1,4 +1,5 @@
 (setq load-path (cons "~/.emacs.d/site-lisp/org-mode/lisp" load-path))
+(setq load-path (cons "~/.emacs.d/site-lisp/org-mode/contrib/lisp" load-path))
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
@@ -15,6 +16,9 @@
 (setq org-clock-into-drawer t)
 ;; Removes clocked tasks with 0:00 duration
 (setq org-clock-out-remove-zero-time-clocks t)
+
+(eval-after-load "org"
+  '(require 'org-checklist))
 
 
 (provide 'init-org)
