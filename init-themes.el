@@ -38,6 +38,10 @@
 		*window-system-color-theme*
 	      *tty-color-theme*))))
 
+(defun reapply-color-themes ()
+  (interactive)
+  (mapcar 'apply-best-color-theme-for-frame-type (frame-list)))
+
 (set-variable 'color-theme-is-global nil)
 (add-hook 'after-make-frame-functions 'apply-best-color-theme-for-frame-type)
 (apply-best-color-theme-for-frame-type (selected-frame))
