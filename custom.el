@@ -48,7 +48,6 @@
  '(org-agenda-ndays 14)
  '(org-agenda-window-setup (quote current-window))
  '(org-fast-tag-selection-single-key (quote expert))
- '(org-hide-leading-stars t)
  '(org-link-abbrev-alist (quote (("as24trac" . "https://iss-trac.autoscout24.com/projects/ISS/ticket/"))))
  '(org-tags-column 80)
  '(quack-fontify-style nil)
