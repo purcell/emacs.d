@@ -4,7 +4,7 @@
 ;; Author: Karl Landstrom <karl.landstrom@brgeight.se>
 ;; Author: Daniel Colascione <dan.colascione@gmail.com>
 ;; Maintainer: Daniel Colascione <dan.colascione@gmail.com>
-;; Version: 7
+;; Version: 9
 ;; Date: 2009-05-22
 ;; Keywords: languages, oop, javascript
 
@@ -465,7 +465,7 @@ function movement, marking, and so on."
 
 (defcustom espresso-comment-lineup-func #'c-lineup-C-comments
   "cc-mode-style lineup function for C comments"
-  :type 'boolean
+  :type 'function
   :group 'espresso)
 
 (defcustom espresso-enabled-frameworks espresso--available-frameworks
@@ -475,7 +475,7 @@ Turn off some frameworks you seldom use to improve performance.
 The set of recognized frameworks can also be overriden on a
 per-buffer basis."
   :type (cons 'set (mapcar (lambda (x)
-                             (cons 'const x))
+                             (list 'const x))
                            espresso--available-frameworks))
   :group 'espresso)
 
@@ -1654,7 +1654,7 @@ interatively, also display a message with that context."
 ;; as the newline is escaped with \. Account for that in the regexp
 ;; below.
 (defconst espresso--regexp-literal
-  "[=(,:]\\(?:\\s-\\|\n\\)*\\(/\\)[^/*]\\(?:.*?[^\\]\\)?\\(/\\)"
+  "[=(,:]\\(?:\\s-\\|\n\\)*\\(/\\)\\(?:\\\\/\\|[^/*]\\)\\(?:\\\\/\\|[^/]\\)*\\(/\\)"
   "Match a regular expression literal. Match groups 1 and 2 are
 the characters forming the beginning and end of the literal")
 
