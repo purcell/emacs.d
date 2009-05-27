@@ -171,6 +171,10 @@
 ;;    Launch only anything-surfraw.
 ;;  `anything-kill-buffers'
 ;;    You can continuously kill buffer you selected.
+;;  `anything-query-replace-regexp'
+;;    Drop-in replacement of `query-replace-regexp' with building regexp visually.
+;;  `anything-regexp'
+;;    It is like `re-builder'. It helps buliding regexp and replacement.
 ;;  `anything-insert-buffer-name'
 ;;    Insert buffer name.
 ;;  `anything-insert-symbol'
@@ -431,8 +435,15 @@ You may bind this command to C-r in minibuffer-local-map / minibuffer-local-comp
   (interactive)
   (anything 'anything-c-source-minibuffer-history nil nil nil nil
             "*anything minibuffer-history*"))
-;; (define-key minibuffer-local-map "\C-r" 'anything-minibuffer-history)
-;; (define-key minibuffer-local-completion-map "\C-r" 'anything-minibuffer-history)
+
+(dolist (map (list minibuffer-local-filename-completion-map
+                   minibuffer-local-completion-map
+                   minibuffer-local-must-match-filename-map
+                   minibuffer-local-map
+                   minibuffer-local-isearch-map
+                   minibuffer-local-must-match-map
+                   minibuffer-local-ns-map))
+  (define-key map "\C-r" 'anything-minibuffer-history))
 
 (defun anything-gentoo ()
   "Start anything with only gentoo sources."
@@ -464,6 +475,7 @@ With two prefix args allow choosing in which symbol to search."
         (anything 'anything-c-source-surfraw))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Anything Applications ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; kill buffers
 (defun anything-kill-buffers ()
   "You can continuously kill buffer you selected."
   (interactive)
@@ -476,6 +488,88 @@ With two prefix args allow choosing in which symbol to search."
                           (anything-kill-buffers)
                           )))))
    nil nil))
+
+;;; Regexp
+(defun anything-query-replace-regexp (&rest args)
+  "Drop-in replacement of `query-replace-regexp' with building regexp visually."
+  (interactive
+   (or (anything-c-regexp-base "Query Replace Regexp: "
+                               '((name . "Lines matching Regexp")
+                                 (action . anything-c-query-replace-args)))
+       (keyboard-quit)))
+  (apply 'query-replace-regexp args))
+
+(defun anything-regexp ()
+  "It is like `re-builder'. It helps buliding regexp and replacement."
+  (interactive)
+  (anything-c-regexp-base
+   "Regexp: "
+   '((name . "Regexp Builder")
+     (action
+      ("Kill Regexp as sexp" .
+       (lambda (x) (anything-c-regexp-kill-new (prin1-to-string anything-input))))
+      ("Query Replace Regexp" .
+       (lambda (x) (apply 'query-replace-regexp (anything-c-query-replace-args))))
+      ("Kill Regexp" .
+       (lambda (x) (anything-c-regexp-kill-new anything-input)))))))
+
+(defun anything-c-query-replace-args (start-point)
+  ;; create arguments of `query-replace-regexp'.
+  (let ((region-only (and transient-mark-mode mark-active)))
+    (list
+     anything-input
+     (read-string (format "Query replace regexp %s%s%s with: "
+                          (if region-only "in region " "")
+                          anything-input
+                          (if current-prefix-arg "(word) " "")))
+     current-prefix-arg
+     (if region-only
+         (region-beginning)
+       start-point)
+     (if region-only
+         (region-end)
+       (point-max)))))
+
+(defun anything-c-regexp-get-line (s e)
+  (propertize
+   (apply 'concat
+          ;; Line contents
+          (format "%5d: %s" (line-number-at-pos s) (buffer-substring s e))
+          ;; subexps
+          (loop for i from 0 to (1- (/ (length (match-data)) 2))
+                unless (zerop i)
+                collect (format "\n         $%d = %s"
+                                i (match-string i))))
+   ;; match beginning
+   'anything-realvalue s))
+
+(defun anything-c-regexp-persistent-action (txt)
+  (goto-line (anything-aif (string-match "^ *\\([0-9]+\\)" txt)
+                 (string-to-number (match-string 1 txt)))))
+
+(defun anything-c-regexp-base (prompt attributes)
+  (save-restriction
+    (let ((anything-compile-source-functions
+           ;; rule out anything-match-plugin because the input is one regexp.
+           (delq 'anything-compile-source--match-plugin
+                 (copy-sequence anything-compile-source-functions))))
+      (if (and transient-mark-mode mark-active)
+          (narrow-to-region (region-beginning) (region-end)))
+      (anything
+       (list
+        (append
+         '((init . (lambda () (anything-candidate-buffer anything-current-buffer)))
+           (candidates-in-buffer)
+           (get-line . anything-c-regexp-get-line)
+           (persistent-action . anything-c-regexp-persistent-action)
+           (multiline)
+           (delayed))
+         attributes))
+       nil prompt nil nil "*anything regexp*"))))
+
+(defun anything-c-regexp-kill-new (input)
+  (kill-new input)
+  (message "Killed: %s" input))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -2648,7 +2742,8 @@ See also `anything-create--actions'."
 ;; Minibuffer History
 (defvar anything-c-source-minibuffer-history
   '((name . "Minibuffer History")
-    (candidates . minibuffer-history)
+    (header-name . (lambda (name) (format "%s (%s)" name minibuffer-history-variable)))
+    (candidates . (lambda () (symbol-value minibuffer-history-variable)))
     (migemo)
     (action . insert)))
 
@@ -3411,6 +3506,8 @@ candidate can be in (DISPLAY . REAL) format."
 (defun anything-p-candidats-file-init ()
   (destructuring-bind (file &optional updating)
       (anything-mklist (anything-attr 'candidates-file))
+    (when (symbolp file)
+      (setq file (symbol-value file)))
     (with-current-buffer (anything-candidate-buffer (find-file-noselect file))
       (when updating
         (buffer-disable-undo)
