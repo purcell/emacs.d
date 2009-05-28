@@ -624,7 +624,7 @@ AS WELL.  Otherwise your primary login credentials may get wacked."
 	("v" . twit-visit-link)
     ("i" . twit-install-elisp)
 	
-	("q" . burry-buffer)
+	("q" . bury-buffer)
 
 	("h" . twit-mode-help)
 	("?" . twit-mode-help)))
