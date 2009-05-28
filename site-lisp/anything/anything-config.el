@@ -509,7 +509,7 @@ With two prefix args allow choosing in which symbol to search."
       ("Kill Regexp as sexp" .
        (lambda (x) (anything-c-regexp-kill-new (prin1-to-string anything-input))))
       ("Query Replace Regexp" .
-       (lambda (x) (apply 'query-replace-regexp (anything-c-query-replace-args))))
+       (lambda (x) (apply 'query-replace-regexp (anything-c-query-replace-args (point)))))
       ("Kill Regexp" .
        (lambda (x) (anything-c-regexp-kill-new anything-input)))))))
 
@@ -2776,6 +2776,9 @@ See also `anything-create--actions'."
 
 ;; Sources for gentoo users
 
+(defvar anything-gentoo-prefered-shell 'eshell
+  "Your favorite shell to run emerge command.")
+
 (defvar anything-c-gentoo-use-flags nil)
 (defvar anything-c-gentoo-buffer "*anything-gentoo-output*")
 (defvar anything-c-cache-gentoo nil)
@@ -2812,6 +2815,10 @@ See also `anything-create--actions'."
                                      (font-lock-mode 1)))
                ("Run emerge pretend" . (lambda (elm)
                                          (anything-c-gentoo-eshell-action elm "emerge -p")))
+               ("Emerge" . (lambda (elm)
+                             (anything-gentoo-install elm)))
+               ("Unmerge" . (lambda (elm)
+                              (anything-gentoo-uninstall elm)))
                ("Show dependencies" . (lambda (elm)
                                         (anything-c-gentoo-default-action elm "equery" "-C" "d")))
                ("Show related files" . (lambda (elm)
@@ -2821,6 +2828,14 @@ See also `anything-create--actions'."
                              (setq anything-c-cache-world (anything-c-gentoo-get-world))))))))
 
 ;; (anything 'anything-c-source-gentoo)
+
+(defun anything-gentoo-install (candidate)
+  (funcall anything-gentoo-prefered-shell)
+  (insert (concat "sudo emerge -av " candidate)))
+
+(defun anything-gentoo-uninstall (candidate)
+  (funcall anything-gentoo-prefered-shell)
+  (insert (concat "sudo emerge -avC " candidate)))
 
 (defun anything-c-gentoo-default-action (elm command &rest args)
   "Gentoo default action that use `anything-c-gentoo-buffer'."
@@ -3616,6 +3631,14 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
   (dolist (i anything-c-marked-candidate-list)
     (anything-c-delete-file i)))
 
+(defun anything-ediff-marked-buffers (candidate &optional merge)
+  (when (eq (length anything-c-marked-candidate-list) 2)
+    (let ((buf1 (first anything-c-marked-candidate-list))
+          (buf2 (second anything-c-marked-candidate-list)))
+      (if merge
+          (ediff-merge-buffers buf1 buf2)
+          (ediff-buffers buf1 buf2)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Setup ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Type Attributes
@@ -3631,7 +3654,10 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
      ("Revert buffer" . anything-revert-buffer)
      ("Revert Marked buffers" . anything-revert-marked-buffers)
      ("Kill buffer" . kill-buffer)
-     ("Kill Marked buffers" . anything-kill-marked-buffers))
+     ("Kill Marked buffers" . anything-kill-marked-buffers)
+     ("Ediff Marked buffers" . anything-ediff-marked-buffers)
+     ("Ediff Merge marked buffers" . (lambda (candidate)
+                                       (anything-ediff-marked-buffers candidate t))))
     (candidate-transformer . anything-c-skip-boring-buffers))
   "Buffer or buffer name.")
 
