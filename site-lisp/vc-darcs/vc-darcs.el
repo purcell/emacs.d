@@ -23,6 +23,9 @@
 ;; Darcs is David's Advanced Revision Control System at
 ;; http://www.darcs.net/
 
+;; This version is of vc-darcs was written for Emacs 23.  It will work
+;; under Emacs 22, albeit with reduced functionality.
+
 ;; A few ideas for this file are directly taken from vc-svn.el.  Thanks to
 ;; Jim Blandy.
 
@@ -59,7 +62,7 @@
 ;; vc-darcs.el~Init~, vc-darcs.el~Initial~ and so on.
 
 
-(defvar vc-darcs-version-string "1.9"
+(defvar vc-darcs-version-string "1.10"
   "The version string for vc-darcs.el.")
 
 ;;; Code:
@@ -101,23 +104,24 @@ list of arguments to pass."
 
 (defun vc-darcs-find-root (file)
   "Return the root darcs repository directory for FILE, or nil if not found."
-  (vc-find-root file "_darcs"))
+  (vc-find-root (expand-file-name file) "_darcs"))
 
 (defun vc-darcs-special-file-p (file)
-  (and (string-match "/_darcs/" file)
-       (not (string-match "/_darcs/prefs/" file))))
+  (let ((file (expand-file-name file)))
+    (and (string-match "/_darcs/" file)
+         (not (string-match "/_darcs/prefs/" file)))))
 
-(defun vc-darcs-do-command (command okstatus file &rest flags)
+(defun vc-darcs-do-command (command okstatus files &rest flags)
   "Run darcs COMMAND using VC-DO-COMMAND."
   (let ((arguments (cdr (assq command vc-darcs-program-arguments))))
     (apply #'vc-do-command "*vc*" okstatus
-           vc-darcs-program-name file (symbol-name command)
+           vc-darcs-program-name files (symbol-name command)
            (append arguments flags))))
 
-(defun vc-darcs-changes (&optional file &rest flags)
-  "Return a list of hashes of the patches that touch FILE in inverse order."
+(defun vc-darcs-changes (&optional files &rest flags)
+  "Return a list of hashes of the patches that touch FILES in inverse order."
   (with-temp-buffer
-    (apply #'vc-do-command t 0 vc-darcs-program-name file
+    (apply #'vc-do-command t 0 vc-darcs-program-name files
            "changes" "--xml" flags)
     (let ((changes (xml-parse-region 1 (point-max))))
       (unless (and (null (cdr changes))
@@ -138,71 +142,110 @@ list of arguments to pass."
        (string-match "[a-z0-9-]" rev)
        t))
 
-(defun vc-darcs-rev-to-hash (rev file &optional off-by-one)
+(defun vc-darcs-rev-to-hash (rev files &optional off-by-one)
   (cond
     ((or (null rev) (eq rev t) (equal rev "")) nil)
     ((not off-by-one)
      (cond
        ((vc-darcs-hash-p rev) rev)
-       (t (car (last (vc-darcs-changes file "--patch" rev))))))
+       (t (car (last (vc-darcs-changes files "--patch" rev))))))
     (t
      (let ((flags
             (if (vc-darcs-hash-p rev)
                 (list "--from-match" (concat "hash " rev))
                 (list "--from-patch" rev))))
-       (let ((changes (apply #'vc-darcs-changes file flags)))
+       (let ((changes (apply #'vc-darcs-changes files flags)))
          (and (cdr changes) (car (last changes 2))))))))
 
-(defun vc-darcs-next-version (file rev)
-  (vc-darcs-rev-to-hash rev file t))
+(defun vc-darcs-next-revision (files rev)
+  "Return the revision number that follows REV for FILES."
+  (vc-darcs-rev-to-hash rev files t))
 
-(defun vc-darcs-previous-version (file rev)
+(defalias 'vc-darcs-next-revision 'vc-darcs-next-version)
+
+(defun vc-darcs-previous-revision (files rev)
+  "Return the revision number that precedes REV for FILES."
   (let ((flags
          (if (vc-darcs-hash-p rev)
              (list "--to-match" (concat "hash " rev))
              (list "--to-patch" rev))))
-    (let ((changes (apply #'vc-darcs-changes file flags)))
+    (let ((changes (apply #'vc-darcs-changes files flags)))
       (cadr changes))))
+
+(defalias 'vc-darcs-previous-version 'vc-darcs-previous-revision)
 
 (defun vc-darcs-revision-granularity () 'repository)
 
 (defun vc-darcs-registered (file)
   "Return non-nil if FILE is handled by darcs."
-  (let* ((file (expand-file-name file))
-         ;; Vc-dired is recursive by default, and will call this function
-         ;; for all the files under _darcs.  Get rid of those early.
-         (special (vc-darcs-special-file-p file))
-         (root (and (not special) (vc-darcs-find-root file))))
-    (and root
-         (let ((default-directory root))
-           (with-temp-buffer
-             (vc-do-command (current-buffer) nil vc-darcs-program-name
-                            nil "show" "files")
-             (goto-char (point-min))
-             (catch 'found
-               (while (looking-at "[^\n]+")
-                 (when (equal (expand-file-name (match-string 0)) file)
-                   (throw 'found t))
-                 (forward-line))
-               nil))))))
+  ;; Vc-dired is recursive by default, and will call this function
+  ;; for all the files under _darcs.  Get rid of those early.
+  (if (vc-darcs-special-file-p file)
+      nil
+      (let ((default-directory (file-name-directory (expand-file-name file)))
+            (file (file-name-nondirectory file)))
+        (with-temp-buffer
+          (vc-do-command (current-buffer) nil vc-darcs-program-name
+                         nil "show" "files")
+          (goto-char (point-min))
+          (catch 'found
+            (while (looking-at "\\(./\\)?\\([^\n]+\\)")
+              (when (equal (match-string 2) file)
+                (throw 'found t))
+              (forward-line))
+            nil)))))
 
 (defun vc-darcs-file-times-equal-p (file1 file2)
   (equal (nth 5 (file-attributes file1)) (nth 5 (file-attributes file2))))
 
 (defun vc-darcs-state (file)
   "Return the state of FILE."
-  (with-temp-buffer
-    (vc-do-command t nil vc-darcs-program-name file
-                   "whatsnew" "--summary")
-    (goto-char (point-max))
-    (forward-line -1)
-    (if (looking-at "^No changes!")
-        'up-to-date
-        'edited)))
+  (if (not (vc-darcs-registered file))
+      'unregistered
+      (with-temp-buffer
+        (vc-do-command t nil vc-darcs-program-name file
+                       "whatsnew" "--summary")
+        (goto-char (point-max))
+        (forward-line -1)
+        (if (looking-at "^No changes!")
+            'up-to-date
+            'edited))))
 
 (defun vc-darcs-checkout-model (file)
   "Indicate how FILE is checked out.  This is always IMPLICIT with darcs."
   'implicit)
+
+(defun vc-darcs-dir-status (dir update-function)
+  (let ((default-directory dir))
+    (vc-do-command t 'async vc-darcs-program-name nil "whatsnew" "--summary")
+    (vc-exec-after
+     `(vc-darcs-dir-status-continuation ,dir ',update-function nil))))
+
+(defun vc-darcs-dir-status-files (dir files default-state update-function)
+  (let ((default-directory dir))
+    (vc-do-command t 'async vc-darcs-program-name files "whatsnew" "--summary")
+    (vc-exec-after
+     `(vc-darcs-dir-status-continuation ,dir ',update-function ',files))))
+
+(defun vc-darcs-dir-status-continuation (dir update-function files)
+  (let ((default-directory dir))
+    (goto-char (point-min))
+    (let ((l '()))
+      (while (looking-at "\\([A-Z]\\) ./\\([^ \n]+\\)")
+        (push (list (match-string 2) 'edited nil) l)
+        (remove (match-string 2) files)
+        (forward-line))
+      (funcall update-function (nreverse l) (not (null files))))
+    (while (not (null files))
+      (let ((file (pop files)))
+        (funcall update-function 
+                 (list (list file (vc-darcs-state file) nil))
+                 (not (null files)))))))
+
+(defun vc-darcs-dir-extra-headers (dir)
+  (concat
+   (propertize "Repository : " 'face 'font-lock-type-face)
+   (propertize (vc-darcs-find-root dir) 'face 'font-lock-variable-name-face)))
 
 (defun vc-darcs-responsible-p (file)
   "Return non-nil if we feel responsible for FILE,
@@ -211,10 +254,9 @@ which can also be a directory."
 
 (defun vc-darcs-could-register (file)
   "Return non-nil if FILE could be registered."
-  (let ((file (expand-file-name file)))
-    (and (not (vc-darcs-special-file-p file))
-         (vc-darcs-find-root file)
-         t)))
+  (and (not (vc-darcs-special-file-p file))
+       (vc-darcs-find-root file)
+       t))
 
 (defun vc-darcs-working-revision (file)
   "Return the working revision of FILE.
@@ -235,21 +277,18 @@ With darcs, this is simply the hash of the last patch that touched this file."
         "darcs"
         (format "darcs/%s" (vc-state file)))))
 
+(defun vc-darcs-create-repo ()
+  (vc-darcs-do-command 'init 0 nil))
+
 (defun vc-darcs-register (files &optional rev comment)
   "Add FILES to the darcs repository, and record this.
 REV and COMMENT are ignored."
-  ;; Emacs 22 compatibility
-  (when (stringp files)
-    (setq files (list files)))
   (vc-darcs-do-command 'add 0 files))
 
 (defun vc-darcs-checkin (files rev comment)
   "Record FILES to darcs.  COMMENT is the new comment."
   (when (not (null rev))
     (error "Cannot specify check-in revision with darcs."))
-  ;; Emacs 22 compatibility
-  (when (stringp files)
-    (setq files (list files)))
   (let* ((date (format-time-string "%Y%m%d%H%M%S" nil t))
          (match (string-match "\n" comment))
          (patch-name (if match 
@@ -258,19 +297,22 @@ REV and COMMENT are ignored."
          (log (if match
                   (substring comment (match-end 0))
                   "")))
-    (apply #'vc-darcs-do-command 'record 'async nil "-a" "--pipe" files)
+    (vc-darcs-do-command 'record 'async files "-a" "--pipe")
     (with-current-buffer (get-buffer "*vc*")
       (process-send-string nil
                            (format "%s\n%s\n%s\n%s"
                                    date vc-darcs-mail-address patch-name log))
       (process-send-eof))))
 
-(defun vc-darcs-find-version (file rev buffer)
+(defun vc-darcs-find-revision (file rev buffer)
   "This gets revision REV of FILE from the darcs repository."
   (let ((rev (vc-darcs-rev-to-hash rev file)))
     (apply #'vc-do-command buffer 0 vc-darcs-program-name file
            "show" "contents"
            (and rev (list "--match" (concat "hash " rev))))))
+
+(defalias 'vc-darcs-find-version 'vc-darcs-find-revision
+  "Compatibility alias for vc-darcs-find-revision.")
 
 (defun vc-darcs-checkout (file &optional editable rev)
   "Check out FILE from the Darcs repository.
@@ -285,10 +327,9 @@ EDITABLE is ignored."
   "Revert FILE back to the current workfile version."
   (vc-darcs-do-command 'revert 0 file "-a"))
 
-(defun vc-darcs-print-log (file &optional buffer)
+(defun vc-darcs-print-log (files &optional buffer)
   "Print the logfile for the current darcs repository."
-  (apply #'vc-do-command buffer 'async vc-darcs-program-name nil "changes"
-         files))
+  (vc-do-command buffer 'async vc-darcs-program-name files "changes"))
 
 (defun vc-darcs-diff (file &optional rev1 rev2 buffer)
   "Show the differences in FILE between revisions REV1 and REV2."
@@ -307,10 +348,10 @@ EDITABLE is ignored."
 
 (defun vc-darcs-rename-file (old new)
   "Rename the file OLD to NEW in the darcs repository."
-  (vc-darcs-do-command 'mv 0 nil (expand-file-name old) (expand-file-name new)))
+  (vc-darcs-do-command 'mv 0 nil old new))
 
 (defun vc-darcs-delete-file (file)
-  (delete-file (expand-file-name file)))
+  (delete-file file))
 
 (defun vc-darcs-parse-integer (string)
   (let* ((c (read-from-string string))
