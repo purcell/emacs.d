@@ -1945,12 +1945,14 @@ utility mdfind.")
                        for i in icicle-region-alist
                        collect (concat (car i) " => " (cadr i))))))
     (candidates . anything-icicle-region-alist)
-    (action . (("Go to region" . (lambda (elm)
-                                   (let ((pos (position elm anything-icicle-region-alist)))
-                                     (anything-icicle-select-region-action pos))))
-               ("Remove region" . (lambda (elm)
-                                    (let ((pos (position elm anything-icicle-region-alist)))
-                                      (anything-icicle-delete-region-from-alist pos))))
+    (action . (("Go to region" . anything-c-icicle-region-goto-region)
+               ("Insert region at point" . (lambda (elm)
+                                             (let (reg)
+                                               (save-window-excursion
+                                                 (anything-c-icicle-region-goto-region elm)
+                                                 (setq reg (buffer-substring (mark) (point))))
+                                               (insert reg))))
+               ("Remove region" . anything-c-icicle-region-delete-region)
                ("Update" . anything-icicle-region-update)))))
 
 ;; (anything 'anything-c-source-icicle-region)
@@ -1989,6 +1991,14 @@ utility mdfind.")
     (setq icicle-region-alist
           (delete (cons (car alist-cand) (cdr alist-cand)) icicle-region-alist)))
   (funcall icicle-customize-save-variable-function 'icicle-region-alist icicle-region-alist))
+
+(defun anything-c-icicle-region-goto-region (candidate)
+  (let ((pos (position candidate anything-icicle-region-alist)))
+    (anything-icicle-select-region-action pos)))
+
+(defun anything-c-icicle-region-delete-region (candidate)
+  (let ((pos (position candidate anything-icicle-region-alist)))
+    (anything-icicle-delete-region-from-alist pos)))
 
 ;;;; <Kill ring>
 ;;; Kill ring

@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.187 2009/05/29 06:49:05 rubikitch Exp $
+;; $Id: anything.el,v 1.189 2009/06/01 21:36:31 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -312,6 +312,12 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.189  2009/06/01 21:36:31  rubikitch
+;; New function: `anything-other-buffer'
+;;
+;; Revision 1.188  2009/05/29 18:33:07  rubikitch
+;; avoid error when executing (anything-mark-current-line) in async process.
+;;
 ;; Revision 1.187  2009/05/29 06:49:05  rubikitch
 ;; small refactoring
 ;;
@@ -922,7 +928,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.187 2009/05/29 06:49:05 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.189 2009/06/01 21:36:31 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -2013,6 +2019,10 @@ already-bound variables. Yuck!
               any-input)
             any-prompt any-resume any-preselect any-buffer))
 
+(defun anything-other-buffer (any-sources any-buffer)
+  "Simplified interface of `anything' with other `anything-buffer'"
+  (anything any-sources nil nil nil nil any-buffer))
+
 ;; (@* "Core: Display *anything* buffer")
 (defun anything-display-buffer (buf)
   "Display *anything* buffer."
@@ -2674,7 +2684,8 @@ UNIT and DIRECTION."
       (when (and anything-display-source-at-screen-top (eq unit 'source))
         (set-window-start (selected-window)
                           (save-excursion (forward-line -1) (point))))
-      (anything-mark-current-line))))
+      (when (anything-get-previous-header-pos)
+        (anything-mark-current-line)))))
 
 
 (defun anything-mark-current-line ()
