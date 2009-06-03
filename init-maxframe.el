@@ -8,7 +8,12 @@
   (setq mf-offset-x 0))
 
 (defun maybe-maximize-frame (&optional frame)
-  (if window-system (maximize-frame)))
+  (let* ((prev-frame (selected-frame))
+         (f (or frame prev-frame)))
+    (select-frame f)
+    (prog1
+        (if window-system (maximize-frame))
+      (select-frame prev-frame))))
 
 (add-hook 'after-make-frame-functions 'maybe-maximize-frame)
 (add-hook 'after-init-hook 'maybe-maximize-frame)
