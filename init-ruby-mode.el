@@ -1,3 +1,4 @@
+;; Currently loading ruby-mode and inf-ruby from the version bundled with rinari
 (autoload 'ruby-mode "ruby-mode" "Mode for editing ruby source files" t)
 (setq interpreter-mode-alist
       (cons '("ruby" . ruby-mode) interpreter-mode-alist))
