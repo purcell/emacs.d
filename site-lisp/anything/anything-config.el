@@ -900,7 +900,8 @@ buffer that is not the current buffer."
     (candidates . anything-c-buffer-list)
     (volatile)
     (type . buffer)
-    (candidate-transformer anything-c-highlight-buffers
+    (candidate-transformer anything-c-skip-current-buffer
+                           anything-c-highlight-buffers
                            anything-c-skip-boring-buffers)
     (persistent-action . anything-c-buffers+-persistent-action)))
 
@@ -1993,7 +1994,10 @@ utility mdfind.")
   (funcall icicle-customize-save-variable-function 'icicle-region-alist icicle-region-alist))
 
 (defun anything-c-icicle-region-goto-region (candidate)
-  (let ((pos (position candidate anything-icicle-region-alist)))
+  (let ((pos (position candidate anything-icicle-region-alist))
+        (buf (second (split-string candidate " => "))))
+    (if (equal buf "*info*")
+        (info (caddr (nth pos icicle-region-alist))))
     (anything-icicle-select-region-action pos)))
 
 (defun anything-c-icicle-region-delete-region (candidate)
@@ -2883,10 +2887,8 @@ See also `anything-create--actions'."
                                      (font-lock-mode 1)))
                ("Run emerge pretend" . (lambda (elm)
                                          (anything-c-gentoo-eshell-action elm "emerge -p")))
-               ("Emerge" . (lambda (elm)
-                             (anything-gentoo-install elm)))
-               ("Unmerge" . (lambda (elm)
-                              (anything-gentoo-uninstall elm)))
+               ("Emerge" . anything-gentoo-install)
+               ("Unmerge" . anything-gentoo-uninstall)
                ("Show dependencies" . (lambda (elm)
                                         (anything-c-gentoo-default-action elm "equery" "-C" "d")))
                ("Show related files" . (lambda (elm)
@@ -2899,11 +2901,17 @@ See also `anything-create--actions'."
 
 (defun anything-gentoo-install (candidate)
   (funcall anything-gentoo-prefered-shell)
-  (insert (concat "sudo emerge -av " candidate)))
+  (if anything-c-marked-candidate-list
+      (let ((elms (mapconcat 'identity anything-c-marked-candidate-list " ")))
+        (insert (concat "sudo emerge -av " elms)))
+      (insert (concat "sudo emerge -av " candidate))))
 
 (defun anything-gentoo-uninstall (candidate)
   (funcall anything-gentoo-prefered-shell)
-  (insert (concat "sudo emerge -avC " candidate)))
+  (if anything-c-marked-candidate-list
+      (let ((elms (mapconcat 'identity anything-c-marked-candidate-list " ")))
+        (insert (concat "sudo emerge -avC " elms)))
+      (insert (concat "sudo emerge -avC " candidate))))
 
 (defun anything-c-gentoo-default-action (elm command &rest args)
   "Gentoo default action that use `anything-c-gentoo-buffer'."
@@ -3726,7 +3734,7 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
      ("Ediff Marked buffers" . anything-ediff-marked-buffers)
      ("Ediff Merge marked buffers" . (lambda (candidate)
                                        (anything-ediff-marked-buffers candidate t))))
-    (candidate-transformer . anything-c-skip-boring-buffers))
+    (candidate-transformer anything-c-skip-current-buffer anything-c-skip-boring-buffers))
   "Buffer or buffer name.")
 
 (define-anything-type-attribute 'file
