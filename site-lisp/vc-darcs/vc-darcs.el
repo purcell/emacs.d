@@ -62,7 +62,7 @@
 ;; vc-darcs.el~Init~, vc-darcs.el~Initial~ and so on.
 
 
-(defvar vc-darcs-version-string "1.10"
+(defvar vc-darcs-version-string "1.11"
   "The version string for vc-darcs.el.")
 
 ;;; Code:
@@ -72,7 +72,6 @@
  (require 'cl))
 
 (require 'xml)
-(require 'cl)
 
 (defgroup vc-darcs nil
   "*The darcs backend for vc."
@@ -104,7 +103,7 @@ list of arguments to pass."
 
 (defun vc-darcs-find-root (file)
   "Return the root darcs repository directory for FILE, or nil if not found."
-  (vc-find-root (expand-file-name file) "_darcs"))
+  (vc-find-root file "_darcs"))
 
 (defun vc-darcs-special-file-p (file)
   (let ((file (expand-file-name file)))
@@ -127,12 +126,16 @@ list of arguments to pass."
       (unless (and (null (cdr changes))
                    (eq 'changelog (car (car changes))))
         (error "Unexpected output from darcs changes --xml."))
-      (mapcon #'(lambda (e)
-                  (and (consp (car e))
-                       (eq (caar e) 'patch)
-                       (let ((h (cdr (assoc 'hash (cadar e)))))
-                         (and h (list (substring h 0 61))))))
-              (cddr (car changes))))))
+      (let ((ch (cddr (car changes)))
+            (l '()))
+        (while (not (null ch))
+          (let ((e (pop ch)))
+            (when (and (consp e)
+                       (eq (car e) 'patch))
+              (let ((h (cdr (assoc 'hash (cadr e)))))
+                (when h
+                  (push (substring h 0 61) l))))))
+        (nreverse l)))))
 
 (defun vc-darcs-hash-p (rev)
   "Return non-nil if REV has the syntax of a darcs hash."
@@ -176,99 +179,168 @@ list of arguments to pass."
 
 (defun vc-darcs-revision-granularity () 'repository)
 
+
+;;; State-querying functions
+
 (defun vc-darcs-registered (file)
   "Return non-nil if FILE is handled by darcs."
-  ;; Vc-dired is recursive by default, and will call this function
-  ;; for all the files under _darcs.  Get rid of those early.
-  (if (vc-darcs-special-file-p file)
-      nil
-      (let ((default-directory (file-name-directory (expand-file-name file)))
-            (file (file-name-nondirectory file)))
+  (cond
+    ((vc-darcs-special-file-p file)
+     ;; If vc-directory-exclusion-list is set incorrectly, vc-dired will
+     ;; query us for all the files under _darcs.  Get rid of them quickly.
+      nil)
+    (t
+      (let* ((file (expand-file-name file))
+             (root (vc-darcs-find-root file))
+             (default-directory (file-name-directory file)))
         (with-temp-buffer
-          (vc-do-command (current-buffer) nil vc-darcs-program-name
+          (vc-do-command t nil vc-darcs-program-name
                          nil "show" "files")
           (goto-char (point-min))
           (catch 'found
-            (while (looking-at "\\(./\\)?\\([^\n]+\\)")
-              (when (equal (match-string 2) file)
+            (while (looking-at "[^\n]+")
+              ;; Darcs always prints relative to the root
+              (let ((file2 (expand-file-name (match-string 0) root)))
+              (when (equal file2 file)
                 (throw 'found t))
-              (forward-line))
-            nil)))))
+              (forward-line)))
+            nil))))))
 
 (defun vc-darcs-file-times-equal-p (file1 file2)
   (equal (nth 5 (file-attributes file1)) (nth 5 (file-attributes file2))))
 
+(defun vc-darcs-parse-summary (letter)
+  (cond
+    ((equal "R" letter) 'removed)
+    ((equal "A" letter) 'added)
+    (t 'edited)))
+
 (defun vc-darcs-state (file)
   "Return the state of FILE."
-  (if (not (vc-darcs-registered file))
-      'unregistered
-      (with-temp-buffer
-        (vc-do-command t nil vc-darcs-program-name file
-                       "whatsnew" "--summary")
-        (goto-char (point-max))
-        (forward-line -1)
-        (if (looking-at "^No changes!")
-            'up-to-date
-            'edited))))
+  (with-temp-buffer
+    (vc-do-command t nil vc-darcs-program-name file
+                   "whatsnew" "--summary")
+    (goto-char (point-max))
+    (forward-line -1)
+    (cond
+      ((looking-at "No changes")
+       (if (vc-darcs-registered file) 'up-to-date 'unregistered))
+      ((looking-at "\\([A-Z]\\)!? ")
+       (vc-darcs-parse-summary (match-string 1)))
+      ((looking-at " * \\([^ \n]+\\) *-> *\\([^ \n]+\\)")
+       ;; The paths printed by Darcs are relative to the root
+       (let* ((root (vc-darcs-find-root file))
+              (f (expand-file-name file))
+              (f1 (expand-file-name (match-string 1) root))
+              (f2 (expand-file-name (match-string 2) root)))
+         (cond
+           ((equal f f1) 'removed)
+           ((equal f f2) 'added)
+           (t nil))))
+      (t nil))))
 
 (defun vc-darcs-checkout-model (file)
   "Indicate how FILE is checked out.  This is always IMPLICIT with darcs."
   'implicit)
 
 (defun vc-darcs-dir-status (dir update-function)
-  (let ((default-directory dir))
-    (vc-do-command t 'async vc-darcs-program-name nil "whatsnew" "--summary")
+  (let* ((dir (expand-file-name dir))
+         (root (vc-darcs-find-root dir)))
+    (vc-do-command t 'async vc-darcs-program-name dir "whatsnew" "--summary")
     (vc-exec-after
-     `(vc-darcs-dir-status-continuation ,dir ',update-function nil))))
+     `(vc-darcs-dir-status-continuation
+       ',root ',update-function nil))))
 
 (defun vc-darcs-dir-status-files (dir files default-state update-function)
-  (let ((default-directory dir))
+  (let* ((dir (expand-file-name dir))
+         (root (vc-darcs-find-root dir)))
     (vc-do-command t 'async vc-darcs-program-name files "whatsnew" "--summary")
     (vc-exec-after
-     `(vc-darcs-dir-status-continuation ,dir ',update-function ',files))))
+     `(vc-darcs-dir-status-continuation
+       ',root ',update-function ',files))))
 
-(defun vc-darcs-dir-status-continuation (dir update-function files)
-  (let ((default-directory dir))
-    (goto-char (point-min))
-    (let ((l '()))
-      (while (looking-at "\\([A-Z]\\) ./\\([^ \n]+\\)")
-        (push (list (match-string 2) 'edited nil) l)
-        (remove (match-string 2) files)
-        (forward-line))
-      (funcall update-function (nreverse l) (not (null files))))
-    (while (not (null files))
-      (let ((file (pop files)))
-        (funcall update-function 
-                 (list (list file (vc-darcs-state file) nil))
-                 (not (null files)))))))
+(defun vc-darcs-dir-status-continuation (root update-function files)
+  (let ((l '()))
+    (flet ((doit (file status)
+             ;; The paths printed by Darcs are relative to the root
+             (let ((path (file-relative-name (expand-file-name file root))))
+               (unless (file-directory-p path)
+                 (push (list path status nil) l)
+                 (setq files (delete path files))))))
+      (goto-char (point-min))
+      (while (not (eobp))
+        (cond
+          ((looking-at "\\([A-Z]\\)!? \\([^ \n]+\\)")
+           (doit (match-string 2) (vc-darcs-parse-summary (match-string 1))))
+          ((looking-at " * \\([^ \n]+\\) *-> *\\([^ \n]+\\)")
+           (doit (match-string 1) 'removed)
+           (doit (match-string 2) 'added)))
+        (forward-line)))
+    (funcall update-function (nreverse l) (not (null files))))
+  (while (not (null files))
+    (let ((file (pop files)))
+      (funcall
+       update-function
+       (list (list file
+                   (if (vc-darcs-registered file) 'up-to-date 'unregistered)
+                   nil))
+       (not (null files))))))
+
+(defun vc-darcs-get-remote (dir)
+  "Get the remote repository location, if any."
+  (catch 'found
+    (let ((default-directory (expand-file-name dir)))
+      (with-temp-buffer
+        (vc-do-command t 0 vc-darcs-program-name nil
+                       "show" "repo")
+        (goto-char (point-min))
+        (while (not (eobp))
+          (when (looking-at " *Default Remote: \\([^\n]+\\)")
+            (throw 'found (match-string 1)))
+          (forward-line))))))
 
 (defun vc-darcs-dir-extra-headers (dir)
-  (concat
-   (propertize "Repository : " 'face 'font-lock-type-face)
-   (propertize (vc-darcs-find-root dir) 'face 'font-lock-variable-name-face)))
+  (flet ((header (k v)
+           (list
+            (concat
+             (propertize k 'face 'font-lock-type-face)
+             " "
+             (propertize v 'face 'font-lock-variable-name-face)))))
+    (mapconcat
+     #'identity
+     (nconc
+      (let ((root (vc-darcs-find-root dir)))
+        (and root (not (equal dir root)) (header "Repository :" root)))
+      (let ((remote (vc-darcs-get-remote dir)))
+        (and remote (header "Remote     :" remote))))
+     "\n")))
 
 (defun vc-darcs-responsible-p (file)
   "Return non-nil if we feel responsible for FILE,
-which can also be a directory."
-  (vc-darcs-registered file))
+ which can also be a directory."
+  (and (not (vc-darcs-special-file-p file))
+       (not (null (vc-darcs-find-root file)))))
 
 (defun vc-darcs-could-register (file)
   "Return non-nil if FILE could be registered."
   (and (not (vc-darcs-special-file-p file))
-       (vc-darcs-find-root file)
-       t))
+       (not (null (vc-darcs-find-root file)))))
 
 (defun vc-darcs-working-revision (file)
   "Return the working revision of FILE.
 With darcs, this is simply the hash of the last patch that touched this file."
   (car (vc-darcs-changes file)))
 
-(defalias 'vc-darcs-workfile-version 'vc-darcs-working-revision
-  "Compatibility alias for vc-darcs-working-revision")
+(defalias 'vc-darcs-workfile-version 'vc-darcs-working-revision)
 
 (defun vc-darcs-workfile-unchanged-p (file)
   "Return non-nil if FILE is unchanged from the repository version."
-  (eq 'up-to-date (vc-darcs-state file)))
+  (with-temp-buffer
+    (vc-do-command t nil vc-darcs-program-name file
+                   "whatsnew" "--summary")
+    (goto-char (point-max))
+    (forward-line -1)
+    (looking-at "No changes")))
 
 (defun vc-darcs-mode-line-string (file)
   "Return the mode line string to show for FILE."
@@ -276,6 +348,9 @@ With darcs, this is simply the hash of the last patch that touched this file."
     (if (eq state 'up-to-date)
         "darcs"
         (format "darcs/%s" (vc-state file)))))
+
+
+;;; State-changing functions
 
 (defun vc-darcs-create-repo ()
   (vc-darcs-do-command 'init 0 nil))
@@ -291,7 +366,7 @@ REV and COMMENT are ignored."
     (error "Cannot specify check-in revision with darcs."))
   (let* ((date (format-time-string "%Y%m%d%H%M%S" nil t))
          (match (string-match "\n" comment))
-         (patch-name (if match 
+         (patch-name (if match
                          (substring comment 0 (match-beginning 0))
                          comment))
          (log (if match
@@ -305,14 +380,13 @@ REV and COMMENT are ignored."
       (process-send-eof))))
 
 (defun vc-darcs-find-revision (file rev buffer)
-  "This gets revision REV of FILE from the darcs repository."
+  "Get revision REV of FILE from the darcs repository."
   (let ((rev (vc-darcs-rev-to-hash rev file)))
     (apply #'vc-do-command buffer 0 vc-darcs-program-name file
            "show" "contents"
            (and rev (list "--match" (concat "hash " rev))))))
 
-(defalias 'vc-darcs-find-version 'vc-darcs-find-revision
-  "Compatibility alias for vc-darcs-find-revision.")
+(defalias 'vc-darcs-find-version 'vc-darcs-find-revision)
 
 (defun vc-darcs-checkout (file &optional editable rev)
   "Check out FILE from the Darcs repository.
@@ -325,7 +399,11 @@ EDITABLE is ignored."
 
 (defun vc-darcs-revert (file &optional contents-done)
   "Revert FILE back to the current workfile version."
-  (vc-darcs-do-command 'revert 0 file "-a"))
+  (unless contents-done
+    (vc-darcs-do-command 'revert 0 file "-a")))
+
+
+;;; History functions
 
 (defun vc-darcs-print-log (files &optional buffer)
   "Print the logfile for the current darcs repository."
@@ -360,6 +438,23 @@ EDITABLE is ignored."
 
 (declare-function vc-annotate-convert-time "vc-annotate" (time))
 
+(defun vc-darcs-find-real-string (l)
+  (catch 'found
+    (while (not (null l))
+      (let ((e (pop l)))
+        (when (and (stringp e)
+                   (not (equal e "\n")))
+          (throw 'found e))))
+    nil))
+
+(defun vc-darcs-trim-newlines (s)
+  (let* ((len (length s))
+         (begin (if (eq ?\n (aref s 0)) 1 0))
+         (end (if (eq ?\n (aref s (- len 1))) (- len 1) len)))
+    (if (and (= 0 begin) (= len end))
+        s
+        (substring s begin end))))
+
 (defun vc-darcs-annotate-command (file buffer &optional rev)
   "Produce an annotated display of fiLE in BUFFER.
 For Darcs, hashes and times are stored in text properties."
@@ -379,54 +474,54 @@ For Darcs, hashes and times are stored in text properties."
             (now (vc-annotate-convert-time (current-time))))
         (dolist (e (cddr data))
           (when (and (listp e)
-                     (or (eq 'normal_line (car e)) (eq 'added_line (car e))))
-            (let* ((line1
-                    (find-if
-                     #'(lambda (x) (and (stringp x) (not (equal "\n" x))))
-                     (cddr e)))
-                   (len (progn (length line1)))
-                   (l0 (if (eq ?\n (aref line1 0)) 1 0))
-                   (l1 (if (eq ?\n (aref line1 (- len 1))) (- len 1) len))
-                   (line (substring line1 l0 l1)))
-              (let* ((added-by (or (assoc 'added_by (cddr e)) modified))
-                     (patch (assoc 'patch (cddr added-by)))
-                     (rev (substring (cdr (assoc 'hash (cadr patch))) 0 61))
-                     (author (cdr (assoc 'author (cadr patch))))
-                     (date (cdr (assoc 'date (cadr patch))))
-                     (year (substring date 0 4))
-                     (month (substring date 4 6))
-                     (day (substring date 6 8))
-                     (hour (substring date 8 10))
-                     (min (substring date 10 12))
-                     (sec (substring date 12 14))
-                     (time (vc-annotate-convert-time
-                            (encode-time
-                             (vc-darcs-parse-integer sec)
-                             (vc-darcs-parse-integer min)
-                             (vc-darcs-parse-integer hour)
-                             (vc-darcs-parse-integer day)
-                             (vc-darcs-parse-integer month)
-                             (vc-darcs-parse-integer year))))
-                     (begin (point)))
-                (insert (format "%-7s "
-                                (if (> (length author) 7)
-                                    (substring author 0 7)
-                                    author)))
-                (insert
-                 (if (> (- now time) 0.9)
-                     (format "%s/%s/%s " day month (substring year 2 4))
-                     (format "%s:%s:%s " hour min sec)))
-                (insert line)
-                (insert "\n")
-                (add-text-properties
-                 begin (point)
-                 (list 'vc-darcs-annotate (cons rev time)))))))))))
+                     (memq (car e) '(normal_line added_line)))
+            (let* ((line (vc-darcs-trim-newlines
+                          (vc-darcs-find-real-string (cddr e))))
+                   (added-by (or (assoc 'added_by (cddr e)) modified))
+                   (patch (assoc 'patch (cddr added-by)))
+                   (rev (substring (cdr (assoc 'hash (cadr patch))) 0 61))
+                   (author (cdr (assoc 'author (cadr patch))))
+                   (date (cdr (assoc 'date (cadr patch))))
+                   (year (substring date 0 4))
+                   (month (substring date 4 6))
+                   (day (substring date 6 8))
+                   (hour (substring date 8 10))
+                   (min (substring date 10 12))
+                   (sec (substring date 12 14))
+                   (time (vc-annotate-convert-time
+                          (encode-time
+                           (vc-darcs-parse-integer sec)
+                           (vc-darcs-parse-integer min)
+                           (vc-darcs-parse-integer hour)
+                           (vc-darcs-parse-integer day)
+                           (vc-darcs-parse-integer month)
+                           (vc-darcs-parse-integer year))))
+                   (begin (point)))
+              (cond
+                ((string-match "<\\([^ <>@]*\\)@.*>" author)
+                 (setq author (match-string 1 author)))
+                ((string-match "[^ <>@]*" author)
+                 (setq author (match-string 0 author))))
+              (insert (format "%-7s "
+                              (if (> (length author) 7)
+                                  (substring author 0 7)
+                                  author)))
+              (insert
+               (if (> (- now time) 0.9)
+                   (format "%s/%s/%s " day month (substring year 2 4))
+                   (format "%s:%s:%s " hour min sec)))
+              (insert line)
+              (insert "\n")
+              (add-text-properties
+               begin (point)
+               (list 'vc-darcs-annotate (cons rev time))))))))))
 
 (defun vc-darcs-annotate-extract-revision-at-line ()
   (car (get-text-property (point) 'vc-darcs-annotate (current-buffer))))
 
 (defun vc-darcs-annotate-time ()
   (cdr (get-text-property (point) 'vc-darcs-annotate (current-buffer))))
+
 
 ;;; protection against editing files under _darcs
 ;;; adapted from an idea by Rob Giardine
