@@ -135,9 +135,16 @@ in `exec-path', or nil if no such command exists"
           (lambda ()
             (fix-up-xterm-control-arrows)
             (xterm-mouse-mode 1) ; Mouse in a terminal (Use shift to paste with middle button)
-            (mwheel-install)
-            (menu-bar-mode 0) ; Use F10 from minibuffer to get menus
-            ))
+            (mwheel-install)))
+
+(add-hook 'after-make-frame-functions
+          (lambda (frame)
+            (let ((prev-frame (selected-frame)))
+              (select-frame frame)
+              (prog1
+                  (unless window-system
+                    (set-frame-parameter frame 'menu-bar-lines 0))
+                (select-frame prev-frame)))))
 
 
 ;;----------------------------------------------------------------------------
