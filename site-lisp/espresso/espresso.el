@@ -507,7 +507,7 @@ messages."
   (let ((keymap (make-sparse-keymap)))
     (mapc (lambda (key)
             (define-key keymap key #'espresso-insert-and-indent))
-          '("+" "-" "/" "*" "{" "}" "(" ")" ":" ";" ","))
+          '("+" "-" "*" "{" "}" "(" ")" ":" ";" ","))
     (define-key keymap [(control ?c) (meta ?:)] #'espresso-js-eval)
     (define-key keymap [(control ?c) (control ?j)] #'espresso-set-js-context)
     (define-key keymap [(control meta ?x)] #'espresso-eval-defun)
