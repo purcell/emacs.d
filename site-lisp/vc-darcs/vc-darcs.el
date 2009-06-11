@@ -194,16 +194,18 @@ list of arguments to pass."
              (root (vc-darcs-find-root file))
              (default-directory (file-name-directory file)))
         (with-temp-buffer
-          (vc-do-command t nil vc-darcs-program-name
-                         nil "show" "files")
-          (goto-char (point-min))
           (catch 'found
+            (condition-case nil
+                (vc-do-command t nil vc-darcs-program-name
+                               nil "show" "files")
+              (error (throw 'found nil)))
+            (goto-char (point-min))
             (while (looking-at "[^\n]+")
               ;; Darcs always prints relative to the root
               (let ((file2 (expand-file-name (match-string 0) root)))
-              (when (equal file2 file)
-                (throw 'found t))
-              (forward-line)))
+                (when (equal file2 file)
+                  (throw 'found t))
+                (forward-line)))
             nil))))))
 
 (defun vc-darcs-file-times-equal-p (file1 file2)
@@ -435,8 +437,6 @@ EDITABLE is ignored."
   (let* ((c (read-from-string string))
          (n (car c)))
     (if (integerp n) n 0)))
-
-(declare-function vc-annotate-convert-time "vc-annotate" (time))
 
 (defun vc-darcs-find-real-string (l)
   (catch 'found
