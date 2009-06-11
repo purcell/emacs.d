@@ -262,11 +262,8 @@
 ;;    What command to use for root access.
 ;;    default = "su"
 ;;  `anything-for-files-prefered-list'
-;;    Your prefered sources to find files with `anything-for-files'.
+;;    Your prefered sources to find files.
 ;;    default = (quote (anything-c-source-ffap-line anything-c-source-ffap-guesser anything-c-source-recentf anything-c-source-buffers+ anything-c-source-bookmarks ...))
-;;  `anything-info-at-point-prefered-list'
-;;    Your favorites info sources to find infos with `anything-info-at-point'.
-;;    default = (quote (anything-c-source-info-elisp anything-c-source-info-cl anything-c-source-info-pages))
 ;;  `anything-create--actions-private'
 ;;    User defined actions for `anything-create' / `anything-c-source-create'.
 ;;    default = nil
@@ -416,29 +413,31 @@ they will be displayed with face `file-name-shadow' if
                                               anything-c-source-file-cache
                                               anything-c-source-files-in-current-dir+
                                               anything-c-source-locate)
-  "Your prefered sources to find files with `anything-for-files'."
+  "Your prefered sources to find files."
   :type 'list
   :group 'anything-config)
-
-(defcustom anything-info-at-point-prefered-list '(anything-c-source-info-elisp
-                                                  anything-c-source-info-cl
-                                                  anything-c-source-info-pages)
-  "Your favorites info sources to find infos with `anything-info-at-point'."
-  :type 'list
-  :group 'anything-config)
-  
-
+ 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Preconfigured Anything ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun anything-for-files ()
   "Preconfigured `anything' for opening files.
 ffap -> recentf -> buffer -> bookmark -> file-cache -> files-in-current-dir -> locate"
   (interactive)
   (anything anything-for-files-prefered-list))
+  ;; (anything '(anything-c-source-ffap-line
+  ;;             anything-c-source-ffap-guesser
+  ;;             anything-c-source-recentf
+  ;;             anything-c-source-buffers+
+  ;;             anything-c-source-bookmarks
+  ;;             anything-c-source-file-cache
+  ;;             anything-c-source-files-in-current-dir+
+  ;;             anything-c-source-locate)))
 
 (defun anything-info-at-point ()
   "Preconfigured `anything' for searching info at point."
   (interactive)
-  (anything anything-info-at-point-prefered-list
+  (anything '(anything-c-source-info-elisp
+              anything-c-source-info-cl
+              anything-c-source-info-pages)
             (thing-at-point 'symbol)))
 
 (defun anything-show-kill-ring ()
@@ -448,8 +447,7 @@ You may bind this command to M-y."
   (anything 'anything-c-source-kill-ring nil nil nil nil "*anything kill-ring*"))
 
 (defun anything-minibuffer-history ()
-  "Show `minibuffer-history'.
-You may bind this command to C-r in minibuffer-local-map / minibuffer-local-completion-map."
+  "Show `minibuffer-history'."
   (interactive)
   (anything 'anything-c-source-minibuffer-history nil nil nil nil
             "*anything minibuffer-history*"))
@@ -2818,11 +2816,14 @@ See also `anything-create--actions'."
 (defvar anything-c-source-minibuffer-history
   '((name . "Minibuffer History")
     (header-name . (lambda (name) (format "%s (%s)" name minibuffer-history-variable)))
-    (candidates . (lambda () (symbol-value minibuffer-history-variable)))
+    (candidates . (lambda () (let ((history (symbol-value minibuffer-history-variable)))
+                               (if (consp (car history))
+                                   (mapcar 'prin1-to-string history)
+                                 history))))
     (migemo)
     (action . insert)))
-
 ;; (anything 'anything-c-source-minibuffer-history)
+
 ;;;; <System>
 
 ;;; X RandR resolution change
