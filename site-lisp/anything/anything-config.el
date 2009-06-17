@@ -263,7 +263,7 @@
 ;;    default = "su"
 ;;  `anything-for-files-prefered-list'
 ;;    Your prefered sources to find files.
-;;    default = (quote (anything-c-source-ffap-line anything-c-source-ffap-guesser anything-c-source-recentf anything-c-source-buffers+ anything-c-source-bookmarks ...))
+;;    default = (quote (anything-c-source-ffap-line anything-c-source-ffap-guesser anything-c-source-buffers+ anything-c-source-recentf anything-c-source-bookmarks ...))
 ;;  `anything-create--actions-private'
 ;;    User defined actions for `anything-create' / `anything-c-source-create'.
 ;;    default = nil
@@ -407,8 +407,8 @@ they will be displayed with face `file-name-shadow' if
 
 (defcustom anything-for-files-prefered-list '(anything-c-source-ffap-line
                                               anything-c-source-ffap-guesser
-                                              anything-c-source-recentf
                                               anything-c-source-buffers+
+                                              anything-c-source-recentf
                                               anything-c-source-bookmarks
                                               anything-c-source-file-cache
                                               anything-c-source-files-in-current-dir+
@@ -449,8 +449,9 @@ You may bind this command to M-y."
 (defun anything-minibuffer-history ()
   "Show `minibuffer-history'."
   (interactive)
-  (anything 'anything-c-source-minibuffer-history nil nil nil nil
-            "*anything minibuffer-history*"))
+  (let ((enable-recursive-minibuffers t))
+    (anything 'anything-c-source-minibuffer-history nil nil nil nil
+              "*anything minibuffer-history*")))
 
 (dolist (map (list minibuffer-local-filename-completion-map
                    minibuffer-local-completion-map
@@ -1441,7 +1442,9 @@ RedOnWhite ==> Directory."
      for bufp = (and (fboundp 'bookmark-get-buffername)
                      (bookmark-get-buffername i))
      for regp = (and (fboundp 'bookmark-get-endposition)
-                     (bookmark-get-endposition i))
+                     (bookmark-get-endposition i)
+                     (/= (bookmark-get-position i)
+                         (bookmark-get-endposition i)))
      for handlerp = (and (fboundp 'bookmark-get-handler)
                          (bookmark-get-handler i))
      if (and pred ;; directories
@@ -1467,12 +1470,8 @@ RedOnWhite ==> Directory."
                (not (file-exists-p pred))))
      collect (propertize i 'face '((:foreground "yellow")))
      if (and (fboundp 'bookmark-get-buffername) ;; info buffers
-             (or
-              (eq handlerp 'Info-bookmark-jump)
-              (and
-               (string= bufp "*info*")
-               (when pred
-                 (not (file-exists-p pred))))))
+             (eq handlerp 'Info-bookmark-jump)
+             (string= bufp "*info*"))
      collect (propertize i 'face '((:foreground "green")))))
        
 
@@ -2899,7 +2898,26 @@ See also `anything-create--actions'."
                                             "--mode" mode))))))
 ;; (anything 'anything-c-source-xrandr-change-resolution)
 
+;;; Xfont selection
+(defun anything-c-persistent-xfont-action (elm)
+  "Show current font temporarily"
+  (let ((default-font elm))
+    (set-default-font default-font)))
 
+(defvar anything-c-source-xfonts
+  '((name . "X Fonts")
+    (candidates . (lambda ()
+                    (x-list-fonts "*")))
+    (multiline)
+    (action . (("Copy to kill ring" . (lambda (elm)
+                                        (kill-new elm)))
+               ("Set Font" . (lambda (elm)
+                               (kill-new elm)
+                               (set-default-font elm 'keep-size)
+                               (message "New font have been copied to kill ring")))))
+    (persistent-action . anything-c-persistent-xfont-action)))
+  
+;; (anything 'anything-c-source-xfonts)
 
 ;; Sources for gentoo users
 
