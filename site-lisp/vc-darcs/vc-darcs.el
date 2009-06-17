@@ -23,7 +23,7 @@
 ;; Darcs is David's Advanced Revision Control System at
 ;; http://www.darcs.net/
 
-;; This version is of vc-darcs was written for Emacs 23.  It will work
+;; This version of vc-darcs was written for Emacs 23.  It will work
 ;; under Emacs 22, albeit with reduced functionality.
 
 ;; A few ideas for this file are directly taken from vc-svn.el.  Thanks to
@@ -62,7 +62,7 @@
 ;; vc-darcs.el~Init~, vc-darcs.el~Initial~ and so on.
 
 
-(defvar vc-darcs-version-string "1.11"
+(defvar vc-darcs-version-string "1.12"
   "The version string for vc-darcs.el.")
 
 ;;; Code:
