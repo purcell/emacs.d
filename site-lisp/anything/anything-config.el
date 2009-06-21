@@ -151,6 +151,7 @@
 ;;     `anything-c-source-minibuffer-history' (Minibuffer History)
 ;;  System:
 ;;     `anything-c-source-xrandr-change-resolution' (Change Resolution)
+;;     `anything-c-source-xfonts'                   (X Fonts)
 ;;     `anything-c-source-gentoo'                   (Portage sources)
 ;;     `anything-c-source-use-flags'                (Use Flags)
 ;;     `anything-c-source-emacs-process'            (Emacs Process)
@@ -171,6 +172,8 @@
 ;;    Start anything with only gentoo sources.
 ;;  `anything-surfraw-only'
 ;;    Launch only anything-surfraw.
+;;  `anything-imenu'
+;;    Show `imenu'.
 ;;  `anything-kill-buffers'
 ;;    You can continuously kill buffer you selected.
 ;;  `anything-query-replace-regexp'
@@ -490,6 +493,11 @@ With two prefix args allow choosing in which symbol to search."
           (setq pattern (replace-regexp-in-string "\n" "" pattern))
           (anything 'anything-c-source-surfraw pattern))
         (anything 'anything-c-source-surfraw))))
+
+(defun anything-imenu ()
+  "Show `imenu'."
+  (interactive)
+  (anything 'anything-c-source-imenu nil nil nil nil "*anything imenu*"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Anything Applications ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; kill buffers
@@ -3498,6 +3506,9 @@ other candidate transformers."
   (setq anything-c-marked-candidate-list (anything-c-list-marked-candidate))
   (anything-clear-visible-mark))
 
+(defadvice anything-toggle-visible-mark (after move-to-next-line () activate)
+  (anything-next-line))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Adaptive Sorting of Candidates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar anything-c-adaptive-done nil
   "nil if history information is not yet stored for the current
@@ -3781,12 +3792,30 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
     (anything-c-delete-file i)))
 
 (defun anything-ediff-marked-buffers (candidate &optional merge)
-  (when (eq (length anything-c-marked-candidate-list) 2)
-    (let ((buf1 (first anything-c-marked-candidate-list))
-          (buf2 (second anything-c-marked-candidate-list)))
-      (if merge
-          (ediff-merge-buffers buf1 buf2)
-          (ediff-buffers buf1 buf2)))))
+  (let ((lg-lst (length anything-c-marked-candidate-list))
+        buf1 buf2)
+    (case lg-lst
+      (0
+       (error "Error:You have to mark at least 1 buffer"))
+      (1
+       (setq buf1 anything-current-buffer
+             buf2 (first anything-c-marked-candidate-list)))
+      (2 
+       (setq buf1 (first anything-c-marked-candidate-list)
+             buf2 (second anything-c-marked-candidate-list)))
+      (t
+       (error "Error:To much buffers marked!")))
+    (if merge
+        (ediff-merge-buffers buf1 buf2)
+        (ediff-buffers buf1 buf2))))
+
+(defun anything-delete-marked-bookmarks (elm)
+  (anything-aif anything-c-marked-candidate-list
+      (progn
+        (dolist (i it)
+          (bookmark-delete i 'batch))
+        (bookmark-save))
+    (bookmark-delete elm)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Setup ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -3884,7 +3913,7 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
                                      (bookmark-edit-annotation candidate)))
      ("Bookmark show annotation" . (lambda (candidate)
                                      (bookmark-show-annotation candidate)))
-     ("Delete bookmark" . bookmark-delete)
+     ("Delete bookmark" . anything-delete-marked-bookmarks)
      ("Rename bookmark" . bookmark-rename)
      ("Relocate bookmark" . bookmark-relocate)))
   "Bookmark name.")

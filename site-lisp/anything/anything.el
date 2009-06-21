@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.189 2009/06/01 21:36:31 rubikitch Exp $
+;; $Id: anything.el,v 1.195 2009/06/19 14:42:57 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -76,12 +76,16 @@
 ;;    Select the current candidate by exiting the minibuffer.
 ;;  `anything-delete-current-selection'
 ;;    Delete the currently selected item.
+;;  `anything-delete-minibuffer-content'
+;;    Same as `delete-minibuffer-contents' but this is a command.
 ;;  `anything-select-2nd-action'
 ;;    Select the 2nd action for the currently selected candidate.
 ;;  `anything-select-3rd-action'
 ;;    Select the 3rd action for the currently selected candidate.
 ;;  `anything-select-4th-action'
 ;;    Select the 4th action for the currently selected candidate.
+;;  `anything-select-2nd-action-or-end-of-line'
+;;    Select the 2nd action for the currently selected candidate if the point is at the end of minibuffer.
 ;;  `anything-execute-persistent-action'
 ;;    If a candidate is selected then perform the associated action without quitting anything.
 ;;  `anything-scroll-other-window'
@@ -312,6 +316,24 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.195  2009/06/19 14:42:57  rubikitch
+;; silence byte compiler
+;;
+;; Revision 1.194  2009/06/14 15:12:34  rubikitch
+;; typo
+;;
+;; Revision 1.193  2009/06/08 19:37:12  rubikitch
+;; typo!
+;;
+;; Revision 1.192  2009/06/08 19:36:39  rubikitch
+;; New keybind: C-e, C-j, C-k
+;;
+;; Revision 1.191  2009/06/08 19:30:27  rubikitch
+;; New command: `anything-select-2nd-action-or-end-of-line'
+;;
+;; Revision 1.190  2009/06/07 17:09:50  rubikitch
+;; add M-<next>, C-M-S-v, M-<prior> to `anything-map'.
+;;
 ;; Revision 1.189  2009/06/01 21:36:31  rubikitch
 ;; New function: `anything-other-buffer'
 ;;
@@ -928,7 +950,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.189 2009/06/01 21:36:31 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.195 2009/06/19 14:42:57 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1323,7 +1345,7 @@ Attributes:
   display candidates at the top of screen.")
 
 (defvar anything-candidate-number-limit 50
-  "*Do not show more candidates than this limit from inidividual
+  "*Do not show more candidates than this limit from individual
   sources. It is usually pointless to show hundreds of matches
   when the pattern is empty, because it is much simpler to type a
   few characters to narrow down the list of potential candidates.
@@ -1384,13 +1406,18 @@ See also `anything-set-source-filter'.")
     (define-key map (kbd "C-9") 'anything-select-with-digit-shortcut)
     (define-key map (kbd "C-i") 'anything-select-action)
     (define-key map (kbd "C-z") 'anything-execute-persistent-action)
-
+    (define-key map (kbd "C-e") 'anything-select-2nd-action-or-end-of-line)
+    (define-key map (kbd "C-j") 'anything-select-3rd-action)
     (define-key map (kbd "C-o") 'anything-next-source)
     (define-key map (kbd "C-M-v") 'anything-scroll-other-window)
+    (define-key map (kbd "M-<next>") 'anything-scroll-other-window)
     (define-key map (kbd "C-M-y") 'anything-scroll-other-window-down)
+    (define-key map (kbd "C-M-S-v") 'anything-scroll-other-window-down)
+    (define-key map (kbd "M-<prior>") 'anything-scroll-other-window-down)
     (define-key map (kbd "C-SPC") 'anything-toggle-visible-mark)
     (define-key map (kbd "M-[") 'anything-prev-visible-mark)
     (define-key map (kbd "M-]") 'anything-next-visible-mark)
+    (define-key map (kbd "C-k") 'anything-delete-minibuffer-content)
 
     (define-key map (kbd "C-s") 'anything-isearch)
     (define-key map (kbd "C-r") 'undefined)
@@ -1815,6 +1842,7 @@ If FORCE-DISPLAY-PART is non-nil, return the display string."
   "Return non-nil when `anything-current-buffer' is modified since `anything' was invoked."
   (anything-buffer-is-modified anything-current-buffer))
 
+(defvar anything-quit nil)
 (defun anything-run-after-quit (function &rest args)
   "Perform an action after quitting `anything'.
 The action is to call FUNCTION with arguments ARGS."
@@ -1876,7 +1904,6 @@ It is used to check if candidate number is 0 or 1."
   (with-current-buffer anything-buffer
     (1- (line-number-at-pos (1- (point-max))))))
 
-(defvar anything-quit nil)
 (defmacro with-anything-quittable (&rest body)
   `(let (inhibit-quit)
      (condition-case v
@@ -2828,6 +2855,11 @@ UNIT and DIRECTION."
            (when (eobp) (forward-line -1))))
     (anything-mark-current-line)))
 
+(defun anything-delete-minibuffer-content ()
+  "Same as `delete-minibuffer-contents' but this is a command."
+  (interactive)
+  (delete-minibuffer-contents))
+
 ;; (@* "Built-in plug-in: type")
 (defun anything-compile-source--type (source)
   (anything-aif (assoc-default 'type source)
@@ -3072,8 +3104,21 @@ Acceptable values of CREATE-OR-BUFFER:
   (interactive)
   (anything-select-nth-action 3))
 
+(defun anything-select-2nd-action-or-end-of-line ()
+  "Select the 2nd action for the currently selected candidate if the point is at the end of minibuffer.
+Otherwise goto the end of minibuffer."
+  (interactive)
+  (if (eolp)
+      (anything-select-nth-action 1)
+    (end-of-line)))
 
 ;; (@* "Utility: Persistent Action")
+(defmacro with-anything-display-same-window (&rest body)
+  "Make `pop-to-buffer' and `display-buffer' display in the same window."
+  `(let ((display-buffer-function 'anything-persistent-action-display-buffer))
+     ,@body))
+(put 'with-anything-display-same-window 'lisp-indent-function 0)
+
 (defun* anything-execute-persistent-action (&optional (attr 'persistent-action))
   "If a candidate is selected then perform the associated action without quitting anything."
   (interactive)
@@ -3090,12 +3135,6 @@ Acceptable values of CREATE-OR-BUFFER:
              (anything-get-action))
          t)
         (run-hooks 'anything-after-persistent-action-hook)))))
-
-(defmacro with-anything-display-same-window (&rest body)
-  "Make `pop-to-buffer' and `display-buffer' display in the same window."
-  `(let ((display-buffer-function 'anything-persistent-action-display-buffer))
-     ,@body))
-(put 'with-anything-display-same-window 'lisp-indent-function 0)
 
 (defun anything-persistent-action-display-buffer (buf &optional not-this-window)
   "Make `pop-to-buffer' and `display-buffer' display in the same window in persistent action.
