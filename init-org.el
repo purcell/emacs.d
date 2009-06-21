@@ -5,6 +5,8 @@
 (setq org-log-done t)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
+(setq org-todo-keywords (quote ((sequence "TODO(t)" "STARTED(s)" "|" "DONE(d!/!)"))))
+
 ;; Save the running clock and all clock history when exiting Emacs, load it on startup
 (setq org-clock-persistence-insinuate t)
 (setq org-clock-persist t)
