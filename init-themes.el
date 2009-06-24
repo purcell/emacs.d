@@ -35,11 +35,12 @@
 (defun apply-best-color-theme-for-frame-type (frame)
   (let ((prev-frame (selected-frame)))
     (select-frame frame)
-    (if window-system
-        (preserving-default-font-size
-         (funcall *window-system-color-theme*))
-      (funcall *tty-color-theme*))
-    (select-frame prev-frame)))
+    (prog1
+        (if window-system
+            (preserving-default-font-size
+             (funcall *window-system-color-theme*))
+          (funcall *tty-color-theme*))
+      (select-frame prev-frame))))
 
 (defun reapply-color-themes ()
   (interactive)
