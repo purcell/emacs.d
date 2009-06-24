@@ -13,6 +13,11 @@
 (add-hook 'ruby-mode-hook 'inf-ruby-keys)
 
 
+(eval-after-load "ruby-mode"
+  '(progn
+     (define-key ruby-mode-map (kbd "RET") 'reindent-then-newline-and-indent)))
+
+
 ;;----------------------------------------------------------------------------
 ;; Ruby - flymake
 ;;----------------------------------------------------------------------------
