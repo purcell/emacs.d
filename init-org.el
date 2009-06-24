@@ -5,7 +5,21 @@
 (setq org-log-done t)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
-(setq org-todo-keywords (quote ((sequence "TODO(t)" "STARTED(s)" "|" "DONE(d!/!)"))))
+(setq org-completion-use-ido t)
+
+
+; Refile targets include this file and any file contributing to the agenda - up to 5 levels deep
+(setq org-refile-targets (quote ((nil :maxlevel . 5) (org-agenda-files :maxlevel . 5))))
+; Targets start with the file name - allows creating level 1 tasks
+(setq org-refile-use-outline-path (quote file))
+; Targets complete in steps so we start with filename, TAB shows the next level of targets etc 
+(setq org-outline-path-complete-in-steps t)
+
+
+(setq org-todo-keywords
+      (quote ((sequence "TODO(t)" "STARTED(s)" "|" "DONE(d!/!)")
+              (sequence "WAITING(w@/!)" "SOMEDAY(S)" "PROJECT(P@)" "|" "CANCELLED(c@/!)"))))
+
 
 ;; Save the running clock and all clock history when exiting Emacs, load it on startup
 (setq org-clock-persistence-insinuate t)
