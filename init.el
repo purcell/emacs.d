@@ -484,6 +484,7 @@ in `exec-path', or nil if no such command exists"
 (require 'auto-complete nil t)
 (global-auto-complete-mode t)
 (setq ac-auto-start 3)
+(setq ac-dwim nil)
 (set-default 'ac-sources
              (if (> emacs-major-version 22)
                  (progn
@@ -491,6 +492,11 @@ in `exec-path', or nil if no such command exists"
                    '(ac-source-dabbrev ac-source-words-in-buffer))
                ;; dabbrev is very slow in emacs 22
                '(ac-source-words-in-buffer)))
+
+;; This stops "end" followed by "RET" getting completed to something
+;; like "endomorph" - have to use an explicit "TAB" to complete.
+(define-key ac-complete-mode-map (kbd "\r") nil)
+
 (when *vi-emulation-support-enabled*
   (define-key ac-complete-mode-map (kbd "C-n") 'dabbrev-expand)
   (define-key ac-complete-mode-map (kbd "C-p") 'dabbrev-expand)
