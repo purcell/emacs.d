@@ -493,6 +493,12 @@ in `exec-path', or nil if no such command exists"
                ;; dabbrev is very slow in emacs 22
                '(ac-source-words-in-buffer)))
 
+(dolist (mode '(magit-log-edit-mode log-edit-mode org-mode text-mode haml-mode
+                sass-mode yaml-mode csv-mode espresso-mode haskell-mode
+                html-mode nxml-mode sh-mode smarty-mode clojure-mode
+                lisp-mode textile-mode markdown-mode tuareg-mode))
+  (add-to-list 'ac-modes mode))
+
 ;; This stops "end" followed by "RET" getting completed to something
 ;; like "endomorph" - have to use an explicit "TAB" to complete.
 (define-key ac-complete-mode-map (kbd "\r") nil)
