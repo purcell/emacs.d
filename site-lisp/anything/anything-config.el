@@ -122,6 +122,9 @@
 ;;     `anything-c-source-icicle-region' (Icicle Regions)
 ;;  Kill ring:
 ;;     `anything-c-source-kill-ring' (Kill Ring)
+;;  Mark ring:
+;;     `anything-c-source-mark-ring'        (mark-ring)
+;;     `anything-c-source-global-mark-ring' (global-mark-ring)
 ;;  Register:
 ;;     `anything-c-source-register' (Registers)
 ;;  Headline Extraction:
@@ -210,6 +213,10 @@
 ;;    List all anything sources for test.
 ;;  `anything-select-source'
 ;;    Select source.
+;;  `anything-mark-ring'
+;;    Preconfigured `anything' for `anything-c-source-mark-ring'.
+;;  `anything-global-mark-ring'
+;;    Preconfigured `anything' for `anything-c-source-global-mark-ring'.
 ;;  `anything-yaoddmuse-cache-pages'
 ;;    Fetch the list of files on emacswiki and create cache file.
 ;;  `anything-yaoddmuse-emacswiki-edit-or-view'
@@ -1447,40 +1454,50 @@ Blue ==> regular file with maybe a region saved.
 RedOnWhite ==> Directory."
   (loop for i in files
      for pred = (bookmark-get-filename i)
-     for bufp = (and (fboundp 'bookmark-get-buffername)
-                     (bookmark-get-buffername i))
-     for regp = (and (fboundp 'bookmark-get-endposition)
-                     (bookmark-get-endposition i)
+     for bufp = (and (fboundp 'bookmark-get-buffer-name)
+                     (bookmark-get-buffer-name i))
+     for regp = (and (fboundp 'bookmark-get-end-position)
+                     (bookmark-get-end-position i)
                      (/= (bookmark-get-position i)
-                         (bookmark-get-endposition i)))
+                         (bookmark-get-end-position i)))
      for handlerp = (and (fboundp 'bookmark-get-handler)
                          (bookmark-get-handler i))
-     if (and pred ;; directories
+     ;; directories
+     if (and pred 
              (file-directory-p pred))
-     collect (propertize i 'face anything-c-bookmarks-face1)
-     if (and pred ;; regular files
+     collect (propertize i 'face anything-c-bookmarks-face1 'help-echo pred)
+     ;; regular files
+     if (and pred 
              (not (file-directory-p pred))
              (file-exists-p pred)
              (not regp))
-     collect (propertize i 'face anything-c-bookmarks-face2)
-     if (and pred ;; regular files with regions saved
+     collect (propertize i 'face anything-c-bookmarks-face2 'help-echo pred)
+     ;; regular files with regions saved
+     if (and pred 
              (not (file-directory-p pred))
              (file-exists-p pred)
              regp)
-     collect (propertize i 'face '((:foreground "Indianred2")))
-     if (and (fboundp 'bookmark-get-buffername) ;; buffer non--filename
+     collect (propertize i 'face '((:foreground "Indianred2")) 'help-echo pred)
+     ;; gnus
+     if (eq handlerp 'bookmark-jump-gnus)
+     collect (propertize i 'face '((:foreground "magenta")) 'help-echo pred)
+     ;; buffer non--filename
+     if (and (fboundp 'bookmark-get-buffer-name)
              bufp
+             (not (eq handlerp 'bookmark-jump-gnus))
              (not pred))
      collect (propertize i 'face '((:foreground "grey")))
-     if (and (fboundp 'bookmark-get-buffername) ;; w3m buffers
+     ;; w3m buffers
+     if (and (fboundp 'bookmark-get-buffer-name)
              (string= bufp "*w3m*")
              (when pred
                (not (file-exists-p pred))))
-     collect (propertize i 'face '((:foreground "yellow")))
-     if (and (fboundp 'bookmark-get-buffername) ;; info buffers
+     collect (propertize i 'face '((:foreground "yellow")) 'help-echo pred)
+     ;; info buffers
+     if (and (fboundp 'bookmark-get-buffer-name)
              (eq handlerp 'Info-bookmark-jump)
              (string= bufp "*info*"))
-     collect (propertize i 'face '((:foreground "green")))))
+     collect (propertize i 'face '((:foreground "green")) 'help-echo pred)))
        
 
 (defvar anything-c-source-bookmarks-local
@@ -1812,13 +1829,11 @@ http://ctags.sourceforge.net/")
     (persistent-action . (lambda (elm)
                            (anything-semantic-default-action elm)
                            (anything-match-line-color-current-line)))
-    (action ("Goto tag" . (lambda (candidate)
-                            (let ((tag (cdr (assoc candidate anything-semantic-candidates))))
-                              (semantic-go-to-tag tag))))))
+    (action . anything-semantic-default-action)
   "Needs semantic in CEDET.
 
 http://cedet.sourceforge.net/semantic.shtml
-http://cedet.sourceforge.net/")
+http://cedet.sourceforge.net/"))
 
 ;; (anything 'anything-c-source-semantic)
 
@@ -2106,6 +2121,95 @@ If this action is executed just after `yank', replace with STR as yanked string.
   (kill-new str))
 
 ;; (anything 'anything-c-source-kill-ring)
+
+;;;; <Mark ring>
+;; DO NOT include these sources in `anything-sources' use
+;; the commands `anything-mark-ring' and `anything-global-mark-ring' instead.
+
+(defun anything-c-source-mark-ring-candidates ()
+  (flet ((get-marks (pos)
+           (save-excursion
+             (goto-char pos)
+             (beginning-of-line)
+             (let ((line  (car (split-string (thing-at-point 'line) "[\n\r]"))))
+               (when (string= "" line)
+                 (setq line  "<EMPTY LINE>"))
+               (format "%7d: %s" (line-number-at-pos) line)))))
+    (with-current-buffer anything-current-buffer
+      (loop
+         with marks = (cons (mark-marker) mark-ring)
+         with recip = nil
+         for i in marks
+         for f = (get-marks i) 
+         if (not (member f recip))
+         do
+           (push f recip)
+         finally (return (reverse recip))))))
+           
+(defvar anything-mark-ring-cache nil)
+(defvar anything-c-source-mark-ring
+  '((name . "mark-ring")
+    (init . (lambda ()
+              (setq anything-mark-ring-cache
+                    (anything-c-source-mark-ring-candidates))))
+    (candidates . (lambda ()
+                    (anything-aif anything-mark-ring-cache
+                        it)))
+    (action . (("Goto line" . (lambda (candidate)
+                                (goto-line (string-to-number candidate))))))
+    (persistent-action . (lambda (candidate)
+                           (goto-line (string-to-number candidate))
+                           (anything-match-line-color-current-line)))))
+
+;; (anything 'anything-c-source-mark-ring)
+
+(defun anything-mark-ring ()
+  "Preconfigured `anything' for `anything-c-source-mark-ring'."
+  (interactive)
+  (anything 'anything-c-source-mark-ring))
+
+;;; Global-mark-ring
+(defvar anything-c-source-global-mark-ring
+  '((name . "global-mark-ring")
+    (candidates . anything-c-source-global-mark-ring-candidates)
+    (action . (("Goto line" . (lambda (candidate)
+                                (let ((items (split-string candidate ":")))
+                                  (switch-to-buffer (second items))
+                                  (goto-line (string-to-number (car items))))))))
+    (persistent-action . (lambda (candidate)
+                           (let ((items (split-string candidate ":")))
+                             (switch-to-buffer (second items))
+                             (goto-line (string-to-number (car items)))
+                             (anything-match-line-color-current-line))))))
+                             
+(defun anything-c-source-global-mark-ring-candidates ()
+  (flet ((buf-fn (m)
+           (with-current-buffer (marker-buffer m)
+             (goto-char m)
+             (beginning-of-line)
+             (let (line)
+               (if (string= "" line)
+                   (setq line  "<EMPTY LINE>")
+                   (setq line (car (split-string (thing-at-point 'line) "[\n\r]"))))
+               (format "%7d:%s:    %s" (line-number-at-pos) (marker-buffer m) line)))))
+    (loop
+       with marks = global-mark-ring
+       with recip = nil  
+       for i in marks
+       if (not (or (string-match "^ " (format "%s" (marker-buffer i)))
+                   (null (marker-buffer i))))
+       for a = (buf-fn i)
+       if (and a (not (member a recip)))
+       do
+         (push a recip)
+       finally (return (reverse recip)))))
+
+;; (anything 'anything-c-source-global-mark-ring)
+
+(defun anything-global-mark-ring ()
+  "Preconfigured `anything' for `anything-c-source-global-mark-ring'."
+  (interactive)
+  (anything 'anything-c-source-global-mark-ring))
 
 ;;;; <Register>
 ;;; Insert from register
@@ -2912,10 +3016,14 @@ See also `anything-create--actions'."
   (let ((default-font elm))
     (set-default-font default-font)))
 
+(defvar anything-c-xfonts-cache nil)
 (defvar anything-c-source-xfonts
   '((name . "X Fonts")
-    (candidates . (lambda ()
-                    (x-list-fonts "*")))
+    (init . (lambda ()
+              (unless anything-c-xfonts-cache
+                (setq anything-c-xfonts-cache
+                      (x-list-fonts "*")))))  
+    (candidates . anything-c-xfonts-cache)
     (multiline)
     (action . (("Copy to kill ring" . (lambda (elm)
                                         (kill-new elm)))
@@ -3792,6 +3900,8 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
     (anything-c-delete-file i)))
 
 (defun anything-ediff-marked-buffers (candidate &optional merge)
+  "Ediff 2 marked buffers or 1 marked buffer and current-buffer.
+With optional arg `merge' call `ediff-merge-buffers'."
   (let ((lg-lst (length anything-c-marked-candidate-list))
         buf1 buf2)
     (case lg-lst
@@ -3810,12 +3920,27 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
         (ediff-buffers buf1 buf2))))
 
 (defun anything-delete-marked-bookmarks (elm)
+  "Delete this bookmark or all marked bookmarks."
   (anything-aif anything-c-marked-candidate-list
       (progn
         (dolist (i it)
           (bookmark-delete i 'batch))
         (bookmark-save))
     (bookmark-delete elm)))
+
+(defun anything-bookmark-active-region-maybe (candidate)
+  "Active saved region if this bookmark have one."
+  (condition-case nil
+      (when (and (boundp bookmark-use-region-flag)
+                 bookmark-use-region-flag)
+        (let ((bmk-name (or (bookmark-get-buffer-name candidate)
+                            (file-name-nondirectory
+                             (bookmark-get-filename candidate)))))
+          (when bmk-name
+            (with-current-buffer bmk-name
+              (setq deactivate-mark nil)))))
+    (error nil)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Setup ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -3897,23 +4022,16 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
      ("Jump to bookmark" . (lambda (candidate)
                              (bookmark-jump candidate)
                              (anything-update)
-                             (condition-case nil
-                                 (when bookmark-use-region
-                                   (let ((bmk-name (or (bookmark-get-buffername candidate)
-                                                       (file-name-nondirectory
-                                                        (bookmark-get-filename candidate)))))
-                                     (when bmk-name
-                                       (with-current-buffer bmk-name
-                                         (setq deactivate-mark nil)))))
-                               (error nil))))
+                             (anything-bookmark-active-region-maybe candidate)))
      ("Jump to BM other window" . (lambda (candidate)
                                     (bookmark-jump-other-window candidate)
-                                    (anything-update)))
+                                    (anything-update)
+                                    (anything-bookmark-active-region-maybe candidate)))
      ("Bookmark edit annotation" . (lambda (candidate)
                                      (bookmark-edit-annotation candidate)))
      ("Bookmark show annotation" . (lambda (candidate)
                                      (bookmark-show-annotation candidate)))
-     ("Delete bookmark" . anything-delete-marked-bookmarks)
+     ("Delete bookmark(s)" . anything-delete-marked-bookmarks)
      ("Rename bookmark" . bookmark-rename)
      ("Relocate bookmark" . bookmark-relocate)))
   "Bookmark name.")
