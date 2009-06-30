@@ -1,5 +1,5 @@
 ;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.195 2009/06/19 14:42:57 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.197 2009/06/29 15:10:13 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -98,6 +98,8 @@
 ;;    Set minibuffer contents to current selection.
 ;;  `anything-kill-selection-and-quit'
 ;;    Store current selection to kill ring.
+;;  `anything-follow-mode'
+;;    If this mode is on, persistent action is executed everytime the cursor is moved.
 ;;  `anything-isearch'
 ;;    Start incremental search within results. (UNMAINTAINED)
 ;;  `anything-isearch-printing-char'
@@ -316,6 +318,12 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.197  2009/06/29 15:10:13  rubikitch
+;; OOPS! remove debug code
+;;
+;; Revision 1.196  2009/06/29 13:29:25  rubikitch
+;; anything-follow-mode: automatical execution of persistent-action (C-c C-f)
+;;
 ;; Revision 1.195  2009/06/19 14:42:57  rubikitch
 ;; silence byte compiler
 ;;
@@ -950,7 +958,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.195 2009/06/19 14:42:57 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.197 2009/06/29 15:10:13 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1426,6 +1434,7 @@ See also `anything-set-source-filter'.")
     (define-key map (kbd "C-c C-d") 'anything-delete-current-selection)
     (define-key map (kbd "C-c C-y") 'anything-yank-selection)
     (define-key map (kbd "C-c C-k") 'anything-kill-selection-and-quit)
+    (define-key map (kbd "C-c C-f") 'anything-follow-mode)
 
     ;; the defalias is needed because commands are bound by name when
     ;; using iswitchb, so only commands having the prefix anything-
@@ -1970,7 +1979,7 @@ already-bound variables. Yuck!
               ;; It is needed because `anything-source-name' is non-nil
               ;; when `anything' is invoked by action. Awful global scope.
               anything-source-name anything-in-persistent-action
-              anything-quit
+              anything-quit anything-follow-mode
               (case-fold-search t)
               (anything-buffer (or any-buffer anything-buffer))
               (anything-sources (anything-normalize-sources any-sources)))
@@ -2714,7 +2723,6 @@ UNIT and DIRECTION."
       (when (anything-get-previous-header-pos)
         (anything-mark-current-line)))))
 
-
 (defun anything-mark-current-line ()
   "Move selection overlay to current line."
   (move-overlay anything-selection-overlay
@@ -2726,8 +2734,8 @@ UNIT and DIRECTION."
                           (and header-pos candidate-pos (< candidate-pos header-pos) candidate-pos)
                           header-pos
                           (point-max)))
-                  (1+ (line-end-position)))))
-
+                  (1+ (line-end-position))))
+  (anything-follow-execute-persistent-action-maybe))
 
 (defun anything-select-with-digit-shortcut ()
   (interactive)
@@ -2740,7 +2748,6 @@ UNIT and DIRECTION."
             (goto-char (overlay-start overlay))
             (anything-mark-current-line)
             (anything-exit-minibuffer))))))
-
 
 (defun anything-exit-minibuffer ()
   "Select the current candidate by exiting the minibuffer."
@@ -3264,6 +3271,18 @@ You can paste it by typing C-y."
      (message "Killed: %s" sel))
    (anything-get-selection nil t)))
 
+
+;; (@* "Utility: Automatical execution of persistent-action")
+(define-minor-mode anything-follow-mode
+  "If this mode is on, persistent action is executed everytime the cursor is moved."
+  nil " AFollow" :global t)
+
+(defun anything-follow-execute-persistent-action-maybe ()
+  (when (and anything-follow-mode
+             (anything-window)
+             (anything-get-selection))
+    (save-excursion
+      (anything-execute-persistent-action))))
 
 ;; (@* "Utility: Incremental search within results (unmaintained)")
 

@@ -152,6 +152,7 @@
 ;;     `anything-c-source-occur'              (Occur)
 ;;     `anything-c-source-create'             (Create)
 ;;     `anything-c-source-minibuffer-history' (Minibuffer History)
+;;     `anything-c-source-elscreen'           (Elscreen)
 ;;  System:
 ;;     `anything-c-source-xrandr-change-resolution' (Change Resolution)
 ;;     `anything-c-source-xfonts'                   (X Fonts)
@@ -168,15 +169,27 @@
 ;;  `anything-info-at-point'
 ;;    Preconfigured `anything' for searching info at point.
 ;;  `anything-show-kill-ring'
-;;    Show `kill-ring'. It is drop-in replacement of `yank-pop'.
+;;    Preconfigured `anything' for `kill-ring'. It is drop-in replacement of `yank-pop'.
 ;;  `anything-minibuffer-history'
-;;    Show `minibuffer-history'.
+;;    Preconfigured `anything' for `minibuffer-history'.
 ;;  `anything-gentoo'
-;;    Start anything with only gentoo sources.
+;;    Preconfigured `anything' for gentoo linux.
 ;;  `anything-surfraw-only'
-;;    Launch only anything-surfraw.
+;;    Preconfigured `anything' for surfraw.
 ;;  `anything-imenu'
-;;    Show `imenu'.
+;;    Preconfigured `anything' for `imenu'.
+;;  `anything-google-suggest'
+;;    Preconfigured `anything' for google search with google suggest.
+;;  `anything-for-buffers'
+;;    Preconfigured `anything' for buffer.
+;;  `anything-bbdb'
+;;    Preconfigured `anything' for BBDB.
+;;  `anything-locate'
+;;    Preconfigured `anything' for Locate.
+;;  `anything-w3m-bookmarks'
+;;    Preconfigured `anything' for w3m bookmark.
+;;  `anything-colors'
+;;    Preconfigured `anything' for color.
 ;;  `anything-kill-buffers'
 ;;    You can continuously kill buffer you selected.
 ;;  `anything-query-replace-regexp'
@@ -190,23 +203,23 @@
 ;;  `anything-insert-selection'
 ;;    Insert current selection.
 ;;  `anything-show-buffer-only'
-;;    Only show sources about buffer.
+;;    [OBSOLETE] Only show sources about buffer.
 ;;  `anything-show-bbdb-only'
-;;    Only show sources about BBDB.
+;;    [OBSOLETE] Only show sources about BBDB.
 ;;  `anything-show-locate-only'
-;;    Only show sources about Locate.
+;;    [OBSOLETE] Only show sources about Locate.
 ;;  `anything-show-info-only'
-;;    Only show sources about Info.
+;;    [OBSOLETE] Only show sources about Info.
 ;;  `anything-show-imenu-only'
-;;    Only show sources about Imenu.
+;;    [OBSOLETE] Only show sources about Imenu.
 ;;  `anything-show-files-only'
-;;    Only show sources about File.
+;;    [OBSOLETE] Only show sources about File.
 ;;  `anything-show-w3m-bookmarks-only'
-;;    Only show source about w3m bookmark.
+;;    [OBSOLETE] Only show source about w3m bookmark.
 ;;  `anything-show-colors-only'
-;;    Only show source about color.
+;;    [OBSOLETE] Only show source about color.
 ;;  `anything-show-kill-ring-only'
-;;    Only show source about kill ring.
+;;    [OBSOLETE] Only show source about kill ring.
 ;;  `anything-show-this-source-only'
 ;;    Only show this source.
 ;;  `anything-test-sources'
@@ -281,7 +294,7 @@
 ;;; Change log:
 ;;
 ;;  Change log of this file is found at
-;;  http://repo.or.cz/w/anything-config.git?a=shortlog;h=b30091a6bb64828eb3d70007db5b68d51b868bcc
+;;  http://repo.or.cz/w/anything-config.git?a=shortlog
 
 ;;; Contributors:
 ;;
@@ -432,15 +445,7 @@ they will be displayed with face `file-name-shadow' if
   "Preconfigured `anything' for opening files.
 ffap -> recentf -> buffer -> bookmark -> file-cache -> files-in-current-dir -> locate"
   (interactive)
-  (anything anything-for-files-prefered-list))
-  ;; (anything '(anything-c-source-ffap-line
-  ;;             anything-c-source-ffap-guesser
-  ;;             anything-c-source-recentf
-  ;;             anything-c-source-buffers+
-  ;;             anything-c-source-bookmarks
-  ;;             anything-c-source-file-cache
-  ;;             anything-c-source-files-in-current-dir+
-  ;;             anything-c-source-locate)))
+  (anything-other-buffer anything-for-files-prefered-list "*anything for files*"))
 
 (defun anything-info-at-point ()
   "Preconfigured `anything' for searching info at point."
@@ -448,20 +453,20 @@ ffap -> recentf -> buffer -> bookmark -> file-cache -> files-in-current-dir -> l
   (anything '(anything-c-source-info-elisp
               anything-c-source-info-cl
               anything-c-source-info-pages)
-            (thing-at-point 'symbol)))
+            (thing-at-point 'symbol) nil nil nil "*anything info*"))
 
 (defun anything-show-kill-ring ()
-  "Show `kill-ring'. It is drop-in replacement of `yank-pop'.
+  "Preconfigured `anything' for `kill-ring'. It is drop-in replacement of `yank-pop'.
 You may bind this command to M-y."
   (interactive)
-  (anything 'anything-c-source-kill-ring nil nil nil nil "*anything kill-ring*"))
+  (anything-other-buffer 'anything-c-source-kill-ring "*anything kill-ring*"))
 
 (defun anything-minibuffer-history ()
-  "Show `minibuffer-history'."
+  "Preconfigured `anything' for `minibuffer-history'."
   (interactive)
   (let ((enable-recursive-minibuffers t))
-    (anything 'anything-c-source-minibuffer-history nil nil nil nil
-              "*anything minibuffer-history*")))
+    (anything-other-buffer 'anything-c-source-minibuffer-history
+                           "*anything minibuffer-history*")))
 
 (dolist (map (list minibuffer-local-filename-completion-map
                    minibuffer-local-completion-map
@@ -473,13 +478,14 @@ You may bind this command to M-y."
   (define-key map "\C-r" 'anything-minibuffer-history))
 
 (defun anything-gentoo ()
-  "Start anything with only gentoo sources."
+  "Preconfigured `anything' for gentoo linux."
   (interactive)
-  (anything '(anything-c-source-gentoo
-              anything-c-source-use-flags)))
+  (anything-other-buffer '(anything-c-source-gentoo
+                           anything-c-source-use-flags)
+                         "*anything gentoo*"))
 
 (defun anything-surfraw-only ()
-  "Launch only anything-surfraw.
+  "Preconfigured `anything' for surfraw.
 If region is marked set anything-pattern to region.
 With one prefix arg search symbol at point.
 With two prefix args allow choosing in which symbol to search."
@@ -495,16 +501,48 @@ With two prefix args allow choosing in which symbol to search."
                   (completing-read "Search in: "
                                    (list "symbol" "sentence" "sexp" "line" "word"))))
            (setq pattern (thing-at-point search))))
-    (if pattern
-        (progn
-          (setq pattern (replace-regexp-in-string "\n" "" pattern))
-          (anything 'anything-c-source-surfraw pattern))
-        (anything 'anything-c-source-surfraw))))
+    (anything 'anything-c-source-surfraw
+              (and pattern (replace-regexp-in-string "\n" "" pattern))
+              nil nil nil "*anything surfraw*")))
 
 (defun anything-imenu ()
-  "Show `imenu'."
+  "Preconfigured `anything' for `imenu'."
   (interactive)
   (anything 'anything-c-source-imenu nil nil nil nil "*anything imenu*"))
+
+(defun anything-google-suggest ()
+  "Preconfigured `anything' for google search with google suggest."
+  (interactive)
+  (anything-other-buffer 'anything-c-source-google-suggest "*anything google*"))
+
+;;; Converted from anything-show-*-only
+(defun anything-for-buffers ()
+  "Preconfigured `anything' for buffer."
+  (interactive)
+  (anything-other-buffer 'anything-c-source-buffers "*anything for buffers*"))
+
+(defun anything-bbdb ()
+  "Preconfigured `anything' for BBDB."
+  (interactive)
+  (anything-other-buffer 'anything-c-source-bbdb "*anything bbdb*"))
+
+(defun anything-locate ()
+  "Preconfigured `anything' for Locate."
+  (interactive)
+  (anything-other-buffer 'anything-c-source-locate "*anything locate*"))
+
+(defun anything-w3m-bookmarks ()
+  "Preconfigured `anything' for w3m bookmark."
+  (interactive)
+  (anything-other-buffer 'anything-c-source-w3m-bookmarks "*anything w3m bookmarks*"))
+
+(defun anything-colors ()
+  "Preconfigured `anything' for color."
+  (interactive)
+  (anything-other-buffer '(anything-c-source-colors anything-c-source-customize-face)
+                         "*anything colors*"))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Anything Applications ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; kill buffers
@@ -630,52 +668,61 @@ With two prefix args allow choosing in which symbol to search."
      (anything-get-selection))))
 
 (defun anything-show-buffer-only ()
-  "Only show sources about buffer."
+  "[OBSOLETE] Only show sources about buffer.
+Use `anything-for-buffers' instead."
   (interactive)
   (anything-set-source-filter '("Buffers")))
 
 (defun anything-show-bbdb-only ()
-  "Only show sources about BBDB."
+  "[OBSOLETE] Only show sources about BBDB.
+Use `anything-bbdb' instead."
   (interactive)
   (anything-set-source-filter '("BBDB")))
 
 (defun anything-show-locate-only ()
-  "Only show sources about Locate."
+  "[OBSOLETE] Only show sources about Locate.
+Use `anything-locate' instead."
   (interactive)
   (anything-set-source-filter '("Locate")))
 
 (defun anything-show-info-only ()
-  "Only show sources about Info."
+  "[OBSOLETE] Only show sources about Info.
+Use `anything-info-at-point' instead."
   (interactive)
   (anything-set-source-filter '("Info Pages"
                                 "Info Elisp"
                                 "Info Common-Lisp")))
 
 (defun anything-show-imenu-only ()
-  "Only show sources about Imenu."
+  "[OBSOLETE] Only show sources about Imenu.
+Use `anything-imenu' instead."
   (interactive)
   (anything-set-source-filter '("Imenu")))
 
 (defun anything-show-files-only ()
-  "Only show sources about File."
+  "[OBSOLETE] Only show sources about File.
+Use `anything-for-files' instead."
   (interactive)
   (anything-set-source-filter '("File Name History"
                                 "Files from Current Directory"
                                 "Recentf")))
 
 (defun anything-show-w3m-bookmarks-only ()
-  "Only show source about w3m bookmark."
+  "[OBSOLETE] Only show source about w3m bookmark.
+Use `anything-w3m-bookmarks' instead."
   (interactive)
   (anything-set-source-filter '("W3m Bookmarks")))
 
 (defun anything-show-colors-only ()
-  "Only show source about color."
+  "[OBSOLETE] Only show source about color.
+Use `anything-colors' instead."
   (interactive)
   (anything-set-source-filter '("Colors"
                                 "Customize Faces")))
 
 (defun anything-show-kill-ring-only ()
-  "Only show source about kill ring."
+  "[OBSOLETE] Only show source about kill ring.
+Use `anything-show-kill-ring' instead."
   (interactive)
   (anything-set-source-filter '("Kill Ring")))
 
@@ -2986,6 +3033,28 @@ See also `anything-create--actions'."
     (action . insert)))
 ;; (anything 'anything-c-source-minibuffer-history)
 
+;; elscreen
+(defvar anything-c-source-elscreen
+  '((name . "Elscreen")
+    (candidates . (lambda ()
+                    (if (cdr (elscreen-get-screen-to-name-alist))
+                        (sort
+                         (loop for sname in (elscreen-get-screen-to-name-alist)
+                               append (list (format "[%d] %s" (car sname) (cdr sname))) into lst
+                               finally (return lst))
+                         '(lambda (a b) (compare-strings a nil nil b nil nil))))))
+    (action . (("Change Screen".
+                (lambda (candidate)
+                  (elscreen-goto (- (aref candidate 1) (aref "0" 0)))))
+               ("Kill Screen".
+                (lambda (candidate)
+                  (elscreen-kill (- (aref candidate 1) (aref "0" 0)))))
+               ("Only Screen".
+                (lambda (candidate)
+                  (elscreen-goto (- (aref candidate 1) (aref "0" 0)))
+                  (elscreen-kill-others)))))))
+;; (anything 'anything-c-source-elscreen)
+
 ;;;; <System>
 
 ;;; X RandR resolution change
@@ -3596,26 +3665,6 @@ other candidate transformers."
                          function)
                    list)
           finally (return (nreverse list)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Marked candidates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun anything-c-list-marked-candidate ()
-  (interactive)
-  (let (marked-candidates)
-    (with-anything-window
-      (goto-char (point-min))
-      (beginning-of-line)
-      (while (anything-next-visible-mark)
-        (push (buffer-substring-no-properties (point-at-bol) (point-at-eol)) marked-candidates)))
-    marked-candidates))
-
-(defvar anything-c-marked-candidate-list nil)
-(defadvice anything-select-action (before save-marked-candidates () activate)
-  (setq anything-c-marked-candidate-list (anything-c-list-marked-candidate))
-  (anything-clear-visible-mark))
-
-(defadvice anything-toggle-visible-mark (after move-to-next-line () activate)
-  (anything-next-line))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Adaptive Sorting of Candidates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar anything-c-adaptive-done nil
