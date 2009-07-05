@@ -439,7 +439,21 @@ they will be displayed with face `file-name-shadow' if
   "Your prefered sources to find files."
   :type 'list
   :group 'anything-config)
- 
+
+(defcustom anything-create--actions-private nil
+  "User defined actions for `anything-create' / `anything-c-source-create'.
+It is a list of (DISPLAY . FUNCTION) pairs like `action'
+attribute of `anything-sources'.
+
+It is prepended to predefined pairs."
+  :type 'list
+  :group 'anything-config)
+
+(defcustom anything-allow-skipping-current-buffer t
+  "Show current buffer or not in anything buffer"
+  :type 'boolean
+  :group 'anything-config)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Preconfigured Anything ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun anything-for-files ()
   "Preconfigured `anything' for opening files.
@@ -1586,7 +1600,7 @@ RedOnWhite ==> Directory."
         (forward-line)
         (when (re-search-forward "href=" nil t)
           (beginning-of-line)
-          (when (re-search-forward "http://[^>]*" nil t)
+          (when (re-search-forward "\\(http\\|file\\)://[^>]*" nil t)
             (setq url (concat "\"" (match-string 0))))
           (beginning-of-line)
           (when (re-search-forward anything-w3m-bookmarks-regexp nil t)
@@ -2977,14 +2991,6 @@ A list of search engines."
   "Do many create actions from `anything-pattern'.
 See also `anything-create--actions'.")
 ;; (anything 'anything-c-source-create)
-(defcustom anything-create--actions-private nil
-  "User defined actions for `anything-create' / `anything-c-source-create'.
-It is a list of (DISPLAY . FUNCTION) pairs like `action'
-attribute of `anything-sources'.
-
-It is prepended to predefined pairs."
-  :type 'list
-  :group 'anything-config)
 
 (defun anything-create-from-anything ()
   "Run `anything-create' from `anything' as a fallback."
@@ -3094,6 +3100,7 @@ See also `anything-create--actions'."
                       (x-list-fonts "*")))))  
     (candidates . anything-c-xfonts-cache)
     (multiline)
+    (volatile)
     (action . (("Copy to kill ring" . (lambda (elm)
                                         (kill-new elm)))
                ("Set Font" . (lambda (elm)
@@ -3299,6 +3306,38 @@ See also `anything-create--actions'."
                                    (delete-process (get-process elm))))))))
 
 ;; (anything 'anything-c-source-emacs-process)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Marked Candidates ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar anything-c-marked-candidate-list nil)
+(defun anything-toggle-visible-mark-2 ()
+  (interactive)
+  (with-anything-window
+    (anything-aif (loop for o in anything-visible-mark-overlays
+                     when (equal (line-beginning-position) (overlay-start o))
+                     do
+                       (return o))
+        ;; delete
+        (progn
+          (setq anything-c-marked-candidate-list
+                (remove
+                 (buffer-substring-no-properties (point-at-bol) (point-at-eol)) anything-c-marked-candidate-list))
+          (delete-overlay it)
+          (delq it anything-visible-mark-overlays))
+      (let ((o (make-overlay (line-beginning-position) (1+ (line-end-position)))))
+        (overlay-put o 'face anything-visible-mark-face)
+        (overlay-put o 'source (assoc-default 'name (anything-get-current-source)))
+        (overlay-put o 'string (buffer-substring (overlay-start o) (overlay-end o)))
+        (add-to-list 'anything-visible-mark-overlays o)
+        (push (buffer-substring-no-properties (point-at-bol) (point-at-eol)) anything-c-marked-candidate-list)
+        (anything-next-line)))))
+
+(fset 'anything-toggle-visible-mark (symbol-function 'anything-toggle-visible-mark-2))
+
+(add-hook 'anything-after-initialize-hook (lambda ()
+                                   (setq anything-c-marked-candidate-list nil)))
+
+(add-hook 'anything-after-action-hook (lambda ()
+                                   (setq anything-c-marked-candidate-list nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Action Helpers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Files
@@ -3613,7 +3652,9 @@ evaluate it and put it onto the `command-history'."
   (anything-c-skip-entries buffers anything-c-boring-buffer-regexp))
 
 (defun anything-c-skip-current-buffer (buffers)
-  (remove (buffer-name anything-current-buffer) buffers))
+  (if anything-allow-skipping-current-buffer
+      (remove (buffer-name anything-current-buffer) buffers)
+      buffers))
 
 (defun anything-c-shadow-boring-buffers (buffers)
   "Buffers matching `anything-c-boring-buffer-regexp' will be
@@ -3971,10 +4012,8 @@ With optional arg `merge' call `ediff-merge-buffers'."
 (defun anything-delete-marked-bookmarks (elm)
   "Delete this bookmark or all marked bookmarks."
   (anything-aif anything-c-marked-candidate-list
-      (progn
-        (dolist (i it)
-          (bookmark-delete i 'batch))
-        (bookmark-save))
+      (dolist (i it)
+        (bookmark-delete i 'batch))
     (bookmark-delete elm)))
 
 (defun anything-bookmark-active-region-maybe (candidate)
