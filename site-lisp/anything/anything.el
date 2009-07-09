@@ -1,4 +1,4 @@
-;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
+;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
 ;; $Id: anything.el,v 1.197 2009/06/29 15:10:13 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
