@@ -910,22 +910,37 @@ pitem of the function we went to the beginning of."
     (when pstate
       (goto-char (espresso--pitem-h-begin (car pstate))))))
 
-(defun espresso--beginning-of-defun ()
+(defun espresso--beginning-of-defun (&optional arg)
   "Used as beginning-of-defun-function"
 
-  ;; If we're just past the end of a function, the user probably wants
-  ;; to go to the beginning of *that* function
-  (when (eq (char-before) ?})
-    (backward-char))
+  (setq arg (or arg 1))
+  (while (and (not (eobp)) (< arg 0))
+    (incf arg)
+    (when (and (not espresso-flat-functions)
+               (or (eq (espresso-syntactic-context) 'function)
+                   (espresso--function-prologue-beginning)))
+      (espresso--end-of-defun))
 
-  (let ((prologue-begin (espresso--function-prologue-beginning)))
-    (cond ((and prologue-begin (< prologue-begin (point)))
-           (goto-char prologue-begin))
+    (if (espresso--re-search-forward
+         "\\_<function\\_>" nil t)
+        (goto-char (espresso--function-prologue-beginning))
+      (goto-char (point-max))))
 
-          (espresso-flat-functions
-           (espresso--beginning-of-defun-flat))
-          (t
-           (espresso--beginning-of-defun-nested)))))
+  (while (> arg 0)
+    (decf arg)
+    ;; If we're just past the end of a function, the user probably wants
+    ;; to go to the beginning of *that* function
+    (when (eq (char-before) ?})
+      (backward-char))
+
+    (let ((prologue-begin (espresso--function-prologue-beginning)))
+      (cond ((and prologue-begin (< prologue-begin (point)))
+             (goto-char prologue-begin))
+
+            (espresso-flat-functions
+             (espresso--beginning-of-defun-flat))
+            (t
+             (espresso--beginning-of-defun-nested))))))
 
 (defun espresso--flush-caches (&optional beg ignored)
   "Flush syntax cache info after position BEG. BEG defaults to
@@ -1213,6 +1228,7 @@ given item ends instead of parsing all the way to LIMIT."
 
 (defun espresso--end-of-defun-nested ()
   "Internal helper for espresso--end-of-defun"
+  (message "test")
   (let* (pitem
          (this-end (save-excursion
                      (and (setq pitem (espresso--beginning-of-defun-nested))
@@ -1236,26 +1252,37 @@ given item ends instead of parsing all the way to LIMIT."
         ;; ... or eob.
         (goto-char (point-max))))))
 
-(defun espresso--end-of-defun ()
+(defun espresso--end-of-defun (&optional arg)
   "Used as end-of-defun-function"
-  ;; look for function backward. if we're inside it, go to that
-  ;; function's end. otherwise, search for the next function's end and
-  ;; go there
-  (if espresso-flat-functions
-      (espresso--end-of-defun-flat)
+  (setq arg (or arg 1))
+  (while (and (not (bobp)) (< arg 0))
+    (let (orig-pos (point))
+      (incf arg)
+      (espresso--beginning-of-defun)
+      (espresso--beginning-of-defun)
+      (unless (bobp)
+        (espresso--end-of-defun))))
 
-    ;; if we're doing nested functions, see whether we're in the
-    ;; prologue. If we are, go to the end of the function; otherwise,
-    ;; call espresso--end-of-defun-nested to do the real work
-    (let ((prologue-begin (espresso--function-prologue-beginning)))
-      (cond ((and prologue-begin (<= prologue-begin (point)))
-             (goto-char prologue-begin)
-             (re-search-forward "\\_<function")
-             (goto-char (match-beginning 0))
-             (espresso--forward-function-decl)
-             (forward-list))
+  (while (> arg 0)
+    (decf arg)
+    ;; look for function backward. if we're inside it, go to that
+    ;; function's end. otherwise, search for the next function's end and
+    ;; go there
+    (if espresso-flat-functions
+        (espresso--end-of-defun-flat)
 
-            (t (espresso--end-of-defun-nested))))))
+      ;; if we're doing nested functions, see whether we're in the
+      ;; prologue. If we are, go to the end of the function; otherwise,
+      ;; call espresso--end-of-defun-nested to do the real work
+      (let ((prologue-begin (espresso--function-prologue-beginning)))
+        (cond ((and prologue-begin (<= prologue-begin (point)))
+               (goto-char prologue-begin)
+               (re-search-forward "\\_<function")
+               (goto-char (match-beginning 0))
+               (espresso--forward-function-decl)
+               (forward-list))
+
+              (t (espresso--end-of-defun-nested)))))))
 
 (defun espresso--beginning-of-macro (&optional lim)
   (let ((here (point)))
