@@ -7,9 +7,9 @@
 ;; Copyright (C) 2005-2009, Drew Adams, all rights reserved.
 ;; Created: Fri Aug 12 17:18:02 2005
 ;; Version: 22.0
-;; Last-Updated: Tue Apr  7 15:01:54 2009 (-0700)
+;; Last-Updated: Wed Jul 29 22:41:08 2009 (-0700)
 ;;           By: dradams
-;;     Update #: 465
+;;     Update #: 489
 ;; URL: http://www.emacswiki.org/cgi-bin/wiki/lacarte.el
 ;; Keywords: menu-bar, menu, command, help, abbrev, minibuffer, keys,
 ;;           completion, matching, local, internal, extensions,
@@ -84,6 +84,10 @@
 ;;    `lacarte-get-overall-menu-item-alist',
 ;;    `lacarte-remove-w32-keybd-accelerators'.
 ;;
+;;  Internal variables defined here:
+;;
+;;    `lacarte-history', `lacarte-menu-items-alist'.
+;;
 ;;
 ;;  Getting Started
 ;;  ---------------
@@ -136,9 +140,18 @@
 ;;
 ;;  If you know how to use regexps, you can easily and quickly get to
 ;;  the menu command you want, or at least narrow the list of
-;;  candidates for completion and cycling.  In addition, when you
-;;  cycle to a candidate or complete to one (entirely), you can see
-;;  help for that candidate in the mode line.
+;;  candidates for completion and cycling.
+;;
+;;  Additional benefits of using Icicles with La Carte:
+;;
+;;  * When you cycle to a candidate menu item, or you complete to one
+;;    (entirely), the Emacs command associated with the menu item is
+;;    shown in the mode line of buffer `*Completions*'.
+;;
+;;  * You can use `M-h' to complete your minibuffer input against
+;;    commands, including menu-item commands, that you have entered
+;;    previously.  You can also use the standard history keys
+;;    (e.g. `M-p', `M-r') to access these commands.
 ;;
 ;;
 ;;  Menu Organization Helps You Find a Command
@@ -207,6 +220,12 @@
 ;;
 ;;(@* "Change log")
 ;;
+;; 2009/07/29 dadams
+;;     Added: lacarte-history.
+;;     lacarte-execute-menu-command:
+;;       Use lacarte-history as the history list.  Use strict completion.
+;; 2009/07/26 dadams
+;;     lacarte-execute-menu-command: Use icicle-interactive-history as the history list.
 ;; 2008/08/28 dadams
 ;;     Renamed from alacarte to lacarte.  Confusion with alacarte Ubuntu source package.
 ;; 2008/05/21 dadams
@@ -308,6 +327,8 @@ accelerators.  See `lacarte-remove-w32-keybd-accelerators'."
  
 ;;; Internal Variables -------------------------------------
 
+(defvar lacarte-history nil "History for menu items read using La Carte completion.")
+
 ;; This is used also in `icicle-help-on-candidate', which is defined in Icicles
 ;; (library `icicles-mcmd.el').
 (defvar lacarte-menu-items-alist nil
@@ -329,7 +350,8 @@ you use `C-A' in the minibuffer to toggle case-sensitivity."
        (progn
          (setq lacarte-menu-items-alist (lacarte-get-overall-menu-item-alist))
          (let* ((completion-ignore-case t) ; Not case-sensitive, by default.
-                (menu-item (completing-read "Menu command: " lacarte-menu-items-alist))
+                (menu-item (completing-read "Menu command: " lacarte-menu-items-alist
+                                            nil t nil 'lacarte-history))
                 (cmd (cdr (assoc menu-item lacarte-menu-items-alist))))
            (unless cmd (error "No such menu command"))
            ;; Treat special cases of `last-command-event', reconstructing it for
