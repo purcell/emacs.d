@@ -7,13 +7,13 @@
 ;; Copyright (C) 2005-2009, Drew Adams, all rights reserved.
 ;; Created: Fri Aug 12 17:18:02 2005
 ;; Version: 22.0
-;; Last-Updated: Wed Jul 29 22:41:08 2009 (-0700)
+;; Last-Updated: Thu Aug  6 19:16:13 2009 (-0700)
 ;;           By: dradams
-;;     Update #: 489
+;;     Update #: 491
 ;; URL: http://www.emacswiki.org/cgi-bin/wiki/lacarte.el
 ;; Keywords: menu-bar, menu, command, help, abbrev, minibuffer, keys,
 ;;           completion, matching, local, internal, extensions,
-;; Compatibility: GNU Emacs 20.x, GNU Emacs 21.x, GNU Emacs 22.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -283,8 +283,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; Code:
-
-(when (< emacs-major-version 20) (eval-when-compile (require 'cl))) ;; when, unless
 
 (unless (fboundp 'replace-regexp-in-string) (require 'subr-21 nil t))
 
