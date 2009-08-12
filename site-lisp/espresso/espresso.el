@@ -77,7 +77,14 @@
   (require 'cl)
   (require 'comint)
   (require 'ido)
-  (proclaim '(optimize (speed 0) (safety 3))))
+  ;; Swap the speed and safety values for debugging
+  (proclaim '(optimize (speed 3) (safety 0))))
+
+(defvar inferior-moz-buffer)
+(defvar moz-repl-name)
+(defvar ido-cur-list)
+(declare-function ido-mode "ido")
+(declare-function inferior-moz-process "mozrepl")
 
 ;;; Constants
 
@@ -335,7 +342,7 @@ with `\\\\_<' and `\\\\_>'."
   "Level two font lock.")
 
 ;; espresso--pitem is the basic building block of the lexical
-;; database. When one refesr to a real part of the buffer, the region
+;; database. When one refers to a real part of the buffer, the region
 ;; of text to which it refers is split into a conceptual header and
 ;; body. Consider the (very short) block described by a hypothetical
 ;; espresso--pitem:
@@ -3319,17 +3326,15 @@ point"
 ;;; Main Function
 
 ;;;###autoload
-(defun espresso-mode ()
+(define-derived-mode espresso-mode nil "espresso"
   "Major mode for editing JavaScript source text.
 
 Key bindings:
 
 \\{espresso-mode-map}"
-  (interactive)
-  (kill-all-local-variables)
 
-  (use-local-map espresso-mode-map)
-  (set-syntax-table espresso-mode-syntax-table)
+  :group 'espresso
+  :syntax-table espresso-mode-syntax-table
 
   (set (make-local-variable 'indent-line-function) 'espresso-indent-line)
   (set (make-local-variable 'beginning-of-defun-function)
@@ -3395,9 +3400,7 @@ Key bindings:
   (font-lock-set-defaults)
 
   (let (font-lock-keywords) ; leaves syntactic keywords intact
-    (font-lock-fontify-buffer))
-
-  (run-mode-hooks 'espresso-mode-hook))
+    (font-lock-fontify-buffer)))
 
 
 (eval-after-load 'hideshow
