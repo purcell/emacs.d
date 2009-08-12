@@ -1,5 +1,5 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.197 2009/06/29 15:10:13 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.201 2009/08/08 13:25:30 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -318,6 +318,18 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.201  2009/08/08 13:25:30  rubikitch
+;; `anything-toggle-visible-mark': move next line after unmarking
+;;
+;; Revision 1.200  2009/08/08 13:23:46  rubikitch
+;; `anything-toggle-visible-mark': Applied ThierryVolpiatto's patch. thx.
+;;
+;; Revision 1.199  2009/07/19 13:22:29  rubikitch
+;; `anything-follow-execute-persistent-action-maybe': execute persistent action after `anything-input-idle-delay'
+;;
+;; Revision 1.198  2009/07/06 15:22:48  rubikitch
+;; header modified (no code change)
+;;
 ;; Revision 1.197  2009/06/29 15:10:13  rubikitch
 ;; OOPS! remove debug code
 ;;
@@ -958,7 +970,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.197 2009/06/29 15:10:13 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.201 2009/08/08 13:25:30 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -3199,20 +3211,49 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
   (setq anything-visible-mark-overlays nil))
 (add-hook 'anything-after-initialize-hook 'anything-clear-visible-mark)
 
+;; (defun anything-toggle-visible-mark ()
+;;   (interactive)
+;;   (with-anything-window
+;;     (anything-aif (loop for o in anything-visible-mark-overlays
+;;                         when (equal (line-beginning-position) (overlay-start o))
+;;                         do (return o))
+;;         ;; delete
+;;         (progn (delete-overlay it)
+;;                (delq it anything-visible-mark-overlays))
+;;       (let ((o (make-overlay (line-beginning-position) (1+ (line-end-position)))))
+;;         (overlay-put o 'face anything-visible-mark-face)
+;;         (overlay-put o 'source (assoc-default 'name (anything-get-current-source)))
+;;         (overlay-put o 'string (buffer-substring (overlay-start o) (overlay-end o)))
+;;         (add-to-list 'anything-visible-mark-overlays o)))))
+
+(defvar anything-c-marked-candidate-list nil)
 (defun anything-toggle-visible-mark ()
   (interactive)
   (with-anything-window
     (anything-aif (loop for o in anything-visible-mark-overlays
                         when (equal (line-beginning-position) (overlay-start o))
-                        do (return o))
+                        do   (return o))
         ;; delete
-        (progn (delete-overlay it)
-               (delq it anything-visible-mark-overlays))
+        (progn
+          (setq anything-c-marked-candidate-list
+                (remove
+                 (buffer-substring-no-properties (point-at-bol) (point-at-eol)) anything-c-marked-candidate-list))
+          (delete-overlay it)
+          (delq it anything-visible-mark-overlays))
       (let ((o (make-overlay (line-beginning-position) (1+ (line-end-position)))))
         (overlay-put o 'face anything-visible-mark-face)
         (overlay-put o 'source (assoc-default 'name (anything-get-current-source)))
         (overlay-put o 'string (buffer-substring (overlay-start o) (overlay-end o)))
-        (add-to-list 'anything-visible-mark-overlays o)))))
+        (add-to-list 'anything-visible-mark-overlays o)
+        (push (buffer-substring-no-properties (point-at-bol) (point-at-eol)) anything-c-marked-candidate-list)))
+    (anything-next-line)))
+
+(add-hook 'anything-after-initialize-hook (lambda ()
+                                   (setq anything-c-marked-candidate-list nil)))
+
+(add-hook 'anything-after-action-hook (lambda ()
+                                   (setq anything-c-marked-candidate-list nil)))
+
 (defun anything-revive-visible-mark ()
   (interactive)
   (with-current-buffer anything-buffer
@@ -3278,11 +3319,13 @@ You can paste it by typing C-y."
   nil " AFollow" :global t)
 
 (defun anything-follow-execute-persistent-action-maybe ()
-  (when (and anything-follow-mode
-             (anything-window)
-             (anything-get-selection))
-    (save-excursion
-      (anything-execute-persistent-action))))
+  "Execute persistent action after `anything-input-idle-delay' secs when `anything-follow-mode' is enabled."
+  (and anything-follow-mode
+       (sit-for anything-input-idle-delay)
+       (anything-window)
+       (anything-get-selection)
+       (save-excursion
+         (anything-execute-persistent-action))))
 
 ;; (@* "Utility: Incremental search within results (unmaintained)")
 

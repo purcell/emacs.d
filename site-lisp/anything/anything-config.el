@@ -1506,14 +1506,15 @@ http://www.nongnu.org/bm/")
   (loop for i in files
         collect (propertize i 'face anything-c-bookmarks-face3)))
 
-(defun anything-c-highlight-bookmark (files)
+(defun anything-c-highlight-bookmark (bookmarks)
   "Colors mean:
 Grey ==> non--buffer-filename with saved region or not.
 Yellow ==> w3m url with saved region.
+Magenta ==> Gnus buffer.
 Green ==> info buffer with saved region.
 Blue ==> regular file with maybe a region saved.
 RedOnWhite ==> Directory."
-  (loop for i in files
+  (loop for i in bookmarks
      for pred = (bookmark-get-filename i)
      for bufp = (and (fboundp 'bookmark-get-buffer-name)
                      (bookmark-get-buffer-name i))
@@ -1523,42 +1524,40 @@ RedOnWhite ==> Directory."
                          (bookmark-get-end-position i)))
      for handlerp = (and (fboundp 'bookmark-get-handler)
                          (bookmark-get-handler i))
+     ;; info buffers
+     if (and (fboundp 'bookmark-get-buffer-name)
+             (eq handlerp 'Info-bookmark-jump)
+             (string= bufp "*info*"))
+     collect (propertize i 'face '((:foreground "green")) 'help-echo pred)
+     ;; w3m buffers
+     if (and (fboundp 'bookmark-get-buffer-name)
+             (string= bufp "*w3m*"))
+     collect (propertize i 'face '((:foreground "yellow")) 'help-echo pred)
+     ;; gnus buffers
+     if (eq handlerp 'bookmark-jump-gnus)
+     collect (propertize i 'face '((:foreground "magenta")) 'help-echo pred)
      ;; directories
      if (and pred 
              (file-directory-p pred))
      collect (propertize i 'face anything-c-bookmarks-face1 'help-echo pred)
-     ;; regular files
-     if (and pred 
-             (not (file-directory-p pred))
-             (file-exists-p pred)
-             (not regp))
-     collect (propertize i 'face anything-c-bookmarks-face2 'help-echo pred)
      ;; regular files with regions saved
      if (and pred 
              (not (file-directory-p pred))
              (file-exists-p pred)
              regp)
      collect (propertize i 'face '((:foreground "Indianred2")) 'help-echo pred)
-     ;; gnus
-     if (eq handlerp 'bookmark-jump-gnus)
-     collect (propertize i 'face '((:foreground "magenta")) 'help-echo pred)
+     ;; regular files
+     if (and pred 
+             (not (file-directory-p pred))
+             (file-exists-p pred)
+             (not regp))
+     collect (propertize i 'face anything-c-bookmarks-face2 'help-echo pred)
      ;; buffer non--filename
      if (and (fboundp 'bookmark-get-buffer-name)
              bufp
              (not (eq handlerp 'bookmark-jump-gnus))
              (not pred))
-     collect (propertize i 'face '((:foreground "grey")))
-     ;; w3m buffers
-     if (and (fboundp 'bookmark-get-buffer-name)
-             (string= bufp "*w3m*")
-             (when pred
-               (not (file-exists-p pred))))
-     collect (propertize i 'face '((:foreground "yellow")) 'help-echo pred)
-     ;; info buffers
-     if (and (fboundp 'bookmark-get-buffer-name)
-             (eq handlerp 'Info-bookmark-jump)
-             (string= bufp "*info*"))
-     collect (propertize i 'face '((:foreground "green")) 'help-echo pred)))
+     collect (propertize i 'face '((:foreground "grey")))))
        
 
 (defvar anything-c-source-bookmarks-local
@@ -3307,37 +3306,6 @@ See also `anything-create--actions'."
 
 ;; (anything 'anything-c-source-emacs-process)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Marked Candidates ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar anything-c-marked-candidate-list nil)
-(defun anything-toggle-visible-mark-2 ()
-  (interactive)
-  (with-anything-window
-    (anything-aif (loop for o in anything-visible-mark-overlays
-                     when (equal (line-beginning-position) (overlay-start o))
-                     do
-                       (return o))
-        ;; delete
-        (progn
-          (setq anything-c-marked-candidate-list
-                (remove
-                 (buffer-substring-no-properties (point-at-bol) (point-at-eol)) anything-c-marked-candidate-list))
-          (delete-overlay it)
-          (delq it anything-visible-mark-overlays))
-      (let ((o (make-overlay (line-beginning-position) (1+ (line-end-position)))))
-        (overlay-put o 'face anything-visible-mark-face)
-        (overlay-put o 'source (assoc-default 'name (anything-get-current-source)))
-        (overlay-put o 'string (buffer-substring (overlay-start o) (overlay-end o)))
-        (add-to-list 'anything-visible-mark-overlays o)
-        (push (buffer-substring-no-properties (point-at-bol) (point-at-eol)) anything-c-marked-candidate-list)
-        (anything-next-line)))))
-
-(fset 'anything-toggle-visible-mark (symbol-function 'anything-toggle-visible-mark-2))
-
-(add-hook 'anything-after-initialize-hook (lambda ()
-                                   (setq anything-c-marked-candidate-list nil)))
-
-(add-hook 'anything-after-action-hook (lambda ()
-                                   (setq anything-c-marked-candidate-list nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Action Helpers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Files
