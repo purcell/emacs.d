@@ -1,6 +1,5 @@
-;;; espresso.el --- Major mode for editing JavaScript source text
-;; Copyright (C) 2008 Free Software Foundation, Inc.
-;; Copyright (C) 2009 Daniel Colascione <dan.colascione@gmail.com>
+;;; js.el --- Major mode for editing JavaScript source text
+;; Copyright (C) 2008, 2009 Free Software Foundation, Inc.
 ;; Author: Karl Landstrom <karl.landstrom@brgeight.se>
 ;; Author: Daniel Colascione <dan.colascione@gmail.com>
 ;; Maintainer: Daniel Colascione <dan.colascione@gmail.com>
@@ -43,8 +42,8 @@
 ;; load-path' for more info). Then add the following lines to your
 ;; Emacs initialization file:
 ;;
-;;    (add-to-list 'auto-mode-alist '("\\.js\\'" . espresso-mode))
-;;    (autoload 'espresso-mode "espresso" nil t)
+;;    (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
+;;    (autoload 'js-mode "js" nil t)
 ;;
 ;; After that, type M-x byte-compile-file and have Emacs byte-compile
 ;; this file. Performance is vastly better when this file is
@@ -55,8 +54,8 @@
 ;; XXX: This mode assumes that block comments are not nested inside block
 ;; XXX: comments
 ;;
-;; Exported names start with "espresso-"; private names start with
-;; "espresso--".
+;; Exported names start with "js-"; private names start with
+;; "js--".
 ;;
 ;; Code:
 
@@ -88,153 +87,153 @@
 
 ;;; Constants
 
-(defconst espresso--name-start-re "[a-zA-Z_$]"
-  "Matches the first character of a Espresso identifier. No grouping")
+(defconst js--name-start-re "[a-zA-Z_$]"
+  "Matches the first character of a Javascript identifier. No grouping")
 
-(defconst espresso--stmt-delim-chars "^;{}?:")
+(defconst js--stmt-delim-chars "^;{}?:")
 
-(defconst espresso--name-re (concat espresso--name-start-re
-                                    "\\(?:\\s_\\|\\sw\\)*")
+(defconst js--name-re (concat js--name-start-re
+                              "\\(?:\\s_\\|\\sw\\)*")
   "Matches a Javascript identifier. No grouping.")
 
-(defconst espresso--objfield-re (concat espresso--name-re ":")
+(defconst js--objfield-re (concat js--name-re ":")
   "Matches a Javascript object field start")
 
-(defconst espresso--dotted-name-re
-  (concat espresso--name-re "\\(?:\\." espresso--name-re "\\)*")
+(defconst js--dotted-name-re
+  (concat js--name-re "\\(?:\\." js--name-re "\\)*")
   "Matches a dot-separated sequence of Javascript names")
 
-(defconst espresso--cpp-name-re espresso--name-re
+(defconst js--cpp-name-re js--name-re
   "Matches a C preprocessor name")
 
-(defconst espresso--opt-cpp-start "^\\s-*#\\s-*\\([[:alnum:]]+\\)"
+(defconst js--opt-cpp-start "^\\s-*#\\s-*\\([[:alnum:]]+\\)"
   "Regexp matching the prefix of a cpp directive including the directive
 name, or nil in languages without preprocessor support.  The first
 submatch surrounds the directive name.")
 
-(defconst espresso--plain-method-re
-  (concat "^\\s-*?\\(" espresso--dotted-name-re "\\)\\.prototype"
-          "\\.\\(" espresso--name-re "\\)\\s-*?=\\s-*?\\(function\\)\\_>")
+(defconst js--plain-method-re
+  (concat "^\\s-*?\\(" js--dotted-name-re "\\)\\.prototype"
+          "\\.\\(" js--name-re "\\)\\s-*?=\\s-*?\\(function\\)\\_>")
   "Regexp matching an old-fashioned explicit prototype \"method\"
   declaration. Group 1 is a (possibly-dotted) class name, group 2
   is a method name, and group 3 is the 'function' keyword." )
 
-(defconst espresso--plain-class-re
-  (concat "^\\s-*\\(" espresso--dotted-name-re "\\)\\.prototype"
+(defconst js--plain-class-re
+  (concat "^\\s-*\\(" js--dotted-name-re "\\)\\.prototype"
           "\\s-*=\\s-*{")
   "Regexp matching an old-fashioned explicit prototype \"class\"
   declaration, as in Class.prototype = { method1: ...} ")
 
-(defconst espresso--mp-class-decl-re
+(defconst js--mp-class-decl-re
   (concat "^\\s-*var\\s-+"
-          "\\(" espresso--name-re "\\)"
+          "\\(" js--name-re "\\)"
           "\\s-*=\\s-*"
-          "\\(" espresso--dotted-name-re
+          "\\(" js--dotted-name-re
           "\\)\\.extend\\(?:Final\\)?\\s-*(\\s-*{?\\s-*$")
   "var NewClass = BaseClass.extend(")
 
-(defconst espresso--prototype-obsolete-class-decl-re
+(defconst js--prototype-obsolete-class-decl-re
   (concat "^\\s-*\\(?:var\\s-+\\)?"
-          "\\(" espresso--dotted-name-re "\\)"
+          "\\(" js--dotted-name-re "\\)"
           "\\s-*=\\s-*Class\\.create()")
   "var NewClass = Class.create()")
 
-(defconst espresso--prototype-objextend-class-decl-re-1
+(defconst js--prototype-objextend-class-decl-re-1
   (concat "^\\s-*Object\\.extend\\s-*("
-          "\\(" espresso--dotted-name-re "\\)"
+          "\\(" js--dotted-name-re "\\)"
           "\\s-*,\\s-*{"))
 
-(defconst espresso--prototype-objextend-class-decl-re-2
+(defconst js--prototype-objextend-class-decl-re-2
   (concat "^\\s-*\\(?:var\\s-+\\)?"
-          "\\(" espresso--dotted-name-re "\\)"
+          "\\(" js--dotted-name-re "\\)"
           "\\s-*=\\s-*Object\\.extend\\s-*\("))
 
-(defconst espresso--prototype-class-decl-re
+(defconst js--prototype-class-decl-re
   (concat "^\\s-*\\(?:var\\s-+\\)?"
-          "\\(" espresso--name-re "\\)"
+          "\\(" js--name-re "\\)"
           "\\s-*=\\s-*Class\\.create\\s-*(\\s-*"
-          "\\(?:\\(" espresso--dotted-name-re "\\)\\s-*,\\s-*\\)?{?")
+          "\\(?:\\(" js--dotted-name-re "\\)\\s-*,\\s-*\\)?{?")
   "var NewClass = Class.create({")
 
 ;; Parent class name(s) (yes, multiple inheritance in Javascript) are
 ;; matched with dedicated font-lock matchers
-(defconst espresso--dojo-class-decl-re
-  (concat "^\\s-*dojo\\.declare\\s-*(\"\\(" espresso--dotted-name-re "\\)"))
+(defconst js--dojo-class-decl-re
+  (concat "^\\s-*dojo\\.declare\\s-*(\"\\(" js--dotted-name-re "\\)"))
 
-(defconst espresso--extjs-class-decl-re-1
+(defconst js--extjs-class-decl-re-1
   (concat "^\\s-*Ext\\.extend\\s-*("
-          "\\s-*\\(" espresso--dotted-name-re "\\)"
-          "\\s-*,\\s-*\\(" espresso--dotted-name-re "\\)")
+          "\\s-*\\(" js--dotted-name-re "\\)"
+          "\\s-*,\\s-*\\(" js--dotted-name-re "\\)")
   "ExtJS class declaration (style 1)")
 
-(defconst espresso--extjs-class-decl-re-2
+(defconst js--extjs-class-decl-re-2
   (concat "^\\s-*\\(?:var\\s-+\\)?"
-          "\\(" espresso--name-re "\\)"
+          "\\(" js--name-re "\\)"
           "\\s-*=\\s-*Ext\\.extend\\s-*(\\s-*"
-          "\\(" espresso--dotted-name-re "\\)")
+          "\\(" js--dotted-name-re "\\)")
   "ExtJS class declaration (style 2)")
 
-(defconst espresso--mochikit-class-re
+(defconst js--mochikit-class-re
   (concat "^\\s-*MochiKit\\.Base\\.update\\s-*(\\s-*"
-          "\\(" espresso--dotted-name-re "\\)")
+          "\\(" js--dotted-name-re "\\)")
   "MochiKit class declaration?")
 
-(defconst espresso--dummy-class-style
+(defconst js--dummy-class-style
   '(:name "[Automatically Generated Class]"))
 
-(defconst espresso--class-styles
+(defconst js--class-styles
   `((:name            "Plain"
-     :class-decl      ,espresso--plain-class-re
+     :class-decl      ,js--plain-class-re
      :prototype       t
      :contexts        (toplevel)
      :framework       javascript)
 
     (:name            "MochiKit"
-     :class-decl      ,espresso--mochikit-class-re
+     :class-decl      ,js--mochikit-class-re
      :prototype       t
      :contexts        (toplevel)
      :framework       mochikit)
 
     (:name            "Prototype (Obsolete)"
-     :class-decl      ,espresso--prototype-obsolete-class-decl-re
+     :class-decl      ,js--prototype-obsolete-class-decl-re
      :contexts        (toplevel)
      :framework       prototype)
 
     (:name            "Prototype (Modern)"
-     :class-decl      ,espresso--prototype-class-decl-re
+     :class-decl      ,js--prototype-class-decl-re
      :contexts        (toplevel)
      :framework       prototype)
 
     (:name            "Prototype (Object.extend)"
-     :class-decl      ,espresso--prototype-objextend-class-decl-re-1
+     :class-decl      ,js--prototype-objextend-class-decl-re-1
      :prototype       t
      :contexts        (toplevel)
      :framework       prototype)
 
     (:name            "Prototype (Object.extend) 2"
-     :class-decl      ,espresso--prototype-objextend-class-decl-re-2
+     :class-decl      ,js--prototype-objextend-class-decl-re-2
      :prototype       t
      :contexts        (toplevel)
      :framework       prototype)
 
     (:name            "Dojo"
-     :class-decl      ,espresso--dojo-class-decl-re
+     :class-decl      ,js--dojo-class-decl-re
      :contexts        (toplevel)
      :framework       dojo)
 
     (:name            "ExtJS (style 1)"
-     :class-decl      ,espresso--extjs-class-decl-re-1
+     :class-decl      ,js--extjs-class-decl-re-1
      :prototype       t
      :contexts        (toplevel)
      :framework       extjs)
 
     (:name            "ExtJS (style 2)"
-     :class-decl      ,espresso--extjs-class-decl-re-2
+     :class-decl      ,js--extjs-class-decl-re-2
      :contexts        (toplevel)
      :framework       extjs)
 
     (:name            "Merrill Press"
-     :class-decl      ,espresso--mp-class-decl-re
+     :class-decl      ,js--mp-class-decl-re
      :contexts        (toplevel)
      :framework       merrillpress))
 
@@ -259,9 +258,9 @@ If :strip-prototype is present and non-nil, then if the class
 name as matched contains
 ")
 
-(defconst espresso--available-frameworks
+(defconst js--available-frameworks
   (loop with available-frameworks
-        for style in espresso--class-styles
+        for style in js--class-styles
         for framework = (plist-get style :framework)
         unless (memq framework available-frameworks)
         collect framework into available-frameworks
@@ -269,37 +268,37 @@ name as matched contains
 
   "List of available frameworks symbols")
 
-(defconst espresso--function-heading-1-re
+(defconst js--function-heading-1-re
   (concat
-   "^\\s-*function\\s-+\\(" espresso--name-re "\\)")
+   "^\\s-*function\\s-+\\(" js--name-re "\\)")
   "Regular expression matching the start of a function header. Match group 1
 is the name of the function.")
 
-(defconst espresso--function-heading-2-re
+(defconst js--function-heading-2-re
   (concat
-   "^\\s-*\\(" espresso--name-re "\\)\\s-*:\\s-*function\\_>")
+   "^\\s-*\\(" js--name-re "\\)\\s-*:\\s-*function\\_>")
   "Regular expression matching the start of a function entry in
   an associative array. Match group 1 is the name of the function.")
 
-(defconst espresso--function-heading-3-re
+(defconst js--function-heading-3-re
   (concat
-   "^\\s-*\\(?:var\\s-+\\)?\\(" espresso--dotted-name-re "\\)"
+   "^\\s-*\\(?:var\\s-+\\)?\\(" js--dotted-name-re "\\)"
    "\\s-*=\\s-*function\\_>")
   "Matches a line in the form var MUMBLE = function. Match group
   1 is MUMBLE.")
 
-(defconst espresso--macro-decl-re
-  (concat "^\\s-*#\\s-*define\\s-+\\(" espresso--cpp-name-re "\\)\\s-*(")
+(defconst js--macro-decl-re
+  (concat "^\\s-*#\\s-*define\\s-+\\(" js--cpp-name-re "\\)\\s-*(")
   "Regular expression matching a CPP macro definition up to the opening
 parenthesis. Match group 1 is the name of the function.")
 
-(defun espresso--regexp-opt-symbol (list)
+(defun js--regexp-opt-symbol (list)
   "Like regexp-opt, but surround the optimized regular expression
 with `\\\\_<' and `\\\\_>'."
   (concat "\\_<" (regexp-opt list t) "\\_>"))
 
-(defconst espresso--keyword-re
-  (espresso--regexp-opt-symbol
+(defconst js--keyword-re
+  (js--regexp-opt-symbol
    '("abstract" "break" "case" "catch" "class" "const"
      "continue" "debugger" "default" "delete" "do" "else"
      "enum" "export" "extends" "final" "finally" "for"
@@ -311,41 +310,41 @@ with `\\\\_<' and `\\\\_>'."
      "yield" "volatile" "while" "with"))
   "Regular expression matching any JavaScript keyword.")
 
-(defconst espresso--basic-type-re
-  (espresso--regexp-opt-symbol
+(defconst js--basic-type-re
+  (js--regexp-opt-symbol
    '("boolean" "byte" "char" "double" "float" "int" "long"
      "short" "void"))
   "Regular expression matching any predefined type in JavaScript.")
 
-(defconst espresso--constant-re
-  (espresso--regexp-opt-symbol '("false" "null" "undefined"
+(defconst js--constant-re
+  (js--regexp-opt-symbol '("false" "null" "undefined"
                                  "Infinity" "NaN"
                                  "true" "arguments" "this"))
   "Regular expression matching any future reserved words in JavaScript.")
 
 
-(defconst espresso--font-lock-keywords-1
+(defconst js--font-lock-keywords-1
   (list
    "\\_<import\\_>"
-   (list espresso--function-heading-1-re 1 font-lock-function-name-face)
-   (list espresso--function-heading-2-re 1 font-lock-function-name-face))
+   (list js--function-heading-1-re 1 font-lock-function-name-face)
+   (list js--function-heading-2-re 1 font-lock-function-name-face))
   "Level one font lock.")
 
-(defconst espresso--font-lock-keywords-2
-  (append espresso--font-lock-keywords-1
-          (list (list espresso--keyword-re 1 font-lock-keyword-face)
+(defconst js--font-lock-keywords-2
+  (append js--font-lock-keywords-1
+          (list (list js--keyword-re 1 font-lock-keyword-face)
                 (list "\\_<for\\_>"
                       "\\s-+\\(each\\)\\_>" nil nil
                       (list 1 'font-lock-keyword-face))
-                (cons espresso--basic-type-re font-lock-type-face)
-                (cons espresso--constant-re font-lock-constant-face)))
+                (cons js--basic-type-re font-lock-type-face)
+                (cons js--constant-re font-lock-constant-face)))
   "Level two font lock.")
 
-;; espresso--pitem is the basic building block of the lexical
+;; js--pitem is the basic building block of the lexical
 ;; database. When one refers to a real part of the buffer, the region
 ;; of text to which it refers is split into a conceptual header and
 ;; body. Consider the (very short) block described by a hypothetical
-;; espresso--pitem:
+;; js--pitem:
 ;;
 ;;   function foo(a,b,c) { return 42; }
 ;;   ^                    ^            ^
@@ -364,7 +363,7 @@ with `\\\\_<' and `\\\\_>'."
 ;; header.
 ;;
 ;; The body is the region [h-end, b-end]. It may contain nested
-;; espresso--pitem instances. The body of a pitem may be empty: in
+;; js--pitem instances. The body of a pitem may be empty: in
 ;; that case, b-end is equal to header-end.
 ;;
 ;; The three points obey the following relationship:
@@ -374,28 +373,28 @@ with `\\\\_<' and `\\\\_>'."
 ;; We put a text property in the buffer on the character *before*
 ;; h-end, and if we see it, on the character *before* b-end.
 ;;
-;; The text property for h-end, espresso--pstate, is actually a list
-;; of all espresso--pitem instances open after the marked character.
+;; The text property for h-end, js--pstate, is actually a list
+;; of all js--pitem instances open after the marked character.
 ;;
-;; The text property for b-end, espresso--pend, is simply the
-;; espresso--pitem that ends after the marked character. (Because
+;; The text property for b-end, js--pend, is simply the
+;; js--pitem that ends after the marked character. (Because
 ;; pitems always end when the paren-depth drops below a critical
 ;; value, and because we can only drop one level per character, only
 ;; one pitem may end at a given character.)
 ;;
 ;; In the structure below, we only store h-begin and (sometimes)
 ;; b-end. We can trivially and quickly find h-end by going to h-begin
-;; and searching for an espresso--pstate text property. Since no other
-;; espresso--pitem instances can be nested inside the header of a
+;; and searching for an js--pstate text property. Since no other
+;; js--pitem instances can be nested inside the header of a
 ;; pitem, the location after the character with this text property
 ;; must be h-end.
 ;;
-;; espresso--pitem instances are never modified (with the exception
+;; js--pitem instances are never modified (with the exception
 ;; of the b-end field). Instead, modified copies are added at subseqnce parse points.
 ;; (The exception for b-end and its caveats is described below.)
 ;;
 
-(defstruct (espresso--pitem (:type list))
+(defstruct (js--pitem (:type list))
   ;; IMPORTANT: Do not alter the position of fields within the list.
   ;; Various bits of code depend on their positions, particularly
   ;; anything that manipulates the list of children.
@@ -424,16 +423,16 @@ with `\\\\_<' and `\\\\_>'."
   ;; The field value is either a number (buffer location) or nil if
   ;; unknown.
   ;;
-  ;; If the field's value is greater than `espresso--cache-end', the
+  ;; If the field's value is greater than `js--cache-end', the
   ;; value is stale and must be treated as if it were nil. Conversely,
   ;; if this field is nil, it is guaranteed that this pitem is open up
-  ;; to at least `espresso--cache-end'. (This property is handy when
+  ;; to at least `js--cache-end'. (This property is handy when
   ;; computing whether we're inside a given pitem.)
   ;;
   (b-end nil))
 
-(defconst espresso--initial-pitem
-  (make-espresso--pitem
+(defconst js--initial-pitem
+  (make-js--pitem
    :paren-depth most-negative-fixnum
    :type 'toplevel)
 
@@ -441,107 +440,107 @@ with `\\\\_<' and `\\\\_>'."
 
 ;;; User Customization
 
-(defgroup espresso nil
-  "Customization variables for `espresso-mode'."
-  :tag "JavaScript - Espresso-Mode"
+(defgroup js nil
+  "Customization variables for `js-mode'."
+  :tag "JavaScript"
   :group 'languages)
 
-(defcustom espresso-indent-level 4
+(defcustom js-indent-level 4
   "Number of spaces for each indentation step."
   :type 'integer
-  :group 'espresso)
+  :group 'js)
 
-(defcustom espresso-expr-indent-offset 0
+(defcustom js-expr-indent-offset 0
   "Number of additional spaces used for indentation of continued
 expressions. The value must be no less than minus
-`espresso-indent-level'."
+`js-indent-level'."
   :type 'integer
-  :group 'espresso)
+  :group 'js)
 
-(defcustom espresso-auto-indent-flag t
+(defcustom js-auto-indent-flag t
   "Automatic indentation with punctuation characters. If non-nil, the
 current line is indented when certain punctuations are inserted."
   :type 'boolean
-  :group 'espresso)
+  :group 'js)
 
-(defcustom espresso-flat-functions nil
+(defcustom js-flat-functions nil
   "Treat nested functions as if they were top-level functions for
 function movement, marking, and so on."
   :type 'boolean
-  :group 'espresso)
+  :group 'js)
 
-(defcustom espresso-comment-lineup-func #'c-lineup-C-comments
+(defcustom js-comment-lineup-func #'c-lineup-C-comments
   "cc-mode-style lineup function for C comments"
   :type 'function
-  :group 'espresso)
+  :group 'js)
 
-(defcustom espresso-enabled-frameworks espresso--available-frameworks
-  "Select which frameworks espresso-mode will recognize.
+(defcustom js-enabled-frameworks js--available-frameworks
+  "Select which frameworks js-mode will recognize.
 
 Turn off some frameworks you seldom use to improve performance.
 The set of recognized frameworks can also be overriden on a
 per-buffer basis."
   :type (cons 'set (mapcar (lambda (x)
                              (list 'const x))
-                           espresso--available-frameworks))
-  :group 'espresso)
+                           js--available-frameworks))
+  :group 'js)
 
-(defcustom espresso-js-switch-tabs
+(defcustom js-js-switch-tabs
   (and (memq system-type '(darwin)) t)
   "Non-nil if Emacs should display tabs while selecting them.
   Useful only if the windowing system has a good mechanism for
   preventing Firefox from stealing the keyboard focus."
   :type 'boolean
-  :group 'espresso)
+  :group 'js)
 
-(defcustom espresso-js-tmpdir
-  "~/.emacs.d/espresso/js"
+(defcustom js-js-tmpdir
+  "~/.emacs.d/js/js"
   "Temporary directory used for communicating with Mozilla. It
   must be readable and writable by both Mozilla and Emacs."
   :type 'directory
-  :group 'espresso)
+  :group 'js)
 
-(defcustom espresso-js-timeout 5
+(defcustom js-js-timeout 5
   "Wait this many seconds for a reply from Mozilla when executing
 commands. Increase this value if you are getting timeout
 messages."
   :type 'integer
-  :group 'espresso)
+  :group 'js)
 
 ;;; KeyMap
 
-(defvar espresso-mode-map
+(defvar js-mode-map
   (let ((keymap (make-sparse-keymap)))
     (mapc (lambda (key)
-            (define-key keymap key #'espresso-insert-and-indent))
+            (define-key keymap key #'js-insert-and-indent))
           '("+" "-" "*" "{" "}" "(" ")" ":" ";" ","))
-    (define-key keymap [(control ?c) (meta ?:)] #'espresso-js-eval)
-    (define-key keymap [(control ?c) (control ?j)] #'espresso-set-js-context)
-    (define-key keymap [(control meta ?x)] #'espresso-eval-defun)
-    (define-key keymap [(meta ?.)] #'espresso-find-symbol)
+    (define-key keymap [(control ?c) (meta ?:)] #'js-eval)
+    (define-key keymap [(control ?c) (control ?j)] #'js-set-js-context)
+    (define-key keymap [(control meta ?x)] #'js-eval-defun)
+    (define-key keymap [(meta ?.)] #'js-find-symbol)
 
-    (easy-menu-define nil keymap "Espresso Menu"
+    (easy-menu-define nil keymap "Javascript Menu"
       '("Javascript"
-        ["Select new Mozilla context…" espresso-set-js-context
+        ["Select new Mozilla context…" js-set-js-context
          (fboundp #'inferior-moz-process)]
-        ["Evaluate expression in Mozilla context…" espresso-js-eval
+        ["Evaluate expression in Mozilla context…" js-eval
          (fboundp #'inferior-moz-process)]
-        ["Send current function to Mozilla…" espresso-eval-defun
+        ["Send current function to Mozilla…" js-eval-defun
          (fboundp #'inferior-moz-process)]
         )
       )
 
     keymap)
-  "Keymap for espresso-mode")
+  "Keymap for js-mode")
 
-(defun espresso-insert-and-indent (key)
+(defun js-insert-and-indent (key)
   "Runs the command bound to KEY in the global keymap, and if
 we're not in a string or comment, indents the current line."
   (interactive (list (this-command-keys)))
   (call-interactively (lookup-key (current-global-map) key))
   (let ((syntax (save-restriction (widen) (syntax-ppss))))
     (when (or (and (not (nth 8 syntax))
-                   espresso-auto-indent-flag)
+                   js-auto-indent-flag)
               (and (nth 4 syntax)
                    (eq (current-column)
                        (1+ (current-indentation)))))
@@ -550,104 +549,104 @@ we're not in a string or comment, indents the current line."
 
 ;;; Syntax table and parsing
 
-(defvar espresso-mode-syntax-table
+(defvar js-mode-syntax-table
   (let ((table (make-syntax-table)))
     (c-populate-syntax-table table)
     (modify-syntax-entry ?$ "_" table)
     table)
-  "Syntax table used in Espresso mode.")
+  "Syntax table used in JS mode.")
 
-(defvar espresso--quick-match-re nil
+(defvar js--quick-match-re nil
   "Autogenerated regular expression to match buffer constructs")
 
-(defvar espresso--quick-match-re-func nil
+(defvar js--quick-match-re-func nil
   "Autogenerated regular expression to match buffer constructs
 and functions")
 
-(make-variable-buffer-local 'espresso--quick-match-re)
-(make-variable-buffer-local 'espresso--quick-match-re-func)
+(make-variable-buffer-local 'js--quick-match-re)
+(make-variable-buffer-local 'js--quick-match-re-func)
 
-(defvar espresso--cache-end 1
+(defvar js--cache-end 1
   "Last place in the buffer the function cache is valid")
-(make-variable-buffer-local 'espresso--cache-end)
+(make-variable-buffer-local 'js--cache-end)
 
-(defvar espresso--last-parse-pos nil
-  "Last place we parsed up to in espresso--ensure-cache")
-(make-variable-buffer-local 'espresso--last-parse-pos)
+(defvar js--last-parse-pos nil
+  "Last place we parsed up to in js--ensure-cache")
+(make-variable-buffer-local 'js--last-parse-pos)
 
-(defvar espresso--state-at-last-parse-pos nil
-  "pstate at espresso--last-parse-pos")
-(make-variable-buffer-local 'espresso--state-at-last-parse-pos)
+(defvar js--state-at-last-parse-pos nil
+  "pstate at js--last-parse-pos")
+(make-variable-buffer-local 'js--state-at-last-parse-pos)
 
-(defun espresso--flatten-list (list)
+(defun js--flatten-list (list)
   (loop for item in list
         nconc (cond ((consp item)
-                     (espresso--flatten-list item))
+                     (js--flatten-list item))
 
                     (item (list item)))))
 
-(defun espresso--maybe-join (prefix separator suffix &rest list)
+(defun js--maybe-join (prefix separator suffix &rest list)
   "If LIST contains any element that is not nil, return its
 non-nil elements, separated by SEPARATOR, prefixed by PREFIX, and
 ended with SUFFIX as with `concat'. Otherwise, if LIST is empty,
 return nil. If any element in LIST is itself a list, flatten that
 element."
-  (setq list (espresso--flatten-list list))
+  (setq list (js--flatten-list list))
   (when list
     (concat prefix (mapconcat #'identity list separator) suffix)))
 
-(defun espresso--update-quick-match-re ()
-  "Update espresso--quick-match-re based on the current set of
+(defun js--update-quick-match-re ()
+  "Update js--quick-match-re based on the current set of
 enabled frameworks"
-  (setq espresso--quick-match-re
-        (espresso--maybe-join
+  (setq js--quick-match-re
+        (js--maybe-join
          "^[ \t]*\\(?:" "\\|" "\\)"
 
          ;; #define mumble
          "#define[ \t]+[a-zA-Z_]"
 
-         (when (memq 'extjs espresso-enabled-frameworks)
+         (when (memq 'extjs js-enabled-frameworks)
            "Ext\\.extend")
 
-         (when (memq 'prototype espresso-enabled-frameworks)
+         (when (memq 'prototype js-enabled-frameworks)
            "Object\\.extend")
 
           ;; var mumble = THING (
-         (espresso--maybe-join
+         (js--maybe-join
           "\\(?:var[ \t]+\\)?[a-zA-Z_$0-9.]+[ \t]*=[ \t]*\\(?:"
           "\\|"
           "\\)[ \t]*\("
 
-          (when (memq 'prototype espresso-enabled-frameworks)
+          (when (memq 'prototype js-enabled-frameworks)
                     "Class\\.create")
 
-          (when (memq 'extjs espresso-enabled-frameworks)
+          (when (memq 'extjs js-enabled-frameworks)
             "Ext\\.extend")
 
-          (when (memq 'merrillpress espresso-enabled-frameworks)
+          (when (memq 'merrillpress js-enabled-frameworks)
             "[a-zA-Z_$0-9]+\\.extend\\(?:Final\\)?"))
 
-         (when (memq 'dojo espresso-enabled-frameworks)
+         (when (memq 'dojo js-enabled-frameworks)
            "dojo\\.declare[ \t]*\(")
 
-         (when (memq 'mochikit espresso-enabled-frameworks)
+         (when (memq 'mochikit js-enabled-frameworks)
            "MochiKit\\.Base\\.update[ \t]*\(")
 
          ;; mumble.prototypeTHING
-         (espresso--maybe-join
+         (js--maybe-join
           "[a-zA-Z_$0-9.]+\\.prototype\\(?:" "\\|" "\\)"
 
-          (when (memq 'javascript espresso-enabled-frameworks)
+          (when (memq 'javascript js-enabled-frameworks)
             '( ;; foo.prototype.bar = function(
               "\\.[a-zA-Z_$0-9]+[ \t]*=[ \t]*function[ \t]*\("
 
               ;; mumble.prototype = {
               "[ \t]*=[ \t]*{")))))
 
-  (setq espresso--quick-match-re-func
-        (concat "function\\|" espresso--quick-match-re)))
+  (setq js--quick-match-re-func
+        (concat "function\\|" js--quick-match-re)))
 
-(defun espresso--forward-text-property (propname)
+(defun js--forward-text-property (propname)
   "Move over the next value of PROPNAME in the buffer. If found,
 return that value and leave point after the character having that
 value, otherwise return nil and leave point at EOB."
@@ -663,7 +662,7 @@ value, otherwise return nil and leave point at EOB."
 
     next-value))
 
-(defun espresso--backward-text-property (propname)
+(defun js--backward-text-property (propname)
     "Move over the previous value of PROPNAME in the buffer. If found,
 return that value and leave point just before the character that
 has that value, otherwise return nil and leave point at BOB."
@@ -681,22 +680,22 @@ has that value, otherwise return nil and leave point at BOB."
 
         prev-value)))
 
-(defsubst espresso--forward-pstate ()
-  (espresso--forward-text-property 'espresso--pstate))
+(defsubst js--forward-pstate ()
+  (js--forward-text-property 'js--pstate))
 
-(defsubst espresso--backward-pstate ()
-  (espresso--backward-text-property 'espresso--pstate))
+(defsubst js--backward-pstate ()
+  (js--backward-text-property 'js--pstate))
 
-(defun espresso--pitem-goto-h-end (pitem)
-  (goto-char (espresso--pitem-h-begin pitem))
-  (espresso--forward-pstate))
+(defun js--pitem-goto-h-end (pitem)
+  (goto-char (js--pitem-h-begin pitem))
+  (js--forward-pstate))
 
-(defun espresso--re-search-forward-inner (regexp &optional bound count)
-  "Auxiliary function for `espresso--re-search-forward'."
+(defun js--re-search-forward-inner (regexp &optional bound count)
+  "Auxiliary function for `js--re-search-forward'."
   (let ((parse)
         str-terminator
         (orig-macro-end (save-excursion
-                          (when (espresso--beginning-of-macro)
+                          (when (js--beginning-of-macro)
                             (c-end-of-macro)
                             (point)))))
     (while (> count 0)
@@ -715,14 +714,14 @@ has that value, otherwise return nil and leave point at BOB."
              (re-search-forward "\\*/"))
             ((and (not (and orig-macro-end
                             (<= (point) orig-macro-end)))
-                  (espresso--beginning-of-macro))
+                  (js--beginning-of-macro))
              (c-end-of-macro))
             (t
              (setq count (1- count))))))
   (point))
 
 
-(defun espresso--re-search-forward (regexp &optional bound noerror count)
+(defun js--re-search-forward (regexp &optional bound noerror count)
   "Search forward but ignore strings, cpp macros, and comments.
 Invokes `re-search-forward' but treats the buffer as if strings,
 cpp macros, and comments have been removed.
@@ -734,11 +733,11 @@ as normal text.
   (let ((saved-point (point))
         (search-expr
          (cond ((null count)
-                '(espresso--re-search-forward-inner regexp bound 1))
+                '(js--re-search-forward-inner regexp bound 1))
                ((< count 0)
-                '(espresso--re-search-backward-inner regexp bound (- count)))
+                '(js--re-search-backward-inner regexp bound (- count)))
                ((> count 0)
-                '(espresso--re-search-forward-inner regexp bound count)))))
+                '(js--re-search-forward-inner regexp bound count)))))
     (condition-case err
         (eval search-expr)
       (search-failed
@@ -747,13 +746,13 @@ as normal text.
          (error (error-message-string err)))))))
 
 
-(defun espresso--re-search-backward-inner (regexp &optional bound count)
-  "Auxiliary function for `espresso--re-search-backward'."
+(defun js--re-search-backward-inner (regexp &optional bound count)
+  "Auxiliary function for `js--re-search-backward'."
   (let ((parse)
         str-terminator
         (orig-macro-start
          (save-excursion
-           (and (espresso--beginning-of-macro)
+           (and (js--beginning-of-macro)
                 (point)))))
     (while (> count 0)
       (re-search-backward regexp bound)
@@ -774,13 +773,13 @@ as normal text.
              (re-search-backward "/\\*"))
             ((and (not (and orig-macro-start
                             (>= (point) orig-macro-start)))
-                  (espresso--beginning-of-macro)))
+                  (js--beginning-of-macro)))
             (t
              (setq count (1- count))))))
   (point))
 
 
-(defun espresso--re-search-backward (regexp &optional bound noerror count)
+(defun js--re-search-backward (regexp &optional bound noerror count)
   "Search backward but ignore strings, preprocessor macros, and
 comments. Invokes `re-search-backward' but treats the buffer as
 if strings, preprocessor macros, and comments have been removed.
@@ -790,11 +789,11 @@ If inside a macro when called, treat the macro as normal text.
   (let ((saved-point (point))
         (search-expr
          (cond ((null count)
-                '(espresso--re-search-backward-inner regexp bound 1))
+                '(js--re-search-backward-inner regexp bound 1))
                ((< count 0)
-                '(espresso--re-search-forward-inner regexp bound (- count)))
+                '(js--re-search-forward-inner regexp bound (- count)))
                ((> count 0)
-                '(espresso--re-search-backward-inner regexp bound count)))))
+                '(js--re-search-backward-inner regexp bound count)))))
     (condition-case err
         (eval search-expr)
       (search-failed
@@ -802,7 +801,7 @@ If inside a macro when called, treat the macro as normal text.
        (unless noerror
          (error (error-message-string err)))))))
 
-(defun espresso--forward-expression ()
+(defun js--forward-expression ()
   "Move forward over a whole expression. Doesn't move over
 expressions continued across lines, but we don't actually care"
   (loop
@@ -816,9 +815,9 @@ expressions continued across lines, but we don't actually care"
    while (and (eq (char-after) ?\n)
               (save-excursion
                 (forward-char)
-                (espresso--continued-expression-p)))))
+                (js--continued-expression-p)))))
 
-(defun espresso--forward-function-decl ()
+(defun js--forward-function-decl ()
   "Move forward over a function declaration with point at the
 'function' keyword. Return non-nil if this is a
 syntactically-correct non-expression function, nil otherwise.
@@ -828,7 +827,7 @@ could not be determined."
   (let ((name t))
     (forward-word)
     (forward-comment most-positive-fixnum)
-    (when (looking-at espresso--name-re)
+    (when (looking-at js--name-re)
       (setq name (match-string-no-properties 0))
       (goto-char (match-end 0)))
     (forward-comment most-positive-fixnum)
@@ -838,7 +837,7 @@ could not be determined."
                 (and (eq (char-after) ?{)
                      name)))))
 
-(defun espresso--function-prologue-beginning (&optional pos)
+(defun js--function-prologue-beginning (&optional pos)
   "Return the start of the function prologue that contains POS,
 or nil if we're not in a function prologue. A function prologue
 is everything from start of the definition up to and including
@@ -852,8 +851,8 @@ the opening brace. POS defaults to point."
 
       (when (save-excursion
               (forward-line 0)
-              (or (looking-at espresso--function-heading-2-re)
-                  (looking-at espresso--function-heading-3-re)))
+              (or (looking-at js--function-heading-2-re)
+                  (looking-at js--function-heading-3-re)))
 
         (setq prologue-begin (match-beginning 1))
         (when (<= prologue-begin pos)
@@ -861,76 +860,76 @@ the opening brace. POS defaults to point."
 
       (skip-syntax-backward "w_")
       (and (or (looking-at "\\_<function\\_>")
-               (espresso--re-search-backward "\\_<function\\_>" nil t))
+               (js--re-search-backward "\\_<function\\_>" nil t))
 
            (save-match-data (goto-char (match-beginning 0))
-                            (espresso--forward-function-decl))
+                            (js--forward-function-decl))
 
            (<= pos (point))
            (or prologue-begin (match-beginning 0))))))
 
-(defun espresso--beginning-of-defun-raw ()
-  "Internal helper for espresso--beginning-of-defun. Go to
+(defun js--beginning-of-defun-raw ()
+  "Internal helper for js--beginning-of-defun. Go to
 previous defun-beginning and return the parse state for it, or
 nil if we went all the way back to bob and don't find anything."
-  (espresso--ensure-cache)
+  (js--ensure-cache)
   (let (pstate)
-    (while (and (setq pstate (espresso--backward-pstate))
-                (not (eq 'function (espresso--pitem-type (car pstate))))))
+    (while (and (setq pstate (js--backward-pstate))
+                (not (eq 'function (js--pitem-type (car pstate))))))
     (and (not (bobp)) pstate)))
 
-(defun espresso--pstate-is-toplevel-defun (pstate)
+(defun js--pstate-is-toplevel-defun (pstate)
   "If PSTATE represents a non-empty top-level defun, return the
 top-most pitem. Otherwise, return nil."
   (loop for pitem in pstate
         with func-depth = 0
         with func-pitem
-        if (eq 'function (espresso--pitem-type pitem))
+        if (eq 'function (js--pitem-type pitem))
         do (incf func-depth)
         and do (setq func-pitem pitem)
         finally return (if (eq func-depth 1) func-pitem)))
 
-(defun espresso--beginning-of-defun-nested ()
-  "Internal helper for espresso--beginning-of-defun. Returns the
+(defun js--beginning-of-defun-nested ()
+  "Internal helper for js--beginning-of-defun. Returns the
 pitem of the function we went to the beginning of."
 
   (or
    ;; Look for the smallest function that encloses point...
-   (loop for pitem in (espresso--parse-state-at-point)
-         if (and (eq 'function (espresso--pitem-type pitem))
-                 (espresso--inside-pitem-p pitem))
-         do (goto-char (espresso--pitem-h-begin pitem))
+   (loop for pitem in (js--parse-state-at-point)
+         if (and (eq 'function (js--pitem-type pitem))
+                 (js--inside-pitem-p pitem))
+         do (goto-char (js--pitem-h-begin pitem))
          and return pitem)
 
    ;; ...and if that isn't found, look for the previous top-level
    ;; defun
-   (loop for pstate = (espresso--backward-pstate)
+   (loop for pstate = (js--backward-pstate)
          while pstate
-         if (espresso--pstate-is-toplevel-defun pstate)
-         do (goto-char (espresso--pitem-h-begin it))
+         if (js--pstate-is-toplevel-defun pstate)
+         do (goto-char (js--pitem-h-begin it))
          and return it)))
 
-(defun espresso--beginning-of-defun-flat ()
-  "Internal helper for espresso--beginning-of-defun"
+(defun js--beginning-of-defun-flat ()
+  "Internal helper for js--beginning-of-defun"
 
-  (let ((pstate (espresso--beginning-of-defun-raw)))
+  (let ((pstate (js--beginning-of-defun-raw)))
     (when pstate
-      (goto-char (espresso--pitem-h-begin (car pstate))))))
+      (goto-char (js--pitem-h-begin (car pstate))))))
 
-(defun espresso--beginning-of-defun (&optional arg)
+(defun js--beginning-of-defun (&optional arg)
   "Used as beginning-of-defun-function"
 
   (setq arg (or arg 1))
   (while (and (not (eobp)) (< arg 0))
     (incf arg)
-    (when (and (not espresso-flat-functions)
-               (or (eq (espresso-syntactic-context) 'function)
-                   (espresso--function-prologue-beginning)))
-      (espresso--end-of-defun))
+    (when (and (not js-flat-functions)
+               (or (eq (js-syntactic-context) 'function)
+                   (js--function-prologue-beginning)))
+      (js--end-of-defun))
 
-    (if (espresso--re-search-forward
+    (if (js--re-search-forward
          "\\_<function\\_>" nil t)
-        (goto-char (espresso--function-prologue-beginning))
+        (goto-char (js--function-prologue-beginning))
       (goto-char (point-max))))
 
   (while (> arg 0)
@@ -940,84 +939,84 @@ pitem of the function we went to the beginning of."
     (when (eq (char-before) ?})
       (backward-char))
 
-    (let ((prologue-begin (espresso--function-prologue-beginning)))
+    (let ((prologue-begin (js--function-prologue-beginning)))
       (cond ((and prologue-begin (< prologue-begin (point)))
              (goto-char prologue-begin))
 
-            (espresso-flat-functions
-             (espresso--beginning-of-defun-flat))
+            (js-flat-functions
+             (js--beginning-of-defun-flat))
             (t
-             (espresso--beginning-of-defun-nested))))))
+             (js--beginning-of-defun-nested))))))
 
-(defun espresso--flush-caches (&optional beg ignored)
+(defun js--flush-caches (&optional beg ignored)
   "Flush syntax cache info after position BEG. BEG defaults to
 point-min, flushing the entire cache."
   (interactive)
   (setq beg (or beg (save-restriction (widen) (point-min))))
-  (setq espresso--cache-end (min espresso--cache-end beg)))
+  (setq js--cache-end (min js--cache-end beg)))
 
-(defmacro espresso--debug (&rest arguments)
+(defmacro js--debug (&rest arguments)
   ;; `(message ,@arguments)
   )
 
-(defun espresso--ensure-cache--pop-if-ended (open-items paren-depth)
+(defun js--ensure-cache--pop-if-ended (open-items paren-depth)
   (let ((top-item (car open-items)))
-    (when (<= paren-depth (espresso--pitem-paren-depth top-item))
-      (assert (not (get-text-property (1- (point)) 'espresso-pend)))
-      (put-text-property (1- (point)) (point) 'espresso--pend top-item)
-      (setf (espresso--pitem-b-end top-item) (point))
+    (when (<= paren-depth (js--pitem-paren-depth top-item))
+      (assert (not (get-text-property (1- (point)) 'js-pend)))
+      (put-text-property (1- (point)) (point) 'js--pend top-item)
+      (setf (js--pitem-b-end top-item) (point))
       (setq open-items
             ;; open-items must contain at least two items for this to
             ;; work, but because we push a dummy item to start with,
             ;; that assumption holds.
-            (cons (espresso--pitem-add-child (second open-items) top-item)
+            (cons (js--pitem-add-child (second open-items) top-item)
                   (cddr open-items)))))
 
   open-items)
 
-(defmacro espresso--ensure-cache--update-parse ()
-  "Helper for use inside espresso--ensure-cache. Updates parsing
+(defmacro js--ensure-cache--update-parse ()
+  "Helper for use inside js--ensure-cache. Updates parsing
 information up to point. Refers to parse, prev-parse-point,
 goal-point, and open-items bound lexically in the body of
-`espresso--ensure-cache'."
+`js--ensure-cache'."
   `(progn
      (setq goal-point (point))
      (goto-char prev-parse-point)
      (while (progn
-              (setq open-items (espresso--ensure-cache--pop-if-ended
+              (setq open-items (js--ensure-cache--pop-if-ended
                                 open-items (car parse)))
               ;; Make sure parse-partial-sexp doesn't stop because we *entered*
               ;; the given depth -- i.e., make sure we're deeper than the target
               ;; depth.
               (assert (> (nth 0 parse)
-                         (espresso--pitem-paren-depth (car open-items))))
+                         (js--pitem-paren-depth (car open-items))))
               (setq parse (parse-partial-sexp
                            prev-parse-point goal-point
-                           (espresso--pitem-paren-depth (car open-items))
+                           (js--pitem-paren-depth (car open-items))
                            nil parse))
 
 ;;              (let ((overlay (make-overlay prev-parse-point (point))))
 ;;                (overlay-put overlay 'face '(:background "red"))
 ;;                (unwind-protect
 ;;                     (progn
-;;                       (espresso--debug "parsed: %S" parse)
+;;                       (js--debug "parsed: %S" parse)
 ;;                       (sit-for 1))
 ;;                  (delete-overlay overlay)))
 
               (setq prev-parse-point (point))
               (< (point) goal-point)))
 
-     (setq open-items (espresso--ensure-cache--pop-if-ended
+     (setq open-items (js--ensure-cache--pop-if-ended
                        open-items (car parse)))))
 
-(defun espresso--show-cache-at-point ()
+(defun js--show-cache-at-point ()
   (interactive)
   (require 'pp)
-  (let ((prop (get-text-property (point) 'espresso--pstate)))
+  (let ((prop (get-text-property (point) 'js--pstate)))
     (with-output-to-temp-buffer "*Help*"
       (pp prop))))
 
-(defun espresso--split-name (string)
+(defun js--split-name (string)
   "Splits a name into its dot-separated parts. Also removes any
 prototype parts from the split name (unless the name is just
 \"prototype\" to start with, that is)."
@@ -1028,49 +1027,49 @@ prototype parts from the split name (unless the name is just
 
       (setq name (remove "prototype" name)))))
 
-(defvar espresso--guess-function-name-start nil
-  "Secondary out-variable for espresso--guess-function-name")
+(defvar js--guess-function-name-start nil
+  "Secondary out-variable for js--guess-function-name")
 
-(defun espresso--guess-function-name (position)
+(defun js--guess-function-name (position)
   "Guess the name of the function at POSITION, which should be
 the just after the end of the word 'function'. Return the name of
 the function or nil if the name could not be guessed. Clobbers
 match data. If in guessing the function name we find the preamble
-begins earlier than expected, set `espresso--guess-function-name-start'
+begins earlier than expected, set `js--guess-function-name-start'
 to that position, otherwise set that variable to nil."
 
-  (setq espresso--guess-function-name-start nil)
+  (setq js--guess-function-name-start nil)
   (save-excursion
     (goto-char position)
     (forward-line 0)
     (cond
-     ((looking-at espresso--function-heading-3-re)
+     ((looking-at js--function-heading-3-re)
       (and (eq (match-end 0) position)
-           (setq espresso--guess-function-name-start (match-beginning 1))
+           (setq js--guess-function-name-start (match-beginning 1))
            (match-string-no-properties 1)))
 
-     ((looking-at espresso--function-heading-2-re)
+     ((looking-at js--function-heading-2-re)
       (and (eq (match-end 0) position)
-           (setq espresso--guess-function-name-start (match-beginning 1))
+           (setq js--guess-function-name-start (match-beginning 1))
            (match-string-no-properties 1))))))
 
-(defun espresso--clear-stale-cache ()
+(defun js--clear-stale-cache ()
   ;; Clear any endings that occur after point
   (let (end-prop)
     (save-excursion
-      (while (setq end-prop (espresso--forward-text-property
-                             'espreso--pend))
-        (setf (espresso--pitem-b-end end-prop) nil))))
+      (while (setq end-prop (js--forward-text-property
+                             'js--pend))
+        (setf (js--pitem-b-end end-prop) nil))))
 
   ;; Remove any cache properties after this point
   (remove-text-properties (point) (point-max)
-                          '(espresso--pstate t espresso--pend t)))
+                          '(js--pstate t js--pend t)))
 
-(defun espresso--ensure-cache (&optional limit)
+(defun js--ensure-cache (&optional limit)
   "Ensures brace cache is valid up to the character before LIMIT.
 LIMIT defaults to point."
   (setq limit (or limit (point)))
-  (when (< espresso--cache-end limit)
+  (when (< js--cache-end limit)
 
     (c-save-buffer-state
         (open-items
@@ -1088,9 +1087,9 @@ LIMIT defaults to point."
 
       ;; Figure out which class styles we need to look for
       (setq filtered-class-styles
-            (loop for style in espresso--class-styles
+            (loop for style in js--class-styles
                   if (memq (plist-get style :framework)
-                           espresso-enabled-frameworks)
+                           js-enabled-frameworks)
                   collect style))
 
       (save-excursion
@@ -1098,41 +1097,41 @@ LIMIT defaults to point."
           (widen)
 
           ;; Find last known good position
-          (goto-char espresso--cache-end)
+          (goto-char js--cache-end)
           (unless (bobp)
             (setq open-items (get-text-property
-                              (1- (point)) 'espresso--pstate))
+                              (1- (point)) 'js--pstate))
 
             (unless open-items
               (goto-char (previous-single-property-change
-                          (point) 'espresso--pstate nil (point-min)))
+                          (point) 'js--pstate nil (point-min)))
 
               (unless (bobp)
                 (setq open-items (get-text-property (1- (point))
-                                                    'espresso--pstate))
+                                                    'js--pstate))
                 (assert open-items))))
 
           (unless open-items
             ;; Make a placeholder for the top-level definition
-            (setq open-items (list espresso--initial-pitem)))
+            (setq open-items (list js--initial-pitem)))
 
           (setq parse (syntax-ppss))
           (setq prev-parse-point (point))
 
-          (espresso--clear-stale-cache)
+          (js--clear-stale-cache)
 
           (narrow-to-region (point-min) limit)
 
-          (loop while (re-search-forward espresso--quick-match-re-func nil t)
+          (loop while (re-search-forward js--quick-match-re-func nil t)
                 for orig-match-start = (goto-char (match-beginning 0))
                 for orig-match-end = (match-end 0)
-                do (espresso--ensure-cache--update-parse)
+                do (js--ensure-cache--update-parse)
                 for orig-depth = (nth 0 parse)
 
                 ;; Each of these conditions should return non-nil if
                 ;; we should add a new item and leave point at the end
                 ;; of the new item's header (h-end in the
-                ;; espresso--pitem diagram). This point is the one
+                ;; js--pitem diagram). This point is the one
                 ;; after the last character we need to unambiguously
                 ;; detect this construct. If one of these evaluates to
                 ;; nil, the location of the point is ignored.
@@ -1142,59 +1141,59 @@ LIMIT defaults to point."
 
                     ;; Regular function declaration
                     ((and (looking-at "\\_<function\\_>")
-                          (setq name (espresso--forward-function-decl)))
+                          (setq name (js--forward-function-decl)))
 
                      (when (eq name t)
-                       (setq name (espresso--guess-function-name orig-match-end))
+                       (setq name (js--guess-function-name orig-match-end))
                        (if name
-                           (when espresso--guess-function-name-start
+                           (when js--guess-function-name-start
                              (setq orig-match-start
-                                   espresso--guess-function-name-start))
+                                   js--guess-function-name-start))
 
                          (setq name t)))
 
                      (assert (eq (char-after) ?{))
                      (forward-char)
-                     (make-espresso--pitem
+                     (make-js--pitem
                       :paren-depth orig-depth
                       :h-begin orig-match-start
                       :type 'function
                       :name (if (eq name t)
                                 name
-                              (espresso--split-name name))))
+                              (js--split-name name))))
 
                     ;; Macro
-                    ((looking-at espresso--macro-decl-re)
+                    ((looking-at js--macro-decl-re)
 
                      ;; Macros often contain unbalanced parentheses.
                      ;; Make sure that h-end is at the textual end of
                      ;; the macro no matter what the parenthesis say.
                      (c-end-of-macro)
-                     (espresso--ensure-cache--update-parse)
+                     (js--ensure-cache--update-parse)
 
-                     (make-espresso--pitem
+                     (make-js--pitem
                       :paren-depth (nth 0 parse)
                       :h-begin orig-match-start
                       :type 'macro
                       :name (list (match-string-no-properties 1))))
 
                     ;; "Prototype function" declaration
-                    ((looking-at espresso--plain-method-re)
+                    ((looking-at js--plain-method-re)
                      (goto-char (match-beginning 3))
                      (when (save-match-data
-                             (espresso--forward-function-decl))
+                             (js--forward-function-decl))
                        (forward-char)
-                       (make-espresso--pitem
+                       (make-js--pitem
                         :paren-depth orig-depth
                         :h-begin orig-match-start
                         :type 'function
-                        :name (nconc (espresso--split-name
+                        :name (nconc (js--split-name
                                       (match-string-no-properties 1))
                                      (list (match-string-no-properties 2))))))
 
                     ;; Class definition
                     ((loop with syntactic-context =
-                           (espresso--syntactic-context-from-pstate open-items)
+                           (js--syntactic-context-from-pstate open-items)
                            for class-style in filtered-class-styles
                            if (and (memq syntactic-context
                                          (plist-get class-style :contexts))
@@ -1202,42 +1201,42 @@ LIMIT defaults to point."
                                                           :class-decl)))
                            do (goto-char (match-end 0))
                            and return
-                           (make-espresso--pitem
+                           (make-js--pitem
                             :paren-depth orig-depth
                             :h-begin orig-match-start
                             :type class-style
-                            :name (espresso--split-name
+                            :name (js--split-name
                                    (match-string-no-properties 1))))))
 
-                do (espresso--ensure-cache--update-parse)
+                do (js--ensure-cache--update-parse)
                 and do (push it open-items)
                 and do (put-text-property
-                        (1- (point)) (point) 'espresso--pstate open-items)
+                        (1- (point)) (point) 'js--pstate open-items)
                 else do (goto-char orig-match-end))
 
           (goto-char limit)
-          (espresso--ensure-cache--update-parse)
-          (setq espresso--cache-end limit)
-          (setq espresso--last-parse-pos limit)
-          (setq espresso--state-at-last-parse-pos open-items)
+          (js--ensure-cache--update-parse)
+          (setq js--cache-end limit)
+          (setq js--last-parse-pos limit)
+          (setq js--state-at-last-parse-pos open-items)
           )))))
 
-(defun espresso--end-of-defun-flat ()
-  "Internal helper for espresso--end-of-defun"
-  (loop while (espresso--re-search-forward "}" nil t)
-        do (espresso--ensure-cache)
-        if (get-text-property (1- (point)) 'espresso--pend)
-        if (eq 'function (espresso--pitem-type it))
+(defun js--end-of-defun-flat ()
+  "Internal helper for js--end-of-defun"
+  (loop while (js--re-search-forward "}" nil t)
+        do (js--ensure-cache)
+        if (get-text-property (1- (point)) 'js--pend)
+        if (eq 'function (js--pitem-type it))
         return t
         finally do (goto-char (point-max))))
 
-(defun espresso--end-of-defun-nested ()
-  "Internal helper for espresso--end-of-defun"
+(defun js--end-of-defun-nested ()
+  "Internal helper for js--end-of-defun"
   (message "test")
   (let* (pitem
          (this-end (save-excursion
-                     (and (setq pitem (espresso--beginning-of-defun-nested))
-                          (espresso--pitem-goto-h-end pitem)
+                     (and (setq pitem (js--beginning-of-defun-nested))
+                          (js--pitem-goto-h-end pitem)
                           (progn (backward-char)
                                  (forward-list)
                                  (point)))))
@@ -1248,48 +1247,48 @@ LIMIT defaults to point."
         (goto-char this-end)
 
       ;; Otherwise, go to the end of the next function...
-      (while (and (espresso--re-search-forward "\\_<function\\_>" nil t)
+      (while (and (js--re-search-forward "\\_<function\\_>" nil t)
                   (not (setq found (progn
                                      (goto-char (match-beginning 0))
-                                     (espresso--forward-function-decl))))))
+                                     (js--forward-function-decl))))))
 
       (if found (forward-list)
         ;; ... or eob.
         (goto-char (point-max))))))
 
-(defun espresso--end-of-defun (&optional arg)
+(defun js--end-of-defun (&optional arg)
   "Used as end-of-defun-function"
   (setq arg (or arg 1))
   (while (and (not (bobp)) (< arg 0))
     (let (orig-pos (point))
       (incf arg)
-      (espresso--beginning-of-defun)
-      (espresso--beginning-of-defun)
+      (js--beginning-of-defun)
+      (js--beginning-of-defun)
       (unless (bobp)
-        (espresso--end-of-defun))))
+        (js--end-of-defun))))
 
   (while (> arg 0)
     (decf arg)
     ;; look for function backward. if we're inside it, go to that
     ;; function's end. otherwise, search for the next function's end and
     ;; go there
-    (if espresso-flat-functions
-        (espresso--end-of-defun-flat)
+    (if js-flat-functions
+        (js--end-of-defun-flat)
 
       ;; if we're doing nested functions, see whether we're in the
       ;; prologue. If we are, go to the end of the function; otherwise,
-      ;; call espresso--end-of-defun-nested to do the real work
-      (let ((prologue-begin (espresso--function-prologue-beginning)))
+      ;; call js--end-of-defun-nested to do the real work
+      (let ((prologue-begin (js--function-prologue-beginning)))
         (cond ((and prologue-begin (<= prologue-begin (point)))
                (goto-char prologue-begin)
                (re-search-forward "\\_<function")
                (goto-char (match-beginning 0))
-               (espresso--forward-function-decl)
+               (js--forward-function-decl)
                (forward-list))
 
-              (t (espresso--end-of-defun-nested)))))))
+              (t (js--end-of-defun-nested)))))))
 
-(defun espresso--beginning-of-macro (&optional lim)
+(defun js--beginning-of-macro (&optional lim)
   (let ((here (point)))
     (save-restriction
       (if lim (narrow-to-region lim (point-max)))
@@ -1298,27 +1297,27 @@ LIMIT defaults to point."
         (forward-line -1))
       (back-to-indentation)
       (if (and (<= (point) here)
-               (looking-at espresso--opt-cpp-start))
+               (looking-at js--opt-cpp-start))
           t
         (goto-char here)
         nil))))
 
-(defun espresso--backward-syntactic-ws (&optional lim)
+(defun js--backward-syntactic-ws (&optional lim)
   "Simple implementation of `c-backward-syntactic-ws'"
   (save-restriction
     (when lim (narrow-to-region lim (point-max)))
 
-    (let ((in-macro (save-excursion (espresso--beginning-of-macro)))
+    (let ((in-macro (save-excursion (js--beginning-of-macro)))
           (pos (point)))
 
-      (while (progn (unless in-macro (espresso--beginning-of-macro))
+      (while (progn (unless in-macro (js--beginning-of-macro))
                     (forward-comment most-negative-fixnum)
                     (/= (point)
                         (prog1
                             pos
                           (setq pos (point)))))))))
 
-(defun espresso--forward-syntactic-ws (&optional lim)
+(defun js--forward-syntactic-ws (&optional lim)
   "Simple implementation of `c-forward-syntactic-ws'"
   (save-restriction
     (when lim (narrow-to-region (point-min) lim))
@@ -1332,7 +1331,7 @@ LIMIT defaults to point."
                        pos
                      (setq pos (point)))))))))
 
-(defun espresso--up-nearby-list ()
+(defun js--up-nearby-list ()
   "Like (up-list -1), but only considers lists that end nearby"
   (save-restriction
     ;; Look at a very small region so our compuation time doesn't
@@ -1340,57 +1339,57 @@ LIMIT defaults to point."
     (narrow-to-region (max (point-min) (- (point) 500)) (point))
     (up-list -1)))
 
-(defun espresso--inside-param-list-p ()
+(defun js--inside-param-list-p ()
   "Return non-nil iff point is inside a function parameter list."
   (ignore-errors
     (save-excursion
-      (espresso--up-nearby-list)
+      (js--up-nearby-list)
       (and (looking-at "(")
            (progn (forward-symbol -1)
                   (or (looking-at "function")
                       (progn (forward-symbol -1)
                              (looking-at "function"))))))))
 
-(defun espresso--inside-dojo-class-list-p ()
+(defun js--inside-dojo-class-list-p ()
   "Return non-nil iff point is inside a Dojo multiple-inheritance
 class block."
   (ignore-errors
     (save-excursion
-      (espresso--up-nearby-list)
+      (js--up-nearby-list)
       (let ((list-begin (point)))
         (forward-line 0)
-        (and (looking-at espresso--dojo-class-decl-re)
+        (and (looking-at js--dojo-class-decl-re)
              (goto-char (match-end 0))
              (looking-at "\"\\s-*,\\s-*\\[")
              (eq (match-end 0) (1+ list-begin)))))))
 
-(defun espresso--syntax-begin-function ()
-  (when (< espresso--cache-end (point))
-    (goto-char (max (point-min) espresso--cache-end)))
+(defun js--syntax-begin-function ()
+  (when (< js--cache-end (point))
+    (goto-char (max (point-min) js--cache-end)))
 
   (let ((pitem))
-    (while (and (setq pitem (car (espresso--backward-pstate)))
-                (not (eq 0 (espresso--pitem-paren-depth pitem)))))
+    (while (and (setq pitem (car (js--backward-pstate)))
+                (not (eq 0 (js--pitem-paren-depth pitem)))))
 
     (when pitem
-      (goto-char (espresso--pitem-h-begin pitem )))))
+      (goto-char (js--pitem-h-begin pitem )))))
 
 ;;; Font Lock
-(defun espresso--make-framework-matcher (framework &rest regexps)
+(defun js--make-framework-matcher (framework &rest regexps)
   "Create a byte-compiled function that only matches the given
 regular expressions (that concatenation of REGEXPS) if FRAMEWORK
-is in espresso-enabled-frameworks"
+is in js-enabled-frameworks"
 
   (setq regexps (apply #'concat regexps))
   (byte-compile
    `(lambda (limit)
-      (when (memq (quote ,framework) espresso-enabled-frameworks)
+      (when (memq (quote ,framework) js-enabled-frameworks)
         (re-search-forward ,regexps limit t)))))
 
-(defvar espresso--tmp-location nil)
-(make-variable-buffer-local 'espresso--tmp-location)
+(defvar js--tmp-location nil)
+(make-variable-buffer-local 'js--tmp-location)
 
-(defun espresso--forward-destructuring-spec (&optional func)
+(defun js--forward-destructuring-spec (&optional func)
   "Move forward over a destructuring spec. If FUNC is supplied,
 call it with no arguments before every variable name in the spec.
 Return true iff this was actually a spec. FUNC must preserve the
@@ -1403,13 +1402,13 @@ match data."
          (progn
            (forward-comment most-positive-fixnum)
            (cond ((memq (char-after) '(?\[ ?\{))
-                  (espresso--forward-destructuring-spec func))
+                  (js--forward-destructuring-spec func))
 
                  ((eq (char-after) ?,)
                   (forward-char)
                   t)
 
-                 ((looking-at espresso--name-re)
+                 ((looking-at js--name-re)
                   (and func (funcall func))
                   (goto-char (match-end 0))
                   t))))
@@ -1421,12 +1420,12 @@ match data."
      (forward-char)
      (forward-comment most-positive-fixnum)
      (while
-         (when (looking-at espresso--objfield-re)
+         (when (looking-at js--objfield-re)
            (goto-char (match-end 0))
            (forward-comment most-positive-fixnum)
            (and (cond ((memq (char-after) '(?\[ ?\{))
-                       (espresso--forward-destructuring-spec func))
-                      ((looking-at espresso--name-re)
+                       (js--forward-destructuring-spec func))
+                      ((looking-at js--name-re)
                        (and func (funcall func))
                        (goto-char (match-end 0))
                        t))
@@ -1439,7 +1438,7 @@ match data."
        (forward-char)
        t))))
 
-(defun espresso--variable-decl-matcher (limit)
+(defun js--variable-decl-matcher (limit)
   "Font-lock matcher for variable names in a variable
 declaration. This is a cc-mode-style matcher that *always* fails,
 from the point of view of font-lock. It applies highlighting
@@ -1457,15 +1456,15 @@ directly with `font-lock-apply-higlight'."
                          (forward-char)
                          (forward-comment most-positive-fixnum)
                          t))
-                   (cond ((looking-at espresso--name-re)
+                   (cond ((looking-at js--name-re)
                           (font-lock-apply-highlight
                            '(0 font-lock-variable-name-face))
                           (goto-char (match-end 0)))
 
                          ((save-excursion
-                            (espresso--forward-destructuring-spec))
+                            (js--forward-destructuring-spec))
 
-                          (espresso--forward-destructuring-spec
+                          (js--forward-destructuring-spec
                            (lambda ()
                              (font-lock-apply-highlight
                               '(0 font-lock-variable-name-face)))))))
@@ -1473,7 +1472,7 @@ directly with `font-lock-apply-higlight'."
             (forward-comment most-positive-fixnum)
             (when (eq (char-after) ?=)
               (forward-char)
-              (espresso--forward-expression)
+              (js--forward-expression)
               (forward-comment most-positive-fixnum))
 
             (setq first nil))))
@@ -1485,7 +1484,7 @@ directly with `font-lock-apply-higlight'."
   ;; Matcher always "fails"
   nil)
 
-(defconst espresso--font-lock-keywords-3
+(defconst js--font-lock-keywords-3
   `(
     ;; This goes before keywords-2 so it gets used preferentially
     ;; instead of the keywords in keywords-2. Don't use override
@@ -1494,68 +1493,68 @@ directly with `font-lock-apply-higlight'."
     ;; commented out.
     ,@cpp-font-lock-keywords ; from font-lock.el
 
-    ,@espresso--font-lock-keywords-2
+    ,@js--font-lock-keywords-2
 
     ("\\.\\(prototype\\)\\_>"
      (1 font-lock-constant-face))
 
     ;; Highlights class being declared, in parts
-    (espresso--class-decl-matcher
-     ,(concat "\\(" espresso--name-re "\\)\\(?:\\.\\|.*$\\)")
+    (js--class-decl-matcher
+     ,(concat "\\(" js--name-re "\\)\\(?:\\.\\|.*$\\)")
      (goto-char (match-beginning 1))
      nil
      (1 font-lock-type-face))
 
     ;; Highlights parent class, in parts, if available
-    (espresso--class-decl-matcher
-     ,(concat "\\(" espresso--name-re "\\)\\(?:\\.\\|.*$\\)")
+    (js--class-decl-matcher
+     ,(concat "\\(" js--name-re "\\)\\(?:\\.\\|.*$\\)")
      (if (match-beginning 2)
          (progn
-           (setq espresso--tmp-location (match-end 2))
-           (goto-char espresso--tmp-location)
+           (setq js--tmp-location (match-end 2))
+           (goto-char js--tmp-location)
            (insert "=")
            (goto-char (match-beginning 2)))
-       (setq espresso--tmp-location nil)
+       (setq js--tmp-location nil)
        (goto-char (point-at-eol)))
-     (when espresso--tmp-location
+     (when js--tmp-location
        (save-excursion
-         (goto-char espresso--tmp-location)
+         (goto-char js--tmp-location)
          (delete-char 1)))
      (1 font-lock-type-face))
 
     ;; Highlights parent class
-    (espresso--class-decl-matcher
+    (js--class-decl-matcher
      (2 font-lock-type-face nil t))
 
     ;; Dojo needs its own matcher to override the string highlighting
-    (,(espresso--make-framework-matcher
+    (,(js--make-framework-matcher
        'dojo
        "^\\s-*dojo\\.declare\\s-*(\""
-       "\\(" espresso--dotted-name-re "\\)"
-       "\\(?:\"\\s-*,\\s-*\\(" espresso--dotted-name-re "\\)\\)?")
+       "\\(" js--dotted-name-re "\\)"
+       "\\(?:\"\\s-*,\\s-*\\(" js--dotted-name-re "\\)\\)?")
      (1 font-lock-type-face t)
      (2 font-lock-type-face nil t))
 
     ;; Match Dojo base classes. Of course Mojo has to be different
     ;; from everything else under the sun...
-    (,(espresso--make-framework-matcher
+    (,(js--make-framework-matcher
        'dojo
        "^\\s-*dojo\\.declare\\s-*(\""
-       "\\(" espresso--dotted-name-re "\\)\"\\s-*,\\s-*\\[")
-     ,(concat "[[,]\\s-*\\(" espresso--dotted-name-re "\\)\\s-*"
+       "\\(" js--dotted-name-re "\\)\"\\s-*,\\s-*\\[")
+     ,(concat "[[,]\\s-*\\(" js--dotted-name-re "\\)\\s-*"
               "\\(?:\\].*$\\)?")
      (backward-char)
      (end-of-line)
      (1 font-lock-type-face))
 
     ;; continued Dojo base-class list
-    (,(espresso--make-framework-matcher
+    (,(js--make-framework-matcher
        'dojo
-       "^\\s-*" espresso--dotted-name-re "\\s-*[],]")
-     ,(concat "\\(" espresso--dotted-name-re "\\)"
+       "^\\s-*" js--dotted-name-re "\\s-*[],]")
+     ,(concat "\\(" js--dotted-name-re "\\)"
               "\\s-*\\(?:\\].*$\\)?")
      (if (save-excursion (backward-char)
-                         (espresso--inside-dojo-class-list-p))
+                         (js--inside-dojo-class-list-p))
          (forward-symbol -1)
        (end-of-line))
      (end-of-line)
@@ -1563,25 +1562,25 @@ directly with `font-lock-apply-higlight'."
 
     ;; variable declarations
     ,(list
-      (concat "\\_<\\(const\\|var\\|let\\)\\_>\\|" espresso--basic-type-re)
-      (list #'espresso--variable-decl-matcher nil nil nil))
+      (concat "\\_<\\(const\\|var\\|let\\)\\_>\\|" js--basic-type-re)
+      (list #'js--variable-decl-matcher nil nil nil))
 
     ;; class instantiation
     ,(list
-      (concat "\\_<new\\_>\\s-+\\(" espresso--dotted-name-re "\\)")
+      (concat "\\_<new\\_>\\s-+\\(" js--dotted-name-re "\\)")
       (list 1 'font-lock-type-face))
 
     ;; instanceof
     ,(list
-      (concat "\\_<instanceof\\_>\\s-+\\(" espresso--dotted-name-re "\\)")
+      (concat "\\_<instanceof\\_>\\s-+\\(" js--dotted-name-re "\\)")
       (list 1 'font-lock-type-face))
 
     ;; formal parameters
     ,(list
       (concat
-       "\\_<function\\_>\\(\\s-+" espresso--name-re "\\)?\\s-*(\\s-*"
-       espresso--name-start-re)
-      (list (concat "\\(" espresso--name-re "\\)\\(\\s-*).*\\)?")
+       "\\_<function\\_>\\(\\s-+" js--name-re "\\)?\\s-*(\\s-*"
+       js--name-start-re)
+      (list (concat "\\(" js--name-re "\\)\\(\\s-*).*\\)?")
             '(backward-char)
             '(end-of-line)
             '(1 font-lock-variable-name-face)))
@@ -1589,10 +1588,10 @@ directly with `font-lock-apply-higlight'."
     ;; continued formal parameter list
     ,(list
       (concat
-       "^\\s-*" espresso--name-re "\\s-*[,)]")
-      (list espresso--name-re
+       "^\\s-*" js--name-re "\\s-*[,)]")
+      (list js--name-re
             '(if (save-excursion (backward-char)
-                                 (espresso--inside-param-list-p))
+                                 (js--inside-param-list-p))
                  (forward-symbol -1)
                (end-of-line))
             '(end-of-line)
@@ -1600,43 +1599,43 @@ directly with `font-lock-apply-higlight'."
 
   "Level three font lock.")
 
-(defun espresso--inside-pitem-p (pitem)
+(defun js--inside-pitem-p (pitem)
   "Return whether point is inside the given pitem's header or body"
-  (espresso--ensure-cache)
-  (assert (espresso--pitem-h-begin pitem))
-  (assert (espresso--pitem-paren-depth pitem))
+  (js--ensure-cache)
+  (assert (js--pitem-h-begin pitem))
+  (assert (js--pitem-paren-depth pitem))
 
-  (and (> (point) (espresso--pitem-h-begin pitem))
-       (or (null (espresso--pitem-b-end pitem))
-           (> (espresso--pitem-b-end pitem) (point)))))
+  (and (> (point) (js--pitem-h-begin pitem))
+       (or (null (js--pitem-b-end pitem))
+           (> (js--pitem-b-end pitem) (point)))))
 
-(defun espresso--parse-state-at-point ()
-  "Get a list of espresso--pitem instances that apply to point,
+(defun js--parse-state-at-point ()
+  "Get a list of js--pitem instances that apply to point,
 most specific first. In the worst case, the current toplevel
 instance will be returned."
 
   (save-excursion
     (save-restriction
       (widen)
-      (espresso--ensure-cache)
+      (js--ensure-cache)
       (let* ((bound (if (eobp) (point) (1+ (point))))
              (pstate (or (save-excursion
-                           (espresso--backward-pstate))
-                         (list espresso--initial-pitem))))
+                           (js--backward-pstate))
+                         (list js--initial-pitem))))
 
         ;; Loop until we either hit a pitem at BOB or pitem ends after
         ;; point (or at point if we're at eob)
         (loop for pitem = (car pstate)
-              until (or (eq (espresso--pitem-type pitem)
+              until (or (eq (js--pitem-type pitem)
                             'toplevel)
-                        (espresso--inside-pitem-p pitem))
+                        (js--inside-pitem-p pitem))
               do (pop pstate))
 
         pstate))))
 
-(defun espresso--syntactic-context-from-pstate (pstate)
+(defun js--syntactic-context-from-pstate (pstate)
   "Return the syntactic context corresponding to PSTATE"
-  (let ((type (espresso--pitem-type (car pstate))))
+  (let ((type (js--pitem-type (car pstate))))
     (cond ((memq type '(function macro))
            type)
 
@@ -1645,29 +1644,29 @@ instance will be returned."
 
           (t 'toplevel))))
 
-(defun espresso-syntactic-context ()
+(defun js-syntactic-context ()
   "Get the current syntactic context of point. When called
 interatively, also display a message with that context."
   (interactive)
-  (let* ((syntactic-context (espresso--syntactic-context-from-pstate
-                             (espresso--parse-state-at-point))))
+  (let* ((syntactic-context (js--syntactic-context-from-pstate
+                             (js--parse-state-at-point))))
 
     (when (interactive-p)
       (message "Syntactic context: %s" syntactic-context))
 
     syntactic-context))
 
-(defun espresso--class-decl-matcher (limit)
-  "Fontifies according to espresso--class-styles"
-  (loop initially (espresso--ensure-cache limit)
-        while (re-search-forward espresso--quick-match-re limit t)
+(defun js--class-decl-matcher (limit)
+  "Fontifies according to js--class-styles"
+  (loop initially (js--ensure-cache limit)
+        while (re-search-forward js--quick-match-re limit t)
         for orig-end = (match-end 0)
         do (goto-char (match-beginning 0))
-        if (loop for style in espresso--class-styles
+        if (loop for style in js--class-styles
                  for decl-re = (plist-get style :class-decl)
                  if (and (memq (plist-get style :framework)
-                               espresso-enabled-frameworks)
-                         (memq (espresso-syntactic-context)
+                               js-enabled-frameworks)
+                         (memq (js-syntactic-context)
                                (plist-get style :contexts))
                          decl-re
                          (looking-at decl-re))
@@ -1676,71 +1675,71 @@ interatively, also display a message with that context."
         return t
         else do (goto-char orig-end)))
 
-(defconst espresso--font-lock-keywords
-  '(espresso--font-lock-keywords-3 espresso--font-lock-keywords-1
-                                   espresso--font-lock-keywords-2
-                                   espresso--font-lock-keywords-3)
+(defconst js--font-lock-keywords
+  '(js--font-lock-keywords-3 js--font-lock-keywords-1
+                                   js--font-lock-keywords-2
+                                   js--font-lock-keywords-3)
   "See `font-lock-keywords'.")
 
 ;; XXX: Javascript can continue a regexp literal across lines so long
 ;; as the newline is escaped with \. Account for that in the regexp
 ;; below.
-(defconst espresso--regexp-literal
+(defconst js--regexp-literal
   "[=(,:]\\(?:\\s-\\|\n\\)*\\(/\\)\\(?:\\\\/\\|[^/*]\\)\\(?:\\\\/\\|[^/]\\)*\\(/\\)"
   "Match a regular expression literal. Match groups 1 and 2 are
 the characters forming the beginning and end of the literal")
 
 ;; we want to match regular expressions only at the beginning of
 ;; expressions
-(defconst espresso--font-lock-syntactic-keywords
-  `((,espresso--regexp-literal (1 "|") (2 "|")))
+(defconst js--font-lock-syntactic-keywords
+  `((,js--regexp-literal (1 "|") (2 "|")))
   "Highlighting of regular expressions. See also the variable
   `font-lock-keywords'.")
 
 ;;; Indentation
 
-(defconst espresso--possibly-braceless-keyword-re
-  (espresso--regexp-opt-symbol
+(defconst js--possibly-braceless-keyword-re
+  (js--regexp-opt-symbol
    '("catch" "do" "else" "finally" "for" "if" "try" "while" "with"
      "each"))
   "Regular expression matching keywords that are optionally
   followed by an opening brace.")
 
-(defconst espresso--indent-operator-re
+(defconst js--indent-operator-re
   (concat "[-+*/%<>=&^|?:.]\\([^-+*/]\\|$\\)\\|"
-          (espresso--regexp-opt-symbol '("in" "instanceof")))
+          (js--regexp-opt-symbol '("in" "instanceof")))
   "Regular expression matching operators that affect indentation
   of continued expressions.")
 
 
-(defun espresso--looking-at-operator-p ()
+(defun js--looking-at-operator-p ()
   "Return non-nil if text after point is an operator (that is not
 a comma)."
   (save-match-data
-    (and (looking-at espresso--indent-operator-re)
+    (and (looking-at js--indent-operator-re)
          (or (not (looking-at ":"))
              (save-excursion
-               (and (espresso--re-search-backward "[?:{]\\|\\_<case\\_>" nil t)
+               (and (js--re-search-backward "[?:{]\\|\\_<case\\_>" nil t)
                     (looking-at "?")))))))
 
 
-(defun espresso--continued-expression-p ()
+(defun js--continued-expression-p ()
   "Returns non-nil if the current line continues an expression."
   (save-excursion
     (back-to-indentation)
-    (or (espresso--looking-at-operator-p)
-        (and (espresso--re-search-backward "\n" nil t)
+    (or (js--looking-at-operator-p)
+        (and (js--re-search-backward "\n" nil t)
 	     (progn
 	       (skip-chars-backward " \t")
 	       (or (bobp) (backward-char))
 	       (and (> (point) (point-min))
                     (save-excursion (backward-char) (not (looking-at "[/*]/")))
-                    (espresso--looking-at-operator-p)
+                    (js--looking-at-operator-p)
 		    (and (progn (backward-char)
 				(not (looking-at "++\\|--\\|/[/*]"))))))))))
 
 
-(defun espresso--end-of-do-while-loop-p ()
+(defun js--end-of-do-while-loop-p ()
   "Returns non-nil if word after point is `while' of a do-while
 statement, else returns nil. A braceless do-while statement
 spanning several lines requires that the start of the loop is
@@ -1754,18 +1753,18 @@ indented to the same column as the current line."
 	      (looking-at "[ \t\n]*}"))
 	    (save-excursion
 	      (backward-list) (forward-symbol -1) (looking-at "\\_<do\\_>"))
-	  (espresso--re-search-backward "\\_<do\\_>" (point-at-bol) t)
+	  (js--re-search-backward "\\_<do\\_>" (point-at-bol) t)
 	  (or (looking-at "\\_<do\\_>")
 	      (let ((saved-indent (current-indentation)))
-		(while (and (espresso--re-search-backward "^\\s-*\\_<" nil t)
+		(while (and (js--re-search-backward "^\\s-*\\_<" nil t)
 			    (/= (current-indentation) saved-indent)))
 		(and (looking-at "\\s-*\\_<do\\_>")
-		     (not (espresso--re-search-forward
+		     (not (js--re-search-forward
 			   "\\_<while\\_>" (point-at-eol) t))
 		     (= (current-indentation) saved-indent)))))))))
 
 
-(defun espresso--ctrl-statement-indentation ()
+(defun js--ctrl-statement-indentation ()
   "Returns the proper indentation of the current line if it
 starts the body of a control statement without braces, else
 returns nil."
@@ -1775,36 +1774,36 @@ returns nil."
             (and (not (eq (point-at-bol) (point-min)))
                  (not (looking-at "[{]"))
                  (progn
-                   (espresso--re-search-backward "[[:graph:]]" nil t)
+                   (js--re-search-backward "[[:graph:]]" nil t)
                    (or (eobp) (forward-char))
                    (when (= (char-before) ?\)) (backward-list))
                    (skip-syntax-backward " ")
                    (skip-syntax-backward "w_")
-                   (looking-at espresso--possibly-braceless-keyword-re))
-                 (not (espresso--end-of-do-while-loop-p))))
+                   (looking-at js--possibly-braceless-keyword-re))
+                 (not (js--end-of-do-while-loop-p))))
       (save-excursion
         (goto-char (match-beginning 0))
-        (+ (current-indentation) espresso-indent-level)))))
+        (+ (current-indentation) js-indent-level)))))
 
-(defun espresso--get-c-offset (symbol anchor)
+(defun js--get-c-offset (symbol anchor)
   (let ((c-offsets-alist
-         (list (cons 'c espresso-comment-lineup-func))))
+         (list (cons 'c js-comment-lineup-func))))
     (c-get-syntactic-indentation (list (cons symbol anchor)))))
 
-(defun espresso--proper-indentation (parse-status)
+(defun js--proper-indentation (parse-status)
   "Return the proper indentation for the current line."
   (save-excursion
     (back-to-indentation)
     (cond ((nth 4 parse-status)
-           (espresso--get-c-offset 'c (nth 8 parse-status)))
+           (js--get-c-offset 'c (nth 8 parse-status)))
           ((nth 8 parse-status) 0) ; inside string
-          ((espresso--ctrl-statement-indentation))
+          ((js--ctrl-statement-indentation))
           ((eq (char-after) ?#) 0)
-          ((save-excursion (espresso--beginning-of-macro)) 4)
+          ((save-excursion (js--beginning-of-macro)) 4)
           ((nth 1 parse-status)
            (let ((same-indent-p (looking-at
                                  "[]})]\\|\\_<case\\_>\\|\\_<default\\_>"))
-                 (continued-expr-p (espresso--continued-expression-p)))
+                 (continued-expr-p (js--continued-expression-p)))
              (goto-char (nth 1 parse-status))
              (if (looking-at "[({[]\\s-*\\(/[/*]\\|$\\)")
                  (progn
@@ -1814,20 +1813,20 @@ returns nil."
                    (cond (same-indent-p
                           (current-column))
                          (continued-expr-p
-                          (+ (current-column) (* 2 espresso-indent-level)
-                             espresso-expr-indent-offset))
+                          (+ (current-column) (* 2 js-indent-level)
+                             js-expr-indent-offset))
                          (t
-                          (+ (current-column) espresso-indent-level))))
+                          (+ (current-column) js-indent-level))))
                (unless same-indent-p
                  (forward-char)
                  (skip-chars-forward " \t"))
                (current-column))))
 
-          ((espresso--continued-expression-p)
-           (+ espresso-indent-level espresso-expr-indent-offset))
+          ((js--continued-expression-p)
+           (+ js-indent-level js-expr-indent-offset))
           (t 0))))
 
-(defun espresso-indent-line ()
+(defun js-indent-line ()
   "Indent the current line as JavaScript source text."
   (interactive)
   (save-restriction
@@ -1836,26 +1835,26 @@ returns nil."
             (save-excursion (syntax-ppss (point-at-bol))))
            (offset (- (current-column) (current-indentation))))
 
-      (indent-line-to (espresso--proper-indentation parse-status))
+      (indent-line-to (js--proper-indentation parse-status))
       (when (> offset 0) (forward-char offset)))))
 
 ;;; Filling
 
-(defun espresso-c-fill-paragraph (&optional justify)
+(defun js-c-fill-paragraph (&optional justify)
   "Fill the paragraph with c-fill-paragraph"
   (interactive "*P")
 
   (flet ((c-forward-sws
           (&optional limit)
-          (espresso--forward-syntactic-ws limit))
+          (js--forward-syntactic-ws limit))
 
          (c-backward-sws
           (&optional limit)
-          (espresso--backward-syntactic-ws limit))
+          (js--backward-syntactic-ws limit))
 
          (c-beginning-of-macro
           (&optional limit)
-          (espresso--beginning-of-macro limit)))
+          (js--beginning-of-macro limit)))
 
     (let ((fill-paragraph-function 'c-fill-paragraph))
       (c-fill-paragraph justify))))
@@ -1869,15 +1868,15 @@ returns nil."
 ;; modified copy of the previous one, or in the case of the first
 ;; parse state, the empty state.
 ;;
-;; The parse state itself is just a stack of espresso--pitem
+;; The parse state itself is just a stack of js--pitem
 ;; instances. It starts off containing one element that is never
-;; closed, that is initially espresso--initial-pitem.
+;; closed, that is initially js--initial-pitem.
 ;;
 
 
-(defun espresso--pitem-format (pitem)
-  (let ((name (espresso--pitem-name pitem))
-        (type (espresso--pitem-type pitem)))
+(defun js--pitem-format (pitem)
+  (let ((name (js--pitem-name pitem))
+        (type (js--pitem-type pitem)))
 
     (format "name:%S type:%S"
             name
@@ -1885,41 +1884,41 @@ returns nil."
                 type
               (plist-get type :name)))))
 
-(defun espresso--make-merged-item (item child name-parts)
-  "Internal helper for espresso--splice-into-items. Return a new
+(defun js--make-merged-item (item child name-parts)
+  "Internal helper for js--splice-into-items. Return a new
 item that is the result of merging CHILD into ITEM. NAME-PARTS is
 a list of parts of the name of CHILD that we haven't consumed
 yet."
 
-  (espresso--debug "espresso--make-merged-item: {%s} into {%s}"
-                   (espresso--pitem-format child)
-                   (espresso--pitem-format item))
+  (js--debug "js--make-merged-item: {%s} into {%s}"
+                   (js--pitem-format child)
+                   (js--pitem-format item))
 
   ;; If the item we're merging into isn't a class, make it into one
-  (unless (consp (espresso--pitem-type item))
-    (espresso--debug "espresso--make-merged-item: changing dest into class")
-    (setq item (make-espresso--pitem
+  (unless (consp (js--pitem-type item))
+    (js--debug "js--make-merged-item: changing dest into class")
+    (setq item (make-js--pitem
                 :children (list item)
 
                 ;; Use the child's class-style if it's available
-                :type (if (atom (espresso--pitem-type child))
-                          espresso--dummy-class-style
-                  (espresso--pitem-type child))
+                :type (if (atom (js--pitem-type child))
+                          js--dummy-class-style
+                  (js--pitem-type child))
 
-                :name (espresso--pitem-strname item))))
+                :name (js--pitem-strname item))))
 
   ;; Now we can merge either a function or a class into a class
   (cons (cond
          ((cdr name-parts)
-          (espresso--debug "espresso--make-merged-item: recursing")
+          (js--debug "js--make-merged-item: recursing")
           ;; if we have more name-parts to go before we get to the
           ;; bottom of the class hierarchy, call the merger
           ;; recursively
-          (espresso--splice-into-items (car item) child
+          (js--splice-into-items (car item) child
                                        (cdr name-parts)))
 
-         ((atom (espresso--pitem-type child))
-          (espresso--debug "espresso--make-merged-item: straight merge")
+         ((atom (js--pitem-type child))
+          (js--debug "js--make-merged-item: straight merge")
           ;; Not merging a class, but something else, so just prepend
           ;; it
           (cons child (car item)))
@@ -1927,18 +1926,18 @@ yet."
          (t
           ;; Otherwise, merge the new child's items into those
           ;; of the new class
-          (espresso--debug "espresso--make-merged-item: merging class contents")
+          (js--debug "js--make-merged-item: merging class contents")
           (append (car child) (car item))))
         (cdr item)))
 
-(defun espresso--pitem-strname (pitem)
+(defun js--pitem-strname (pitem)
   "Last part of the name of PITEM as a string or symbol"
-  (let ((name (espresso--pitem-name pitem)))
+  (let ((name (js--pitem-name pitem)))
     (if (consp name)
         (car (last name))
       name)))
 
-(defun espresso--splice-into-items (items child name-parts)
+(defun js--splice-into-items (items child name-parts)
   "Non-destructively inserts CHILD into the item list ITEMS in
 the proper place as given by NAME-PARTS. If a class doesn't
 exist in the tree, create it. Return the new items list.
@@ -1949,9 +1948,9 @@ name of the item to insert."
         (item-ptr items)
         new-items last-new-item new-cons item)
 
-    (espresso--debug "espresso--splice-into-items: name-parts: %S items:%S"
+    (js--debug "js--splice-into-items: name-parts: %S items:%S"
              name-parts
-             (mapcar #'espresso--pitem-name items))
+             (mapcar #'js--pitem-name items))
 
     (assert (stringp top-name))
     (assert (> (length top-name) 0))
@@ -1961,10 +1960,10 @@ name of the item to insert."
     ;; *will* find an instance.
 
     (while (and item-ptr
-                (cond ((equal (espresso--pitem-strname (car item-ptr)) top-name)
+                (cond ((equal (js--pitem-strname (car item-ptr)) top-name)
                        ;; Okay, we found an entry with the right name. Splice
                        ;; the merged item into the list...
-                       (setq new-cons (cons (espresso--make-merged-item
+                       (setq new-cons (cons (js--make-merged-item
                                              (car item-ptr) child
                                              name-parts)
                                             (cdr item-ptr)))
@@ -1995,21 +1994,21 @@ name of the item to insert."
         ;; we ran out of items to search. Just return the new
         ;; list.
         (progn
-          (espresso--debug "search succeeded: %S" name-parts)
+          (js--debug "search succeeded: %S" name-parts)
           new-items)
 
       ;; We didn't find anything. If the child is a class and we don't
       ;; have any classes to drill down into, just push that class;
       ;; otherwise, make a fake class and carry on.
-      (espresso--debug "search failed: %S" name-parts)
+      (js--debug "search failed: %S" name-parts)
       (cons (if (cdr name-parts)
                 ;; We have name-parts left to process. Make a fake
                 ;; class for this particular part...
-                (make-espresso--pitem
+                (make-js--pitem
                  ;; ...and recursively digest the rest of the name
-                 :children (espresso--splice-into-items
+                 :children (js--splice-into-items
                             nil child (cdr name-parts))
-                 :type espresso--dummy-class-style
+                 :type js--dummy-class-style
                  :name top-name)
 
               ;; Otherwise, this is the only name we have, so stick
@@ -2017,13 +2016,13 @@ name of the item to insert."
               child)
             items))))
 
-(defun espresso--pitem-add-child (pitem child)
-  "Copy espresso--pitem PITEM and while copying, push CHILD onto
+(defun js--pitem-add-child (pitem child)
+  "Copy js--pitem PITEM and while copying, push CHILD onto
 its list of children."
 
-  (assert (integerp (espresso--pitem-h-begin child)))
-  (assert (if (consp (espresso--pitem-name child))
-              (loop for part in (espresso--pitem-name child)
+  (assert (integerp (js--pitem-h-begin child)))
+  (assert (if (consp (js--pitem-name child))
+              (loop for part in (js--pitem-name child)
                     always (stringp part))
             t))
 
@@ -2032,22 +2031,22 @@ its list of children."
   ;; element and beyond can be shared when we make our "copy".
   (cons
 
-   (let ((name (espresso--pitem-name child))
-         (type (espresso--pitem-type child)))
+   (let ((name (js--pitem-name child))
+         (type (js--pitem-type child)))
 
      (cond ((cdr-safe name) ; true if a list of at least two elements
             ;; Use slow path because we need class lookup
-            (espresso--splice-into-items (car pitem) child name))
+            (js--splice-into-items (car pitem) child name))
 
            ((and (consp type)
                  (plist-get type :prototype))
 
             ;; Use slow path because we need class merging. We know
             ;; name is a list here because down in
-            ;; `espresso--ensure-cache', we made sure to only add
+            ;; `js--ensure-cache', we made sure to only add
             ;; class entries with lists for :name
             (assert (consp name))
-            (espresso--splice-into-items (car pitem) child name))
+            (js--splice-into-items (car pitem) child name))
 
            (t
             ;; Fast path
@@ -2055,46 +2054,46 @@ its list of children."
 
    (cdr pitem)))
 
-(defun espresso--maybe-make-marker (location)
+(defun js--maybe-make-marker (location)
   "Make LOCATION into a marker if imenu-use-markers"
   (if imenu-use-markers
       (set-marker (make-marker) location)
     location))
 
-(defun espresso--pitems-to-imenu (pitems unknown-ctr)
+(defun js--pitems-to-imenu (pitems unknown-ctr)
   "Convert list of pitems PITEMS to imenu format"
 
   (let (imenu-items pitem pitem-type pitem-name subitems)
 
     (while (setq pitem (pop pitems))
-      (setq pitem-type (espresso--pitem-type pitem))
-      (setq pitem-name (espresso--pitem-strname pitem))
+      (setq pitem-type (js--pitem-type pitem))
+      (setq pitem-name (js--pitem-strname pitem))
       (when (eq pitem-name t)
         (setq pitem-name (format "[unknown %s]"
                                  (incf (car unknown-ctr)))))
 
       (cond
        ((memq pitem-type '(function macro))
-        (assert (integerp (espresso--pitem-h-begin pitem)))
+        (assert (integerp (js--pitem-h-begin pitem)))
         (push (cons pitem-name
-                    (espresso--maybe-make-marker
-                     (espresso--pitem-h-begin pitem)))
+                    (js--maybe-make-marker
+                     (js--pitem-h-begin pitem)))
               imenu-items))
 
        ((consp pitem-type) ; class definition
-        (setq subitems (espresso--pitems-to-imenu
-                        (espresso--pitem-children pitem)
+        (setq subitems (js--pitems-to-imenu
+                        (js--pitem-children pitem)
                         unknown-ctr))
         (cond (subitems
                (push (cons pitem-name subitems)
                      imenu-items))
 
-              ((espresso--pitem-h-begin pitem)
-               (assert (integerp (espresso--pitem-h-begin pitem)))
+              ((js--pitem-h-begin pitem)
+               (assert (integerp (js--pitem-h-begin pitem)))
                (setq subitems (list
                                (cons "[empty]"
-                                     (espresso--maybe-make-marker
-                                      (espresso--pitem-h-begin pitem)))))
+                                     (js--maybe-make-marker
+                                      (js--pitem-h-begin pitem)))))
                (push (cons pitem-name subitems)
                      imenu-items))))
 
@@ -2102,39 +2101,39 @@ its list of children."
 
     imenu-items))
 
-(defun espresso--imenu-create-index ()
+(defun js--imenu-create-index ()
   "Creates an imenu index for the current buffer"
   (save-excursion
     (save-restriction
       (widen)
       (goto-char (point-max))
-      (espresso--ensure-cache)
+      (js--ensure-cache)
       (assert (or (= (point-min) (point-max))
-                  (eq espresso--last-parse-pos (point))))
-      (when espresso--last-parse-pos
-        (let ((state espresso--state-at-last-parse-pos)
+                  (eq js--last-parse-pos (point))))
+      (when js--last-parse-pos
+        (let ((state js--state-at-last-parse-pos)
               (unknown-ctr (cons -1 nil)))
 
           ;; Make sure everything is closed
           (while (cdr state)
             (setq state
-                  (cons (espresso--pitem-add-child (second state) (car state))
+                  (cons (js--pitem-add-child (second state) (car state))
                         (cddr state))))
 
           (assert (= (length state) 1))
 
           ;; Convert the new-finalized state into what imenu expects
-          (espresso--pitems-to-imenu
-           (car (espresso--pitem-children state))
+          (js--pitems-to-imenu
+           (car (js--pitem-children state))
            unknown-ctr))))))
 
-(defun espresso--which-func-joiner (parts)
+(defun js--which-func-joiner (parts)
   (mapconcat #'identity parts "."))
 
-(defun espresso--imenu-to-flat (items prefix symbols)
+(defun js--imenu-to-flat (items prefix symbols)
   (loop for item in items
         if (imenu--subalist-p item)
-        do (espresso--imenu-to-flat
+        do (js--imenu-to-flat
             (cdr item) (concat prefix (car item) ".")
             symbols)
         else
@@ -2147,26 +2146,26 @@ its list of children."
 
              (puthash name2 (cdr item) symbols))))
 
-(defun espresso--get-all-known-symbols ()
+(defun js--get-all-known-symbols ()
   "Get a hash table of all relevant Javascript symbols across all
-espresso-mode buffers. Each key is the name of a symbol (possibly
+js-mode buffers. Each key is the name of a symbol (possibly
 disambiguated with <N>, where N > 1), and each value is a marker
 giving the location of that symbol."
   (loop with symbols = (make-hash-table :test 'equal)
         with imenu-use-markers = t
         for buffer being the buffers
         for imenu-index = (with-current-buffer buffer
-                            (when (eq major-mode 'espresso-mode)
-                              (espresso--imenu-create-index)))
-        do (espresso--imenu-to-flat imenu-index "" symbols)
+                            (when (eq major-mode 'js-mode)
+                              (js--imenu-create-index)))
+        do (js--imenu-to-flat imenu-index "" symbols)
         finally return symbols))
 
-(defvar espresso--symbol-history nil
+(defvar js--symbol-history nil
   "History of entered Javascript symbols")
 
-(defun espresso--read-symbol (symbols-table prompt &optional initial-input)
+(defun js--read-symbol (symbols-table prompt &optional initial-input)
   "Read a symbol from SYMBOLS-TABLE, which is a hash table like
-the one from `espresso--get-all-known-symbols'. Return value is a
+the one from `js--get-all-known-symbols'. Return value is a
 cons of (SYMBOL-NAME . LOCATION), where SYMBOL-NAME is a string
 and LOCATION is a marker.
 
@@ -2182,10 +2181,10 @@ If INITIAL-INPUT is not nil, use it as the initial input"
                  prompt
                  (loop for key being the hash-keys of symbols-table
                        collect key)
-                 nil t initial-input 'espresso--symbol-history)))
+                 nil t initial-input 'js--symbol-history)))
     (cons choice (gethash choice symbols-table))))
 
-(defun espresso--guess-symbol-at-point ()
+(defun js--guess-symbol-at-point ()
   (let ((bounds (bounds-of-thing-at-point 'symbol)))
     (when bounds
       (save-excursion
@@ -2195,7 +2194,7 @@ If INITIAL-INPUT is not nil, use it as the initial input"
           (setf (car bounds) (point))))
       (buffer-substring (car bounds) (cdr bounds)))))
 
-(defun espresso-find-symbol (&optional arg)
+(defun js-find-symbol (&optional arg)
   "Jump to a Javascript symbol we read in from the user. With
 prefix argument, restrict symbols to those from the current
 buffer. Pushes a mark onto the tag ring just like `find-tag'."
@@ -2203,14 +2202,14 @@ buffer. Pushes a mark onto the tag ring just like `find-tag'."
   (interactive "P")
   (let (symbols marker)
     (if (not arg)
-        (setq symbols (espresso--get-all-known-symbols))
+        (setq symbols (js--get-all-known-symbols))
       (setq symbols (make-hash-table :test 'equal))
-      (espresso--imenu-to-flat (espresso--imenu-create-index)
+      (js--imenu-to-flat (js--imenu-create-index)
                                "" symbols))
 
-    (setq marker (cdr (espresso--read-symbol
+    (setq marker (cdr (js--read-symbol
                        symbols "Jump to: "
-                       (espresso--guess-symbol-at-point))))
+                       (js--guess-symbol-at-point))))
 
     (ring-insert find-tag-marker-ring (point-marker))
     (switch-to-buffer (marker-buffer marker))
@@ -2219,13 +2218,13 @@ buffer. Pushes a mark onto the tag ring just like `find-tag'."
 
 ;;; MozRepl integration
 
-(put 'espresso-moz-bad-rpc 'error-conditions '(error timeout))
-(put 'espresso-moz-bad-rpc 'error-message "Mozilla RPC Error")
+(put 'js-moz-bad-rpc 'error-conditions '(error timeout))
+(put 'js-moz-bad-rpc 'error-message "Mozilla RPC Error")
 
-(put 'espresso-js-error 'error-conditions '(error js-error))
-(put 'espresso-js-error 'error-message "Javascript Error")
+(put 'js-js-error 'error-conditions '(error js-error))
+(put 'js-js-error 'error-message "Javascript Error")
 
-(defun espresso--wait-for-matching-output
+(defun js--wait-for-matching-output
   (process regexp timeout &optional start)
   "Wait TIMEOUT seconds for PROCESS to output something that
 matches REGEXP. On timeout, return nil. On success, return t with
@@ -2242,49 +2241,49 @@ from START. Otherwise, use the current value of `process-mark'."
           do (accept-process-output process time-left nil t)
           do (goto-char (process-mark process))
           finally do (signal
-                      'espresso-moz-bad-rpc
+                      'js-moz-bad-rpc
                       (list (format "Timed out waiting for output matching %S" regexp))))))
 
-(defstruct espresso--js-handle
+(defstruct js--js-handle
   ;; Integer, mirrors the value we see in JS
   (id nil :read-only t)
 
   ;; Process to which this thing belongs
   (process nil :read-only t))
 
-(defun espresso--js-handle-expired-p (x)
-  (not (eq (espresso--js-handle-process x)
+(defun js--js-handle-expired-p (x)
+  (not (eq (js--js-handle-process x)
            (inferior-moz-process))))
 
-(defvar espresso--js-references nil
+(defvar js--js-references nil
   "Maps Elisp Javascript proxy objects to their Javascript IDs.")
 
-(defvar espresso--js-process nil
+(defvar js--js-process nil
   "The last MozRepl process object we saw")
 
-(defvar espresso--js-gc-idle-timer nil
+(defvar js--js-gc-idle-timer nil
   "Idle timer for cleaning up JS object references")
 
-(defvar espresso--js-last-gcs-done nil
+(defvar js--js-last-gcs-done nil
   "Last number of gcs we GCed with")
 
-(defconst espresso--moz-interactor
+(defconst js--moz-interactor
   (replace-regexp-in-string
    "[ \n]+" " "
    ; */" Make Emacs happy
 "(function(repl) {
-  repl.defineInteractor('espresso', {
+  repl.defineInteractor('js', {
     onStart: function onStart(repl) {
-      if(!repl._espressoObjects) {
-        repl._espressoObjects = {};
-        repl._espressoLastID = 0;
-        repl._espressoGC = this._espressoGC;
+      if(!repl._jsObjects) {
+        repl._jsObjects = {};
+        repl._jsLastID = 0;
+        repl._jsGC = this._jsGC;
       }
       this._input = '';
     },
 
-    _espressoGC: function _espressoGC(ids_in_use) {
-      var objects = this._espressoObjects;
+    _jsGC: function _jsGC(ids_in_use) {
+      var objects = this._jsObjects;
       var keys = [];
       var num_freed = 0;
 
@@ -2438,7 +2437,7 @@ from START. Otherwise, use the current value of `process-mark'."
         }
       }
 
-      var ret = repl._espressoObjects[id];
+      var ret = repl._jsObjects[id];
       if(ret === undefined) {
         throw new Error('No object with id:' + id + '(' + typeof id + ')');
       }
@@ -2452,16 +2451,16 @@ from START. Otherwise, use the current value of `process-mark'."
                         + value)
       }
 
-      for(var id in repl._espressoObjects) {
+      for(var id in repl._jsObjects) {
         id = Number(id);
-        var obj = repl._espressoObjects[id];
+        var obj = repl._jsObjects[id];
         if(obj === value) {
           return id;
         }
       }
 
-      var id = ++repl._espressoLastID;
-      repl._espressoObjects[id] = value;
+      var id = ++repl._jsLastID;
+      repl._jsObjects[id] = value;
       return id;
     },
 
@@ -2580,230 +2579,230 @@ from START. Otherwise, use the current value of `process-mark'."
 
   "String to set MozRepl up into a simple-minded evaluation mode")
 
-(defun espresso--js-encode-value (x)
+(defun js--js-encode-value (x)
   "Marshall the given value for JS. Strings and numbers get
 JSON-encoded. Lists (including nil) are made into Javascript
 array literals and their contents encoded with
-espresso--js-encode-value."
+js--js-encode-value."
 
   (cond ((stringp x) (json-encode-string x))
         ((numberp x) (json-encode-number x))
         ((symbolp x) (format "{objid:%S}" (symbol-name x)))
-        ((espresso--js-handle-p x)
+        ((js--js-handle-p x)
 
-         (when (espresso--js-handle-expired-p x)
+         (when (js--js-handle-expired-p x)
            (error "Stale JS handle"))
 
-         (format "{objid:%s}" (espresso--js-handle-id x)))
+         (format "{objid:%s}" (js--js-handle-id x)))
 
         ((sequencep x)
-         (if (eq (car-safe x) 'espresso--funcall)
+         (if (eq (car-safe x) 'js--funcall)
              (format "{funcall:[%s]}"
-                     (mapconcat #'espresso--js-encode-value (cdr x) ","))
+                     (mapconcat #'js--js-encode-value (cdr x) ","))
            (concat
-            "[" (mapconcat #'espresso--js-encode-value x ",") "]")))
+            "[" (mapconcat #'js--js-encode-value x ",") "]")))
         (t
          (error "Unrecognized item: %S" x))))
 
-(defconst espresso--js-prompt-regexp "\\(repl[0-9]*\\)> $")
-(defconst espresso--js-repl-prompt-regexp "^EVAL>$")
-(defvar espresso--js-repl-depth 0)
+(defconst js--js-prompt-regexp "\\(repl[0-9]*\\)> $")
+(defconst js--js-repl-prompt-regexp "^EVAL>$")
+(defvar js--js-repl-depth 0)
 
-(defun espresso--js-wait-for-eval-prompt ()
-  (espresso--wait-for-matching-output
+(defun js--js-wait-for-eval-prompt ()
+  (js--wait-for-matching-output
    (inferior-moz-process)
-   espresso--js-repl-prompt-regexp espresso-js-timeout
+   js--js-repl-prompt-regexp js-js-timeout
 
    ;; start matching against the beginning of the line in
    ;; order to catch a prompt that's only partially arrived
    (save-excursion (forward-line 0) (point))))
 
-(defun espresso--js-enter-repl ()
+(defun js--js-enter-repl ()
   (inferior-moz-process) ; called for side-effect
   (with-current-buffer inferior-moz-buffer
     (goto-char (point-max))
 
     ;; Do some initialization the first time we see a process
-    (unless (eq (inferior-moz-process) espresso--js-process)
-      (setq espresso--js-process (inferior-moz-process))
-      (setq espresso--js-references (make-hash-table :test 'eq :weakness t))
-      (setq espresso--js-repl-depth 0)
+    (unless (eq (inferior-moz-process) js--js-process)
+      (setq js--js-process (inferior-moz-process))
+      (setq js--js-references (make-hash-table :test 'eq :weakness t))
+      (setq js--js-repl-depth 0)
 
       ;; Send interactor definition
-      (comint-send-string espresso--js-process espresso--moz-interactor)
-      (comint-send-string espresso--js-process
+      (comint-send-string js--js-process js--moz-interactor)
+      (comint-send-string js--js-process
                           (concat "(" moz-repl-name ")\n"))
-      (espresso--wait-for-matching-output
-       (inferior-moz-process) espresso--js-prompt-regexp
-       espresso-js-timeout))
+      (js--wait-for-matching-output
+       (inferior-moz-process) js--js-prompt-regexp
+       js-js-timeout))
 
     ;; Sanity check
-    (when (looking-back espresso--js-prompt-regexp
+    (when (looking-back js--js-prompt-regexp
                         (save-excursion (forward-line 0) (point)))
-      (setq espresso--js-repl-depth 0))
+      (setq js--js-repl-depth 0))
 
-    (if (> espresso--js-repl-depth 0)
-        ;; If espresso--js-repl-depth > 0, we *should* be seeing an
+    (if (> js--js-repl-depth 0)
+        ;; If js--js-repl-depth > 0, we *should* be seeing an
         ;; EVAL> prompt. If we don't, give Mozilla a chance to catch
         ;; up with us.
-        (espresso--js-wait-for-eval-prompt)
+        (js--js-wait-for-eval-prompt)
 
       ;; Otherwise, tell Mozilla to enter the interactor mode
       (insert (match-string-no-properties 1)
-              ".pushInteractor('espresso')")
+              ".pushInteractor('js')")
       (comint-send-input nil t)
-      (espresso--wait-for-matching-output
-       (inferior-moz-process) espresso--js-repl-prompt-regexp
-       espresso-js-timeout))
+      (js--wait-for-matching-output
+       (inferior-moz-process) js--js-repl-prompt-regexp
+       js-js-timeout))
 
-    (incf espresso--js-repl-depth)))
+    (incf js--js-repl-depth)))
 
-(defun espresso--js-leave-repl ()
-  (assert (> espresso--js-repl-depth 0))
-  (when (= 0 (decf espresso--js-repl-depth))
+(defun js--js-leave-repl ()
+  (assert (> js--js-repl-depth 0))
+  (when (= 0 (decf js--js-repl-depth))
     (with-current-buffer inferior-moz-buffer
       (goto-char (point-max))
-      (espresso--js-wait-for-eval-prompt)
+      (js--js-wait-for-eval-prompt)
       (insert "EXIT")
       (comint-send-input nil t)
-      (espresso--wait-for-matching-output
-       (inferior-moz-process) espresso--js-prompt-regexp
-       espresso-js-timeout))))
+      (js--wait-for-matching-output
+       (inferior-moz-process) js--js-prompt-regexp
+       js-js-timeout))))
 
-(defsubst espresso--js-not (value)
+(defsubst js--js-not (value)
   (memq value '(nil false undefined)))
 
-(defsubst espresso--js-true (value)
-  (not (espresso--js-not value)))
+(defsubst js--js-true (value)
+  (not (js--js-not value)))
 
 (eval-and-compile
-  (defun espresso--optimize-arglist (arglist)
+  (defun js--optimize-arglist (arglist)
     "Convert immediate js< and js! references to deferred ones"
     (loop for item in arglist
           if (eq (car-safe item) 'js<)
-          collect (append (list 'list ''espresso--funcall
+          collect (append (list 'list ''js--funcall
                                 '(list 'interactor "_getProp"))
-                          (espresso--optimize-arglist (cdr item)))
+                          (js--optimize-arglist (cdr item)))
           else if (eq (car-safe item) 'js>)
-          collect (append (list 'list ''espresso--funcall
+          collect (append (list 'list ''js--funcall
                                 '(list 'interactor "_putProp"))
 
                           (if (atom (cadr item))
                               (list (cadr item))
                             (list
                              (append
-                              (list 'list ''espresso--funcall
+                              (list 'list ''js--funcall
                                     '(list 'interactor "_mkArray"))
-                              (espresso--optimize-arglist (cadr item)))))
-                          (espresso--optimize-arglist (cddr item)))
+                              (js--optimize-arglist (cadr item)))))
+                          (js--optimize-arglist (cddr item)))
           else if (eq (car-safe item) 'js!)
           collect (destructuring-bind (ignored function &rest body) item
-                    (append (list 'list ''espresso--funcall
+                    (append (list 'list ''js--funcall
                                   (if (consp function)
                                       (cons 'list
-                                            (espresso--optimize-arglist function))
+                                            (js--optimize-arglist function))
                                     function))
-                            (espresso--optimize-arglist body)))
+                            (js--optimize-arglist body)))
           else
           collect item)))
 
-(defmacro espresso--js-get-service (class-name interface-name)
+(defmacro js--js-get-service (class-name interface-name)
     `(js! ("Components" "classes" ,class-name "getService")
         (js< "Components" "interfaces" ,interface-name)))
 
-(defmacro espresso--js-create-instance (class-name interface-name)
+(defmacro js--js-create-instance (class-name interface-name)
   `(js! ("Components" "classes" ,class-name "createInstance")
         (js< "Components" "interfaces" ,interface-name)))
 
-(defmacro espresso--js-qi (object interface-name)
+(defmacro js--js-qi (object interface-name)
   `(js! (,object "QueryInterface")
         (js< "Components" "interfaces" ,interface-name)))
 
-(defmacro with-espresso-js (&rest forms)
-  "Runs FORMS with the Mozilla repl set up for espresso commands.
-Inside the lexical scope of `with-espresso-js', `js?', `js!',
+(defmacro with-js (&rest forms)
+  "Runs FORMS with the Mozilla repl set up for js commands.
+Inside the lexical scope of `with-js', `js?', `js!',
 `js-new', `js-eval', `js-list', `js<', `js>', `js-get-service',
 `js-create-instance', and `js-qi' are defined."
 
   `(progn
-     (espresso--js-enter-repl)
+     (js--js-enter-repl)
      (unwind-protect
-         (macrolet ((js? (&rest body) `(espresso--js-true ,@body))
+         (macrolet ((js? (&rest body) `(js--js-true ,@body))
                     (js! (function &rest body)
-                         `(espresso--js-funcall
+                         `(js--js-funcall
                            ,(if (consp function)
                                 (cons 'list
-                                      (espresso--optimize-arglist function))
+                                      (js--optimize-arglist function))
                               function)
-                           ,@(espresso--optimize-arglist body)))
+                           ,@(js--optimize-arglist body)))
 
                     (js-new (function &rest body)
-                            `(espresso--js-new
+                            `(js--js-new
                               ,(if (consp function)
                                    (cons 'list
-                                         (espresso--optimize-arglist function))
+                                         (js--optimize-arglist function))
                                  function)
                               ,@body))
 
                     (js-eval (thisobj js)
-                            `(espresso--js-eval
-                              ,@(espresso--optimize-arglist
+                            `(js--js-eval
+                              ,@(js--optimize-arglist
                                  (list thisobj js))))
 
                     (js-list (&rest args)
-                             `(espresso--js-list
-                               ,@(espresso--optimize-arglist args)))
+                             `(js--js-list
+                               ,@(js--optimize-arglist args)))
 
                     (js-get-service (&rest args)
-                                    `(espresso--js-get-service
-                                      ,@(espresso--optimize-arglist args)))
+                                    `(js--js-get-service
+                                      ,@(js--optimize-arglist args)))
 
                     (js-create-instance (&rest args)
-                                        `(espresso--js-create-instance
-                                          ,@(espresso--optimize-arglist args)))
+                                        `(js--js-create-instance
+                                          ,@(js--optimize-arglist args)))
 
                     (js-qi (&rest args)
-                           `(espresso--js-qi
-                             ,@(espresso--optimize-arglist args)))
+                           `(js--js-qi
+                             ,@(js--optimize-arglist args)))
 
-                    (js< (&rest body) `(espresso--js-get
-                                        ,@(espresso--optimize-arglist body)))
+                    (js< (&rest body) `(js--js-get
+                                        ,@(js--optimize-arglist body)))
                     (js> (props value)
-                         `(espresso--js-funcall
+                         `(js--js-funcall
                            '(interactor "_putProp")
                            ,(if (consp props)
                                 (cons 'list
-                                      (espresso--optimize-arglist props))
+                                      (js--optimize-arglist props))
                               props)
-                           ,@(espresso--optimize-arglist (list value))
+                           ,@(js--optimize-arglist (list value))
                            ))
-                    (js-handle? (arg) `(espresso--js-handle-p ,arg)))
+                    (js-handle? (arg) `(js--js-handle-p ,arg)))
            ,@forms)
-       (espresso--js-leave-repl))))
+       (js--js-leave-repl))))
 
-(defvar espresso--js-array-as-list nil
+(defvar js--js-array-as-list nil
 "If bound to t and a function returns an Array, return the
 elements of that Array as a list instead of returning the whole
 Array as a JS symbol" )
 
-(defun espresso--js-decode-retval (result)
+(defun js--js-decode-retval (result)
   (ecase (intern (first result))
          (atom (second result))
          (special (intern (second result)))
          (array
-          (mapcar #'espresso--js-decode-retval (second result)))
+          (mapcar #'js--js-decode-retval (second result)))
          (objid
           (or (gethash (second result)
-                       espresso--js-references)
+                       js--js-references)
               (puthash (second result)
-                       (make-espresso--js-handle
+                       (make-js--js-handle
                         :id (second result)
                         :process (inferior-moz-process))
-                       espresso--js-references)))
+                       js--js-references)))
 
-         (error (signal 'espresso-js-error (list (second result))))))
+         (error (signal 'js-js-error (list (second result))))))
 
-(defun espresso--js-funcall (function &rest arguments)
+(defun js--js-funcall (function &rest arguments)
   "Call the Mozilla function FUNCTION with arguments ARGUMENTS.
 If function is a string, look it up as a property on the global
 object and use the global object for `this'; if FUNCTION is a
@@ -2813,63 +2812,63 @@ string, look it up on the global object. If FUNCTION is a list
 with more than one argument, use the list up to the last value as
 a property descriptor and the last argument as a function."
 
-  (with-espresso-js
-   (let ((argstr (espresso--js-encode-value
+  (with-js
+   (let ((argstr (js--js-encode-value
                   (cons function arguments))))
 
      (with-current-buffer inferior-moz-buffer
        ;; Actual funcall
-       (when espresso--js-array-as-list
+       (when js--js-array-as-list
          (insert "*"))
        (insert argstr)
        (comint-send-input nil t)
-       (espresso--wait-for-matching-output
+       (js--wait-for-matching-output
         (inferior-moz-process) "EVAL>"
-        espresso-js-timeout)
+        js-js-timeout)
        (goto-char comint-last-input-end)
 
        ;; Read the result
        (let* ((json-array-type 'list)
               (result (prog1 (json-read)
                         (goto-char (point-max)))))
-         (espresso--js-decode-retval result))))))
+         (js--js-decode-retval result))))))
 
-(defun espresso--js-new (constructor &rest arguments)
+(defun js--js-new (constructor &rest arguments)
   "Call CONSTRUCTOR as a constructor (as with new), with the
 given arguments ARGUMENTS. CONSTRUCTOR is a JS handle, a string,
 or a list of these things."
 
-  (apply #'espresso--js-funcall
+  (apply #'js--js-funcall
          '(interactor "_callNew")
          constructor arguments))
 
-(defun espresso--js-eval (thisobj js)
-  (espresso--js-funcall '(interactor "_callEval") thisobj js))
+(defun js--js-eval (thisobj js)
+  (js--js-funcall '(interactor "_callEval") thisobj js))
 
-(defun espresso--js-list (&rest arguments)
+(defun js--js-list (&rest arguments)
   "Return a Lisp array that is the result of evaluating each of
   the elements of ARGUMENTS"
 
-  (let ((espresso--js-array-as-list t))
-    (apply #'espresso--js-funcall '(interactor "_mkArray")
+  (let ((js--js-array-as-list t))
+    (apply #'js--js-funcall '(interactor "_mkArray")
            arguments)))
 
-(defun espresso--js-get (&rest props)
-  (apply #'espresso--js-funcall '(interactor "_getProp") props))
+(defun js--js-get (&rest props)
+  (apply #'js--js-funcall '(interactor "_getProp") props))
 
-(defun espresso--js-put (props value)
-  (espresso--js-funcall '(interactor "_putProp") props value))
+(defun js--js-put (props value)
+  (js--js-funcall '(interactor "_putProp") props value))
 
-(defun espresso-js-gc (&optional force)
+(defun js-gc (&optional force)
   "Tell the repl about any objects we don't reference anymore.
 With argument, run even if no intervening GC has happened."
   (interactive)
 
   (when force
-    (setq espresso--js-last-gcs-done nil))
+    (setq js--js-last-gcs-done nil))
 
   (let ((this-gcs-done gcs-done) keys num)
-    (when (and espresso--js-references
+    (when (and js--js-references
                (boundp 'inferior-moz-buffer)
                (buffer-live-p inferior-moz-buffer)
 
@@ -2877,44 +2876,44 @@ With argument, run even if no intervening GC has happened."
                ;; garbage collection; without a gc, nothing is deleted
                ;; from the weak hash table, so it's pointless telling
                ;; MozRepl about that references we still hold
-               (not (eq espresso--js-last-gcs-done this-gcs-done))
+               (not (eq js--js-last-gcs-done this-gcs-done))
 
                ;; Are we looking at a normal prompt? Make sure not to
                ;; interrupt the user if he's doing something
                (with-current-buffer inferior-moz-buffer
                  (save-excursion
                    (goto-char (point-max))
-                   (looking-back espresso--js-prompt-regexp
+                   (looking-back js--js-prompt-regexp
                                  (save-excursion (forward-line 0) (point))))))
 
       (setq keys (loop for x being the hash-keys
-                       of espresso--js-references
+                       of js--js-references
                        collect x))
-      (setq num (espresso--js-funcall '(repl "_espressoGC") (or keys [])))
+      (setq num (js--js-funcall '(repl "_jsGC") (or keys [])))
 
-      (setq espresso--js-last-gcs-done this-gcs-done)
+      (setq js--js-last-gcs-done this-gcs-done)
       (when (interactive-p)
         (message "Cleaned %s entries" num))
 
       num)))
 
-(run-with-idle-timer 30 t #'espresso-js-gc)
+(run-with-idle-timer 30 t #'js-gc)
 
-(defun espresso-js-eval (js)
+(defun js-eval (js)
   "Evaluate the Javascript contained in JS and return the
 JSON-decoded result. eval must be called using this function
 because it is special to the Javascript interpreter."
   (interactive "MJavascript to evaluate: ")
-  (with-espresso-js
-   (let* ((content-window (espresso--js-content-window
-                           (espresso--get-js-context)))
+  (with-js
+   (let* ((content-window (js--js-content-window
+                           (js--get-js-context)))
           (result (js-eval content-window js)))
 
      (when (interactive-p)
        (message "%s" (js! "String" result)))
      result)))
 
-(defun espresso--get-tabs ()
+(defun js--get-tabs ()
   "Enumerate all the contexts available. Each one is a list:
 
    The list is (TITLE URL BROWSER TAB TABBROWSER) for content documents
@@ -2924,7 +2923,7 @@ because it is special to the Javascript interpreter."
    recent window is first. Within each window, the tabs are
    returned left-to-right.
 "
-  (with-espresso-js
+  (with-js
    (let (windows)
 
      (loop with window-mediator = (js! ("Components" "classes"
@@ -2980,9 +2979,9 @@ because it is special to the Javascript interpreter."
 
                                    gbrowser))))))
 
-(defvar espresso-read-tab-history nil)
+(defvar js-read-tab-history nil)
 
-(defun espresso--read-tab (prompt)
+(defun js--read-tab (prompt)
   "Read a Mozilla tab with prompt PROMPT. Return a cons of (TYPE . OBJECT).
 TYPE is either 'window or 'tab, and OBJECT is a Javascript handle
 to a ChromeWindow or a browser, respectively."
@@ -2992,8 +2991,8 @@ to a ChromeWindow or a browser, respectively."
     (ido-mode t)
     (ido-mode nil))
 
-  (with-espresso-js
-   (lexical-let ((tabs (espresso--get-tabs)) selected-tab-cname
+  (with-js
+   (lexical-let ((tabs (js--get-tabs)) selected-tab-cname
                  selected-tab prev-hitab)
 
      ;; Disambiguate names
@@ -3033,7 +3032,7 @@ to a ChromeWindow or a browser, respectively."
                          cmds)
 
                    ;; Select tab, when appropriate
-                   (when espresso-js-switch-tabs
+                   (when js-js-switch-tabs
                      (push
                       '(js> ((fifth hitab) "selectedTab") (fourth hitab))
                       cmds)))
@@ -3062,7 +3061,7 @@ to a ChromeWindow or a browser, respectively."
                                "style" "")
                          cmds)))
 
-                 (eval (list 'with-espresso-js
+                 (eval (list 'with-js
                              (cons 'js-list (nreverse cmds))))))
 
               (command-hook
@@ -3108,13 +3107,13 @@ to a ChromeWindow or a browser, respectively."
                     prompt
                     (mapcar #'car tabs)
                     nil t nil
-                    'espresso-read-tab-history)))
+                    'js-read-tab-history)))
 
          (when prev-hitab
            (mogrify-highlighting nil prev-hitab)
            (setq prev-hitab nil)))
 
-       (add-to-history 'espresso-read-tab-history selected-tab-cname)
+       (add-to-history 'js-read-tab-history selected-tab-cname)
 
        (setq selected-tab (loop for tab in tabs
                                 if (equal (car tab) selected-tab-cname)
@@ -3124,33 +3123,33 @@ to a ChromeWindow or a browser, respectively."
            (cons 'browser (third selected-tab))
          (cons 'window (third selected-tab)))))))
 
-(defun espresso--guess-eval-defun-info (pstate)
-  "Internal helper for `espresso-eval-defun'. Returns a list (NAME . CLASSPARTS),
+(defun js--guess-eval-defun-info (pstate)
+  "Internal helper for `js-eval-defun'. Returns a list (NAME . CLASSPARTS),
 where CLASSPARTS is a list of strings making up the class name
 and NAME is the name of the function part."
   (cond ((and (= (length pstate) 3)
-              (eq (espresso--pitem-type (first pstate)) 'function)
-              (= (length (espresso--pitem-name (first pstate))) 1)
-              (consp (espresso--pitem-type (second pstate))))
+              (eq (js--pitem-type (first pstate)) 'function)
+              (= (length (js--pitem-name (first pstate))) 1)
+              (consp (js--pitem-type (second pstate))))
 
-         (append (espresso--pitem-name (second pstate))
-                 (list (first (espresso--pitem-name (first pstate))))))
+         (append (js--pitem-name (second pstate))
+                 (list (first (js--pitem-name (first pstate))))))
 
         ((and (= (length pstate) 2)
-              (eq (espresso--pitem-type (first pstate)) 'function))
+              (eq (js--pitem-type (first pstate)) 'function))
 
          (append
-          (butlast (espresso--pitem-name (first pstate)))
-          (list (car (last (espresso--pitem-name (first pstate)))))))
+          (butlast (js--pitem-name (first pstate)))
+          (list (car (last (js--pitem-name (first pstate)))))))
 
         (t (error "Function not a toplevel defun or class member"))))
 
-(defvar espresso--js-context nil
+(defvar js--js-context nil
   "The current JS context. This is a cons like the one returned
-from `espresso--read-tab'. Change with
-`espresso-set-js-context'.")
+from `js--read-tab'. Change with
+`js-set-js-context'.")
 
-(defconst espresso--js-inserter
+(defconst js--js-inserter
   "(function(func_info,func) {
     func_info.unshift('window');
     var obj = window;
@@ -3173,52 +3172,52 @@ from `espresso--read-tab'. Change with
     alert('Successfully updated '+func_info.join('.'));
   })")
 
-(defun espresso-set-js-context (context)
+(defun js-set-js-context (context)
   "Set the Javascript context to CONTEXT, reading from the user
 if interactive"
-  (interactive (list (espresso--read-tab "Javascript Context: ")))
-  (setq espresso--js-context context))
+  (interactive (list (js--read-tab "Javascript Context: ")))
+  (setq js--js-context context))
 
-(defun espresso--get-js-context ()
+(defun js--get-js-context ()
   "Return a valid JS context. If one hasn't been set, or if it's
 stale, ask the user for a new one."
 
-  (with-espresso-js
-   (when (or (null espresso--js-context)
-             (espresso--js-handle-expired-p (cdr espresso--js-context))
-             (ecase (car espresso--js-context)
-               (window (js? (js< (cdr espresso--js-context) "closed")))
-               (browser (not (js? (js< (cdr espresso--js-context)
+  (with-js
+   (when (or (null js--js-context)
+             (js--js-handle-expired-p (cdr js--js-context))
+             (ecase (car js--js-context)
+               (window (js? (js< (cdr js--js-context) "closed")))
+               (browser (not (js? (js< (cdr js--js-context)
                                        "contentDocument"))))))
-     (setq espresso--js-context (espresso--read-tab "Javascript Context: ")))
+     (setq js--js-context (js--read-tab "Javascript Context: ")))
 
-   espresso--js-context))
+   js--js-context))
 
-(defun espresso--js-content-window (context)
-  (with-espresso-js
+(defun js--js-content-window (context)
+  (with-js
    (ecase (car context)
      (window (cdr context))
      (browser (js< (cdr context)
                    "contentWindow" "wrappedJSObject")))))
 
-(defun espresso--make-nsilocalfile (path)
-  (with-espresso-js
+(defun js--make-nsilocalfile (path)
+  (with-js
    (let ((file (js-create-instance "@mozilla.org/file/local;1"
                                    "nsILocalFile")))
      (js! (file "initWithPath") path)
      file)))
 
-(defun espresso--js-add-resource-alias (alias path)
-  (with-espresso-js
+(defun js--js-add-resource-alias (alias path)
+  (with-js
    (let* ((io-service (js-get-service "@mozilla.org/network/io-service;1"
                                                 "nsIIOService"))
           (res-prot (js! (io-service "getProtocolHandler") "resource"))
           (res-prot (js-qi res-prot "nsIResProtocolHandler"))
-          (path-file (espresso--make-nsilocalfile path))
+          (path-file (js--make-nsilocalfile path))
           (path-uri (js! (io-service "newFileURI") path-file)))
      (js! (res-prot "setSubstitution") alias path-uri))))
 
-(defun* espresso-eval-defun ()
+(defun* js-eval-defun ()
   "Update some Mozilla tab with defun containing point or after
 point"
   (interactive)
@@ -3235,19 +3234,19 @@ point"
 
   (save-excursion
     (let (begin end pstate defun-info temp-name defun-body)
-      (espresso--end-of-defun)
+      (js--end-of-defun)
       (setq end (point))
-      (espresso--ensure-cache)
-      (espresso--beginning-of-defun)
+      (js--ensure-cache)
+      (js--beginning-of-defun)
       (re-search-forward "\\_<function\\_>")
       (setq begin (match-beginning 0))
-      (setq pstate (espresso--forward-pstate))
+      (setq pstate (js--forward-pstate))
 
       (when (or (null pstate)
                 (> (point) end))
         (error "Could not locate function definition"))
 
-      (setq defun-info (espresso--guess-eval-defun-info pstate))
+      (setq defun-info (js--guess-eval-defun-info pstate))
 
       (let ((overlay (make-overlay begin end)))
         (overlay-put overlay 'face 'highlight)
@@ -3255,24 +3254,24 @@ point"
             (unless (y-or-n-p (format "Send %s to Mozilla? "
                                       (mapconcat #'identity defun-info ".")))
               (message "") ; question message lingers until next command
-              (return-from espresso-eval-defun))
+              (return-from js-eval-defun))
           (delete-overlay overlay)))
 
       (setq defun-body (buffer-substring-no-properties begin end))
 
-      (make-directory espresso-js-tmpdir t)
+      (make-directory js-js-tmpdir t)
 
       ;; (Re)register a Mozilla resource URL to point to the
       ;; temporary directory
-      (espresso--js-add-resource-alias "espresso" espresso-js-tmpdir)
+      (js--js-add-resource-alias "js" js-js-tmpdir)
 
-      (setq temp-name (make-temp-file (concat espresso-js-tmpdir
-                                             "/espresso-")
+      (setq temp-name (make-temp-file (concat js-js-tmpdir
+                                             "/js-")
                                       nil ".js"))
       (unwind-protect
-          (with-espresso-js
+          (with-js
             (with-temp-buffer
-              (insert espresso--js-inserter)
+              (insert js--js-inserter)
               (insert "(")
               (insert (json-encode-list defun-info))
               (insert ",\n")
@@ -3282,8 +3281,8 @@ point"
                             nil 1))
 
             ;; Give Mozilla responsibility for deleting this file
-            (let* ((content-window (espresso--js-content-window
-                                    (espresso--get-js-context)))
+            (let* ((content-window (js--js-content-window
+                                    (js--get-js-context)))
                    (content-document (js< content-window "document"))
                    (head (if (js? (js< content-document "body"))
                              ;; Regular content
@@ -3297,7 +3296,7 @@ point"
 
               (js! (elem "setAttribute") "type" "text/javascript")
               (js! (elem "setAttribute") "src"
-                   (format "resource://espresso/%s"
+                   (format "resource://js/%s"
                            (file-name-nondirectory temp-name)))
 
               (js! (head "appendChild") elem)
@@ -3306,7 +3305,7 @@ point"
                    (js! ((js-new
                           "Function" "file"
                           "return function() { file.remove(false) }"))
-                        (espresso--make-nsilocalfile temp-name))
+                        (js--make-nsilocalfile temp-name))
                    'false)
               (setq temp-name nil)
 
@@ -3321,53 +3320,53 @@ point"
 ;;; Main Function
 
 ;;;###autoload
-(define-derived-mode espresso-mode nil "espresso"
+(define-derived-mode js-mode nil "js"
   "Major mode for editing JavaScript source text.
 
 Key bindings:
 
-\\{espresso-mode-map}"
+\\{js-mode-map}"
 
-  :group 'espresso
-  :syntax-table espresso-mode-syntax-table
+  :group 'js
+  :syntax-table js-mode-syntax-table
 
-  (set (make-local-variable 'indent-line-function) 'espresso-indent-line)
+  (set (make-local-variable 'indent-line-function) 'js-indent-line)
   (set (make-local-variable 'beginning-of-defun-function)
-       'espresso--beginning-of-defun)
+       'js--beginning-of-defun)
   (set (make-local-variable 'end-of-defun-function)
-       'espresso--end-of-defun)
+       'js--end-of-defun)
 
   (set (make-local-variable 'open-paren-in-column-0-is-defun-start) nil)
   (set (make-local-variable 'font-lock-defaults)
-       (list espresso--font-lock-keywords
+       (list js--font-lock-keywords
 	     nil nil nil nil
 	     '(font-lock-syntactic-keywords
-               . espresso--font-lock-syntactic-keywords)))
+               . js--font-lock-syntactic-keywords)))
 
   (set (make-local-variable 'parse-sexp-ignore-comments) t)
   (set (make-local-variable 'parse-sexp-lookup-properties) t)
   (set (make-local-variable 'which-func-imenu-joiner-function)
-       #'espresso--which-func-joiner)
+       #'js--which-func-joiner)
 
   ;; Comments
   (setq comment-start "// ")
   (setq comment-end "")
   (set (make-local-variable 'fill-paragraph-function)
-       'espresso-c-fill-paragraph)
+       'js-c-fill-paragraph)
 
   ;; Parse cache
-  (add-hook 'before-change-functions #'espresso--flush-caches t t)
+  (add-hook 'before-change-functions #'js--flush-caches t t)
 
   ;; Frameworks
-  (espresso--update-quick-match-re)
+  (js--update-quick-match-re)
 
   ;; Imenu
   (setq imenu-case-fold-search nil)
   (set (make-local-variable 'imenu-create-index-function)
-       #'espresso--imenu-create-index)
+       #'js--imenu-create-index)
 
-  (setq major-mode 'espresso-mode)
-  (setq mode-name "Espresso")
+  (setq major-mode 'js-mode)
+  (setq mode-name "Javascript")
 
   ;; for filling, pretend we're cc-mode
   (setq c-comment-prefix-regexp "//+\\|\\**"
@@ -3382,7 +3381,7 @@ Key bindings:
     (c-setup-paragraph-variables))
 
   (set (make-local-variable 'syntax-begin-function)
-       #'espresso--syntax-begin-function)
+       #'js--syntax-begin-function)
 
   ;; Important to fontify the whole buffer syntactically! If we don't,
   ;; then we might have regular expression literals that aren't marked
@@ -3397,23 +3396,24 @@ Key bindings:
   (let (font-lock-keywords) ; leaves syntactic keywords intact
     (font-lock-fontify-buffer)))
 
+(defalias 'javascript-mode 'js-mode)
 
 (eval-after-load 'hideshow
   '(add-to-list 'hs-special-modes-alist
-                '(espresso-mode "{" "}" "/[*/]"
+                '(js-mode "{" "}" "/[*/]"
                                 nil hs-c-like-adjust-block-beginning)))
 
 (eval-after-load 'folding
   '(when (fboundp 'folding-add-to-marks-list)
-     (folding-add-to-marks-list 'espresso-mode "// {{{" "// }}}" )))
+     (folding-add-to-marks-list 'js-mode "// {{{" "// }}}" )))
 
 (eval-after-load 'speedbar
   '(speedbar-add-supported-extension ".js"))
 
 
 ;;; Emacs
-(provide 'espresso)
+(provide 'js)
 ;; Local Variables:
 ;; outline-regexp: ";;; "
 ;; End:
-;; espresso.el ends here
+;; js.el ends here
