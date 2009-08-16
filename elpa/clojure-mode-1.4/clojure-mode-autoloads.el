@@ -3,8 +3,8 @@
 ;;; Code:
 
 
-;;;### (autoloads (clojure-install clojure-slime-config clojure-mode)
-;;;;;;  "clojure-mode" "clojure-mode.el" (18974 22135))
+;;;### (autoloads (clojure-install clojure-mode) "clojure-mode" "clojure-mode.el"
+;;;;;;  (19080 28012))
 ;;; Generated autoloads from clojure-mode.el
 
 (autoload 'clojure-mode "clojure-mode" "\
@@ -21,14 +21,17 @@ if that value is non-nil.
 
 \(fn)" t nil)
 
-(autoload 'clojure-slime-config "clojure-mode" "\
+(defcustom clojure-src-root (expand-file-name "~/src") "\
+Directory that contains checkouts for clojure, clojure-contrib,
+slime, and swank-clojure. This value is used by `clojure-install'
+and `clojure-slime-config'." :type (quote string) :group (quote clojure-mode))
+
+(defun clojure-slime-config (&optional src-root) "\
 Load Clojure SLIME support out of the `clojure-src-root' directory.
 
 Since there's no single conventional place to keep Clojure, this
 is bundled up as a function so that you can call it after you've set
-`clojure-src-root' in your personal config.
-
-\(fn)" nil nil)
+`clojure-src-root' in your personal config." (if src-root (setq clojure-src-root src-root)) (add-to-list (quote load-path) (concat clojure-src-root "/slime")) (add-to-list (quote load-path) (concat clojure-src-root "/slime/contrib")) (add-to-list (quote load-path) (concat clojure-src-root "/swank-clojure")) (require (quote slime-autoloads)) (require (quote swank-clojure-autoload)) (slime-setup (quote (slime-fancy))) (setq swank-clojure-jar-path (concat clojure-src-root "/clojure/clojure.jar")) (unless (boundp (quote swank-clojure-extra-classpaths)) (setq swank-clojure-extra-classpaths nil)) (add-to-list (quote swank-clojure-extra-classpaths) (concat clojure-src-root "/clojure-contrib/src/")))
 
 (autoload 'clojure-install "clojure-mode" "\
 Perform the initial Clojure install along with Emacs support libs.
@@ -41,7 +44,7 @@ This requires git, a JVM, ant, and an active Internet connection.
 
 ;;;***
 
-;;;### (autoloads nil nil ("clojure-mode-pkg.el") (18974 22135 971675))
+;;;### (autoloads nil nil ("clojure-mode-pkg.el") (19080 28012 809364))
 
 ;;;***
 
