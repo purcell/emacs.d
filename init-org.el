@@ -2,10 +2,15 @@
 (setq load-path (cons "~/.emacs.d/site-lisp/org-mode/contrib/lisp" load-path))
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
-(setq org-log-done t)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-
+(setq org-log-done t)
 (setq org-completion-use-ido t)
+
+
+(setq org-edit-timestamp-down-means-later t)
+
+(setq org-agenda-start-on-weekday nil)
+(setq org-agenda-ndays 7)
 
 
 ; Refile targets include this file and any file contributing to the agenda - up to 5 levels deep
@@ -34,7 +39,9 @@
 (setq org-clock-out-remove-zero-time-clocks t)
 
 (eval-after-load "org"
-  '(require 'org-checklist))
+  '(progn
+     (require 'org-clock)
+     (require 'org-checklist)))
 
 
 (provide 'init-org)
