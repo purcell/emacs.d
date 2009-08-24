@@ -97,12 +97,19 @@
 ;;  Variable:
 ;;     `anything-c-source-emacs-variables' (Emacs Variables)
 ;;  Bookmark:
-;;     `anything-c-source-bookmarks'       (Bookmarks)
-;;     `anything-c-source-bookmark-set'    (Set Bookmark)
-;;     `anything-c-source-bookmarks-ssh'   (Bookmarks-ssh)
-;;     `anything-c-source-bookmarks-su'    (Bookmarks-root)
-;;     `anything-c-source-bookmarks-local' (Bookmarks-Local)
-;;     `anything-c-source-w3m-bookmarks'   (W3m Bookmarks)
+;;     `anything-c-source-bookmarks'               (Bookmarks)
+;;     `anything-c-source-bookmark-set'            (Set Bookmark)
+;;     `anything-c-source-bookmarks-ssh'           (Bookmarks-ssh)
+;;     `anything-c-source-bookmarks-su'            (Bookmarks-root)
+;;     `anything-c-source-bookmarks-local'         (Bookmarks-Local)
+;;     `anything-c-source-bookmark-regions'        (Bookmark Regions)
+;;     `anything-c-source-bookmark-w3m'            (Bookmark W3m)
+;;     `anything-c-source-bookmark-gnus'           (Bookmark Gnus)
+;;     `anything-c-source-bookmark-info'           (Bookmark Info)
+;;     `anything-c-source-bookmark-files&dirs'     (Bookmark Files&Directories)
+;;     `anything-c-source-bookmark-su-files&dirs'  (Bookmark Root-Files&Directories)
+;;     `anything-c-source-bookmark-ssh-files&dirs' (Bookmark Ssh-Files&Directories)
+;;     `anything-c-source-w3m-bookmarks'           (W3m Bookmarks)
 ;;  Library:
 ;;     `anything-c-source-elisp-library-scan' (Elisp libraries (Scan))
 ;;  Programming:
@@ -159,137 +166,6 @@
 ;;     `anything-c-source-gentoo'                   (Portage sources)
 ;;     `anything-c-source-use-flags'                (Use Flags)
 ;;     `anything-c-source-emacs-process'            (Emacs Process)
-
-;;; Commands:
-;;
-;; Below are complete command list:
-;;
-;;  `anything-for-files'
-;;    Preconfigured `anything' for opening files.
-;;  `anything-info-at-point'
-;;    Preconfigured `anything' for searching info at point.
-;;  `anything-show-kill-ring'
-;;    Preconfigured `anything' for `kill-ring'. It is drop-in replacement of `yank-pop'.
-;;  `anything-minibuffer-history'
-;;    Preconfigured `anything' for `minibuffer-history'.
-;;  `anything-gentoo'
-;;    Preconfigured `anything' for gentoo linux.
-;;  `anything-surfraw-only'
-;;    Preconfigured `anything' for surfraw.
-;;  `anything-imenu'
-;;    Preconfigured `anything' for `imenu'.
-;;  `anything-google-suggest'
-;;    Preconfigured `anything' for google search with google suggest.
-;;  `anything-for-buffers'
-;;    Preconfigured `anything' for buffer.
-;;  `anything-bbdb'
-;;    Preconfigured `anything' for BBDB.
-;;  `anything-locate'
-;;    Preconfigured `anything' for Locate.
-;;  `anything-w3m-bookmarks'
-;;    Preconfigured `anything' for w3m bookmark.
-;;  `anything-colors'
-;;    Preconfigured `anything' for color.
-;;  `anything-kill-buffers'
-;;    You can continuously kill buffer you selected.
-;;  `anything-query-replace-regexp'
-;;    Drop-in replacement of `query-replace-regexp' with building regexp visually.
-;;  `anything-regexp'
-;;    It is like `re-builder'. It helps buliding regexp and replacement.
-;;  `anything-insert-buffer-name'
-;;    Insert buffer name.
-;;  `anything-insert-symbol'
-;;    Insert current symbol.
-;;  `anything-insert-selection'
-;;    Insert current selection.
-;;  `anything-show-buffer-only'
-;;    [OBSOLETE] Only show sources about buffer.
-;;  `anything-show-bbdb-only'
-;;    [OBSOLETE] Only show sources about BBDB.
-;;  `anything-show-locate-only'
-;;    [OBSOLETE] Only show sources about Locate.
-;;  `anything-show-info-only'
-;;    [OBSOLETE] Only show sources about Info.
-;;  `anything-show-imenu-only'
-;;    [OBSOLETE] Only show sources about Imenu.
-;;  `anything-show-files-only'
-;;    [OBSOLETE] Only show sources about File.
-;;  `anything-show-w3m-bookmarks-only'
-;;    [OBSOLETE] Only show source about w3m bookmark.
-;;  `anything-show-colors-only'
-;;    [OBSOLETE] Only show source about color.
-;;  `anything-show-kill-ring-only'
-;;    [OBSOLETE] Only show source about kill ring.
-;;  `anything-show-this-source-only'
-;;    Only show this source.
-;;  `anything-test-sources'
-;;    List all anything sources for test.
-;;  `anything-select-source'
-;;    Select source.
-;;  `anything-mark-ring'
-;;    Preconfigured `anything' for `anything-c-source-mark-ring'.
-;;  `anything-global-mark-ring'
-;;    Preconfigured `anything' for `anything-c-source-global-mark-ring'.
-;;  `anything-yaoddmuse-cache-pages'
-;;    Fetch the list of files on emacswiki and create cache file.
-;;  `anything-yaoddmuse-emacswiki-edit-or-view'
-;;    Edit or View EmacsWiki page.
-;;  `anything-yaoddmuse-emacswiki-post-library'
-;;    Post library to EmacsWiki.
-;;  `anything-emms-stream-edit-bookmark'
-;;    Change the information of current emms-stream bookmark from anything.
-;;  `anything-emms-stream-delete-bookmark'
-;;    Delete an emms-stream bookmark from anything.
-;;  `anything-call-source'
-;;    Call anything source.
-;;  `anything-call-source-from-anything'
-;;    Call anything source within `anything' session.
-;;  `anything-create-from-anything'
-;;    Run `anything-create' from `anything' as a fallback.
-;;  `anything-create'
-;;    Do many create actions from STRING.
-;;  `anything-c-set-variable'
-;;    Set value to VAR interactively.
-;;  `anything-c-adaptive-save-history'
-;;    Save history information to file given by `anything-c-adaptive-history-file'.
-;;
-;;; Customizable Options:
-;;
-;; Below are customizable option list:
-;;
-;;  `anything-c-use-standard-keys'
-;;    Whether use standard keybindings. (no effect)
-;;    default = nil
-;;  `anything-c-adaptive-history-file'
-;;    Path of file where history information is stored.
-;;    default = "~/.emacs.d/anything-c-adaptive-history"
-;;  `anything-c-adaptive-history-length'
-;;    Maximum number of candidates stored for a source.
-;;    default = 50
-;;  `anything-c-google-suggest-url'
-;;    URL used for looking up suggestions.
-;;    default = "http://www.google.com/complete/search?hl=en&js=true&qu="
-;;  `anything-c-google-suggest-search-url'
-;;    URL used for searching.
-;;    default = "http://www.google.com/search?ie=utf-8&oe=utf-8&q="
-;;  `anything-c-boring-buffer-regexp'
-;;    The regexp that match boring buffers.
-;;    default = (rx (or (group bos " ") "*anything" " *Echo Area" " *Minibuf"))
-;;  `anything-c-boring-file-regexp'
-;;    The regexp that match boring files.
-;;    default = (rx (or (and "/" ... ...) (and line-start ".#") (and ... eol)))
-;;  `anything-kill-ring-threshold'
-;;    *Minimum length to be listed by `anything-c-source-kill-ring'.
-;;    default = 10
-;;  `anything-su-or-sudo'
-;;    What command to use for root access.
-;;    default = "su"
-;;  `anything-for-files-prefered-list'
-;;    Your prefered sources to find files.
-;;    default = (quote (anything-c-source-ffap-line anything-c-source-ffap-guesser anything-c-source-buffers+ anything-c-source-recentf anything-c-source-bookmarks ...))
-;;  `anything-create--actions-private'
-;;    User defined actions for `anything-create' / `anything-c-source-create'.
-;;    default = nil
 
 ;;; Change log:
 ;;
@@ -908,12 +784,18 @@ It is cleared after executing action.")
   "Create `anything' summary."
   (save-excursion
     (goto-char (point-min))
-    (loop while (re-search-forward "^;;;; <\\(.+?\\)>$\\|^;; (anything '\\(.+?\\))$"  nil t)
-          collect (if (match-beginning 1)
-                      (cons 'section (match-string-no-properties 1))
-                    (cons 'source
-                          (cons (match-string-no-properties 2)
-                                (assoc-default 'name (symbol-value (intern (match-string-no-properties 2))))))))))
+    (loop while (re-search-forward "^;;;; <\\(.+?\\)>$\\|^;; (anything '\\(.+?\\))$\\|^ *;; (anything '\\(.+?\\))$"  nil t)
+          collect (cond ((match-beginning 1)
+                         (cons 'section (match-string-no-properties 1)))
+                        ((match-beginning 2)
+                         (cons 'source
+                               (cons (match-string-no-properties 2)
+                                     (assoc-default 'name (symbol-value (intern (match-string-no-properties 2)))))))
+                        ((match-beginning 3)
+                         (cons 'source
+                               (cons (match-string-no-properties 3)
+                                     (assoc-default 'name (symbol-value (intern (match-string-no-properties 3)))))))))))
+                         
 ;; (find-epp (anything-c-create-summary))
 
 (defun anything-c-insert-summary ()
@@ -4126,9 +4008,9 @@ With optional arg `merge' call `ediff-merge-buffers'."
 (defun anything-bookmark-active-region-maybe (candidate)
   "Active saved region if this bookmark have one."
   (condition-case nil
-      (when (and (boundp bookmark-use-region-flag)
-                 bookmark-use-region-flag)
-        (let ((bmk-name (or (bookmark-get-buffer-name candidate)
+      (when (and (boundp bookmarkp-use-region-flag)
+                 bookmarkp-use-region-flag)
+        (let ((bmk-name (or (bookmarkp-get-buffer-name candidate)
                             (file-name-nondirectory
                              (bookmark-get-filename candidate)))))
           (when bmk-name
