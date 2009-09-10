@@ -51,7 +51,7 @@
 ;;----------------------------------------------------------------------------
 ;; Ruby - erb
 ;;----------------------------------------------------------------------------
-(add-auto-mode 'html-mode "\.rhtml$")
+(add-auto-mode 'html-mode "\.rhtml$" "\.html\.erb$")
 (eval-after-load "mmm-vars"
   '(progn
      (mmm-add-classes
