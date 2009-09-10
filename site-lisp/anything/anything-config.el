@@ -4111,7 +4111,7 @@ Return nil if bmk is not a valid bookmark."
   "String representing S-Expressions.")
 
 (define-anything-type-attribute 'bookmark
-  '((action
+  `((action
      ("Jump to bookmark" . (lambda (candidate)
                              (let ((bookmark (anything-bookmark-get-bookmark-from-name candidate)))
                                (bookmark-jump bookmark))
@@ -4129,6 +4129,10 @@ Return nil if bmk is not a valid bookmark."
                                      (let ((bookmark (anything-bookmark-get-bookmark-from-name candidate)))
                                        (bookmark-show-annotation bookmark))))
      ("Delete bookmark(s)" . anything-delete-marked-bookmarks)
+     ,@(when (fboundp 'bookmarkp-edit-bookmark)
+             '(("Edit Bookmark" . (lambda (candidate)
+                                    (let ((bookmark (anything-bookmark-get-bookmark-from-name candidate)))
+                                            (bookmarkp-edit-bookmark bookmark))))))
      ("Rename bookmark" . (lambda (candidate)
                             (let ((bookmark (anything-bookmark-get-bookmark-from-name candidate)))
                               (bookmark-rename bookmark))))
