@@ -128,10 +128,6 @@
 
 ;;; History:
 ;;
-;; 2009-09-07
-;;      * narrowing bug fixd (thanks Yuto Hayamizu <y.hayamizu@gmail.com> for holding tokyo-emacs#2)
-;;      * fixed not to use line-number-at-pos
-;;
 ;; 2009-06-21
 ;;      * fixed ac-source-words-in-all-buffer didn't collect all words in current buffer
 ;;      * added inline completion feature
@@ -244,6 +240,7 @@
 ;; - dictionary
 ;; - documentation
 ;; - performance issue (cache issue)
+;; - fix narrowing bug (reported by Yuto Hayamizu <y.hayamizu@gmail.com>)
 ;; - scroll bar (visual)
 ;; - show description
 ;; - semantic
@@ -463,9 +460,10 @@ to be shown.")
                  (>= current-visual-column menu-width))
             (setq menu-column (- menu-column menu-width))))
       ;; Make a room to show menu at the end of buffer
-      (when (eq (line-end-position) (point-max))
-        (end-of-line)
-        (newline))
+      (forward-line 1)
+      (if (eq line (line-number-at-pos))
+          (newline)
+        (forward-line -1))
       (setq ac-menu (ac-menu-create line menu-column menu-width height ac-menu-direction)))))
 
 (defun ac-cleanup ()
@@ -784,15 +782,10 @@ that have been made before in this function."
 
 (defun ac-menu-at-wrapped-line ()
   "Return non-nil if current line is long and wrapped to next visual line."
-  (eq (line-beginning-position)
+  (eq (line-number-at-pos)
       (save-excursion
         (vertical-motion 1)
-        (line-beginning-position))))
-
-(defun ac-goto-line (line)
-  "Goto `LINE' regarding of narrowing."
-  (goto-char (point-min))
-  (forward-line (1- line)))
+        (line-number-at-pos))))
 
 (defun ac-handle-pre-command ()
   (condition-case var
@@ -1267,7 +1260,7 @@ This is useful if you just want to define a dictionary/keywords source."
           (window (selected-window))
           menu-visual-column
           current-visual-column)
-      (ac-goto-line line)
+      (goto-line line)
       (move-to-column column)
       (setq menu-visual-column (ac-current-physical-column))
       (dotimes (i height)
