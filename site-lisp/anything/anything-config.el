@@ -3175,8 +3175,10 @@ See also `anything-create--actions'."
                                      (font-lock-mode 1)))
                ("Run emerge pretend" . (lambda (elm)
                                          (anything-c-gentoo-eshell-action elm "emerge -p")))
-               ("Emerge" . anything-gentoo-install)
-               ("Unmerge" . anything-gentoo-uninstall)
+               ("Emerge" . (lambda (elm)
+                             (anything-gentoo-install elm :action 'install)))
+               ("Unmerge" . (lambda (elm)
+                              (anything-gentoo-install elm :action 'uninstall)))
                ("Show dependencies" . (lambda (elm)
                                         (anything-c-gentoo-default-action elm "equery" "-C" "d")))
                ("Show related files" . (lambda (elm)
@@ -3187,19 +3189,17 @@ See also `anything-create--actions'."
 
 ;; (anything 'anything-c-source-gentoo)
 
-(defun anything-gentoo-install (candidate)
+(defun* anything-gentoo-install (candidate &key action)
   (funcall anything-gentoo-prefered-shell)
+  (let ((command (case action
+                   ('install "sudo emerge -av ")
+                   ('uninstall "sudo emerge -avC ")
+                   (t (error "Unknow action")))))
   (if anything-c-marked-candidate-list
       (let ((elms (mapconcat 'identity anything-c-marked-candidate-list " ")))
-        (insert (concat "sudo emerge -av " elms)))
-      (insert (concat "sudo emerge -av " candidate))))
+        (insert (concat command elms)))
+      (insert (concat command candidate)))))
 
-(defun anything-gentoo-uninstall (candidate)
-  (funcall anything-gentoo-prefered-shell)
-  (if anything-c-marked-candidate-list
-      (let ((elms (mapconcat 'identity anything-c-marked-candidate-list " ")))
-        (insert (concat "sudo emerge -avC " elms)))
-      (insert (concat "sudo emerge -avC " candidate))))
 
 (defun anything-c-gentoo-default-action (elm command &rest args)
   "Gentoo default action that use `anything-c-gentoo-buffer'."
@@ -3262,7 +3262,14 @@ See also `anything-create--actions'."
   (when (get-buffer "*EShell Command Output*")
     (kill-buffer "*EShell Command Output*"))
   (message "Wait searching...")
-  (eshell-command (format "%s %s" command elm)))
+  (let ((buf-fname (buffer-file-name anything-current-buffer)))
+    (if (and buf-fname (string-match tramp-file-name-regexp buf-fname))
+        (progn
+          (save-window-excursion
+            (pop-to-buffer "*scratch*")
+            (eshell-command (format "%s %s" command elm)))
+          (pop-to-buffer "*EShell Command Output*"))
+        (eshell-command (format "%s %s" command elm)))))
 
 (defun anything-c-gentoo-get-use ()
   "Initialize buffer with all use flags."
