@@ -1808,7 +1808,7 @@ returns nil."
              (if (looking-at "[({[]\\s-*\\(/[/*]\\|$\\)")
                  (progn
                    (skip-syntax-backward " ")
-                   (when (= (char-before) ?\)) (backward-list))
+                   (when (eq (char-before) ?\)) (backward-list))
                    (back-to-indentation)
                    (cond (same-indent-p
                           (current-column))
