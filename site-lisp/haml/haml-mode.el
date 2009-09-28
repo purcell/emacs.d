@@ -4,7 +4,7 @@
 
 ;; Author: Nathan Weizenbaum
 ;; URL: http://github.com/nex3/haml/tree/master
-;; Version: 2.2.5
+;; Version: 2.2.6
 ;; Created: 2007-03-08
 ;; By: Nathan Weizenbaum
 ;; Keywords: markup, language, html
@@ -85,12 +85,15 @@ a specific level to which the current line could be indented.")
     "^ */\\(\\[.*\\]\\)?[ \t]*$"
     "^ *-#"
     "^ *:")
-  "A list of regexps that match lines of Haml that could have
-text nested beneath them.")
+  "A list of regexps that match lines of Haml that open blocks.
+That is, a Haml line that can have text nested beneath it should
+be matched by a regexp in this list.")
 
 ;; Font lock
 
 (defun haml-nested-regexp (re)
+  "Create a regexp to match a block starting with RE.
+The line containing RE is matched, as well as all lines indented beneath it."
   (concat "^\\( *\\)" re "\\(\n\\(?:\\(?:\\1 .*\\| *\\)\n\\)*\\(?:\\1 .*\\| *\\)?\\)?"))
 
 (defconst haml-font-lock-keywords
@@ -190,7 +193,8 @@ For this to work, 'markdown-mode.el' must be available."
                                   nil)))
 
 (defun haml-highlight-ruby-script (limit)
-  "Highlight a Ruby script expression (-, =, or ~)."
+  "Highlight a Ruby script expression (-, =, or ~).
+LIMIT works as it does in `re-search-forward'."
   (when (re-search-forward "^ *\\(-\\|[&!]?[=~]\\) \\(.*\\)$" limit t)
     (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))))
 
