@@ -1,5 +1,5 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.201 2009/08/08 13:25:30 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.205 2009/10/10 06:21:28 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -142,7 +142,7 @@
 ;;
 ;; http://www.emacswiki.org/cgi-bin/emacs/AnythingPlugins
 
-;; Tested on Emacs 22.
+;; Tested on Emacs 22/23.
 ;;
 ;;
 ;; Thanks to Vagn Johansen for ideas.
@@ -318,6 +318,20 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.205  2009/10/10 06:21:28  rubikitch
+;; obsolete: `anything-c-marked-candidate-list'
+;; New function: `anything-marked-candidates'
+;;
+;; Revision 1.204  2009/10/06 21:01:12  rubikitch
+;; Call `anything-process-delayed-sources' only if delayed-sources is available.
+;;
+;; Revision 1.203  2009/10/02 10:04:07  rubikitch
+;; Tested on Emacs23 too. (no code change)
+;;
+;; Revision 1.202  2009/10/02 10:03:34  rubikitch
+;; * Display "no candidates" rather than assertion
+;; * Ensure to call `remove-hook' in `anything-current-buffer'
+;;
 ;; Revision 1.201  2009/08/08 13:25:30  rubikitch
 ;; `anything-toggle-visible-mark': move next line after unmarking
 ;;
@@ -970,7 +984,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.201 2009/08/08 13:25:30 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.205 2009/10/10 06:21:28 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1839,7 +1853,7 @@ If FORCE-DISPLAY-PART is non-nil, return the display string."
       (let* ((header-pos (anything-get-previous-header-pos))
              (source-name
               (save-excursion
-                (assert header-pos)
+                (or header-pos (error "No candidates"))
                 (goto-char header-pos)
                 (buffer-substring-no-properties
                  (line-beginning-position) (line-end-position)))))
@@ -2024,8 +2038,9 @@ already-bound variables. Yuck!
                          (read-string (or any-prompt "pattern: ")
                                       (if any-resume anything-pattern any-input))))))
             (anything-cleanup)
-            (remove-hook 'minibuffer-setup-hook 'anything-print-error-messages)
-            (remove-hook 'post-command-hook 'anything-check-minibuffer-input)
+            (with-current-buffer anything-current-buffer
+              (remove-hook 'minibuffer-setup-hook 'anything-print-error-messages)
+              (remove-hook 'post-command-hook 'anything-check-minibuffer-input))
             (anything-set-frame/window-configuration frameconfig))
           (unless anything-quit
             (unwind-protect
@@ -2425,12 +2440,13 @@ the current pattern."
           (dolist (source delayed-sources)
             (anything-process-source source))
         (anything-maybe-fit-frame)
-        (run-with-idle-timer (if (featurep 'xemacs)
-                                 0.1
-                               0)
-                             nil
-                             'anything-process-delayed-sources
-                             delayed-sources)))))
+        (when delayed-sources
+          (run-with-idle-timer (if (featurep 'xemacs)
+                                   0.1
+                                 0)
+                               nil
+                               'anything-process-delayed-sources
+                               delayed-sources))))))
 
 (defun anything-insert-match (match insert-function &optional real-to-display)
   "Insert MATCH into the anything buffer. If MATCH is a list then
@@ -3226,33 +3242,52 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
 ;;         (overlay-put o 'string (buffer-substring (overlay-start o) (overlay-end o)))
 ;;         (add-to-list 'anything-visible-mark-overlays o)))))
 
-(defvar anything-c-marked-candidate-list nil)
+(defvar anything-c-marked-candidate-list nil
+  "[OBSOLETE] DO NOT USE!!")
+(defvar anything-marked-candidates nil
+  "Marked candadates. List of (source . real) pair.")
 (defun anything-toggle-visible-mark ()
   (interactive)
   (with-anything-window
-    (anything-aif (loop for o in anything-visible-mark-overlays
-                        when (equal (line-beginning-position) (overlay-start o))
-                        do   (return o))
-        ;; delete
-        (progn
-          (setq anything-c-marked-candidate-list
-                (remove
-                 (buffer-substring-no-properties (point-at-bol) (point-at-eol)) anything-c-marked-candidate-list))
-          (delete-overlay it)
-          (delq it anything-visible-mark-overlays))
-      (let ((o (make-overlay (line-beginning-position) (1+ (line-end-position)))))
-        (overlay-put o 'face anything-visible-mark-face)
-        (overlay-put o 'source (assoc-default 'name (anything-get-current-source)))
-        (overlay-put o 'string (buffer-substring (overlay-start o) (overlay-end o)))
-        (add-to-list 'anything-visible-mark-overlays o)
-        (push (buffer-substring-no-properties (point-at-bol) (point-at-eol)) anything-c-marked-candidate-list)))
-    (anything-next-line)))
+    (let ((display (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+          (source (anything-get-current-source))
+          (selection (anything-get-selection)))
+      (anything-aif (loop for o in anything-visible-mark-overlays
+                          when (equal (line-beginning-position) (overlay-start o))
+                          do   (return o))
+          ;; delete
+          (progn
+            (setq anything-c-marked-candidate-list
+                  (remove
+                   display anything-c-marked-candidate-list))
+            (setq anything-marked-candidates
+                  (remove
+                   (cons source selection)
+                   anything-marked-candidates))
+            (delete-overlay it)
+            (delq it anything-visible-mark-overlays))
+        (let ((o (make-overlay (line-beginning-position) (1+ (line-end-position)))))
+          (overlay-put o 'face anything-visible-mark-face)
+          (overlay-put o 'source (assoc-default 'name source))
+          (overlay-put o 'string (buffer-substring (overlay-start o) (overlay-end o)))
+          (add-to-list 'anything-visible-mark-overlays o)
+          (push display anything-c-marked-candidate-list)
+          (push (cons source selection) anything-marked-candidates)))
+      (anything-next-line))))
 
-(add-hook 'anything-after-initialize-hook (lambda ()
-                                   (setq anything-c-marked-candidate-list nil)))
+(defun anything-marked-candidates ()
+  "Marked candidates (real value) of current source."
+  (loop with current-src = (anything-get-current-source)
+        for (source . real) in anything-marked-candidates
+        when (eq current-src source)
+        collect real))
 
-(add-hook 'anything-after-action-hook (lambda ()
-                                   (setq anything-c-marked-candidate-list nil)))
+(defun anything-reset-marked-candidates ()
+  (setq anything-c-marked-candidate-list nil)
+  (setq anything-marked-candidates nil))
+
+(add-hook 'anything-after-initialize-hook 'anything-reset-marked-candidates)
+(add-hook 'anything-after-action-hook 'anything-reset-marked-candidates)
 
 (defun anything-revive-visible-mark ()
   (interactive)
