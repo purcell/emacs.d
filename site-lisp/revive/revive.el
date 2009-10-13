@@ -2,7 +2,7 @@
 ;;; <plaintext>
 ;;; revive.el: Resume Emacs.
 ;;; (c) 1994-2003 by HIROSE Yuuji [yuuji@gentei.org]
-;;; $Id: revive.el,v 2.19 2008/05/13 01:19:16 yuuji Exp yuuji $
+;;; $Id: revive.el,v 2.19 2008/05/13 01:19:16 yuuji Exp $
 ;;; Last modified Tue May 13 10:18:52 2008 on firestorm
 
 ;;;[[[   NOTICE íçà” NOTICE íçà” NOTICE íçà” NOTICE íçà” NOTICE íçà”   ]]]
@@ -226,7 +226,7 @@
 ;;;							yuuji@gentei.org
 
 (defconst revive:version
-  "$Id: revive.el,v 2.19 2008/05/13 01:19:16 yuuji Exp yuuji $"
+  "$Id: revive.el,v 2.19 2008/05/13 01:19:16 yuuji Exp $"
   "Version of revive.el")
 
 (defconst revive:version-prefix ";;;")
@@ -861,11 +861,13 @@ Configuration should be saved by save-current-configuration."
 (defun revive:shell ()
   "Restore shell-mode's buffer."
   (interactive)
+  (set-buffer (get-buffer-create " *tmp*"))
   (let ((default-directory
 	  (or (cdr (assq 'default-directory (revive:prop-varlist x)))
 	      ".")))
-    (shell (revive:prop-buffer-name x))
-    (cd default-directory)))
+    (shell)
+    (cd default-directory)
+    (kill-buffer " *tmp*")))
 
 (defun revive:mpg123 ()
   "Restore mpg123-mode's buffer."
@@ -889,7 +891,7 @@ Configuration should be saved by save-current-configuration."
 (provide 'revive)
 
 
-;; $Id: revive.el,v 2.19 2008/05/13 01:19:16 yuuji Exp yuuji $
+;; $Id: revive.el,v 2.19 2008/05/13 01:19:16 yuuji Exp $
 ;; $Log: revive.el,v $
 ;; Revision 2.19  2008/05/13 01:19:16  yuuji
 ;; Add below to revive:save-variables-global-default.
