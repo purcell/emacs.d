@@ -4,7 +4,7 @@
 
 ;; Author: Nathan Weizenbaum
 ;; URL: http://github.com/nex3/haml/tree/master
-;; Version: 2.2.6
+;; Version: 2.2.7
 ;; Created: 2007-03-08
 ;; By: Nathan Weizenbaum
 ;; Keywords: markup, language, html
@@ -200,6 +200,7 @@ LIMIT works as it does in `re-search-forward'."
 
 (defun haml-highlight-ruby-tag (limit)
   "Highlight Ruby code within a Haml tag.
+LIMIT works as it does in `re-search-forward'.
 
 This highlights the tag attributes and object refs of the tag,
 as well as the script expression (-, =, or ~) following the tag.
