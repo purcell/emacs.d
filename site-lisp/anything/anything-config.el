@@ -587,10 +587,22 @@ With two prefix args allow choosing in which symbol to search."
 (defun anything-query-replace-regexp (&rest args)
   "Drop-in replacement of `query-replace-regexp' with building regexp visually."
   (interactive
-   (or (anything-c-regexp-base "Query Replace Regexp: "
-                               '((name . "Lines matching Regexp")
-                                 (action . anything-c-query-replace-args)))
-       (keyboard-quit)))
+   (let ((common
+          (anything-c-regexp-base "Query Replace Regexp: "
+                                  '((name . "Lines matching Regexp")
+                                    (action . anything-c-query-replace-args)))))
+     (if (not common)
+         (keyboard-quit))
+     (list (car common) (cadr common) (caddr common)
+	   ;; These are done separately here
+	   ;; so that command-history will record these expressions
+	   ;; rather than the values they had this time.
+           ;;
+           ;; This idea is borrowed from original `query-replace-regexp'.
+           (if (and transient-mark-mode mark-active)
+               (region-beginning))
+           (if (and transient-mark-mode mark-active)
+               (region-end)))))
   (apply 'query-replace-regexp args))
 
 (defun anything-regexp ()
@@ -612,17 +624,13 @@ With two prefix args allow choosing in which symbol to search."
   (let ((region-only (and transient-mark-mode mark-active)))
     (list
      anything-input
-     (read-string (format "Query replace regexp %s%s%s with: "
-                          (if region-only "in region " "")
-                          anything-input
-                          (if current-prefix-arg "(word) " "")))
-     current-prefix-arg
-     (if region-only
-         (region-beginning)
-       start-point)
-     (if region-only
-         (region-end)
-       (point-max)))))
+     (query-replace-read-to anything-input
+                            (format "Query replace regexp %s%s%s with: "
+                                    (if region-only "in region " "")
+                                    anything-input
+                                    (if current-prefix-arg "(word) " ""))
+                            t)
+     current-prefix-arg)))
 
 (defun anything-c-regexp-get-line (s e)
   (propertize
@@ -635,7 +643,10 @@ With two prefix args allow choosing in which symbol to search."
                 collect (format "\n         $%d = %s"
                                 i (match-string i))))
    ;; match beginning
-   'anything-realvalue s))
+   ;; KLUDGE: point of anything-candidate-buffer is +1 than that of anything-current-buffer.
+   ;; It is implementation problem of candidates-in-buffer.
+   'anything-realvalue
+   (1- s)))
 
 (defun anything-c-regexp-persistent-action (txt)
   (goto-line (anything-aif (string-match "^ *\\([0-9]+\\)" txt)

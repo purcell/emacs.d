@@ -1,5 +1,5 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.205 2009/10/10 06:21:28 rubikitch Exp $
+;; $Id: anything.el,v 1.207 2009/10/16 19:47:39 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -47,6 +47,9 @@
 ;; many tips to write smart sources!
 ;;
 ;; http://www.emacswiki.org/cgi-bin/emacs/RubikitchAnythingConfiguration
+;;
+;; Here is Japanese translation of `anything-sources' attributes. Thanks.
+;; http://d.hatena.ne.jp/sirocco634/20091012/1255336649
 
 ;;; Commands:
 ;;
@@ -318,6 +321,12 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.207  2009/10/16 19:47:39  rubikitch
+;; Link to Japanese translation of `anything-sources' attributes. (No code change)
+;;
+;; Revision 1.206  2009/10/10 09:28:54  rubikitch
+;; Remove an unnecessary test
+;;
 ;; Revision 1.205  2009/10/10 06:21:28  rubikitch
 ;; obsolete: `anything-c-marked-candidate-list'
 ;; New function: `anything-marked-candidates'
@@ -984,7 +993,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.205 2009/10/10 06:21:28 rubikitch Exp $")
+(defvar anything-version "$Id: anything.el,v 1.207 2009/10/16 19:47:39 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -4691,15 +4700,6 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
         (stub anything-maybe-fit-frame)
         (let ((anything-pattern "") anything-test-mode)
           (anything-update)))
-
-      (expect (mock (run-with-idle-timer * nil 'anything-process-delayed-sources nil))
-        (stub anything-get-sources => '(((name . "1"))
-                                        ((name . "2"))))
-        (stub run-hooks)
-        (stub anything-maybe-fit-frame)
-        (let ((anything-pattern "") anything-test-mode)
-          (anything-update)))
-
 
       (desc "requires-pattern attribute")
       (expect (not-called anything-process-source)
