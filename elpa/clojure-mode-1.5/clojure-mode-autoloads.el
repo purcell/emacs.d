@@ -4,7 +4,7 @@
 
 
 ;;;### (autoloads (clojure-install clojure-mode) "clojure-mode" "clojure-mode.el"
-;;;;;;  (19080 28012))
+;;;;;;  (19162 54496))
 ;;; Generated autoloads from clojure-mode.el
 
 (autoload 'clojure-mode "clojure-mode" "\
@@ -13,8 +13,6 @@ Commands:
 Delete converts tabs to spaces as it moves back.
 Blank lines separate paragraphs.  Semicolons start comments.
 \\{clojure-mode-map}
-Note that `run-lisp' may be used either to start an inferior Lisp job
-or to switch back to an existing one.
 
 Entry to this mode calls the value of `clojure-mode-hook'
 if that value is non-nil.
@@ -31,7 +29,7 @@ Load Clojure SLIME support out of the `clojure-src-root' directory.
 
 Since there's no single conventional place to keep Clojure, this
 is bundled up as a function so that you can call it after you've set
-`clojure-src-root' in your personal config." (if src-root (setq clojure-src-root src-root)) (add-to-list (quote load-path) (concat clojure-src-root "/slime")) (add-to-list (quote load-path) (concat clojure-src-root "/slime/contrib")) (add-to-list (quote load-path) (concat clojure-src-root "/swank-clojure")) (require (quote slime-autoloads)) (require (quote swank-clojure-autoload)) (slime-setup (quote (slime-fancy))) (setq swank-clojure-jar-path (concat clojure-src-root "/clojure/clojure.jar")) (unless (boundp (quote swank-clojure-extra-classpaths)) (setq swank-clojure-extra-classpaths nil)) (add-to-list (quote swank-clojure-extra-classpaths) (concat clojure-src-root "/clojure-contrib/src/")))
+`clojure-src-root' in your personal config." (if src-root (setq clojure-src-root src-root)) (add-to-list (quote load-path) (concat clojure-src-root "/slime")) (add-to-list (quote load-path) (concat clojure-src-root "/slime/contrib")) (add-to-list (quote load-path) (concat clojure-src-root "/swank-clojure")) (require (quote slime-autoloads)) (require (quote swank-clojure-autoload)) (slime-setup (quote (slime-fancy))) (setq swank-clojure-classpath (list (concat clojure-src-root "/clojure/clojure.jar") (concat clojure-src-root "/clojure-contrib/clojure-contrib.jar"))))
 
 (autoload 'clojure-install "clojure-mode" "\
 Perform the initial Clojure install along with Emacs support libs.
@@ -44,7 +42,7 @@ This requires git, a JVM, ant, and an active Internet connection.
 
 ;;;***
 
-;;;### (autoloads nil nil ("clojure-mode-pkg.el") (19080 28012 809364))
+;;;### (autoloads nil nil ("clojure-mode-pkg.el") (19162 54496 157357))
 
 ;;;***
 
