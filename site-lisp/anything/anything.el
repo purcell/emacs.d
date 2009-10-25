@@ -1,5 +1,5 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.207 2009/10/16 19:47:39 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.210 2009/10/22 13:30:06 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -321,6 +321,16 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.210  2009/10/22 13:30:06  rubikitch
+;; `real-to-display' function is evaluated just after `candidate-transformer' function now.
+;; This enables us to narrow candidates by display string by `real-to-display'.
+;;
+;; Revision 1.209  2009/10/21 20:25:10  rubikitch
+;; Add a document. (no code change)
+;;
+;; Revision 1.208  2009/10/21 11:31:15  rubikitch
+;; `anything': accept one source alist
+;;
 ;; Revision 1.207  2009/10/16 19:47:39  rubikitch
 ;; Link to Japanese translation of `anything-sources' attributes. (No code change)
 ;;
@@ -993,7 +1003,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.207 2009/10/16 19:47:39 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.210 2009/10/22 13:30:06 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1063,6 +1073,10 @@ can be written as
  (setq anything-sources '(anything-c-foo anything-c-bar))
 The latter is recommended because if you change anything-c-* variable,
 you do not have to update `anything-sources'.
+
+You are STRONGLY recommended to define a command which calls
+`anything' or `anything-other-buffer' with argument rather than
+to set `anything-sources' externally.
 
 If you want to change `anything-sources' during `anything' invocation,
 use `anything-set-sources', never use `setq'.
@@ -1328,7 +1342,11 @@ Attributes:
   candidate-transformer or filtered-candidate-transformer
   function return a list with (DISPLAY . REAL) pairs. But if
   DISPLAY can be generated from REAL, real-to-display is more
-  convenient and faster.
+  convenient.
+
+  Note that DISPLAY parts returned from candidates /
+  candidate-transformer are IGNORED as the name `display-to-real'
+  says.
 
 - cleanup (optional)
 
@@ -1938,7 +1956,11 @@ LONG-DOC is displayed below attribute name and short documentation."
           (anything-funcall-with-source source func)))))
 
 (defun anything-normalize-sources (sources)
-  (cond ((and sources (symbolp sources)) (list sources))
+  "If SOURCES is only one source, make a list."
+  (cond ((or (and sources               ; avoid nil
+                  (symbolp sources))
+             (and (listp sources) (assq 'name sources)))
+         (list sources))
         (sources)
         (t anything-sources)))  
 
@@ -1982,8 +2004,11 @@ already-bound variables. Yuck!
 
 - ANY-SOURCES
 
-  Temporary value of `anything-sources'. ANY-SOURCES accepts a
-  symbol, interpreted as a variable of an anything source.
+  Temporary value of `anything-sources'.  It also accepts a
+  symbol, interpreted as a variable of an anything source.  It
+  also accepts an alist representing an anything source, which is
+  detected by (assq 'name ANY-SOURCES)
+
 
 - ANY-INPUT
 
@@ -2255,8 +2280,17 @@ SOURCE."
 (defun anything-transform-candidates (candidates source)
   "Transform CANDIDATES according to candidate transformers."
   (anything-aif (assoc-default 'candidate-transformer source)
-      (anything-composed-funcall-with-source source it candidates)
-    candidates))
+      (setq candidates (anything-composed-funcall-with-source source it candidates)))
+  (anything-aif (assoc-default 'real-to-display source)
+      (setq candidates (anything-funcall-with-source
+                        source 'mapcar
+                        (lambda (cand_)
+                          (if (consp cand_)
+                              ;; override DISPLAY from candidate-transformer
+                              (cons (funcall it (cdr cand_)) (cdr cand_))
+                            (cons (funcall it cand_) cand_)))
+                        candidates)))
+  candidates)
 
 
 (defun anything-get-cached-candidates (source)
@@ -2265,7 +2299,6 @@ Cache the candidates if there is not yet a cached value."
   (let* ((name (assoc-default 'name source))
          (candidate-cache (assoc name anything-candidate-cache))
          candidates)
-
     (if candidate-cache
         (setq candidates (cdr candidate-cache))
 
@@ -2368,7 +2401,6 @@ Cache the candidates if there is not yet a cached value."
                   (,(assoc-default 'name source)
                    ,matches))))
       (let ((multiline (assoc 'multiline source))
-            (real-to-display (assoc-default 'real-to-display source))
             (start (point))
             separate)
         (anything-insert-header-from-source source)
@@ -2384,7 +2416,7 @@ Cache the candidates if there is not yet a cached value."
           (if (and multiline separate)
               (anything-insert-candidate-separator)
             (setq separate t))
-          (anything-insert-match match 'insert real-to-display))
+          (anything-insert-match match 'insert))
         
         (if multiline
             (put-text-property start (point) 'anything-multiline t))))))
@@ -2457,17 +2489,15 @@ the current pattern."
                                'anything-process-delayed-sources
                                delayed-sources))))))
 
-(defun anything-insert-match (match insert-function &optional real-to-display)
+(defun anything-insert-match (match insert-function &optional ignored)
   "Insert MATCH into the anything buffer. If MATCH is a list then
 insert the string inteneded to appear on the display and store
 the real value in a text property."
   (let ((start (line-beginning-position (point)))
         (string (if (listp match) (car match) match))
         (realvalue (if (listp match) (cdr match) match)))
-    (and (functionp real-to-display)
-         (setq string (funcall real-to-display realvalue)))
     (when (symbolp string) (setq string (symbol-name string)))
-    (when (stringp string)                    ; real-to-display may return nil
+    (when (stringp string)
       (funcall insert-function string)
       ;; Some sources with candidates-in-buffer have already added
       ;; 'anything-realvalue property when creating candidate buffer.
@@ -2517,8 +2547,7 @@ the real value in a text property."
          (process-info (cdr process-assoc))
          (insertion-marker (assoc-default 'insertion-marker process-info))
          (incomplete-line-info (assoc 'incomplete-line process-info))
-         (item-count-info (assoc 'item-count process-info))
-         (real-to-display (assoc-default 'real-to-display process-info)))
+         (item-count-info (assoc 'item-count process-info)))
 
     (with-current-buffer anything-buffer
       (save-excursion
@@ -2549,7 +2578,7 @@ the real value in a text property."
 
           (setq candidates (reverse candidates))
           (dolist (candidate (anything-transform-candidates candidates process-info))
-            (anything-insert-match candidate 'insert-before-markers real-to-display)
+            (anything-insert-match candidate 'insert-before-markers)
             (incf (cdr item-count-info))
             (when (>= (cdr item-count-info) anything-candidate-number-limit)
               (anything-kill-async-process process)
@@ -4731,6 +4760,10 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
       (expect '(anything-c-source-test)
         (let ((anything-sources '(anything-c-source-test)))
           (anything-normalize-sources nil)))
+      (expect '(((name . "test")))
+        (anything-normalize-sources '((name . "test"))))
+      (expect '(((name . "test")))
+        (anything-normalize-sources '(((name . "test")))))
       (desc "anything-get-action")
       (expect '(("identity" . identity))
         (stub buffer-size => 1)
@@ -5051,20 +5084,49 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
           (anything '(((name . "zero test2") (candidates) (action . upcase))))
           v))
       (desc "real-to-display attribute")
-      (expect '(("test" ("ddd")))
+      (expect '(("test" (("DDD" . "ddd"))))
         (anything-test-candidates '(((name . "test")
                                      (candidates "ddd")
                                      (real-to-display . upcase)
                                      (action . identity)))))
+      (expect '(("test" (("DDD" . "ddd"))))
+        (anything-test-candidates '(((name . "test")
+                                     (candidates ("ignored" . "ddd"))
+                                     (real-to-display . upcase)
+                                     (action . identity)))))
+      (expect '(("Commands" (("xxxhoge" . "hoge") ("xxxboke" . "boke"))))
+        (anything-test-candidates '(((name . "Commands")
+                                     (candidates
+                                      "hoge" "boke")
+                                     (real-to-display . (lambda (x) (concat "xxx" x)))
+                                     (action . identity)))
+                                   "xxx"))
       (expect "test\nDDD\n"
         (anything-test-update '(((name . "test")
                                  (candidates "ddd")
                                  (real-to-display . upcase)
                                  (action . identity)))
+                               "")
+        (with-current-buffer (anything-buffer-get) (buffer-string)))
+      (desc "real-to-display and candidate-transformer attribute")
+      (expect '(("test" (("DDD" . "ddd"))))
+        (anything-test-candidates
+         '(((name . "test")
+            (candidates "ddd")
+            (candidate-transformer (lambda (cands) (mapcar (lambda (c) (cons "X" c)) cands)))
+            (real-to-display . upcase)
+            (action . identity)))))
+      (expect "test\nDDD\n"
+        (anything-test-update
+         '(((name . "test")
+            (candidates "ddd")
+            (candidate-transformer (lambda (cands) (mapcar (lambda (c) (cons "X" c)) cands)))
+            (real-to-display . upcase)
+            (action . identity)))
                               "")
         (with-current-buffer (anything-buffer-get) (buffer-string)))
       (desc "real-to-display and candidates-in-buffer")
-      (expect '(("test" ("a" "b")))
+      (expect '(("test" (("A" . "a") ("B" . "b"))))
         (anything-test-candidates
          '(((name . "test")
             (init
