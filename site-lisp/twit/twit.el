@@ -1,5 +1,5 @@
 ;;; Twit.el --- interface with twitter.com
-(defvar twit-version-number "0.3.5")
+(defvar twit-version-number "0.3.6")
 ;; Copyright (c) 2007 Theron Tlax
 ;;           (c) 2008-2009 Jonathan Arkell
 ;; Time-stamp: <2007-03-19 18:33:17 thorne>
@@ -304,6 +304,7 @@
 ;;          - direct messages now use character counting function. (JA)
 ;;          - twitter diarrhea filtering function. (JA)
 ;;          - started work on i18n support.  (unfinished) (JA)
+;; - 0.3.6  - Added twit-open-link, and bound it to "o". (BC)
 
 ;;; TODO:
 ;; - remember style buffer posting.
@@ -711,6 +712,7 @@ AS WELL.  Otherwise your primary login credentials may get wacked."
 	("S" . twit-search)
 
 	("v" . twit-visit-link)
+	("o" . twit-open-link)
 	("A" . twit-analyse-user)
 	("G" . twit-analyse-graph-user)
     ("i" . twit-install-elisp)
@@ -2176,6 +2178,25 @@ Otherwise goto the authors page."
 	   		      (when (twit-get-text-property 'twit-user)
 						(concat "http://twitter.com/"
 								(twit-get-text-property 'twit-user))))))
+
+(defun twit-open-link ()
+  "Visit (open) the first URL in current tweet.
+
+Check if the tweet under the point contains a URL, and visit the
+URL if there is one.  The point does not have to be pointing to
+the URL itself."
+  (interactive)
+  (let* ((end (next-single-char-property-change (point) 'twit-id))
+		 (start (save-excursion
+				  (goto-char end)
+				  (previous-single-char-property-change (point) 'twit-id))))
+	(save-excursion
+	  (goto-char start)
+	  (if (search-forward-regexp twit-url-regex end t)
+		  (progn
+			(forward-char -1)
+			(twit-visit-link))
+		(message "No URL found in this tweet!")))))
 
 ;;* analyse interactive
 (defun twit-analyse-user ()
