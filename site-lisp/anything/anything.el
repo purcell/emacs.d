@@ -1,5 +1,5 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.210 2009/10/22 13:30:06 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.211 2009/11/06 21:42:58 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -71,6 +71,10 @@
 ;;    Move selection back with a pageful.
 ;;  `anything-next-page'
 ;;    Move selection forward with a pageful.
+;;  `anything-beginning-of-buffer'
+;;    Move selection at the top.
+;;  `anything-end-of-buffer'
+;;    Move selection at the bottom.
 ;;  `anything-previous-source'
 ;;    Move selection to the previous source.
 ;;  `anything-next-source'
@@ -321,6 +325,9 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.211  2009/11/06 21:42:58  rubikitch
+;; New command: `anything-beginning-of-buffer', `anything-end-of-buffer'
+;;
 ;; Revision 1.210  2009/10/22 13:30:06  rubikitch
 ;; `real-to-display' function is evaluated just after `candidate-transformer' function now.
 ;; This enables us to narrow candidates by display string by `real-to-display'.
@@ -1003,7 +1010,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.210 2009/10/22 13:30:06 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.211 2009/11/06 21:42:58 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1453,6 +1460,8 @@ See also `anything-set-source-filter'.")
     (define-key map (kbd "<next>") 'anything-next-page)
     (define-key map (kbd "M-v")     'anything-previous-page)
     (define-key map (kbd "C-v")     'anything-next-page)
+    (define-key map (kbd "M-<")     'anything-beginning-of-buffer)
+    (define-key map (kbd "M->")     'anything-end-of-buffer)
     (define-key map (kbd "<right>") 'anything-next-source)
     (define-key map (kbd "<left>") 'anything-previous-source)
     (define-key map (kbd "<RET>") 'anything-exit-minibuffer)
@@ -2694,6 +2703,15 @@ If action buffer is selected, back to the anything buffer."
   (interactive)
   (anything-move-selection 'page 'next))
 
+(defun anything-beginning-of-buffer ()
+  "Move selection at the top."
+  (interactive)
+  (anything-move-selection 'edge 'previous))
+
+(defun anything-end-of-buffer ()
+  "Move selection at the bottom."
+  (interactive)
+  (anything-move-selection 'edge 'next))
 
 (defun anything-previous-source ()
   "Move selection to the previous source."
@@ -2767,6 +2785,11 @@ UNIT and DIRECTION."
                                (goto-char (anything-get-previous-header-pos))
                                (forward-line 1)))
                    (t (error "Invalid direction."))))
+                
+        (edge (case direction
+                (next (goto-char (point-max)))
+                (previous (goto-char (point-min)))
+                (t (error "Invalid direction."))))
 
         (t (error "Invalid unit.")))
 
