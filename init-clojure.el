@@ -1,7 +1,15 @@
-(require 'swank-clojure-autoload)
+(add-hook 'clojure-mode-hook 'pretty-lambdas)
+(add-hook 'clojure-mode-hook (lambda () (enable-paredit clojure-mode-map)))
+
 
 (setq clojure-src-root (expand-file-name "~/Projects/External"))
+
+(setq swank-clojure-jar-path (concat clojure-src-root "/clojure/clojure.jar")
+      swank-clojure-extra-classpaths (list (concat clojure-src-root "/clojure-contrib/clojure-contrib.jar")))
+
+(require 'swank-clojure-autoload)
 (eval-after-load 'clojure-mode '(clojure-slime-config))
+
 
 (defun slime-clojure ()
   "Fire up slime running the swank-clojure backend"
