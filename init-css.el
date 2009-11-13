@@ -51,13 +51,13 @@
   (list :background hexcolour :foreground (choose-contrasting-colour hexcolour)))
 
 (setq hexcolour-keywords
-  '(("#[abcdef[:digit:]]\\{3\\}"
+  '(("\\b#[abcdef[:digit:]]\\{3\\}\\b"
      (0 (put-text-property
          (match-beginning 0)
          (match-end 0)
          'face (hexcolour-font-lock-face
                 (three-hex-colour-to-six (match-string-no-properties 0))))))
-    ("#[abcdef[:digit:]]\\{6\\}"
+    ("\\b#[abcdef[:digit:]]\\{6\\}\\b"
      (0 (put-text-property
          (match-beginning 0)
          (match-end 0)
