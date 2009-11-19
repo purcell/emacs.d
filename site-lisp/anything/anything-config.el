@@ -1603,7 +1603,7 @@ Work both with standard Emacs bookmarks and bookmark-extensions.el."
      ;; regular files
      if (and pred (not (file-directory-p pred)) (file-exists-p pred)
              (not regp) (not (or iswoman isman)))
-     collect (propertize i 'face anything-c-bookmarks-face2 'help-echo pred)
+     collect (propertize i 'face 'anything-bmkext-file 'help-echo pred)
      ;; buffer non--filename
      if (and (fboundp 'bmkext-get-buffer-name) bufp (not (bookmark-get-handler i))
              (if pred (not (file-exists-p pred)) (not pred)))
@@ -1637,6 +1637,11 @@ Work both with standard Emacs bookmarks and bookmark-extensions.el."
 
 (defface anything-bmkext-no--file
   '((t (:foreground "grey")))
+  "*Face used for non--file bookmarks."
+  :group 'anything)
+
+(defface anything-bmkext-file
+  '((t (:foreground "Deepskyblue2")))
   "*Face used for non--file bookmarks."
   :group 'anything)
 
@@ -1691,7 +1696,7 @@ Work both with standard Emacs bookmarks and bookmark-extensions.el."
 ;; (anything 'anything-c-source-bookmark-regions)
 
 (defun anything-c-bookmark-region-setup-alist ()
-  "Specialized filter function for bookmark+ regions."
+  "Specialized filter function for bookmarks regions."
   (anything-c-bmkext-filter-setup-alist 'bmkext-region-alist-only))
 
 ;; W3m
@@ -1704,7 +1709,7 @@ Work both with standard Emacs bookmarks and bookmark-extensions.el."
 ;; (anything 'anything-c-source-bookmark-w3m)
 
 (defun anything-c-bookmark-w3m-setup-alist ()
-  "Specialized filter function for bookmark+ w3m."
+  "Specialized filter function for bookmarks w3m."
   (anything-c-bmkext-filter-setup-alist 'bmkext-w3m-alist-only))
 
 ;; Woman Man
@@ -1717,7 +1722,7 @@ Work both with standard Emacs bookmarks and bookmark-extensions.el."
 ;; (anything 'anything-c-source-bookmark-man)
 
 (defun anything-c-bookmark-man-setup-alist ()
-  "Specialized filter function for bookmark+ w3m."
+  "Specialized filter function for bookmarks w3m."
   (append (anything-c-bmkext-filter-setup-alist 'bmkext-man-alist-only)
           (anything-c-bmkext-filter-setup-alist 'bmkext-woman-alist-only)))
 
@@ -1731,7 +1736,7 @@ Work both with standard Emacs bookmarks and bookmark-extensions.el."
 ;; (anything 'anything-c-source-bookmark-gnus)
 
 (defun anything-c-bookmark-gnus-setup-alist ()
-  "Specialized filter function for bookmark+ gnus."
+  "Specialized filter function for bookmarks gnus."
   (anything-c-bmkext-filter-setup-alist 'bmkext-gnus-alist-only))
 
 ;; Info
@@ -1744,7 +1749,7 @@ Work both with standard Emacs bookmarks and bookmark-extensions.el."
 ;; (anything 'anything-c-source-bookmark-info)
 
 (defun anything-c-bookmark-info-setup-alist ()
-  "Specialized filter function for bookmark+ info."
+  "Specialized filter function for bookmarks info."
   (anything-c-bmkext-filter-setup-alist 'bmkext-info-alist-only))
 
 ;; Local Files&directories
@@ -1757,11 +1762,11 @@ Work both with standard Emacs bookmarks and bookmark-extensions.el."
 ;; (anything 'anything-c-source-bookmark-files&dirs)
 
 (defun anything-c-bookmark-local-files-setup-alist ()
-  "Specialized filter function for bookmark+ locals files."
+  "Specialized filter function for bookmarks locals files."
   (anything-c-bmkext-filter-setup-alist 'bmkext-local-file-alist-only))
 
 ;; Su Files&directories
-(defun anything-c-highlight-bookmark+-su (bmk)
+(defun anything-c-highlight-bmkext-su (bmk)
   (if (bmkext-root-or-sudo-logged-p)
       (anything-c-highlight-bookmark bmk)
       (anything-c-highlight-not-logged bmk)))
@@ -1770,12 +1775,12 @@ Work both with standard Emacs bookmarks and bookmark-extensions.el."
   '((name . "Bookmark Root-Files&Directories")
     (init . (lambda () (require 'bookmark-extensions) (bookmark-maybe-load-default-file)))
     (candidates . anything-c-bookmark-su-files-setup-alist)
-    (candidate-transformer anything-c-highlight-bookmark+-su)
+    (candidate-transformer anything-c-highlight-bmkext-su)
     (type . bookmark)))
 ;; (anything 'anything-c-source-bookmark-su-files&dirs)
 
 (defun anything-c-bookmark-su-files-setup-alist ()
-  "Specialized filter function for bookmark+ su/sudo files."
+  "Specialized filter function for bookmarks su/sudo files."
   (loop
      with l = (anything-c-bmkext-filter-setup-alist 'bmkext-remote-file-alist-only)
      for i in l
@@ -1797,7 +1802,7 @@ Work both with standard Emacs bookmarks and bookmark-extensions.el."
 ;; (anything 'anything-c-source-bookmark-ssh-files&dirs)
 
 (defun anything-c-bookmark-ssh-files-setup-alist ()
-  "Specialized filter function for bookmark+ ssh files."
+  "Specialized filter function for bookmarks ssh files."
   (loop
      with l = (anything-c-bmkext-filter-setup-alist 'bmkext-remote-file-alist-only)
      for i in l
@@ -2846,15 +2851,14 @@ removed."
 (defvar anything-c-source-evaluation-result
   '((name . "Evaluation Result")
     (requires-pattern)
-    (match (lambda (candidate) t))
+    (match identity)
     (candidates  "dummy")
     (filtered-candidate-transformer . (lambda (candidates source)
                                         (list
                                          (condition-case nil
-                                             (prin1-to-string
+                                             (pp-to-string
                                               (eval (read anything-pattern)))
                                            (error "Error")))))
-    (volatile)
     (action ("Do Nothing" . ignore))))
 ;; (anything 'anything-c-source-evaluation-result)
 
@@ -2862,14 +2866,13 @@ removed."
 (defvar anything-c-source-calculation-result
   '((name . "Calculation Result")
     (requires-pattern)
-    (match (lambda (candidate) t))
+    (match identity)
     (candidates  "dummy")
     (filtered-candidate-transformer . (lambda (candidates source)
                                         (list
                                          (condition-case nil
                                              (calc-eval anything-pattern)
                                            (error "error")))))
-    (volatile)
     (action ("Copy result to kill-ring" . kill-new))))
 ;; (anything 'anything-c-source-calculation-result)
 
@@ -3776,8 +3779,7 @@ It is added to `extended-command-history'.
 (defun anything-c-transform-file-load-el (actions candidate)
   "Add action to load the file CANDIDATE if it is an emacs lisp
 file.  Else return ACTIONS unmodified."
-  (if (or (string= (file-name-extension candidate) "el")
-          (string= (file-name-extension candidate) "elc"))
+  (if (member (file-name-extension candidate) '("el" "elc"))
       (append actions '(("Load Emacs Lisp File" . load-file)))
     actions))
 
