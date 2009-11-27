@@ -8,7 +8,6 @@
       swank-clojure-extra-classpaths (list (concat clojure-src-root "/clojure-contrib/clojure-contrib.jar")))
 
 (require 'swank-clojure-autoload)
-(eval-after-load 'clojure-mode '(clojure-slime-config))
 
 
 (defun slime-clojure ()
