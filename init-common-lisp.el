@@ -44,9 +44,9 @@
 
 (define-key lisp-mode-map (kbd "C-c l") 'lispdoc)
 
-(autoload 'redshank-mode "redshank" "Minor mode for editing and refactoring (Common) Lisp code." t)
-(autoload 'turn-on-redshank-mode "redshank" "Turn on Redshank mode. Please see function `redshank-mode'." t)
-(add-hook 'lisp-mode-hook 'turn-on-redshank-mode)
+;(autoload 'redshank-mode "redshank" "Minor mode for editing and refactoring (Common) Lisp code." t)
+;(autoload 'turn-on-redshank-mode "redshank" "Turn on Redshank mode. Please see function `redshank-mode'." t)
+;(add-hook 'lisp-mode-hook 'turn-on-redshank-mode)
 
 
 (provide 'init-common-lisp)
