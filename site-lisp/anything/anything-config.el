@@ -388,7 +388,7 @@ history, are removed from `anything-map'. "
   :group 'anything-config)
 
 (defcustom anything-c-google-suggest-url
-  "http://www.google.com/complete/search?hl=en&js=true&qu="
+  "http://google.com/complete/search?output=toolbar&q="
   "URL used for looking up suggestions."
   :type 'string
   :group 'anything-config)
@@ -504,9 +504,14 @@ You may bind this command to M-y."
     (anything-other-buffer 'anything-c-source-minibuffer-history
                            "*anything minibuffer-history*")))
 
+;; In Emacs 23.1.50, minibuffer-local-must-match-filename-map was renamed to
+;; minibuffer-local-filename-must-match-map.
+(defvar minibuffer-local-filename-must-match-map (make-sparse-keymap)) ;; Emacs 23.1.+
+(defvar minibuffer-local-must-match-filename-map (make-sparse-keymap)) ;; Older Emacsen
 (dolist (map (list minibuffer-local-filename-completion-map
                    minibuffer-local-completion-map
                    minibuffer-local-must-match-filename-map
+                   minibuffer-local-filename-must-match-map
                    minibuffer-local-map
                    minibuffer-local-isearch-map
                    minibuffer-local-must-match-map
@@ -2877,68 +2882,56 @@ removed."
 ;; (anything 'anything-c-source-calculation-result)
 
 ;;; Google Suggestions
+(defun anything-c-google-suggest-fetch (input)
+  "Fetch suggestions for INPUT.
+Return an alist with elements like (data . number_results)."
+  (let (result-alist)
+    (with-current-buffer (url-retrieve-synchronously
+                          (concat anything-c-google-suggest-url
+                                  (url-hexify-string input)))
+      (setq result-alist (xml-get-children
+                       (car (xml-parse-region (point-min) (point-max)))
+                       'CompleteSuggestion)))
+    (loop
+       for i in result-alist
+       for data = (cdr (caadr (assoc 'suggestion i)))
+       for nqueries = (cdr (caadr (assoc 'num_queries i)))
+       collect (cons data nqueries) into cont
+       finally return cont)))
+
+(defun anything-c-google-suggest-set-candidates ()
+  "Set candidates with result and number of google results found."
+  (let ((suggestions (anything-c-google-suggest-fetch anything-input)))
+    (setq suggestions (loop for i in suggestions
+                         collect (concat (car i) " (" (cdr i) "results)")))
+    (if (some (lambda (data)
+                (equal (car (split-string data)) anything-input))
+              suggestions)
+        suggestions
+        ;; if there is no suggestion exactly matching the input then
+        ;; prepend a Search on Google item to the list
+        (append (list (cons (concat "Search for "
+                                    "'" anything-input "'"
+                                    " on Google")
+                            anything-input))
+                suggestions))))
+    
+(defun anything-c-google-suggest-action (candidate)
+  "Default action to jump to a google suggested candidate."
+  (let ((elm (car (split-string candidate))))
+    (browse-url (concat anything-c-google-suggest-search-url
+                        (url-hexify-string elm)))))
+
+
 (defvar anything-c-source-google-suggest
   '((name . "Google Suggest")
-    (candidates . (lambda ()
-                    (let ((suggestions (anything-c-google-suggest-fetch anything-input)))
-                      (if (some (lambda (suggestion)
-                                  (equal (cdr suggestion) anything-input))
-                                suggestions)
-                          suggestions
-                        ;; if there is no suggestion exactly matching the input then
-                        ;; prepend a Search on Google item to the list
-                        (append (list (cons (concat "Search for "
-                                                    "'" anything-input "'"
-                                                    " on Google")
-                                            anything-input))
-                                suggestions)))))
-    (action . (("Google Search" .
-                (lambda (candidate)
-                  (browse-url (concat anything-c-google-suggest-search-url
-                                      (url-hexify-string candidate)))))))
+    (candidates . anything-c-google-suggest-set-candidates)
+    (action . (("Google Search" . anything-c-google-suggest-action)))
     (volatile)
     (requires-pattern . 3)
     (delayed)))
 ;; (anything 'anything-c-source-google-suggest)
 
-(defun anything-c-google-suggest-fetch (input)
-  "Fetch suggestions for INPUT."
-  (let* ((result (with-current-buffer
-                     (url-retrieve-synchronously
-                      (concat anything-c-google-suggest-url
-                              (url-hexify-string input)))
-                   (buffer-substring (point-min) (point-max))))
-         (split (split-string result "new Array("))
-         (suggestions (anything-c-google-suggest-get-items (second split)))
-         (numbers (anything-c-google-suggest-get-items (third split)))
-         (longest (+ (apply 'max 0 (let (lengths)
-                                     (dotimes (i (length suggestions))
-                                       (push (+ (length (nth i suggestions))
-                                                (length (nth i numbers)))
-                                             lengths))
-                                     lengths))
-                     10))
-         items)
-    (dotimes (i (length suggestions))
-      (let ((suggestion (nth i suggestions))
-            (number (nth i numbers)))
-        (push (cons (concat suggestion
-                            (make-string (- longest
-                                            (length suggestion)
-                                            (length number))
-                                         32)
-                            number)
-                    suggestion)
-              items)))
-    items))
-
-(defun anything-c-google-suggest-get-items (str)
-  "Extract items from STR returned by Google Suggest."
-  (let ((start nil) items)
-    (while (string-match "\"\\([^\"]+?\\)\"" str start)
-      (push (match-string 1 str) items)
-      (setq start (1+ (match-end 1))))
-    items))
 
 ;;; Surfraw
 ;;; Need external program surfraw.
@@ -3363,8 +3356,8 @@ See also `anything-create--actions'."
 (defun* anything-gentoo-install (candidate &key action)
   (funcall anything-gentoo-prefered-shell)
   (let ((command (case action
-                   ('install "sudo emerge -av ")
-                   ('uninstall "sudo emerge -avC ")
+                   ('install "*sudo emerge -av ")
+                   ('uninstall "*sudo emerge -avC ")
                    (t (error "Unknow action")))))
   (if (anything-marked-candidates)
       (let ((elms (mapconcat 'identity (anything-marked-candidates) " ")))
@@ -4087,45 +4080,46 @@ If optional 2nd argument is non-nil, the file opened with `auto-revert-mode'.")
 (anything-document-attribute 'subexp "Headline plug-in"
   "Display (match-string-no-properties subexp).")
 
+
 (defun anything-headline-get-candidates (regexp subexp)
-  (save-excursion
-    (set-buffer anything-current-buffer)
+  (with-current-buffer anything-current-buffer
     (save-excursion
       (goto-char (point-min))
       (if (functionp regexp) (setq regexp (funcall regexp)))
       (let (hierarchy curhead)
         (flet ((matched ()
-                        (if (numberp subexp)
-                            (cons (match-string-no-properties subexp) (match-beginning subexp))
-                          (cons (buffer-substring (point-at-bol) (point-at-eol))
-                                (point-at-bol))))
+                 (if (numberp subexp)
+                     (cons (match-string-no-properties subexp) (match-beginning subexp))
+                     (cons (buffer-substring (point-at-bol) (point-at-eol))
+                           (point-at-bol))))
                (hierarchies (headlines)
-                            (1+ (loop for (_ . hierarchy) in headlines
-                                      maximize hierarchy)))
+                 (1+ (loop for (_ . hierarchy) in headlines
+                        maximize hierarchy)))
                (vector-0-n (v n)
-                           (loop for i from 0 to hierarchy
-                                 collecting (aref curhead i)))
+                 (loop for i from 0 to hierarchy
+                    collecting (aref curhead i)))
                (arrange (headlines)
-                        (loop with curhead = (make-vector (hierarchies headlines) "")
-                              for ((str . pt) . hierarchy) in headlines
-                              do (aset curhead hierarchy str)
-                              collecting
-                              (cons
-                               (mapconcat 'identity (vector-0-n curhead hierarchy) " / ")
-                               pt))))
+                 (loop with curhead = (make-vector (hierarchies headlines) "")
+                    for ((str . pt) . hierarchy) in headlines
+                    do (aset curhead hierarchy str)
+                    collecting
+                      (cons
+                       (mapconcat 'identity (vector-0-n curhead hierarchy) " / ")
+                       pt))))
           (if (listp regexp)
               (arrange
                (sort
                 (loop for re in regexp
-                      for hierarchy from 0
-                      do (goto-char (point-min))
-                      appending
-                      (loop
-                       while (re-search-forward re nil t)
-                       collect (cons (matched) hierarchy)))
+                   for hierarchy from 0
+                   do (goto-char (point-min))
+                   appending
+                     (loop
+                        while (re-search-forward re nil t)
+                        collect (cons (matched) hierarchy)))
                 (lambda (a b) (> (cdar b) (cdar a)))))
-            (loop while (re-search-forward regexp nil t)
-                  collect (matched))))))))
+              (loop while (re-search-forward regexp nil t)
+                 collect (matched))))))))
+
 
 (defun anything-headline-make-candidate-buffer (regexp subexp)
   (with-current-buffer (anything-candidate-buffer 'local)
