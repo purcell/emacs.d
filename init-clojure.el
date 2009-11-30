@@ -9,6 +9,11 @@
 
 (require 'swank-clojure-autoload)
 
+(eval-after-load "slime"
+  '(progn
+     ;; Ensure we get a REPL
+     (slime-setup '(slime-repl))))
+
 
 (defun slime-clojure ()
   "Fire up slime running the swank-clojure backend"
