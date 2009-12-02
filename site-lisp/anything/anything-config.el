@@ -2883,15 +2883,15 @@ removed."
 
 ;;; Google Suggestions
 (defun anything-c-google-suggest-fetch (input)
-  "Fetch suggestions for INPUT.
+  "Fetch suggestions for INPUT from XML buffer.
 Return an alist with elements like (data . number_results)."
   (let (result-alist)
     (with-current-buffer (url-retrieve-synchronously
                           (concat anything-c-google-suggest-url
                                   (url-hexify-string input)))
       (setq result-alist (xml-get-children
-                       (car (xml-parse-region (point-min) (point-max)))
-                       'CompleteSuggestion)))
+                          (car (xml-parse-region (point-min) (point-max)))
+                          'CompleteSuggestion)))
     (loop
        for i in result-alist
        for data = (cdr (caadr (assoc 'suggestion i)))
@@ -2899,28 +2899,27 @@ Return an alist with elements like (data . number_results)."
        collect (cons data nqueries) into cont
        finally return cont)))
 
+
 (defun anything-c-google-suggest-set-candidates ()
   "Set candidates with result and number of google results found."
   (let ((suggestions (anything-c-google-suggest-fetch anything-input)))
     (setq suggestions (loop for i in suggestions
-                         collect (concat (car i) " (" (cdr i) "results)")))
-    (if (some (lambda (data)
-                (equal (car (split-string data)) anything-input))
-              suggestions)
+                           for elm = (concat (car i) " (" (cdr i) "results)")
+                         collect (cons elm (car i))))
+    (if (some (lambda (data) (equal (cdr data) anything-input)) suggestions)
         suggestions
         ;; if there is no suggestion exactly matching the input then
         ;; prepend a Search on Google item to the list
-        (append (list (cons (concat "Search for "
-                                    "'" anything-input "'"
-                                    " on Google")
-                            anything-input))
-                suggestions))))
+        (append
+         suggestions
+         (list (cons (concat "Search for " "'" anything-input "'" " on Google")
+                     anything-input))))))
+         
     
 (defun anything-c-google-suggest-action (candidate)
   "Default action to jump to a google suggested candidate."
-  (let ((elm (car (split-string candidate))))
-    (browse-url (concat anything-c-google-suggest-search-url
-                        (url-hexify-string elm)))))
+  (browse-url (concat anything-c-google-suggest-search-url
+                      (url-hexify-string candidate))))
 
 
 (defvar anything-c-source-google-suggest
