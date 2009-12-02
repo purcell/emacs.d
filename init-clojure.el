@@ -5,6 +5,7 @@
 (setq clojure-src-root (expand-file-name "~/Projects/External"))
 
 (setq swank-clojure-jar-path (concat clojure-src-root "/clojure/clojure.jar")
+      swank-clojure-extra-vm-args (list "-Xmx1024m")
       swank-clojure-extra-classpaths (list (concat clojure-src-root "/clojure-contrib/clojure-contrib.jar")))
 
 (require 'swank-clojure-autoload)
