@@ -1,6 +1,3 @@
-[submodule "site-lisp/slime"]
-	path = site-lisp/slime
-	url = git://sbcl.boinkor.net/slime.git
 [submodule "site-lisp/org-mode"]
 	path = site-lisp/org-mode
 	url = git://repo.or.cz/org-mode.git
@@ -10,9 +7,6 @@
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
 	url = git://gitorious.org/magit/mainline.git
-[submodule "site-lisp/swank-clojure"]
-	path = site-lisp/swank-clojure
-	url = git://github.com/jochu/swank-clojure.git
 [submodule "site-lisp/gist"]
 	path = site-lisp/gist
 	url = git://github.com/defunkt/gist.el.git
