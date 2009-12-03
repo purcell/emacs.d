@@ -4,7 +4,7 @@
 
 
 ;;;### (autoloads (clojure-install clojure-mode) "clojure-mode" "clojure-mode.el"
-;;;;;;  (19162 54496))
+;;;;;;  (19223 43205))
 ;;; Generated autoloads from clojure-mode.el
 
 (autoload 'clojure-mode "clojure-mode" "\
@@ -13,6 +13,8 @@ Commands:
 Delete converts tabs to spaces as it moves back.
 Blank lines separate paragraphs.  Semicolons start comments.
 \\{clojure-mode-map}
+Note that `run-lisp' may be used either to start an inferior Lisp job
+or to switch back to an existing one.
 
 Entry to this mode calls the value of `clojure-mode-hook'
 if that value is non-nil.
@@ -29,12 +31,13 @@ Load Clojure SLIME support out of the `clojure-src-root' directory.
 
 Since there's no single conventional place to keep Clojure, this
 is bundled up as a function so that you can call it after you've set
-`clojure-src-root' in your personal config." (if src-root (setq clojure-src-root src-root)) (add-to-list (quote load-path) (concat clojure-src-root "/slime")) (add-to-list (quote load-path) (concat clojure-src-root "/slime/contrib")) (add-to-list (quote load-path) (concat clojure-src-root "/swank-clojure")) (require (quote slime-autoloads)) (require (quote swank-clojure-autoload)) (slime-setup (quote (slime-fancy))) (setq swank-clojure-classpath (list (concat clojure-src-root "/clojure/clojure.jar") (concat clojure-src-root "/clojure-contrib/clojure-contrib.jar"))))
+`clojure-src-root' in your personal config." (if src-root (setq clojure-src-root src-root)) (add-to-list (quote load-path) (concat clojure-src-root "/slime")) (add-to-list (quote load-path) (concat clojure-src-root "/slime/contrib")) (add-to-list (quote load-path) (concat clojure-src-root "/swank-clojure")) (require (quote slime-autoloads)) (require (quote swank-clojure-autoload)) (slime-setup (quote (slime-fancy))) (setq swank-clojure-classpath (list (concat clojure-src-root "/clojure/clojure.jar") (concat clojure-src-root "/clojure-contrib/clojure-contrib.jar"))) (eval-after-load (quote slime) (quote (progn (require (quote swank-clojure)) (setq slime-lisp-implementations (cons (\` (clojure (\, (swank-clojure-cmd)) :init swank-clojure-init)) (remove-if (function (lambda (x) (eq (car x) (quote clojure)))) slime-lisp-implementations)))))))
 
 (autoload 'clojure-install "clojure-mode" "\
 Perform the initial Clojure install along with Emacs support libs.
 
 This requires git, a JVM, ant, and an active Internet connection.
+Deprecated in favour of functionality in swank-clojure.
 
 \(fn SRC-ROOT)" t nil)
 
@@ -42,7 +45,7 @@ This requires git, a JVM, ant, and an active Internet connection.
 
 ;;;***
 
-;;;### (autoloads nil nil ("clojure-mode-pkg.el") (19162 54496 157357))
+;;;### (autoloads nil nil ("clojure-mode-pkg.el") (19223 43205 818616))
 
 ;;;***
 

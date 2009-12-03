@@ -6,7 +6,7 @@
 ;;          Lennart Staflin <lenst@lysator.liu.se>
 ;;          Phil Hagelberg <technomancy@gmail.com>
 ;; URL: http://www.emacswiki.org/cgi-bin/wiki/ClojureMode
-;; Version: 1.5
+;; Version: 1.6
 ;; Keywords: languages, lisp
 
 ;; This file is not part of GNU Emacs.
@@ -18,9 +18,9 @@
 
 ;;; Installation:
 
-;; If you use ELPA, you can install via the M-x package-list-packages
-;; interface. This is preferrable as you will have access to updates
-;; automatically.
+;; If you use ELPA (http://tromey.com/elpa), you can install via the
+;; M-x package-list-packages interface. This is preferrable as you
+;; will have access to updates automatically.
 
 ;; If you need to install by hand for some reason:
 
@@ -29,10 +29,9 @@
 ;;     Add this to your .emacs config: (require 'clojure-mode)
 ;;     Or generate autoloads with the `update-directory-autoloads' function.
 
-;; The clojure-install function can check out and configure all the
-;; dependencies get going with Clojure, including SLIME integration.
-;; To use this function, you may have to manually load clojure-mode.el
-;; using M-x load-file or M-x eval-buffer.
+;; See also the swank-clojure package for better interaction with
+;; Clojure subprocesses. Note that M-x clojure-install functionality
+;; has been moved to that package and is deprecated here.
 
 ;; Users of older Emacs (pre-22) should get version 1.4:
 ;; http://github.com/technomancy/clojure-mode/tree/1.4
@@ -81,6 +80,14 @@ restart (ie. M-x clojure-mode) of existing clojure mode buffers."
   :type 'boolean
   :group 'clojure-mode)
 
+(defcustom clojure-mode-load-command  "(clojure.core/load-file \"%s\")\n"
+  "*Format-string for building a Clojure expression to load a file.
+This format string should use `%s' to substitute a file name
+and should result in a Clojure expression that will command the inferior
+Clojure to load that file."
+  :type 'string
+  :group 'clojure-mode)
+
 (defcustom clojure-mode-use-backtracking-indent nil
   "Set to non-nil to enable backtracking/context sensitive indentation."
   :type 'boolean
@@ -94,6 +101,12 @@ restart (ie. M-x clojure-mode) of existing clojure mode buffers."
 (defvar clojure-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map lisp-mode-shared-map)
+    (define-key map "\e\C-x" 'lisp-eval-defun)
+    (define-key map "\C-x\C-e" 'lisp-eval-last-sexp)
+    (define-key map "\C-c\C-e" 'lisp-eval-last-sexp)
+    (define-key map "\C-c\C-l" 'clojure-load-file)
+    (define-key map "\C-c\C-r" 'lisp-eval-region)
+    (define-key map "\C-c\C-z" 'run-lisp)
     map)
   "Keymap for Clojure mode. Inherits from `lisp-mode-shared-map'.")
 
@@ -113,6 +126,11 @@ restart (ie. M-x clojure-mode) of existing clojure mode buffers."
 
 (define-abbrev-table 'clojure-mode-abbrev-table ())
 
+(defvar clojure-prev-l/c-dir/file nil
+  "Record last directory and file used in loading or compiling.
+This holds a cons cell of the form `(DIRECTORY . FILE)'
+describing the last `clojure-load-file' or `clojure-compile-file' command.")
+
 (defvar clojure-def-regexp "^\\s *\\((def\\S *\\s +\\(\[^ \n\t\]+\\)\\)"
   "A regular expression to match any top-level definitions.")
 
@@ -123,6 +141,8 @@ Commands:
 Delete converts tabs to spaces as it moves back.
 Blank lines separate paragraphs.  Semicolons start comments.
 \\{clojure-mode-map}
+Note that `run-lisp' may be used either to start an inferior Lisp job
+or to switch back to an existing one.
 
 Entry to this mode calls the value of `clojure-mode-hook'
 if that value is non-nil."
@@ -140,6 +160,8 @@ if that value is non-nil."
        "\\(\\(^\\|[^\\\\\n]\\)\\(\\\\\\\\\\)*\\)\\(;+\\|#|\\) *")
   (set (make-local-variable 'lisp-indent-function)
        'clojure-indent-function)
+  (set (make-local-variable 'lisp-doc-string-elt-property)
+	   'clojure-doc-string-elt)
   (set (make-local-variable 'font-lock-multiline) t)
 
   (setq lisp-imenu-generic-expression
@@ -297,7 +319,7 @@ elements of a def* forms."
       (,(concat
          "(\\(?:clojure.core/\\)?"
          (regexp-opt
-          '("implement" "proxy" "lazy-cons" "with-meta"
+          '("implement" "proxy" "lazy-seq" "with-meta"
             "struct" "struct-map" "delay" "locking" "sync" "time" "apply"
             "remove" "merge" "interleave" "interpose" "distinct" "for"
             "cons" "concat" "lazy-cat" "cycle" "rest" "frest" "drop"
@@ -307,7 +329,7 @@ elements of a def* forms."
             "to-array-2d" "not-empty" "seq?" "not-every?" "every?" "not-any?"
             "map" "mapcat" "vector?" "list?" "hash-map" "reduce" "filter"
             "vals" "keys" "rseq" "subseq" "rsubseq" "count" "empty?"
-            "fnseq" "lazy-cons" "repeatedly" "iterate" "drop-last"
+            "fnseq" "repeatedly" "iterate" "drop-last"
             "repeat" "replicate" "range"  "into-array"
             "line-seq" "resultset-seq" "re-seq" "re-find" "tree-seq" "file-seq"
             "iterator-seq" "enumeration-seq" "declare"  "xml-seq"
@@ -330,6 +352,24 @@ elements of a def* forms."
       ("#^\\sw+" 0 font-lock-type-face)
       ("\\<io\\!\\>" 0 font-lock-warning-face)))
   "Default expressions to highlight in Clojure mode.")
+
+;; Docstring positions
+(put 'defn 'clojure-doc-string-elt 2)
+(put 'defn- 'clojure-doc-string-elt 2)
+(put 'defmulti 'clojure-doc-string-elt 2)
+(put 'defmacro 'clojure-doc-string-elt 2)
+
+(defun clojure-load-file (file-name)
+  "Load a Lisp file into the inferior Lisp process."
+  (interactive (comint-get-source "Load Clojure file: "
+                                  clojure-prev-l/c-dir/file
+                                  '(clojure-mode) t))
+  (comint-check-source file-name) ; Check to see if buffer needs saved.
+  (setq clojure-prev-l/c-dir/file (cons (file-name-directory file-name)
+                                        (file-name-nondirectory file-name)))
+  (comint-send-string (inferior-lisp-proc)
+                      (format clojure-mode-load-command file-name))
+  (switch-to-lisp t))
 
 (defun clojure-indent-function (indent-point state)
   "This function is the normal value of the variable `lisp-indent-function'.
@@ -473,7 +513,8 @@ check for contextual indenting."
   (assoc 1)
   (condp 2)
 
-  (fn 'defun))
+  (fn 'defun)
+  (testing 1))
 
 ;; built-ins
 (define-clojure-indent
@@ -533,17 +574,30 @@ is bundled up as a function so that you can call it after you've set
     (setq swank-clojure-classpath
           (list
            (concat clojure-src-root "/clojure/clojure.jar")
-           (concat clojure-src-root "/clojure-contrib/clojure-contrib.jar")))))
+           (concat clojure-src-root "/clojure-contrib/clojure-contrib.jar")))
+    (eval-after-load 'slime
+      '(progn (require 'swank-clojure)
+              (setq slime-lisp-implementations
+                    (cons `(clojure ,(swank-clojure-cmd) :init
+                                    swank-clojure-init)
+                          (remove-if #'(lambda (x) (eq (car x) 'clojure))
+                                     slime-lisp-implementations)))))))
 
 ;;;###autoload
 (defun clojure-install (src-root)
   "Perform the initial Clojure install along with Emacs support libs.
 
-This requires git, a JVM, ant, and an active Internet connection."
+This requires git, a JVM, ant, and an active Internet connection.
+Deprecated in favour of functionality in swank-clojure."
   (interactive (list
                 (read-string (concat "Install Clojure in (default: "
                                      clojure-src-root "): ")
                              nil nil clojure-src-root)))
+
+  (when (y-or-n-p
+         "This function is deprecated in favour of swank-clojure. \
+See http://technomancy.us/swank-clojure for details. Abort? ")
+    (error "Aborted!"))
 
   (let ((orig-directory default-directory))
     (make-directory src-root t)
