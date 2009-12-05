@@ -1,5 +1,5 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.211 2009/11/06 21:42:58 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.217 2009/12/03 23:16:17 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -325,6 +325,27 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.217  2009/12/03 23:16:17  rubikitch
+;; silence warning
+;;
+;; Revision 1.216  2009/12/03 20:43:51  rubikitch
+;; Add keybindings for alphabet shortcuts
+;;
+;; Revision 1.215  2009/12/03 20:37:13  rubikitch
+;; `anything-enable-shortcuts' is an alias of `anything-enable-digit-shortcuts'.
+;; Alphabet shortcuts can be used now.
+;;
+;; Revision 1.214  2009/12/03 20:23:40  rubikitch
+;; `anything-enable-digit-shortcuts' also accepts 'alphabet.
+;;
+;; Now alphabet shortcuts are usable.
+;;
+;; Revision 1.213  2009/12/03 09:59:58  rubikitch
+;; refactoring
+;;
+;; Revision 1.212  2009/11/15 09:42:15  rubikitch
+;; refactoring
+;;
 ;; Revision 1.211  2009/11/06 21:42:58  rubikitch
 ;; New command: `anything-beginning-of-buffer', `anything-end-of-buffer'
 ;;
@@ -1010,7 +1031,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.211 2009/11/06 21:42:58 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.217 2009/12/03 23:16:17 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1404,9 +1425,20 @@ Attributes:
   common attributes with a `file' type.")
 
 
-(defvar anything-enable-digit-shortcuts nil
-  "*If t then the first nine matches can be selected using
-  Ctrl+<number>.")
+(defvar anything-enable-shortcuts nil
+  "*Whether to use digit/alphabet shortcut to select the first nine matches.
+If t then they can be selected using Ctrl+<number>.
+If 'alphabet then they can be selected using Shift+<alphabet: a s d f g h j k l>.
+
+Keys (digit/alphabet) are listed in `anything-digit-shortcut-index-alist'.")
+
+(defvaralias 'anything-enable-digit-shortcuts 'anything-enable-shortcuts
+  "Alphabet shortcuts are usable now. Then `anything-enable-digit-shortcuts' should be renamed.
+`anything-enable-digit-shortcuts' is retained for compatibility.")
+
+(defvar anything-shortcut-keys-alist
+  '((alphabet  ?a ?s ?d ?f ?g ?h ?j ?k ?l)
+    (t         ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9)))
 
 (defvar anything-display-source-at-screen-top t
   "*If t, `anything-next-source' and `anything-previous-source'
@@ -1474,6 +1506,15 @@ See also `anything-set-source-filter'.")
     (define-key map (kbd "C-7") 'anything-select-with-digit-shortcut)
     (define-key map (kbd "C-8") 'anything-select-with-digit-shortcut)
     (define-key map (kbd "C-9") 'anything-select-with-digit-shortcut)
+    (define-key map (kbd "A") 'anything-select-with-digit-shortcut)
+    (define-key map (kbd "S") 'anything-select-with-digit-shortcut)
+    (define-key map (kbd "D") 'anything-select-with-digit-shortcut)
+    (define-key map (kbd "F") 'anything-select-with-digit-shortcut)
+    (define-key map (kbd "G") 'anything-select-with-digit-shortcut)
+    (define-key map (kbd "H") 'anything-select-with-digit-shortcut)
+    (define-key map (kbd "J") 'anything-select-with-digit-shortcut)
+    (define-key map (kbd "K") 'anything-select-with-digit-shortcut)
+    (define-key map (kbd "L") 'anything-select-with-digit-shortcut)
     (define-key map (kbd "C-i") 'anything-select-action)
     (define-key map (kbd "C-z") 'anything-execute-persistent-action)
     (define-key map (kbd "C-e") 'anything-select-2nd-action-or-end-of-line)
@@ -1710,6 +1751,8 @@ It is `anything-default-display-buffer' by default, which affects `anything-same
 (defvar anything-cib-hash (make-hash-table :test 'equal))
 (defvar anything-tick-hash (make-hash-table :test 'equal))
 (defvar anything-issued-errors nil)
+(defvar anything-shortcut-keys nil)
+
 
 ;; (@* "Programming Tools")
 (defmacro anything-aif (test-form then-form &rest else-forms)
@@ -2183,15 +2226,17 @@ If TEST-MODE is non-nil, clear `anything-candidate-cache'."
           (make-overlay (point-min) (point-min) (get-buffer buffer)))
     (overlay-put anything-selection-overlay 'face anything-selection-face))
 
+  (when anything-enable-digit-shortcuts
+    (setq anything-shortcut-keys (assoc-default anything-enable-digit-shortcuts anything-shortcut-keys-alist)))
+
   (if anything-enable-digit-shortcuts
       (unless anything-digit-overlays
-        (dotimes (i 9)
-          (push (make-overlay (point-min) (point-min)
-                              (get-buffer buffer))
-                anything-digit-overlays)
-          (overlay-put (car anything-digit-overlays)
-                       'before-string (concat (int-to-string (1+ i)) " - ")))
-        (setq anything-digit-overlays (nreverse anything-digit-overlays)))
+        (setq anything-digit-overlays
+              (loop for key in anything-shortcut-keys
+                    for overlay = (make-overlay (point-min) (point-min) (get-buffer buffer))
+                    do (overlay-put overlay 'before-string
+                                    (format "%s - " (upcase (make-string 1 key))))
+                    collect overlay)))
 
     (when anything-digit-overlays
       (dolist (overlay anything-digit-overlays)
@@ -2271,16 +2316,16 @@ Anything plug-ins are realized by this function."
 SOURCE."
   (let* ((candidate-source (assoc-default 'candidates source))
          (candidates
-          (if (functionp candidate-source)
-                (anything-funcall-with-source source candidate-source)
-            (if (listp candidate-source)
-                candidate-source
-              (if (and (symbolp candidate-source)
-                       (boundp candidate-source))
-                  (symbol-value candidate-source)
-                (error (concat "Candidates must either be a function, "
-                               " a variable or a list: %s")
-                       candidate-source))))))
+          (cond ((functionp candidate-source)
+                 (anything-funcall-with-source source candidate-source))
+                ((listp candidate-source)
+                 candidate-source)
+                ((and (symbolp candidate-source) (boundp candidate-source))
+                 (symbol-value candidate-source))
+                (t
+                 (error (concat "Candidates must either be a function, "
+                                 " a variable or a list: %s")
+                        candidate-source)))))
     (if (processp candidates)
         candidates
       (anything-transform-candidates candidates source))))
@@ -2826,12 +2871,16 @@ UNIT and DIRECTION."
                   (1+ (line-end-position))))
   (anything-follow-execute-persistent-action-maybe))
 
+(defun anything-this-command-key ()
+  (event-basic-type (elt (this-command-keys-vector) 0)))
+;; (progn (read-key-sequence "Key: ") (p (anything-this-command-key)))
+
 (defun anything-select-with-digit-shortcut ()
   (interactive)
   (if anything-enable-digit-shortcuts
       (save-selected-window
         (select-window (anything-window))          
-        (let* ((index (- (event-basic-type (elt (this-command-keys-vector) 0)) ?1))
+        (let* ((index (position (anything-this-command-key) anything-shortcut-keys))
                (overlay (nth index anything-digit-overlays)))
           (when (overlay-buffer overlay)
             (goto-char (overlay-start overlay))
@@ -3531,7 +3580,7 @@ occurrence of the current pattern.")
 (defun anything-isearch-printing-char ()
   "Add printing char to the pattern."
   (interactive)
-  (let ((char (char-to-string last-command-char)))
+  (let ((char (char-to-string last-command-event)))
     (setq anything-isearch-pattern (concat anything-isearch-pattern char))
 
     (with-anything-window
