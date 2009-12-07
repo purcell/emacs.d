@@ -10,9 +10,6 @@
 [submodule "site-lisp/gist"]
 	path = site-lisp/gist
 	url = git://github.com/defunkt/gist.el.git
-[submodule "site-lisp/yasnippet"]
-	path = site-lisp/yasnippet
-	url = git://github.com/defunkt/yasnippet.git
 [submodule "site-lisp/twilight"]
 	path = site-lisp/twilight
 	url = git://github.com/crafterm/twilight-emacs.git
