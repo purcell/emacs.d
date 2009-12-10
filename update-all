@@ -46,9 +46,6 @@ echo '***' mozrepl
 echo '***' twit
 (cd site-lisp/twit && emacswiki_get twit.el)
 
-echo '***' lacarte
-(cd site-lisp/lacarte && emacswiki_get lacarte.el)
-
 echo '***' paredit
 (cd site-lisp/paredit && curl -o paredit.el http://mumble.net/~campbell/emacs/paredit-beta.el)
 
