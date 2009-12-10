@@ -1,5 +1,5 @@
 ;;; Twit.el --- interface with twitter.com
-(defvar twit-version-number "0.3.6")
+(defvar twit-version-number "0.3.7")
 ;; Copyright (c) 2007 Theron Tlax
 ;;           (c) 2008-2009 Jonathan Arkell
 ;; Time-stamp: <2007-03-19 18:33:17 thorne>
@@ -305,6 +305,10 @@
 ;;          - twitter diarrhea filtering function. (JA)
 ;;          - started work on i18n support.  (unfinished) (JA)
 ;; - 0.3.6  - Added twit-open-link, and bound it to "o". (BC)
+;; - 0.3.7  - Applied patch from http://dme.org/emacs/twit.el.diff
+;;            and small fixes by peccu.
+;;          - Added '"' to 'white' of twit-favorite-face.
+;;          - Changed format twit-write-tweet.
 
 ;;; TODO:
 ;; - remember style buffer posting.
@@ -664,7 +668,7 @@ AS WELL.  Otherwise your primary login credentials may get wacked."
         :weight bold
         :height 2.0
         :foreground "gold1"))
-      (t (:underline white)))
+      (t (:underline "white")))
   "Face for displaying the favorite"
   :group 'twit)
 
@@ -747,6 +751,8 @@ AS WELL.  Otherwise your primary login credentials may get wacked."
 
 (defvar twit-first-time-through nil)
 
+(defvar twit-window nil
+  "Window object to get window-width.")
 
 ;;* const url
 (defconst twit-base-search-url "http://search.twitter.com")
@@ -1401,22 +1407,26 @@ TIMES-THROUGH is an integer representing the number of times a tweet has been
 		  (insert-image user-img)
 		  (insert " "))
 
-	(insert " ")
 	(if (string-equal "true" favorite)
 		(twit-insert-with-overlay-attributes "*" '((face . "twit-favorite-face")))
-		(insert "  "))
-	(insert " ")
+		(insert " "))
 		  
 	(twit-insert-with-overlay-attributes (concat user-id
 												 (if user-name
 													 (concat " (" user-name ")")
-													 "")
-												 " ")
+													 ""))
 										 `((face . "twit-author-face")))
-	(insert ": ")
-	(twit-insert-with-overlay-attributes (twit-keymap-and-fontify-message message)
-										 '((face . "twit-message-face"))
-										 " ")
+	(insert "\n\t")
+	(let* ((message
+			(with-temp-buffer
+			  (let ((fill-column (- (window-width twit-window) 2)))
+				(insert "\t")
+				(insert message)
+				(fill-region (point-min) (point-max))
+				(buffer-substring 2 (point-max))))))
+	  (twit-insert-with-overlay-attributes (twit-keymap-and-fontify-message message)
+										   '((face . "twit-message-face"))
+										   " "))
 
 	(insert "\n")
 	(when (or timestamp location src-info)
@@ -1427,6 +1437,7 @@ TIMES-THROUGH is an integer representing the number of times a tweet has been
 				   (when src-info (concat " (" src-info ")"))
 				   "\n")
 		   '((face . "twit-info-face")) "" 'right))
+	(insert "\n")
 	(setq overlay-end (point))
 	(let ((o (make-overlay overlay-start overlay-end)))
 	  (overlay-put o
@@ -2016,6 +2027,7 @@ You can change the time between each check by customizing
 `twit-follow-idle-interval'."
   (interactive)
   (twit-show-recent-tweets nil)
+  (setq twit-window (get-buffer-window (buffer-name)))
   (twit-verify-and-set-rate-limit (twit-get-rate-limit))
   (setq twit-rate-limit-timer
         (run-with-timer twit-rate-limit-interval
