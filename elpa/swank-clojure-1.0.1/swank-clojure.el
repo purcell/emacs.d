@@ -6,7 +6,7 @@
 ;;          Phil Hagelberg <technomancy@gmail.com>
 ;;
 ;; URL: http://github.com/technomancy/swank-clojure
-;; Version: 1.0
+;; Version: 1.0.1
 ;; Keywords: languages, lisp
 ;; Package-Requires: ((slime-repl "20091016") (clojure-mode "1.6"))
 ;;
@@ -124,6 +124,7 @@ For example -Xmx512m or -Dsun.java2d.noddraw=true"
                 (re-search-forward regexp nil t))
         (match-string-no-properties 3)))))
 
+;;;###autoload
 (defun swank-clojure-slime-mode-hook ()
   (slime-mode 1)
   (set (make-local-variable 'slime-find-buffer-package-function)
@@ -150,7 +151,10 @@ will be used over paths too.)"
             (write-file (concat swank-clojure-jar-home "/" jar-name))
             (kill-buffer))    
         (error
-         (delete-directory swank-clojure-jar-home t)
+         ;; no recursive directory deletion on emacs 22 =(
+         (dolist (j (directory-files swank-clojure-jar-home t))
+           (delete-file j))
+         (delete-directory swank-clojure-jar-home)
          (error "Failed to download Clojure jars."))))))
 
 (defun swank-clojure-check-install ()

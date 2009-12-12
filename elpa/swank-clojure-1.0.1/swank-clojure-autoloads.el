@@ -3,14 +3,20 @@
 ;;; Code:
 
 
-;;;### (autoloads (swank-clojure-project swank-clojure-cmd swank-clojure-init)
-;;;;;;  "swank-clojure" "swank-clojure.el" (19223 50949))
+;;;### (autoloads (swank-clojure-project swank-clojure-cmd swank-clojure-slime-mode-hook
+;;;;;;  swank-clojure-init) "swank-clojure" "swank-clojure.el" (19235
+;;;;;;  37665))
 ;;; Generated autoloads from swank-clojure.el
 
 (autoload 'swank-clojure-init "swank-clojure" "\
 Not documented
 
 \(fn FILE ENCODING)" nil nil)
+
+(autoload 'swank-clojure-slime-mode-hook "swank-clojure" "\
+Not documented
+
+\(fn)" nil nil)
 
 (autoload 'swank-clojure-cmd "swank-clojure" "\
 Create the command to start clojure according to current settings.
@@ -27,7 +33,7 @@ Setup classpath for a clojure project and starts a new SLIME session.
 
 ;;;***
 
-;;;### (autoloads nil nil ("swank-clojure-pkg.el") (19223 50949 322781))
+;;;### (autoloads nil nil ("swank-clojure-pkg.el") (19235 37665 923685))
 
 ;;;***
 
