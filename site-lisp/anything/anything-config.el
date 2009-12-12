@@ -1181,6 +1181,9 @@ buffer that is not the current buffer."
 ;;; File name completion
 (defvar anything-c-source-find-files
   '((name . "Find Files")
+    (init . (lambda ()
+              (require 'ffap)
+              (setq ffap-newfile-prompt t)))
     (candidates . anything-find-files-get-candidates)
     (candidate-transformer anything-c-highlight-ffiles)
     (persistent-action . anything-find-files-persistent-action)
@@ -1227,7 +1230,9 @@ If EXPAND is non--nil expand-file-name."
                 (file-exists-p path))
            (directory-files path t))
           (t
-           (directory-files (anything-reduce-file-name path 1 :unix-close t :expand t) t)))))
+           (append
+            (list path)
+            (directory-files (anything-reduce-file-name path 1 :unix-close t :expand t) t))))))
 
 (defun anything-c-highlight-ffiles (files)
   "Candidate transformer for `anything-c-source-find-files'."
