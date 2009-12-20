@@ -16,7 +16,6 @@
 (setq *spell-check-support-enabled* nil)
 (setq *byte-code-cache-enabled* nil)
 (setq *twitter-support-enabled* nil)
-(setq *snippet-support-enabled* nil)
 (setq *is-a-mac* (eq system-type 'darwin))
 (setq *is-carbon-emacs* (and *is-a-mac* (eq window-system 'mac)))
 (setq *is-cocoa-emacs* (and *is-a-mac* (eq window-system 'ns)))
@@ -475,18 +474,6 @@ in `exec-path', or nil if no such command exists"
 (setq recentf-max-saved-items 100)
 (require 'init-ido)
 (require 'init-anything)
-
-
-;;----------------------------------------------------------------------------
-;; Yasnippet
-;;----------------------------------------------------------------------------
-(when *snippet-support-enabled*
-  (require 'yasnippet)
-  ;; Don't map TAB to yasnippet
-  ;; In fact, set it to something we'll never use because we'll only ever trigger it indirectly.
-  (setq yas/trigger-key (kbd "C-c <kp-multiply>"))
-  (yas/initialize)
-  (yas/load-directory (concat (directory-of-library "yasnippet") "snippets")))
 
 
 ;;----------------------------------------------------------------------------
