@@ -506,6 +506,12 @@ in `exec-path', or nil if no such command exists"
   (define-key ac-complete-mode-map (kbd "C-p") 'dabbrev-expand)
   (define-key ac-complete-mode-map viper-ESC-key 'viper-intercept-ESC-key))
 
+;; Exclude very large buffers from dabbrev
+(defun smp-dabbrev-friend-buffer (other-buffer)
+  (< (buffer-size other-buffer) (* 1 1024 1024)))
+
+(setq dabbrev-friend-buffer-function 'smp-dabbrev-friend-buffer)
+
 
 ;;----------------------------------------------------------------------------
 ;; When splitting window, show (other-buffer) in the new window
