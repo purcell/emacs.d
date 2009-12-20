@@ -1,5 +1,5 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.217 2009/12/03 23:16:17 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.227 2009/12/19 20:30:12 rubikitch Exp rubikitch $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -325,6 +325,36 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.227  2009/12/19 20:30:12  rubikitch
+;; add `pattern-transformer' doc
+;;
+;; Revision 1.226  2009/12/19 20:15:47  rubikitch
+;; pattern-transformer can have multiple functions now
+;;
+;; Revision 1.225  2009/12/19 20:11:16  rubikitch
+;; add `delayed-init' doc
+;;
+;; Revision 1.224  2009/12/19 12:26:00  rubikitch
+;; New attribute `pattern-transformer'
+;;
+;; Revision 1.223  2009/12/19 11:57:41  rubikitch
+;; New attribute `delayed-init'
+;;
+;; Revision 1.222  2009/12/14 20:55:23  rubikitch
+;; Fix display bug: `anything-enable-digit-shortcuts' / multiline
+;;
+;; Revision 1.221  2009/12/14 20:29:49  rubikitch
+;; fix an error when executing `anything-prev-visible-mark' with no visible marks.
+;;
+;; Revision 1.220  2009/12/14 20:19:05  rubikitch
+;; Bugfix about anything-execute-action-at-once-if-one and multiline
+;;
+;; Revision 1.219  2009/12/14 03:21:11  rubikitch
+;; Extend alphabet shortcuts to A-Z
+;;
+;; Revision 1.218  2009/12/13 01:03:34  rubikitch
+;; Changed data structure of `anything-shortcut-keys-alist'
+;;
 ;; Revision 1.217  2009/12/03 23:16:17  rubikitch
 ;; silence warning
 ;;
@@ -1031,7 +1061,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.217 2009/12/03 23:16:17 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.227 2009/12/19 20:30:12 rubikitch Exp rubikitch $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1188,6 +1218,13 @@ Attributes:
   `anything-buffer' and the current directory can be different
   there.
 
+- delayed-init (optional)
+
+  Function called with no parameters before candidate function is
+  called.  It is similar with `init' attribute, but its
+  evaluation is deferred. It is useful to combine with
+  `requires-pattern' attribute.
+
 - match (optional)
 
   List of functions called with one parameter: a candidate. The
@@ -1270,6 +1307,14 @@ Attributes:
 
   This can be used to customize the list of actions based on the
   currently selected candidate.
+
+- pattern-transformer (optional)
+
+  It's a function or a list of functions called with one argument
+  before computing matches. Its argument is `anything-pattern'.
+  Functions should return transformed `anything-pattern'.
+
+  It is useful to change interpretation of `anything-pattern'.
 
 - delayed (optional)
 
@@ -1428,7 +1473,7 @@ Attributes:
 (defvar anything-enable-shortcuts nil
   "*Whether to use digit/alphabet shortcut to select the first nine matches.
 If t then they can be selected using Ctrl+<number>.
-If 'alphabet then they can be selected using Shift+<alphabet: a s d f g h j k l>.
+If 'alphabet then they can be selected using Shift+<alphabet>.
 
 Keys (digit/alphabet) are listed in `anything-digit-shortcut-index-alist'.")
 
@@ -1437,8 +1482,8 @@ Keys (digit/alphabet) are listed in `anything-digit-shortcut-index-alist'.")
 `anything-enable-digit-shortcuts' is retained for compatibility.")
 
 (defvar anything-shortcut-keys-alist
-  '((alphabet  ?a ?s ?d ?f ?g ?h ?j ?k ?l)
-    (t         ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9)))
+  '((alphabet . "asdfghjklzxcvbnmqwertyuiop")
+    (t        . "123456789")))
 
 (defvar anything-display-source-at-screen-top t
   "*If t, `anything-next-source' and `anything-previous-source'
@@ -1506,15 +1551,8 @@ See also `anything-set-source-filter'.")
     (define-key map (kbd "C-7") 'anything-select-with-digit-shortcut)
     (define-key map (kbd "C-8") 'anything-select-with-digit-shortcut)
     (define-key map (kbd "C-9") 'anything-select-with-digit-shortcut)
-    (define-key map (kbd "A") 'anything-select-with-digit-shortcut)
-    (define-key map (kbd "S") 'anything-select-with-digit-shortcut)
-    (define-key map (kbd "D") 'anything-select-with-digit-shortcut)
-    (define-key map (kbd "F") 'anything-select-with-digit-shortcut)
-    (define-key map (kbd "G") 'anything-select-with-digit-shortcut)
-    (define-key map (kbd "H") 'anything-select-with-digit-shortcut)
-    (define-key map (kbd "J") 'anything-select-with-digit-shortcut)
-    (define-key map (kbd "K") 'anything-select-with-digit-shortcut)
-    (define-key map (kbd "L") 'anything-select-with-digit-shortcut)
+    (loop for c from ?A to ?Z do
+          (define-key map (make-string 1 c) 'anything-select-with-digit-shortcut))
     (define-key map (kbd "C-i") 'anything-select-action)
     (define-key map (kbd "C-z") 'anything-execute-persistent-action)
     (define-key map (kbd "C-e") 'anything-select-2nd-action-or-end-of-line)
@@ -1738,6 +1776,8 @@ If you prefer scrolling line by line, set this value to 1.")
 (defvar anything-display-function 'anything-default-display-buffer
   "Function to display *anything* buffer.
 It is `anything-default-display-buffer' by default, which affects `anything-samewindow'.")
+
+(defvar anything-delayed-init-executed nil)
 
 (put 'anything 'timid-completion 'disabled)
 
@@ -2018,9 +2058,17 @@ LONG-DOC is displayed below attribute name and short documentation."
 
 (defun anything-approximate-candidate-number ()
   "Approximate Number of candidates.
-It is used to check if candidate number is 0 or 1."
+It is used to check if candidate number is 0, 1, or 2+."
   (with-current-buffer anything-buffer
-    (1- (line-number-at-pos (1- (point-max))))))
+    (let ((lines (1- (line-number-at-pos (1- (point-max))))))
+      (if (zerop lines)
+          0
+        (save-excursion
+          (goto-char (point-min))
+          (forward-line 1)
+          (if (anything-pos-multiline-p)
+              (if (search-forward anything-candidate-separator nil t) 2 1)
+            lines))))))
 
 (defmacro with-anything-quittable (&rest body)
   `(let (inhibit-quit)
@@ -2184,6 +2232,7 @@ already-bound variables. Yuck!
 (defun anything-initialize ()
   "Initialize anything settings and set up the anything buffer."
   (run-hooks 'anything-before-initialize-hook)
+  (setq anything-delayed-init-executed nil)
   (setq anything-current-buffer (current-buffer))
   (setq anything-buffer-file-name buffer-file-name)
   (setq anything-issued-errors nil)
@@ -2232,7 +2281,7 @@ If TEST-MODE is non-nil, clear `anything-candidate-cache'."
   (if anything-enable-digit-shortcuts
       (unless anything-digit-overlays
         (setq anything-digit-overlays
-              (loop for key in anything-shortcut-keys
+              (loop for key across anything-shortcut-keys
                     for overlay = (make-overlay (point-min) (point-min) (get-buffer buffer))
                     do (overlay-put overlay 'before-string
                                     (format "%s - " (upcase (make-string 1 key))))
@@ -2314,6 +2363,12 @@ Anything plug-ins are realized by this function."
 (defun anything-get-candidates (source)
   "Retrieve and return the list of candidates from
 SOURCE."
+  (let ((name (assoc-default 'name source)))
+    (unless (member name anything-delayed-init-executed)
+      (anything-aif (assoc-default 'delayed-init source)
+          (when (functionp it)
+            (funcall it)
+            (add-to-list 'anything-delayed-init-executed name)))))
   (let* ((candidate-source (assoc-default 'candidates source))
          (candidates
           (cond ((functionp candidate-source)
@@ -2386,6 +2441,10 @@ Cache the candidates if there is not yet a cached value."
   (let ((doit (lambda ()
                 (let ((functions (assoc-default 'match source))
                       (limit (anything-candidate-number-limit source))
+                      (anything-pattern
+                       (anything-aif (assoc-default 'pattern-transformer source)
+                           (anything-composed-funcall-with-source source it anything-pattern)
+                         anything-pattern))
                       matches)
                   (cond ((or (equal anything-pattern "") (equal functions '(identity)))
                          (setq matches (anything-get-cached-candidates source))
@@ -2459,17 +2518,18 @@ Cache the candidates if there is not yet a cached value."
             separate)
         (anything-insert-header-from-source source)
         (dolist (match matches)
+          (if (and multiline separate)
+              (anything-insert-candidate-separator)
+            (setq separate t))
+
           (when (and anything-enable-digit-shortcuts
-                     (not (eq anything-digit-shortcut-count 9)))
+                     (not (eq anything-digit-shortcut-count
+                              (length anything-digit-overlays))))
             (move-overlay (nth anything-digit-shortcut-count
                                anything-digit-overlays)
                           (line-beginning-position)
                           (line-beginning-position))
             (incf anything-digit-shortcut-count))
-
-          (if (and multiline separate)
-              (anything-insert-candidate-separator)
-            (setq separate t))
           (anything-insert-match match 'insert))
         
         (if multiline
@@ -3416,18 +3476,20 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
 (defun anything-next-visible-mark (&optional prev)
   (interactive)
   (with-anything-window
-    (setq anything-visible-mark-overlays
-          (sort* anything-visible-mark-overlays
-                 '< :key 'overlay-start))
-    (let ((i (position-if (lambda (o) (< (point) (overlay-start o)))
-                          anything-visible-mark-overlays)))
-      (when prev
+    (block 'exit
+      (setq anything-visible-mark-overlays
+            (sort* anything-visible-mark-overlays
+                   '< :key 'overlay-start))
+      (let ((i (position-if (lambda (o) (< (point) (overlay-start o)))
+                            anything-visible-mark-overlays)))
+        (when prev
+          (unless anything-visible-mark-overlays (return-from 'exit nil))
           (if (not i) (setq i (length anything-visible-mark-overlays)))
           (if (equal (point) (overlay-start (nth (1- i) anything-visible-mark-overlays)))
               (setq i (1- i))))
-      (when i
-        (goto-char (overlay-start (nth (if prev (1- i) i) anything-visible-mark-overlays)))
-        (anything-mark-current-line)))))
+        (when i
+          (goto-char (overlay-start (nth (if prev (1- i) i) anything-visible-mark-overlays)))
+          (anything-mark-current-line))))))
 
 (defun anything-prev-visible-mark ()
   (interactive)
@@ -5318,6 +5380,96 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
           (define-anything-type-attribute 'buffer '((action . switch-to-buffer)))
           (define-anything-type-attribute 'file '((action . find-file)))
           anything-type-attributes))
+      (defun "anything-approximate-candidate-number")
+      (expect 0
+        (with-temp-buffer
+          (let ((anything-buffer (current-buffer)))
+            (anything-approximate-candidate-number))))
+      (expect 1
+        (with-temp-buffer
+          (let ((anything-buffer (current-buffer)))
+            (insert "Title\n"
+                    "candiate1\n")
+            (anything-approximate-candidate-number))))
+      (expect t
+        (with-temp-buffer
+          (let ((anything-buffer (current-buffer)))
+            (insert "Title\n"
+                    "candiate1\n"
+                    "candiate2\n")
+            (<= 2 (anything-approximate-candidate-number)))))
+      (expect 1
+        (with-temp-buffer
+          (let ((anything-buffer (current-buffer)))
+            (insert "Title\n"
+                    (propertize "multi\nline\n" 'anything-multiline t))
+            (anything-approximate-candidate-number))))
+      (expect t
+        (with-temp-buffer
+          (let ((anything-buffer (current-buffer))
+                (anything-candidate-separator "-----"))
+            (insert "Title\n"
+                    (propertize "multi\nline1\n" 'anything-multiline t)
+                    "-----\n"
+                    (propertize "multi\nline2\n" 'anything-multiline t))
+            (<= 2 (anything-approximate-candidate-number)))))
+      (desc "delayed-init attribute")
+      (expect 0
+        (let ((value 0))
+          (anything-test-candidates '(((name . "test")
+                                       (delayed-init . (lambda () (incf value)))
+                                       (candiates "abc")
+                                       (requires-pattern . 2)))
+                                    "")
+          value))
+      (expect 1
+        (let ((value 0))
+          (anything-test-candidates '(((name . "test")
+                                       (delayed-init . (lambda () (incf value)))
+                                       (candiates "abc")
+                                       (requires-pattern . 2)))
+                                    "abc")
+          value))
+      (desc "pattern-transformer attribute")
+      (expect '(("test2" ("foo")) ("test3" ("bar")))
+        (anything-test-candidates '(((name . "test1")
+                                     (candidates "foo" "bar"))
+                                    ((name . "test2")
+                                     (pattern-transformer . (lambda (pat) (substring pat 1)))
+                                     (candidates "foo" "bar"))
+                                    ((name . "test3")
+                                     (pattern-transformer . (lambda (pat) "bar"))
+                                     (candidates "foo" "bar")))
+                                  "xfoo"))
+      (expect '(("test2" ("foo")) ("test3" ("bar")))
+        (anything-test-candidates '(((name . "test1")
+                                     (candidates "foo" "bar"))
+                                    ((name . "test2")
+                                     (pattern-transformer (lambda (pat) (substring pat 1)))
+                                     (candidates "foo" "bar"))
+                                    ((name . "test3")
+                                     (pattern-transformer (lambda (pat) "bar"))
+                                     (candidates "foo" "bar")))
+                                  "xfoo"))
+      (expect '(("test2" ("foo")) ("test3" ("bar")))
+        (anything-test-candidates '(((name . "test1")
+                                     (init
+                                      . (lambda () (with-current-buffer (anything-candidate-buffer 'global)
+                                                     (insert "foo\nbar\n"))))
+                                     (candidates-in-buffer))
+                                    ((name . "test2")
+                                     (pattern-transformer . (lambda (pat) (substring pat 1)))
+                                     (init
+                                      . (lambda () (with-current-buffer (anything-candidate-buffer 'global)
+                                                     (insert "foo\nbar\n"))))
+                                     (candidates-in-buffer))
+                                    ((name . "test3")
+                                     (pattern-transformer . (lambda (pat) "bar"))
+                                     (init
+                                      . (lambda () (with-current-buffer (anything-candidate-buffer 'global)
+                                                     (insert "foo\nbar\n"))))
+                                     (candidates-in-buffer)))
+                                  "xfoo"))
       )))
 
 
