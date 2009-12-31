@@ -704,10 +704,12 @@ in `exec-path', or nil if no such command exists"
 ;; Lisp / Scheme / Slime
 ;;----------------------------------------------------------------------------
 (require 'init-lisp)
-(when *common-lisp-support-enabled*
-  (require 'init-common-lisp))
+(require 'init-slime)
+
 (when *clojure-support-enabled*
   (require 'init-clojure))
+(when *common-lisp-support-enabled*
+  (require 'init-common-lisp))
 (when *scheme-support-enabled*
   ; See http://bc.tech.coop/scheme/scheme-emacs.htm
   (require 'quack))

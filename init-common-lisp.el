@@ -1,7 +1,5 @@
 ;; See http://bc.tech.coop/blog/070927.html
-(require 'slime-autoloads)
 (add-auto-mode 'lisp-mode "\\.cl$")
-(global-set-key [f4] 'slime-selector)
 (add-hook 'lisp-mode-hook (lambda ()
                             (cond ((not (featurep 'slime))
                                    (require 'slime)
@@ -12,10 +10,7 @@
      (add-to-list 'slime-lisp-implementations
 		  '(sbcl ("sbcl") :coding-system utf-8-unix))
      (add-to-list 'slime-lisp-implementations
-		  '(cmucl ("cmucl") :coding-system iso-latin-1-unix))
-     (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
-     (add-hook 'slime-mode-hook 'pretty-lambdas)
-     (add-hook 'slime-mode-hook (lambda () (enable-paredit slime-mode-map)))))
+		  '(cmucl ("cmucl") :coding-system iso-latin-1-unix))))
 
 ;; From http://bc.tech.coop/blog/070515.html
 (defun lispdoc ()

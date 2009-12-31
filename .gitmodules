@@ -19,3 +19,12 @@
 [submodule "site-lisp/color-theme-tango-2"]
 	path = site-lisp/color-theme-tango-2
 	url = git://github.com/wfarr/color-theme-tango-2.git
+[submodule "site-lisp/slime"]
+	path = site-lisp/slime
+	url = git://github.com/technomancy/slime.git
+[submodule "site-lisp/swank-clojure"]
+	path = site-lisp/swank-clojure
+	url = git://github.com/technomancy/swank-clojure.git
+[submodule "site-lisp/clojure-mode"]
+	path = site-lisp/clojure-mode
+	url = git://github.com/technomancy/clojure-mode.git
