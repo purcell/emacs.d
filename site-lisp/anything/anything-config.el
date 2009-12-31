@@ -1199,6 +1199,38 @@ buffer that is not the current buffer."
 
 ;; (anything 'anything-c-source-find-files)
 
+(defun* anything-reduce-file-name (fname level &key unix-close expand)
+    "Reduce FNAME by LEVEL from end or beginning depending LEVEL value.
+If LEVEL is positive reduce from end else from beginning.
+If UNIX-CLOSE is non--nil close filename with /.
+If EXPAND is non--nil expand-file-name."
+  (let* ((exp-fname  (expand-file-name fname))
+         (fname-list (split-string (if (or (string= fname "~/") expand)
+                                       exp-fname fname) "/" t))
+         (len        (length fname-list))
+         (pop-list   (if (< level 0)
+                         (subseq fname-list (* level -1))
+                         (subseq fname-list 0 (- len level))))
+         (result     (mapconcat 'identity pop-list "/"))
+         (empty      (string= result "")))
+    (when unix-close (setq result (concat result "/")))
+    (if (string-match "^~" result)
+        (if (string= result "~/") "~/" result)
+        (if (< level 0)
+            (if empty "../" (concat "../" result))
+            (if empty "/" (concat "/" result))))))
+
+(defun anything-find-files-down-one-level (arg)
+  "Go down one level like unix command `cd ..'.
+If prefix numeric arg is given go ARG level down."
+  (interactive "p")
+  (when (equal (cdr (assoc 'name (anything-get-current-source))) "Find Files")
+    (let ((new-pattern (anything-reduce-file-name anything-pattern arg :unix-close t :expand t)))
+      (with-selected-window (minibuffer-window)
+        (delete-minibuffer-contents)
+        (insert new-pattern)))))
+(define-key anything-map (kbd "C-.") 'anything-find-files-down-one-level)
+
 (defun anything-c-point-file-in-dired (file)
   "Put point on filename FILE in dired buffer."
   (dired (file-name-directory file))
@@ -1210,7 +1242,7 @@ buffer that is not the current buffer."
                   (replace-match (getenv "HOME") nil t anything-pattern)
                   anything-pattern)))
     (cond ((or (and (not (file-directory-p path)) (file-exists-p path))
-               (string-match "^\\(http\\|https\\|ftp\\)://.*" path))
+               (string-match "^\\(http\\|https\\|ftp\\|mailto\\):/?/?.*" path))
            (list path))
           ((string= anything-pattern "")
            (directory-files "/" t))
