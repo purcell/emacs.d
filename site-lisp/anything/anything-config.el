@@ -1252,7 +1252,7 @@ If prefix numeric arg is given go ARG level down."
                   (replace-match (getenv "HOME") nil t anything-pattern)
                   anything-pattern)))
     (cond ((or (and (not (file-directory-p path)) (file-exists-p path))
-               (string-match "^\\(http\\|https\\|ftp\\|mailto\\):/?/?.*" path))
+               (string-match ffap-url-regexp path))
            (list path))
           ((string= anything-pattern "")
            (directory-files "/" t))
@@ -1297,7 +1297,8 @@ If CANDIDATE is not a directory open this file."
   (let ((fap (ffap-guesser)))
     (anything 'anything-c-source-find-files
               (or (if (and fap (file-exists-p fap)) (expand-file-name fap) fap)
-                  (expand-file-name default-directory)) "Find Files or Url: " nil nil "*Anything Find Files*")))
+                  (expand-file-name default-directory))
+              "Find Files or Url: " nil nil "*Anything Find Files*")))
 
 
 ;;; Anything completion for copy, rename and symlink files from dired.
@@ -1378,19 +1379,19 @@ ACTION is a key that can be one of 'copy, 'rename, 'symlink, 'relsymlink."
                         (format "* %d Files" len)
                         (car files)))
          (source    (case action
-                      ('copy 'anything-c-source-copy-files)
-                      ('rename 'anything-c-source-rename-files)
-                      ('symlink 'anything-c-source-symlink-files)
+                      ('copy     'anything-c-source-copy-files)
+                      ('rename   'anything-c-source-rename-files)
+                      ('symlink  'anything-c-source-symlink-files)
                       ('hardlink 'anything-c-source-hardlink-files)))
          (prompt-fm (case action
-                      ('copy "Copy %s to: ")
-                      ('rename "Rename %s to: ")
-                      ('symlink "Symlink %s to: ")
+                      ('copy     "Copy %s to: ")
+                      ('rename   "Rename %s to: ")
+                      ('symlink  "Symlink %s to: ")
                       ('hardlink "Hardlink %s to: ")))
          (buffer    (case action
-                      ('copy "*Anything Copy Files*")
-                      ('rename "*Anything Rename Files*")
-                      ('symlink "*Anything Symlink Files*")
+                      ('copy     "*Anything Copy Files*")
+                      ('rename   "*Anything Rename Files*")
+                      ('symlink  "*Anything Symlink Files*")
                       ('hardlink "*Anything Hardlink Files*"))))
     (anything source
               (or (dired-dwim-target-directory)
