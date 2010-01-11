@@ -6,7 +6,7 @@
 ;;          Phil Hagelberg <technomancy@gmail.com>
 ;;
 ;; URL: http://github.com/technomancy/swank-clojure
-;; Version: 1.0.1
+;; Version: 1.1.0
 ;; Keywords: languages, lisp
 ;; Package-Requires: ((slime-repl "20091016") (clojure-mode "1.6"))
 ;;
@@ -17,18 +17,29 @@
 ;;
 ;; The purpose of this file is to set up `slime-lisp-implementations'
 ;; to allow SLIME to communicate with the Swank server implemented in
-;; Clojure. There are three ways to launch SLIME:
+;; Clojure. There are four ways to launch a session:
 ;;
-;; 1. Standalone M-x slime: swank-clojure will download the jars for
-;;    Clojure 1.0, contrib, and swank-clojure and connect to it. Good
-;;    for beginners wanting to try things out!
+;; 1. Standalone: If you just hit M-x slime, swank-clojure will
+;;    download the jars for Clojure, contrib, and swank-clojure,
+;;    launch an instance, and connect to it. If you just want to try
+;;    out Clojure, this is all you need. Just get Swank Clojure
+;;    through ELPA (http://tromey.com/elpa) and stop reading here.
 ;;
-;; 2. Custom classpath: If you have your own newer copies of Clojure
-;;    and other jars you'd like to use, set swank-clojure-classpath to
-;;    point to them, then hit M-x slime.
+;; 2. Custom classpath: If you want to hack on Clojure or Contrib, set
+;;    swank-clojure-classpath to a list of paths to the jars you want to
+;;    use and then hit M-x slime.
 ;;
 ;; 3. Project: Put your project's dependencies in the lib/ directory,
-;;    then launch M-x swank-clojure-project.
+;;    (either manually or using Leiningen or Maven) then launch
+;;    M-x swank-clojure-project. Note that you must have
+;;    swank-clojure.jar in the lib/ directory, it will not
+;;    automatically add itself to the classpath as it did in past
+;;    versions that had to run from a checkout.
+;;
+;; 4. Standalone Server: Users of leiningen or clojure-maven-plugin
+;;    can launch a server from a shell
+;;    (http://wiki.github.com/technomancy/leiningen/emacs-integration)
+;;    and connect to it from within Emacs using M-x slime-connect.
 ;;
 ;;; Code:
 ;;
@@ -92,9 +103,29 @@ For example -Xmx512m or -Dsun.java2d.noddraw=true"
   :group 'swank-clojure)
 
 (defcustom swank-clojure-compile-p nil
-  "Whether or not to instruct swank-clojure to swank files. Set
-  to nil if it's causing you problems."
+  "Whether to instruct swank-clojure to compile files. Set to nil
+  if it's causing you problems."
   :type 'boolean
+  :group 'swank-clojure)
+
+(defcustom swank-clojure-deps
+  (list (concat "http://repo.technomancy.us/"
+                "swank-clojure-1.1.0.jar")
+        (concat "http://build.clojure.org/snapshots/org/"
+                "clojure/clojure/1.1.0-master-SNAPSHOT/"
+                "clojure-1.1.0-master-20091202.150145-1.jar")
+        (concat "http://build.clojure.org/snapshots/org/"
+                "clojure/clojure-contrib/1.1.0-master-SNAPSHOT/"
+                "clojure-contrib-1.1.0-master-20091212.205045-1.jar"))
+  "A list of urls of jars required to run swank-clojure. If they
+don't exist in `swank-clojure-jar-home' and
+`swank-clojure-classpath' is not set, the user will be prompted
+to download them when invoking `slime'.
+
+Due to a bug in url-retrieve-synchronously, they must be
+downloaded in order of size (ascending), so if you customize
+this, keep that in mind."
+  :type 'list
   :group 'swank-clojure)
 
 (defface swank-clojure-dim-trace-face
@@ -114,6 +145,9 @@ For example -Xmx512m or -Dsun.java2d.noddraw=true"
    (when (boundp 'slime-protocol-version)
      (format "(swank.swank/ignore-protocol-version %S)\n\n"
              slime-protocol-version))
+   ;; Hacked in call to get the localhost address to work around a bug
+   ;; where the REPL doesn't pop up until the user presses Enter.
+   "(do (.. java.net.InetAddress getLocalHost getHostAddress) nil)"
    (format "(swank.swank/start-server %S :encoding %S)\n\n"
            file (format "%s" (slime-coding-system-cl-name encoding)))))
 
@@ -138,38 +172,44 @@ For example -Xmx512m or -Dsun.java2d.noddraw=true"
 will be used over paths too.)"
   (mapconcat 'identity (mapcar 'expand-file-name paths) path-separator))
 
+(defun swank-clojure-parse-jar-name (url)
+  (car (last (split-string url "/"))))
+
 (defun swank-clojure-download-jar (url)
-  (let ((jar-name (car (last (split-string url "/"))))
-        (download-buffer (url-retrieve-synchronously url)))
-    (save-excursion
-      (condition-case e
-          (progn
-            (set-buffer download-buffer)
-            (re-search-forward "HTTP/[0-9]\.[0-9] 200 OK")
-            (re-search-forward "^$" nil 'move)
-            (delete-region (point-min) (+ 1 (point)))
-            (write-file (concat swank-clojure-jar-home "/" jar-name))
-            (kill-buffer))    
-        (error
-         ;; no recursive directory deletion on emacs 22 =(
-         (dolist (j (directory-files swank-clojure-jar-home t))
-           (delete-file j))
-         (delete-directory swank-clojure-jar-home)
-         (error "Failed to download Clojure jars."))))))
+  (let ((jar-name (swank-clojure-parse-jar-name url)))
+    (message "Downloading %s..." jar-name)
+    (let ((download-buffer (url-retrieve-synchronously url)))
+      (save-excursion
+        (condition-case e
+            (progn
+              (set-buffer download-buffer)
+              (re-search-forward "HTTP/[0-9]\.[0-9] 200 OK")
+              (re-search-forward "^$" nil 'move)
+              (delete-region (point-min) (+ 1 (point)))
+              (write-file (concat swank-clojure-jar-home "/" jar-name))
+              (kill-buffer nil))    
+          (error
+           ;; no recursive directory deletion on emacs 22 =(
+           (dolist (j (directory-files swank-clojure-jar-home t "[^.]+$"))
+             (delete-file j))
+           (delete-directory swank-clojure-jar-home)
+           (error "Failed to download Clojure jars.")))))))
+
+(defun swank-clojure-dep-exists-p (jar-url)
+  "True if the jar file in `jar-url' exists in `swank-clojure-jar-home'."
+  (file-exists-p (expand-file-name (swank-clojure-parse-jar-name jar-url)
+                                   swank-clojure-jar-home)))
 
 (defun swank-clojure-check-install ()
   "Prompt to install Clojure if it's not already present."
   (when (and (not swank-clojure-classpath)
-             (not (file-exists-p swank-clojure-jar-home))
+             (or (not (file-exists-p swank-clojure-jar-home))
+                 (> (count-if-not 'swank-clojure-dep-exists-p swank-clojure-deps)
+                    0))
              (y-or-n-p "It looks like Clojure is not installed. Install now? "))
     (make-directory swank-clojure-jar-home t)
-    ;; bug in url-retrieve-synchronously: must download in order of size
-    (swank-clojure-download-jar (concat "http://repo.technomancy.us/"
-                                        "swank-clojure-1.0.jar"))
-    (swank-clojure-download-jar (concat "http://repo1.maven.org/maven2/org/"
-                                        "clojure/clojure/1.0.0/clojure-1.0.0.jar"))
-    (swank-clojure-download-jar (concat "http://repo.technomancy.us/"
-                                        "clojure-contrib-1.0-compat.jar"))
+    (dolist (j swank-clojure-deps)
+      (swank-clojure-download-jar j))
     (setq swank-clojure-classpath (swank-clojure-default-classpath))))
 
 ;;;###autoload
@@ -234,21 +274,37 @@ will be used over paths too.)"
 (defun swank-clojure-dim-font-lock ()
   "Dim irrelevant lines in Clojure debugger buffers."
   (if (string-match "clojure" (buffer-name))
-      (font-lock-add-keywords nil
-                              '(("[0-9]+: \\(clojure\.\\(core\\|lang\\).*\\)"
-                                 1 swank-clojure-dim-trace-face)
-                                ("[0-9]+: \\(java.*\\)"
-                                 1 swank-clojure-dim-trace-face)
-                                ("[0-9]+: \\(swank.*\\)"
-                                 1 swank-clojure-dim-trace-face)
-                                ("\\[\\([A-Z]+\\)\\]"
-                                 1 font-lock-function-name-face)))))
+      (font-lock-add-keywords
+       nil `((,(concat " [0-9]+: " (regexp-opt '("clojure.core"
+                                                 "clojure.lang"
+                                                 "swank." "java."))
+                       ;; TODO: regexes ending in .* are ignored by
+                       ;; font-lock; what gives?
+                       "[a-zA-Z0-9\\._$]*")
+              . font-lock-comment-face)) t)))
 
 (add-hook 'sldb-mode-hook 'swank-clojure-dim-font-lock)
 
 (defvar swank-clojure-project-hook nil
   "A hook to run when a new SLIME session starts via `swank-clojure-project'.
 The `path' variable is bound to the project root when these functions run.")
+
+(defun swank-clojure-javadoc (classname)
+  "Show the javadoc for classname using clojure.contrib.repl-utils/javadoc"
+  (interactive (list (read-from-minibuffer "Javadoc for: " (slime-sexp-at-point))))
+  (slime-eval
+   `(swank:eval-and-grab-output
+     ,(concat "(try
+       (require 'clojure.contrib.repl-utils)
+       (@(ns-resolve 'clojure.contrib.repl-utils 'javadoc) " classname ")
+       (catch Throwable t (.getMessage t)))"))))
+
+(defun directoryp (path)
+  "Return t is path is a directory or a symlink pointing to a directory."
+  (let ((first-attr (car (file-attributes path))))
+    (if (stringp first-attr)
+      (directoryp first-attr)
+      first-attr)))
 
 ;;;###autoload
 (defun swank-clojure-project (path)
@@ -268,7 +324,10 @@ The `path' variable is bound to the project root when these functions run.")
         (swank-clojure-binary nil)
         (swank-clojure-classpath (let ((l (expand-file-name "lib" path)))
                                    (if (file-directory-p l)
-                                       (directory-files l t ".jar$")))))
+				       (append
+					(directory-files l t ".jar$")
+					(remove-if-not 'directoryp
+					  (directory-files l t "^[^\\.]")))))))
 
     (add-to-list 'swank-clojure-classpath (expand-file-name "classes/" path))
     (add-to-list 'swank-clojure-classpath (expand-file-name "src/" path))
