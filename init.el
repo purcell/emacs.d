@@ -11,7 +11,6 @@
 (setq *scheme-support-enabled* t)
 (setq *macbook-pro-support-enabled* t)
 (setq *erlang-support-enabled* t)
-(setq *darcs-support-enabled* t)
 (setq *rails-support-enabled* t)
 (setq *spell-check-support-enabled* nil)
 (setq *byte-code-cache-enabled* nil)
@@ -447,8 +446,7 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; Darcs
 ;;----------------------------------------------------------------------------
-(when *darcs-support-enabled*
-  (require 'init-darcs))
+(require 'init-darcs)
 
 
 ;;----------------------------------------------------------------------------
