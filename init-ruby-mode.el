@@ -39,8 +39,8 @@
 ;; Ruby - misc
 ;;----------------------------------------------------------------------------
 ;; For some unknown reason, viper starts off in insert mode inside ruby-mode buffers
-(when *vi-emulation-support-enabled*
-  (add-to-list 'viper-vi-state-mode-list 'ruby-mode))
+(eval-after-load "viper"
+  '(add-to-list 'viper-vi-state-mode-list 'ruby-mode))
 
 (setq compile-command "rake ")
 

@@ -203,12 +203,12 @@ in `exec-path', or nil if no such command exists"
     ;; Woohoo!!
     (global-set-key (kbd "M-`") 'ns-next-frame)
     (global-set-key (kbd "M-h") 'ns-do-hide-emacs)
-    (global-set-key (kbd "M-ˍ") 'ns-do-hide-others)  ;; what describe-key reports
+    (global-set-key (kbd "M-ˍ") 'ns-do-hide-others) ;; what describe-key reports
     (global-set-key (kbd "M-c") 'ns-copy-including-secondary)
     (global-set-key (kbd "M-v") 'ns-paste-secondary))
   ;; Use Apple-w to close current buffer on OS-X (is normally bound to kill-ring-save)
-  (when *vi-emulation-support-enabled*
-    (global-set-key [(meta w)] 'kill-this-buffer)))
+  (eval-after-load "viper"
+    '(global-set-key [(meta w)] 'kill-this-buffer)))
 
 
 ;;----------------------------------------------------------------------------
@@ -241,31 +241,37 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; VI emulation and related key mappings
 ;;----------------------------------------------------------------------------
-(when *vi-emulation-support-enabled*
-  ;; C-z is usually 'iconify-or-deiconify-frame, but viper uses it to toggle
-  ;; vi/emacs input modes, causing confusion in non-viper buffers
-  (global-unset-key "\C-z")
-  (setq viper-mode t)
-  (setq viper-custom-file-name (convert-standard-filename "~/.emacs.d/.viper"))
-  (require 'viper)
-  (define-key viper-insert-global-user-map (kbd "C-n") 'dabbrev-expand)
-  (define-key viper-insert-global-user-map (kbd "C-p") 'dabbrev-expand)
+(eval-after-load "viper"
+  '(progn
+     ;; C-z is usually 'iconify-or-deiconify-frame, but viper uses it to toggle
+     ;; vi/emacs input modes, causing confusion in non-viper buffers
 
-  ;; Stop C-u from clobbering prefix-arg -- I always use C-b/C-f to scroll
-  (define-key viper-vi-basic-map "\C-u" nil)
+     (global-unset-key "\C-z")
+     (setq viper-mode t)
+     (setq viper-custom-file-name (convert-standard-filename "~/.emacs.d/.viper"))
+     (require 'viper)
+     (define-key viper-insert-global-user-map [kp-delete] 'viper-delete-char)
+     (define-key viper-insert-global-user-map (kbd "C-n") 'dabbrev-expand)
+     (define-key viper-insert-global-user-map (kbd "C-p") 'dabbrev-expand)
 
-  ;; Vim-style searching of the symbol at point, made easy by highlight-symbol
-  (autoload 'highlight-symbol-next "highlight-symbol" "Highlight symbol at point")
-  (autoload 'highlight-symbol-prev "highlight-symbol" "Highlight symbol at point")
-  (setq highlight-symbol-on-navigation-p t)
-  (define-key viper-vi-global-user-map "*" 'highlight-symbol-next)
-  (define-key viper-vi-global-user-map "#" 'highlight-symbol-prev))
+     ;; Stop C-u from clobbering prefix-arg -- I always use C-b/C-f to scroll
+
+     (define-key viper-vi-basic-map "\C-u" nil)
+
+     ;; Vim-style searching of the symbol at point, made easy by highlight-symbol
+
+     (autoload 'highlight-symbol-next "highlight-symbol" "Highlight symbol at point")
+     (autoload 'highlight-symbol-prev "highlight-symbol" "Highlight symbol at point")
+     (setq highlight-symbol-on-navigation-p t)
+     (define-key viper-vi-global-user-map "*" 'highlight-symbol-next)
+     (define-key viper-vi-global-user-map "#" 'highlight-symbol-prev)))
 
 
 ;; Work around a problem in Cocoa emacs, wherein setting the cursor coloring
 ;; is incredibly slow; viper sets the cursor very frequently in insert mode
-(when (and *vi-emulation-support-enabled* *is-cocoa-emacs*)
-  (defun viper-change-cursor-color (new-color &optional frame)))
+(when *is-cocoa-emacs*
+  (eval-after-load "viper"
+    '(defun viper-change-cursor-color (new-color &optional frame))))
 
 
 ;;----------------------------------------------------------------------------
@@ -501,10 +507,11 @@ in `exec-path', or nil if no such command exists"
 ;; like "endomorph" - have to use an explicit "TAB" to complete.
 (define-key ac-complete-mode-map (kbd "\r") nil)
 
-(when *vi-emulation-support-enabled*
-  (define-key ac-complete-mode-map (kbd "C-n") 'dabbrev-expand)
-  (define-key ac-complete-mode-map (kbd "C-p") 'dabbrev-expand)
-  (define-key ac-complete-mode-map viper-ESC-key 'viper-intercept-ESC-key))
+(eval-after-load "viper"
+  '(progn
+     (define-key ac-complete-mode-map (kbd "C-n") 'dabbrev-expand)
+     (define-key ac-complete-mode-map (kbd "C-p") 'dabbrev-expand)
+     (define-key ac-complete-mode-map viper-ESC-key 'viper-intercept-ESC-key)))
 
 ;; Exclude very large buffers from dabbrev
 (defun smp-dabbrev-friend-buffer (other-buffer)

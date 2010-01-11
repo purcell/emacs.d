@@ -7,7 +7,7 @@
                                         "-XX:+UseCompressedOops"
                                         "-XX:+DoEscapeAnalysis"))
 
-(when *vi-emulation-support-enabled*
-  (add-to-list 'viper-vi-state-mode-list 'clojure-mode))
+(eval-after-load "viper"
+  '(add-to-list 'viper-vi-state-mode-list 'clojure-mode))
 
 (provide 'init-clojure)
