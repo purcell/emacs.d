@@ -3,7 +3,7 @@
 ;;----------------------------------------------------------------------------
 ;; Which functionality to enable (use t or nil for true and false)
 ;;----------------------------------------------------------------------------
-(setq *vi-emulation-support-enabled* t) ; "viper-mode"
+(setq *vi-emulation-support-enabled* nil) ; "viper-mode"
 (setq *haskell-support-enabled* t)
 (setq *ocaml-support-enabled* t)
 (setq *common-lisp-support-enabled* t)
