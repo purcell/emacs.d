@@ -331,12 +331,6 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
-;; Modeline tweaks
-;;----------------------------------------------------------------------------
-(autoload 'linum-mode "linum" "Toggle line numbering" t)
-
-
-;;----------------------------------------------------------------------------
 ;; Scroll the window smoothly with the up/down arrows
 ;;----------------------------------------------------------------------------
 (require 'smooth-scrolling)
