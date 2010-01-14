@@ -468,7 +468,7 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; File and buffer navigation
 ;;----------------------------------------------------------------------------
-(require 'recentf)
+(recentf-mode 1)
 (setq recentf-max-saved-items 100)
 (require 'init-ido)
 (require 'init-anything)
