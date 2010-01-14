@@ -189,9 +189,11 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
-;; To be able to M-x without meta
+;; Handy key bindings
 ;;----------------------------------------------------------------------------
+;; To be able to M-x without meta
 (global-set-key (kbd "C-x C-m") 'execute-extended-command)
+(global-set-key (kbd "C-x j") 'join-line)
 
 
 ;;----------------------------------------------------------------------------
