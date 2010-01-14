@@ -92,13 +92,18 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; Augment search path for external programs (for OSX)
 ;;----------------------------------------------------------------------------
+(defun set-exec-path-from-shell-PATH ()
+  (let ((path-from-shell (shell-command-to-string "$SHELL -i -c 'echo $PATH'")))
+    (setenv "PATH" path-from-shell)
+    (setq exec-path (split-string path-from-shell path-separator))))
+
 (when *is-a-mac*
   (eval-after-load "woman"
     '(setq woman-manpath (append (list "/opt/local/man") woman-manpath)))
-  (dolist (dir (mapcar 'expand-file-name '("~/.cabal/bin" "/usr/local/bin" "/opt/local/bin"
-                                           "/opt/local/lib/postgresql84/bin" "~/bin")))
-    (setenv "PATH" (concat dir ":" (getenv "PATH")))
-    (setq exec-path (append (list dir) exec-path))))
+
+  ;; When started from Emacs.app or similar, ensure $PATH
+  ;; is the same the user would see in Terminal.app
+  (if window-system (set-exec-path-from-shell-PATH)))
 
 
 ;;----------------------------------------------------------------------------
