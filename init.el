@@ -222,6 +222,7 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 (setq use-file-dialog nil)
 (setq use-dialog-box nil)
+(setq inhibit-startup-screen t)
 
 
 ;;----------------------------------------------------------------------------
@@ -335,6 +336,7 @@ in `exec-path', or nil if no such command exists"
 ;; Modeline tweaks
 ;;----------------------------------------------------------------------------
 (size-indication-mode)
+(column-number-mode 1)
 
 
 ;;----------------------------------------------------------------------------
