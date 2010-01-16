@@ -1,9 +1,10 @@
 ;;; Twit.el --- interface with twitter.com
-(defvar twit-version-number "0.3.9")
+(defvar twit-version-number "0.3.11")
 ;; Copyright (c) 2007 Theron Tlax
 ;;           (c) 2008-2009 Jonathan Arkell
+;;           (c) 2010 Dave Kerschner (docgnome)
 ;; Time-stamp: <2007-03-19 18:33:17 thorne>
-;; Author: thorne <thorne@timbral.net>, jonnay <jonnay@jonnay.net>
+;; Author: thorne <thorne@timbral.net>, jonnay <jonnay@jonnay.net>, docgnome <docgnome@gmail.com>
 ;; Created: 2007.3.16
 ;; Keywords: comm
 ;; Favorite Poet: E. E. Cummings
@@ -317,7 +318,13 @@
 ;;            timestamp of tweet, goto that tweet page.
 ;;            in reply to USER of tweet, goto that reply tweet page.
 ;;            source of tweet, goto sources page.(peccu)
-
+;; - 0.3.10 - Added support for new style retweets (docgnome)
+;;            the icon of the user who retweeted will appear next to
+;;            the icon of the user who originally tweeted it
+;;            users are prompted on attempting to retweet if they want
+;;            to use the new style, a la TweetDeck
+;; - 0.3.11 - Migrated to the versioned api at api.twitter.com/1 (docgnome)
+;;            the api at twitter.com is deprecated
 ;;; TODO:
 ;; - remember style buffer posting.
 
@@ -359,9 +366,9 @@
 (defun twit-set-auth (user pass)
    "Set the http url authentication string from USER and PASS."
    (let ((old-http-storage
-          (assoc "twitter.com:80" (symbol-value url-basic-auth-storage)))
+          (assoc "api.twitter.com:80" (symbol-value url-basic-auth-storage)))
          (old-https-storage
-          (assoc "twitter.com:443" (symbol-value url-basic-auth-storage)))
+          (assoc "api.twitter.com:443" (symbol-value url-basic-auth-storage)))
          (auth-pair
           (cons "Twitter API"
                 (base64-encode-string (format "%s:%s" user pass)))))
@@ -372,8 +379,8 @@
        (set url-basic-auth-storage
             (delete old-https-storage (symbol-value url-basic-auth-storage))))
      (set url-basic-auth-storage
-          (cons (list "twitter.com:443" auth-pair)
-                (cons (list "twitter.com:80" auth-pair)
+          (cons (list "api.twitter.com:443" auth-pair)
+                (cons (list "api.twitter.com:80" auth-pair)
                       (symbol-value url-basic-auth-storage))))))
 
 ;;* custom helper auth
@@ -764,15 +771,20 @@ AS WELL.  Otherwise your primary login credentials may get wacked."
 
 ;;* const url
 (defconst twit-base-search-url "http://search.twitter.com")
-(defconst twit-base-url (concat twit-protocol "://twitter.com"))
-(defconst twit-secure-base-url (concat twit-protocol "://twitter.com"))
+(defconst twit-base-url (concat twit-protocol "://api.twitter.com/1"))
+(defconst twit-secure-base-url (concat twit-protocol "://api.twitter.com"))
 ;; statuses
 (defconst twit-update-url
   (concat twit-base-url "/statuses/update.xml"))
+(defconst twit-retweet-file
+  (concat twit-base-url "/statuses/retweet/%s.xml"))
 (defconst twit-puplic-timeline-file
   (concat twit-base-url "/statuses/public_timeline.xml?page=%s"))
+;;friends-timeline is deprecated use home-timeline instead
 (defconst twit-friend-timeline-file
   (concat twit-base-url "/statuses/friends_timeline.xml?page=%s"))
+(defconst twit-home-timeline-file
+  (concat twit-base-url "/statuses/home_timeline.xml?page=%s"))
 (defconst twit-followers-list-url
   (concat twit-base-url "/statuses/followers.xml?page=%s"))
 (defconst twit-friend-list-url
@@ -917,11 +929,11 @@ The value returned is the current buffer."
 This forms the very basic support for multi-user twittering.
 See the very end of this file for an example."
   `(let ((,url-basic-auth-storage
-          (list (list "twitter.com:80"
+         (list (list "api.twitter.com:80"
                       (cons "Twitter API"
                             (base64-encode-string
                              (format "%s:%s" ,user ,pass))))
-                (list "twitter.com:443"
+                (list "api.twitter.com:443"
                       (cons "Twitter API"
                             (base64-encode-string
                              (format "%s:%s" ,user ,pass))))))
@@ -1386,6 +1398,23 @@ FILTER-TWEETS is an optional boolean to disregard filtering.
 TIMES-THROUGH is an integer representing the number of times a tweet has been
   displayed, for zebra-tabling."
   (let* ((tweet-id (xml-first-childs-value tweet 'id))
+         (retweet (xml-first-child tweet 'retweeted_status))
+         (retweeted-by 
+          (if retweet
+              (or (xml-first-child tweet 'user) (xml-first-child tweet 'sender))))
+         (retweeted-by-user-id
+          (if retweet 
+              (or (xml-first-childs-value retweeted-by 'screen_name) "??")))
+         (retweeted-by-user-img
+          (if (and retweet twit-show-user-images)
+              (twit-get-user-image (xml-first-childs-value retweeted-by 'profile_image_url) 
+                                   retweeted-by-user-id)
+            nil))
+
+         (tweet 
+          (if retweet
+              retweet
+            tweet))
          (user-info (or (xml-first-child tweet 'user) (xml-first-child tweet 'sender)))
          (user-id (or (xml-first-childs-value user-info 'screen_name) "??"))
          (user-name (xml-first-childs-value user-info 'name))
@@ -1396,6 +1425,8 @@ TIMES-THROUGH is an integer representing the number of times a tweet has been
 
          (timestamp (format-time-string twit-time-string (date-to-time (xml-first-childs-value tweet 'created_at))))
          (message (xml-substitute-special (xml-first-childs-value tweet 'text)))
+
+
          (src-info (xml-first-childs-value tweet 'source))
          (src-url (xml-first-childs-value tweet 'source))
          (favorite (xml-first-childs-value tweet 'favorited))
@@ -1417,7 +1448,9 @@ TIMES-THROUGH is an integer representing the number of times a tweet has been
     (when (and twit-show-user-images user-img)
           (insert " ")
           (insert-image user-img)
-          (insert " "))
+          (insert " ")
+          (if retweeted-by-user-img
+              (insert-image retweeted-by-user-img)))
 
     (if (string-equal "true" favorite)
         (twit-insert-with-overlay-attributes "*" '((face . "twit-favorite-face")))
@@ -1455,6 +1488,8 @@ TIMES-THROUGH is an integer representing the number of times a tweet has been
                      (setq reply-to-user (propertize (concat " in reply to " reply-to-user)
                                                     'twit-reply-status reply-to-status
                                                     'twit-reply-user reply-to-user)))
+                   (when retweet
+                     (setq retweet (propertize (concat " Retweeted by " retweeted-by-user-id))))
                    "\n")
            '((face . "twit-info-face")) "" 'right))
     (setq overlay-end (point))
@@ -1614,7 +1649,7 @@ STATUS, URL and USER-ID are all set by `url-retrieve'."
 ;;* recent timer
 (defun twit-follow-recent-tweets-timer-function ()
   "Timer function for recent tweets, called via a timer."
-  (twit-parse-xml-async (format twit-friend-timeline-file 1)
+  (twit-parse-xml-async (format twit-home-timeline-file 1)
                         'twit-follow-recent-tweets-async-callback))
 
 ;;* recent async timer
@@ -1866,6 +1901,10 @@ tweet with \".@\" or some other filler character."
 (defun twit-post-retweet ()
   "Retweet someone else's post."
   (interactive)
+  (if (y-or-n-p "Would you like to use the new style retweet? ")
+      (let ((parent-id (twit-get-text-property 'twit-id)))
+        (twit-post-status (format twit-retweet-file parent-id) 
+                          (twit-get-text-property 'twit-message)))
   (let* ((reply-to (twit-get-text-property 'twit-user))
          (parent-id (twit-get-text-property 'twit-id))
          (retweet-text (twit-get-text-property 'twit-message))
@@ -1874,7 +1913,7 @@ tweet with \".@\" or some other filler character."
                 (concat "RT @" reply-to ": " retweet-text " || "))))
     (if (> (length post) 140)
         (error twit-too-long-msg)
-        (twit-post-status twit-update-url post parent-id))))
+      (twit-post-status twit-update-url post parent-id)))))
 
 ;;* post url
 ;;  Prompts for a URL, then compresses it and starts a tweet with the shortened URL in the body
@@ -2111,7 +2150,7 @@ Patch version from Ben Atkin."
      (twit-write-title "Recent Tweets (Page %s) [%s]\n"
                        page (format-time-string "%c"))
      (twit-write-recent-tweets
-      (twit-parse-xml (format twit-friend-timeline-file page) "GET")))))
+      (twit-parse-xml (format twit-home-timeline-file page) "GET")))))
 
 
 ;;* interactive nav
