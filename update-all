@@ -51,3 +51,6 @@ echo '***' paredit
 
 echo '***' revive
 (cd site-lisp/revive && curl -o revive.el http://www.gentei.org/~yuuji/software/revive.el)
+
+echo '***' color-theme-subdued
+(cd site-lisp/color-theme-subdued && curl -o color-theme-subdued.el http://jblevins.org/git/misc.git/plain/color-theme-subdued.el)
