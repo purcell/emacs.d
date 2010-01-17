@@ -15,7 +15,7 @@
 	url = git://github.com/crafterm/twilight-emacs.git
 [submodule "site-lisp/markdown-mode"]
 	path = site-lisp/markdown-mode
-	url = git://github.com/defunkt/markdown-mode.git
+	url = http://jblevins.org/git/markdown-mode.git
 [submodule "site-lisp/color-theme-tango-2"]
 	path = site-lisp/color-theme-tango-2
 	url = git://github.com/wfarr/color-theme-tango-2.git
