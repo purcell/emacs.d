@@ -193,7 +193,67 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; To be able to M-x without meta
 (global-set-key (kbd "C-x C-m") 'execute-extended-command)
+
+(global-set-key (kbd "M-[") 'backward-sexp)
+(global-set-key (kbd "M-]") 'forward-sexp)
+
 (global-set-key (kbd "C-x j") 'join-line)
+(global-set-key (kbd "M-T") 'transpose-lines)
+
+ (defun duplicate-line ()
+    (interactive)
+    (save-excursion
+      (let ((line-text (buffer-substring-no-properties
+                        (line-beginning-position)
+                        (line-end-position))))
+        (move-end-of-line 1)
+        (newline)
+        (insert line-text))))
+
+(global-set-key (kbd "M-D") 'duplicate-line)
+
+
+;;----------------------------------------------------------------------------
+;; Shift lines up and down
+;;----------------------------------------------------------------------------
+(defun move-text-internal (arg)
+  (cond
+   ((and mark-active transient-mark-mode)
+    (if (> (point) (mark))
+        (exchange-point-and-mark))
+    (let ((column (current-column))
+          (text (delete-and-extract-region (point) (mark))))
+      (forward-line arg)
+      (move-to-column column t)
+      (set-mark (point))
+      (insert text)
+      (exchange-point-and-mark)
+      (setq deactivate-mark nil)))
+   (t
+    (let ((column (current-column)))
+      (beginning-of-line)
+      (when (or (> arg 0) (not (bobp)))
+        (forward-line)
+        (when (or (< arg 0) (not (eobp)))
+          (transpose-lines arg))
+        (forward-line -1))
+      (move-to-column column t)))))
+
+(defun move-text-down (arg)
+  "Move region (transient-mark-mode active) or current line
+  arg lines down."
+  (interactive "*p")
+  (move-text-internal arg))
+
+(defun move-text-up (arg)
+  "Move region (transient-mark-mode active) or current line
+  arg lines up."
+  (interactive "*p")
+  (move-text-internal (- arg)))
+
+
+(global-set-key [M-S-up] 'move-text-up)
+(global-set-key [M-S-down] 'move-text-down)
 
 
 ;;----------------------------------------------------------------------------
