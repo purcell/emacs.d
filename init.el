@@ -406,6 +406,13 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
+;; Highlight parentheses
+;;----------------------------------------------------------------------------
+(setq show-paren-style 'mixed)
+(show-paren-mode 1)
+
+
+;;----------------------------------------------------------------------------
 ;; Scroll the window smoothly with the up/down arrows
 ;;----------------------------------------------------------------------------
 (require 'smooth-scrolling)
