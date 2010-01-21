@@ -674,6 +674,26 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
+;; Search back/forth for the symbol at point
+;;----------------------------------------------------------------------------
+;;; See http://www.emacswiki.org/emacs/SearchAtPoint
+(defun isearch-yank-symbol ()
+  "*Put symbol at current point into search string."
+  (interactive)
+  (let ((sym (symbol-at-point)))
+    (if sym
+        (progn
+          (setq isearch-regexp t
+                isearch-string (concat "\\_<" (regexp-quote (symbol-name sym)) "\\_>")
+                isearch-message (mapconcat 'isearch-text-char-description isearch-string "")
+                isearch-yank-flag t))
+      (ding)))
+  (isearch-search-and-update))
+
+(define-key isearch-mode-map "\C-\M-w" 'isearch-yank-symbol)
+
+
+;;----------------------------------------------------------------------------
 ;; Gnuplot
 ;;----------------------------------------------------------------------------
 (autoload 'gnuplot-mode "gnuplot" "gnuplot major mode" t)
