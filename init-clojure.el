@@ -7,6 +7,8 @@
                                         "-XX:+UseCompressedOops"
                                         "-XX:+DoEscapeAnalysis"))
 
+(add-hook 'slime-repl-mode-hook 'slime-redirect-inferior-output)
+
 (eval-after-load "viper"
   '(add-to-list 'viper-vi-state-mode-list 'clojure-mode))
 
