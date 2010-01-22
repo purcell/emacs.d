@@ -216,7 +216,7 @@ in `exec-path', or nil if no such command exists"
         (newline)
         (insert line-text))))
 
-(global-set-key (kbd "M-D") 'duplicate-line)
+(global-set-key (kbd "C-x p") 'duplicate-line)
 
 
 ;;----------------------------------------------------------------------------
