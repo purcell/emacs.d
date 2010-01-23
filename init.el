@@ -683,8 +683,8 @@ in `exec-path', or nil if no such command exists"
     (when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
       (modify-frame-parameters frame (list (cons 'alpha newalpha))))))
 
-(global-set-key (kbd "C-8") '(lambda () (interactive) (adjust-opacity nil 5)))
-(global-set-key (kbd "C-9") '(lambda () (interactive) (adjust-opacity nil -5)))
+(global-set-key (kbd "C-8") '(lambda () (interactive) (adjust-opacity nil -5)))
+(global-set-key (kbd "C-9") '(lambda () (interactive) (adjust-opacity nil 5)))
 (global-set-key (kbd "C-0") '(lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
 
 
