@@ -200,10 +200,8 @@ in `exec-path', or nil if no such command exists"
 ;; To be able to M-x without meta
 (global-set-key (kbd "C-x C-m") 'execute-extended-command)
 
-(global-set-key (kbd "M-[") 'backward-sexp)
-(global-set-key (kbd "M-]") 'forward-sexp)
-
-(global-set-key (kbd "C-x j") 'join-line)
+(global-set-key (kbd "C-c j") 'join-line)
+(global-set-key (kbd "C-c J") (lambda () (interactive) (join-line 1)))
 (global-set-key (kbd "M-T") 'transpose-lines)
 
  (defun duplicate-line ()
@@ -216,7 +214,13 @@ in `exec-path', or nil if no such command exists"
         (newline)
         (insert line-text))))
 
-(global-set-key (kbd "C-x p") 'duplicate-line)
+(global-set-key (kbd "C-c p") 'duplicate-line)
+
+;; Train myself to use M-f and M-b instead
+(global-unset-key M-left)
+(global-unset-key (kbd "M-right"))
+
+;; paredit-kill-sexps-on-whole-line
 
 
 ;;----------------------------------------------------------------------------

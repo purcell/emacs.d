@@ -22,5 +22,9 @@
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 
+(eval-after-load "paredit"
+  '(progn
+     (define-key paredit-mode-map (kbd "M-[") 'paredit-wrap-square)
+     (define-key paredit-mode-map (kbd "M-{") 'paredit-wrap-curly)))
 
 (provide 'init-lisp)
