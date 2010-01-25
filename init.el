@@ -189,6 +189,16 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
+;; Stop C-z from minimizing windows under OS X
+;;----------------------------------------------------------------------------
+(global-set-key (kbd "C-z")
+                (lambda ()
+                  (interactive)
+                  (unless (and *is-a-mac* window-system)
+                    (suspend-frame))))
+
+
+;;----------------------------------------------------------------------------
 ;; Overwrite text when the selection is active
 ;;----------------------------------------------------------------------------
 (delete-selection-mode 1)
