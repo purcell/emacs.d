@@ -848,6 +848,9 @@ in `exec-path', or nil if no such command exists"
 ;; Add spell-checking in comments for all programming language modes
 ;;----------------------------------------------------------------------------
 (when *spell-check-support-enabled*
+  (when (find-executable "aspell")
+    (setq ispell-program-name "aspell"
+          ispell-extra-args '("--sug-mode=ultra")))
   (require 'init-flyspell))
 
 
