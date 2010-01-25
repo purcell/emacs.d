@@ -1,6 +1,7 @@
 (dolist (hook '(lisp-mode-hook
                 emacs-lisp-mode-hook
                 scheme-mode-hook
+                clojure-mode-hook
                 ruby-mode-hook
                 yaml-mode
                 python-mode-hook
