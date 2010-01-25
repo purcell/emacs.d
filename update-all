@@ -54,3 +54,6 @@ echo '***' revive
 
 echo '***' color-theme-subdued
 (cd site-lisp/color-theme-subdued && curl -o color-theme-subdued.el http://jblevins.org/git/misc.git/plain/color-theme-subdued.el)
+
+echo '***' smooth-scrolling
+(cd site-lisp/smooth-scrolling && curl -o smooth-scrolling.el http://adamspiers.org/computing/elisp/smooth-scrolling.el)
