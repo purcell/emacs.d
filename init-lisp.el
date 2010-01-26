@@ -19,6 +19,18 @@
 (add-hook 'emacs-lisp-mode-hook (lambda () (enable-paredit emacs-lisp-mode-map)))
 
 
+(defun set-up-hippie-expand-for-elisp ()
+  (make-variable-buffer-local 'hippie-expand-try-functions-list)
+  (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol)
+  (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially))
+
+(defun set-up-ac-for-elisp ()
+  (add-to-list 'ac-sources 'ac-source-symbols))
+
+
+(add-hook 'emacs-lisp-mode-hook 'set-up-hippie-expand-for-elisp)
+(add-hook 'emacs-lisp-mode-hook 'set-up-ac-for-elisp)
+
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 
