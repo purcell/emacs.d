@@ -21,11 +21,11 @@
 
 (defun set-up-hippie-expand-for-elisp ()
   (make-variable-buffer-local 'hippie-expand-try-functions-list)
-  (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol)
-  (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially))
+  (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol t)
+  (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially t))
 
 (defun set-up-ac-for-elisp ()
-  (add-to-list 'ac-sources 'ac-source-symbols))
+  (add-to-list 'ac-sources 'ac-source-symbols t))
 
 
 (add-hook 'emacs-lisp-mode-hook 'set-up-hippie-expand-for-elisp)

@@ -30,7 +30,8 @@ front of `ac-sources' for the current buffer."
   (setq ac-sources (add-to-list 'ac-sources
                                 (if fuzzy
                                     'ac-source-slime-fuzzy
-                                  'ac-source-slime-simple))))
+                                  'ac-source-slime-simple)
+                                t)))
 
 
 ;;----------------------------------------------------------------------------
@@ -71,7 +72,8 @@ front of `ac-sources' for the current buffer."
   (interactive)
   (make-variable-buffer-local 'hippie-expand-try-functions-list)
   (add-to-list 'hippie-expand-try-functions-list
-               (if fuzzy 'try-expand-slime-fuzzy 'try-expand-slime)))
+               (if fuzzy 'try-expand-slime-fuzzy 'try-expand-slime)
+               t))
 
 
 (provide 'init-slime-completion)
