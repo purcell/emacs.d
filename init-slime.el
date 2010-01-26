@@ -6,8 +6,8 @@
   '(progn
      (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
      (add-hook 'slime-mode-hook 'pretty-lambdas)
-     (add-hook 'slime-mode-hook (lambda () (enable-paredit slime-mode-map)))
-     (add-hook 'slime-repl-mode-hook (lambda () (enable-paredit slime-repl-mode-map)))
+     (add-hook 'slime-mode-hook 'enable-paredit-mode)
+     (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
      (slime-setup '(slime-fancy slime-highlight-edits))
      (require 'slime-fuzzy)
      (setq slime-complete-symbol*-fancy t)

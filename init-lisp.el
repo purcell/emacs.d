@@ -11,12 +11,8 @@
 (autoload 'paredit-mode "paredit"
   "Minor mode for pseudo-structurally editing Lisp code." t)
 
-(defun enable-paredit (keymap)
-  (paredit-mode +1)
-  (define-key keymap (kbd "RET") 'paredit-newline))
-
 (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
-(add-hook 'emacs-lisp-mode-hook (lambda () (enable-paredit emacs-lisp-mode-map)))
+(add-hook 'emacs-lisp-mode-hook 'enable-paredit)
 
 
 (defun set-up-hippie-expand-for-elisp ()
