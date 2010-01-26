@@ -13,7 +13,7 @@
 (defun ac-source-slime-simple-candidates ()
   "Return a possibly-empty list of completions for the symbol at point."
   (if (slime-connected-p)
-    (mapcar 'car (car (slime-simple-completions  ac-prefix)))))
+      (car (slime-simple-completions  ac-prefix))))
 
 (defvar ac-source-slime-fuzzy
   '((candidates . ac-source-slime-fuzzy-candidates))
