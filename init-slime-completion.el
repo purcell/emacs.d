@@ -15,13 +15,26 @@
   (if (slime-connected-p)
       (car (slime-simple-completions  ac-prefix))))
 
+(defface ac-slime-menu-face
+  '((t (:background "lightgray" :foreground "darkgreen")))
+  "Face for slime candidate menu."
+  :group 'auto-complete)
+
+(defface ac-slime-selection-face
+  '((t (:background "darkgreen" :foreground "white")))
+  "Face for the slime selected candidate."
+  :group 'auto-complete)
+
 (defvar ac-source-slime-fuzzy
   '((candidates . ac-source-slime-fuzzy-candidates))
   "Source for fuzzy slime completion")
 
 (defvar ac-source-slime-simple
-  '((candidates . ac-source-slime-simple-candidates))
+  '((candidates . ac-source-slime-simple-candidates)
+    (candidate-face . ac-slime-menu-face)
+    (selection-face . ac-slime-selection-face))
   "Source for slime completion")
+
 
 (defun set-up-slime-ac (&optional fuzzy)
   "Add an optionally-fuzzy slime completion source to the
