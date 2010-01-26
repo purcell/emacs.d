@@ -449,8 +449,6 @@ in `exec-path', or nil if no such command exists"
 (define-key isearch-mode-map "\C-\M-w" 'isearch-yank-symbol)
 
 
-
-
 ;;----------------------------------------------------------------------------
 ;; Easily count words (http://emacs-fu.blogspot.com/2009/01/counting-words.html)
 ;;----------------------------------------------------------------------------
@@ -498,14 +496,6 @@ in `exec-path', or nil if no such command exists"
 ;; Use ibuffer instead of the built in buffer list
 ;;----------------------------------------------------------------------------
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-
-
-;;----------------------------------------------------------------------------
-;; Dynamic expansion tweaks
-;;----------------------------------------------------------------------------
-(eval-after-load "hippie-exp"
-  '(setq hippie-expand-try-functions-list
-         (remove 'try-expand-line hippie-expand-try-functions-list)))
 
 
 ;;----------------------------------------------------------------------------
@@ -624,14 +614,13 @@ in `exec-path', or nil if no such command exists"
 ;; Hippie-Expand
 ;;----------------------------------------------------------------------------
 (global-set-key (kbd "M-/") 'hippie-expand)
-(eval-after-load "hippie-exp"
-  '(progn
-     (setq hippie-expand-try-functions-list
-           '(try-complete-file-name-partially
-             try-complete-file-name
-             try-expand-dabbrev
-             try-expand-dabbrev-all-buffers
-             try-expand-dabbrev-from-kill))))
+
+(setq hippie-expand-try-functions-list
+      '(try-complete-file-name-partially
+        try-complete-file-name
+        try-expand-dabbrev
+        try-expand-dabbrev-all-buffers
+        try-expand-dabbrev-from-kill))
 
 
 ;;----------------------------------------------------------------------------
