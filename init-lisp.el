@@ -24,8 +24,35 @@
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol t)
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially t))
 
+
+;; ----------------------------------------------------------------------------
+;; Auto-complete tweaks for emacs-lisp mode
+;; ----------------------------------------------------------------------------
+
+(defface ac-symbol-menu-face
+  '((t (:background "lightgray" :foreground "darkgreen")))
+  "Face for slime candidate menu."
+  :group 'auto-complete)
+
+(defface ac-symbol-selection-face
+  '((t (:background "darkgreen" :foreground "white")))
+  "Face for the slime selected candidate."
+  :group 'auto-complete)
+
+;; Modify ac-source-symbols to add colours
+(eval-after-load "auto-complete"
+  '(progn
+     (setq ac-source-symbols
+       '((candidates
+          . (lambda ()
+              (all-completions ac-prefix obarray)))
+         (candidate-face . ac-symbol-menu-face)
+         (selection-face . ac-symbol-selection-face)))))
+
 (defun set-up-ac-for-elisp ()
   (add-to-list 'ac-sources 'ac-source-symbols t))
+
+
 
 
 (add-hook 'emacs-lisp-mode-hook 'set-up-hippie-expand-for-elisp)
