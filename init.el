@@ -227,8 +227,8 @@ in `exec-path', or nil if no such command exists"
 (global-set-key (kbd "C-c p") 'duplicate-line)
 
 ;; Train myself to use M-f and M-b instead
-(global-unset-key M-left)
-(global-unset-key (kbd "M-right"))
+(global-unset-key [M-left])
+(global-unset-key [M-right])
 
 ;; paredit-kill-sexps-on-whole-line
 
@@ -621,12 +621,43 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
+;; Hippie-Expand
+;;----------------------------------------------------------------------------
+(global-set-key (kbd "M-/") 'hippie-expand)
+(eval-after-load "hippie-exp"
+  '(progn
+     (setq hippie-expand-try-functions-list
+           '(try-complete-file-name-partially
+             try-complete-file-name
+             try-expand-dabbrev
+             try-expand-dabbrev-all-buffers
+             try-expand-dabbrev-from-kill))))
+
+
+;;----------------------------------------------------------------------------
 ;; Autocomplete
 ;;----------------------------------------------------------------------------
 (require 'auto-complete nil t)
 (global-auto-complete-mode t)
-(setq ac-auto-start 3)
-(setq ac-dwim nil)
+(setq ac-auto-start nil)
+(setq ac-dwim t)
+(define-key ac-complete-mode-map (kbd "C-n") 'ac-next)
+(define-key ac-complete-mode-map (kbd "C-p") 'ac-previous)
+
+(defun indent-or-expand-with-ac (&optional arg)
+  "Either indent according to mode, or expand the word preceding point."
+  (interactive "*P")
+  (if (and
+       (not mark-active)
+       (not (minibufferp))
+       (memq 'auto-complete-mode minor-mode-list)
+       (or (bobp) (= ?w (char-syntax (char-before))))
+       (or (eobp) (not (= ?w (char-syntax (char-after))))))
+      (ac-start)
+    (indent-for-tab-command arg)))
+
+(global-set-key (kbd "TAB") 'indent-or-expand-with-ac)
+
 (set-default 'ac-sources
              (if (> emacs-major-version 22)
                  (progn
@@ -641,9 +672,6 @@ in `exec-path', or nil if no such command exists"
                 lisp-mode textile-mode markdown-mode tuareg-mode))
   (add-to-list 'ac-modes mode))
 
-;; This stops "end" followed by "RET" getting completed to something
-;; like "endomorph" - have to use an explicit "TAB" to complete.
-(define-key ac-complete-mode-map (kbd "\r") nil)
 
 (eval-after-load "viper"
   '(progn
