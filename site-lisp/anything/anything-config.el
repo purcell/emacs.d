@@ -1283,6 +1283,7 @@ If prefix numeric arg is given go ARG level down."
                     (t anything-pattern)))
         ;; Don't try to tramp connect before entering the second ":".
         (tramp-file-name-regexp "\\`/\\([^[/:]+\\|[^/]+]\\):.*:"))
+    (set-text-properties 0 (length path) nil path)
     (setq anything-pattern path)
     (cond ((or (and (not (file-directory-p path)) (file-exists-p path))
                (string-match ffap-url-regexp path))
@@ -1297,11 +1298,16 @@ If prefix numeric arg is given go ARG level down."
             (list path)
             (directory-files (file-name-directory path) t))))))
 
+(defface anything-dired-symlink-face
+  '((t (:foreground "DarkOrange")))
+  "*Face used for symlinks in `anything-find-files'."
+  :group 'anything)
+
 (defun anything-c-highlight-ffiles (files)
   "Candidate transformer for `anything-c-source-find-files'."
   (loop for i in files
      if (file-symlink-p i)
-     collect (propertize i 'face '((:foreground "DarkOrange"))
+     collect (propertize i 'face 'anything-dired-symlink-face
                          'help-echo (file-truename i)) into a
      if (file-directory-p i)
      collect (propertize i 'face anything-c-files-face1) into a
