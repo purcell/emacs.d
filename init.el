@@ -640,8 +640,7 @@ in `exec-path', or nil if no such command exists"
        (not mark-active)
        (not (minibufferp))
        (memq 'auto-complete-mode minor-mode-list)
-       (or (bobp) (= ?w (char-syntax (char-before))))
-       (or (eobp) (not (= ?w (char-syntax (char-after))))))
+       (looking-at "\\_>"))
       (ac-start)
     (indent-for-tab-command arg)))
 
