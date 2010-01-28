@@ -12,7 +12,7 @@
   "Minor mode for pseudo-structurally editing Lisp code." t)
 
 (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
-(add-hook 'emacs-lisp-mode-hook 'enable-paredit)
+(add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
 
 
 (defun set-up-hippie-expand-for-elisp ()
