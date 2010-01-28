@@ -48,8 +48,9 @@
 (defun set-up-ac-for-elisp ()
   (add-to-list 'ac-sources 'ac-source-symbols t))
 
-
-
+(add-hook 'paredit-mode-hook
+          (lambda ()
+            (define-key paredit-mode-map (kbd "RET") 'paredit-newline)))
 
 (add-hook 'emacs-lisp-mode-hook 'set-up-hippie-expand-for-elisp)
 (add-hook 'emacs-lisp-mode-hook 'set-up-ac-for-elisp)
