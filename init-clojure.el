@@ -7,7 +7,15 @@
                                         "-XX:+UseCompressedOops"
                                         "-XX:+DoEscapeAnalysis"))
 
-(add-hook 'slime-repl-mode-hook 'slime-redirect-inferior-output)
+(defun slime-clojure-repl-setup ()
+  (when (string-equal "clojure" (slime-connection-name))
+    (message "Setting up repl for clojure")
+    (slime-redirect-inferior-output)
+    (when (and (featurep 'paredit) paredit-mode (>= paredit-version 21))
+      (define-key paredit-mode-map "{" 'paredit-open-curly)
+      (define-key paredit-mode-map "}" 'paredit-close-curly))))
+
+(add-hook 'slime-repl-mode-hook 'slime-clojure-repl-setup)
 
 (eval-after-load "viper"
   '(add-to-list 'viper-vi-state-mode-list 'clojure-mode))
