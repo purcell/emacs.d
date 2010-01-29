@@ -2,6 +2,9 @@
 (setq cssm-indent-function #'cssm-c-style-indenter)
 (add-auto-mode 'css-mode "\\.css$")
 
+(add-hook 'css-mode-hook 'ac-css-keywords-setup)
+
+
 (eval-after-load "mmm-vars"
   '(progn
      (mmm-add-group
