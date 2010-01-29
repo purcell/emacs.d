@@ -626,7 +626,8 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 ;; Autocomplete
 ;;----------------------------------------------------------------------------
-(require 'auto-complete nil t)
+(require 'auto-complete)
+(require 'auto-complete-config)
 (global-auto-complete-mode t)
 (setq ac-auto-start nil)
 (setq ac-dwim t)
