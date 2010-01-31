@@ -741,6 +741,10 @@ in `exec-path', or nil if no such command exists"
     (when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
       (modify-frame-parameters frame (list (cons 'alpha newalpha))))))
 
+(when (fboundp 'ns-toggle-fullscreen)
+  ;; Command-Option-f to toggle fullscreen mode
+  (global-set-key (kbd "M-ƒ") 'ns-toggle-fullscreen))
+
 (global-set-key (kbd "C-8") '(lambda () (interactive) (adjust-opacity nil -5)))
 (global-set-key (kbd "C-9") '(lambda () (interactive) (adjust-opacity nil 5)))
 (global-set-key (kbd "C-0") '(lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
