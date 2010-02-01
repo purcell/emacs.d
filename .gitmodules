@@ -25,3 +25,6 @@
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = git://github.com/m2ym/auto-complete.git
+[submodule "site-lisp/package"]
+	path = site-lisp/package
+	url = git://github.com/technomancy/package.el.git

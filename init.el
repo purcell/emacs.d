@@ -48,7 +48,6 @@
 ;;----------------------------------------------------------------------------
 ;; Use elisp package manager (http://tromey.com/elpa/)
 ;;----------------------------------------------------------------------------
-(setq load-path (cons (expand-file-name "~/.emacs.d/elpa") load-path))
 (require 'package)
 (package-initialize)
 
