@@ -1,4 +1,5 @@
 ;;; todochiku.el - A mode for interfacing with Growl, Snarl, and the like.
+(defconst todochiku-version "0.0.7")
 
 ;; Copyright (c)2008 Jonathan Arkell. (by)(nc)(sa)  Some rights reserved.
 ;; Author: Jonathan Arkell <jonnay@jonnay.net>
@@ -21,10 +22,49 @@
 ;;; Commentary:
 ;; todochiku is **NOTHING** in japanese.   todoroku "growl" in Japanese.
 
+;;; Commands:
+;;
+;; Below are complete command list:
+;;
+;;  `todochiku-in'
+;;    Send a todochiku message in a set ammount of time. Can take a prefix arg for the number of mins to wait.
+;;
+;;; Customizable Options:
+;;
+;; Below are customizable option list:
+;;
+;;  `todochiku-command'
+;;    Path to command for sending growl-like messages.
+;;    default = (case system-type (windows-nt "C:/Program Files/full phat/Snarl/exrras/sncmd/snarl_command.exe") (darwin "/usr/local/bin/growlnotify") (t "notify-send"))
+;;  `todochiku-message-too'
+;;    Display todochiku as messages as well
+;;    default = nil
+;;  `todochiku-tooltip-too'
+;;    Display todochiku as a tooltip.
+;;    default = nil
+;;  `todochiku-icons-directory'
+;;    Path to the todochiku icons directory.
+;;    default = "~/.emacs-cfg/todochiku-icons"
+;;  `todochiku-timeout'
+;;    Time to display a todochiku notification (not used by all backends)
+;;    default = 10
+;;  `todochiku-icons'
+;;    An alist containing an icon name, and a path to the icon.
+;;    default = (quote ((default . "announcements.png") (alert . "alert.png") (bell . "bell.png") (compile . "binary.png") (irc . "chat.png") ...))
+;;  `todochiku-compile-message'
+;;    Automatically add a hook to send a todochiku on compilation finsih.
+;;    default = (quote t)
+;;  `todochiku-appts'
+;;    Install todochiku as the apt-disp-window-function.
+;;    default = (quote t)
+;;  `todochiku-display-appts-in-window-too'
+;;    Whether or not pings from apt-disp-window should show up in emacs as well as growl.
+;;    default = (quote t)
+
 ;; This is more a smaller library package to start with.  Maybe it will grow one day.
 
 ;; Installation:
-;; Make sure you have snarl/grown installed, and load this file from your .Emacs
+;; Make sure you have snarl/growl/libnotify installed, and load this file from your .Emacs
 ;; i.e. (load-file "~/.emacs-cfg/todochiku.el")
 ;;
 ;; If you have an external notification program, you can use that. 
@@ -54,8 +94,12 @@
 ;;   so that an infinite loop doesn't occur.
 ;; - Update the icon support.  Automagickally download and install the icons
 ;;   with the url package.
+;; - Build better backend support.
 
 ;;; CHANGELOG:
+;; V0.7   - Added YaOddMuse interface
+;; V0.0.6.1 - Bugfixing fom Jason McBrayer  (thanks!)
+;; V0.0.6 - Added patches from Jason McBrayer for *nix notifications.
 ;; V0.0.5 - Added Initial support for emacs only notification
 ;;        - Added variables to the customization group.
 ;;        - Added some better documentation.
@@ -75,22 +119,23 @@
 ;; - For some reason my face isn't working properly
 
 (defconst todochiku-debug nil)
-(defconst todochiku-version "0.0.4")
 
 (defgroup todochiku nil
-  "Todochiku (とどろく), send growl/snarl notifications from within emacs.")
+  "Todochiku (とどろく), send growl/snarl/libnotify notifications from within emacs."
+  :group 'external)
 
 (defcustom todochiku-command 
   (case system-type 
     (windows-nt "C:/Program Files/full phat/Snarl/exrras/sncmd/snarl_command.exe")
-    (darwin "/usr/local/bin/growlnotify"))
+    (darwin "/usr/local/bin/growlnotify")
+    (t "notify-send"))
   "Path to command for sending growl-like messages.
 If you do not have an external notification program, leave this blank.
 For MacOS Growl: /usr/local/bin/growlnotify (a shot in the dark here)
 For Win32 Snarl: C:/Program Files/full phat/Snarl/extras/sncmd/sncmd.exe
                  or
-                 C:/Program Files/full phat/Snarl/exrras/sncmd/snarl_command.exe
-For Linux ???"
+                 C:/Program Files/full phat/Snarl/extras/sncmd/snarl_command.exe
+For Unix-like systems libnotify: notify-send (or /usr/bin/notify-send)"
   :type '(string)
   :group 'todochiku)
 
@@ -115,6 +160,13 @@ Whether or not to display todochiku-messages as a tooltip."
   "~/.emacs-cfg/todochiku-icons"
   "Path to the todochiku icons directory."
   :type 'directory
+  :group 'todochiku)
+
+;;*JasonMcBrayer
+(defcustom todochiku-timeout
+  10
+  "Time to display a todochiku notification (not used by all backends)"
+  :type 'integer
   :group 'todochiku)
 
 (defcustom todochiku-icons
@@ -164,14 +216,14 @@ This is really only useful if you use the appt package (i.e. from planner mode).
 
 
 (defun todochiku-message (title message icon)
-  (format  "Send a message via growl, snarl, etc.
+  "Send a message via growl, snarl, etc.
 If you don't wnat to set a title or icon, just use an ampty string \"\"
 as an argument.
 
 `icon' is a path to a PNG image that is displayed with the notification.
 you can use `todochiku-icon' to figure out which icon you want to display.
-For convience, here is a list of default icons available:
-%s" (pp-to-string todochiku-icons))
+
+See the variable `todochiku-icons' for a list of available icons." 
   (if todochiku-debug (message "Sent todochiku message.  Title:%s Message:%30s... Icon:%s" title message icon))
   (when (not (string= todochiku-command ""))
 		(apply 'start-process 
@@ -192,18 +244,19 @@ For convience, here is a list of default icons available:
 
 (defun growl (title message)
   "Alias for `todochiku-message'."
-  (todochiku-message (title message "")))
+  (todochiku-message title message ""))
 
+;;*JasonMcBrayer backend
 (defun todochiku-get-arguments (title message icon)
   "Gets todochiku arguments.
 This would be better done through a customization probably."
   (case system-type
-    (windows-nt (list "/M" title message icon))
-    (darwin (list title "-m" message "--image" icon ))
-    (t (list title message icon))))	; Kinda hoping that this is a reasonable default
+    ('windows-nt (list "/M" title message icon))
+    ('darwin (list title "-m" message "--image" icon ))
+    (t (list "-i" icon "-t" (int-to-string (* 1000 todochiku-timeout)) title message))))
 
 (defun todochiku-icon (icon)
-  "Pull out an icon "
+  "Pull out an actual icon from the variable `todochiku-icons'."
   (expand-file-name (concat todochiku-icons-directory "/" (cdr (assoc icon todochiku-icons)))))
 
 (defun todochiku-in (message mins)
@@ -227,12 +280,14 @@ This would be better done through a customization probably."
 (if todochiku-appts
 	(setq appt-disp-window-function 'todochiku-appt-disp-window))
 
+;;* external 
 (if todochiku-compile-message
 	(add-hook 'compilation-mode-hook
 			  (lambda ()
 				(add-to-list 'compilation-finish-functions
 							 (lambda (buf finish) (todochiku-message "Compilation Finished" finish (todochiku-icon 'compile)))))))
 
+;;* external
 (defun growl-rcirc-print-hook (process sender response target text)
   (when (and (string-match (rcirc-nick process) text)
              (not (string= (rcirc-nick process) sender))
@@ -242,6 +297,12 @@ This would be better done through a customization probably."
 
 (eval-after-load 'rcirc
 				 '(add-hook 'rcirc-print-hooks 'growl-rcirc-print-hook))
+
+
+;;* external
+(defun yaoddmuse-todochiku (msg)
+  "Hook into yaoddmuses notification system."
+  (todochiku-message "YaOddMuse" msg (todochiku-icon 'social)))
 
 (todochiku-message "Emacs" "Todochiku (growl for emacs) is ready." (todochiku-icon 'check))
 
