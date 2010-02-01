@@ -1,5 +1,5 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.240 2010/01/23 04:21:31 rubikitch Exp rubikitch $
+;; $Id: anything.el,v 1.241 2010/01/29 18:53:17 rubikitch Exp $
 
 ;; Copyright (C) 2007        Tamas Patrovics
 ;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
@@ -327,6 +327,9 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.241  2010/01/29 18:53:17  rubikitch
+;; Fix a bug of `candidate-number-limit' in process sources.
+;;
 ;; Revision 1.240  2010/01/23 04:21:31  rubikitch
 ;; * `anything': Use `anything-display-buffer' as fallback
 ;; * `anything-select-with-digit-shortcut': `self-insert-command' if disabled
@@ -1105,7 +1108,7 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.240 2010/01/23 04:21:31 rubikitch Exp rubikitch $")
+(defvar anything-version "$Id: anything.el,v 1.241 2010/01/29 18:53:17 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -2750,7 +2753,8 @@ the real value in a text property."
          (process-info (cdr process-assoc))
          (insertion-marker (assoc-default 'insertion-marker process-info))
          (incomplete-line-info (assoc 'incomplete-line process-info))
-         (item-count-info (assoc 'item-count process-info)))
+         (item-count-info (assoc 'item-count process-info))
+         (limit (anything-candidate-number-limit process-info)))
 
     (with-current-buffer anything-buffer
       (save-excursion
@@ -2783,7 +2787,7 @@ the real value in a text property."
           (dolist (candidate (anything-transform-candidates candidates process-info))
             (anything-insert-match candidate 'insert-before-markers)
             (incf (cdr item-count-info))
-            (when (>= (cdr item-count-info) anything-candidate-number-limit)
+            (when (>= (cdr item-count-info) limit)
               (anything-kill-async-process process)
               (return)))))
 

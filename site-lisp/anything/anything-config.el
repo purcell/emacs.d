@@ -4422,13 +4422,13 @@ other candidate transformers."
 
 (defun anything-c-shorten-home-path (files)
   "Replaces /home/user with ~."
-  (mapcar (lambda (file)
-            (let ((home (replace-regexp-in-string "\\\\" "/" ; stupid Windows...
-                                                  (getenv "HOME"))))
+  (let ((home (replace-regexp-in-string "\\\\" "/" ; stupid Windows...
+                                        (getenv "HOME"))))
+    (mapcar (lambda (file)
               (if (and (stringp file) (string-match home file))
                   (cons (replace-match "~" nil nil file) file)
-                file)))
-          files))
+                file))
+            files)))
 
 ;;; Functions
 (defun anything-c-mark-interactive-functions (functions)
