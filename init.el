@@ -51,6 +51,9 @@
 (require 'package)
 (package-initialize)
 
+(add-to-list 'package-archives
+             '("technomancy" . "http://repo.technomancy.us/emacs/") t)
+
 
 ;;----------------------------------------------------------------------------
 ;; Handier way to add modes to auto-mode-alist
