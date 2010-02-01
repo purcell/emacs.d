@@ -60,7 +60,9 @@
 
 (eval-after-load "paredit"
   '(progn
-     (define-key paredit-mode-map (kbd "M-[") 'paredit-wrap-square)
-     (define-key paredit-mode-map (kbd "M-{") 'paredit-wrap-curly)))
+     ;; These are handy everywhere, not just in lisp modes
+     (global-set-key (kbd "M-(") 'paredit-wrap-round)
+     (global-set-key (kbd "M-[") 'paredit-wrap-square)
+     (global-set-key (kbd "M-{") 'paredit-wrap-curly)))
 
 (provide 'init-lisp)
