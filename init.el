@@ -734,6 +734,7 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
+(set-fringe-mode 1)
 
 (require 'init-maxframe)
 
