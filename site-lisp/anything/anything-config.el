@@ -153,6 +153,7 @@
 ;;     `anything-c-source-evaluation-result'  (Evaluation Result)
 ;;     `anything-c-source-calculation-result' (Calculation Result)
 ;;     `anything-c-source-google-suggest'     (Google Suggest)
+;;     `anything-c-source-yahoo-suggest'      (Yahoo Suggest)
 ;;     `anything-c-source-surfraw'            (Surfraw)
 ;;     `anything-c-source-emms-streams'       (Emms Streams)
 ;;     `anything-c-source-emms-dired'         (Music Directory)
@@ -193,6 +194,8 @@
 ;;    Preconfigured `anything' for `imenu'.
 ;;  `anything-google-suggest'
 ;;    Preconfigured `anything' for google search with google suggest.
+;;  `anything-yahoo-suggest'
+;;    Preconfigured `anything' for Yahoo searching with Yahoo suggest.
 ;;  `anything-for-buffers'
 ;;    Preconfigured `anything' for buffer.
 ;;  `anything-bbdb'
@@ -304,14 +307,17 @@
 ;;    Maximum number of candidates stored for a source.
 ;;    default = 50
 ;;  `anything-c-google-suggest-url'
-;;    URL used for looking up suggestions.
+;;    URL used for looking up Google suggestions.
 ;;    default = "http://google.com/complete/search?output=toolbar&q="
 ;;  `anything-c-google-suggest-search-url'
-;;    URL used for searching.
+;;    URL used for Google searching.
 ;;    default = "http://www.google.com/search?ie=utf-8&oe=utf-8&q="
 ;;  `anything-google-suggest-use-curl-p'
 ;;    *When non--nil use CURL to get info from `anything-c-google-suggest-url'.
 ;;    default = nil
+;;  `anything-c-yahoo-suggest-search-url'
+;;    Url used for Yahoo searching.
+;;    default = "http://search.yahoo.com/search?&ei=UTF-8&fr&h=c&p="
 ;;  `anything-c-boring-buffer-regexp'
 ;;    The regexp that match boring buffers.
 ;;    default = (rx (or (group bos " ") "*anything" " *Echo Area" " *Minibuf"))
@@ -336,6 +342,7 @@
 ;;  `anything-c-enable-eval-defun-hack'
 ;;    *If non-nil, execute `anything' using the source at point when C-M-x is pressed.
 ;;    default = t
+
 
 ;;; Change log:
 ;;
@@ -419,13 +426,13 @@ history, are removed from `anything-map'. "
 
 (defcustom anything-c-google-suggest-url
   "http://google.com/complete/search?output=toolbar&q="
-  "URL used for looking up suggestions."
+  "URL used for looking up Google suggestions."
   :type 'string
   :group 'anything-config)
 
 (defcustom anything-c-google-suggest-search-url
   "http://www.google.com/search?ie=utf-8&oe=utf-8&q="
-  "URL used for searching."
+  "URL used for Google searching."
   :type 'string
   :group 'anything-config)
 
@@ -433,6 +440,18 @@ history, are removed from `anything-map'. "
   "*When non--nil use CURL to get info from `anything-c-google-suggest-url'.
 Otherwise `url-retrieve-synchronously' is used."
   :type 'boolean
+  :group 'anything-config)
+
+(defcustom anything-c-yahoo-suggest-url
+  "http://search.yahooapis.com/WebSearchService/V1/relatedSuggestion?appid=Generic&query="
+  "Url used for looking up Yahoo suggestions."
+  :type 'string
+  :group 'anything-config)
+
+(defcustom anything-c-yahoo-suggest-search-url
+  "http://search.yahoo.com/search?&ei=UTF-8&fr&h=c&p="
+  "Url used for Yahoo searching."
+  :type 'string
   :group 'anything-config)
 
 (defcustom anything-c-boring-buffer-regexp
@@ -591,6 +610,11 @@ With two prefix args allow choosing in which symbol to search."
   "Preconfigured `anything' for google search with google suggest."
   (interactive)
   (anything-other-buffer 'anything-c-source-google-suggest "*anything google*"))
+
+(defun anything-yahoo-suggest ()
+  "Preconfigured `anything' for Yahoo searching with Yahoo suggest."
+  (interactive)
+  (anything-other-buffer 'anything-c-source-yahoo-suggest "*anything yahoo*"))
 
 ;;; Converted from anything-show-*-only
 (defun anything-for-buffers ()
@@ -1285,14 +1309,11 @@ If prefix numeric arg is given go ARG level down."
         (tramp-file-name-regexp "\\`/\\([^[/:]+\\|[^/]+]\\):.*:"))
     (set-text-properties 0 (length path) nil path)
     (setq anything-pattern path)
-    (cond ((or (and (not (file-directory-p path)) (file-exists-p path))
-               (string-match ffap-url-regexp path))
+    (cond ((or (file-regular-p path)
+               (and ffap-url-regexp (string-match ffap-url-regexp path)))
            (list path))
-          ((string= anything-pattern "")
-           (directory-files "/" t))
-          ((and (file-directory-p path)
-                (file-exists-p path))
-           (directory-files path t))
+          ((string= anything-pattern "") (directory-files "/" t))
+          ((file-directory-p path) (directory-files path t))
           (t
            (append
             (list path)
@@ -3389,8 +3410,50 @@ Return an alist with elements like (data . number_results)."
     (volatile)
     (requires-pattern . 3)
     (delayed)))
+
 ;; (anything 'anything-c-source-google-suggest)
 
+;;; Yahoo suggestions
+
+(defun anything-c-yahoo-suggest-fetch (input)
+  "Fetch Yahoo suggestions for INPUT from XML buffer.
+Return an alist with elements like (data . number_results)."
+  (let ((request (concat anything-c-yahoo-suggest-url
+                         (url-hexify-string input))))
+    (flet ((fetch ()
+             (loop
+                with result-alist = (xml-get-children
+                                     (car (xml-parse-region (point-min) (point-max)))
+                                     'Result)
+                for i in result-alist
+                collect (caddr i))))
+      (with-current-buffer
+          (url-retrieve-synchronously request)
+        (fetch)))))
+
+(defun anything-c-yahoo-suggest-set-candidates ()
+  "Set candidates with Yahoo results found."
+  (let ((suggestions (anything-c-yahoo-suggest-fetch anything-input)))
+    (or suggestions
+        (append
+         suggestions
+         (list (cons (concat "Search for " "'" anything-input "'" " on Yahoo")
+                     anything-input))))))
+         
+(defun anything-c-yahoo-suggest-action (candidate)
+  "Default action to jump to a Yahoo suggested candidate."
+  (browse-url (concat anything-c-yahoo-suggest-search-url
+                      (url-hexify-string candidate))))
+
+(defvar anything-c-source-yahoo-suggest
+  '((name . "Yahoo Suggest")
+    (candidates . anything-c-yahoo-suggest-set-candidates)
+    (action . (("Yahoo Search" . anything-c-yahoo-suggest-action)))
+    (volatile)
+    (requires-pattern . 3)
+    (delayed)))
+
+;; (anything 'anything-c-source-yahoo-suggest)
 
 ;;; Surfraw
 ;;; Need external program surfraw.
@@ -5019,4 +5082,3 @@ the center of window, otherwise at the top of window.
 ;;; LocalWords:  Vokes rfind berkeley JST ffap lacarte bos
 ;;; LocalWords:  Lacarte Minibuf epp LaCarte bm attrset migemo attr conf mklist
 ;;; LocalWords:  startpos noselect dont desc
-
