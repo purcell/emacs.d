@@ -63,6 +63,11 @@
      ;; These are handy everywhere, not just in lisp modes
      (global-set-key (kbd "M-(") 'paredit-wrap-round)
      (global-set-key (kbd "M-[") 'paredit-wrap-square)
-     (global-set-key (kbd "M-{") 'paredit-wrap-curly)))
+     (global-set-key (kbd "M-{") 'paredit-wrap-curly)
+
+     ;; Disable kill-sentence, which is easily confused with the kill-sexp
+     ;; binding, but doesn't preserve sexp structure
+     (define-key paredit-mode-map (kbd "M-K")
+       (lambda () (interactive) (message "Command disabled") (ding)))))
 
 (provide 'init-lisp)
