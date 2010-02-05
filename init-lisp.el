@@ -59,6 +59,11 @@
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 
+(defun warn-disabled-command ()
+  (interactive)
+  (message "Command disabled")
+  (ding))
+
 (eval-after-load "paredit"
   '(progn
      ;; These are handy everywhere, not just in lisp modes
@@ -68,7 +73,7 @@
 
      ;; Disable kill-sentence, which is easily confused with the kill-sexp
      ;; binding, but doesn't preserve sexp structure
-     (define-key paredit-mode-map (kbd "M-K")
-       (lambda () (interactive) (message "Command disabled") (ding)))))
+     (define-key paredit-mode-map (kbd "M-K") 'warn-disabled-command)
+     (define-key paredit-mode-map (kbd "M-k") 'warn-disabled-command)))
 
 (provide 'init-lisp)
