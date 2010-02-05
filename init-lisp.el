@@ -10,6 +10,7 @@
 
 (autoload 'paredit-mode "paredit"
   "Minor mode for pseudo-structurally editing Lisp code." t)
+(autoload 'enable-paredit-mode "paredit" "Turn on paredit mode" t)
 
 (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
 (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
