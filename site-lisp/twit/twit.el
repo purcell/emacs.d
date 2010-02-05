@@ -1,5 +1,5 @@
 ;;; Twit.el --- interface with twitter.com
-(defvar twit-version-number "0.3.11")
+(defvar twit-version-number "0.3.12")
 ;; Copyright (c) 2007 Theron Tlax
 ;;           (c) 2008-2009 Jonathan Arkell
 ;;           (c) 2010 Dave Kerschner (docgnome)
@@ -325,6 +325,8 @@
 ;;            to use the new style, a la TweetDeck
 ;; - 0.3.11 - Migrated to the versioned api at api.twitter.com/1 (docgnome)
 ;;            the api at twitter.com is deprecated
+;; - 0.3.12 - Remove 'reply_to' from `twit-post-retweet'. (peccu)
+;;            now you can select enable/disable of `fill-region' tweets
 ;;; TODO:
 ;; - remember style buffer posting.
 
@@ -492,6 +494,11 @@ all elisp packages."
 
 (defcustom twit-show-user-images nil
    "Show user images beside each users tweet."
+   :type 'boolean
+   :group 'twit)
+
+(defcustom twit-fill-tweets nil
+   "Apply `fill-region' to tweets."
    :type 'boolean
    :group 'twit)
 
@@ -1399,19 +1406,19 @@ TIMES-THROUGH is an integer representing the number of times a tweet has been
   displayed, for zebra-tabling."
   (let* ((tweet-id (xml-first-childs-value tweet 'id))
          (retweet (xml-first-child tweet 'retweeted_status))
-         (retweeted-by 
+         (retweeted-by
           (if retweet
               (or (xml-first-child tweet 'user) (xml-first-child tweet 'sender))))
          (retweeted-by-user-id
-          (if retweet 
+          (if retweet
               (or (xml-first-childs-value retweeted-by 'screen_name) "??")))
          (retweeted-by-user-img
           (if (and retweet twit-show-user-images)
-              (twit-get-user-image (xml-first-childs-value retweeted-by 'profile_image_url) 
+              (twit-get-user-image (xml-first-childs-value retweeted-by 'profile_image_url)
                                    retweeted-by-user-id)
             nil))
 
-         (tweet 
+         (tweet
           (if retweet
               retweet
             tweet))
@@ -1467,7 +1474,8 @@ TIMES-THROUGH is an integer representing the number of times a tweet has been
               (let ((fill-column (- (window-width twit-window) 2)))
                 (insert "\t")
                 (insert message)
-                (fill-region (point-min) (point-max))
+                (when twit-fill-tweets
+                  (fill-region (point-min) (point-max)))
                 (buffer-substring 2 (point-max))))))
       (twit-insert-with-overlay-attributes (twit-keymap-and-fontify-message message)
                                            '((face . "twit-message-face"))
@@ -1903,17 +1911,16 @@ tweet with \".@\" or some other filler character."
   (interactive)
   (if (y-or-n-p "Would you like to use the new style retweet? ")
       (let ((parent-id (twit-get-text-property 'twit-id)))
-        (twit-post-status (format twit-retweet-file parent-id) 
+        (twit-post-status (format twit-retweet-file parent-id)
                           (twit-get-text-property 'twit-message)))
   (let* ((reply-to (twit-get-text-property 'twit-user))
-         (parent-id (twit-get-text-property 'twit-id))
          (retweet-text (twit-get-text-property 'twit-message))
          (post (twit-query-for-post
                 (concat "Retweeting " reply-to)
                 (concat "RT @" reply-to ": " retweet-text " || "))))
     (if (> (length post) 140)
         (error twit-too-long-msg)
-      (twit-post-status twit-update-url post parent-id)))))
+      (twit-post-status twit-update-url post)))))
 
 ;;* post url
 ;;  Prompts for a URL, then compresses it and starts a tweet with the shortened URL in the body
