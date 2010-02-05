@@ -71,6 +71,10 @@
      (global-set-key (kbd "M-[") 'paredit-wrap-square)
      (global-set-key (kbd "M-{") 'paredit-wrap-curly)
 
+     (global-set-key (kbd "M-)") 'paredit-close-round-and-newline)
+     (global-set-key (kbd "M-]") 'paredit-close-square-and-newline)
+     (global-set-key (kbd "M-}") 'paredit-close-curly-and-newline)
+
      ;; Disable kill-sentence, which is easily confused with the kill-sexp
      ;; binding, but doesn't preserve sexp structure
      (define-key paredit-mode-map (kbd "M-K") 'warn-disabled-command)
