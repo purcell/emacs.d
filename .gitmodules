@@ -28,3 +28,6 @@
 [submodule "site-lisp/package"]
 	path = site-lisp/package
 	url = git://github.com/technomancy/package.el.git
+[submodule "site-lisp/color-theme-ir-black"]
+	path = site-lisp/color-theme-ir-black
+	url = git://github.com/burke/color-theme-ir-black.git
