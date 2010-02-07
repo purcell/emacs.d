@@ -1,4 +1,4 @@
-(defvar *window-system-color-theme* 'color-theme-my-vivid-chalk
+(defvar *window-system-color-theme* 'color-theme-subdued
   "Color theme to use in window-system frames")
 (defvar *tty-color-theme* 'color-theme-emacs-nw
   "Color theme to use in TTY frames")
