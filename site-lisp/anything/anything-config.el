@@ -52,21 +52,31 @@
 ;;
 ;; For quick start, try `anything-for-files' to open files.
 ;; 
-;; To configure anything you should setup `anything-sources'
-;; with specify source, like below:
+;; To configure anything you should define anything command
+;; with your favorite sources, like below:
 ;;
-;; (setq anything-sources
-;;       '(anything-c-source-buffers
-;;         anything-c-source-buffer-not-found
-;;         anything-c-source-file-name-history
-;;         anything-c-source-info-pages
-;;         anything-c-source-info-elisp
-;;         anything-c-source-man-pages
-;;         anything-c-source-locate
-;;         anything-c-source-emacs-commands
-;;         ))
+;; (defun my-anything ()
+;;   (interactive)
+;;   (anything-other-buffer
+;;    '(anything-c-source-buffers
+;;      anything-c-source-file-name-history
+;;      anything-c-source-info-pages
+;;      anything-c-source-info-elisp
+;;      anything-c-source-man-pages
+;;      anything-c-source-locate
+;;      anything-c-source-emacs-commands)
+;;    " *my-anything*"))
 ;;
-;; Below are complete source list you can setup in `anything-sources':
+;; Then type M-x my-anything to use sources.
+;;
+;; Defining own command is better than setup `anything-sources'
+;; directly, because you can define multiple anything commands with
+;; different sources. Each anything command should have own anything
+;; buffer, because M-x anything-resume revives anything command.
+
+;;
+;; Below are complete source list you can setup in the first argument
+;; of `anything-other-buffer' (or `anything-sources'):
 ;;
 ;;  Buffer:
 ;;     `anything-c-source-buffers'          (Buffers)
@@ -250,6 +260,10 @@
 ;;    Go down one level like unix command `cd ..'.
 ;;  `anything-find-files'
 ;;    Preconfigured anything for `find-file'.
+;;  `anything-write-file'
+;;    Preconfigured anything providing completion for `write-file'.
+;;  `anything-insert-file'
+;;    Preconfigured anything providing completion for `insert-file'.
 ;;  `anything-dired-rename-file'
 ;;    Preconfigured anything to rename files from dired.
 ;;  `anything-dired-copy-file'
@@ -315,6 +329,9 @@
 ;;  `anything-google-suggest-use-curl-p'
 ;;    *When non--nil use CURL to get info from `anything-c-google-suggest-url'.
 ;;    default = nil
+;;  `anything-c-yahoo-suggest-url'
+;;    Url used for looking up Yahoo suggestions.
+;;    default = "http://search.yahooapis.com/WebSearchService/V1/relatedSuggestion?appid=Generic&query="
 ;;  `anything-c-yahoo-suggest-search-url'
 ;;    Url used for Yahoo searching.
 ;;    default = "http://search.yahoo.com/search?&ei=UTF-8&fr&h=c&p="
@@ -342,6 +359,9 @@
 ;;  `anything-c-enable-eval-defun-hack'
 ;;    *If non-nil, execute `anything' using the source at point when C-M-x is pressed.
 ;;    default = t
+;;  `anything-tramp-verbose'
+;;    *Just like `tramp-verbose' but specific to anything.
+;;    default = 0
 
 
 ;;; Change log:
@@ -3860,6 +3880,7 @@ See also `anything-create--actions'."
   "Preconfigured `anything' for top command."
   (interactive)
   (let ((anything-samewindow t)
+        (anything-enable-shortcuts)
         (anything-display-function 'anything-default-display-buffer)
         (anything-map (copy-keymap anything-map))
         (anything-candidate-number-limit 9999))
