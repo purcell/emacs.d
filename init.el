@@ -450,6 +450,10 @@ in `exec-path', or nil if no such command exists"
 
 (define-key isearch-mode-map "\C-\M-w" 'isearch-yank-symbol)
 
+(autoload 'iedit-mode "iedit" "Edit current search matches")
+(global-set-key (kbd "C-;") 'iedit-mode)
+(eval-after-load "iedit"
+  '(define-key iedit-mode-map (kbd "C-g") 'iedit-mode))
 
 ;;----------------------------------------------------------------------------
 ;; Easily count words (http://emacs-fu.blogspot.com/2009/01/counting-words.html)
