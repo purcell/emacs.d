@@ -31,3 +31,6 @@
 [submodule "site-lisp/color-theme-ir-black"]
 	path = site-lisp/color-theme-ir-black
 	url = git://github.com/burke/color-theme-ir-black.git
+[submodule "site-lisp/color-theme-zen-and-art"]
+	path = site-lisp/color-theme-zen-and-art
+	url = git://github.com/irfn/zen-and-art.git

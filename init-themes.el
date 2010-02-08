@@ -11,6 +11,7 @@
 (autoload 'color-theme-tango-2 "color-theme-tango-2" "A dark color theme" t)
 (autoload 'color-theme-subdued "color-theme-subdued" "A dark color theme" t)
 (autoload 'color-theme-ir-black "color-theme-ir-black" "A dark color theme" t)
+(autoload 'color-theme-zen-and-art "zen-and-art" "A dark color theme" t)
 (color-theme-initialize)
 ;; (color-theme-pierson) ; Light, favourite
 ;; (color-theme-high-contrast)
@@ -22,6 +23,11 @@
 ;; (color-theme-oswald) ; dark
 ;; (color-theme-zenburn) ; dark, low contrast
 ;; (color-theme-standard)
+
+(defun color-theme-my-zen-and-art ()
+  (interactive)
+  (color-theme-zen-and-art)
+  (set-face-background 'default "black" nil))
 
 (defun color-theme-my-vivid-chalk ()
   (interactive)
