@@ -326,7 +326,8 @@
 ;; - 0.3.11 - Migrated to the versioned api at api.twitter.com/1 (docgnome)
 ;;            the api at twitter.com is deprecated
 ;; - 0.3.12 - Remove 'reply_to' from `twit-post-retweet'. (peccu)
-;;            now you can select enable/disable of `fill-region' tweets
+;;            - now you can select enable/disable of `fill-region' tweets
+;;            - add keybind "F" for `twit-show-favorites-tweets'
 ;;; TODO:
 ;; - remember style buffer posting.
 
@@ -497,7 +498,7 @@ all elisp packages."
    :type 'boolean
    :group 'twit)
 
-(defcustom twit-fill-tweets nil
+(defcustom twit-fill-tweets t
    "Apply `fill-region' to tweets."
    :type 'boolean
    :group 'twit)
@@ -729,6 +730,7 @@ AS WELL.  Otherwise your primary login credentials may get wacked."
     ("n" . twit-next-tweet)
     ("p" . twit-previous-tweet)
 
+    ("F" . twit-show-favorites-tweets)
     ("*" . twit-add-favorite)
     ("-" . twit-remove-favorite)
 
