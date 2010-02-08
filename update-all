@@ -4,10 +4,8 @@ function emacswiki_get {
   curl -o $1 "http://www.emacswiki.org/emacs/download/$1"
 }
 
-for f in site-lisp/*/.git; do
-  echo '***' `dirname $f`
-  (cd $f/.. && git pull)
-done
+echo "*** Git submodules"
+git submodule foreach 'git pull'
 
 for f in site-lisp/*/_darcs; do
   echo '***' `dirname $f`
