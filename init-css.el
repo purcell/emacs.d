@@ -1,9 +1,4 @@
-(autoload 'css-mode "css-mode" "Mode for editing CSS files" t)
-(setq cssm-indent-function #'cssm-c-style-indenter)
-(add-auto-mode 'css-mode "\\.css$")
-
 (add-hook 'css-mode-hook 'ac-css-keywords-setup)
-
 
 (eval-after-load "mmm-vars"
   '(progn
