@@ -5,7 +5,7 @@
 ;; Author: Yoshiki Kurihara <kurihara@cpan.org>
 ;;         Marshall T. Vandegrift <llasram@gmail.com>
 ;; Keywords: data yaml
-;; Version: 0.0.3
+;; Version: 0.0.5
 
 ;; This file is not part of Emacs
 
@@ -104,15 +104,21 @@ that key is pressed to begin a block literal."
   :group 'faces
   :group 'yaml)
 
+(defcustom yaml-imenu-generic-expression
+  '((nil  "^\\(:?[a-zA-Z_-]+\\):"          1))
+  "The imenu regex to parse an outline of the yaml file."
+  :type 'string
+  :group 'yaml)
+
 
 ;; Constants
 
-(defconst yaml-mode-version "0.0.3" "Version of `yaml-mode.'")
+(defconst yaml-mode-version "0.0.5" "Version of `yaml-mode.'")
 
 (defconst yaml-blank-line-re "^ *$"
   "Regexp matching a line containing only (valid) whitespace.")
 
-(defconst yaml-comment-re "\\(#*.*\\)"
+(defconst yaml-comment-re "\\(?:^\\|\\s-+\\)\\(#.*\\)"
   "Regexp matching a line containing a YAML comment or delimiter.")
 
 (defconst yaml-directive-re "^\\(?:--- \\)? *%\\(\\w+\\)"
@@ -380,6 +386,16 @@ margin."
     (beginning-of-line)
     (if (and (not arg) (looking-at yaml-document-delimiter-re))
         (delete-horizontal-space))))
+
+
+(defun yaml-set-imenu-generic-expression ()
+  (make-local-variable 'imenu-generic-expression)
+  (make-local-variable 'imenu-create-index-function)
+  (setq imenu-create-index-function 'imenu-default-create-index-function)
+  (setq imenu-generic-expression yaml-imenu-generic-expression))
+
+(add-hook 'yaml-mode-hook 'yaml-set-imenu-generic-expression)
+
 
 (defun yaml-mode-version ()
   "Diplay version of `yaml-mode'."
