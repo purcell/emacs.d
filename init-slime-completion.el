@@ -26,7 +26,9 @@
   :group 'auto-complete)
 
 (defvar ac-source-slime-fuzzy
-  '((candidates . ac-source-slime-fuzzy-candidates))
+  '((candidates . ac-source-slime-fuzzy-candidates)
+    (candidate-face . ac-slime-menu-face)
+    (selection-face . ac-slime-selection-face))
   "Source for fuzzy slime completion")
 
 (defvar ac-source-slime-simple
