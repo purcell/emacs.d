@@ -28,13 +28,15 @@
 (defvar ac-source-slime-fuzzy
   '((candidates . ac-source-slime-fuzzy-candidates)
     (candidate-face . ac-slime-menu-face)
-    (selection-face . ac-slime-selection-face))
+    (selection-face . ac-slime-selection-face)
+    (prefix . slime-symbol-start-pos))
   "Source for fuzzy slime completion")
 
 (defvar ac-source-slime-simple
   '((candidates . ac-source-slime-simple-candidates)
     (candidate-face . ac-slime-menu-face)
-    (selection-face . ac-slime-selection-face))
+    (selection-face . ac-slime-selection-face)
+    (prefix . slime-symbol-start-pos))
   "Source for slime completion")
 
 
