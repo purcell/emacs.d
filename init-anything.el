@@ -10,8 +10,6 @@
         anything-c-source-emacs-functions
         anything-c-source-minibuffer-history))
 
-(setq anything-samewindow nil)
-(setq anything-input-idle-delay 0.2)
 
 (add-to-list 'anything-c-ctags-modes 'ruby-mode)
 
