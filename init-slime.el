@@ -13,9 +13,11 @@
      (setq slime-complete-symbol*-fancy t)
      (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 
-     (require 'init-slime-completion)
+     (require 'ac-slime)
      (add-hook 'slime-mode-hook 'set-up-slime-ac)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+
+     (require 'hippie-expand-slime)
      (add-hook 'slime-mode-hook 'set-up-slime-hippie-expand)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-hippie-expand)))
 
