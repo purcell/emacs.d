@@ -662,7 +662,8 @@ in `exec-path', or nil if no such command exists"
              (if (> emacs-major-version 22)
                  (progn
                    (require 'ac-dabbrev)
-                   '(ac-source-dabbrev ac-source-words-in-buffer))
+                   (require 'ac-dabbrev-all-buffers)
+                   '(ac-source-dabbrev ac-source-dabbrev-all-buffers))
                ;; dabbrev is very slow in emacs 22
                '(ac-source-words-in-buffer)))
 
