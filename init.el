@@ -49,10 +49,9 @@
 ;; Use elisp package manager (http://tromey.com/elpa/)
 ;;----------------------------------------------------------------------------
 (require 'package)
-(package-initialize)
-
 (add-to-list 'package-archives
              '("technomancy" . "http://repo.technomancy.us/emacs/") t)
+(package-initialize)
 
 
 ;;----------------------------------------------------------------------------
