@@ -26,7 +26,6 @@
 
 
 ;; js-mode
-(autoload 'js-mode "js" "An enhanced version of javascript-mode")
 (setq js-indent-level preferred-javascript-indent-level)
 
 
