@@ -23,7 +23,10 @@
 (setq js2-use-font-lock-faces t)
 (setq js2-mode-must-byte-compile nil)
 (setq js2-basic-offset preferred-javascript-indent-level)
-
+(setq js2-indent-on-enter-key t)
+(setq js2-auto-indent-p t)
+(unless *vi-emulation-support-enabled*
+  (setq js2-mirror-mode t))
 
 ;; js-mode
 (setq js-indent-level preferred-javascript-indent-level)
