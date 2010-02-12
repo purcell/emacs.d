@@ -72,5 +72,10 @@
              (local-set-key "\C-cl" 'js-load-file-and-go)
              ))
 
+(autoload 'inferior-moz-mode "moz" "MozRepl Inferior Mode" t)
+(autoload 'moz-minor-mode "moz" "MozRepl Minor Mode" t)
+(defun javascript-moz-setup () (moz-minor-mode 1))
+(add-hook preferred-javascript-mode-hook 'javascript-moz-setup)
+
 
 (provide 'init-javascript)
