@@ -34,3 +34,9 @@
 [submodule "site-lisp/color-theme-zen-and-art"]
 	path = site-lisp/color-theme-zen-and-art
 	url = git://github.com/irfn/zen-and-art.git
+[submodule "site-lsip/org-fstree"]
+	path = site-lsip/org-fstree
+	url = http://repo.or.cz/r/org-fstree.git
+[submodule "site-lisp/org-fstree"]
+	path = site-lisp/org-fstree
+	url = http://repo.or.cz/r/org-fstree.git

@@ -41,7 +41,8 @@
 (eval-after-load "org"
   '(progn
      (require 'org-clock)
-     (require 'org-checklist)))
+     (require 'org-checklist)
+     (require 'org-fstree)))
 
 
 (provide 'init-org)
