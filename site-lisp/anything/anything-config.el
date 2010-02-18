@@ -1265,8 +1265,11 @@ buffer that is not the current buffer."
 
 ;;; Anything replacement of file name completion for `find-file' and friends.
 
+(defvar anything-c-find-files-doc-header " (`C-z':Expand Candidate, `C-.':Go to precedent level)"
+  "*The doc that is inserted in the Name header of a find-files or dired source.")
+
 (defvar anything-c-source-find-files
-  '((name . "Find Files (`C-z':expand directory, `C-.':Go to precedent level)")
+  `((name . ,(concat "Find Files" anything-c-find-files-doc-header))
     (init . (lambda ()
               (setq ffap-newfile-prompt t)))
     (candidates . anything-find-files-get-candidates)
@@ -1311,14 +1314,13 @@ If EXPAND is non--nil expand-file-name."
 
 (defun anything-find-files-or-dired-p ()
   "Test if current source is a dired or find-files source."
-  (let ((doc        " (`C-z':expand directory, `C-.':Go to precedent level)")
-        (ff-sources '("Find Files" "Copy Files"
+  (let ((ff-sources '("Find Files" "Copy Files"
                       "Rename Files" "Symlink Files"
                       "Hardlink Files" "Write File" "Insert File"))
         (cur-source (cdr (assoc 'name (anything-get-current-source)))))
     (catch 'break
       (dolist (i ff-sources)
-        (when (equal cur-source (concat i doc))
+        (when (equal cur-source (concat i anything-c-find-files-doc-header))
           (throw 'break t))))))
 
 (defun anything-find-files-down-one-level (arg)
@@ -1422,7 +1424,7 @@ If CANDIDATE is not a directory open this file."
 
 ;;; Anything completion for `write-file'.==> C-x C-w
 (defvar anything-c-source-write-file
-  '((name . "Write File (`C-z':expand directory, `C-.':Go to precedent level)")
+  `((name . ,(concat "Write File" anything-c-find-files-doc-header))
     (candidates . anything-find-files-get-candidates)
     (candidate-transformer anything-c-highlight-ffiles)
     (persistent-action . anything-find-files-persistent-action)
@@ -1440,7 +1442,7 @@ If CANDIDATE is not a directory open this file."
 
 ;;; Anything completion for `insert-file'.==> C-x i
 (defvar anything-c-source-insert-file
-  '((name . "Insert File (`C-z':expand directory, `C-.':Go to precedent level)")
+  `((name . ,(concat "Insert File" anything-c-find-files-doc-header))
     (candidates . anything-find-files-get-candidates)
     (candidate-transformer anything-c-highlight-ffiles)
     (persistent-action . anything-find-files-persistent-action)
@@ -1460,7 +1462,7 @@ If CANDIDATE is not a directory open this file."
 
 ;;; Anything completion for copy, rename and (rel)sym/hard/link files from dired.
 (defvar anything-c-source-copy-files
-  '((name . "Copy Files (`C-z':expand directory, `C-.':Go to precedent level)")
+  `((name . ,(concat "Copy Files" anything-c-find-files-doc-header))
     (candidates . anything-find-files-get-candidates)
     (candidate-transformer anything-c-highlight-ffiles)
     (persistent-action . anything-find-files-persistent-action)
@@ -1471,7 +1473,7 @@ If CANDIDATE is not a directory open this file."
 
 
 (defvar anything-c-source-rename-files
-  '((name . "Rename Files (`C-z':expand directory, `C-.':Go to precedent level)")
+  `((name . ,(concat "Rename Files" anything-c-find-files-doc-header))
     (candidates . anything-find-files-get-candidates)
     (candidate-transformer anything-c-highlight-ffiles)
     (persistent-action . anything-find-files-persistent-action)
@@ -1481,7 +1483,7 @@ If CANDIDATE is not a directory open this file."
                          (anything-dired-action candidate :action 'rename)))))))
 
 (defvar anything-c-source-symlink-files
-  '((name . "Symlink Files (`C-z':expand directory, `C-.':Go to precedent level)")
+  `((name . ,(concat "Symlink Files" anything-c-find-files-doc-header))
     (candidates . anything-find-files-get-candidates)
     (candidate-transformer anything-c-highlight-ffiles)
     (persistent-action . anything-find-files-persistent-action)
@@ -1494,7 +1496,7 @@ If CANDIDATE is not a directory open this file."
 
 
 (defvar anything-c-source-hardlink-files
-  '((name . "Hardlink Files (`C-z':expand directory, `C-.':Go to precedent level)")
+  `((name . ,(concat "Hardlink Files" anything-c-find-files-doc-header))
     (candidates . anything-find-files-get-candidates)
     (candidate-transformer anything-c-highlight-ffiles)
     (persistent-action . anything-find-files-persistent-action)
@@ -3399,8 +3401,7 @@ removed."
 (defvar anything-c-source-bbdb
   '((name . "BBDB")
     (candidates . anything-c-bbdb-candidates)
-    (action ("Send a mail" . (lambda (candidate)
-                               (bbdb-send-mail (anything-c-bbdb-get-record candidate))))
+    (action ("Send a mail" . anything-c-bbdb-compose-mail)
             ("View person's data" . anything-c-bbdb-view-person-action))
     (filtered-candidate-transformer . (lambda (candidates source)
                                         (setq anything-c-bbdb-name anything-pattern)
@@ -3413,14 +3414,26 @@ removed."
 
 (defun anything-c-bbdb-view-person-action (candidate)
   "View BBDB data of single CANDIDATE or marked candidates."
-  (let* ((cand-list (anything-marked-candidates))
-         (len (length cand-list)))
-    (if (> len 1)
-        (let ((bbdb-append-records len))
-          (dolist (i cand-list)
-            (bbdb-redisplay-one-record (anything-c-bbdb-get-record i))))
-        (bbdb-redisplay-one-record (anything-c-bbdb-get-record candidate)))))
-  
+  (anything-aif (anything-marked-candidates)
+      (let ((bbdb-append-records (length it)))
+        (dolist (i it)
+          (bbdb-redisplay-one-record (anything-c-bbdb-get-record i))))
+    (bbdb-redisplay-one-record (anything-c-bbdb-get-record candidate))))
+
+(defun anything-c-bbdb-collect-mail-addresses ()
+  "Return a list of all mail addresses of records in bbdb buffer."
+  (with-current-buffer bbdb-buffer-name
+    (loop for i in bbdb-records
+       if (bbdb-record-net (car i))
+       collect (bbdb-dwim-net-address (car i)))))
+
+(defun anything-c-bbdb-compose-mail (candidate)
+  "Compose a mail with all records of bbdb buffer."
+  (anything-c-bbdb-view-person-action candidate)
+  (let* ((address-list (anything-c-bbdb-collect-mail-addresses))
+         (address-str  (mapconcat 'identity address-list ",\n    ")))
+    (compose-mail address-str)))
+
 ;;; Evaluation Result
 (defvar anything-c-source-evaluation-result
   '((name . "Evaluation Result")
