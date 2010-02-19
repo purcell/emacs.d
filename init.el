@@ -337,7 +337,7 @@ in `exec-path', or nil if no such command exists"
 ;;----------------------------------------------------------------------------
 (require 'edit-server)
 (setq edit-server-new-frame nil)
-(edit-server-start)))
+(edit-server-start)
 
 
 ;;----------------------------------------------------------------------------
