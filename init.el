@@ -666,13 +666,9 @@ in `exec-path', or nil if no such command exists"
 (global-set-key (kbd "TAB") 'indent-or-expand-with-ac)
 
 (set-default 'ac-sources
-             (if (> emacs-major-version 22)
-                 (progn
-                   (require 'ac-dabbrev)
-                   (require 'ac-dabbrev-all-buffers)
-                   '(ac-source-dabbrev ac-source-dabbrev-all-buffers))
-               ;; dabbrev is very slow in emacs 22
-               '(ac-source-words-in-buffer)))
+             '(ac-source-words-in-buffer
+               ac-source-words-in-same-mode-buffers
+               ac-source-words-in-all-buffer))
 
 (dolist (mode '(magit-log-edit-mode log-edit-mode org-mode text-mode haml-mode
                 sass-mode yaml-mode csv-mode espresso-mode haskell-mode

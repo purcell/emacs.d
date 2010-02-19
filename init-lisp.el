@@ -39,15 +39,11 @@
 ;; Modify ac-source-symbols to add colours
 (eval-after-load "auto-complete"
   '(progn
-     (setq ac-source-symbols
-       '((candidates
-          . (lambda ()
-              (all-completions ac-prefix obarray)))
-         (candidate-face . ac-symbol-menu-face)
-         (selection-face . ac-symbol-selection-face)))))
+     (add-to-list 'ac-source-symbols '(candidate-face . ac-symbol-menu-face))
+     (add-to-list 'ac-source-symbols '(selection-face . ac-symbol-selection-face))))
 
 (defun set-up-ac-for-elisp ()
-  (add-to-list 'ac-sources 'ac-source-symbols t))
+  (add-to-list 'ac-sources 'ac-source-symbols))
 
 (add-hook 'paredit-mode-hook
           (lambda ()

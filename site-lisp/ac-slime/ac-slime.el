@@ -20,6 +20,14 @@
   (if (slime-connected-p)
       (car (slime-simple-completions  ac-prefix))))
 
+(defvar ac-slime-current-doc nil "Holds slime docstring for current symbol")
+(defun ac-slime-documentation (symbol-name)
+  (let ((symbol-name (substring-no-properties symbol-name)))
+    (slime-eval `(swank:documentation-symbol ,symbol-name))))
+
+(defun ac-slime-init ()
+  (setq ac-slime-current-doc nil))
+
 (defface ac-slime-menu-face
   '((t (:background "lightgray" :foreground "darkgreen")))
   "Face for slime candidate menu."
@@ -31,17 +39,23 @@
   :group 'auto-complete)
 
 (defvar ac-source-slime-fuzzy
-  '((candidates . ac-source-slime-fuzzy-candidates)
+  '((init . ac-slime-init)
+    (candidates . ac-source-slime-fuzzy-candidates)
     (candidate-face . ac-slime-menu-face)
     (selection-face . ac-slime-selection-face)
-    (prefix . slime-symbol-start-pos))
+    (prefix . slime-symbol-start-pos)
+    (symbol . "l")
+    (document . ac-slime-documentation))
   "Source for fuzzy slime completion")
 
 (defvar ac-source-slime-simple
-  '((candidates . ac-source-slime-simple-candidates)
+  '((init . ac-slime-init)
+    (candidates . ac-source-slime-simple-candidates)
     (candidate-face . ac-slime-menu-face)
     (selection-face . ac-slime-selection-face)
-    (prefix . slime-symbol-start-pos))
+    (prefix . slime-symbol-start-pos)
+    (symbol . "l")
+    (document . ac-slime-documentation))
   "Source for slime completion")
 
 
@@ -52,8 +66,7 @@ front of `ac-sources' for the current buffer."
   (setq ac-sources (add-to-list 'ac-sources
                                 (if fuzzy
                                     'ac-source-slime-fuzzy
-                                  'ac-source-slime-simple)
-                                t)))
+                                  'ac-source-slime-simple))))
 
 
 (provide 'ac-slime)
