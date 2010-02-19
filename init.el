@@ -333,6 +333,14 @@ in `exec-path', or nil if no such command exists"
 
 
 ;;----------------------------------------------------------------------------
+;; Edit-server for Chrome extension: http://github.com/stsquad/emacs_chrome
+;;----------------------------------------------------------------------------
+(require 'edit-server)
+(setq edit-server-new-frame nil)
+(edit-server-start)))
+
+
+;;----------------------------------------------------------------------------
 ;; Enhanced dired
 ;;----------------------------------------------------------------------------
 (require 'dired+)
