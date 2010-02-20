@@ -1,3 +1,6 @@
+;;----------------------------------------------------------------------------
+;; Add spell-checking in comments for all programming language modes
+;;----------------------------------------------------------------------------
 (dolist (hook '(lisp-mode-hook
                 emacs-lisp-mode-hook
                 scheme-mode-hook
