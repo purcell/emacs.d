@@ -1,8 +1,8 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.241 2010/01/29 18:53:17 rubikitch Exp $
+;; $Id: anything.el,v 1.248 2010/02/20 12:34:38 rubikitch Exp $
 
-;; Copyright (C) 2007        Tamas Patrovics
-;;               2008, 2009  rubikitch <rubikitch@ruby-lang.org>
+;; Copyright (C) 2007              Tamas Patrovics
+;;               2008, 2009, 2010  rubikitch <rubikitch@ruby-lang.org>
 
 ;; Author: Tamas Patrovics
 ;; Maintainer: rubikitch <rubikitch@ruby-lang.org>
@@ -327,6 +327,28 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.248  2010/02/20 12:34:38  rubikitch
+;; Mode-line help!! `anything-mode-line-string' is help string.
+;;
+;; Revision 1.247  2010/02/20 10:41:39  rubikitch
+;; Automatically update `anything-version' when upgrading
+;;
+;; Revision 1.246  2010/02/20 10:38:58  rubikitch
+;; update copyright
+;;
+;; Revision 1.245  2010/02/20 10:36:01  rubikitch
+;; New API: `anything-require-at-least-version'
+;;
+;; Revision 1.244  2010/02/20 10:06:54  rubikitch
+;; * New plug-in: `disable-shortcuts'
+;; * `dummy' plug-in implies `disable-shortcuts' because it enables us to input capital letters.
+;;
+;; Revision 1.243  2010/02/20 09:54:16  rubikitch
+;; `anything-compile-source--dummy': swap arguments of `append'
+;;
+;; Revision 1.242  2010/02/19 17:37:12  rubikitch
+;; error check in `anything-set-source-filter'
+;;
 ;; Revision 1.241  2010/01/29 18:53:17  rubikitch
 ;; Fix a bug of `candidate-number-limit' in process sources.
 ;;
@@ -1108,7 +1130,9 @@
 ;; New maintainer.
 ;;
 
-(defvar anything-version "$Id: anything.el,v 1.241 2010/01/29 18:53:17 rubikitch Exp $")
+;; ugly hack to auto-update version
+(defvar anything-version nil)
+(setq anything-version "$Id: anything.el,v 1.248 2010/02/20 12:34:38 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1483,12 +1507,19 @@ Attributes:
 
   Pass empty string \"\" to action function.
 
+- disable-shortcuts (optional)
+
+  Disable `anything-enable-shortcuts' in current `anything' session.
+
+  This attribute is implemented by plug-in.
+  
 - dummy (optional)
 
   Set `anything-pattern' to candidate. If this attribute is
   specified, The candidates attribute is ignored.
 
   This attribute is implemented by plug-in.
+  This plug-in implies disable-shortcuts plug-in.
 
 - multiline (optional)
 
@@ -1827,6 +1858,10 @@ It is `anything-default-display-buffer' by default, which affects `anything-same
 
 (defvar anything-delayed-init-executed nil)
 
+(defvar anything-mode-line-string "(C-c?:help TAB:act C-m/C-e/C-j:nthact C-o:nextsrc C-z:pers-act C-SPC:mark M-[/M-]:movemark C-t:splt C-cC-f:follow)"
+  "Help string displayed in mode-line in `anything'.
+If nil, use default `mode-line-format'.")
+
 (put 'anything 'timid-completion 'disabled)
 
 ;; (@* "Internal Variables")
@@ -1941,6 +1976,9 @@ It is useful to write your sources."
 ;;  
 (defun anything-set-source-filter (sources)
   "Sets the value of `anything-source-filter' and updates the list of results."
+  (unless (and (listp sources)
+               (loop for name in sources always (stringp name)))
+    (error "invalid data in `anything-set-source-filter': %S" sources))
   (setq anything-source-filter sources)
   (anything-update))
 
@@ -1954,7 +1992,10 @@ If NO-UPDATE is non-nil, skip executing `anything-update'."
   (unless no-update (anything-update)))
 
 (defvar anything-compile-source-functions
-  '(anything-compile-source--type anything-compile-source--dummy anything-compile-source--candidates-in-buffer)
+  '(anything-compile-source--type
+    anything-compile-source--dummy
+    anything-compile-source--disable-shortcuts
+    anything-compile-source--candidates-in-buffer)
   "Functions to compile elements of `anything-sources' (plug-in).")
 
 (defun anything-get-sources ()
@@ -2074,6 +2115,19 @@ LONG-DOC is displayed below attribute name and short documentation."
   (put attribute 'anything-attrdoc
        (concat "- " (symbol-name attribute) " " short-doc "\n\n" long-doc "\n")))
 (put 'anything-document-attribute 'lisp-indent-function 2)
+
+(defun anything-require-at-least-version (version)
+  "Output error message unless anything.el is older than VERSION.
+This is suitable for anything applications."
+  (when (and (string= "1." (substring version 0 2))
+             (string-match "1\.\\([0-9]+\\)" anything-version)
+             (< (string-to-number (match-string 1 anything-version))
+                (string-to-number (substring version 2))))
+    (error "Please update anything.el!!
+
+http://www.emacswiki.org/cgi-bin/wiki/download/anything.el
+
+or  M-x install-elisp-from-emacswiki anything.el")))
 
 ;; (@* "Core: tools")
 (defun anything-current-frame/window-configuration ()
@@ -2340,6 +2394,11 @@ If TEST-MODE is non-nil, clear `anything-candidate-cache'."
     (erase-buffer)
     (set (make-local-variable  'inhibit-read-only) t)
     (set (make-local-variable 'anything-last-sources-local) anything-sources)
+    (if anything-mode-line-string
+        (setq mode-line-format
+              '(" " mode-line-buffer-identification " "
+                (line-number-mode "%l") " " anything-mode-line-string "-%-"))
+      (kill-local-variable 'mode-line-format))
     (setq cursor-type nil)
     (setq mode-name "Anything"))
   (anything-initialize-overlays anything-buffer)
@@ -3193,12 +3252,23 @@ UNIT and DIRECTION."
 
 (defun anything-compile-source--dummy (source)
   (if (assoc 'dummy source)
-      (append '((candidates "dummy")
+      (append source
+              '((candidates "dummy")
                 (accept-empty)
                 (match identity)
                 (filtered-candidate-transformer . anything-dummy-candidate)
-                (volatile))
-              source)
+                (disable-shortcuts)
+                (volatile)))
+    source))
+
+;; (@* "Built-in plug-in: disable-shortcuts")
+(defvar anything-orig-enable-shortcuts nil)
+(defun anything-compile-source--disable-shortcuts (source)
+  (if (assoc 'disable-shortcuts source)
+      (append source
+              '((init . (lambda () (setq anything-orig-enable-shortcuts anything-enable-shortcuts
+                                         anything-enable-shortcuts nil)))
+                (cleanup . (lambda () (setq anything-enable-shortcuts anything-orig-enable-shortcuts)))))
     source))
 
 ;; (@* "Built-in plug-in: candidates-in-buffer")
@@ -5587,6 +5657,19 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
       (expect '("foo" "bar" "baz")
         (let ((lst '("bar" "foo" "baz")))
           (anything-recent-push "foo" 'lst)))
+      (desc "anything-require-at-least-version")
+      (expect nil
+        (anything-require-at-least-version "1.1"))
+      (expect nil
+        (anything-require-at-least-version "1.200"))
+      (expect nil
+        (anything-require-at-least-version
+         (and (string-match "1\.\\([0-9]+\\)" anything-version)
+              (match-string 0 anything-version))))
+      (expect (error)
+        (anything-require-at-least-version "1.999"))
+      (expect (error)
+        (anything-require-at-least-version "1.2000"))
       )))
 
 
