@@ -56,4 +56,4 @@ echo '***' smooth-scrolling
 (cd site-lisp/smooth-scrolling && curl -o smooth-scrolling.el http://adamspiers.org/computing/elisp/smooth-scrolling.el)
 
 echo '***' edit-server
-(cd site-lisp/edit-server && curl -o edit-server.el http://github.com/stsquad/emacs_chrome/blob/master/servers/edit-server.el)
+(cd site-lisp/edit-server && curl -o edit-server.el http://github.com/stsquad/emacs_chrome/raw/master/servers/edit-server.el)

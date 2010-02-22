@@ -125,6 +125,8 @@ Depending on the character encoding, may be different from the buffer length.")
 (defvar edit-server-content-length nil 
   "The value gotten from the HTTP `Content-Length' header.")
 
+(defvar edit-server-url nil 
+  "The value gotten from the HTTP `x-url' header.")
 
 ;; Mode magic
 ;
@@ -220,7 +222,8 @@ If `edit-server-verbose' is non-nil, then STRING is also echoed to the message l
       (set (make-local-variable 'edit-server-phase) 'wait)
       (set (make-local-variable 'edit-server-received) 0)
       (set (make-local-variable 'edit-server-request) nil))
-      (set (make-local-variable 'edit-server-content-length) nil))
+      (set (make-local-variable 'edit-server-content-length) nil)
+      (set (make-local-variable 'edit-server-url) nil))
     (add-to-list 'edit-server-clients client)
     (edit-server-log client msg))
 
@@ -252,6 +255,11 @@ If `edit-server-verbose' is non-nil, then STRING is also echoed to the message l
         (goto-char (point-min))
         (when (re-search-forward "^Content-Length:\\s-+\\([0-9]+\\)" nil t)
           (setq edit-server-content-length (string-to-number (match-string 1)))))
+      ;; look for "x-url" header
+      (save-excursion
+        (goto-char (point-min))
+        (when (re-search-forward "^x-url: .*//\\(.*\\)/" nil t)
+          (setq edit-server-url (match-string 1))))
       ;; look for head/body separator
       (save-excursion
         (goto-char (point-min))
@@ -285,7 +293,9 @@ If `edit-server-verbose' is non-nil, then STRING is also echoed to the message l
 (defun edit-server-create-edit-buffer(proc)
   "Create an edit buffer, place content in it and save the network
   process for the final call back"
-  (let ((buffer (generate-new-buffer edit-server-edit-buffer-name)))
+  (let ((buffer (generate-new-buffer (if edit-server-url
+					 edit-server-url
+				       edit-server-edit-buffer-name))))
     (copy-to-buffer buffer (point-min) (point-max))
     (with-current-buffer buffer
       (not-modified)
