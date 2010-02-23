@@ -42,7 +42,10 @@
   '(progn
      (require 'org-clock)
      (require 'org-checklist)
-     (require 'org-fstree)))
-
+     (require 'org-fstree)
+     (require 'org-babel-init)
+     (require 'org-babel-ruby)
+     (require 'org-babel-python)
+     (require 'org-babel-clojure)))
 
 (provide 'init-org)
