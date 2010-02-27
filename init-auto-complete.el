@@ -3,8 +3,8 @@
 (global-auto-complete-mode t)
 (setq ac-auto-start nil)
 (setq ac-dwim t)
-(define-key ac-complete-mode-map (kbd "C-n") 'ac-next)
-(define-key ac-complete-mode-map (kbd "C-p") 'ac-previous)
+(define-key ac-completing-map (kbd "C-n") 'ac-next)
+(define-key ac-completing-map (kbd "C-p") 'ac-previous)
 
 (defun indent-or-expand-with-ac (&optional arg)
   "Either indent according to mode, or expand the word preceding point."
@@ -33,9 +33,9 @@
 
 (eval-after-load "viper"
   '(progn
-     (define-key ac-complete-mode-map (kbd "C-n") 'dabbrev-expand)
-     (define-key ac-complete-mode-map (kbd "C-p") 'dabbrev-expand)
-     (define-key ac-complete-mode-map viper-ESC-key 'viper-intercept-ESC-key)))
+     (define-key ac-completing-map (kbd "C-n") 'dabbrev-expand)
+     (define-key ac-completing-map (kbd "C-p") 'dabbrev-expand)
+     (define-key ac-completing-map viper-ESC-key 'viper-intercept-ESC-key)))
 
 ;; Exclude very large buffers from dabbrev
 (defun smp-dabbrev-friend-buffer (other-buffer)
