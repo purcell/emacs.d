@@ -1,6 +1,6 @@
-(defvar *window-system-color-theme* 'color-theme-subdued
+(defvar *window-system-color-theme* 'color-theme-sanityinc-dark
   "Color theme to use in window-system frames")
-(defvar *tty-color-theme* 'color-theme-emacs-nw
+(defvar *tty-color-theme* 'color-theme-terminal
   "Color theme to use in TTY frames")
 
 
@@ -12,32 +12,14 @@
 (autoload 'color-theme-subdued "color-theme-subdued" "A dark color theme" t)
 (autoload 'color-theme-ir-black "color-theme-ir-black" "A dark color theme" t)
 (autoload 'color-theme-zen-and-art "zen-and-art" "A dark color theme" t)
+(autoload 'color-theme-sanityinc-light "color-theme-sanityinc" "A light color theme" t)
+(autoload 'color-theme-sanityinc-dark "color-theme-sanityinc" "A dark color theme" t)
+
 (color-theme-initialize)
-;; (color-theme-pierson) ; Light, favourite
-;; (color-theme-high-contrast)
-;; (color-theme-snowish)
-;; (color-theme-marquardt)
-;; (color-theme-clarity) ; dark
-;; (color-theme-dark-laptop) ; dark
-;; (color-theme-billw) ; dark
-;; (color-theme-oswald) ; dark
-;; (color-theme-zenburn) ; dark, low contrast
-;; (color-theme-standard)
 
-(defun color-theme-my-zen-and-art ()
+(defun color-theme-terminal ()
   (interactive)
-  (color-theme-zen-and-art)
-  (set-face-background 'default "black" nil))
-
-(defun color-theme-my-vivid-chalk ()
-  (interactive)
-  (color-theme-vivid-chalk)
-  (set-face-attribute 'highlight nil :background "white" :foreground "black"))
-
-(defun color-theme-my-zenburn-low-contrast ()
-  (interactive)
-  (color-theme-zenburn)
-  (set-face-attribute 'default nil :background "#1f1f1f"))
+  (color-theme-sanityinc-dark))
 
 
 (defun apply-best-color-theme-for-frame-type (frame)
