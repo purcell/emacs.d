@@ -12,8 +12,9 @@
   "Minor mode for pseudo-structurally editing Lisp code." t)
 (autoload 'enable-paredit-mode "paredit" "Turn on paredit mode" t)
 
-(add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
-(add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+(dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
+  (add-hook hook 'pretty-lambdas)
+  (add-hook hook 'enable-paredit-mode))
 
 
 (defun set-up-hippie-expand-for-elisp ()
@@ -49,10 +50,11 @@
           (lambda ()
             (define-key paredit-mode-map (kbd "RET") 'paredit-newline)))
 
-(add-hook 'emacs-lisp-mode-hook 'set-up-hippie-expand-for-elisp)
-(add-hook 'emacs-lisp-mode-hook 'set-up-ac-for-elisp)
+(dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
+  (add-hook hook 'set-up-hippie-expand-for-elisp)
+  (add-hook hook 'set-up-ac-for-elisp)
+  (add-hook hook 'turn-on-eldoc-mode))
 
-(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 
 (defun warn-disabled-command ()
