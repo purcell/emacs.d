@@ -10,5 +10,7 @@
 (autoload 'mwe:log-keyboard-commands "mwe-log-commands"
   "Log commands executed in the current buffer" t)
 
+(show-paren-mode 1)
+(setq show-paren-delay 0)
 
 (provide 'init-misc)
