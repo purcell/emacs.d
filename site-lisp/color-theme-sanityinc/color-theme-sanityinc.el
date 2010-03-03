@@ -112,6 +112,16 @@
        (ido-first-match ((t (:foreground ,plum))))
        (ido-only-match ((t (:foreground ,light-plum))))
 
+       ;; Auto-complete
+       (popup-face ((t (:foreground ,background-black :background ,light-grey))))
+       ;popup-menu-face
+       ;popup-menu-selection-face
+       (popup-scroll-bar-foreground-face ((t (:background ,dark-aluminium))))
+       (popup-scroll-bar-background-face ((t (:background ,aluminium))))
+       (ac-completion-face ((t (:foreground ,dark-grey :background ,light-sky-blue))))
+       (ac-candidate-face ((t (:foreground ,background-black :background ,very-light-grey))))
+       (ac-selection-face ((t (:foreground ,background-black :background ,dark-chameleon))))
+
        ;; Emacs Interface
        (fringe ((t (:background ,very-dark-grey))))
        (border ((t (:background ,very-dark-grey))))
@@ -122,6 +132,7 @@
        (mode-line-inactive ((t (:background ,dark-grey :foreground ,aluminium))))
        (minibuffer-prompt ((t (:foreground ,light-sky-blue))))
        (region ((t (:background ,light-grey))))
+       (secondary-selection ((t (:background ,aluminium :foreground ,dark-grey))))
 
        ;; Parenthesis matching
        (show-paren-match-face ((t (:foreground ,light-grey :background ,medium-chameleon))))
