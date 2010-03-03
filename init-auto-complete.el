@@ -20,7 +20,8 @@
 (global-set-key (kbd "TAB") 'indent-or-expand-with-ac)
 
 (set-default 'ac-sources
-             '(ac-source-words-in-buffer
+             '(ac-source-dictionary
+               ac-source-words-in-buffer
                ac-source-words-in-same-mode-buffers
                ac-source-words-in-all-buffer))
 

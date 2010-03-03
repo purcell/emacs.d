@@ -1,5 +1,3 @@
-(add-hook 'css-mode-hook 'ac-css-keywords-setup)
-
 (eval-after-load "mmm-vars"
   '(progn
      (mmm-add-group
