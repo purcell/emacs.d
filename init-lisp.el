@@ -57,6 +57,8 @@
 
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 
+(add-to-list 'auto-mode-alist '("\\.emacs-project$" . emacs-lisp-mode))
+
 (defun warn-disabled-command ()
   (interactive)
   (message "Command disabled")
