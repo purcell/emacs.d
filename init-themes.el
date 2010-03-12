@@ -36,6 +36,16 @@
   (interactive)
   (mapcar 'apply-best-color-theme-for-frame-type (frame-list)))
 
+(defun light ()
+  (interactive)
+  (setq *window-system-color-theme* 'color-theme-sanityinc-light)
+  (reapply-color-themes))
+
+(defun dark ()
+  (interactive)
+  (setq *window-system-color-theme* 'color-theme-sanityinc-dark)
+  (reapply-color-themes))
+
 (set-variable 'color-theme-is-global nil)
 (add-hook 'after-make-frame-functions 'apply-best-color-theme-for-frame-type)
 (apply-best-color-theme-for-frame-type (selected-frame))
