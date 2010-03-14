@@ -290,6 +290,28 @@ If `edit-server-verbose' is non-nil, then STRING is also echoed to the message l
         (setq edit-server-received 0)
         (setq edit-server-phase 'wait)))))
 
+(defun edit-server-create-frame(buffer)
+  "Create a frame for the edit server"
+  (if edit-server-new-frame
+      (let* ((property-alist
+	     `((name . ,edit-server-new-frame-title)
+	       (width . ,edit-server-new-frame-width)
+	       (height . ,edit-server-new-frame-height)
+	       (minibuffer . ,edit-server-new-frame-minibuffer)
+	       (menu-bar-lines . ,edit-server-new-frame-menu-bar)))
+	; Aquamacs gets confused by make-frame-on-display
+	     (new-frame
+	      (if (featurep 'aquamacs)
+		  (make-frame property-alist)
+		(make-frame-on-display (getenv "DISPLAY")
+				       property-alist))))
+	(if (not edit-server-new-frame-mode-line)
+            (setq mode-line-format nil))
+	(raise-frame new-frame)
+	new-frame)
+    (pop-to-buffer buffer)
+    nil))
+
 (defun edit-server-create-edit-buffer(proc)
   "Create an edit buffer, place content in it and save the network
   process for the final call back"
@@ -303,21 +325,8 @@ If `edit-server-verbose' is non-nil, then STRING is also echoed to the message l
       (add-hook 'kill-buffer-hook 'edit-server-abort* nil t)
       (buffer-enable-undo)
       (set (make-local-variable 'edit-server-proc) proc)
-      (set (make-local-variable 'edit-server-frame) 
-           (if edit-server-new-frame
-               (make-frame-on-display (getenv "DISPLAY")
-                 `((name . ,edit-server-new-frame-title)
-                   (width . ,edit-server-new-frame-width)
-                   (height . ,edit-server-new-frame-height)
-                   (minibuffer . ,edit-server-new-frame-minibuffer)
-                   (menu-bar-lines . ,edit-server-new-frame-menu-bar)))
-             nil))
-      (if edit-server-new-frame
-        (progn
-          (if (not edit-server-new-frame-mode-line)
-            (setq mode-line-format nil))
-          (raise-frame edit-server-frame))
-        (pop-to-buffer buffer)))))
+      (set (make-local-variable 'edit-server-frame)
+	   (edit-server-create-frame buffer)))))
 
 (defun edit-server-send-response (proc &optional body close)
   "Send an HTTP 200 OK response back to process PROC.
