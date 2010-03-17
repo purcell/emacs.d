@@ -64,6 +64,10 @@ Based on the Tango color palette."
      (show-paren-match-face ((t (:foreground "#2e3436" :background "#73d216"))))
      (show-paren-mismatch-face ((t (:foreground "#2e3436" :background "#ef2929"))))
 
+     ;; Line highlighting
+     (highlight ((t (:background "#1f1f1f" :foreground nil))))
+     (highlight-current-line-face ((t (:background "#1f1f1f" :foreground nil))))
+
      ;; Calendar
      (holiday-face ((t (:foreground "#cc0000")))) ; dark scarlet red
 
