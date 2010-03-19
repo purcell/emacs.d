@@ -41,15 +41,15 @@
 (global-set-key (kbd "C-c J") (lambda () (interactive) (join-line 1)))
 (global-set-key (kbd "M-T") 'transpose-lines)
 
- (defun duplicate-line ()
-    (interactive)
-    (save-excursion
-      (let ((line-text (buffer-substring-no-properties
-                        (line-beginning-position)
-                        (line-end-position))))
-        (move-end-of-line 1)
-        (newline)
-        (insert line-text))))
+(defun duplicate-line ()
+  (interactive)
+  (save-excursion
+    (let ((line-text (buffer-substring-no-properties
+                      (line-beginning-position)
+                      (line-end-position))))
+      (move-end-of-line 1)
+      (newline)
+      (insert line-text))))
 
 (global-set-key (kbd "C-c p") 'duplicate-line)
 
