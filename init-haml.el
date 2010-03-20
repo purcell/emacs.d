@@ -7,7 +7,5 @@
 (add-hook 'haml-mode-hook 'flymake-haml-load)
 (add-hook 'sass-mode-hook 'flymake-sass-load)
 
-(add-hook 'sass-mode-hook 'ac-css-keywords-setup)
-
 
 (provide 'init-haml)
