@@ -1457,13 +1457,16 @@ If CANDIDATE is not a directory open this file."
 
 (defun anything-c-insert-file-name-completion-at-point (candidate)
   "Insert file name completion at point."
-  (let ((end   (point))
-        (guess (thing-at-point 'filename)))
+  (let* ((end         (point))
+         (guess       (thing-at-point 'filename))
+         (full-path-p (string-match (concat "^" (getenv "HOME")) guess)))
     (condition-case nil
         (when (file-exists-p (file-name-directory guess))
           (search-backward guess (- (point) (length guess)))
           (delete-region (point) end)
-          (insert (abbreviate-file-name candidate)))
+          (if full-path-p
+              (insert (expand-file-name candidate))
+              (insert (abbreviate-file-name candidate))))
       (error nil))))
 
 
@@ -3766,7 +3769,8 @@ A list of search engines."
                                   (url (second stream)))
                              (funcall fn url))))
                ("Delete" . anything-emms-stream-delete-bookmark)
-               ("Edit" . anything-emms-stream-edit-bookmark)))))
+               ("Edit" . anything-emms-stream-edit-bookmark)))
+    (filtered-candidate-transformer . anything-c-adaptive-sort)))
 ;; (anything 'anything-c-source-emms-streams)
 
 ;; Don't forget to set `emms-source-file-default-directory'
@@ -3774,14 +3778,18 @@ A list of search engines."
   '((name . "Music Directory")
     (candidates . (lambda ()
                     (cddr (directory-files emms-source-file-default-directory))))
-    (action . (("Play Directory" . (lambda (item)
-                                     (emms-play-directory
-                                      (expand-file-name item
-                                                        emms-source-file-default-directory))))
-               ("Open dired in file's directory" . (lambda (item)
-                                                     (anything-c-open-dired
-                                                      (expand-file-name item
-                                                                        emms-source-file-default-directory))))))))
+    (action .
+     (("Play Directory" . (lambda (item)
+                            (emms-play-directory
+                             (expand-file-name
+                              item
+                              emms-source-file-default-directory))))
+      ("Open dired in file's directory" . (lambda (item)
+                                            (anything-c-open-dired
+                                             (expand-file-name
+                                              item
+                                              emms-source-file-default-directory))))))
+    (filtered-candidate-transformer . anything-c-adaptive-sort)))
 ;; (anything 'anything-c-source-emms-dired)
 
 ;;; Jabber Contacts (jabber.el)

@@ -1,5 +1,5 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.248 2010/02/20 12:34:38 rubikitch Exp $
+;; $Id: anything.el,v 1.252 2010/03/21 06:08:44 rubikitch Exp $
 
 ;; Copyright (C) 2007              Tamas Patrovics
 ;;               2008, 2009, 2010  rubikitch <rubikitch@ruby-lang.org>
@@ -327,6 +327,22 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
+;; Revision 1.252  2010/03/21 06:08:44  rubikitch
+;; Mark bug fix. thx hchbaw!
+;; http://d.hatena.ne.jp/hchbaw/20100226/1267200447
+;;
+;; Revision 1.251  2010/03/21 02:39:34  rubikitch
+;; Fix a wrong usage of `delq'. thx hchbaw.
+;; http://d.hatena.ne.jp/hchbaw/20100226/1267200447
+;;
+;; Revision 1.250  2010/03/21 02:32:29  rubikitch
+;; Fix `select deleted buffer' error message when calling `anything-resume'.
+;;
+;; It was occurred when killing `anything-current-buffer' and calling `anything-resume'.
+;;
+;; Revision 1.249  2010/02/23 20:43:35  rubikitch
+;; `anything-update': Ensure to call `anything-next-line'
+;;
 ;; Revision 1.248  2010/02/20 12:34:38  rubikitch
 ;; Mode-line help!! `anything-mode-line-string' is help string.
 ;;
@@ -1132,7 +1148,7 @@
 
 ;; ugly hack to auto-update version
 (defvar anything-version nil)
-(setq anything-version "$Id: anything.el,v 1.248 2010/02/20 12:34:38 rubikitch Exp $")
+(setq anything-version "$Id: anything.el,v 1.252 2010/03/21 06:08:44 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -2436,10 +2452,9 @@ If TEST-MODE is non-nil, clear `anything-candidate-cache'."
   (let ((hooks '((post-command-hook anything-check-minibuffer-input)
                  (minibuffer-setup-hook anything-print-error-messages)
                  (minibuffer-exit-hook (lambda () (anything-window-configuration 'store))))))
-    (with-current-buffer anything-current-buffer
-      (if (eq setup-or-cleanup 'setup)
-          (dolist (args hooks) (apply 'add-hook args))
-        (dolist (args (reverse hooks)) (apply 'remove-hook args))))))
+    (if (eq setup-or-cleanup 'setup)
+        (dolist (args hooks) (apply 'add-hook args))
+      (dolist (args (reverse hooks)) (apply 'remove-hook args)))))
 
 ;; (@* "Core: clean up")
 (defun anything-cleanup ()
@@ -2724,35 +2739,36 @@ the current pattern."
           (delete-overlay overlay)))
 
     (let (delayed-sources)
-      (dolist (source (anything-get-sources))
-        (when (and (or (not anything-source-filter)
-                       (member (assoc-default 'name source) anything-source-filter))
-                   (>= (length anything-pattern)
-                       (anything-aif (assoc 'requires-pattern source)
-                           (or (cdr it) 1)
-                         0)))
-          (if (or (assoc 'delayed source)
-                  (and anything-quick-update
-                       (< (window-height (get-buffer-window (current-buffer)))
-                          (line-number-at-pos (point-max)))))
-              (push source delayed-sources)
-            (anything-process-source source))))
+      (unwind-protect
+          (dolist (source (anything-get-sources))
+            (when (and (or (not anything-source-filter)
+                           (member (assoc-default 'name source) anything-source-filter))
+                       (>= (length anything-pattern)
+                           (anything-aif (assoc 'requires-pattern source)
+                               (or (cdr it) 1)
+                             0)))
+              (if (or (assoc 'delayed source)
+                      (and anything-quick-update
+                           (< (window-height (get-buffer-window (current-buffer)))
+                              (line-number-at-pos (point-max)))))
+                  (push source delayed-sources)
+                (anything-process-source source))))
 
-      (goto-char (point-min))
-      (save-excursion (run-hooks 'anything-update-hook))
-      (anything-next-line)
-      (setq delayed-sources (nreverse delayed-sources))
-      (if anything-test-mode
-          (dolist (source delayed-sources)
-            (anything-process-source source))
-        (anything-maybe-fit-frame)
-        (when delayed-sources
-          (run-with-idle-timer (if (featurep 'xemacs)
-                                   0.1
-                                 0)
-                               nil
-                               'anything-process-delayed-sources
-                               delayed-sources))))))
+        (goto-char (point-min))
+        (save-excursion (run-hooks 'anything-update-hook))
+        (anything-next-line)
+        (setq delayed-sources (nreverse delayed-sources))
+        (if anything-test-mode
+            (dolist (source delayed-sources)
+              (anything-process-source source))
+          (anything-maybe-fit-frame)
+          (when delayed-sources
+            (run-with-idle-timer (if (featurep 'xemacs)
+                                     0.1
+                                   0)
+                                 nil
+                                 'anything-process-delayed-sources
+                                 delayed-sources)))))))
 
 (defun anything-insert-match (match insert-function &optional ignored)
   "Insert MATCH into the anything buffer. If MATCH is a list then
@@ -3612,7 +3628,7 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
                    (cons source selection)
                    anything-marked-candidates))
             (delete-overlay it)
-            (delq it anything-visible-mark-overlays))
+            (setq anything-visible-mark-overlays (delq it anything-visible-mark-overlays)))
         (let ((o (make-overlay (line-beginning-position) (1+ (line-end-position)))))
           (overlay-put o 'face anything-visible-mark-face)
           (overlay-put o 'source (assoc-default 'name source))
@@ -3641,13 +3657,20 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
   (with-current-buffer anything-buffer
     (loop for o in anything-visible-mark-overlays do
           (goto-char (point-min))
-          (when (search-forward (overlay-get o 'string) nil t)
-            (forward-line -1)
-            (when (save-excursion
-                    (goto-char (anything-get-previous-header-pos))
-                    (equal (overlay-get o 'source)
-                           (buffer-substring (line-beginning-position) (line-end-position))))
-              (move-overlay o (line-beginning-position) (1+ (line-end-position))))))))
+          (let (moved)
+            (while (and (not moved)
+                        (search-forward (overlay-get o 'string) nil t))
+              (forward-line -1)
+              (when (and (save-excursion
+                           (goto-char (anything-get-previous-header-pos))
+                           (equal (overlay-get o 'source)
+                                  (buffer-substring (line-beginning-position) (line-end-position))))
+                         (not (find-if (lambda (x)
+                                         (memq x anything-visible-mark-overlays))
+                                       (overlays-at (point)))))
+                (move-overlay o (line-beginning-position) (1+ (line-end-position)))
+                (setq moved t))
+              (forward-line 1))))))
 (add-hook 'anything-update-hook 'anything-revive-visible-mark)
 
 (defun anything-next-visible-mark (&optional prev)
