@@ -27,7 +27,7 @@
 ;;----------------------------------------------------------------------------
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-(set-fringe-mode 1)
+(set-fringe-mode '(8 . 4))
 
 (require 'init-maxframe)
 
