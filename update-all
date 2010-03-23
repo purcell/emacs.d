@@ -28,9 +28,6 @@ echo '*** anything'
 echo '*** todochiku'
 (cd site-lisp/todochiku && emacswiki_get todochiku.el)
 
-echo '***' haml
-(cd site-lisp/haml && (for f in haml-mode.el sass-mode.el; do curl -o $f "http://github.com/nex3/haml/blob/master/extra/$f?raw=true"; done))
-
 echo '*** paredit'
 (cd site-lisp/paredit && curl -o paredit.el http://mumble.net/~campbell/emacs/paredit.el)
 
