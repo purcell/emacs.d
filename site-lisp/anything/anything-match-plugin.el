@@ -1,5 +1,5 @@
 ;;; anything-match-plugin.el --- Humane match plug-in for anything
-;; $Id: anything-match-plugin.el,v 1.22 2009/03/03 10:21:45 rubikitch Exp $
+;; $Id: anything-match-plugin.el,v 1.27 2010/03/24 11:11:28 rubikitch Exp $
 
 ;; Copyright (C) 2008  rubikitch
 
@@ -28,6 +28,16 @@
 ;; It gives anything.el search refinement functionality.
 ;; exact match -> prefix match -> multiple regexp match
 
+;;; Commands:
+;;
+;; Below are complete command list:
+;;
+;;
+;;; Customizable Options:
+;;
+;; Below are customizable option list:
+;;
+
 ;; A query of multiple regexp match is space-delimited string.
 ;; Anything displays candidates which matches all the regexps.
 ;; A regexp with "!" prefix means not matching the regexp.
@@ -47,6 +57,21 @@
 ;;; History:
 
 ;; $Log: anything-match-plugin.el,v $
+;; Revision 1.27  2010/03/24 11:11:28  rubikitch
+;; Added :group keyword to `defface anything-match'
+;;
+;; Revision 1.26  2010/03/24 10:48:55  rubikitch
+;; grep-candidates plug-in: document / imply `delayed' attribute
+;;
+;; Revision 1.25  2010/03/24 10:38:48  rubikitch
+;; grep-candidates plugin: grep-candidates attribute can also accept variable/function name.
+;;
+;; Revision 1.24  2010/03/22 09:01:22  rubikitch
+;; grep-candidates plugin released
+;;
+;; Revision 1.23  2010/03/22 08:02:11  rubikitch
+;; grep-candidates plugin prototype
+;;
 ;; Revision 1.22  2009/03/03 10:21:45  rubikitch
 ;; * Remove highlight.el dependency.
 ;; * Very faster highlight.
@@ -122,6 +147,16 @@
 (require 'anything)
 (require 'cl)
 
+(let ((version "1.256"))
+  (when (and (string= "1." (substring version 0 2))
+             (string-match "1\.\\([0-9]+\\)" anything-version)
+             (< (string-to-number (match-string 1 anything-version))
+                (string-to-number (substring version 2))))
+    (error "Please update anything.el!!
+
+http://www.emacswiki.org/cgi-bin/wiki/download/anything.el
+
+or  M-x install-elisp-from-emacswiki anything.el")))
 ;;;; multiple patterns
 (defvar anything-use-multiple-patterns t
   "If non-nil, enable anything-use-multiple-patterns.")
@@ -199,11 +234,13 @@
   (unless (equal pattern anything-mp-3-pattern-str)
     (setq anything-mp-3-pattern-str pattern
           anything-mp-3-pattern-list
-          (loop for pat in (amp-mp-make-regexps pattern)
-                collect (if (string= "!" (substring pat 0 1))
-                            (cons 'not (substring pat 1))
-                          (cons 'identity pat)))))
+          (anything-mp-3-get-patterns-internal pattern)))
   anything-mp-3-pattern-list)
+(defun anything-mp-3-get-patterns-internal (pattern)
+  (loop for pat in (amp-mp-make-regexps pattern)
+        collect (if (string= "!" (substring pat 0 1))
+                            (cons 'not (substring pat 1))
+                          (cons 'identity pat))))
 (defun* anything-mp-3-match (str &optional (pattern anything-pattern))
   (loop for (pred . re) in (anything-mp-3-get-patterns pattern)
         always (funcall pred (string-match re str))))
@@ -243,7 +280,8 @@
 ;;;; Highlight matches
 (defface anything-match
   '((t (:inherit match)))
-  "Face used to highlight matches.")
+  "Face used to highlight matches."
+  :group 'anything)
 
 (defvar anything-mp-highlight-delay 0.7
   "Highlight matches with `anything-match' face after this many seconds.
@@ -304,6 +342,51 @@ The smaller  this value is, the slower highlight is.")
 
 (add-to-list 'anything-compile-source-functions 'anything-compile-source--match-plugin t)
 
+;;;; grep-candidates plug-in
+(defun agp-candidates ()
+  (start-process-shell-command
+   "anything-grep-candidates" nil
+   (agp-command-line anything-pattern
+                     (anything-mklist (anything-interpret-value (anything-attr 'grep-candidates)))
+                     (anything-candidate-number-limit (anything-get-current-source)))))
+(defun agp-command-line (query files &optional limit)
+  (with-temp-buffer
+    (loop for (flag . re) in (anything-mp-3-get-patterns-internal query)
+          for i from 0
+          do
+          (setq re (replace-regexp-in-string "^-" "\\-" re))
+          (unless (zerop i) (insert " | ")) 
+          (insert "grep -ih "
+                  (if (eq flag 'identity) "" "-v ")
+                  (shell-quote-argument re))
+          (when (zerop i) (insert " "
+                                  (mapconcat (lambda (f) (shell-quote-argument (expand-file-name f))) files " "))))
+    (when limit (insert (format " | head -%d" limit)))
+    (buffer-string)))
+(defun anything-compile-source--grep-candidates (source)
+  (if (assq 'grep-candidates source)
+      (append source
+              '((candidates . agp-candidates)
+                (delayed)))
+    source))
+(add-to-list 'anything-compile-source-functions 'anything-compile-source--grep-candidates)
+
+(anything-document-attribute 'grep-candidates "grep-candidates plug-in"
+  "grep-candidates plug-in provides anything-match-plugin.el feature with grep and head program.
+It is MUCH FASTER than normal match-plugin to search from vary large (> 1MB) candidates.
+Make sure to install these programs.
+
+It expands `candidates' and `delayed' attributes.
+
+`grep-candidates' attribute accepts a filename or list of filename.
+It also accepts 0-argument function name or variable name.")
+
+;; (anything '(((name . "grep-test")  (grep-candidates . "~/.emacs.el") (action . message))))
+;; (let ((a "~/.emacs.el")) (anything '(((name . "grep-test")  (grep-candidates . a) (action . message) (delayed)))))
+;; (let ((a "~/.emacs.el")) (anything '(((name . "grep-test")  (grep-candidates . (lambda () a)) (action . message) (delayed)))))
+;; (anything '(((name . "grep-test")  (grep-candidates . "~/.emacs.el") (action . message) (delayed) (candidate-number-limit . 2))))
+;; (let ((anything-candidate-number-limit 2)) (anything '(((name . "grep-test")  (grep-candidates . "~/.emacs.el") (action . message) (delayed)))))
+
 ;;;; unit test
 ;; (install-elisp "http://www.emacswiki.org/cgi-bin/wiki/download/el-expectations.el")
 ;; (install-elisp "http://www.emacswiki.org/cgi-bin/wiki/download/el-mock.el")
@@ -322,6 +405,28 @@ The smaller  this value is, the slower highlight is.")
       (expect '("foo bar" "baz")
         (let ((anything-mp-space-regexp "\\\\ "))
           (amp-mp-make-regexps "foo\\ bar baz")))
+      (desc "anything-mp-3-get-patterns-internal")
+      (expect '((identity . "foo"))
+        (anything-mp-3-get-patterns-internal "foo"))
+      (expect '((identity . "foo") (identity . "bar"))
+        (anything-mp-3-get-patterns-internal "foo bar"))
+      (expect '((identity . "foo") (not . "bar"))
+        (anything-mp-3-get-patterns-internal "foo !bar"))
+      (desc "agp-command-line")
+      (expect "grep -ih foo /f1"
+        (agp-command-line "foo" '("/f1")))
+      (expect "grep -ih foo /f1 | grep -ih bar"
+        (agp-command-line "foo bar" '("/f1")))
+      (expect "grep -ih foo /f1 | grep -ih -v bar"
+        (agp-command-line "foo !bar" '("/f1")))
+      (expect "grep -ih foo /f1 /f\\ 2 | grep -ih -v bar | grep -ih baz"
+        (agp-command-line "foo !bar baz" '("/f1" "/f 2")))
+      (expect (concat "grep -ih foo " (expand-file-name "~/.emacs.el"))
+        (agp-command-line "foo" '("~/.emacs.el")))
+      (expect "grep -ih f\\ o /f\\ 1"
+        (agp-command-line "f  o" '("/f 1")))
+      (expect "grep -ih foo /f1 | head -5"
+        (agp-command-line "foo" '("/f1") 5))
       (desc "anything-exact-match")
       (expect (non-nil)
         (anything-exact-match "thunder" "thunder"))
