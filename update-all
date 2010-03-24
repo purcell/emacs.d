@@ -54,3 +54,6 @@ echo '***' smooth-scrolling
 
 echo '***' edit-server
 (cd site-lisp/edit-server && curl -o edit-server.el http://github.com/stsquad/emacs_chrome/raw/master/servers/edit-server.el)
+
+echo '***' dsvn
+(cd site-lisp/dsvn && curl -o dsvn.el http://svn.apache.org/repos/asf/subversion/trunk/contrib/client-side/emacs/dsvn.el)

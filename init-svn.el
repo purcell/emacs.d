@@ -1,5 +1,4 @@
-(autoload 'svn-status "psvn" "Mode for inspecting state of an svn repo")
-(autoload 'svn-examine "psvn" "Mode for inspecting state of an svn repo")
-
+(autoload 'svn-status "dsvn" "Run `svn status'." t)
+(autoload 'svn-update "dsvn" "Run `svn update'." t)
 
 (provide 'init-svn)
