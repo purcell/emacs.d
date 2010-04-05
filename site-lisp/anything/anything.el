@@ -1,5 +1,5 @@
 ;;;; anything.el --- open anything / QuickSilver-like candidate-selection framework
-;; $Id: anything.el,v 1.280 2010/04/01 02:22:22 rubikitch Exp $
+;; $Id: anything.el,v 1.282 2010-04-01 02:22:22 rubikitch Exp $
 
 ;; Copyright (C) 2007              Tamas Patrovics
 ;;               2008, 2009, 2010  rubikitch <rubikitch@ruby-lang.org>
@@ -375,7 +375,7 @@
 
 ;; (@* "HISTORY")
 ;; $Log: anything.el,v $
-;; Revision 1.280  2010/04/01 02:22:22  rubikitch
+;; Revision 1.280  2010-04-01 02:22:22  rubikitch
 ;; `anything': new argument ANY-KEYMAP
 ;;
 ;; Revision 1.279  2010/03/31 09:22:58  rubikitch
@@ -1293,7 +1293,7 @@
 
 ;; ugly hack to auto-update version
 (defvar anything-version nil)
-(setq anything-version "$Id: anything.el,v 1.280 2010/04/01 02:22:22 rubikitch Exp $")
+(setq anything-version "$Id: anything.el,v 1.280 2010-04-01 02:22:22 rubikitch Exp $")
 (require 'cl)
 
 ;; (@* "User Configuration")
@@ -1727,7 +1727,7 @@ To enable fitting, set both `anything-inhibit-fit-frame-flag' and
 (defvar anything-tick-hash (make-hash-table :test 'equal))
 (defvar anything-issued-errors nil)
 (defvar anything-shortcut-keys nil)
-
+(defvar anything-once-called-functions nil)
 
 ;; (@* "Programming Tools")
 (defmacro anything-aif (test-form then-form &rest else-forms)
@@ -1737,8 +1737,10 @@ To enable fitting, set both `anything-inhibit-fit-frame-flag' and
 (put 'anything-aif 'lisp-indent-function 2)
 
 (defun anything-mklist (obj)
-  "If OBJ is a list, return itself, otherwise make a list with one element."
-  (if (listp obj) obj (list obj)))
+  "If OBJ is a list (but not lambda), return itself, otherwise make a list with one element."
+  (if (and (listp obj) (not (functionp obj)))
+      obj
+    (list obj)))
 
 ;; (@* "Anything API")
 (defun anything-buffer-get ()
@@ -2007,6 +2009,13 @@ Otherwise, return VALUE itself."
         (t
          value)))
 
+(defun anything-once (function &rest args)
+  "Ensure FUNCTION with ARGS to be called once in `anything' session."
+  (let ((spec (cons function args)))
+    (unless (member spec anything-once-called-functions)
+      (apply function args)
+      (push spec anything-once-called-functions))))
+
 ;; (@* "Core: tools")
 (defun anything-current-frame/window-configuration ()
   (funcall (cdr anything-save-configuration-functions)))
@@ -2235,6 +2244,7 @@ already-bound variables. Yuck!
 (defun anything-initialize ()
   "Initialize anything settings and set up the anything buffer."
   (run-hooks 'anything-before-initialize-hook)
+  (setq anything-once-called-functions nil)
   (setq anything-delayed-init-executed nil)
   (setq anything-current-buffer (current-buffer))
   (setq anything-buffer-file-name buffer-file-name)
@@ -3210,8 +3220,9 @@ You can set user options `fit-frame-max-width-percent' and
 ;; (@* "Built-in plug-in: disable-shortcuts")
 (defvar anything-orig-enable-shortcuts nil)
 (defun anything-save-enable-shortcuts ()
-  (setq anything-orig-enable-shortcuts anything-enable-shortcuts
-        anything-enable-shortcuts nil))
+  (anything-once
+   (lambda () (setq anything-orig-enable-shortcuts anything-enable-shortcuts
+                    anything-enable-shortcuts nil))))
 (defun anything-compile-source--disable-shortcuts (source)
   (if (assoc 'disable-shortcuts source)
       (append `((init ,@(anything-mklist (assoc-default 'init source))
@@ -5475,6 +5486,8 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
         (anything-mklist 1))
       (expect '(2)
         (anything-mklist '(2)))
+      (expect '((lambda ()))
+        (anything-mklist (lambda ())))
       (desc "anything-before-initialize-hook")
       (expect 'called
         (let ((anything-before-initialize-hook '((lambda () (setq v 'called))))
