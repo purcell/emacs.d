@@ -1672,11 +1672,15 @@ If CANDIDATE is alone, open file CANDIDATE filename."
     (persistent-help . "Expand Candidate")
     (volatile)
     (action .
-     (("Copy File" . (lambda (candidate)
-                       (anything-dired-action candidate :action 'copy)))))))
+     (("Copy File"
+       . (lambda (candidate)
+           (anything-dired-action candidate :action 'copy)))
+      ("Copy and Follow"
+       . (lambda (candidate)
+           (anything-dired-action candidate :action 'copy :follow t)))))))
 
 
-(defvar anything-c-source-rename-files
+(defvar  anything-c-source-rename-files
   `((name . ,(concat "Rename Files" anything-c-find-files-doc-header))
     (candidates . anything-find-files-get-candidates)
     (candidate-transformer anything-c-highlight-ffiles)
@@ -1684,8 +1688,12 @@ If CANDIDATE is alone, open file CANDIDATE filename."
     (persistent-help . "Expand Candidate")
     (volatile)
     (action .
-     (("Rename File" . (lambda (candidate)
-                         (anything-dired-action candidate :action 'rename)))))))
+     (("Rename File"
+       . (lambda (candidate)
+           (anything-dired-action candidate :action 'rename)))
+      ("Rename and Follow"
+       . (lambda (candidate)
+           (anything-dired-action candidate :action 'rename :follow t)))))))
 
 (defvar anything-c-source-symlink-files
   `((name . ,(concat "Symlink Files" anything-c-find-files-doc-header))
@@ -1712,7 +1720,7 @@ If CANDIDATE is alone, open file CANDIDATE filename."
      (("Hardlink File" . (lambda (candidate)
                            (anything-dired-action candidate :action 'hardlink)))))))
 
-(defun* anything-dired-action (candidate &key action)
+(defun* anything-dired-action (candidate &key action follow)
   "Copy, rename or symlink file at point or marked files in dired to CANDIDATE.
 ACTION is a key that can be one of 'copy, 'rename, 'symlink, 'relsymlink."
   (let ((files  (dired-get-marked-files))
@@ -1735,7 +1743,20 @@ ACTION is a key that can be one of 'copy, 'rename, 'symlink, 'relsymlink."
          #'(lambda (from)
              (expand-file-name (file-name-nondirectory from) candidate))
          #'(lambda (from) candidate))
-     marker)))
+     marker)
+    (when follow
+      (let* ((src          (car files))
+             (dest         (expand-file-name candidate))
+             (basename-src (if (file-directory-p src)
+                               (file-relative-name
+                                (directory-file-name src)
+                                (file-name-directory src))
+                               (file-name-nondirectory src)))
+             (fname        (if (file-directory-p dest)
+                               (concat (file-name-as-directory dest)
+                                       basename-src)
+                               dest)))
+        (anything-c-point-file-in-dired fname)))))
 
 
 (defun* anything-dired-do-action-on-file (&key action)
@@ -2122,13 +2143,10 @@ source.")
 ;; (anything 'anything-c-source-info-goops)
 
 ;; Info Index screen
-;;; FIXME
-;; * Concept Index::               Index of concepts.
-;; * Command Index::               Index of all `screen' commands.
-;; * Keystroke Index::             Index of default key bindings.
 (defvar anything-c-source-info-screen
   '((name . "Info index: screen")
-    (info-index . "screen")))
+    (info-index . "screen")
+    (index-nodes "Concept Index" "Command Index" "Keystroke Index")))
 ;; (anything 'anything-c-source-info-screen)
 
 ;; Info Index latex
@@ -5031,6 +5049,9 @@ directory, open this directory."
 (defun anything-find-file-as-root (candidate)
   (find-file (concat "/" anything-su-or-sudo "::" (expand-file-name candidate))))
 
+(defun anything-find-many-files (ignore)
+  (mapc 'find-file (anything-marked-candidates)))
+
 ;; borrowed from etags.el
 ;; (anything-c-goto-line-with-adjustment (line-number-at-pos) ";; borrowed from etags.el")
 (defun anything-c-goto-line-with-adjustment (line line-content)
@@ -5428,7 +5449,7 @@ candidate can be in (DISPLAY . REAL) format."
               (tobuf (anything-candidate-buffer 'global))
               (infobuf (current-buffer))
               s e)
-          (dolist (node (Info-index-nodes))
+          (dolist (node (or (anything-attr 'index-nodes) (Info-index-nodes)))
             (Info-goto-node node)
             (goto-char (point-min))
             (while (search-forward "\n* " nil t)
@@ -5469,6 +5490,14 @@ candidate can be in (DISPLAY . REAL) format."
   "Create a source of info index very easily.
 
 ex. (defvar anything-c-source-info-wget '((info-index . \"wget\"))")
+
+(anything-document-attribute 'index-nodes "info-index plugin (optional)"
+  "Index nodes of info file.
+
+If it is omitted, `Info-index-nodes' is used to collect index nodes.
+Some info files are missing index specification.
+
+ex. See `anything-c-source-info-screen'.")
 
 ;; Plug-in: candidates-file
 (defun anything-compile-source--candidates-file (source)
@@ -5736,9 +5765,9 @@ Return nil if bmk is not a valid bookmark."
   `((action
      ,@(if pop-up-frames
            '(("Find file other window" . find-file-other-window)
-             ("Find file" . find-file)
+             ("Find file(s)" . anything-find-many-files)
              ("Find file as root" . anything-find-file-as-root))
-         '(("Find file" . find-file)
+         '(("Find file" . anything-find-many-files)
            ("Find file as root" . anything-find-file-as-root)
            ("Find file other window" . find-file-other-window)
            ("Find file other frame" . find-file-other-frame)))

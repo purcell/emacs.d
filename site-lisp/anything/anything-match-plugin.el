@@ -1,5 +1,5 @@
 ;;; anything-match-plugin.el --- Humane match plug-in for anything
-;; $Id: anything-match-plugin.el,v 1.27 2010/03/24 11:11:28 rubikitch Exp $
+;; $Id: anything-match-plugin.el,v 1.27 2010-03-24 11:11:28 rubikitch Exp $
 
 ;; Copyright (C) 2008  rubikitch
 
@@ -57,7 +57,7 @@
 ;;; History:
 
 ;; $Log: anything-match-plugin.el,v $
-;; Revision 1.27  2010/03/24 11:11:28  rubikitch
+;; Revision 1.27  2010-03-24 11:11:28  rubikitch
 ;; Added :group keyword to `defface anything-match'
 ;;
 ;; Revision 1.26  2010/03/24 10:48:55  rubikitch
@@ -305,7 +305,9 @@ The smaller  this value is, the slower highlight is.")
   (save-excursion
     (goto-char start)
     (let (me)
-      (while (and (setq me (re-search-forward regexp nil t)) (< (point) end))
+      (while (and (setq me (re-search-forward regexp nil t))
+                  (< (point) end)
+                  (< 0 (- (match-end 0) (match-beginning 0))))
         (put-text-property (match-beginning 0) me 'face face)))))
 
 (defun* anything-mp-highlight-match-internal (end)

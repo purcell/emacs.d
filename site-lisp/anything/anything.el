@@ -3126,6 +3126,7 @@ You can set user options `fit-frame-max-width-percent' and
   (declare (warn (unresolved 0)))
   (when (and (require 'fit-frame nil t)
              (boundp 'fit-frame-inhibit-fitting-flag)
+             (not anything-inhibit-fit-frame-flag)
              (not fit-frame-inhibit-fitting-flag)
              (anything-window))
     (ignore-errors
@@ -3586,11 +3587,16 @@ Otherwise ignores `special-display-buffer-names' and `special-display-regexps'."
       (anything-next-line))))
 
 (defun anything-marked-candidates ()
-  "Marked candidates (real value) of current source."
-  (loop with current-src = (anything-get-current-source)
-        for (source . real) in anything-marked-candidates
-        when (eq current-src source)
-        collect real))
+  "Marked candidates (real value) of current source if any,
+otherwise 1-element list of current selection.
+
+It is analogous to `dired-get-marked-files'."
+  (if anything-marked-candidates
+      (loop with current-src = (anything-get-current-source)
+            for (source . real) in (reverse anything-marked-candidates)
+            when (eq current-src source)
+            collect real)
+    (list (anything-get-selection))))
 
 (defun anything-reset-marked-candidates ()
   (setq anything-c-marked-candidate-list nil)
@@ -5957,6 +5963,47 @@ Given pseudo `anything-sources' and `anything-pattern', returns list like
         (anything-require-at-least-version "1.999"))
       (expect (error)
         (anything-require-at-least-version "1.2000"))
+      (desc "anything-once")
+      (expect 2
+        (let ((i 0))
+          (anything-test-candidates
+           '(((name . "1")
+              (init . (lambda () (incf i))))
+             ((name . "2")
+              (init . (lambda () (incf i))))))
+          i))
+      (expect 1
+        (let ((i 0))
+          (anything-test-candidates
+           '(((name . "1")
+              (init . (lambda () (anything-once (lambda () (incf i))))))
+             ((name . "2")
+              (init . (lambda () (anything-once (lambda () (incf i))))))))
+          i))
+      (expect 1
+        (let ((i 0))
+          (flet ((init1 () (anything-once (lambda () (incf i)))))
+            (anything-test-candidates
+             '(((name . "1")
+                (init . init1))
+               ((name . "2")
+                (init . init1)))))
+          i))
+      (desc "anything-marked-candidates")
+      (expect '("mark3" "mark1")
+        (let* ((source '((name . "mark test")))
+               (anything-marked-candidates
+                `((,source . "mark1")
+                  (((name . "other")) . "mark2")
+                  (,source . "mark3"))))
+          (stub anything-get-current-source => source)
+          (anything-marked-candidates)))
+      (expect '("current")
+        (let* ((source '((name . "mark test")))
+               (anything-marked-candidates nil))
+          (stub anything-get-current-source => source)
+          (stub anything-get-selection => "current")
+          (anything-marked-candidates)))
       )))
 
 
