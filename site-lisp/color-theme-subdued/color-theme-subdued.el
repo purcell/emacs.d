@@ -1,6 +1,7 @@
-;;; color-theme-subdued.el --- A tango-based color theme for Emacs
+;; color-theme-subdued.el -- a tango-based color theme for Emacs
+;; Revision 7
 ;;
-;; Copyright (C) 2009 Jason R. Blevins <jrblevin@sdf.lonestar.org>
+;; Copyright (C) 2009-2010 Jason R. Blevins <jrblevin@sdf.lonestar.org>
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -83,6 +84,17 @@ Based on the Tango color palette."
      (font-latex-string-face ((t (:foreground "#77507b")))) ; plum
      (font-latex-warning-face ((t (:foreground "#cc0000")))) ; dark scarlet red
      (font-latex-slide-title-face ((t (:foreground "#c4a000")))) ; dark butter
+
+     ;;; post-mode
+     (post-emoticon-face ((t (:background "#edd400" :foreground "#000000")))) ; medium butter
+     (post-header-value-face ((t (:foreground "#4e9a06")))) ; dark chameleon
+     (post-header-keyword-face ((t (:foreground "#4e9a06" :bold t)))) ; dark chameleon
+     (post-signature-text-face ((t (:foreground "#cc0000")))) ; dark scarlet red
+     (post-quoted-text-face ((t (:foreground "#855c1b" :slant normal)))) ; med-dark chocolate
+     (post-double-quoted-text-face ((t (:foreground "#77507b" :slant normal)))) ; plum
+     (post-multiply-quoted-text-face ((t (:foreground "#61635e" :slant normal)))) ; dark aluminum
+     (post-email-address-text-face ((t (:foreground "#729fcf" :bold t)))) ; light sky blue
+     (post-url-face ((t (:foreground "#729fcf" :bold t)))) ; light sky blue
      )))
 
 (provide 'color-theme-subdued)
