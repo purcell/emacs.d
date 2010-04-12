@@ -22,9 +22,6 @@ for f in site-lisp/*/CVS; do
   (cd $f/.. && cvs up -dP)
 done
 
-echo '*** anything'
-(cd site-lisp/anything && (for f in anything.el anything-config.el anything-match-plugin.el; do emacswiki_get $f; done))
-
 echo '*** todochiku'
 (cd site-lisp/todochiku && emacswiki_get todochiku.el)
 
