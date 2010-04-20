@@ -17,6 +17,13 @@
   (add-hook hook 'enable-paredit-mode))
 
 
+(add-hook 'minibuffer-setup-hook 'conditionally-enable-paredit-mode)
+(defun conditionally-enable-paredit-mode ()
+  "Enable paredit-mode during eval-expression"
+  (if (eq this-command 'eval-expression)
+      (paredit-mode 1)))
+
+
 (defun set-up-hippie-expand-for-elisp ()
   (make-variable-buffer-local 'hippie-expand-try-functions-list)
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol t)
