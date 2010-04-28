@@ -67,15 +67,18 @@ Current buffer holds the text that is about to be sent back to the client."
   :group 'edit-server
   :type 'boolean)
 
-(defcustom edit-server-new-frame-minibuffer t
-  "Show the emacs frame's minibuffer if set to t; hide if nil."
+(defcustom edit-server-new-frame-alist
+  '((name . "Emacs TEXTAREA")
+    (width . 80)
+    (height . 25)
+    (minibuffer . t)
+    (menu-bar-lines . t))
+  "Frame parameters for new frames.  See `default-frame-alist' for examples.
+If nil, the new frame will use the existing `default-frame-alist' values."
   :group 'edit-server
-  :type 'boolean)
-
-(defcustom edit-server-new-frame-menu-bar t
-  "Show the emacs frame's menu-bar if set to t; hide if nil."
-  :group 'edit-server
-  :type 'boolean)
+  :type '(repeat (cons :format "%v"
+		       (symbol :tag "Parameter")
+		       (sexp :tag "Value"))))
 
 (defcustom edit-server-new-frame-mode-line t
   "Show the emacs frame's mode-line if set to t; hide if nil."
@@ -91,15 +94,6 @@ Current buffer holds the text that is about to be sent back to the client."
 
 (defconst edit-server-edit-buffer-name "TEXTAREA"
   "Template name of the edit-server text editing buffers.")
-
-(defconst edit-server-new-frame-title "Emacs TEXTAREA"
-  "Template name of the emacs frame's title.")
-
-(defconst edit-server-new-frame-width 80
-  "The emacs frame's width.")
-
-(defconst edit-server-new-frame-height 25
-  "The emacs frame's height.")
 
 (defvar edit-server-proc 'nil
   "Network process associated with the current edit, made local when
@@ -164,18 +158,21 @@ If argument VERBOSE is non-nil, logs all server activity to buffer `*edit-server
 When called interactivity, a prefix argument will cause it to be verbose.
 "
   (interactive "P")
-  (if (process-status "edit-server")
+  (if (or (process-status "edit-server")
+          (null (condition-case err
+                    (make-network-process
+                     :name "edit-server"
+                     :buffer edit-server-process-buffer-name
+                     :family 'ipv4
+                     :host (if edit-server-host
+                               edit-server-host
+                             'local)
+                     :service edit-server-port
+                     :log 'edit-server-accept
+                     :server t
+                     :noquery t)
+                  (file-error nil))))
       (message "An edit-server process is already running")
-    (make-network-process
-     :name "edit-server"
-     :buffer edit-server-process-buffer-name
-     :family 'ipv4
-     :host (if edit-server-host
-	       edit-server-host
-	     'local)
-     :service edit-server-port
-     :log 'edit-server-accept
-     :server 't)
     (setq edit-server-clients '())
     (if verbose (get-buffer-create edit-server-log-buffer-name))
     (edit-server-log nil "Created a new edit-server process")))
@@ -293,21 +290,21 @@ If `edit-server-verbose' is non-nil, then STRING is also echoed to the message l
 (defun edit-server-create-frame(buffer)
   "Create a frame for the edit server"
   (if edit-server-new-frame
-      (let* ((property-alist
-	     `((name . ,edit-server-new-frame-title)
-	       (width . ,edit-server-new-frame-width)
-	       (height . ,edit-server-new-frame-height)
-	       (minibuffer . ,edit-server-new-frame-minibuffer)
-	       (menu-bar-lines . ,edit-server-new-frame-menu-bar)))
-	; Aquamacs gets confused by make-frame-on-display
-	     (new-frame
-	      (if (featurep 'aquamacs)
-		  (make-frame property-alist)
-		(make-frame-on-display (getenv "DISPLAY")
-				       property-alist))))
+      (let ((new-frame
+	     (if (featurep 'aquamacs)
+                 (make-frame edit-server-new-frame-alist)
+               (make-frame-on-display (getenv "DISPLAY")
+                                      edit-server-new-frame-alist))))
 	(if (not edit-server-new-frame-mode-line)
             (setq mode-line-format nil))
+	(select-frame new-frame)
+	(if (and (eq window-system 'x)
+		 (fboundp 'x-send-client-message))
+	    (x-send-client-message nil 0 nil
+				   "_NET_ACTIVE_WINDOW" 32
+				   '(1 0 0)))
 	(raise-frame new-frame)
+        (set-window-buffer (frame-selected-window new-frame) buffer)
 	new-frame)
     (pop-to-buffer buffer)
     nil))
