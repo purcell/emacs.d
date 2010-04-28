@@ -1,5 +1,5 @@
 ;;; todochiku.el - A mode for interfacing with Growl, Snarl, and the like.
-(defconst todochiku-version "0.0.7")
+(defconst todochiku-version "0.0.7.a")
 
 ;; Copyright (c)2008 Jonathan Arkell. (by)(nc)(sa)  Some rights reserved.
 ;; Author: Jonathan Arkell <jonnay@jonnay.net>
@@ -157,7 +157,18 @@ Whether or not to display todochiku-messages as a tooltip."
   :group 'todochiku)
 
 (defcustom todochiku-icons-directory
-  "~/.emacs-cfg/todochiku-icons"
+  (if (file-exists-p  (concat 
+                       (file-name-directory (or
+                                             load-file-name
+                                             buffer-file-name))
+                       "/todochiku-icons"))
+      (concat 
+       (file-name-directory (or
+                             load-file-name
+                             buffer-file-name))
+       "/todochiku-icons")
+    "~/.emacs-cfg/todochiku-icons"
+    )
   "Path to the todochiku icons directory."
   :type 'directory
   :group 'todochiku)
