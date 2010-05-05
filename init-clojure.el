@@ -60,9 +60,24 @@
 
 (add-hook 'slime-repl-mode-hook
           (lambda ()
-            (font-lock-mode nil)
-            (clojure-font-lock-setup)
-            (font-lock-mode t)))
+            (clojure-font-lock-setup)))
+
+(defadvice slime-repl-emit (after sr-emit-ad activate)
+  (with-current-buffer (slime-output-buffer)
+    (add-text-properties slime-output-start slime-output-end
+                         '(font-lock-face slime-repl-output-face
+                                          rear-nonsticky (font-lock-face)))))
+
+(defadvice slime-repl-insert-prompt (after sr-prompt-ad activate)
+  (with-current-buffer (slime-output-buffer)
+    (let ((inhibit-read-only t))
+      (add-text-properties slime-repl-prompt-start-mark (point-max)
+                           '(font-lock-face slime-repl-prompt-face
+                                            rear-nonsticky
+                                            (slime-repl-prompt
+                                             read-only
+                                             font-lock-face
+                                             intangible))))))
 ;;------
 
 
@@ -70,6 +85,7 @@
   (when (string-equal "clojure" (slime-connection-name))
     (message "Setting up repl for clojure")
     (slime-redirect-inferior-output)
+    (set-syntax-table clojure-mode-syntax-table) ;; Tell paredit about [ and {
     (when (and (featurep 'paredit) paredit-mode (>= paredit-version 21))
       (define-key paredit-mode-map "{" 'paredit-open-curly)
       (define-key paredit-mode-map "}" 'paredit-close-curly))))
