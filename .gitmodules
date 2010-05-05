@@ -43,3 +43,6 @@
 [submodule "site-lisp/anything"]
 	path = site-lisp/anything
 	url = git://repo.or.cz/anything-config.git
+[submodule "site-lisp/clojure-mode"]
+	path = site-lisp/clojure-mode
+	url = git://github.com/technomancy/clojure-mode.git

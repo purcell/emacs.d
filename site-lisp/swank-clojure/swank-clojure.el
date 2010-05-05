@@ -1,6 +1,6 @@
 ;;; swank-clojure.el --- slime adapter for clojure
 ;;
-;; Copyright (C) 2008, 2009 Jeffrey Chu and Phil Hagelberg
+;; Copyright (C) 2008-2010 Jeffrey Chu and Phil Hagelberg
 ;;
 ;; Authors: Jeffrey Chu <jochu0@gmail.com>
 ;;          Phil Hagelberg <technomancy@gmail.com>
@@ -23,18 +23,18 @@
 ;;    download the jars for Clojure, contrib, and swank-clojure,
 ;;    launch an instance, and connect to it. If you just want to try
 ;;    out Clojure, this is all you need. Just get Swank Clojure
-;;    through ELPA (http://tromey.com/elpa) and stop reading here.
+;;    through package.el (http://tromey.com/elpa) and stop reading here.
 ;;
 ;; 2. Custom classpath: If you want to hack on Clojure or Contrib, set
 ;;    swank-clojure-classpath to a list of paths to the jars you want to
 ;;    use and then hit M-x slime.
 ;;
-;; 3. Project: Put your project's dependencies in the lib/ directory,
-;;    (either manually or using Leiningen or Maven) then launch
-;;    M-x swank-clojure-project. Note that you must have
-;;    swank-clojure.jar in the lib/ directory, it will not
-;;    automatically add itself to the classpath as it did in past
-;;    versions that had to run from a checkout.
+;; 3. Project: Put your project's dependencies (either manually or using
+;;    Leiningen or Maven) in the directory named by
+;;    `swank-clojure-project-dep-path' (lib/ by default), then launch M-x
+;;    swank-clojure-project. Note that the directory must contain
+;;    swank-clojure.jar, it will not automatically be added to the
+;;    classpath as it was in past versions that had to run from a checkout.
 ;;
 ;; 4. Standalone Server: Users of leiningen or clojure-maven-plugin
 ;;    can launch a server from a shell
@@ -64,7 +64,8 @@
 
 (defun swank-clojure-default-classpath ()
   (append
-   (when (file-directory-p "~/.clojure")
+   (when (and (file-directory-p "~/.clojure")
+              (directory-files "~/.clojure" nil "swank-clojure.*jar$"))
      (directory-files "~/.clojure" t ".jar$"))
    (when (file-directory-p swank-clojure-jar-home)
      (directory-files swank-clojure-jar-home t ".jar$"))))
@@ -108,6 +109,12 @@ For example -Xmx512m or -Dsun.java2d.noddraw=true"
   :type 'boolean
   :group 'swank-clojure)
 
+(defcustom swank-clojure-project-dep-path "lib"
+  "The directory (relative to the project root) to look for dependencies in
+when using `swank-clojure-project'."
+  :type 'string
+  :group 'swank-clojure)
+
 (defcustom swank-clojure-deps
   (list (concat "http://repo.technomancy.us/"
                 "swank-clojure-1.1.0.jar")
@@ -149,14 +156,15 @@ this, keep that in mind."
    ;; where the REPL doesn't pop up until the user presses Enter.
    "(do (.. java.net.InetAddress getLocalHost getHostAddress) nil)"
    (format "(swank.swank/start-server %S :encoding %S)\n\n"
-           file (format "%s" (slime-coding-system-cl-name encoding)))))
+           (expand-file-name file)
+           (format "%s" (slime-coding-system-cl-name encoding)))))
 
 (defun swank-clojure-find-package ()
-  (let ((regexp "^(\\(clojure.core/\\)?\\(in-\\)?ns\\s-+[:']?\\([^()\" \t\n]+\\>\\)"))
+  (let ((regexp "^(\\(clojure.core/\\)?\\(in-\\)?ns\\+?[ \t\n\r]+\\(#\\^{[^}]+}[ \t\n\r]+\\)?[:']?\\([^()\" \t\n]+\\>\\)"))
     (save-excursion
       (when (or (re-search-backward regexp nil t)
                 (re-search-forward regexp nil t))
-        (match-string-no-properties 3)))))
+        (match-string-no-properties 4)))))
 
 ;;;###autoload
 (defun swank-clojure-slime-mode-hook ()
@@ -239,27 +247,24 @@ will be used over paths too.)"
         init-opts)
       (list "--repl")))))
 
+(defun swank-clojure-reset-implementation ()
+  "Redefines the clojure entry in `slime-lisp-implementations'."
+  (aput 'slime-lisp-implementations 'clojure
+        (list (swank-clojure-cmd) :init 'swank-clojure-init)))
+
 ;;;###autoload
 (defadvice slime-read-interactive-args (before add-clojure)
   ;; Unfortunately we need to construct our Clojure-launching command
   ;; at slime-launch time to reflect changes in the classpath. Slime
   ;; has no mechanism to support this, so we must resort to advice.
   (require 'assoc)
-  (aput 'slime-lisp-implementations 'clojure
-        (list (swank-clojure-cmd) :init 'swank-clojure-init)))
+  (swank-clojure-reset-implementation))
 
 ;; Change the repl to be more clojure friendly
 (defun swank-clojure-slime-repl-modify-syntax ()
   (when (string-match "\\*slime-repl clojure\\*" (buffer-name))
     ;; modify syntax
-    (modify-syntax-entry ?~ "'   ")
-    (modify-syntax-entry ?, "    ")
-    (modify-syntax-entry ?\{ "(}")
-    (modify-syntax-entry ?\} "){")
-    (modify-syntax-entry ?\[ "(]")
-    (modify-syntax-entry ?\] ")[")
-    (modify-syntax-entry ?^ "'")
-    (modify-syntax-entry ?= "'")
+    (set-syntax-table clojure-mode-syntax-table) 
 
     ;; set indentation function (already local)
     (setq lisp-indent-function 'clojure-indent-function)
@@ -322,16 +327,19 @@ The `path' variable is bound to the project root when these functions run.")
   (let ((slime-lisp-implementations (copy-list slime-lisp-implementations))
         (swank-clojure-extra-vm-args (copy-list swank-clojure-extra-vm-args))
         (swank-clojure-binary nil)
-        (swank-clojure-classpath (let ((l (expand-file-name "lib" path)))
+        (swank-clojure-classpath (let ((l (expand-file-name
+                                           swank-clojure-project-dep-path path)))
                                    (if (file-directory-p l)
-				       (append
-					(directory-files l t ".jar$")
-					(remove-if-not 'directoryp
-					  (directory-files l t "^[^\\.]")))))))
+                                       (append
+                                        (directory-files l t ".jar$")
+                                        (remove-if-not
+                                         'directoryp
+                                         (directory-files l t "^[^\\.]")))))))
 
     (add-to-list 'swank-clojure-classpath (expand-file-name "classes/" path))
     (add-to-list 'swank-clojure-classpath (expand-file-name "src/" path))
     (add-to-list 'swank-clojure-classpath (expand-file-name "test/" path))
+    (add-to-list 'swank-clojure-classpath (expand-file-name "resources/" path))
 
     ;; For Maven style project layouts
     (when (file-exists-p (expand-file-name "pom.xml" path))
@@ -345,10 +353,12 @@ The `path' variable is bound to the project root when these functions run.")
       (add-to-list 'swank-clojure-extra-vm-args
                    (format "-Dclojure.compile.path=%s"
                            (expand-file-name "target/classes/" path))))
+    (swank-clojure-reset-implementation)
     (run-hooks 'swank-clojure-project-hook)
 
     (save-window-excursion
-      (slime))))
+      (let ((default-directory path))
+        (slime 'clojure)))))
 
 (provide 'swank-clojure)
 ;;; swank-clojure.el ends here

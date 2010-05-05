@@ -31,6 +31,9 @@ echo '*** paredit'
 echo '***' js-comint
 (cd site-lisp/js-comint && curl -o js-comint.el http://downloads.sourceforge.net/js-comint-el/js-comint.el)
 
+echo '***' swank-clojure
+(cd site-lisp/swank-clojure && curl -o swank-clojure.el 'http://github.com/technomancy/swank-clojure/raw/master/swank-clojure.el')
+
 echo '***' mozrepl
 (cd site-lisp/moz-repl && curl -o moz.el 'http://github.com/bard/mozrepl/blob/master/chrome/content/moz.el?raw=true')
 

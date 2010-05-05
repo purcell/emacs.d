@@ -1,3 +1,21 @@
+;; Autoloads and basic wiring
+(autoload 'clojure-mode "clojure-mode" "Major mode for editing Clojure code." t nil)
+(autoload 'clojure-test-mode "clojure-test-mode" "A minor mode for running Clojure tests." t nil)
+(eval-after-load "clojure-mode"
+  '(progn
+     (require 'clojure-test-mode)))
+(autoload 'swank-clojure-init "swank-clojure" "" nil nil)
+(autoload 'swank-clojure-slime-mode-hook "swank-clojure" "" nil nil)
+(autoload 'swank-clojure-cmd "swank-clojure" "" nil nil)
+(defadvice slime-read-interactive-args (before add-clojure)
+  (require 'assoc)
+  (aput 'slime-lisp-implementations 'clojure (list (swank-clojure-cmd) :init 'swank-clojure-init)))
+(autoload 'swank-clojure-project "swank-clojure" "" t nil)
+(add-hook 'clojure-mode-hook 'clojure-test-maybe-enable)
+
+
+
+
 (add-hook 'clojure-mode-hook 'enable-paredit-mode)
 
 (setq clojure-src-root (expand-file-name "~/Projects/External"))
