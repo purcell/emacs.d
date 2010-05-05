@@ -53,9 +53,11 @@
 (defun set-up-ac-for-elisp ()
   (add-to-list 'ac-sources 'ac-source-symbols))
 
-(add-hook 'paredit-mode-hook
-          (lambda ()
-            (define-key paredit-mode-map (kbd "RET") 'paredit-newline)))
+(defun maybe-map-paredit-newline ()
+  (unless (or (memq major-mode '(ielm-mode-hook)) (minibufferp))
+    (local-set-key (kbd "RET") 'paredit-newline)))
+
+(add-hook 'paredit-mode-hook 'maybe-map-paredit-newline)
 
 (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
   (add-hook hook 'set-up-hippie-expand-for-elisp)
