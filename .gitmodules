@@ -46,3 +46,6 @@
 [submodule "site-lisp/clojure-mode"]
 	path = site-lisp/clojure-mode
 	url = git://github.com/technomancy/clojure-mode.git
+[submodule "site-lisp/mmm-mode"]
+	path = site-lisp/mmm-mode
+	url = git://github.com/purcell/mmm-mode.git
