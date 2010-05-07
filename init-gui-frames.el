@@ -26,7 +26,7 @@
 ;; Window size and features
 ;;----------------------------------------------------------------------------
 (tool-bar-mode -1)
-(scroll-bar-mode -1)
+(set-scroll-bar-mode nil)
 
 (require 'init-maxframe)
 
