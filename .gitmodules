@@ -6,7 +6,7 @@
 	url = git://github.com/eschulte/rinari.git
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
-	url = git://gitorious.org/magit/mainline.git
+	url = git://github.com/philjackson/magit.git
 [submodule "site-lisp/gist"]
 	path = site-lisp/gist
 	url = git://github.com/defunkt/gist.el.git
