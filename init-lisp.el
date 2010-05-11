@@ -54,7 +54,7 @@
   (add-to-list 'ac-sources 'ac-source-symbols))
 
 (defun maybe-map-paredit-newline ()
-  (unless (or (memq major-mode '(ielm-mode-hook)) (minibufferp))
+  (unless (or (eq major-mode 'inferior-emacs-lisp-mode) (minibufferp))
     (local-set-key (kbd "RET") 'paredit-newline)))
 
 (add-hook 'paredit-mode-hook 'maybe-map-paredit-newline)
