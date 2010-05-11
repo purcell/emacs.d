@@ -15,18 +15,9 @@
 ;;----------------------------------------------------------------------------
 ;; ido completion in M-x
 ;;----------------------------------------------------------------------------
-;; See http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings#toc5
-(defun ido-execute ()
-  (interactive)
-  (call-interactively
-   (intern
-    (ido-completing-read
-     "M-x "
-     (let (cmd-list)
-       (mapatoms (lambda (S) (when (commandp S) (setq cmd-list (cons (format "%S" S) cmd-list)))))
-       cmd-list)))))
-
-(global-set-key "\M-x" 'ido-execute)
+(require 'smex)
+(smex-initialize)
+(global-set-key "\M-x" 'smex)
 
 
 (provide 'init-ido)

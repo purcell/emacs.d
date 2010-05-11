@@ -49,3 +49,6 @@
 [submodule "site-lisp/mmm-mode"]
 	path = site-lisp/mmm-mode
 	url = git://github.com/purcell/mmm-mode.git
+[submodule "site-lisp/smex"]
+	path = site-lisp/smex
+	url = git://github.com/nonsequitur/smex.git
