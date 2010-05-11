@@ -53,10 +53,7 @@
     (clojure-mode-font-lock-setup)
     (when (slime-inferior-process)
       (slime-redirect-inferior-output))
-    (set-syntax-table clojure-mode-syntax-table) ;; Tell paredit about [ and {
-    (when (and (featurep 'paredit) paredit-mode (>= paredit-version 21))
-      (define-key paredit-mode-map "{" 'paredit-open-curly)
-      (define-key paredit-mode-map "}" 'paredit-close-curly))))
+    (swank-clojure-slime-repl-modify-syntax)))
 
 (add-hook 'slime-repl-mode-hook 'slime-clojure-repl-setup)
 
