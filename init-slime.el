@@ -12,6 +12,11 @@
      (setq slime-complete-symbol*-fancy t)
      (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 
+     ;; Stop SLIME's REPL from grabbing DEL, which is annoying when backspacing over a '('
+     (defun override-slime-repl-bindings-with-paredit ()
+       (define-key slime-repl-mode-map (read-kbd-macro paredit-backward-delete-key) nil))
+     (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
+
      (require 'ac-slime)
      (add-hook 'slime-mode-hook 'set-up-slime-ac)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
