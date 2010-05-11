@@ -8,8 +8,7 @@
      (add-hook 'slime-mode-hook 'pretty-lambdas)
      (add-hook 'slime-mode-hook 'enable-paredit-mode)
      (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
-     (slime-setup '(slime-fancy slime-highlight-edits))
-     (require 'slime-fuzzy)
+     (slime-setup '(slime-repl slime-fuzzy slime-highlight-edits))
      (setq slime-complete-symbol*-fancy t)
      (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 
