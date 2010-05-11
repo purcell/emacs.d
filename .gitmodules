@@ -21,7 +21,7 @@
 	url = git://github.com/wfarr/color-theme-tango-2.git
 [submodule "site-lisp/slime"]
 	path = site-lisp/slime
-	url = git://github.com/technomancy/slime.git
+	url = git://sbcl.boinkor.net/slime.git
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = git://github.com/m2ym/auto-complete.git
