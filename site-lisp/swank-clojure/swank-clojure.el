@@ -15,6 +15,10 @@
 ;;
 ;;; Commentary:
 ;;
+;; NOTE: swank-clojure.el is currently unmaintained. Please see the
+;; swank-clojure readme for examples of how to start a swank server
+;; from your build tool and connect to it via SLIME.
+;;
 ;; The purpose of this file is to set up `slime-lisp-implementations'
 ;; to allow SLIME to communicate with the Swank server implemented in
 ;; Clojure. There are four ways to launch a session:
