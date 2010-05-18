@@ -46,6 +46,7 @@
                                              intangible))))))
 ;;------
 
+(add-hook 'clojure-mode-hook 'font-lock-mode) ;; because it doesn't turn on in Emacs 24
 
 (defun slime-clojure-repl-setup ()
   (when (string-equal "clojure" (slime-connection-name))
