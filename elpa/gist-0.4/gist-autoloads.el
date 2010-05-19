@@ -3,9 +3,9 @@
 ;;; Code:
 
 
-;;;### (autoloads (gist-fetch gist-region-or-buffer-private gist-region-or-buffer
-;;;;;;  gist-buffer-private gist-buffer gist-region-private gist-region)
-;;;;;;  "gist" "gist.el" (18982 56366))
+;;;### (autoloads (gist-fetch gist-list gist-region-or-buffer-private
+;;;;;;  gist-region-or-buffer gist-buffer-private gist-buffer gist-region-private
+;;;;;;  gist-region) "gist" "gist.el" (19443 51102))
 ;;; Generated autoloads from gist.el
 
 (autoload 'gist-region "gist" "\
@@ -14,7 +14,7 @@ Copies the URL into the kill ring.
 
 With a prefix argument, makes a private paste.
 
-\(fn BEGIN END &optional PRIVATE)" t nil)
+\(fn BEGIN END &optional PRIVATE &optional CALLBACK)" t nil)
 
 (autoload 'gist-region-private "gist" "\
 Post the current region as a new private paste at gist.github.com
@@ -50,6 +50,11 @@ Copies the URL into the kill ring.
 
 \(fn)" t nil)
 
+(autoload 'gist-list "gist" "\
+Displays a list of all of the current user's gists in a new buffer.
+
+\(fn)" t nil)
+
 (autoload 'gist-fetch "gist" "\
 Fetches a Gist and inserts it into a new buffer
 If the Gist already exists in a buffer, switches to it
@@ -58,7 +63,7 @@ If the Gist already exists in a buffer, switches to it
 
 ;;;***
 
-;;;### (autoloads nil nil ("gist-pkg.el") (18982 56366 285277))
+;;;### (autoloads nil nil ("gist-pkg.el") (19443 51102 458523))
 
 ;;;***
 
