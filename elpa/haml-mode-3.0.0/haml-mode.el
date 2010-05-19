@@ -4,7 +4,7 @@
 
 ;; Author: Nathan Weizenbaum
 ;; URL: http://github.com/nex3/haml/tree/master
-;; Version: 2.2.21
+;; Version: 3.0.0
 ;; Created: 2007-03-08
 ;; By: Nathan Weizenbaum
 ;; Keywords: markup, language, html
@@ -352,7 +352,8 @@ With ARG, do it that many times."
           ;; Move through multiline attrs
           (when (eq (char-before) ?,)
             (save-excursion
-              (while (progn (end-of-line) (and (eq (char-before) ?,) (not (eobp))))
+              (while (progn (end-of-line)
+                            (and (eq (char-before) ?,) (not (eobp))))
                 (forward-line))
 
               (forward-line -1)
