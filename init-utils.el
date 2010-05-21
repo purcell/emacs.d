@@ -28,10 +28,7 @@
 (defun find-executable (name)
   "Return the full path of an executable file name `name'
 in `exec-path', or nil if no such command exists"
-  (loop for dir in exec-path
-        for full-path = (expand-file-name (concat dir "/" name))
-        when (file-executable-p full-path)
-        return full-path))
+  (locate-file name exec-path nil 'file-executable-p))
 
 
 ;;----------------------------------------------------------------------------
