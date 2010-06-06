@@ -16,16 +16,8 @@
 (add-hook 'clojure-mode-hook 'clojure-test-maybe-enable)
 
 
-
-
 (add-hook 'clojure-mode-hook 'enable-paredit-mode)
 
-(setq clojure-src-root (expand-file-name "~/Projects/External"))
-(setq swank-clojure-extra-vm-args (list "-server"
-                                        "-Xmx1024m"
-                                        "-XX:+UseConcMarkSweepGC"
-                                        "-XX:+UseCompressedOops"
-                                        "-XX:+DoEscapeAnalysis"))
 
 ;;------
 ;; Patch from michalmarczyk, http://gist.github.com/337280
