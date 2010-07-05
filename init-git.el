@@ -21,6 +21,7 @@
   (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)]))))
 
 (require 'rebase-mode)
+(require 'magithub)
 
 ;;----------------------------------------------------------------------------
 ;; git-svn conveniences

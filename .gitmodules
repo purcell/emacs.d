@@ -52,3 +52,6 @@
 [submodule "site-lisp/smex"]
 	path = site-lisp/smex
 	url = git://github.com/nonsequitur/smex.git
+[submodule "site-lisp/magithub"]
+	path = site-lisp/magithub
+	url = git://github.com/nex3/magithub.git
