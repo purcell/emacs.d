@@ -38,6 +38,9 @@
 ;(setq debug-on-error 't)
 ;(setq edebug-all-defs 't)
 
+(if (not (featurep 'make-network-process))
+    (error "Incompatible version of [X]Emacs - lacks make-network-process"))
+
 ;; Customization
 (defcustom edit-server-port 9292
   "Local port the edit server listens to."
@@ -211,6 +214,8 @@ If `edit-server-verbose' is non-nil, then STRING is also echoed to the message l
 (defun edit-server-accept (server client msg)
   "Accept a new client connection."
   (let ((buffer (generate-new-buffer edit-server-process-buffer-name)))
+    (and (fboundp 'set-buffer-multibyte)
+         (set-buffer-multibyte t)) ; djb
     (buffer-disable-undo buffer)
     (set-process-buffer client buffer)
     (set-process-filter client 'edit-server-filter)
@@ -315,6 +320,9 @@ If `edit-server-verbose' is non-nil, then STRING is also echoed to the message l
   (let ((buffer (generate-new-buffer (if edit-server-url
 					 edit-server-url
 				       edit-server-edit-buffer-name))))
+    (with-current-buffer buffer
+      (and (fboundp 'set-buffer-multibyte)
+           (set-buffer-multibyte t))) ; djb
     (copy-to-buffer buffer (point-min) (point-max))
     (with-current-buffer buffer
       (not-modified)
