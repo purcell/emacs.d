@@ -64,3 +64,6 @@
 [submodule "site-lisp/zenburn"]
 	path = site-lisp/zenburn
 	url = git://github.com/emacsmirror/zenburn.git
+[submodule "site-lisp/twit"]
+	path = site-lisp/twit
+	url = git://github.com/emacsmirror/twit.git
