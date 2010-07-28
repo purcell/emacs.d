@@ -61,3 +61,6 @@
 [submodule "site-lisp/ri-emacs"]
 	path = site-lisp/ri-emacs
 	url = git://github.com/pedz/ri-emacs.git
+[submodule "site-lisp/zenburn"]
+	path = site-lisp/zenburn
+	url = git://github.com/emacsmirror/zenburn.git
