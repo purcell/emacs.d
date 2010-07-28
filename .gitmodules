@@ -55,3 +55,6 @@
 [submodule "site-lisp/magithub"]
 	path = site-lisp/magithub
 	url = git://github.com/nex3/magithub.git
+[submodule "site-lisp/regex-tool"]
+	path = site-lisp/regex-tool
+	url = git://github.com/jwiegley/regex-tool.git
