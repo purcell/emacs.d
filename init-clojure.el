@@ -45,10 +45,17 @@
 (defun slime-clojure-repl-setup ()
   (when (string-equal "clojure" (slime-connection-name))
     (message "Setting up repl for clojure")
-    (clojure-mode-font-lock-setup)
     (when (slime-inferior-process)
       (slime-redirect-inferior-output))
-    (swank-clojure-slime-repl-modify-syntax)))
+
+    (set-syntax-table clojure-mode-syntax-table)
+    (clojure-mode-font-lock-setup)
+
+    (setq lisp-indent-function 'clojure-indent-function)
+
+    (when (and (featurep 'paredit) paredit-mode (>= paredit-version 21))
+      (define-key slime-repl-mode-map "{" 'paredit-open-curly)
+      (define-key slime-repl-mode-map "}" 'paredit-close-curly))))
 
 (add-hook 'slime-repl-mode-hook 'slime-clojure-repl-setup)
 
