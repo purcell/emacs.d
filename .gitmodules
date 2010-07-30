@@ -67,3 +67,6 @@
 [submodule "site-lisp/twit"]
 	path = site-lisp/twit
 	url = git://github.com/emacsmirror/twit.git
+[submodule "site-lisp/dired+"]
+	path = site-lisp/dired+
+	url = git://github.com/emacsmirror/dired-plus.git
