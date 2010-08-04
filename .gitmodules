@@ -10,9 +10,6 @@
 [submodule "site-lisp/gist"]
 	path = site-lisp/gist
 	url = git://github.com/defunkt/gist.el.git
-[submodule "site-lisp/twilight"]
-	path = site-lisp/twilight
-	url = git://github.com/crafterm/twilight-emacs.git
 [submodule "site-lisp/markdown-mode"]
 	path = site-lisp/markdown-mode
 	url = http://jblevins.org/git/markdown-mode.git
@@ -70,3 +67,6 @@
 [submodule "site-lisp/color-theme-zenburn"]
 	path = site-lisp/color-theme-zenburn
 	url = git://github.com/emacsmirror/zenburn.git
+[submodule "site-lisp/color-theme-twilight"]
+	path = site-lisp/color-theme-twilight
+	url = git://github.com/crafterm/twilight-emacs.git
