@@ -61,12 +61,12 @@
 [submodule "site-lisp/ri-emacs"]
 	path = site-lisp/ri-emacs
 	url = git://github.com/pedz/ri-emacs.git
-[submodule "site-lisp/zenburn"]
-	path = site-lisp/zenburn
-	url = git://github.com/emacsmirror/zenburn.git
 [submodule "site-lisp/twit"]
 	path = site-lisp/twit
 	url = git://github.com/emacsmirror/twit.git
 [submodule "site-lisp/dired+"]
 	path = site-lisp/dired+
 	url = git://github.com/emacsmirror/dired-plus.git
+[submodule "site-lisp/color-theme-zenburn"]
+	path = site-lisp/color-theme-zenburn
+	url = git://github.com/emacsmirror/zenburn.git
