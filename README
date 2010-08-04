@@ -1,6 +1,10 @@
 This is an emacs configuration tree that supports a number of programming languages,
 particularly Ruby/Rails and other dynamic languages including Clojure, PHP, Python etc.
 
+In particular, I have a nice config for tab autocompletion, and flymake is used to
+immediately highlight syntax errors in Ruby, HAML, Python, Javascript, PHP and some
+other languages.
+
 To install, clone this repo to ~/.emacs.d, i.e. ensure that the 'init.el' contained in
 this repo ends up at ~/.emacs.d/init.el.
 
