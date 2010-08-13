@@ -7,7 +7,6 @@
      (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
      (setq slime-protocol-version 'ignore)
      (add-hook 'slime-mode-hook 'pretty-lambdas)
-     (add-hook 'slime-mode-hook 'enable-paredit-mode)
      (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
      (slime-setup '(slime-repl slime-fuzzy))
      (setq slime-complete-symbol*-fancy t)
