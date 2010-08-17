@@ -144,4 +144,9 @@
 ;(add-hook 'text-mode-hook 'turn-on-typing-speed)
 
 
+
+;; Get handy scratch buffers for any major mode
+(autoload 'scratch "scratch" nil t)
+
+
 (provide 'init-editing-utils)

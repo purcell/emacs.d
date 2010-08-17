@@ -73,3 +73,6 @@
 [submodule "site-lisp/ac-slime"]
 	path = site-lisp/ac-slime
 	url = git://github.com/purcell/ac-slime.git
+[submodule "site-lisp/scratch-el"]
+	path = site-lisp/scratch-el
+	url = git://github.com/ieure/scratch-el.git
