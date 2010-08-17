@@ -23,7 +23,12 @@
 
      (require 'hippie-expand-slime)
      (add-hook 'slime-mode-hook 'set-up-slime-hippie-expand)
-     (add-hook 'slime-repl-mode-hook 'set-up-slime-hippie-expand)))
+     (add-hook 'slime-repl-mode-hook 'set-up-slime-hippie-expand)
+
+     (add-hook 'slime-connected-hook
+               (lambda ()
+                 (auto-complete-mode t)
+                 (define-key slime-repl-mode-map (kbd "TAB") 'indent-or-expand-with-ac)))))
 
 
 
