@@ -6,7 +6,9 @@ immediately highlight syntax errors in Ruby, HAML, Python, Javascript, PHP and s
 other languages.
 
 To install, clone this repo to ~/.emacs.d, i.e. ensure that the 'init.el' contained in
-this repo ends up at ~/.emacs.d/init.el.
+this repo ends up at ~/.emacs.d/init.el.  Many of the required packages are included
+as git submodules, so you'll need to "git submodule update --init" to check them out
+initially, and "git submodule update" to keep them up-to-date over time.
 
 Although these config files aren't meant to be a replacement for emacs-starter-kit,
 some of the tips & tricks contained herein might be useful to others, and there are
