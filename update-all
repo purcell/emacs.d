@@ -28,6 +28,9 @@ echo '*** todochiku'
 echo '*** paredit'
 (cd site-lisp/paredit && curl -o paredit.el http://mumble.net/~campbell/emacs/paredit.el)
 
+echo '*** undo-tree'
+(cd site-lisp/paredit && curl -o undo-tree.el http://www.dr-qubit.org/undo-tree/undo-tree.el)
+
 echo '***' js-comint
 (cd site-lisp/js-comint && curl -o js-comint.el http://downloads.sourceforge.net/js-comint-el/js-comint.el)
 
