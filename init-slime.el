@@ -17,17 +17,17 @@
        (define-key slime-repl-mode-map (read-kbd-macro paredit-backward-delete-key) nil))
      (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
 
-     (require 'ac-slime)
-     (add-hook 'slime-mode-hook 'set-up-slime-ac)
-     (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
-
      (require 'hippie-expand-slime)
      (add-hook 'slime-mode-hook 'set-up-slime-hippie-expand)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-hippie-expand)
 
+     (require 'ac-slime)
+     (add-hook 'slime-mode-hook 'set-up-slime-ac)
+     (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+
+     (add-hook 'slime-repl-mode-hook (lambda () (auto-complete-mode t)))
      (add-hook 'slime-connected-hook
                (lambda ()
-                 (auto-complete-mode t)
                  (define-key slime-repl-mode-map (kbd "TAB") 'indent-or-expand-with-ac)))))
 
 
