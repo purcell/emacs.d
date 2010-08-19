@@ -41,8 +41,10 @@
        (font-lock-comment-face ((t (:foreground ,dark-rose))))
        (font-lock-constant-face ((t (:foreground ,light-blue))))
        (font-lock-doc-face ((t (:foreground ,pale-pink))))
+       (font-lock-doc-string-face ((t (:foreground ,pale-pink))))
        (font-lock-function-name-face ((t (:foreground ,green))))
        (font-lock-keyword-face ((t (:foreground ,blue))))
+       (font-lock-preprocessor-face ((t (:foreground ,orange))))
        (font-lock-string-face ((t (:foreground ,orange))))
        (font-lock-type-face ((t (:foreground ,purple))))
        (font-lock-variable-name-face ((t (:foreground ,green))))
@@ -135,7 +137,7 @@
        (font-lock-regexp-grouping-construct ((t (:foreground ,light-plum))))
        (font-lock-string-face ((t (:foreground ,plum))))
        (font-lock-type-face ((t (:foreground ,light-plum))))
-       (font-lock-variable-name-face ((t (nil))))
+       (font-lock-variable-name-face ((t (:foreground ,med-dark-choc))))
        (font-lock-warning-face ((t (:bold t :foreground ,scarlet))))
 
        ;; Search
