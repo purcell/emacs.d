@@ -64,6 +64,13 @@ Current buffer holds the text that is about to be sent back to the client."
   :group 'edit-server
   :type 'hook)
 
+(defcustom edit-server-start-hook nil
+  "Hook run when starting a editing buffer.  Current buffer is
+the fully prepared editing buffer.  Use this hook to enable your
+favorite minor modes or add key bindings."
+  :group 'edit-server
+  :type 'hook)
+
 ; frame options
 (defcustom edit-server-new-frame t
   "If not nil, edit each buffer in a new frame (and raise it)."
@@ -331,7 +338,8 @@ If `edit-server-verbose' is non-nil, then STRING is also echoed to the message l
       (buffer-enable-undo)
       (set (make-local-variable 'edit-server-proc) proc)
       (set (make-local-variable 'edit-server-frame)
-	   (edit-server-create-frame buffer)))))
+	   (edit-server-create-frame buffer))
+      (run-hooks 'edit-server-start-hook))))
 
 (defun edit-server-send-response (proc &optional body close)
   "Send an HTTP 200 OK response back to process PROC.
