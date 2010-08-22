@@ -76,3 +76,6 @@
 [submodule "site-lisp/scratch-el"]
 	path = site-lisp/scratch-el
 	url = git://github.com/ieure/scratch-el.git
+[submodule "site-lisp/diminish"]
+	path = site-lisp/diminish
+	url = git://github.com/emacsmirror/diminish.git
