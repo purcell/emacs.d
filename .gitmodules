@@ -85,3 +85,6 @@
 [submodule "site-lisp/undo-tree"]
 	path = site-lisp/undo-tree
 	url = git://github.com/emacsmirror/undo-tree.git
+[submodule "site-lisp/textile-mode"]
+	path = site-lisp/textile-mode
+	url = http://github.com/emacsmirror/textile-mode.git
