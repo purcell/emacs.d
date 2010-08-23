@@ -25,9 +25,6 @@ done
 echo '*** todochiku'
 (cd site-lisp/todochiku && emacswiki_get todochiku.el)
 
-echo '*** undo-tree'
-(cd site-lisp/undo-tree && curl -o undo-tree.el http://www.dr-qubit.org/undo-tree/undo-tree.el)
-
 echo '***' js-comint
 (cd site-lisp/js-comint && curl -o js-comint.el http://downloads.sourceforge.net/js-comint-el/js-comint.el)
 

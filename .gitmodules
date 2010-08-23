@@ -82,3 +82,6 @@
 [submodule "site-lisp/autopair"]
 	path = site-lisp/autopair
 	url = git://github.com/emacsmirror/autopair.git
+[submodule "site-lisp/undo-tree"]
+	path = site-lisp/undo-tree
+	url = git://github.com/emacsmirror/undo-tree.git
