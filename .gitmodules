@@ -79,3 +79,6 @@
 [submodule "site-lisp/diminish"]
 	path = site-lisp/diminish
 	url = git://github.com/emacsmirror/diminish.git
+[submodule "site-lisp/autopair"]
+	path = site-lisp/autopair
+	url = git://github.com/emacsmirror/autopair.git

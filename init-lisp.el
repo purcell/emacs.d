@@ -12,6 +12,10 @@
   "Minor mode for pseudo-structurally editing Lisp code." t)
 (autoload 'enable-paredit-mode "paredit" "Turn on paredit mode" t)
 
+(defadvice enable-paredit-mode (before disable-autopair activate)
+  (setq autopair-dont-activate t)
+  (autopair-mode -1))
+
 (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
   (add-hook hook 'pretty-lambdas)
   (add-hook hook 'enable-paredit-mode))
