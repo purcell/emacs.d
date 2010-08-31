@@ -93,4 +93,8 @@
      (define-key paredit-mode-map (kbd "M-K") 'warn-disabled-command)
      (define-key paredit-mode-map (kbd "M-k") 'warn-disabled-command)))
 
+;; When editing lisp code, highlight the current sexp
+(require 'hl-sexp)
+(add-hook 'paredit-mode-hook (lambda () (hl-sexp-mode t)))
+
 (provide 'init-lisp)

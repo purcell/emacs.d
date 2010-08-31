@@ -88,3 +88,6 @@
 [submodule "site-lisp/textile-mode"]
 	path = site-lisp/textile-mode
 	url = http://github.com/emacsmirror/textile-mode.git
+[submodule "site-lisp/hl-sexp"]
+	path = site-lisp/hl-sexp
+	url = git://github.com/emacsmirror/hl-sexp.git
