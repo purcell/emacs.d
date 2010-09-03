@@ -5,9 +5,11 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Don't disable narrow-to-region
+;; Don't disable narrowing commands
 ;;----------------------------------------------------------------------------
 (put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-defun 'disabled nil)
 
 
 ;;----------------------------------------------------------------------------
