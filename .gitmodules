@@ -91,3 +91,6 @@
 [submodule "site-lisp/hl-sexp"]
 	path = site-lisp/hl-sexp
 	url = git://github.com/emacsmirror/hl-sexp.git
+[submodule "site-lisp/color-theme-sanityinc"]
+	path = site-lisp/color-theme-sanityinc
+	url = git://github.com/purcell/color-theme-sanityinc.git
