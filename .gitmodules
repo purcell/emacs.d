@@ -94,3 +94,6 @@
 [submodule "site-lisp/color-theme-sanityinc"]
 	path = site-lisp/color-theme-sanityinc
 	url = git://github.com/purcell/color-theme-sanityinc.git
+[submodule "site-lisp/offlineimap"]
+	path = site-lisp/offlineimap
+	url = git://git.naquadah.org/offlineimap-el.git

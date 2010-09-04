@@ -100,6 +100,8 @@
 (when *spell-check-support-enabled*
   (require 'init-spelling))
 
+;; In-Emacs apps
+(require 'init-mail)
 (require 'init-twitter)
 
 (require 'init-misc)
