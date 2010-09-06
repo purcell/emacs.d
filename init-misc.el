@@ -11,6 +11,7 @@
   "Log commands executed in the current buffer" t)
 
 (show-paren-mode 1)
+(setq show-paren-style 'parenthesis)
 (setq show-paren-delay 0)
 (column-number-mode 1)
 
