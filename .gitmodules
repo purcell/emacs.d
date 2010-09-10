@@ -94,3 +94,6 @@
 [submodule "site-lisp/offlineimap"]
 	path = site-lisp/offlineimap
 	url = git://git.naquadah.org/offlineimap-el.git
+[submodule "site-lisp/google-weather"]
+	path = site-lisp/google-weather
+	url = git://git.naquadah.org/google-weather-el.git

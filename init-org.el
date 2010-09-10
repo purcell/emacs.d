@@ -69,6 +69,11 @@
   '(progn
      (require 'org-clock)
      (require 'org-checklist)
-     (require 'org-fstree)))
+     (require 'org-fstree)
+     (require 'org-google-weather)))
+
+(setq org-google-weather-cache-time 7200
+      org-google-weather-display-icon-p t
+      org-google-weather-icon-directory (expand-file-name "~/.emacs.d/site-lisp/google-weather-icons"))
 
 (provide 'init-org)
