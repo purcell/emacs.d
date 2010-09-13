@@ -91,4 +91,7 @@
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f6] 'recompile)))
 
 
+(autoload 'yaml-mode "yaml-mode" "Major mode for YAML source")
+(add-auto-mode 'yaml-mode "\\.yml$")
+
 (provide 'init-ruby-mode)
