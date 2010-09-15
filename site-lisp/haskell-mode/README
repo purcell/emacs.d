@@ -1,4 +1,4 @@
-Haskell Mode for Emacs
+Haskell Mode for Emacs                                        -*-text-*-
 ----------------------
 Version number: $Name:  $.
 
@@ -25,19 +25,28 @@ Otherwise:
 - Download and unpack the basic mode and modules into a suitable directory,
   e.g. ~/lib/emacs/haskell-mode/ where ~ stands for your home directory.
 
+- If you are using Emacs 21, you need an additional library, "syntax", from
+  a later version of Emacs.  The one you can get as
+  http://cvs.savannah.gnu.org/viewcvs/*checkout*/emacs/emacs/lisp/emacs-lisp/syntax.el?rev=1.16
+  definitely works.
+
 - Assuming you have placed the basic mode haskell-mode.el and the modules
   you want to use in the directory ~/lib/emacs/haskell-mode/, add the
   following command to your init file (~/.emacs):
 
     (load "~/lib/emacs/haskell-mode/haskell-site-file")
 
+  This only loads the bare-bones haskell-mode. To make it useful, you
+  need additional modules; you can use the haskell customize-group
+  to edit the Haskell mode hook or, if you prefer manual setup, try
   adding the following lines according to which modules you want to use:
 
     (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-    (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+    (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+    ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
     ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 
-  Note that the two indentation modules are mutually exclusive - add at
+  Note that the three indentation modules are mutually exclusive - add at
   most one.  Note that the line of code for simple indentation is commented
   out (using a preceeding ;) in preference for the more advanced
   indentation module.  Installation is now complete!
@@ -82,23 +91,29 @@ Most customizations are on the functionality of a particular module.
 See the documentation of that module for information on its
 customisation.
 
+There is also a wiki page listing tips and tricks at
+http://trac.haskell.org/haskellmode-emacs/wiki/Tips
 
 Known problems
 --------------
 
-It seems that some version of XEmacs come without the fsf-compat package
+It seems that some versions of XEmacs come without the fsf-compat package
 (which provides functions such as `line-end-position') and it seems that
 even if your XEmacs does have the fsf-compat package installed it does not
 autoload its part.  Thus you may have to install the fsf-compat package and
 add (require 'goto-addr) in your .emacs.
 
 
+Multi-mode editing
+------------------
+
+For LaTeX-based literate Haskell, you might be interested in the
+multiple major mode package haskell-latex.el (plus multi-mode.el) from
+http://www.loveshack.ukfsn.org/emacs/.
+
+
 Support
 -------
 
-Any problems, do mail me <monnier@iro.umontreal.ca> and I will try my best
-to help you!
-
-
-
-<!-- arch-tag: 25fc8494-611d-459f-9919-579c97f6313e -->
+Mailing list: http://projects.haskell.org/cgi-bin/mailman/listinfo/haskellmode-emacs
+Bug tracker:  http://trac.haskell.org/haskellmode-emacs/

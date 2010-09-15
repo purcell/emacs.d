@@ -1,3 +1,48 @@
+Changes since 2.6.4
+
+* fill-paragraph (M-q) now only affects comments, and correctly
+  handles Haddock commentary. adaptive-fill-mode is turned off, as it
+  was interfering.
+
+* Yet more unicode symbols
+
+* Better support for unicode encoding of haskell source files
+
+* mdo correctly indented
+
+* Indentation fixes, fixes to the fixes, and fixes to the fixes to the
+  fixes
+
+* New command: M-x haskell-check, calls (by default) hlint on the
+  current file. Also bound to C-c C-v.
+
+  You can also use the flymake minor mode with this.
+  
+Changes since 2.5.1
+
+* Parser corrections for haskell-indentation and haskell-decl-scan
+
+* haskell-indentation: Pressing tab in the rightmost position now
+  moves to the leftmost, by default with a warning.
+
+* Typo fix: One haskell-indentation variable had ended up in the
+  haskell-ntation customize group.
+
+* haskell-hoogle aliased to hoogle, haskell-hayoo aliased to hayoo
+
+* Courtesy of Alex Ott:
+  - Additional unicode symbols for font-lock-symbols: () == /= >= <= !! && || sqrt
+  - M-x haskell-hayoo search added, opens using browse-url
+  - Bug-fix for inferior-haskell-type
+
+* If haskell-indentation errors out, it now fail-safes to inserting
+  a literal newline or deleting one character, for return and
+  backspace respectively.
+  
+Changes since 2.4:
+
+* haskell-indentation, a new minor mode for indentation.
+  
 Changes since 2.3:
 
 * Update license to GPLv3.

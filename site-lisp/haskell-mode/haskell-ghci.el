@@ -176,11 +176,13 @@ Prompt for a list of args if called with an argument."
   (add-hook 'comint-input-filter-functions 'shell-directory-tracker nil 'local)
 
   ;; GHCi prompt should be of the form `ModuleName> '.
-  (setq comint-prompt-regexp  "^\\*?[A-Z][\\._a-zA-Z0-9]*\\( \\*?[A-Z][\\._a-zA-Z0-9]*\\)*> ")
+  (setq comint-prompt-regexp
+	"^\\*?[[:upper:]][\\._[:alnum:]]*\\( \\*?[[:upper:]][\\._[:alnum:]]*\\)*> ")
 
   ;; History syntax of comint conflicts with Haskell, e.g. !!, so better
   ;; turn it off.
   (setq comint-input-autoexpand nil)
+  (setq comint-process-echoes nil)
   (run-hooks 'haskell-ghci-hook)
 
   ;; Clear message area.

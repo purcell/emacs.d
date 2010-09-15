@@ -128,6 +128,7 @@
 ;;; Code:
 
 (require 'haskell-mode)
+(require 'syntax nil t)			; Emacs 21 add-on
 
 ;;###autoload
 ;; As `cl' defines macros that `imenu' uses, we must require them at
@@ -136,7 +137,27 @@
   (require 'cl)
   (condition-case nil
       (require 'imenu)
-    (error nil)))
+    (error nil))
+  ;; It makes a big difference if we don't copy the syntax table here,
+  ;; as Emacs 21 does, but Emacs 22 doesn't.
+  (unless (eq (syntax-table)
+	      (with-syntax-table (syntax-table) (syntax-table)))
+    (defmacro with-syntax-table (table &rest body)
+      "Evaluate BODY with syntax table of current buffer set to a copy of TABLE.
+The syntax table of the current buffer is saved, BODY is evaluated, and the
+saved table is restored, even in case of an abnormal exit.
+Value is what BODY returns."
+      (let ((old-table (make-symbol "table"))
+	    (old-buffer (make-symbol "buffer")))
+	`(let ((,old-table (syntax-table))
+	       (,old-buffer (current-buffer)))
+	   (unwind-protect
+	       (progn
+		 (set-syntax-table ,table)
+		 ,@body)
+	     (save-current-buffer
+	       (set-buffer ,old-buffer)
+	       (set-syntax-table ,old-table))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; General declaration scanning functions.
@@ -191,9 +212,9 @@ Point is not changed."
                     "\\(\\'\\)?\\s-*\\(\\s_+\\|`\\(\\sw+\\)`\\)")
                 "\\(\\sw+\\)?\\s-*\\(\\s_+\\|`\\(\\sw+\\)`\\)"))
              (let ((match2 (haskell-ds-match-string 2)))
-               ;; Weed out `::', `=' and `|' from potential infix
+               ;; Weed out `::', `∷',`=' and `|' from potential infix
                ;; symbolic variable.
-               (if (member match2 '("::" "=" "|"))
+               (if (member match2 '("::" "∷" "=" "|"))
                    ;; Variable identifier.
                    (haskell-ds-match-string 1)
                  (if (eq (aref match2 0) ?\`)
@@ -214,6 +235,16 @@ current line that starts with REGEXP and is not in `font-lock-comment-face'."
 	      (or (not (looking-at regexp))
 		  (eq (get-text-property (point) 'face)
 		      'font-lock-comment-face)))))
+
+(defun haskell-ds-move-to-start-regexp-skipping-comments (inc regexp)
+  "Like haskell-ds-move-to-start-regexp, but uses syntax-ppss to
+  skip comments"
+  (let (p)
+    (loop
+     do (setq p (point))
+        (haskell-ds-move-to-start-regexp inc regexp)
+     while (and (nth 4 (syntax-ppss))
+                (/= p (point))))))
 
 (defvar literate-haskell-ds-line-prefix "> ?"
   "Regexp matching start of a line of Bird-style literate code.
@@ -260,7 +291,7 @@ then point does not move if already at the start of a declaration."
 	(bound (if direction (point-max) (point-min))))
     ;; Change syntax table.
     (with-syntax-table haskell-ds-syntax-table
-      ;; Move to beginning of line that starts the "current
+      ;; move to beginning of line that starts the "current
       ;; declaration" (dependent on DIRECTION and FIX), and then get
       ;; the variable typed or bound by this declaration, if any.
       (let ( ;; Where point was at call of function.
@@ -294,8 +325,8 @@ then point does not move if already at the start of a declaration."
           (if (and start (bobp))
               (setq abyss t)
             ;; Otherwise we move to the start of the first declaration
-            ;; on a line preceeding the current one.
-            (haskell-ds-move-to-start-regexp -1 start-decl-re))))
+            ;; on a line preceding the current one, skipping comments
+            (haskell-ds-move-to-start-regexp-skipping-comments -1 start-decl-re))))
       ;; If we are in the abyss, position and return as appropriate.
       (if abyss
           (if (not direction)
@@ -309,16 +340,17 @@ then point does not move if already at the start of a declaration."
             ;; declaration if moving backward, or move to the next
             ;; declaration if moving forward.
             (if direction
-                (haskell-ds-move-to-start-regexp 1 start-decl-re))
+                (haskell-ds-move-to-start-regexp-skipping-comments 1 start-decl-re))
           ;; If there is a variable, find the first
-          ;; succeeding/preceeding declaration that does not type or
-          ;; bind it.  Check for reaching start/end of buffer.
-          (haskell-ds-move-to-start-regexp increment start-decl-re)
+          ;; succeeding/preceding declaration that does not type or
+          ;; bind it.  Check for reaching start/end of buffer and
+          ;; comments.
+          (haskell-ds-move-to-start-regexp-skipping-comments increment start-decl-re)
           (while (and (/= (point) bound)
                       (and (setq newname (haskell-ds-get-variable line-prefix))
                            (string= name newname)))
             (setq name newname)
-            (haskell-ds-move-to-start-regexp increment start-decl-re))
+            (haskell-ds-move-to-start-regexp-skipping-comments increment start-decl-re))
           ;; If we are going backward, and have either reached a new
           ;; declaration or the beginning of a buffer that does not
           ;; start with a declaration, move forward to start of next
@@ -335,7 +367,7 @@ then point does not move if already at the start of a declaration."
                                            line-prefix))))
                        (and (not (looking-at start-decl-re))
                             (bobp))))
-              (haskell-ds-move-to-start-regexp 1 start-decl-re)))
+              (haskell-ds-move-to-start-regexp-skipping-comments 1 start-decl-re)))
         ;; Store whether we are at the start of a declaration or not.
         ;; Used to calculate final result.
         (let ((at-start-decl (looking-at start-decl-re)))
@@ -351,15 +383,15 @@ then point does not move if already at the start of a declaration."
   (and (boundp 'haskell-literate) (eq haskell-literate 'bird)))
 
 (defun haskell-ds-backward-decl ()
-  "Move point backward to the first character preceding the current
-point that starts a top-level declaration.  A series of declarations
-concerning one variable is treated as one declaration by this
-function.  So, if point is within a top-level declaration then move it
-to the start of that declaration.  If point is already at the start of
-a top-level declaration, then move it to the start of the preceding
-declaration.  Returns point if point is left at the start of a
-declaration, and nil otherwise, ie. because point is at the beginning
-of the buffer and no declaration starts there."
+  "Move backward to the first character that starts a top-level declaration.
+A series of declarations concerning one variable is treated as one
+declaration by this function.  So, if point is within a top-level
+declaration then move it to the start of that declaration.  If point
+is already at the start of a top-level declaration, then move it to
+the start of the preceding declaration.  Returns point if point is
+left at the start of a declaration, and nil otherwise, ie. because
+point is at the beginning of the buffer and no declaration starts
+there."
   (interactive)
   (haskell-ds-move-to-decl nil (haskell-ds-bird-p) nil))
 
@@ -608,6 +640,7 @@ datatypes) in a Haskell file for the `imenu' package."
 
 ;; The main functions to turn on declaration scanning.
 (defun turn-on-haskell-decl-scan ()
+  (interactive)
   "Unconditionally activate `haskell-decl-scan-mode'."
   (haskell-decl-scan-mode 1))
 
@@ -656,6 +689,7 @@ is nil or `tex', a non-literate or LaTeX-style literate script is
 assumed, respectively.
 
 Invokes `haskell-decl-scan-mode-hook'."
+  (interactive)
   (if (boundp 'beginning-of-defun-function)
       (if haskell-decl-scan-mode
           (progn

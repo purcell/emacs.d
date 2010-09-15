@@ -1,13 +1,16 @@
 EMACS = emacs
 
 ELFILES = \
-	haskell-font-lock.el \
-	haskell-mode.el \
 	haskell-c.el \
 	haskell-cabal.el \
-	haskell-doc.el \
 	haskell-decl-scan.el \
+	haskell-doc.el \
+	haskell-font-lock.el \
+	haskell-ghci.el \
+	haskell-hugs.el \
 	haskell-indent.el \
+	haskell-indentation.el \
+	haskell-mode.el \
 	haskell-simple-indent.el \
 	inf-haskell.el
 
@@ -19,7 +22,9 @@ AUTOLOADS = haskell-site-file.el
 	$(EMACS) --batch --eval '(setq load-path (cons "." load-path))' \
 		-f batch-byte-compile $<
 
-all: $(ELCFILES) $(AUTOLOADS)
+all: $(AUTOLOADS)
+
+compile: $(ELCFILES)
 
 info:
 	# No Texinfo file, sorry.
@@ -36,22 +41,19 @@ $(AUTOLOADS): $(ELFILES)
 
 ##
 
-TAG = $(shell echo v$(VERSION) | tr '.' '_')
-ftpdir=/u/monnier/html/elisp/
-cvsmodule=$(shell cat CVS/Repository)
-cvsroot=$(shell cat CVS/Root)
+VERSION = $(shell darcs show tags | head -n 1)
+TAG = $(shell echo v$(VERSION) | sed 's/\./\\\./g')
+TMP = $(shell echo $(PACKAGE)-$(VERSION))
 
 dist:
-	cvs tag -F $(TAG) &&\
+	darcs get --lazy . $(TMP) &&\
 	cd $(TMP) &&\
-	unset CVSREAD; cvs -d $(cvsroot) export -kv -r $(TAG) -d $(PACKAGE)-$(VERSION) $(cvsmodule) &&\
-	cd $(PACKAGE)-$(VERSION) &&\
-	make info $(AUTOLOADS) &&\
-	rm -f gmon.out;\
+	rm -r _darcs &&\
+	sed -i 's/\$$Name:  \$$/$(TAG)/g' * &&\
+	make $(AUTOLOADS) &&\
+	darcs changes > ChangeLog &&\
+	rm Makefile &&\
 	cd .. &&\
-	tar zcf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION) &&\
-	rm -rf $(PACKAGE)-$(VERSION)
-	mv $(TMP)/$(PACKAGE)-$(VERSION).tar.gz $(ftpdir)/
-	ln -sf $(PACKAGE)-$(VERSION).tar.gz $(ftpdir)/$(PACKAGE).tar.gz
-
-# arch-tag: 1ab314c8-3821-44fb-b533-dd58f5d75ba4
+	tar czf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION) &&\
+	rm -rf $(PACKAGE)-$(VERSION) &&\
+	mv $(PACKAGE)-$(VERSION).tar.gz ../haskellmode-emacs-web/

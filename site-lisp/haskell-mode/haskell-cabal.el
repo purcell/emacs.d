@@ -124,6 +124,7 @@
               (setq root nil))))
       nil)))
 
+(autoload 'derived-mode-p "derived")	; Emacs 21
 
 (defun haskell-cabal-buffers-clean (&optional buffer)
   (let ((bufs ()))

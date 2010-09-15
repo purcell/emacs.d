@@ -121,12 +121,14 @@ The format should be the same as for `compilation-error-regexp-alist'.")
 (defcustom inferior-haskell-find-project-root t
   "If non-nil, try and find the project root directory of this file.
 This will either look for a Cabal file or a \"module\" statement in the file."
+  :group 'haskell
   :type 'boolean)
 
 (define-derived-mode inferior-haskell-mode comint-mode "Inf-Haskell"
   "Major mode for interacting with an inferior Haskell process."
   (set (make-local-variable 'comint-prompt-regexp)
-       "^\\*?[A-Z][\\._a-zA-Z0-9]*\\( \\*?[A-Z][\\._a-zA-Z0-9]*\\)*> ")
+       ;; Whay the backslash in [\\._[:alnum:]]?
+       "^\\*?[[:upper:]][\\._[:alnum:]]*\\(?: \\*?[[:upper:]][\\._[:alnum:]]*\\)*> ")
   (set (make-local-variable 'comint-input-autoexpand) nil)
   (add-hook 'comint-output-filter-functions 'inferior-haskell-spot-prompt nil t)
 
@@ -243,7 +245,7 @@ The process PROC should be associated to a comint buffer."
                             (re-search-forward comint-prompt-regexp nil t))
                       (not (accept-process-output proc timeout))))))
     (unless inferior-haskell-seen-prompt
-      (error "Can't find the prompt."))))
+      (error "Can't find the prompt"))))
 
 (defvar inferior-haskell-cabal-buffer nil)
 
@@ -280,7 +282,7 @@ The process PROC should be associated to a comint buffer."
             (goto-char (point-min))
             (let ((case-fold-search nil))
               (when (re-search-forward
-                     "^module[ \t]+\\([^- \t\n]+\\.[^- \t\n]+\\)[ \t]+where\\>" nil t)
+                     "^module[ \t]+\\([^- \t\n]+\\.[^- \t\n]+\\)[ \t]+" nil t)
                 (let* ((dir default-directory)
                        (module (match-string 1))
                        (pos 0))
@@ -317,44 +319,46 @@ If prefix arg \\[universal-argument] is given, just reload the previous file."
   (let ((buf (current-buffer))
         (file buffer-file-name)
 	(proc (inferior-haskell-process)))
-    (with-current-buffer (process-buffer proc)
-      (compilation-forget-errors)
-      (let ((parsing-end (marker-position (process-mark proc)))
-            root)
-        ;; Go to the root of the Cabal project, if applicable.
-        (when (and inferior-haskell-find-project-root
-                   (setq root (inferior-haskell-find-project-root buf)))
-          ;; Not sure if it's useful/needed and if it actually works.
-          (unless (equal default-directory root)
-            (setq default-directory root)
+    (if file
+        (with-current-buffer (process-buffer proc)
+          (compilation-forget-errors)
+          (let ((parsing-end (marker-position (process-mark proc)))
+                root)
+            ;; Go to the root of the Cabal project, if applicable.
+            (when (and inferior-haskell-find-project-root
+                       (setq root (inferior-haskell-find-project-root buf)))
+              ;; Not sure if it's useful/needed and if it actually works.
+              (unless (equal default-directory root)
+                (setq default-directory root)
+                (inferior-haskell-send-command
+                 proc (concat ":cd " default-directory)))
+              (setq file (file-relative-name file)))
             (inferior-haskell-send-command
-             proc (concat ":cd " default-directory)))
-          (setq file (file-relative-name file)))
-	(inferior-haskell-send-command
-         proc (if reload ":reload"
-                (concat ":load \""
-                        ;; Espace the backslashes that may occur in file names.
-                        (replace-regexp-in-string "[\\\"]" "\\\\\&" file)
-                        "\"")))
-	;; Move the parsing-end marker *after* sending the command so
-	;; that it doesn't point just to the insertion point.
-	;; Otherwise insertion may move the marker (if done with
-	;; insert-before-markers) and we'd then miss some errors.
-	(if (boundp 'compilation-parsing-end)
-	    (if (markerp compilation-parsing-end)
-		(set-marker compilation-parsing-end parsing-end)
-	      (setq compilation-parsing-end parsing-end))))
-      (with-selected-window (display-buffer (current-buffer))
-        (goto-char (point-max)))
-      ;; Use compilation-auto-jump-to-first-error if available.
-      ;; (if (and (boundp 'compilation-auto-jump-to-first-error)
-      ;;          compilation-auto-jump-to-first-error
-      ;;          (boundp 'compilation-auto-jump-to-next))
-      ;;     (setq compilation-auto-jump-to-next t)
-        (when inferior-haskell-wait-and-jump
-          (inferior-haskell-wait-for-prompt proc)
-          (ignore-errors                  ;Don't beep if there were no errors.
-            (next-error)))))) ;; )
+             proc (if reload ":reload"
+                    (concat ":load \""
+                            ;; Espace the backslashes that may occur in file names.
+                            (replace-regexp-in-string "[\\\"]" "\\\\\&" file)
+                            "\"")))
+            ;; Move the parsing-end marker *after* sending the command so
+            ;; that it doesn't point just to the insertion point.
+            ;; Otherwise insertion may move the marker (if done with
+            ;; insert-before-markers) and we'd then miss some errors.
+            (if (boundp 'compilation-parsing-end)
+                (if (markerp compilation-parsing-end)
+                    (set-marker compilation-parsing-end parsing-end)
+                  (setq compilation-parsing-end parsing-end))))
+          (with-selected-window (display-buffer (current-buffer) nil 'visible)
+            (goto-char (point-max)))
+          ;; Use compilation-auto-jump-to-first-error if available.
+          ;; (if (and (boundp 'compilation-auto-jump-to-first-error)
+          ;;          compilation-auto-jump-to-first-error
+          ;;          (boundp 'compilation-auto-jump-to-next))
+          ;;     (setq compilation-auto-jump-to-next t)
+          (when inferior-haskell-wait-and-jump
+            (inferior-haskell-wait-for-prompt proc)
+            (ignore-errors                  ;Don't beep if there were no errors.
+              (next-error))))
+      (error "No file associated with buffer"))))
 
 (defvar inferior-haskell-run-command ":main")
 
@@ -422,10 +426,11 @@ The returned info is cached for reuse by `haskell-doc-mode'."
                (save-excursion (goto-char parsing-end)
                                (line-beginning-position 2))
                (point))))))
-    (if (not (string-match (concat "\\`" (regexp-quote expr) "[ \t]+::[ \t]*")
+    (if (not (string-match (concat "^\\(" (regexp-quote expr) "[ \t\n]+::[ \t\n]*\\(.\\|\n\\)*\\)")
                            type))
         (error "No type info: %s" type)
-
+      (progn
+        (setf type (match-string 1 type))
       ;; Cache for reuse by haskell-doc.
       (when (and (boundp 'haskell-doc-mode) haskell-doc-mode
                  (boundp 'haskell-doc-user-defined-ids)
@@ -442,7 +447,7 @@ The returned info is cached for reuse by `haskell-doc-mode'."
       (when insert-value
         (beginning-of-line)
         (insert type "\n"))
-      type)))
+        type))))
 
 ;;;###autoload
 (defun inferior-haskell-info (sym)
@@ -511,12 +516,12 @@ The returned info is cached for reuse by `haskell-doc-mode'."
 
 (defcustom inferior-haskell-use-web-docs
   'fallback
-  "Whether to use the online documentation. Possible values:
+  "Whether to use the online documentation.  Possible values:
 `never', meaning always use local documentation, unless the local
 file doesn't exist, when do nothing, `fallback', which means only
 use the online documentation when the local file doesn't exist,
 or `always', meaning always use the online documentation,
-regardless of existance of local files. Default is `fallback'."
+regardless of existance of local files.  Default is `fallback'."
   :group 'haskell
   :type '(choice (const :tag "Never" never)
                  (const :tag "As fallback" fallback)
@@ -524,9 +529,9 @@ regardless of existance of local files. Default is `fallback'."
 
 (defcustom inferior-haskell-web-docs-base
   "http://haskell.org/ghc/docs/latest/html/libraries/"
-  "The base URL of the online libraries documentation. This will
-only be used if the value of `inferior-haskell-use-web-docs' is
-`always' or `fallback'."
+  "The base URL of the online libraries documentation.
+This will only be used if the value of `inferior-haskell-use-web-docs'
+is `always' or `fallback'."
   :group 'haskell
   :type 'string)
 
@@ -553,18 +558,16 @@ By default this is set to `ghc --print-libdir`/package.conf."
   (let ((info (inferior-haskell-info sym)))
     (unless (string-match inferior-haskell-module-re info)
       (error
-       "No documentation information available. Did you forget to C-c C-l?"))
+       "No documentation information available.  Did you forget to C-c C-l?"))
     (match-string-no-properties 1 info)))
 
 (defun inferior-haskell-query-ghc-pkg (&rest args)
-  "Send ARGS to ghc-pkg, or whatever the value of
-`haskell-package-manager' is.  Insert the output into the current
-buffer."
+  "Send ARGS to `haskell-package-manager-name'.
+Insert the output into the current buffer."
   (apply 'call-process haskell-package-manager-name nil t nil args))
 
 (defun inferior-haskell-get-package-list ()
-  "Get the list of packages from ghc-pkg, or whatever
-`haskell-package-manager-name' is."
+  "Get the list of packages from `haskell-package-manager-name'."
   (with-temp-buffer
     (inferior-haskell-query-ghc-pkg "--simple-output" "list")
     (split-string (buffer-substring (point-min) (point-max)))))
@@ -608,7 +611,7 @@ buffer."
                         (temp-directory)
                       temporary-file-directory))
   "Where to save the module -> package lookup table.
-Set this to `nil' to never cache to a file."
+Set this to nil to never cache to a file."
   :group 'haskell
   :type '(choice (const :tag "Don't cache to file" nil) string))
 
@@ -711,7 +714,7 @@ we load it."
                           "#v:" sym)
                 (and (file-exists-p local-path)
                      (concat "file://" local-path)))))
-    (if url (browse-url url) (error "Local file doesn't exist."))))
+    (if url (browse-url url) (error "Local file doesn't exist"))))
 
 (provide 'inf-haskell)
 

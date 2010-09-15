@@ -5,9 +5,22 @@
 -- are uselessly proposed.                                             --
 -------------------------------------------------------------------------
 
+-- | Fill-paragraph should avoid inserting an | on the following lines.
+
+  -- | However, indented comments should still be indented. For great justice.
+
+-- * Foo bar bazFoo bar bazFoo bar bazFoo bar bazFoo bar bazFoo bar baz
+
+{- Here's
+a more complex comment. Of doom. There is, indeed, great doom here. #-}
+
+-- And a
+-- multi-line
+-- comment
+
 -- compute the list of binary digits corresponding to an integer
 -- Note: the least significant bit is the first element of the list
-bdigits               :: Int -> [Int]
+bdigits               :: Int -> [Int]   -- | commented to oblivion and back and forth and so forth
 bdigits 0             = [0]
 bdigits 1             = [1]
 bdigits n | n>1       = n `mod` 2 :
