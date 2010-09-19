@@ -170,4 +170,13 @@
 (autoload 'scratch "scratch" nil t)
 
 
+;;----------------------------------------------------------------------------
+;; Set indent width according to existing code
+;;----------------------------------------------------------------------------
+(require 'fuzzy-format)
+(setq fuzzy-format-default-indent-tabs-mode nil)
+(global-fuzzy-format-mode t)
+(diminish 'fuzzy-format-mode)
+
+
 (provide 'init-editing-utils)
