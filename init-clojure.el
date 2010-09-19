@@ -15,51 +15,27 @@
 (autoload 'swank-clojure-project "swank-clojure" "" t nil)
 (add-hook 'clojure-mode-hook 'clojure-test-maybe-enable)
 
+;; Use technomancy's bag of fancy clojure/slime tricks
+(require 'durendal)
+(durendal-enable t)
 
 (add-hook 'clojure-mode-hook 'enable-paredit-mode)
 
 
-;;------
-;; Patch from michalmarczyk, http://gist.github.com/337280
-
-(defadvice slime-repl-emit (after sr-emit-ad activate)
-  (with-current-buffer (slime-output-buffer)
-    (add-text-properties slime-output-start slime-output-end
-                         '(font-lock-face slime-repl-output-face
-                                          rear-nonsticky (font-lock-face)))))
-
-(defadvice slime-repl-insert-prompt (after sr-prompt-ad activate)
-  (with-current-buffer (slime-output-buffer)
-    (let ((inhibit-read-only t))
-      (add-text-properties slime-repl-prompt-start-mark (point-max)
-                           '(font-lock-face slime-repl-prompt-face
-                                            rear-nonsticky
-                                            (slime-repl-prompt
-                                             read-only
-                                             font-lock-face
-                                             intangible))))))
-;;------
 
 (add-hook 'clojure-mode-hook 'font-lock-mode) ;; because it doesn't turn on in Emacs 24
 
 (defun slime-clojure-repl-setup ()
-  (when (string-equal "clojure" (slime-connection-name))
-    (message "Setting up repl for clojure")
+  "Some REPL setup additional to that in durendal"
+  (when (string-equal (slime-lisp-implementation-name) "clojure")
     (when (slime-inferior-process)
+      (message "Setting up repl for clojure")
       (slime-redirect-inferior-output))
 
     (set-syntax-table clojure-mode-syntax-table)
-    (clojure-mode-font-lock-setup)
-
-    (setq lisp-indent-function 'clojure-indent-function)
-
-    (when (and (featurep 'paredit) paredit-mode (>= paredit-version 21))
-      (define-key slime-repl-mode-map "{" 'paredit-open-curly)
-      (define-key slime-repl-mode-map "}" 'paredit-close-curly))))
+    (setq lisp-indent-function 'clojure-indent-function)))
 
 (add-hook 'slime-repl-mode-hook 'slime-clojure-repl-setup)
-
-
 
 
 (defun lein-swank ()

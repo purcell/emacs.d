@@ -97,3 +97,6 @@
 [submodule "site-lisp/google-weather"]
 	path = site-lisp/google-weather
 	url = git://git.naquadah.org/google-weather-el.git
+[submodule "site-lisp/durendal"]
+	path = site-lisp/durendal
+	url = git://github.com/technomancy/durendal.git
