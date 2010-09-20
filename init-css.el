@@ -27,7 +27,7 @@
 
 
 ;; Colourise CSS colour literals
-
+(autoload 'rainbow-turn-on "rainbow-mode" "Enable rainbow mode colour literal overlays")
 (add-hook 'css-mode-hook 'rainbow-turn-on)
 (add-hook 'html-mode-hook 'rainbow-turn-on)
 (add-hook 'sass-mode-hook 'rainbow-turn-on)
