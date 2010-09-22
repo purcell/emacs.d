@@ -986,16 +986,7 @@ If in a comment and if followed by invalid structure, call
   (cond ((paredit-in-string-p)
          (newline))
         ((paredit-in-comment-p)
-         (if (paredit-handle-sexp-errors
-                 ;; Check for anything that would break structure in
-                 ;; the comment.
-                 (save-restriction
-                   (narrow-to-region (point) (point-at-eol))
-                   (save-excursion
-                     (while (< (point) (point-max))
-                       (forward-sexp)))
-                   t)
-               nil)
+         (if (paredit-region-ok-p (point) (point-at-eol))
              (progn (newline-and-indent) (indent-sexp))
              (indent-new-comment-line)))
         (t
@@ -1613,15 +1604,7 @@ If the text of the region is imbalanced, signal an error instead.
 With a prefix argument, disregard any imbalance."
   (interactive "r")
   (if (not current-prefix-arg)
-      ;; Check that the region is balanced.
-      (save-restriction
-        (narrow-to-region beginning end)
-        (if (fboundp 'check-parens)
-            (check-parens)
-            (save-excursion
-              (goto-char (point-min))
-              (while (not (eobp))
-                (forward-sexp))))))
+      (paredit-check-region beginning end))
   (setq this-command 'kill-ring-save)
   (kill-ring-save beginning end))
 
@@ -2472,7 +2455,7 @@ If no parse state is supplied, compute one from the beginning of the
   ;;    else an integer (the current comment nesting)
   (and (nth 4 (or state (paredit-current-parse-state)))
        t))
-
+
 (defun paredit-point-at-sexp-boundary (n)
   (cond ((< n 0) (paredit-point-at-sexp-start))
         ((= n 0) (point))
@@ -2495,6 +2478,30 @@ If no parse state is supplied, compute one from the beginning of the
           (paredit-in-comment-p)
           (paredit-in-char-p))
       (error "Invalid context for command `%s'." command)))
+
+(defun paredit-check-region (start end)
+  (save-restriction
+    (narrow-to-region start end)
+    (if (fboundp 'check-parens)
+        (check-parens)
+        (save-excursion
+          (goto-char (point-min))
+          (while (not (eobp))
+            (forward-sexp))))))
+
+(defun paredit-region-ok-p (start end)
+  (paredit-handle-sexp-errors
+      (progn
+        (save-restriction
+          (narrow-to-region start end)
+          ;; Can't use `check-parens' here -- it signals the wrong kind
+          ;; of errors.
+          (save-excursion
+            (goto-char (point-min))
+            (while (not (eobp))
+              (forward-sexp))))
+        t)
+    nil))
 
 ;;;; Initialization
 
