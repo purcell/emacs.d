@@ -1,5 +1,5 @@
 ;;; todochiku.el - A mode for interfacing with Growl, Snarl, and the like.
-(defconst todochiku-version "0.0.7.a")
+(defconst todochiku-version "0.0.7.b")
 
 ;; Copyright (c)2008 Jonathan Arkell. (by)(nc)(sa)  Some rights reserved.
 ;; Author: Jonathan Arkell <jonnay@jonnay.net>
@@ -97,7 +97,8 @@
 ;; - Build better backend support.
 
 ;;; CHANGELOG:
-;; V0.7   - Added YaOddMuse interface
+;; V0.0.7b - Added support for sticky messages for libnotify and growl.
+;; V0.0.7  - Added YaOddMuse interface
 ;; V0.0.6.1 - Bugfixing fom Jason McBrayer  (thanks!)
 ;; V0.0.6 - Added patches from Jason McBrayer for *nix notifications.
 ;; V0.0.5 - Added Initial support for emacs only notification
@@ -226,7 +227,7 @@ This is really only useful if you use the appt package (i.e. from planner mode).
   :group 'todochiku)
 
 
-(defun todochiku-message (title message icon)
+(defun todochiku-message (title message icon &optional sticky)
   "Send a message via growl, snarl, etc.
 If you don't wnat to set a title or icon, just use an ampty string \"\"
 as an argument.
@@ -235,13 +236,13 @@ as an argument.
 you can use `todochiku-icon' to figure out which icon you want to display.
 
 See the variable `todochiku-icons' for a list of available icons." 
-  (if todochiku-debug (message "Sent todochiku message.  Title:%s Message:%30s... Icon:%s" title message icon))
+  (if todochiku-debug (message "Sent todochiku message.  Title:%s Message:%30s... Icon:%s Sticky:%s" title message icon sticky))
   (when (not (string= todochiku-command ""))
 		(apply 'start-process 
 			   "todochiku" 
 			   nil 
 			   todochiku-command 
-			   (todochiku-get-arguments title message icon)))
+			   (todochiku-get-arguments title message icon sticky)))
   (when todochiku-tooltip-too
 		(let ((tooltip-frame-parameters '((name . "todochiku")
 										  (internal-border-width . 4)
@@ -258,13 +259,15 @@ See the variable `todochiku-icons' for a list of available icons."
   (todochiku-message title message ""))
 
 ;;*JasonMcBrayer backend
-(defun todochiku-get-arguments (title message icon)
+(defun todochiku-get-arguments (title message icon sticky)
   "Gets todochiku arguments.
 This would be better done through a customization probably."
   (case system-type
     ('windows-nt (list "/M" title message icon))
-    ('darwin (list title "-m" message "--image" icon ))
-    (t (list "-i" icon "-t" (int-to-string (* 1000 todochiku-timeout)) title message))))
+    ('darwin (list title (if sticky "-s" "") "-m" message "--image" icon ))
+    (t (list "-i" icon "-t"
+             (if sticky "0" (int-to-string (* 1000 todochiku-timeout)))
+             title message))))
 
 (defun todochiku-icon (icon)
   "Pull out an actual icon from the variable `todochiku-icons'."
@@ -331,3 +334,4 @@ This would be better done through a customization probably."
 (provide 'growl)
 
 (provide 'todochiku)
+
