@@ -103,3 +103,6 @@
 [submodule "site-lisp/fuzzy-format"]
 	path = site-lisp/fuzzy-format
 	url = git://github.com/emacsmirror/fuzzy-format.git
+[submodule "site-lisp/diff-git"]
+	path = site-lisp/diff-git
+	url = git://github.com/alanfalloon/diff-git.el.git

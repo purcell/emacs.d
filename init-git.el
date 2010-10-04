@@ -22,6 +22,7 @@
 
 (require 'rebase-mode)
 (require 'magithub)
+(require 'diff-git)
 
 ;;----------------------------------------------------------------------------
 ;; git-svn conveniences
