@@ -9,6 +9,8 @@
 ;; Use SmartTab to trigger AC completion
 (require 'smart-tab)
 (global-smart-tab-mode 1)
+(require 'diminish)
+(diminish 'smart-tab-mode)
 
 ;; Redefine the main smart-tab function to use auto-complete preferentially
 (defun smart-tab (prefix)
