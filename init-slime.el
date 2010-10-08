@@ -1,6 +1,4 @@
-(require 'slime-autoloads)
 (global-set-key [f4] 'slime-selector)
-
 
 (eval-after-load "slime"
   '(progn

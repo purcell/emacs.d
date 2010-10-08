@@ -36,6 +36,7 @@
 (when *byte-code-cache-enabled*
   (require 'init-byte-code-cache))
 (require 'init-elpa)
+(require 'init-el-get)
 (require 'init-utils)
 (require 'init-exec-path)
 (require 'init-frame-hooks)
