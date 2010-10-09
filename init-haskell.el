@@ -1,9 +1,5 @@
 (load-library "haskell-site-file")
 
-(load-library "cabal-mode")
-
-(require 'hoogle)
-
 (setq haskell-program-name (executable-find "ghci"))
 (setq haskell-font-lock-symbols t)
 
