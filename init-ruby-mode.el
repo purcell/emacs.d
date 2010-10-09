@@ -26,16 +26,6 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Ruby - Electric mode
-;;----------------------------------------------------------------------------
-(autoload 'ruby-electric-mode "ruby-electric" "Electric brackes/quotes/keywords for Ruby source" t)
-(require 'rcodetools)
-(setq ruby-electric-expand-delimiters-list nil)  ; Only use ruby-electric for adding 'end'
-(add-hook 'ruby-mode-hook
-          (lambda () (ruby-electric-mode t)))
-
-
-;;----------------------------------------------------------------------------
 ;; Ruby - misc
 ;;----------------------------------------------------------------------------
 ;; For some unknown reason, viper starts off in insert mode inside ruby-mode buffers
