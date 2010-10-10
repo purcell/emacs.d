@@ -8,22 +8,22 @@
 
         ;; Basics
 
-        (:name smex :type git :url "git://github.com/nonsequitur/smex.git")
+        smex
         ido-hacks
         maxframe
         session
         (:name revive :type http :url "http://www.gentei.org/~yuuji/software/revive.el")
         (:name project-local-variables :type elpa)
         (:name dired-plus :type git :url "git://github.com/emacsmirror/dired-plus.git")
-        (:name scratch :type git :url "git://github.com/ieure/scratch-el.git")
-        (:name diminish :type git :url "git://github.com/emacsmirror/diminish.git")
-        (:name autopair :type git :url "git://github.com/emacsmirror/autopair.git")
+        scratch
+        (:name diminish :type http :url "http://www.eskimo.com/~seldon/diminish.el")
+        (:name autopair :type svn :url "http://autopair.googlecode.com/svn/trunk/")
         (:name undo-tree :type git :url "http://www.dr-qubit.org/git/undo-tree.git")
-        (:name hl-sexp :type git :url "git://github.com/emacsmirror/hl-sexp.git")
+        hl-sexp
         (:name highlight-symbol :type elpa)
-        (:name highlight-parentheses :type elpa)
+        highlight-parentheses
         (:name smooth-scrolling :type http :url "http://adamspiers.org/computing/elisp/smooth-scrolling.el")
-        (:name fuzzy-format :type git :url "git://github.com/emacsmirror/fuzzy-format.git")
+        (:name fuzzy-format :type emacswiki)
         (:name regex-tool :type git :url "git://github.com/jwiegley/regex-tool.git")
         todochiku
         (:name edit-server :type http :url "http://github.com/stsquad/emacs_chrome/raw/master/servers/edit-server.el")
@@ -60,7 +60,7 @@
 
         (:name ruby-mode :type elpa)
         (:name ruby-compilation :type elpa)
-        (:name rinari :type git :url "git://github.com/eschulte/rinari.git")
+        rinari
         (:name ri-emacs :type git :url "git://github.com/pedz/ri-emacs.git")
         (:name yaml-mode :type elpa)
         (:name haml-mode :type elpa)
@@ -69,7 +69,7 @@
 
         ;; Version control
 
-        (:name magit :type git :url "git://github.com/philjackson/magit.git")
+        magit
         gist
         (:name magithub :type git :url "git://github.com/nex3/magithub.git")
         (:name git-blame :type http :url "http://git.kernel.org/?p=git/git.git;a=blob_plain;f=contrib/emacs/git-blame.el;hb=HEAD")
@@ -92,7 +92,7 @@
 
         ;; Apps
 
-        (:name twit :type git :url "git://github.com/emacsmirror/twit.git")
+        (:name twit :type emacswiki)
         (:name erc :type elpa)
         offlineimap
 
@@ -101,10 +101,11 @@
         ;; Python
         (:name python-mode :type http :url "http://launchpad.net/python-mode/trunk/5.1.0/+download/python-mode.el")
         pymacs
+        ropemacs
 
         ;; Javascript
 
-        (:name js2-mode :type http :url "http://js2-mode.googlecode.com/svn/trunk/js2-mode.el")
+        (:name js2-mode :type svn :url "http://js2-mode.googlecode.com/svn/trunk/")
         (:name js-comint :type http :url "http://downloads.sourceforge.net/js-comint-el/js-comint.el")
         (:name moz-repl :type http :url "http://github.com/bard/mozrepl/raw/master/chrome/content/moz.el")
         (:name json :type elpa)
@@ -116,16 +117,15 @@
 
         ;; CSS
 
-        (:name rainbow-mode :type elpa)
+        rainbow-mode
         (:name tidy :type emacswiki)
 
         (:name csv-mode :type http :url "http://centaur.maths.qmul.ac.uk/Emacs/files/csv-mode.el")
         (:name csv-nav :type emacswiki)
         (:name markdown-mode :type git :url "http://jblevins.org/git/markdown-mode.git")
         textile-mode
-
-        (:name haskell-mode :type darcs :url "http://code.haskell.org/haskellmode-emacs/")
-        (:name tuareg-mode :type svn :url "svn://svn.forge.ocamlcore.org/svnroot/tuareg/trunk")
+        haskell-mode
+        tuareg-mode
         (:name lua-mode :type elpa)
 ))
 
