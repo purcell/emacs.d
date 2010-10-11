@@ -113,7 +113,7 @@
 
         ;; PHP
 
-        (:name php-mode :type http :url "http://php-mode.svn.sourceforge.net/svnroot/php-mode/tags/php-mode-1.5.0/php-mode.el")
+        (:name php-mode :type svn :url "http://php-mode.svn.sourceforge.net/svnroot/php-mode/trunk/php-mode-src")
         (:name smarty-mode :type http :url "http://lisp.morinie.fr/smarty/download/smarty-mode.el")
 
         ;; CSS
