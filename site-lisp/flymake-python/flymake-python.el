@@ -20,7 +20,9 @@
   (interactive)
   (set (make-local-variable 'flymake-allowed-file-name-masks)
        flymake-python-allowed-file-name-masks)
-  (flymake-mode t))
+  (if (executable-find flymake-python-pyflakes-executable)
+    (flymake-mode t)
+    (message "not enabling flymake: pyflakes executable not found")))
 
 
 (provide 'flymake-python)
