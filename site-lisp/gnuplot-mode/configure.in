@@ -1,7 +1,0 @@
-AC_INIT(dot.el)
-AC_SET_MAKE
-AC_PROG_INSTALL
-AM_PATH_LISPDIR
-EMACS=`basename $EMACS`
-AC_PATH_PROG(MAKEINFO, makeinfo, no)
-AC_OUTPUT(Makefile)

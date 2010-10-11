@@ -121,6 +121,7 @@
         rainbow-mode
         (:name tidy :type emacswiki)
 
+        (:name gnuplot-mode :type http :url "http://cars9.uchicago.edu/~ravel/software/gnuplot-mode/gnuplot-mode.0.6.0.tar.gz")
         (:name csv-mode :type http :url "http://centaur.maths.qmul.ac.uk/Emacs/files/csv-mode.el")
         (:name csv-nav :type emacswiki)
         (:name markdown-mode :type git :url "http://jblevins.org/git/markdown-mode.git")
