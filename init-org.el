@@ -1,5 +1,3 @@
-(setq load-path (cons "~/.emacs.d/site-lisp/org-mode/lisp" load-path))
-(setq load-path (cons "~/.emacs.d/site-lisp/org-mode/contrib/lisp" load-path))
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))

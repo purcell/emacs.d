@@ -54,7 +54,7 @@
 
         ;; Org
 
-        (:name org-mode :type git :url "git://repo.or.cz/org-mode.git")
+        (:name org-mode :type git :url "git://repo.or.cz/org-mode.git" :load-path ("lisp" "contrib/lisp"))
         (:name org-fstree :type git :url "http://repo.or.cz/r/org-fstree.git")
 
         ;; Ruby & Rails
