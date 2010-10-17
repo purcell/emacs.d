@@ -124,8 +124,8 @@
   (move-text-internal (- arg)))
 
 
-(global-set-key [M-S-up] 'move-text-up)
-(global-set-key [M-S-down] 'move-text-down)
+(global-set-key [M-up] 'move-text-up)
+(global-set-key [M-down] 'move-text-down)
 
 
 
