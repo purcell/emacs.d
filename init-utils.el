@@ -37,7 +37,8 @@ in `exec-path', or nil if no such command exists"
 (defun delete-this-file ()
   (interactive)
   (or (buffer-file-name) (error "no file is currently being edited"))
-  (when (yes-or-no-p "Really delete this file?")
+  (when (yes-or-no-p (format "Really delete '%s'?"
+                             (file-name-nondirectory buffer-file-name)))
     (delete-file (buffer-file-name))
     (kill-this-buffer)))
 
