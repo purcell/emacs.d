@@ -22,7 +22,7 @@
         hl-sexp
         (:name highlight-symbol :type elpa)
         highlight-parentheses
-        (:name smooth-scrolling :type http :url "http://adamspiers.org/computing/elisp/smooth-scrolling.el")
+        (:name smooth-scrolling :type http :url "http://adamspiers.org/computing/elisp/smooth-scrolling.el" :load "smooth-scrolling.el" :feature "smooth-scrolling")
         (:name fuzzy-format :type emacswiki)
         (:name regex-tool :type git :url "git://github.com/jwiegley/regex-tool.git")
         todochiku
