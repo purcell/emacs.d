@@ -24,9 +24,11 @@ value of `smart-tab-using-hippie-expand'. If the mark is active,
 or PREFIX is \\[universal-argument], then `smart-tab' will indent
 the region or the current line (if the mark is not active)."
   (interactive "P")
-  (if (smart-tab-must-expand prefix)
+  (if (and (not buffer-read-only)
+           (smart-tab-must-expand prefix))
       (if (and (not (minibufferp))
-               (memq 'auto-complete-mode minor-mode-list))
+               (memq 'auto-complete-mode minor-mode-list)
+               auto-complete-mode)
           (auto-complete)
         (if smart-tab-using-hippie-expand
             (hippie-expxpand nil)
