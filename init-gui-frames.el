@@ -25,8 +25,10 @@
 ;;----------------------------------------------------------------------------
 ;; Window size and features
 ;;----------------------------------------------------------------------------
-(tool-bar-mode -1)
-(set-scroll-bar-mode nil)
+(if (fboundp 'tool-bar-mode)
+  (tool-bar-mode -1))
+(if (fboundp 'set-scroll-bar-mode)
+  (set-scroll-bar-mode nil))
 
 (require 'init-maxframe)
 
