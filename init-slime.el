@@ -25,10 +25,8 @@
      (add-hook 'slime-mode-hook 'set-up-slime-ac)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
 
-     (add-hook 'slime-repl-mode-hook (lambda () (auto-complete-mode t)))
-     (add-hook 'slime-connected-hook
-               (lambda ()
-                 (define-key slime-repl-mode-map (kbd "TAB") 'indent-or-expand-with-ac)))))
+     (eval-after-load "auto-complete"
+       '(add-to-list 'ac-modes 'slime-repl-mode))))
 
 
 
