@@ -51,6 +51,7 @@
         (:name color-theme-zenburn :type git :url "git://github.com/emacsmirror/zenburn.git")
         (:name color-theme-twilight :type git :url "git://github.com/crafterm/twilight-emacs.git")
         (:name color-theme-subdued :type http :url "http://jblevins.org/git/misc.git/plain/color-theme-subdued.el")
+        (:name color-theme-railscasts :type git :url "git://github.com/olegshaldybin/color-theme-railscasts.git")
 
         ;; Org
 
