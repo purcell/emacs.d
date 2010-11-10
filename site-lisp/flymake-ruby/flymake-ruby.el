@@ -23,9 +23,10 @@
 
 (defun flymake-ruby-load ()
   (interactive)
-  (set (make-local-variable 'flymake-allowed-file-name-masks) flymake-ruby-allowed-file-name-masks)
-  (set (make-local-variable 'flymake-err-line-patterns) flymake-ruby-err-line-patterns)
-  (flymake-mode t))
+  (unless (eq buffer-file-name nil)
+    (set (make-local-variable 'flymake-allowed-file-name-masks) flymake-ruby-allowed-file-name-masks)
+    (set (make-local-variable 'flymake-err-line-patterns) flymake-ruby-err-line-patterns)
+    (flymake-mode t)))
 
 
 (provide 'flymake-ruby)
