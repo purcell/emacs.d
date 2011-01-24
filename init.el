@@ -31,6 +31,11 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Set $PATH
+;;----------------------------------------------------------------------------
+(require 'init-exec-path)
+
+;;----------------------------------------------------------------------------
 ;; Load configs for specific features and modes
 ;;----------------------------------------------------------------------------
 (when *byte-code-cache-enabled*
@@ -38,7 +43,6 @@
 (require 'init-elpa)
 (require 'init-el-get)
 (require 'init-utils)
-(require 'init-exec-path)
 (require 'init-frame-hooks)
 (require 'init-xterm)
 (require 'init-title-bar)
