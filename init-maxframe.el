@@ -4,7 +4,7 @@
   (fset 'restore-frame 'x-restore-frame))
 (when *macbook-pro-support-enabled*
   (setq mf-max-width 1440)
-  (setq mf-max-height 900)
+  (setq mf-max-height 898)
   (setq mf-offset-x 0))
 
 (defmacro with-selected-frame (frame &rest forms)
