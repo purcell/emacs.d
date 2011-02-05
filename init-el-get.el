@@ -2,6 +2,7 @@
   (error "Please bootstrap el-get using the instructions here: http://github.com/dimitri/el-get/, then restart Emacs"))
 
 (setq el-get-byte-compile nil
+      el-get-generate-autoloads nil
       el-get-sources
       '(el-get
         package
@@ -82,7 +83,7 @@
 
         ;; Lisps
 
-        (:name paredit :type http :url "http://mumble.net/~campbell/emacs/paredit-beta.el")
+        (:name paredit :type http :url "http://mumble.net/~campbell/emacs/paredit-beta.el" :localname "paredit.el")
         (:name slime :type git :url "git://sbcl.boinkor.net/slime.git" :load-path ("." "./contrib") :compile nil :load "slime-autoloads.el")
         (:name clojure-mode :type git :url "git://github.com/technomancy/clojure-mode.git")
         (:name swank-clojure :type http :url "http://github.com/technomancy/swank-clojure/raw/master/swank-clojure.el")
@@ -109,7 +110,7 @@
 
         (:name js2-mode :type svn :url "http://js2-mode.googlecode.com/svn/trunk/")
         (:name js-comint :type http :url "http://downloads.sourceforge.net/js-comint-el/js-comint.el")
-        (:name moz-repl :type http :url "http://github.com/bard/mozrepl/raw/master/chrome/content/moz.el")
+        (:name moz :type http :url "http://github.com/bard/mozrepl/raw/master/chrome/content/moz.el")
         (:name json :type elpa)
 
         ;; PHP
