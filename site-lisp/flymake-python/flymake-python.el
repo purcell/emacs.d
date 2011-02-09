@@ -22,7 +22,8 @@
        flymake-python-allowed-file-name-masks)
   (if (executable-find flymake-python-pyflakes-executable)
     (flymake-mode t)
-    (message "not enabling flymake: pyflakes executable not found")))
+    (message "not enabling flymake: pyflakes executable '%s' not found"
+             flymake-python-pyflakes-executable)))
 
 
 (provide 'flymake-python)
