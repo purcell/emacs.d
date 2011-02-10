@@ -34,6 +34,7 @@
         (:name mwe-log-commands :type http :url "http://www.foldr.org/~michaelw/emacs/mwe-log-commands.el")
         ;(:name all :type http :url "ftp://ftp.dina.kvl.dk/pub/Staff/Per.Abrahamsen/auctex/all.el")
         (:name lively :type emacswiki)
+        (:name whole-line-or-region :type http :url "http://www.northbound-train.com/emacs/whole-line-or-region.el")
 
         ;; Completion
 
