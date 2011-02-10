@@ -29,7 +29,8 @@
   (interactive)
   (set (make-local-variable 'flymake-allowed-file-name-masks) flymake-haml-allowed-file-name-masks)
   (set (make-local-variable 'flymake-err-line-patterns) flymake-haml-err-line-patterns)
-  (flymake-mode t))
+  (when (executable-find "haml")
+    (flymake-mode t)))
 
 (defalias 'flymake-sass-load 'flymake-haml-load)
 
