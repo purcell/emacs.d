@@ -1,14 +1,19 @@
 ;; See http://www.emacswiki.org/cgi-bin/wiki/FlymakeJavaScript
+;; and http://d.hatena.ne.jp/kazu-yamamoto/mobile?date=20071029
 ;;
 ;; Usage: (add-hook 'javascript-mode-hook '(lambda () (flymake-js-load)))
 
 (defconst flymake-allowed-js-file-name-masks '(("\\.json$" flymake-js-init)
                                                ("\\.js$" flymake-js-init)))
 (defcustom flymake-js-detect-trailing-comma t nil :type 'boolean)
-(defvar flymake-js-err-line-patterns '(("^\\(.+\\)\:\\([0-9]+\\)\: \\(SyntaxError\:.+\\)\:$" 1 2 nil 3)))
+(defvar flymake-js-err-line-patterns
+  '(("^\\(.+\\)\:\\([0-9]+\\)\: \\(SyntaxError\:.+\\)\:$" 1 2 nil 3)
+    ("^\\(.+\\)(\\([0-9]+\\)): \\(SyntaxError:.+\\)$" 1 2 nil 3)
+    ("^\\(.+\\)(\\([0-9]+\\)): lint \\(warning:.+\\)$" 1 2 nil 3)))
 (when flymake-js-detect-trailing-comma
-  (setq flymake-js-err-line-patterns (append flymake-js-err-line-patterns
-                                             '(("^\\(.+\\)\:\\([0-9]+\\)\: \\(strict warning: trailing comma.+\\)\:$" 1 2 nil 3)))))
+  (add-to-list 'flymake-js-err-line-patterns
+               '("^\\(.+\\)\:\\([0-9]+\\)\: strict \\(warning: trailing comma.+\\)\:$" 1 2 nil 3)
+               t))
 
 (defun flymake-js-init ()
   (let* ((temp-file (flymake-init-create-temp-buffer-copy
@@ -16,7 +21,9 @@
          (local-file (file-relative-name
                       temp-file
                       (file-name-directory buffer-file-name))))
-    (list "js" (list "-s" local-file))))
+    (list "jsl" (list "-process" local-file))))
+
+
 (defun flymake-js-load ()
   (interactive)
   (defadvice flymake-post-syntax-check (before flymake-force-check-was-interrupted)
@@ -24,7 +31,9 @@
   (ad-activate 'flymake-post-syntax-check)
   (setq flymake-allowed-file-name-masks (append flymake-allowed-file-name-masks flymake-allowed-js-file-name-masks))
   (setq flymake-err-line-patterns flymake-js-err-line-patterns)
-  (flymake-mode t))
+  (if (executable-find "jsl")
+      (flymake-mode t)
+    (message "Not enabling flymake: jsl command not found")))
 
 
 (provide 'flymake-js)

@@ -1,5 +1,4 @@
-(defvar preferred-javascript-mode 'js2-mode)
-(defvar preferred-javascript-mode-hook 'js2-mode-hook)
+(defvar preferred-javascript-mode 'js-mode)
 (defvar preferred-mmm-javascript-mode 'js-mode)
 (defvar preferred-javascript-indent-level 2)
 
@@ -14,8 +13,9 @@
 
 ;; On-the-fly syntax checking
 (autoload 'flymake-js-load "flymake-js" "On-the-fly syntax checking of javascript" t)
-(unless (eq 'js2-mode-hook preferred-javascript-mode-hook)
-  (add-hook preferred-javascript-mode-hook 'flymake-js-load))
+(eval-after-load "js"
+  '(progn
+     (add-hook 'js-mode-hook 'flymake-js-load)))
 
 
 ;; js2-mode
@@ -65,20 +65,22 @@
 
 
 (require 'js-comint)
-(setq inferior-js-program-command "/opt/local/bin/js")
-(add-hook preferred-javascript-mode-hook
-          '(lambda ()
-             (local-set-key "\C-x\C-e" 'js-send-last-sexp)
-             (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
-             (local-set-key "\C-cb" 'js-send-buffer)
-             (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
-             (local-set-key "\C-cl" 'js-load-file-and-go)
-             ))
+(setq inferior-js-program-command "js")
+(defun add-jinferior-js-keys ()
+  (local-set-key "\C-x\C-e" 'js-send-last-sexp)
+  (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
+  (local-set-key "\C-cb" 'js-send-buffer)
+  (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
+  (local-set-key "\C-cl" 'js-load-file-and-go))
+(add-hook 'js2-mode-hook 'add-inferior-js-keys)
+(add-hook 'js-mode-hook 'add-inferior-js-keys)
+
 
 (autoload 'inferior-moz-mode "moz" "MozRepl Inferior Mode" t)
 (autoload 'moz-minor-mode "moz" "MozRepl Minor Mode" t)
 (defun javascript-moz-setup () (moz-minor-mode 1))
-(add-hook preferred-javascript-mode-hook 'javascript-moz-setup)
+(add-hook 'js2-mode-hook 'javascript-moz-setup)
+(add-hook 'js-mode-hook 'javascript-moz-setup)
 
 
 (provide 'init-javascript)
