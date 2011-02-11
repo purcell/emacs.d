@@ -7,21 +7,20 @@
                                                ("\\.js$" flymake-js-init)))
 (defcustom flymake-js-detect-trailing-comma t nil :type 'boolean)
 (defvar flymake-js-err-line-patterns
-  '(("^\\(.+\\)\:\\([0-9]+\\)\: \\(SyntaxError\:.+\\)\:$" 1 2 nil 3)
-    ("^\\(.+\\)(\\([0-9]+\\)): \\(SyntaxError:.+\\)$" 1 2 nil 3)
-    ("^\\(.+\\)(\\([0-9]+\\)): lint \\(warning:.+\\)$" 1 2 nil 3)))
+  '(("^\\(.+\\)\:\\([0-9]+\\)\: \\(SyntaxError\:.+\\)\:$" nil 2 nil 3)
+    ("^\\(.+\\)(\\([0-9]+\\)): \\(SyntaxError:.+\\)$" nil 2 nil 3)
+    ("^\\(.+\\)(\\([0-9]+\\)): lint \\(warning:.+\\)$" nil 2 nil 3)))
 (when flymake-js-detect-trailing-comma
   (add-to-list 'flymake-js-err-line-patterns
-               '("^\\(.+\\)\:\\([0-9]+\\)\: strict \\(warning: trailing comma.+\\)\:$" 1 2 nil 3)
+               '("^\\(.+\\)\:\\([0-9]+\\)\: strict \\(warning: trailing comma.+\\)\:$" nil 2 nil 3)
                t))
 
+(defun flymake-js-create-temp-in-system-tempdir (filename prefix)
+  (make-temp-file (or prefix "flymake-js")))
+
 (defun flymake-js-init ()
-  (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                     'flymake-create-temp-inplace))
-         (local-file (file-relative-name
-                      temp-file
-                      (file-name-directory buffer-file-name))))
-    (list "jsl" (list "-process" local-file))))
+  (list "jsl" (list "-process" (flymake-init-create-temp-buffer-copy
+                                'flymake-js-create-temp-in-system-tempdir))))
 
 
 (defun flymake-js-load ()
