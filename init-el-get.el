@@ -39,7 +39,7 @@
         ;; Completion
 
         auto-complete
-        (:name smart-tab :type elpa)
+        (:name smart-tab :type git :url "https://github.com/genehack/smart-tab.git")
         (:name ac-dabbrev :type emacswiki)
         (:name ac-slime :type git :url "git://github.com/purcell/ac-slime.git")
 
