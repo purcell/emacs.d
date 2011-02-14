@@ -46,19 +46,8 @@
  '(whitespace-global-mode t)
  '(whitespace-silent t))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(default ((t (:slant normal :weight normal :height 120 :width normal :foundry "apple" :family "Menlo"))))
- '(darcsum-need-action-marked-face ((t (:foreground "forestgreen"))))
- '(flymake-errline ((((class color)) (:background "red3"))))
- '(flymake-warnline ((((class color)) (:background "red4"))))
- '(highlight ((t (:background "white" :foreground "black"))))
- '(highline-face ((t (:background "floral white"))))
- '(hl-line ((t (:background "magenta3"))))
- '(mmm-code-submode-face ((((class color) (background dark)) (:background "DarkSlateGrey")) (((class color) (background light)) (:background "Thistle2"))))
- '(mmm-comment-submode-face ((((class color) (background dark)) (:background "DarkSlateGrey" :foreground "OrangeRed")) (((class color) (background light)) (:background "khaki3"))))
- '(mmm-output-submode-face ((((class color) (background dark)) (:background "Navy")) (((class color) (background light)) (:background "Thistle3"))))
- '(org-tag ((t (:underline t))))
- '(whitespace-highlight ((((class color) (background light)) (:background "Pink1")))))
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:slant normal :weight normal :height 120 :width normal :foundry "apple" :family "Menlo")))))
