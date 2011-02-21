@@ -22,8 +22,8 @@
   (interactive)
   (increment-default-font-height -10))
 
-(global-set-key "\M-=" 'increase-default-font-height)
-(global-set-key "\M--" 'decrease-default-font-height)
+(global-set-key (kbd "C-M-=") 'increase-default-font-height)
+(global-set-key (kbd "C-M--") 'decrease-default-font-height)
 
 (defmacro preserving-default-font-size (&rest body)
   (let ((old-size (gensym)))

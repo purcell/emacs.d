@@ -42,9 +42,9 @@
   ;; Command-Option-f to toggle fullscreen mode
   (global-set-key (kbd "M-ƒ") 'ns-toggle-fullscreen))
 
-(global-set-key (kbd "C-8") '(lambda () (interactive) (adjust-opacity nil -5)))
-(global-set-key (kbd "C-9") '(lambda () (interactive) (adjust-opacity nil 5)))
-(global-set-key (kbd "C-0") '(lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
+(global-set-key (kbd "M-C-8") '(lambda () (interactive) (adjust-opacity nil -5)))
+(global-set-key (kbd "M-C-9") '(lambda () (interactive) (adjust-opacity nil 5)))
+(global-set-key (kbd "M-C-0") '(lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
 
 (add-hook 'after-make-frame-functions
           (lambda (frame)
