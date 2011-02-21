@@ -134,6 +134,14 @@
         lua-mode
 ))
 
+(defun el-get-overridden ()
+  (let* ((global (mapcar 'el-get-source-name (el-get-read-all-recipes))))
+    (loop for recipe in el-get-sources
+          and name = (el-get-source-name recipe)
+          when (and (not (symbolp recipe))
+                    (member name global))
+          collect name)))
+
 (defun el-get-update-all ()
   "Update all el-get packages"
   (interactive)
