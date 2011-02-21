@@ -3,7 +3,7 @@
 ;; tool available from
 ;; http://www.cs.usyd.edu.au/~massad/project-proxy-config.html
 ;;----------------------------------------------------------------------------
-(when (and *is-a-mac* (find-executable "proxy-config"))
+(when (and *is-a-mac* (executable-find "proxy-config"))
   (defun string-rtrim (s)
     (replace-regexp-in-string "[ \t\n]*$" "" s))
 

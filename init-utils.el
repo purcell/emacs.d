@@ -23,15 +23,6 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Locate executables
-;;----------------------------------------------------------------------------
-(defun find-executable (name)
-  "Return the full path of an executable file name `name'
-in `exec-path', or nil if no such command exists"
-  (locate-file name exec-path nil 'file-executable-p))
-
-
-;;----------------------------------------------------------------------------
 ;; Delete the current file
 ;;----------------------------------------------------------------------------
 (defun delete-this-file ()
