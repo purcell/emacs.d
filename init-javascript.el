@@ -66,7 +66,7 @@
 
 (require 'js-comint)
 (setq inferior-js-program-command "js")
-(defun add-jinferior-js-keys ()
+(defun add-inferior-js-keys ()
   (local-set-key "\C-x\C-e" 'js-send-last-sexp)
   (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
   (local-set-key "\C-cb" 'js-send-buffer)
