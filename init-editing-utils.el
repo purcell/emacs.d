@@ -135,6 +135,21 @@
 (whole-line-or-region-mode t)
 (diminish 'whole-line-or-region-mode)
 
+;; but stop it from breaking cua's rectangle selections
+(eval-after-load "cua-rect"
+  '(progn
+     (defvar wlr-was-active-before-cua-rectangle nil)
+     (make-variable-buffer-local 'wlr-was-active-before-cua-rectangle)
+     (defadvice cua--activate-rectangle (after suspend-whole-line-or-region activate)
+       (setq wlr-was-active-before-cua-rectangle
+             (and (boundp whole-line-or-region-mode)
+                  whole-line-or-region-mode))
+       (when wlr-was-active-before-cua-rectangle
+         (whole-line-or-region-mode -1)))
+     (defadvice cua--deactivate-rectangle (after suspend-whole-line-or-region activate)
+       (when wlr-was-active-before-cua-rectangle
+         (whole-line-or-region-mode 1)))))
+
 
 ;;----------------------------------------------------------------------------
 ;; Easily count words (http://emacs-fu.blogspot.com/2009/01/counting-words.html)
