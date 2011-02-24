@@ -55,6 +55,19 @@
         color-theme-subdued
         color-theme-railscasts
 
+        ;; XML and HTML
+        (:name nxml-html5
+               :type git
+               :url "https://github.com/hober/html5-el.git"
+               :build ("make relaxng")
+               :features whattf-dt
+               :after (lambda ()
+                        (message "nxml-html5: after")
+                        (eval-after-load "rng-loc"
+                          '(add-to-list 'rng-schema-locating-files
+                                        (expand-file-name "schemas.xml"
+                                                          (el-get-package-directory "nxml-html5"))))))
+
         ;; Org
 
         (:name org-mode :type git :url "git://repo.or.cz/org-mode.git" :load-path ("lisp" "contrib/lisp"))
