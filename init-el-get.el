@@ -35,6 +35,8 @@
         ;(:name all :type http :url "ftp://ftp.dina.kvl.dk/pub/Staff/Per.Abrahamsen/auctex/all.el")
         lively
         whole-line-or-region
+        pointback
+        flymake-point
 
         ;; Completion
 

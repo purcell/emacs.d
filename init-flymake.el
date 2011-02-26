@@ -4,31 +4,14 @@
 ;; at which point buffer-file-name is nil
 (eval-after-load "flymake"
   '(progn
-     (defun flymake-show-error-for-current-line ()
-       (let ((err (get-char-property (point) 'help-echo)))
-         (when err
-           (message err))))
+     (require 'flymake-point)
 
-     (defun flymake-show-next-error-in-minibuffer ()
-       "Move point to the next flymake error and display the error in the minibuffer"
-       (interactive)
-       (flymake-goto-next-error)
-       (flymake-show-error-for-current-line))
-
-     (global-set-key (kbd "C-`") 'flymake-show-next-error-in-minibuffer)
+     (global-set-key (kbd "C-`") 'flymake-goto-next-error)
 
      (defun flymake-can-syntax-check-file (file-name)
        "Determine whether we can syntax check FILE-NAME.
 Return nil if we cannot, non-nil if we can."
-       (if (and file-name (flymake-get-init-function file-name)) t nil))
-
-     (defadvice flymake-mode (before post-command-stuff activate compile)
-       "Add functionality to the post command hook so that if the
-cursor is sitting on a flymake error the error information is
-displayed in the minibuffer (rather than having to mouse over
-it)"
-       (set (make-local-variable 'post-command-hook)
-            (cons 'flymake-show-error-for-current-line post-command-hook)))))
+       (if (and file-name (flymake-get-init-function file-name)) t nil))))
 
 
 ;; http://nschum.de/src/emacs/fringe-helper/
