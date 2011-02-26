@@ -49,11 +49,7 @@
 
         color-theme
         color-theme-sanityinc
-        color-theme-tango-2
-        color-theme-ir-black
-        color-theme-zen-and-art
         color-theme-zenburn
-        color-theme-twilight
         color-theme-subdued
         color-theme-railscasts
 
