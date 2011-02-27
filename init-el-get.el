@@ -125,6 +125,10 @@
         (:name moz :type http :url "http://github.com/bard/mozrepl/raw/master/chrome/content/moz.el")
         json
 
+        ;; Erlang
+
+        erlware-mode
+
         ;; PHP
 
         php-mode
