@@ -127,7 +127,9 @@
 
         ;; Erlang
 
-        erlware-mode
+        (:name erlware-mode ;; Overridden to use git version
+               :type git :url "https://github.com/erlware/erlware-mode.git"
+               :load "erlang-start.el")
 
         ;; PHP
 
