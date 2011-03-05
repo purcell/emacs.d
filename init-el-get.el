@@ -147,7 +147,6 @@
         markdown-mode
         textile-mode
         haskell-mode
-        tuareg-mode
         lua-mode
 ))
 
