@@ -20,6 +20,7 @@
 (when *is-a-mac*
   (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)]))))
 
+(require 'magit-svn)
 (require 'rebase-mode)
 (require 'magithub)
 (require 'diff-git)
