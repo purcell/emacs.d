@@ -102,4 +102,9 @@
 (require 'hl-sexp)
 (add-hook 'paredit-mode-hook (lambda () (hl-sexp-mode t)))
 
+;; Prevent flickery behaviour due to hl-sexp-mode unhighlighting before each command
+(defadvice hl-sexp-mode (after unflicker (turn-on) activate)
+  (when turn-on
+    (remove-hook 'pre-command-hook #'hl-sexp-unhighlight)))
+
 (provide 'init-lisp)
