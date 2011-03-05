@@ -9,6 +9,8 @@
 ;; Use SmartTab to trigger AC completion
 (require 'smart-tab)
 (global-smart-tab-mode 1)
+(setq smart-tab-completion-functions-alist nil)
+
 (require 'diminish)
 (diminish 'smart-tab-mode)
 
