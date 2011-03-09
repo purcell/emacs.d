@@ -5,14 +5,7 @@
 
 
 (require 'color-theme-autoloads)
-(autoload 'color-theme-zenburn "zenburn" "A low contrast color theme" t)
-(autoload 'color-theme-twilight "color-theme-twilight" "A dark color theme" t)
 (autoload 'color-theme-vivid-chalk "vivid-chalk" "A dark color theme" t)
-(autoload 'color-theme-tango-2 "color-theme-tango-2" "A dark color theme" t)
-(autoload 'color-theme-subdued "color-theme-subdued" "A dark color theme" t)
-(autoload 'color-theme-ir-black "color-theme-ir-black" "A dark color theme" t)
-(autoload 'color-theme-zen-and-art "zen-and-art" "A dark color theme" t)
-(autoload 'color-theme-railscasts "color-theme-railscasts" "Translation of railscasts theme for Textmate" t)
 (autoload 'color-theme-sanityinc-light "color-theme-sanityinc" "A light color theme" t)
 (autoload 'color-theme-sanityinc-dark "color-theme-sanityinc" "A dark color theme" t)
 
