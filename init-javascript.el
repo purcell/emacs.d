@@ -63,6 +63,9 @@
      (dolist (mode (list 'html-mode 'nxml-mode))
        (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?$" 'html-js))))
 
+(eval-after-load "coffee-mode"
+  `(setq coffee-js-mode preferred-javascript-mode
+         coffee-tab-width preferred-javascript-indent-level))
 
 (require 'js-comint)
 (setq inferior-js-program-command "js")
