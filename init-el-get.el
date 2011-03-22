@@ -92,6 +92,7 @@
         dsvn
         vc-darcs
         darcsum
+        (:name ibuffer-vc :type git :url "https://github.com/purcell/ibuffer-vc.git")
 
         ;; Lisps
 

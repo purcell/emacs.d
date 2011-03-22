@@ -1,44 +1,36 @@
 (require 'ibuffer)
 
-(require 'vc-hooks)
-(defun vc-find-any-root (file-name)
-  (let ((root nil))
-    (loop for dir in '(".git" ".svn" "CVS" ".bzr" "_darcs")
-          do (setq root (vc-find-root file-name dir))
-          until root
-          finally return root)))
-
-(defun ibuffer-vc-root (buf)
-  (let* ((file (buffer-local-value 'buffer-file-name buf))
-         (dir (buffer-local-value 'default-directory buf))
-         (ref (or file dir)))
-    (vc-find-any-root ref)))
-
-(define-ibuffer-filter vc-root
-    "Toggle current view to buffers with vc root dir QUALIFIER."
-  (:description "vc root dir"
-                :reader (read-from-minibuffer "Filter by vc root dir (regexp): "))
-  (ibuffer-awhen (ibuffer-vc-root buf)
-    (message "Comparing root %s against qualifier %s" it qualifier)
-    (string-match (expand-file-name qualifier) (expand-file-name it))))
-
-(defun ibuffer-generate-filter-groups-by-vc-root ()
-  "Create a set of ibuffer filter groups based on the vc root dirs of buffers"
-  (mapcar (lambda (vc-dir)
-                  (cons (format "%s" vc-dir) `((vc-root . ,vc-dir))))
-                (ibuffer-remove-duplicates
-                 (delq nil (mapcar 'ibuffer-vc-root (buffer-list))))))
-
-(defun ibuffer-set-filter-groups-by-vc-root ()
-  "Set the current filter groups to filter by vc root dir."
-  (interactive)
-  (setq ibuffer-filter-groups (ibuffer-generate-filter-groups-by-vc-root))
-  (ibuffer-update nil t))
+(require 'ibuffer-vc)
 
 (defun ibuffer-set-up-preferred-filters ()
-  (ibuffer-set-filter-groups-by-vc-root))
+  (ibuffer-vc-set-filter-groups-by-vc-root)
+  (ibuffer-do-sort-by-alphabetic))
 (add-hook 'ibuffer-mode-hook 'ibuffer-set-up-preferred-filters)
 
+
+
+
+;; Use human readable Size column instead of original one
+(define-ibuffer-column size-h
+  (:name "Size" :inline t)
+  (cond
+   ((> (buffer-size) 1000) (format "%7.1fk" (/ (buffer-size) 1000.0)))
+   ((> (buffer-size) 1000000) (format "%7.1fM" (/ (buffer-size) 1000000.0)))
+   (t (format "%8d" (buffer-size)))))
+
+
+;; Modify the default ibuffer-formats
+(setq ibuffer-formats
+      '((mark modified read-only vc-status-mini " "
+              (name 18 18 :left :elide)
+              " "
+              (size-h 9 -1 :right)
+              " "
+              (mode 16 16 :left :elide)
+              " "
+              (vc-status 16 16 :left)
+              " "
+              filename-and-process)))
 
 
 ;; (setq ibuffer-saved-filter-groups
