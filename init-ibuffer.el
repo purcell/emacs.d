@@ -4,7 +4,7 @@
 
 (defun ibuffer-set-up-preferred-filters ()
   (ibuffer-vc-set-filter-groups-by-vc-root)
-  (ibuffer-do-sort-by-alphabetic))
+  (ibuffer-do-sort-by-filename/process))
 (add-hook 'ibuffer-mode-hook 'ibuffer-set-up-preferred-filters)
 
 
