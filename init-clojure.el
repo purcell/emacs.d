@@ -6,13 +6,6 @@
 (eval-after-load "clojure-mode"
   '(progn
      (require 'clojure-test-mode)))
-(autoload 'swank-clojure-init "swank-clojure" "" nil nil)
-(autoload 'swank-clojure-slime-mode-hook "swank-clojure" "" nil nil)
-(autoload 'swank-clojure-cmd "swank-clojure" "" nil nil)
-(defadvice slime-read-interactive-args (before add-clojure)
-  (require 'assoc)
-  (aput 'slime-lisp-implementations 'clojure (list (swank-clojure-cmd) :init 'swank-clojure-init)))
-(autoload 'swank-clojure-project "swank-clojure" "" t nil)
 (add-hook 'clojure-mode-hook 'clojure-test-maybe-enable)
 
 ;; Use technomancy's bag of fancy clojure/slime tricks

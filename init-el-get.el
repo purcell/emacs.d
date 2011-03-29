@@ -99,7 +99,6 @@
         (:name paredit :type http :url "http://mumble.net/~campbell/emacs/paredit-beta.el" :localname "paredit.el") ; Overridden to get beta version
         (:name slime :type git :url "git://sbcl.boinkor.net/slime.git" :load-path ("." "./contrib") :compile nil :load "slime-autoloads.el") ; Overridden to prefer git mirror
         clojure-mode
-        swank-clojure
         durendal
         quack
 
