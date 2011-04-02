@@ -49,6 +49,7 @@
 
         color-theme
         color-theme-sanityinc
+        (:name color-theme-sanityinc-solarized :type git :url "https://purcell@github.com/purcell/color-theme-sanityinc-solarized.git")
         color-theme-zenburn
         color-theme-subdued
         color-theme-railscasts
