@@ -155,21 +155,25 @@
 (whole-line-or-region-mode t)
 (diminish 'whole-line-or-region-mode)
 
-;; but stop it from breaking cua's rectangle selections
-(eval-after-load "cua-rect"
-  '(progn
-     (defvar wlr-was-active-before-cua-rectangle nil)
-     (make-variable-buffer-local 'wlr-was-active-before-cua-rectangle)
-     (defadvice cua--activate-rectangle (after suspend-whole-line-or-region activate)
-       (setq wlr-was-active-before-cua-rectangle
-             (and (boundp whole-line-or-region-mode)
-                  whole-line-or-region-mode))
-       (when wlr-was-active-before-cua-rectangle
-         (whole-line-or-region-mode -1)))
-     (defadvice cua--deactivate-rectangle (after suspend-whole-line-or-region activate)
-       (when wlr-was-active-before-cua-rectangle
-         (whole-line-or-region-mode 1)))))
 
+(defun suspend-mode-during-cua-rect-selection (mode-name)
+  (let ((flagvar (intern (format "%s-was-active-before-cua-rectangle" mode-name)))
+        (advice-name (intern (format "suspend-%s" mode-name))))
+    (eval-after-load "cua-rect"
+      `(progn
+         (defvar ,flagvar nil)
+         (make-variable-buffer-local ',flagvar)
+         (defadvice cua--activate-rectangle (after ,advice-name activate)
+           (setq ,flagvar
+                 (and (boundp ',mode-name)
+                      ,mode-name))
+           (when ,flagvar
+             (,mode-name -1)))
+         (defadvice cua--deactivate-rectangle (after ,advice-name activate)
+           (when ,flagvar
+             (,mode-name 1)))))))
+
+(suspend-mode-during-cua-rect-selection 'whole-line-or-region)
 
 ;;----------------------------------------------------------------------------
 ;; Easily count words (http://emacs-fu.blogspot.com/2009/01/counting-words.html)
