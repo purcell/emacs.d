@@ -74,8 +74,8 @@
 
         ;; Ruby & Rails
 
-        (:name ruby-mode :type svn :url "http://svn.ruby-lang.org/repos/ruby/trunk/misc/")
         rinari
+        (:name ruby-mode :type svn :url "http://svn.ruby-lang.org/repos/ruby/trunk/misc/")
         ri-emacs
         yaml-mode
         haml-mode
