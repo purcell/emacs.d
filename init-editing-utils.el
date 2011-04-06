@@ -173,7 +173,7 @@
            (when ,flagvar
              (,mode-name 1)))))))
 
-(suspend-mode-during-cua-rect-selection 'whole-line-or-region)
+(suspend-mode-during-cua-rect-selection 'whole-line-or-region-mode)
 
 ;;----------------------------------------------------------------------------
 ;; Easily count words (http://emacs-fu.blogspot.com/2009/01/counting-words.html)
