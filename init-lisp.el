@@ -27,21 +27,8 @@
   (if (eq this-command 'eval-expression)
       (paredit-mode 1)))
 
-;; stop paredit from breaking cua's rectangle selections
-(eval-after-load "cua-rect"
-  '(progn
-     ;; TODO: maybe rewrite using new hooks injected into cua-rect
-     (defvar paredit-was-active-before-cua-rectangle nil)
-     (make-variable-buffer-local 'paredit-was-active-before-cua-rectangle)
-     (defadvice cua--activate-rectangle (after suspend-paredit activate)
-       (setq paredit-was-active-before-cua-rectangle
-             (and (boundp paredit-mode)
-                  paredit-mode))
-       (when paredit-was-active-before-cua-rectangle
-         (paredit-mode -1)))
-     (defadvice cua--deactivate-rectangle (after suspend-paredit activate)
-       (when paredit-was-active-before-cua-rectangle
-         (paredit-mode 1)))))
+(suspend-mode-during-cua-rect-selection 'paredit-mode)
+
 
 (defun set-up-hippie-expand-for-elisp ()
   (make-variable-buffer-local 'hippie-expand-try-functions-list)
