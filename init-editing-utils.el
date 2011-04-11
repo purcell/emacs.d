@@ -154,7 +154,7 @@
 (require 'whole-line-or-region)
 (whole-line-or-region-mode t)
 (diminish 'whole-line-or-region-mode)
-
+(make-variable-buffer-local 'whole-line-or-region-mode)
 
 (defun suspend-mode-during-cua-rect-selection (mode-name)
   (let ((flagvar (intern (format "%s-was-active-before-cua-rectangle" mode-name)))
@@ -164,9 +164,7 @@
          (defvar ,flagvar nil)
          (make-variable-buffer-local ',flagvar)
          (defadvice cua--activate-rectangle (after ,advice-name activate)
-           (setq ,flagvar
-                 (and (boundp ',mode-name)
-                      ,mode-name))
+           (setq ,flagvar (and (boundp ',mode-name) ,mode-name))
            (when ,flagvar
              (,mode-name -1)))
          (defadvice cua--deactivate-rectangle (after ,advice-name activate)
