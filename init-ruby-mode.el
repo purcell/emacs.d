@@ -71,8 +71,6 @@
 ;; Ruby - compilation
 ;;----------------------------------------------------------------------------
 
-(require 'ruby-compilation)
-
 ; run the current buffer using Shift-F7
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [S-f7] 'ruby-compilation-this-buffer)))
 ; run the current test function using F8 key
