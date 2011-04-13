@@ -116,7 +116,6 @@
         google-weather
 
         ;; Python
-        (:name python-mode :type http :url "http://launchpad.net/python-mode/trunk/5.1.0/+download/python-mode.el") ; Overridden because bzr's lp source breaks with python 2.7 (https://bugs.launchpad.net/bzr/+bug/612096)
         pymacs
         ropemacs
 
