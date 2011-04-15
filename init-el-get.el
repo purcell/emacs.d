@@ -101,6 +101,7 @@
         (:name slime-repl :type elpa)
         (:name slime-fuzzy :type elpa)
         clojure-mode
+        elein
         durendal
         quack
 
