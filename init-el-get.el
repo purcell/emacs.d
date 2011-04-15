@@ -74,7 +74,7 @@
 
         ;; Ruby & Rails
 
-        rinari
+        (:name rinari :type git :url "http://github.com/eschulte/rinari.git" :load-path ("." "util/jump"))
         (:name ruby-mode :type svn :url "http://svn.ruby-lang.org/repos/ruby/trunk/misc/")
         ri-emacs
         yaml-mode
