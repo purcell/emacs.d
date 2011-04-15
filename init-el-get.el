@@ -116,8 +116,6 @@
         google-weather
 
         ;; Python
-        pymacs
-        ropemacs
 
         ;; Javascript
 

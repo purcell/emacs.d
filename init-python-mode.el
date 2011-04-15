@@ -11,18 +11,6 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Pymacs and Rope for Python
-;;----------------------------------------------------------------------------
-;; See http://edward.oconnor.cx/2008/02/ropemacs
-(setq pymacs-load-path
-      (list (concat el-get-dir "ropemacs")))
-(add-hook 'python-mode-hook
-          (lambda ()
-            (require 'pymacs)
-            (pymacs-load "ropemacs" "rope-")))
-
-
-;;----------------------------------------------------------------------------
 ;; On-the-fly syntax checking via flymake
 ;;----------------------------------------------------------------------------
 (require 'flymake-python)
