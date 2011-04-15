@@ -1,4 +1,3 @@
-(autoload 'python-mode "python-mode" "Python editing mode." t)
 (autoload 'doctest-mode "doctest-mode" "Python doctest editing mode." t)
 
 (setq auto-mode-alist
