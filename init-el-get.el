@@ -10,7 +10,6 @@
         ;; Basics
 
         smex
-        ido-hacks
         maxframe
         session
         revive
