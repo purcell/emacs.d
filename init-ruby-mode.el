@@ -53,8 +53,10 @@
                         (?# erb-comment    nil @ "<%#" @ " " _ " " @ "%>" @)
                         (?= erb-expression nil @ "<%=" @ " " _ " " @ "%>" @)))))
      (dolist (mode (list 'html-mode 'nxml-mode))
-       (add-to-list 'mmm-mode-ext-classes-alist (list mode "\\.r?html\\(\\.erb\\)?$" 'eruby) t))
-     (add-to-list 'mmm-mode-ext-classes-alist (list 'yaml-mode "\\.yaml$" 'eruby))))
+       (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?$" 'eruby))
+     (mmm-add-mode-ext-class 'yaml-mode "\\.yaml$" 'eruby)
+     (dolist (mode (list 'js-mode 'js2-mode))
+       (mmm-add-mode-ext-class mode "\\.js\\.erb$" 'eruby))))
 
 
 ;;----------------------------------------------------------------------------
