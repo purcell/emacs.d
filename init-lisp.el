@@ -111,6 +111,8 @@
 
 
 ;;; Make M-. and M-, work in elisp like they do in slime
+(require 'etags)
+
 (defun find-elisp-thing-at-point ()
   (interactive)
   (let ((sym (symbol-at-point)))
