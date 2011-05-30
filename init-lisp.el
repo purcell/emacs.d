@@ -109,4 +109,18 @@
   (when turn-on
     (remove-hook 'pre-command-hook #'hl-sexp-unhighlight)))
 
+
+;;; Make M-. and M-, work in elisp like they do in slime
+(defun find-elisp-thing-at-point ()
+  (interactive)
+  (let ((sym (symbol-at-point)))
+    (when sym
+      (ring-insert find-tag-marker-ring (point-marker))
+      (if (fboundp sym)
+          (find-function sym)
+        (find-variable sym)))))
+
+(define-key emacs-lisp-mode-map (kbd "M-.") 'find-elisp-thing-at-point)
+(define-key emacs-lisp-mode-map (kbd "M-,") 'pop-tag-mark)
+
 (provide 'init-lisp)
