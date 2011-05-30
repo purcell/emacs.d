@@ -53,8 +53,7 @@
 ;;----------------------------------------------------------------------------
 ;; Rectangle selections, and overwrite text when the selection is active
 ;;----------------------------------------------------------------------------
-(setq cua-enable-cua-keys nil)           ;; don't add C-x,C-c,C-v
-(cua-mode t)                             ;; for rectangles, CUA is nice
+(cua-selection-mode t)                  ; for rectangles, CUA is nice
 
 
 ;;----------------------------------------------------------------------------
