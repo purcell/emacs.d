@@ -9,8 +9,10 @@
 (add-hook 'clojure-mode-hook 'clojure-test-maybe-enable)
 
 ;; Use technomancy's bag of fancy clojure/slime tricks
-(require 'durendal)
-(durendal-enable t)
+(eval-after-load "slime"
+  '(progn
+     (require 'durendal)
+     (durendal-enable t)))
 
 (add-hook 'clojure-mode-hook 'enable-paredit-mode)
 
