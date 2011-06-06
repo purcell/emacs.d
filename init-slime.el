@@ -8,6 +8,7 @@
   '(progn
      (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
      (setq slime-protocol-version 'ignore)
+     (setq slime-net-coding-system 'utf-8-unix)
      (add-hook 'slime-mode-hook 'pretty-lambdas)
      (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
      (slime-setup '(slime-repl slime-fuzzy))
