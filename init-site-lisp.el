@@ -16,24 +16,33 @@
 ;;----------------------------------------------------------------------------
 ;; Utilities for grabbing upstream libs
 ;;----------------------------------------------------------------------------
+(defun site-lisp-dir-for (name)
+  (expand-file-name (format "~/.emacs.d/site-lisp/%s" name)))
 
-(defun grab-site-lisp-module (name url)
-  (let ((dir (expand-file-name (format "~/.emacs.d/site-lisp/%s" name))))
+(defun site-lisp-library-el-path (name)
+  (expand-file-name (format "%s.el" name) (site-lisp-dir-for name)))
+
+(defun download-site-lisp-module (name url)
+  (let ((dir (site-lisp-dir-for name)))
     (message "Downloading %s from %s" name url)
     (unless (file-directory-p dir)
       (make-directory dir)
       (add-to-list 'load-path dir))
-    (url-copy-file url (expand-file-name (format "%s.el" name) dir) t nil)))
+    (url-copy-file url (site-lisp-library-el-path name) t nil)))
 
 (defun ensure-lib-from-url (name url)
-  (unless (require name nil t)
-    (grab-site-lisp-module name url)))
+  (unless (site-lisp-library-loadable-p name)
+    (download-site-lisp-module name url)))
 
-(defun ensure-lib-from-svn (name url &optional check-file)
-  (let ((dir (expand-file-name (format "~/.emacs.d/site-lisp/%s" name))))
-    (unless (if check-file
-                (file-exists-p (expand-file-name (format "%s.el" name) dir))
-              (require name nil t))
+(defun site-lisp-library-loadable-p (name)
+  "Return whether or not the library `name' can be loaded from a
+source file under ~/.emacs.d/site-lisp/name/"
+  (let ((f (locate-library (symbol-name name))))
+    (and f (string-prefix-p (file-name-as-directory (site-lisp-dir-for name)) f))))
+
+(defun ensure-lib-from-svn (name url)
+  (let ((dir (site-lisp-dir-for name)))
+    (unless (site-lisp-library-loadable-p name)
       (message "Checking out %s from svn" name)
       (shell-command (format "svn co %s %s" url dir))
       (add-to-list 'load-path dir))))
@@ -67,6 +76,6 @@
 (ensure-lib-from-url 'vc-darcs "http://www.pps.jussieu.fr/~jch/software/repos/vc-darcs/vc-darcs.el")
 
 (ensure-lib-from-svn 'rdebug "http://ruby-debug.rubyforge.org/svn/trunk/emacs/")
-(ensure-lib-from-svn 'ruby-mode "http://svn.ruby-lang.org/repos/ruby/trunk/misc/" t)
+(ensure-lib-from-svn 'ruby-mode "http://svn.ruby-lang.org/repos/ruby/trunk/misc/")
 
 (provide 'init-site-lisp)
