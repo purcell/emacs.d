@@ -1,0 +1,195 @@
+[submodule "site-lisp/ac-slime"]
+	path = site-lisp/ac-slime
+	url = https://github.com/purcell/ac-slime.git
+[submodule "site-lisp/auto-complete"]
+	path = site-lisp/auto-complete
+	url = https://github.com/m2ym/auto-complete.git
+[submodule "site-lisp/clojure-mode"]
+	path = site-lisp/clojure-mode
+	url = https://github.com/technomancy/clojure-mode.git
+[submodule "site-lisp/coffee-mode"]
+	path = site-lisp/coffee-mode
+	url = https://github.com/defunkt/coffee-mode.git
+[submodule "site-lisp/color-theme-railscasts"]
+	path = site-lisp/color-theme-railscasts
+	url = https://github.com/olegshaldybin/color-theme-railscasts.git
+[submodule "site-lisp/color-theme-sanityinc"]
+	path = site-lisp/color-theme-sanityinc
+	url = https://github.com/purcell/color-theme-sanityinc.git
+[submodule "site-lisp/color-theme-sanityinc-solarized"]
+	path = site-lisp/color-theme-sanityinc-solarized
+	url = https://github.com/purcell/color-theme-sanityinc-solarized.git
+[submodule "site-lisp/color-theme-zenburn"]
+	path = site-lisp/color-theme-zenburn
+	url = https://github.com/emacsmirror/zenburn.git
+[submodule "site-lisp/diff-git"]
+	path = site-lisp/diff-git
+	url = https://github.com/alanfalloon/diff-git.el.git
+[submodule "site-lisp/dired-plus"]
+	path = site-lisp/dired-plus
+	url = https://github.com/emacsmirror/dired-plus.git
+[submodule "site-lisp/durendal"]
+	path = site-lisp/durendal
+	url = https://github.com/technomancy/durendal.git
+[submodule "site-lisp/elein"]
+	path = site-lisp/elein
+	url = http://github.com/remvee/elein.git
+[submodule "site-lisp/erlware-mode"]
+	path = site-lisp/erlware-mode
+	url = https://github.com/erlware/erlware-mode.git
+[submodule "site-lisp/gist"]
+	path = site-lisp/gist
+	url = https://github.com/defunkt/gist.el.git
+[submodule "site-lisp/git-blame"]
+	path = site-lisp/git-blame
+	url = https://github.com/tsgates/git-emacs.git
+[submodule "site-lisp/google-weather"]
+	path = site-lisp/google-weather
+	url = git://git.naquadah.org/google-weather-el.git
+[submodule "site-lisp/haml-mode"]
+	path = site-lisp/haml-mode
+	url = https://github.com/nex3/haml-mode.git
+[submodule "site-lisp/ibuffer-vc"]
+	path = site-lisp/ibuffer-vc
+	url = https://github.com/purcell/ibuffer-vc.git
+[submodule "site-lisp/magit"]
+	path = site-lisp/magit
+	url = https://github.com/magit/magit.git
+[submodule "site-lisp/magithub"]
+	path = site-lisp/magithub
+	url = https://github.com/nex3/magithub.git
+[submodule "site-lisp/markdown-mode"]
+	path = site-lisp/markdown-mode
+	url = git://jblevins.org/git/markdown-mode.git
+[submodule "site-lisp/maxframe"]
+	path = site-lisp/maxframe
+	url = http://github.com/rmm5t/maxframe.el.git
+[submodule "site-lisp/mmm-mode"]
+	path = site-lisp/mmm-mode
+	url = https://github.com/purcell/mmm-mode.git
+[submodule "site-lisp/offlineimap"]
+	path = site-lisp/offlineimap
+	url = git://git.naquadah.org/offlineimap-el.git
+[submodule "site-lisp/org-fstree"]
+	path = site-lisp/org-fstree
+	url = http://repo.or.cz/r/org-fstree.git
+[submodule "site-lisp/org-mode"]
+	path = site-lisp/org-mode
+	url = git://repo.or.cz/org-mode.git
+[submodule "site-lisp/rainbow-mode"]
+	path = site-lisp/rainbow-mode
+	url = git://git.naquadah.org/rainbow.git
+[submodule "site-lisp/regex-tool"]
+	path = site-lisp/regex-tool
+	url = https://github.com/jwiegley/regex-tool.git
+[submodule "site-lisp/ri-emacs"]
+	path = site-lisp/ri-emacs
+	url = https://github.com/pedz/ri-emacs.git
+[submodule "site-lisp/rinari"]
+	path = site-lisp/rinari
+	url = https://github.com/eschulte/rinari.git
+[submodule "site-lisp/sass-mode"]
+	path = site-lisp/sass-mode
+	url = https://github.com/nex3/sass-mode.git
+[submodule "site-lisp/scratch"]
+	path = site-lisp/scratch
+	url = https://github.com/cbbrowne/scratch-el.git
+[submodule "site-lisp/smart-tab"]
+	path = site-lisp/smart-tab
+	url = https://github.com/genehack/smart-tab.git
+[submodule "site-lisp/smex"]
+	path = site-lisp/smex
+	url = https://github.com/nonsequitur/smex.git
+[submodule "site-lisp/textile-mode"]
+	path = site-lisp/textile-mode
+	url = https://github.com/emacsmirror/textile-mode.git
+[submodule "site-lisp/undo-tree"]
+	path = site-lisp/undo-tree
+	url = https://github.com/emacsmirror/undo-tree.git
+[submodule "site-lisp/workgroups"]
+	path = site-lisp/workgroups
+	url = https://github.com/tlh/workgroups.el.git
+[submodule "site-lisp/yaml-mode"]
+	path = site-lisp/yaml-mode
+	url = https://github.com/yoshiki/yaml-mode.git
+[submodule "site-lisp/revive"]
+	path = site-lisp/revive
+	url = https://github.com/emacsmirror/revive.git
+[submodule "site-lisp/diminish"]
+	path = site-lisp/diminish
+	url = https://github.com/emacsmirror/diminish.git
+[submodule "site-lisp/autopair"]
+	path = site-lisp/autopair
+	url = https://github.com/emacsmirror/autopair.git
+[submodule "site-lisp/hl-sexp"]
+	path = site-lisp/hl-sexp
+	url = https://github.com/emacsmirror/hl-sexp.git
+[submodule "site-lisp/mic-paren"]
+	path = site-lisp/mic-paren
+	url = https://github.com/emacsmirror/mic-paren.git
+[submodule "site-lisp/fuzzy-format"]
+	path = site-lisp/fuzzy-format
+	url = https://github.com/emacsmirror/fuzzy-format.git
+[submodule "site-lisp/iedit"]
+	path = site-lisp/iedit
+	url = https://github.com/emacsmirror/iedit.git
+[submodule "site-lisp/mwe-log-commands"]
+	path = site-lisp/mwe-log-commands
+	url = https://github.com/emacsmirror/mwe-log-commands.git
+[submodule "site-lisp/lively"]
+	path = site-lisp/lively
+	url = https://github.com/emacsmirror/lively.git
+[submodule "site-lisp/whole-line-or-region"]
+	path = site-lisp/whole-line-or-region
+	url = https://github.com/emacsmirror/whole-line-or-region.git
+[submodule "site-lisp/pointback"]
+	path = site-lisp/pointback
+	url = https://github.com/emacsmirror/pointback.git
+[submodule "site-lisp/ac-dabbrev"]
+	path = site-lisp/ac-dabbrev
+	url = https://github.com/emacsmirror/ac-dabbrev.git
+[submodule "site-lisp/color-theme"]
+	path = site-lisp/color-theme
+	url = https://github.com/emacsmirror/color-theme.git
+[submodule "site-lisp/darcsum"]
+	path = site-lisp/darcsum
+	url = https://github.com/emacsmirror/darcsum.git
+[submodule "site-lisp/paredit"]
+	path = site-lisp/paredit
+	url = https://github.com/emacsmirror/paredit.git
+[submodule "site-lisp/quack"]
+	path = site-lisp/quack
+	url = https://github.com/emacsmirror/quack.git
+[submodule "site-lisp/crontab-mode"]
+	path = site-lisp/crontab-mode
+	url = https://github.com/emacsmirror/crontab-mode.git
+[submodule "site-lisp/twit"]
+	path = site-lisp/twit
+	url = https://github.com/emacsmirror/twit.git
+[submodule "site-lisp/js2-mode"]
+	path = site-lisp/js2-mode
+	url = https://github.com/emacsmirror/js2-mode.git
+[submodule "site-lisp/js-comint"]
+	path = site-lisp/js-comint
+	url = https://github.com/emacsmirror/js-comint.git
+[submodule "site-lisp/php-mode"]
+	path = site-lisp/php-mode
+	url = https://github.com/emacsmirror/php-mode.git
+[submodule "site-lisp/smarty-mode"]
+	path = site-lisp/smarty-mode
+	url = https://github.com/emacsmirror/smarty-mode.git
+[submodule "site-lisp/tidy"]
+	path = site-lisp/tidy
+	url = https://github.com/emacsmirror/tidy.git
+[submodule "site-lisp/csv-mode"]
+	path = site-lisp/csv-mode
+	url = https://github.com/emacsmirror/csv-mode.git
+[submodule "site-lisp/csv-nav"]
+	path = site-lisp/csv-nav
+	url = https://github.com/emacsmirror/csv-nav.git
+[submodule "site-lisp/session"]
+	path = site-lisp/session
+	url = https://github.com/emacsmirror/session.git
+[submodule "site-lisp/html5-el"]
+	path = site-lisp/html5-el
+	url = https://github.com/hober/html5-el.git

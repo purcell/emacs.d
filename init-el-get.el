@@ -1,54 +1,32 @@
 (when (not (load "~/.emacs.d/el-get/el-get/el-get.el" t))
   (error "Please bootstrap el-get using the instructions here: http://github.com/dimitri/el-get/, then restart Emacs"))
 
+(unless (require 'color-theme-autoloads nil t)
+  (error "Please run 'make color-theme-autoloads.el' in site-lisp/color-theme to generate color-theme-autoloads.el"))
+
+(unless (file-directory-p (expand-file-name "~/.emacs.d/site-lisp/html5-el/relaxng"))
+  (error "Please run 'make relaxng' in site-lisp/html5-el"))
+
+(unless (require 'jump nil t)
+  (error "Please run 'git submodule update --init' in site-lisp/rinari"))
+
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/site-lisp/session/lisp"))
+
 (setq el-get-byte-compile nil
       el-get-generate-autoloads nil
       el-get-sources
       '(el-get
-        package
+;        package
 
         ;; Basics
 
-        smex
-        maxframe
-        session
-        revive
-        project-local-variables
-        dired-plus
-        scratch
-        diminish
-        autopair
-        (:name undo-tree :type git :url "http://www.dr-qubit.org/git/undo-tree.git")
-        hl-sexp
-        highlight-symbol
-        highlight-parentheses
         smooth-scrolling
-        fuzzy-format
-        regex-tool
         todochiku
         edit-server
-        fringe-helper
         eol-conversion
-        iedit
-        mwe-log-commands
-        ;(:name all :type http :url "ftp://ftp.dina.kvl.dk/pub/Staff/Per.Abrahamsen/auctex/all.el")
-        lively
-        whole-line-or-region
-        pointback
         flymake-point
 
-        ;; Completion
-
-        auto-complete
-        smart-tab
-        ac-dabbrev
-        ac-slime
-
         ;; Cosmetics
-
-        color-theme
-        color-theme-sanityinc
-        (:name color-theme-sanityinc-solarized :type git :url "https://purcell@github.com/purcell/color-theme-sanityinc-solarized.git")
 
         ;; XML and HTML
         (:name nxml-html5
@@ -66,85 +44,33 @@
         ;; Org
 
         (:name org-mode :type git :url "git://repo.or.cz/org-mode.git" :load-path ("lisp" "contrib/lisp"))
-        org-fstree
 
         ;; Ruby & Rails
 
-        (:name rinari :type git :url "http://github.com/eschulte/rinari.git" :load-path ("." "util/jump"))
         (:name ruby-mode :type svn :url "http://svn.ruby-lang.org/repos/ruby/trunk/misc/")
-        ri-emacs
-        yaml-mode
-        haml-mode
-        sass-mode
         rdebug
 
         ;; Version control
 
-        magit
-        gist
-        magithub
-        git-blame
-        diff-git
         dsvn
         vc-darcs
-        darcsum
-        (:name ibuffer-vc :type git :url "https://github.com/purcell/ibuffer-vc.git")
-
-        ;; Lisps
-
-        (:name paredit :type http :url "http://mumble.net/~campbell/emacs/paredit-beta.el" :localname "paredit.el") ; Overridden to get beta version
-        (:name slime :type elpa)
-        (:name slime-repl :type elpa)
-        (:name slime-fuzzy :type elpa)
-        clojure-mode
-        elein
-        durendal
-        quack
-
-        crontab-mode
-        mmm-mode
 
         ;; Apps
 
-        twit
-        erc
         ;offlineimap
-
-        google-weather
-
-        ;; Python
 
         ;; Javascript
 
-        js2-mode
-        coffee-mode
-        js-comint
         (:name moz :type http :url "https://github.com/bard/mozrepl/raw/master/chrome/content/moz.el")
-        json
 
         ;; Erlang
 
-        (:name erlware-mode ;; Overridden to use git version
-               :type git :url "https://github.com/erlware/erlware-mode.git"
-               :load "erlang-start.el")
-
-        ;; PHP
-
-        php-mode
-        smarty-mode
-
         ;; CSS
 
-        rainbow-mode
         tidy
 
         gnuplot-mode
-        csv-mode
-        csv-nav
-        markdown-mode
-        textile-mode
-        haskell-mode
-        lua-mode
+        haskell-mode  ;; darcs, http://code.haskell.org/haskellmode-emacs/
 ))
 
 (defun el-get-overridden ()
@@ -164,5 +90,6 @@
 
 
 (el-get 'sync)
+(package-initialize)
 
 (provide 'init-el-get)
