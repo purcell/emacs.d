@@ -25,6 +25,7 @@ site-lisp/flymake-css/
 site-lisp/flymake-point/
 site-lisp/moz/
 site-lisp/rdebug/
+site-lisp/ruby-mode/
 site-lisp/smooth-scrolling/
 site-lisp/todochiku/
 site-lisp/vc-darcs/

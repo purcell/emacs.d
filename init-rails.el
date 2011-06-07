@@ -1,5 +1,12 @@
 (require 'rinari)
-(dolist (hook '(nxml-mode-hook haml-mode-hook sass-mode-hook magit-mode-hook))
+
+;; Prevent rinari from shadowing ruby-mode with its bundled copy
+(setq load-path
+      (remove (file-name-as-directory (expand-file-name "util" (directory-of-library "rinari")))
+              load-path))
+
+
+(dolist (hook '(nxml-mode-hook haml-mode-hook sass-mode-hook magit-mode-hook yaml-mode-hook))
   (add-hook hook (lambda () (rinari-launch))))
 
 (defun update-rails-ctags ()

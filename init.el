@@ -1,4 +1,5 @@
 ;; -*- coding: utf-8 -*-
+(add-to-list 'load-path (expand-file-name "~/.emacs.d"))
 
 ;;----------------------------------------------------------------------------
 ;; Which functionality to enable (use t or nil for true and false)
@@ -11,24 +12,10 @@
 (setq *is-carbon-emacs* (and *is-a-mac* (eq window-system 'mac)))
 (setq *is-cocoa-emacs* (and *is-a-mac* (eq window-system 'ns)))
 
-
 ;;----------------------------------------------------------------------------
 ;; Make elisp more civilised
 ;;----------------------------------------------------------------------------
 (require 'cl)
-
-
-;;----------------------------------------------------------------------------
-;; Set load path
-;;----------------------------------------------------------------------------
-(if (fboundp 'normal-top-level-add-to-load-path)
-    (let* ((my-lisp-dir "~/.emacs.d/site-lisp/")
-           (default-directory my-lisp-dir))
-      (progn
-        (add-to-list 'load-path my-lisp-dir)
-        (normal-top-level-add-to-load-path (directory-files my-lisp-dir)))))
-(add-to-list 'load-path (expand-file-name "~/.emacs.d"))
-
 
 ;;----------------------------------------------------------------------------
 ;; Set $PATH
@@ -38,10 +25,10 @@
 ;;----------------------------------------------------------------------------
 ;; Load configs for specific features and modes
 ;;----------------------------------------------------------------------------
+(require 'init-site-lisp)
+(require 'init-elpa)
 (when *byte-code-cache-enabled*
   (require 'init-byte-code-cache))
-(require 'init-elpa)
-(require 'init-site-lisp)
 (require 'init-utils)
 (require 'init-frame-hooks)
 (require 'init-xterm)
