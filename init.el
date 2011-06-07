@@ -21,13 +21,13 @@
 ;;----------------------------------------------------------------------------
 ;; Set load path
 ;;----------------------------------------------------------------------------
-(if (fboundp 'normal-top-level-add-subdirs-to-load-path)
+(if (fboundp 'normal-top-level-add-to-load-path)
     (let* ((my-lisp-dir "~/.emacs.d/site-lisp/")
            (default-directory my-lisp-dir))
       (progn
-        (setq load-path (cons my-lisp-dir load-path))
-        (normal-top-level-add-subdirs-to-load-path))))
-(setq load-path (cons (expand-file-name "~/.emacs.d") load-path))
+        (add-to-list 'load-path my-lisp-dir)
+        (normal-top-level-add-to-load-path (directory-files my-lisp-dir)))))
+(add-to-list 'load-path (expand-file-name "~/.emacs.d"))
 
 
 ;;----------------------------------------------------------------------------
@@ -41,7 +41,7 @@
 (when *byte-code-cache-enabled*
   (require 'init-byte-code-cache))
 (require 'init-elpa)
-(require 'init-el-get)
+(require 'init-site-lisp)
 (require 'init-utils)
 (require 'init-frame-hooks)
 (require 'init-xterm)

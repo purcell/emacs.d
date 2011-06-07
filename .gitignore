@@ -17,5 +17,14 @@ cookies
 /elpa/archives/
 /ac-comphist.dat
 \#*
-/el-get
 /elpa
+site-lisp/dsvn/
+site-lisp/edit-server/
+site-lisp/eol-conversion/
+site-lisp/flymake-css/
+site-lisp/flymake-point/
+site-lisp/moz/
+site-lisp/rdebug/
+site-lisp/smooth-scrolling/
+site-lisp/todochiku/
+site-lisp/vc-darcs/

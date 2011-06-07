@@ -11,7 +11,6 @@
 (autoload 'color-theme-sanityinc-solarized-light "color-theme-sanityinc-solarized" "A light color theme" t)
 (autoload 'color-theme-sanityinc-solarized-dark "color-theme-sanityinc-solarized" "A dark color theme" t)
 
-(color-theme-initialize)
 
 (defun color-theme-terminal ()
   (interactive)

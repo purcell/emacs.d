@@ -15,17 +15,18 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(require-package 'haml-mode)
-(require-package 'sass-mode)
 (require-package 'fringe-helper)
+(require-package 'color-theme)
 (require-package 'json)
 (require-package 'erc)
 (require-package 'slime)
 (require-package 'slime-fuzzy)
 (require-package 'slime-repl)
-(require-package 'yaml-mode)
 (require-package 'project-local-variables)
 (require-package 'highlight-symbol)
 (require-package 'lua-mode)
+(require-package 'gnuplot)
+(require-package 'haskell-mode)
+(require-package 'ruby-mode)
 
 (provide 'init-elpa)

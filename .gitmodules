@@ -148,9 +148,6 @@
 [submodule "site-lisp/ac-dabbrev"]
 	path = site-lisp/ac-dabbrev
 	url = https://github.com/emacsmirror/ac-dabbrev.git
-[submodule "site-lisp/color-theme"]
-	path = site-lisp/color-theme
-	url = https://github.com/emacsmirror/color-theme.git
 [submodule "site-lisp/darcsum"]
 	path = site-lisp/darcsum
 	url = https://github.com/emacsmirror/darcsum.git

@@ -7,10 +7,11 @@ flymake is used to immediately highlight syntax errors in Ruby, HAML,
 Python, Javascript, PHP and some other languages.
 
 To install, clone this repo to ~/.emacs.d, i.e. ensure that the
-'init.el' contained in this repo ends up at ~/.emacs.d/init.el.  Upon
-starting up Emacs for the first time, you'll be prompted to install
-el-get, which will take care of installing a variety of third-party
-packages.
+'init.el' contained in this repo ends up at ~/.emacs.d/init.el.
+Before starting up Emacs, be sure to run 'git submodule update --init'
+to pull in the dependencies that have git repos. Upon starting up Emacs
+for the first time, further third-party packages will be automatically
+downloaded and installed, which may required 'svn' to be on your PATH.
 
 Although these config files aren't meant to be a replacement for
 emacs-starter-kit, some of the tips & tricks contained herein might be

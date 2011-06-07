@@ -11,6 +11,11 @@
                             (setq ido-use-filename-at-point nil)))
 (setq nxml-slash-auto-complete-flag t)
 
+(require 'whattf-dt)
+(eval-after-load "rng-loc"
+  '(add-to-list 'rng-schema-locating-files
+                (expand-file-name "schemas.xml" (directory-of-library 'whattf-dt))))
+
 
 ;;----------------------------------------------------------------------------
 ;; Integration with tidy for html + xml
