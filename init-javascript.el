@@ -64,11 +64,13 @@
        (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?$" 'html-js))))
 
 (autoload 'coffee-mode "coffee-mode" "Coffee Script major mode")
-(eval-after-load "coffee-mode"
+(add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))(eval-after-load "coffee-mode"
   `(setq coffee-js-mode preferred-javascript-mode
          coffee-tab-width preferred-javascript-indent-level))
 
-(add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
+(autoload 'flymake-coffee-load "flymake-coffee" "Flymake for coffee script")
+(add-hook 'coffee-mode-hook 'flymake-coffee-load)
+
 
 (require 'js-comint)
 (setq inferior-js-program-command "js")
