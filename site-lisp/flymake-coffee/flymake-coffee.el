@@ -1,5 +1,7 @@
 ;; Flymake support for coffee script
 ;;
+;; Based in part on http://d.hatena.ne.jp/antipop/20110508/1304838383
+;;
 ;; Usage: (add-hook 'coffee-mode-hook '(lambda () (flymake-coffee-load)))
 
 (defconst flymake-allowed-coffee-file-name-masks '(("\\.coffee$" flymake-coffee-init)))
