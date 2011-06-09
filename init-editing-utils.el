@@ -11,6 +11,12 @@
 (put 'narrow-to-page 'disabled nil)
 (put 'narrow-to-defun 'disabled nil)
 
+;;----------------------------------------------------------------------------
+;; Show matching parens
+;;----------------------------------------------------------------------------
+(require 'mic-paren) ; loading
+(paren-activate)     ; activating
+
 
 ;;----------------------------------------------------------------------------
 ;; Autopair quotes and parentheses
