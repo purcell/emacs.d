@@ -11,7 +11,7 @@ To install, clone this repo to ~/.emacs.d, i.e. ensure that the
 Before starting up Emacs, be sure to run 'git submodule update --init'
 to pull in the dependencies that have git repos. Upon starting up Emacs
 for the first time, further third-party packages will be automatically
-downloaded and installed, which may required 'svn' to be on your PATH.
+downloaded and installed, which may require 'svn' to be on your PATH.
 
 Although these config files aren't meant to be a replacement for
 emacs-starter-kit, some of the tips & tricks contained herein might be
