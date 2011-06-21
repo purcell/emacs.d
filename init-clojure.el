@@ -33,6 +33,8 @@
 (add-hook 'slime-repl-mode-hook 'slime-clojure-repl-setup)
 
 
+(require 'elein)
+
 
 (eval-after-load "viper"
   '(add-to-list 'viper-vi-state-mode-list 'clojure-mode))
