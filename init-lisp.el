@@ -101,13 +101,14 @@
      (define-key paredit-mode-map (kbd "M-k") 'warn-disabled-command)))
 
 ;; When editing lisp code, highlight the current sexp
-(require 'hl-sexp)
+(autoload 'hl-sexp-mode "hl-sexp")
 (add-hook 'paredit-mode-hook (lambda () (hl-sexp-mode t)))
 
 ;; Prevent flickery behaviour due to hl-sexp-mode unhighlighting before each command
-(defadvice hl-sexp-mode (after unflicker (turn-on) activate)
-  (when turn-on
-    (remove-hook 'pre-command-hook #'hl-sexp-unhighlight)))
+(eval-after-load "hl-sexp"
+  '(defadvice hl-sexp-mode (after unflicker (turn-on) activate)
+     (when turn-on
+       (remove-hook 'pre-command-hook #'hl-sexp-unhighlight))))
 
 
 ;;; Make M-. and M-, work in elisp like they do in slime
