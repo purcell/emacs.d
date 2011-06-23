@@ -115,13 +115,16 @@
 (require 'etags)
 
 (defun find-elisp-thing-at-point ()
+  "Jump to the elisp thing at point, whether it's a function,
+variable or library."
   (interactive)
   (let ((sym (symbol-at-point)))
     (when sym
       (ring-insert find-tag-marker-ring (point-marker))
-      (if (fboundp sym)
-          (find-function sym)
-        (find-variable sym)))))
+      (cond
+       ((fboundp sym) (find-function sym))
+       ((boundp sym) (find-variable sym))
+       ((featurep sym) (find-library (symbol-name sym)))))))
 
 (define-key emacs-lisp-mode-map (kbd "M-.") 'find-elisp-thing-at-point)
 (define-key emacs-lisp-mode-map (kbd "M-,") 'pop-tag-mark)
