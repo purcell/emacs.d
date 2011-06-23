@@ -1,21 +1,23 @@
-(require 'rinari)
+(eval-after-load "rinari"
+  `(let ((rinari-lib-dir (directory-of-library "rinari")))
+     (unless (require 'jump nil t)
+       (error "jump.el not found; please run 'git submodule update --init' in %s"
+              rinari-lib-dir))
 
-;; Prevent rinari from shadowing ruby-mode with its bundled copy
-(setq load-path
-      (remove (file-name-as-directory (expand-file-name "util" (directory-of-library "rinari")))
-              load-path))
+     ;; Prevent rinari from shadowing ruby-mode with its bundled copy
+     (setq load-path
+           (remove (file-name-as-directory (expand-file-name "util" rinari-lib-dir))
+                   load-path))))
 
+(autoload 'rinari-launch "rinari")
 
 (dolist (hook '(nxml-mode-hook haml-mode-hook sass-mode-hook magit-mode-hook yaml-mode-hook))
-  (add-hook hook (lambda () (rinari-launch))))
+  (add-hook hook 'rinari-launch))
 
 (defun update-rails-ctags ()
   (interactive)
   (let ((default-directory (or (rinari-root) default-directory)))
     (shell-command (concat "ctags -a -e -f " rinari-tags-file-name " --tag-relative -R app lib vendor test"))))
-
-
-(add-hook 'rails-minor-mode-hook (lambda () (local-set-key [f6] 'recompile)))
 
 
 (provide 'init-rails)
