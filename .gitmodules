@@ -19,9 +19,6 @@
 [submodule "site-lisp/color-theme-sanityinc-solarized"]
 	path = site-lisp/color-theme-sanityinc-solarized
 	url = https://github.com/purcell/color-theme-sanityinc-solarized.git
-[submodule "site-lisp/color-theme-zenburn"]
-	path = site-lisp/color-theme-zenburn
-	url = https://github.com/emacsmirror/zenburn.git
 [submodule "site-lisp/diff-git"]
 	path = site-lisp/diff-git
 	url = https://github.com/alanfalloon/diff-git.el.git
