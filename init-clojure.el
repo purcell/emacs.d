@@ -17,9 +17,6 @@
 (add-hook 'clojure-mode-hook 'enable-paredit-mode)
 
 
-
-(add-hook 'clojure-mode-hook 'font-lock-mode) ;; because it doesn't turn on in Emacs 24
-
 (defun slime-clojure-repl-setup ()
   "Some REPL setup additional to that in durendal"
   (when (string-equal (slime-lisp-implementation-name) "clojure")
