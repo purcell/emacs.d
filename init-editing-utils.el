@@ -26,16 +26,6 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Supercharge undo/redo
-;;----------------------------------------------------------------------------
-(require 'undo-tree)
-(global-undo-tree-mode)
-
-(require 'diminish)
-(eval-after-load "undo-tree" '(diminish 'undo-tree-mode))
-
-
-;;----------------------------------------------------------------------------
 ;; Fix per-window memory of buffer point positions
 ;;----------------------------------------------------------------------------
 (require 'pointback)

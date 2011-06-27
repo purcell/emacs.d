@@ -100,9 +100,6 @@
 [submodule "site-lisp/textile-mode"]
 	path = site-lisp/textile-mode
 	url = https://github.com/emacsmirror/textile-mode.git
-[submodule "site-lisp/undo-tree"]
-	path = site-lisp/undo-tree
-	url = https://github.com/emacsmirror/undo-tree.git
 [submodule "site-lisp/workgroups"]
 	path = site-lisp/workgroups
 	url = https://github.com/tlh/workgroups.el.git
