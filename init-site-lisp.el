@@ -44,7 +44,8 @@ source file under ~/.emacs.d/site-lisp/name/"
   (let ((dir (site-lisp-dir-for name)))
     (unless (site-lisp-library-loadable-p name)
       (message "Checking out %s from svn" name)
-      (shell-command (format "svn co %s %s" url dir))
+      (save-excursion
+        (shell-command (format "svn co %s %s" url dir)))
       (add-to-list 'load-path dir))))
 
 
