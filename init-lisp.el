@@ -124,7 +124,12 @@ variable or library."
       (cond
        ((fboundp sym) (find-function sym))
        ((boundp sym) (find-variable sym))
-       ((featurep sym) (find-library (symbol-name sym)))))))
+       ((or (featurep sym) (locate-library (symbol-name sym)))
+        (find-library (symbol-name sym)))
+       (:else
+        (progn
+          (pop-tag-mark)
+          (error "Don't know how to find '%s'" sym)))))))
 
 (define-key emacs-lisp-mode-map (kbd "M-.") 'find-elisp-thing-at-point)
 (define-key emacs-lisp-mode-map (kbd "M-,") 'pop-tag-mark)
