@@ -116,7 +116,7 @@
 
 (defun find-elisp-thing-at-point ()
   "Jump to the elisp thing at point, whether it's a function,
-variable or library."
+variable, library or face."
   (interactive)
   (let ((sym (symbol-at-point)))
     (when sym
@@ -126,6 +126,8 @@ variable or library."
        ((boundp sym) (find-variable sym))
        ((or (featurep sym) (locate-library (symbol-name sym)))
         (find-library (symbol-name sym)))
+       ((find-definition-noselect sym 'defface)
+        (find-face-definition sym))
        (:else
         (progn
           (pop-tag-mark)
