@@ -60,23 +60,41 @@ source file under ~/.emacs.d/site-lisp/name/"
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/site-lisp/org-mode/lisp"))
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/site-lisp/org-mode/contrib/lisp"))
 
+(defun refresh-site-lisp-submodules ()
+  (interactive)
+  (shell-command "cd ~/.emacs.d && git submodule foreach 'git pull'"))
 
 ;;----------------------------------------------------------------------------
 ;; Download these upstream libs
 ;;----------------------------------------------------------------------------
 
-(ensure-lib-from-url 'moz "https://github.com/bard/mozrepl/raw/master/chrome/content/moz.el")
-(ensure-lib-from-url 'todochiku "http://www.emacswiki.org/emacs/download/todochiku.el")
-;; TODO: consider smooth-scroll instead
-(ensure-lib-from-url 'smooth-scrolling "http://adamspiers.org/computing/elisp/smooth-scrolling.el")
-(ensure-lib-from-url 'edit-server "http://github.com/stsquad/emacs_chrome/raw/master/servers/edit-server.el")
-(ensure-lib-from-url 'eol-conversion "http://centaur.maths.qmw.ac.uk/emacs/files/eol-conversion.el")
-;; TODO: consider flymake-cursor from elpa?
-(ensure-lib-from-url 'flymake-point "http://bitbucket.org/brodie/dotfiles/raw/tip/.emacs.d/plugins/flymake-point.el")
-(ensure-lib-from-url 'dsvn "http://svn.apache.org/repos/asf/subversion/trunk/contrib/client-side/emacs/dsvn.el")
-(ensure-lib-from-url 'vc-darcs "http://www.pps.jussieu.fr/~jch/software/repos/vc-darcs/vc-darcs.el")
+(defun remove-site-lisp-libs ()
+  (shell-command "cd ~/.emacs.d && grep -e '^site-lisp/' .gitignore|xargs rm -r"))
 
-(ensure-lib-from-svn 'rdebug "http://ruby-debug.rubyforge.org/svn/trunk/emacs/")
-(ensure-lib-from-svn 'ruby-mode "http://svn.ruby-lang.org/repos/ruby/trunk/misc/")
+(defun ensure-site-lisp-libs ()
+  (ensure-lib-from-url 'moz "https://github.com/bard/mozrepl/raw/master/chrome/content/moz.el")
+  (ensure-lib-from-url 'todochiku "http://www.emacswiki.org/emacs/download/todochiku.el")
+  ;; TODO: consider smooth-scroll instead
+  (ensure-lib-from-url 'smooth-scrolling "http://adamspiers.org/computing/elisp/smooth-scrolling.el")
+  (ensure-lib-from-url 'edit-server "http://github.com/stsquad/emacs_chrome/raw/master/servers/edit-server.el")
+  (ensure-lib-from-url 'eol-conversion "http://centaur.maths.qmw.ac.uk/emacs/files/eol-conversion.el")
+  ;; TODO: consider flymake-cursor from elpa?
+  (ensure-lib-from-url 'flymake-point "http://bitbucket.org/brodie/dotfiles/raw/tip/.emacs.d/plugins/flymake-point.el")
+  (ensure-lib-from-url 'dsvn "http://svn.apache.org/repos/asf/subversion/trunk/contrib/client-side/emacs/dsvn.el")
+  (ensure-lib-from-url 'vc-darcs "http://www.pps.jussieu.fr/~jch/software/repos/vc-darcs/vc-darcs.el")
+
+  (ensure-lib-from-svn 'rdebug "http://ruby-debug.rubyforge.org/svn/trunk/emacs/")
+  (ensure-lib-from-svn 'ruby-mode "http://svn.ruby-lang.org/repos/ruby/trunk/misc/"))
+
+
+
+(defun refresh-site-lisp ()
+  (interactive)
+  (refresh-site-lisp-submodules)
+  (remove-site-lisp-libs)
+  (ensure-site-lisp-libs))
+
+
+(ensure-site-lisp-libs)
 
 (provide 'init-site-lisp)
