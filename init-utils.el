@@ -42,5 +42,14 @@
   (browse-url (concat "file://" (buffer-file-name))))
 
 
+(defmacro with-selected-frame (frame &rest forms)
+  (let ((prev-frame (gensym)))
+    `(progn
+       (let ((,prev-frame (selected-frame)))
+         (select-frame (or ,frame (selected-frame)))
+         (unwind-protect
+             (progn ,@forms)
+           (select-frame ,prev-frame))))))
+
 
 (provide 'init-utils)

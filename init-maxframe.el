@@ -7,15 +7,6 @@
   (setq mf-max-height 890)
   (setq mf-offset-x 0))
 
-(defmacro with-selected-frame (frame &rest forms)
-  (let ((prev-frame (gensym)))
-    `(progn
-       (let ((,prev-frame (selected-frame)))
-         (select-frame (or ,frame (selected-frame)))
-         (unwind-protect
-             (progn ,@forms)
-           (select-frame ,prev-frame))))))
-
 (defun maybe-maximize-frame (&optional frame)
   (with-selected-frame frame
     (if window-system (maximize-frame))))
