@@ -111,29 +111,9 @@
        (remove-hook 'pre-command-hook #'hl-sexp-unhighlight))))
 
 
-;;; Make M-. and M-, work in elisp like they do in slime
-(require 'etags)
+(require 'elisp-slime-nav)
+(add-hook 'emacs-lisp-mode-hook (lambda () (elisp-slime-nav-mode t)))
+(diminish 'elisp-slime-nav-mode)
 
-(defun find-elisp-thing-at-point ()
-  "Jump to the elisp thing at point, whether it's a function,
-variable, library or face."
-  (interactive)
-  (let ((sym (symbol-at-point)))
-    (when sym
-      (ring-insert find-tag-marker-ring (point-marker))
-      (cond
-       ((fboundp sym) (find-function sym))
-       ((boundp sym) (find-variable sym))
-       ((or (featurep sym) (locate-library (symbol-name sym)))
-        (find-library (symbol-name sym)))
-       ((find-definition-noselect sym 'defface)
-        (find-face-definition sym))
-       (:else
-        (progn
-          (pop-tag-mark)
-          (error "Don't know how to find '%s'" sym)))))))
-
-(define-key emacs-lisp-mode-map (kbd "M-.") 'find-elisp-thing-at-point)
-(define-key emacs-lisp-mode-map (kbd "M-,") 'pop-tag-mark)
 
 (provide 'init-lisp)

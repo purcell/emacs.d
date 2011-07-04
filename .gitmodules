@@ -184,3 +184,6 @@
 [submodule "site-lisp/html5-el"]
 	path = site-lisp/html5-el
 	url = https://github.com/hober/html5-el.git
+[submodule "site-lisp/elisp-slime-nav"]
+	path = site-lisp/elisp-slime-nav
+	url = https://github.com/purcell/elisp-slime-nav.git
