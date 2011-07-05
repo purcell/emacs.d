@@ -193,3 +193,6 @@
 [submodule "site-lisp/flymake-coffee"]
 	path = site-lisp/flymake-coffee
 	url = https://github.com/purcell/flymake-coffee.git
+[submodule "site-lisp/flymake-haml"]
+	path = site-lisp/flymake-haml
+	url = https://github.com/purcell/flymake-haml.git
