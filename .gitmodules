@@ -187,3 +187,6 @@
 [submodule "site-lisp/elisp-slime-nav"]
 	path = site-lisp/elisp-slime-nav
 	url = https://github.com/purcell/elisp-slime-nav.git
+[submodule "site-lisp/flymake-python-pyflakes"]
+	path = site-lisp/flymake-python-pyflakes
+	url = https://github.com/purcell/flymake-python-pyflakes.git
