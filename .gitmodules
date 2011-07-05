@@ -190,3 +190,6 @@
 [submodule "site-lisp/flymake-python-pyflakes"]
 	path = site-lisp/flymake-python-pyflakes
 	url = https://github.com/purcell/flymake-python-pyflakes.git
+[submodule "site-lisp/flymake-coffee"]
+	path = site-lisp/flymake-coffee
+	url = https://github.com/purcell/flymake-coffee.git
