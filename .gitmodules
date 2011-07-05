@@ -196,3 +196,6 @@
 [submodule "site-lisp/flymake-haml"]
 	path = site-lisp/flymake-haml
 	url = https://github.com/purcell/flymake-haml.git
+[submodule "site-lisp/flymake-ruby"]
+	path = site-lisp/flymake-ruby
+	url = https://github.com/purcell/flymake-ruby.git
