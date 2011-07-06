@@ -6,7 +6,6 @@
 (eval-after-load "clojure-mode"
   '(progn
      (require 'clojure-test-mode)))
-(add-hook 'clojure-mode-hook 'clojure-test-maybe-enable)
 
 ;; Use technomancy's bag of fancy clojure/slime tricks
 (eval-after-load "slime"
