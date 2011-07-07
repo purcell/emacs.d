@@ -113,7 +113,6 @@
 
 (require 'elisp-slime-nav)
 (add-hook 'emacs-lisp-mode-hook (lambda () (elisp-slime-nav-mode t)))
-(diminish 'elisp-slime-nav-mode)
 
 
 (provide 'init-lisp)
