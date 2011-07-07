@@ -52,7 +52,6 @@
 (require 'init-windows)
 (require 'init-sessions)
 (require 'init-fonts)
-(require 'init-themes)
 (require 'init-mmm)
 (require 'init-growl)
 
@@ -96,6 +95,9 @@
 (require 'init-twitter)
 
 (require 'init-misc)
+
+;; Finally set up themes, after most possibly-customised faces have been defined
+(require 'init-themes)
 
 
 ;;----------------------------------------------------------------------------
