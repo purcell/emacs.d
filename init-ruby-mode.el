@@ -12,6 +12,7 @@
 
 (add-hook 'ruby-mode-hook 'inf-ruby-keys)
 
+(setq ruby-use-encoding-map nil)
 
 (eval-after-load "ruby-mode"
   '(progn

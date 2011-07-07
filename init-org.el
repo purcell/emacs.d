@@ -1,14 +1,17 @@
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-(setq org-log-done t)
-(setq org-completion-use-ido t)
 
-
-(setq org-edit-timestamp-down-means-later t)
-
-(setq org-agenda-start-on-weekday nil)
-(setq org-agenda-ndays 7)
+;; Various preferences
+(setq org-log-done t
+      org-completion-use-ido t
+      org-edit-timestamp-down-means-later t
+      org-agenda-start-on-weekday nil
+      org-agenda-ndays 14
+      org-agenda-include-diary t
+      org-agenda-window-setup 'current-window
+      org-fast-tag-selection-single-key 'expert
+      org-tags-column 80)
 
 
 ; Refile targets include this file and any file contributing to the agenda - up to 5 levels deep
