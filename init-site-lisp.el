@@ -45,7 +45,7 @@ source file under ~/.emacs.d/site-lisp/name/"
     (unless (site-lisp-library-loadable-p name)
       (message "Checking out %s from svn" name)
       (save-excursion
-        (shell-command (format "svn co %s %s" url dir)))
+        (shell-command (format "svn co %s %s" url dir) "*site-lisp-svn*"))
       (add-to-list 'load-path dir))))
 
 
@@ -62,14 +62,15 @@ source file under ~/.emacs.d/site-lisp/name/"
 
 (defun refresh-site-lisp-submodules ()
   (interactive)
-  (shell-command "cd ~/.emacs.d && git submodule foreach 'git pull'"))
+  (message "Updating site-lisp git submodules")
+  (shell-command "cd ~/.emacs.d && git submodule foreach 'git pull' &" "*site-lisp-submodules*"))
 
 ;;----------------------------------------------------------------------------
 ;; Download these upstream libs
 ;;----------------------------------------------------------------------------
 
 (defun remove-site-lisp-libs ()
-  (shell-command "cd ~/.emacs.d && grep -e '^site-lisp/' .gitignore|xargs rm -r"))
+  (shell-command "cd ~/.emacs.d && grep -e '^site-lisp/' .gitignore|xargs rm -rf"))
 
 (defun ensure-site-lisp-libs ()
   (ensure-lib-from-url 'moz "https://github.com/bard/mozrepl/raw/master/chrome/content/moz.el")
