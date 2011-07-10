@@ -6,14 +6,16 @@
 (define-key ac-completing-map (kbd "C-n") 'ac-next)
 (define-key ac-completing-map (kbd "C-p") 'ac-previous)
 
-;; Use SmartTab to trigger AC completion
-(require 'smart-tab)
-(global-smart-tab-mode 1)
-(setq smart-tab-completion-functions-alist nil)
+;;----------------------------------------------------------------------------
+;; Use Emacs' built-in TAB completion hooks to trigger AC (Emacs >= 23.2)
+;;----------------------------------------------------------------------------
+(setq tab-always-indent 'complete)  ;; use 'complete when auto-complete is disabled
+(add-to-list 'completion-styles 'initials t)
 
-(require 'diminish)
-(diminish 'smart-tab-mode)
-
+;; hook AC into completion-at-point
+(defun set-auto-complete-as-completion-at-point-function ()
+  (setq completion-at-point-functions '(auto-complete)))
+(add-hook 'auto-complete-mode-hook 'set-auto-complete-as-completion-at-point-function)
 
 
 (set-default 'ac-sources
