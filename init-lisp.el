@@ -57,7 +57,7 @@
      (add-to-list 'ac-source-symbols '(selection-face . ac-symbol-selection-face))))
 
 (defun set-up-ac-for-elisp ()
-  (add-to-list 'ac-sources 'ac-source-symbols))
+  (ac-emacs-lisp-mode-setup))
 
 (defun maybe-map-paredit-newline ()
   (unless (or (eq major-mode 'inferior-emacs-lisp-mode) (minibufferp))
