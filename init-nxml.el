@@ -13,8 +13,8 @@
 
 (require 'whattf-dt)
 (eval-after-load "rng-loc"
-  '(add-to-list 'rng-schema-locating-files
-                (expand-file-name "schemas.xml" (directory-of-library 'whattf-dt))))
+  '(push (expand-file-name "schemas.xml" (directory-of-library "whattf-dt"))
+         rng-schema-locating-files))
 
 
 ;;----------------------------------------------------------------------------
