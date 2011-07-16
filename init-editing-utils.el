@@ -221,14 +221,14 @@
   "Replace newline chars in current paragraph by single spaces.
 This command does the reverse of `fill-paragraph'."
   (interactive)
-  (let ((fill-column 90002000))
+  (let ((fill-column most-positive-fixnum))
     (fill-paragraph nil)))
 
 (defun unfill-region (start end)
   "Replace newline chars in region by single spaces.
 This command does the reverse of `fill-region'."
   (interactive "r")
-  (let ((fill-column 90002000))
+  (let ((fill-column most-positive-fixnum))
     (fill-region start end)))
 
 
