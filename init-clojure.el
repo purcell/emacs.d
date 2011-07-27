@@ -45,7 +45,7 @@
           '((("#?['`]*(\\|)"       . 'clojure-parens))
             (("#?\\^?{\\|}"        . 'clojure-brackets))
             (("\\[\\|\\]"          . 'clojure-braces))
-            ((":\\w+"              . 'clojure-keyword))
+            ((":\\w+#?"            . 'clojure-keyword))
             (("#?\""               0 'clojure-double-quote prepend))
             (("nil\\|true\\|false\\|%[1-9]?" . 'clojure-special))
             (("(\\(\\.[^ \n)]*\\|[^ \n)]+\\.\\|new\\)\\([ )\n]\\|$\\)" 1 'clojure-java-call))
