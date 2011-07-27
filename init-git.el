@@ -8,6 +8,7 @@
 (require 'magit)
 (setq magit-save-some-buffers nil)
 (setq magit-process-popup-time 4)
+(setq magit-completing-read-function 'magit-ido-completing-read)
 
 (defun magit-status-somedir ()
   (interactive)
