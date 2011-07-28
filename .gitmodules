@@ -64,9 +64,6 @@
 [submodule "site-lisp/mmm-mode"]
 	path = site-lisp/mmm-mode
 	url = https://github.com/purcell/mmm-mode.git
-[submodule "site-lisp/offlineimap"]
-	path = site-lisp/offlineimap
-	url = git://git.naquadah.org/offlineimap-el.git
 [submodule "site-lisp/org-fstree"]
 	path = site-lisp/org-fstree
 	url = http://repo.or.cz/r/org-fstree.git
@@ -97,9 +94,6 @@
 [submodule "site-lisp/textile-mode"]
 	path = site-lisp/textile-mode
 	url = https://github.com/emacsmirror/textile-mode.git
-[submodule "site-lisp/workgroups"]
-	path = site-lisp/workgroups
-	url = https://github.com/tlh/workgroups.el.git
 [submodule "site-lisp/yaml-mode"]
 	path = site-lisp/yaml-mode
 	url = https://github.com/yoshiki/yaml-mode.git
