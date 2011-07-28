@@ -1,7 +1,10 @@
-(defvar *window-system-color-theme* 'color-theme-sanityinc-solarized-dark
-  "Color theme to use in window-system frames")
-(defvar *tty-color-theme* 'color-theme-terminal
-  "Color theme to use in TTY frames")
+(defcustom window-system-color-theme 'color-theme-sanityinc-solarized-dark
+  "Color theme to use in window-system frames"
+  :type 'symbol)
+
+(defcustom tty-color-theme 'color-theme-terminal
+  "Color theme to use in TTY frames"
+  :type 'symbol)
 
 
 (require 'color-theme-autoloads)
@@ -21,8 +24,8 @@
   (with-selected-frame frame
     (if window-system
         (preserving-default-font-size
-         (funcall *window-system-color-theme*))
-      (funcall *tty-color-theme*))))
+         (funcall window-system-color-theme))
+      (funcall tty-color-theme))))
 
 (defun reapply-color-themes ()
   (interactive)
@@ -30,12 +33,12 @@
 
 (defun light ()
   (interactive)
-  (setq *window-system-color-theme* 'color-theme-sanityinc-solarized-light)
+  (setq window-system-color-theme 'color-theme-sanityinc-solarized-light)
   (reapply-color-themes))
 
 (defun dark ()
   (interactive)
-  (setq *window-system-color-theme* 'color-theme-sanityinc-solarized-dark)
+  (setq window-system-color-theme 'color-theme-sanityinc-solarized-dark)
   (reapply-color-themes))
 
 (set-variable 'color-theme-is-global nil)
