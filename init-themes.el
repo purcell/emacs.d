@@ -43,6 +43,7 @@
 
 (set-variable 'color-theme-is-global nil)
 (add-hook 'after-make-frame-functions 'apply-best-color-theme-for-frame-type)
+(add-hook 'after-init-hook 'reapply-color-themes)
 (apply-best-color-theme-for-frame-type (selected-frame))
 
 (provide 'init-themes)
