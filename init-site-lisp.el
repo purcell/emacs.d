@@ -80,7 +80,7 @@ source file under ~/.emacs.d/site-lisp/name/"
   (ensure-lib-from-url 'edit-server "http://github.com/stsquad/emacs_chrome/raw/master/servers/edit-server.el")
   (ensure-lib-from-url 'eol-conversion "http://centaur.maths.qmw.ac.uk/emacs/files/eol-conversion.el")
   ;; TODO: consider flymake-cursor from elpa?
-  (ensure-lib-from-url 'flymake-point "http://bitbucket.org/brodie/dotfiles/raw/tip/.emacs.d/plugins/flymake-point.el")
+  (ensure-lib-from-url 'flymake-point "https://bitbucket.org/brodie/dotfiles/raw/tip/.emacs.d/plugins/flymake-point.el")
   (ensure-lib-from-url 'dsvn "http://svn.apache.org/repos/asf/subversion/trunk/contrib/client-side/emacs/dsvn.el")
   (ensure-lib-from-url 'vc-darcs "http://www.pps.jussieu.fr/~jch/software/repos/vc-darcs/vc-darcs.el")
 
