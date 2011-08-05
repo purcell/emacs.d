@@ -3,7 +3,7 @@
 	url = https://github.com/purcell/ac-slime.git
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
-	url = https://github.com/m2ym/auto-complete.git
+	url = https://github.com/purcell/auto-complete.git
 [submodule "site-lisp/clojure-mode"]
 	path = site-lisp/clojure-mode
 	url = https://github.com/technomancy/clojure-mode.git
@@ -190,3 +190,6 @@
 [submodule "site-lisp/flymake-ruby"]
 	path = site-lisp/flymake-ruby
 	url = https://github.com/purcell/flymake-ruby.git
+[submodule "site-lisp/external-abook"]
+	path = site-lisp/external-abook
+	url = https://github.com/emacsmirror/external-abook.git
