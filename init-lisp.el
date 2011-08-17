@@ -1,5 +1,5 @@
 (require 'pretty-mode)
-(global-pretty-mode 1)
+(add-hook 'emacs-lisp-mode-hook 'turn-on-pretty-mode)
 
 (autoload 'paredit-mode "paredit"
   "Minor mode for pseudo-structurally editing Lisp code." t)
