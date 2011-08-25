@@ -196,3 +196,6 @@
 [submodule "site-lisp/pretty-mode"]
 	path = site-lisp/pretty-mode
 	url = https://github.com/emacsmirror/pretty-mode.git
+[submodule "site-lisp/less-css-mode"]
+	path = site-lisp/less-css-mode
+	url = https://github.com/purcell/less-css-mode.git
