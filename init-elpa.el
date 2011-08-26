@@ -10,9 +10,8 @@
   (or (package-installed-p package min-version)
       (package-install package)))
 
-(unless (require 'package nil t)
-  (message "package.el not found: installing for you")
-  (ensure-lib-from-url 'package "http://repo.or.cz/w/emacs.git/blob_plain/HEAD:/lisp/emacs-lisp/package.el"))
+
+(require 'package)
 
 (package-initialize)
 (unless package-archive-contents
