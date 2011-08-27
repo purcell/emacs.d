@@ -19,7 +19,8 @@ useful to others, and there are flags at the top of init.el which can
 toggle certain features that might annoy people who aren't me,
 e.g. the "viper" vi emulation.
 
-I use Emacs from CVS on a Mac, but the config should work in other
-environments too.
+I use Emacs HEAD on a Mac, but the config should work in other
+environments too, with any Emacs version >= 23. If not, please file an
+issue on the github project: https://github.com/purcell/emacs.d
 
 -Steve Purcell
