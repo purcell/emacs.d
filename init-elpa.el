@@ -1,10 +1,3 @@
-(eval-after-load "package"
-  '(progn
-     (when (> emacs-major-version 23)
-       (add-to-list 'package-archives '("tromey" . "http://tromey.com/elpa/")))
-    (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-))
-
 (defun require-package (package &optional min-version)
   "Ask elpa to install given PACKAGE."
   (or (package-installed-p package min-version)
@@ -12,6 +5,8 @@
 
 
 (require 'package)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("tromey" . "http://tromey.com/elpa/"))
 
 (package-initialize)
 (unless package-archive-contents
