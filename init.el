@@ -97,7 +97,8 @@
 
 ;; Finally set up themes, after most possibly-customised faces have been defined
 (require 'init-themes)
-
+;; Chinese inut method
+(require 'init-eim)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
@@ -117,6 +118,7 @@
 ;;----------------------------------------------------------------------------
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
+
 
 
 ;;----------------------------------------------------------------------------
