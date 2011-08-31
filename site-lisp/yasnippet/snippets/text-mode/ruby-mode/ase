@@ -1,0 +1,4 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : Tests
+# --
+assert_equal`snippet_paren.rb`${1:expected}, ${0:actual}`snippet_paren.rb end`

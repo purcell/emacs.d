@@ -1,0 +1,128 @@
+<html lang="en">
+<head>
+<title>Integrating speedbar - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="prev" href="Simulating-speedbar.html#Simulating-speedbar" title="Simulating speedbar">
+<link rel="next" href="Large-directories.html#Large-directories" title="Large directories">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Integrating-speedbar"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Large-directories.html#Large-directories">Large directories</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Simulating-speedbar.html#Simulating-speedbar">Simulating speedbar</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>
+<hr>
+</div>
+
+<h3 class="section">10.5 Integrating speedbar in the ECB-frame</h3>
+
+<p>It is very easy to integrate speedbar into ECB. There are two
+different ways to do this:
+
+     <ol type=1 start=1>
+<li>You can either use speedbar in the directories-, sources- or
+methods-window of ECB instead of the built-in directory-, sources- or
+methods-browser of ECB. This can be done via the option
+<code>ecb-use-speedbar-instead-native-tree-buffer</code>.
+
+     <li>Or you can integrate an extra speedbar-window into a layout
+independent of the existence of a directory-, sources- or
+methods-window. For this you can either use the built-in layout
+&ldquo;left-dir-plus-speedbar&rdquo; or you have to create your own layout
+interactively with the command <code>ecb-create-new-layout</code>. This way
+is not described in more details because there is nothing more to
+describe - just create your layout.
+        </ol>
+
+   <p>In general integrating speedbar into the ECB-frame makes sense for
+people...
+
+     <ul>
+<li>...who like the speedbar way of handling directories and source-files
+but also like the ECB-way of displaying the buffer-contents (like
+methods and variables in a source-file). This people should use the
+option <code>ecb-use-speedbar-instead-native-tree-buffer</code> and set it
+to <code>dir</code>.
+
+     <li>...who like the speedbar way of browsing things like directories,
+files, file-contents etc. but who dislike the extra speedbar-frame. 
+</ul>
+
+   <p>Note: It is not necessary to integrate speedbar if you only want
+parsing sources not supported by semantic. From version 1.94 on ECB
+supports native parsing and displaying of such sources
+(see <a href="Non_002dsemantic-sources.html#Non_002dsemantic-sources">Non-semantic sources</a>)!
+
+   <p>Regardless the group you belong, with the speedbar-integration feature
+of ECB you can combine both worlds, the speedbar- and the ECB-world:
+
+     <ol type=1 start=1>
+<li>Choose a layout which either contains a directories- or a
+sources-window but not both of them<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>.
+
+     <p>Because speedbar has also display-modes for buffers and info-nodes and
+some other useful things (which can be changed by the speedbar-command
+<code>speedbar-change-initial-expansion-list</code> we recommend layouts
+like &ldquo;left15&rdquo; or &ldquo;leftright3&rdquo; for using with speedbar.
+
+     <li>Set the option
+<code>ecb-use-speedbar-instead-native-tree-buffer</code> to not nil. After
+this the chosen window of ECB will contain a full featured speedbar
+(the only difference to standard speedbar is not residing in an extra
+frame).
+        </ol>
+
+   <p>Note: If you belong to the first group of people (s.a.) a similar
+effect and usability is available by setting
+<code>ecb-use-speedbar-instead-native-tree-buffer</code> to nil and setting
+<code>ecb-show-sources-in-directories-buffer</code> to not nil, because this
+combination displays also directories and sources in one window.
+
+   <p>So with the option <code>ecb-use-speedbar-instead-native-tree-buffer</code>
+you have the choice which way of displaying and handling &ldquo;things&rdquo;
+(directories, sources, methods...) you want (the speedbar- or the
+ECB-way).
+
+   <p>During speedbar is running within ECB (i.e. 
+<code>ecb-use-speedbar-instead-native-tree-buffer</code> is not nil) the
+speedbar-command <code>speedbar</code> is disabled and the speedbar-command
+<code>speedbar-get-focus</code> switches between the speedbar-window and the
+edit-window<a rel="footnote" href="#fn-2" name="fnd-2"><sup>2</sup></a>.
+
+   <p><strong>IMPORTANT</strong>: ECB can only integrate speedbar-versions &gt;=
+0.14beta1! If you use lower versions of speedbar
+<code>ecb-use-speedbar-instead-native-tree-buffer</code> has no effect.
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> Only one of them is
+needed if you use speedbar because speedbar displays directories and
+sources in one window. But if you like wasting space then you can also
+use a layout with both windows...</p>
+
+   <p class="footnote"><small>[<a name="fn-2" href="#fnd-2">2</a>]</small> The standard behavior is switching between the
+speedbar-frame and the attached frame, but this make obviously no
+sense during running speedbar with ECB.</p>
+
+   <p><hr></div>
+
+   </body></html>
+

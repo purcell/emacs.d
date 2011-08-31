@@ -1,0 +1,4 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : Files
+# --
+File.foreach(${1:"${2:path/to/file}"}) { |${3:line}| $0 }

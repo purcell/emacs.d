@@ -1,0 +1,4 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : Tests
+# --
+assert_nothing_thrown { $0 }

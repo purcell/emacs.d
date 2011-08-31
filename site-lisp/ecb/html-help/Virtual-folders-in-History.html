@@ -1,0 +1,104 @@
+<html lang="en">
+<head>
+<title>Virtual folders in History - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="prev" href="Window_002dmanagers-and-ECB.html#Window_002dmanagers-and-ECB" title="Window-managers and ECB">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Virtual-folders-in-History"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Window_002dmanagers-and-ECB.html#Window_002dmanagers-and-ECB">Window-managers and ECB</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>
+<hr>
+</div>
+
+<h3 class="section">10.16 Something like virtual folders with the ECB-history</h3>
+
+<p>For example, there is a large project with a huge number of files, and there
+are various tasks in this project (e.g. several different bug-fixing tasks). 
+So it could be convenient to group buffers according to various tasks, or with
+other words: something like virtual folders for the buffers. It can be
+fulfiled through using indirect buffers.
+
+   <p>See the following example:
+
+<pre class="example">   task_1-aaa.pl
+   task_1-bbb.c
+   task_1-ccc.sh
+   task_2-aaa.pl
+   task_2-eee.c
+   task_2-ccc.sh
+   task_3-xxx.java
+   task_3-ccc.sh
+</pre>
+   <p>This means create indirect buffers<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a> with a name-part which can be
+used for grouping together buffers with same name-part (here e.g. task_1- ... 
+task_3-). In the example above you would create three indirect buffers for the
+filebuffer ccc.sh because this source is needed in all three tasks, two
+indirect buffers for aaa.pl because it is needed in the task-1 and task-2 and
+so on for the rest of the buffers. Make all this indirect buffers with the
+command <code>clone-indirect-buffer</code><a rel="footnote" href="#fn-2" name="fnd-2"><sup>2</sup></a>, which creates real clones means the indirect buffers have the same
+major-mode etc. as the base-buffer (see the manual of Emas).
+
+   <p>Now remember to the option <code>ecb-history-make-buckets</code> which allows a.o. 
+to define a list of regular expressions to bucketize the buffers of the
+history. Use this to make one bucket for each task. So in our example a value
+
+<pre class="example">   ("^task_1-.+" "^task_2-.+" "^task_3-.+")
+</pre>
+   <p>for <code>ecb-history-make-buckets</code> would satiesfy our needs.
+
+   <p>This option allows to define several criterias for building buckets in the
+history-buffer all the history entries are sorted in (e.g. by major-mode,
+directory, file-extension or regular expressions).
+
+   <p>After that the history-window would display something like the following:
+
+<pre class="example">   [-] [^task_1-.+]
+    |  task_1-aaa.pl
+    |  task_1-bbb.c
+    `- task_1-ccc.sh
+   [-] [^task_2-.+]
+    |  task_2-aaa.pl
+    |  task_2-eee.c
+    `- task_2-ccc.sh
+   [-] [^task_3-.+]
+    |  task_3-xxx.java
+    `- task_3-ccc.sh
+</pre>
+   <p>Hopefully this example could give an impression how the combination of usage
+of indirect buffers and bucketizing the history-window can be used for
+using one sources for different sake and grouping together what belongs
+together.
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> Remember the most important
+feature of indirect buffers: Changes made in one of them will immediately take
+effect in all others with the same base-buffer</p>
+
+   <p class="footnote"><small>[<a name="fn-2" href="#fnd-2">2</a>]</small> Currently only available with
+GNU Emacs</p>
+
+   <p><hr></div>
+
+   </body></html>
+

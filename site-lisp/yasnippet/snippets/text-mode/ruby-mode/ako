@@ -1,0 +1,4 @@
+#name : assert_kind_of  ... ,  ... 
+#group: assert
+# --
+assert_kind_of ${class}, ${object}

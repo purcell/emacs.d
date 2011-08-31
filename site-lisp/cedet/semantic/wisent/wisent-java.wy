@@ -1,0 +1,2151 @@
+;;; wisent-java.wy -- LALR grammar for Java
+;;
+;; Copyright (C) 2002, 2003, 2004, 2005, 2006 David Ponce
+;;
+;; Author: David Ponce <david@dponce.com>
+;; Maintainer: David Ponce <david@dponce.com>
+;; Created: 19 Feb 2002
+;; Keywords: syntax
+;; X-RCS: $Id: wisent-java.wy,v 1.29 2006/05/31 12:49:05 ponced Exp $
+;;
+;; This file is not part of GNU Emacs.
+;;
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+;;
+;; This software is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to the
+;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+;;
+;;; Commentary:
+;;
+;; This grammar fully parses correct Java 1.5 syntax.
+;;
+;; It is based on the GPLed CUP Grammar for Java version 1.5, plus:
+;;
+;;   - JSR-175 "Program Annotation Facility" productions.
+;;   - Additional rules to extract tags needed by Semantic.
+;;   - Error recovery rules to work as safely as possible in an
+;;     interactive environment.
+;;
+;; The CUP parser home page is at
+;; <http://www.cs.princeton.edu/~appel/modern/java/CUP/>.
+;;
+;; TODO:
+;;  - Finalize production of tags from inside `block_statements'.
+;;  - Finalize production of `:template-specifier' attribute according
+;;    to what is done in the C grammar.
+;;  - Finalize production of tags from annotations?
+;;  - Review error recovery rules.
+;;
+
+%{
+  ;; Stack of enum names in scope.
+  (defvar wisent-java-wy--enums nil)
+  ;; Stack of anonymous class declarations found in an expression.
+  (defvar wisent-java-wy--anons nil)
+  }
+
+%package wisent-java-wy
+
+%languagemode java-mode
+
+;; The default goal.
+%start goal
+;; Alternate goals needed for re-parse.
+%start package_declaration
+%start import_declaration
+%start class_declaration
+%start enum_declaration
+%start enum_constant
+%start field_declaration
+%start method_declaration
+%start formal_parameter
+%start constructor_declaration
+%start interface_declaration
+%start abstract_method_declaration
+;; Re-parse inside blocks (not yet finished).
+%start block_statements
+%start local_variable_declaration
+;; Goal used for `semantic-get-local-variables'.
+%start block_statement
+
+;; -----------------------------
+;; Block & Parenthesis terminals
+;; -----------------------------
+%type  <block>       ;;syntax "\\s(\\|\\s)" matchdatatype block
+
+%token <block>       PAREN_BLOCK "(LPAREN RPAREN)"
+%token <block>       BRACE_BLOCK "(LBRACE RBRACE)"
+%token <block>       BRACK_BLOCK "(LBRACK RBRACK)"
+
+%token <open-paren>  LPAREN      "("
+%token <close-paren> RPAREN      ")"
+%token <open-paren>  LBRACE      "{"
+%token <close-paren> RBRACE      "}"
+%token <open-paren>  LBRACK      "["
+%token <close-paren> RBRACK      "]"
+
+;; ------------------
+;; Operator terminals
+;; ------------------
+%type  <punctuation> ;;syntax "\\(\\s.\\|\\s$\\|\\s'\\)+" matchdatatype string
+
+%token <punctuation> NOT         "!"
+%token <punctuation> NOTEQ       "!="
+%token <punctuation> MOD         "%"
+%token <punctuation> MODEQ       "%="
+%token <punctuation> AND         "&"
+%token <punctuation> ANDAND      "&&"
+%token <punctuation> ANDEQ       "&="
+%token <punctuation> MULT        "*"
+%token <punctuation> MULTEQ      "*="
+%token <punctuation> PLUS        "+"
+%token <punctuation> PLUSPLUS    "++"
+%token <punctuation> PLUSEQ      "+="
+%token <punctuation> COMMA       ","
+%token <punctuation> MINUS       "-"
+%token <punctuation> MINUSMINUS  "--"
+%token <punctuation> MINUSEQ     "-="
+%token <punctuation> DOT         "."
+%token <punctuation> DIV         "/"
+%token <punctuation> DIVEQ       "/="
+%token <punctuation> COLON       ":"
+%token <punctuation> SEMICOLON   ";"
+%token <punctuation> LT          "<"
+%token <punctuation> LSHIFT      "<<"
+%token <punctuation> LSHIFTEQ    "<<="
+%token <punctuation> LTEQ        "<="
+%token <punctuation> EQ          "="
+%token <punctuation> EQEQ        "=="
+%token <punctuation> GT          ">"
+%token <punctuation> GTEQ        ">="
+%token <punctuation> RSHIFT      ">>"
+%token <punctuation> RSHIFTEQ    ">>="
+%token <punctuation> URSHIFT     ">>>"
+%token <punctuation> URSHIFTEQ   ">>>="
+%token <punctuation> QUESTION    "?"
+%token <punctuation> XOR         "^"
+%token <punctuation> XOREQ       "^="
+%token <punctuation> OR          "|"
+%token <punctuation> OREQ        "|="
+%token <punctuation> OROR        "||"
+%token <punctuation> COMP        "~"
+%token <punctuation> ELLIPSIS    "..."
+%token <punctuation> AT          "@"
+
+;; -----------------
+;; Literal terminals
+;; -----------------
+%type  <symbol>      ;;syntax "\\(\\sw\\|\\s_\\)+"
+%token <symbol>      NULL_LITERAL    "\\`null\\'"
+%token <symbol>      BOOLEAN_LITERAL "\\`false\\'"
+%token <symbol>      BOOLEAN_LITERAL "\\`true\\'"
+%token <symbol>      IDENTIFIER
+
+%type  <string>      ;;syntax "\\s\"" matchdatatype sexp
+%token <string>      STRING_LITERAL
+
+%type  <number>      ;;syntax semantic-lex-number-expression
+%token <number>      NUMBER_LITERAL
+
+;; -----------------
+;; Keyword terminals
+;; -----------------
+;; Generate a keyword analyzer
+%type  <keyword> ;;syntax "\\(\\sw\\|\\s_\\)+" matchdatatype keyword
+
+%keyword ABSTRACT     "abstract"
+%put     ABSTRACT summary
+"Class|Method declaration modifier: abstract {class|<type>} <name> ..."
+
+%keyword ASSERT       "assert"
+%put     ASSERT summary
+"Assertion statement: assert <expr> [,<expr> ...];"
+
+%keyword BOOLEAN      "boolean"
+%put     BOOLEAN summary
+"Primitive logical quantity type (true or false)"
+
+%keyword BREAK        "break"
+%put     BREAK summary
+"break [<label>] ;"
+
+%keyword BYTE         "byte"
+%put     BYTE summary
+"Integral primitive type (-128 to 127)"
+
+%keyword CASE         "case"
+%put     CASE summary
+"switch(<expr>) {case <const-expr>: <stmts> ... }"
+
+%keyword CATCH        "catch"
+%put     CATCH summary
+"try {<stmts>} catch(<parm>) {<stmts>} ... "
+
+%keyword CHAR         "char"
+%put     CHAR summary
+"Integral primitive type ('\u0000' to '\uffff') (0 to 65535)"
+
+%keyword CLASS        "class"
+%put     CLASS summary
+"Class declaration: class <name>"
+
+%keyword CONST        "const"
+%put     CONST summary
+"Unused reserved word"
+
+%keyword CONTINUE     "continue"
+%put     CONTINUE summary
+"continue [<label>] ;"
+
+%keyword DEFAULT      "default"
+%put     DEFAULT summary
+"switch(<expr>) { ... default: <stmts>}"
+
+%keyword DO           "do"
+%put     DO summary
+"do <stmt> while (<expr>);"
+
+%keyword DOUBLE       "double"
+%put     DOUBLE summary
+"Primitive floating-point type (double-precision 64-bit IEEE 754)"
+
+%keyword ELSE         "else"
+%put     ELSE summary
+"if (<expr>) <stmt> else <stmt>"
+
+%keyword ENUM         "enum"
+%put     ENUM summary
+"Enum declaration"
+
+%keyword EXTENDS      "extends"
+%put     EXTENDS summary
+"SuperClass|SuperInterfaces declaration: extends <name> [, ...]"
+
+%keyword FINAL        "final"
+%put     FINAL summary
+"Class|Member declaration modifier: final {class|<type>} <name> ..."
+
+%keyword FINALLY      "finally"
+%put     FINALLY summary
+"try {<stmts>} ... finally {<stmts>}"
+
+%keyword FLOAT        "float"
+%put     FLOAT summary
+"Primitive floating-point type (single-precision 32-bit IEEE 754)"
+
+%keyword FOR          "for"
+%put     FOR summary
+"for ([<init-expr>]; [<expr>]; [<update-expr>]) <stmt>"
+
+%keyword GOTO         "goto"
+%put     GOTO summary
+"Unused reserved word"
+
+%keyword IF           "if"
+%put     IF summary
+"if (<expr>) <stmt> [else <stmt>]"
+
+%keyword IMPLEMENTS   "implements"
+%put     IMPLEMENTS summary
+"Class SuperInterfaces declaration: implements <name> [, ...]"
+
+%keyword IMPORT       "import"
+%put     IMPORT summary
+"Import package declarations: import <package>"
+
+%keyword INSTANCEOF   "instanceof"
+
+%keyword INT          "int"
+%put     INT summary
+"Integral primitive type (-2147483648 to 2147483647)"
+
+%keyword INTERFACE    "interface"
+%put     INTERFACE summary
+"Interface declaration: interface <name>"
+
+%keyword LONG         "long"
+%put     LONG summary
+"Integral primitive type (-9223372036854775808 to 9223372036854775807)"
+
+%keyword NATIVE       "native"
+%put     NATIVE summary
+"Method declaration modifier: native <type> <name> ..."
+
+%keyword NEW          "new"
+
+%keyword PACKAGE      "package"
+%put     PACKAGE summary
+"Package declaration: package <name>"
+
+%keyword PRIVATE      "private"
+%put     PRIVATE summary
+"Access level modifier: private {class|interface|<type>} <name> ..."
+
+%keyword PROTECTED    "protected"
+%put     PROTECTED summary
+"Access level modifier: protected {class|interface|<type>} <name> ..."
+
+%keyword PUBLIC       "public"
+%put     PUBLIC summary
+"Access level modifier: public {class|interface|<type>} <name> ..."
+
+%keyword RETURN       "return"
+%put     RETURN summary
+"return [<expr>] ;"
+
+%keyword SHORT        "short"
+%put     SHORT summary
+"Integral primitive type (-32768 to 32767)"
+
+%keyword STATIC       "static"
+%put     STATIC summary
+"Declaration modifier: static {class|interface|<type>} <name> ..."
+
+%keyword STRICTFP     "strictfp"
+%put     STRICTFP summary
+"Declaration modifier: strictfp {class|interface|<type>} <name> ..."
+
+%keyword SUPER        "super"
+
+%keyword SWITCH       "switch"
+%put     SWITCH summary
+"switch(<expr>) {[case <const-expr>: <stmts> ...] [default: <stmts>]}"
+
+%keyword SYNCHRONIZED "synchronized"
+%put     SYNCHRONIZED summary
+"synchronized (<expr>) ... | Method decl. modifier: synchronized <type> <name> ..."
+
+%keyword THIS         "this"
+
+%keyword THROW        "throw"
+%put     THROW summary
+"throw <expr> ;"
+
+%keyword THROWS       "throws"
+%put     THROWS summary
+"Method|Constructor declaration: throws <classType>, ..."
+
+%keyword TRANSIENT    "transient"
+%put     TRANSIENT summary
+"Field declaration modifier: transient <type> <name> ..."
+
+%keyword TRY          "try"
+%put     TRY summary
+"try {<stmts>} [catch(<parm>) {<stmts>} ...] [finally {<stmts>}]"
+
+%keyword VOID         "void"
+%put     VOID summary
+"Method return type: void <name> ..."
+
+%keyword VOLATILE     "volatile"
+%put     VOLATILE summary
+"Field declaration modifier: volatile <type> <name> ..."
+
+%keyword WHILE        "while"
+%put     WHILE summary
+"while (<expr>) <stmt> | do <stmt> while (<expr>);"
+  
+;; --------------------------
+;; Official javadoc line tags
+;; --------------------------
+
+;; Javadoc tags are identified by a `javadoc' keyword property.  The
+;; value of this property must be itself a property list where the
+;; following properties are recognized:
+;;
+;; - `seq' (mandatory) is the tag sequence number used to check if
+;;   tags are correctly ordered in a javadoc comment block.
+;;
+;; - `usage' (mandatory) is the list of tag classes for which this
+;;   documentation tag is allowed.
+;;
+;; - `opt' (optional) if non-nil indicates this is an optional tag.
+;;   By default tags are mandatory.
+;;
+;; - `with-name' (optional) if non-nil indicates that this tag is
+;;   followed by an identifier like in "@param <var-name> description"
+;;   or "@exception <class-name> description".
+;;
+;; - `with-ref' (optional) if non-nil indicates that the tag is
+;;   followed by a reference like in "@see <reference>".
+
+%keyword _AUTHOR      "@author"
+%put     _AUTHOR      javadoc (seq 1 usage (type))
+%keyword _VERSION     "@version"
+%put     _VERSION     javadoc (seq 2 usage (type)) 
+%keyword _PARAM       "@param"
+%put     _PARAM       javadoc (seq 3 usage (function) with-name t) 
+%keyword _RETURN      "@return"
+%put     _RETURN      javadoc (seq 4 usage (function)) 
+%keyword _EXCEPTION   "@exception"
+%put     _EXCEPTION   javadoc (seq 5 usage (function) with-name t) 
+%keyword _THROWS      "@throws"
+%put     _THROWS      javadoc (seq 6 usage (function) with-name t) 
+%keyword _SEE         "@see"
+%put     _SEE         javadoc (seq 7 usage (type function variable) opt t with-ref t) 
+%keyword _SINCE       "@since"
+%put     _SINCE       javadoc (seq 8 usage (type function variable) opt t) 
+%keyword _SERIAL      "@serial"
+%put     _SERIAL      javadoc (seq 9 usage (variable) opt t) 
+%keyword _SERIALDATA  "@serialData"
+%put     _SERIALDATA  javadoc (seq 10 usage (function) opt t) 
+%keyword _SERIALFIELD "@serialField"
+%put     _SERIALFIELD javadoc (seq 11 usage (variable) opt t) 
+%keyword _DEPRECATED  "@deprecated"
+%put     _DEPRECATED  javadoc (seq 12 usage (type function variable) opt t) 
+
+%%
+
+;; ------------
+;; LALR Grammar
+;; ------------
+
+goal
+  : compilation_unit
+  ;
+
+;;; 19.3) Lexical Structure.
+;;
+literal
+  : NUMBER_LITERAL
+  | BOOLEAN_LITERAL
+  | STRING_LITERAL
+  | NULL_LITERAL
+  ;
+
+;;; 19.4) Types, Values, and Variables
+;;
+type
+  : primitive_type
+  | reference_type
+  ;
+
+primitive_type
+  : numeric_type
+  | BOOLEAN
+  ;
+
+numeric_type
+  : integral_type
+  | floating_point_type
+  ;
+
+integral_type
+  : BYTE 
+  | SHORT 
+  | INT 
+  | LONG 
+  | CHAR 
+  ;
+
+floating_point_type
+  : FLOAT 
+  | DOUBLE
+  ;
+
+reference_type
+  : class_or_interface_type
+ ;; Must check whether this is a class name or a type variable.
+  | array_type
+  ;
+
+type_variable
+  : IDENTIFIER
+  ;
+
+class_or_interface
+  : name
+  | class_or_interface LT type_argument_list_1 DOT name
+    (concat $1 $2 $3 $4 $5)
+  ;
+
+class_or_interface_type
+  : class_or_interface
+  | class_or_interface LT type_argument_list_1
+    (concat $1 $2 $3)
+  ;
+
+class_type
+  : class_or_interface_type
+  ;
+
+interface_type
+  : class_or_interface_type
+  ;		
+
+array_type
+  : primitive_type dims
+    (concat $1 $2)
+  | name dims
+    (concat $1 $2)
+  | class_or_interface LT type_argument_list_1 DOT name dims
+    (concat $1 $2 $3 $4 $5 $6)
+  | class_or_interface LT type_argument_list_1 dims
+    (concat $1 $2 $3 $4)
+  ;
+
+type_arguments_opt
+  : type_arguments
+  | ;;EMPTY
+    (progn "")
+  ;
+
+type_arguments
+  : LT type_argument_list_1
+    (concat $1 $2)
+  ;
+
+wildcard
+  : QUESTION
+  | QUESTION EXTENDS reference_type
+    (concat $1 " " $2 " " $3)
+  | QUESTION SUPER reference_type
+    (concat $1 " " $2 " " $3)
+  ;
+
+wildcard_1
+  : QUESTION GT
+    (concat $1 $2)
+  | QUESTION EXTENDS reference_type_1
+    (concat $1 " " $2 " " $3)
+  | QUESTION SUPER reference_type_1
+    (concat $1 " " $2 " " $3)
+  ;
+
+wildcard_2
+  : QUESTION RSHIFT
+    (concat $1 $2)
+  | QUESTION EXTENDS reference_type_2
+    (concat $1 " " $2 " " $3)
+  | QUESTION SUPER reference_type_2
+    (concat $1 " " $2 " " $3)
+  ;
+
+wildcard_3
+  : QUESTION URSHIFT
+    (concat $1 $2)
+  | QUESTION EXTENDS reference_type_3
+    (concat $1 " " $2 " " $3)
+  | QUESTION SUPER reference_type_3
+    (concat $1 " " $2 " " $3)
+  ;
+
+reference_type_1
+  : reference_type GT
+    (concat $1 $2)
+  | class_or_interface LT type_argument_list_2
+    (concat $1 $2 $3)
+  ;
+
+reference_type_2
+  : reference_type RSHIFT
+    (concat $1 $2)
+  | class_or_interface LT type_argument_list_3
+    (concat $1 $2 $3)
+  ;
+
+reference_type_3
+  : reference_type URSHIFT
+    (concat $1 $2)
+  ;
+
+type_argument_list
+  : type_argument
+  | type_argument_list COMMA type_argument
+    (concat $1 $2 $3)
+  ;
+
+type_argument_list_1
+  : type_argument_1
+  | type_argument_list COMMA type_argument_1
+    (concat $1 $2 $3)
+  ;
+
+type_argument_list_2
+  : type_argument_2
+  | type_argument_list COMMA type_argument_2
+    (concat $1 $2 $3)
+  ;
+
+type_argument_list_3
+  : type_argument_3
+  | type_argument_list COMMA type_argument_3
+    (concat $1 $2 $3)
+  ;
+
+type_argument
+  : reference_type
+  | wildcard
+  ;
+
+type_argument_1
+  : reference_type_1
+  | wildcard_1
+  ;
+
+type_argument_2
+  : reference_type_2
+  | wildcard_2
+  ;
+
+type_argument_3
+  : reference_type_3
+  | wildcard_3
+  ;
+
+;;; 19.5) Names
+;;
+name
+  : simple_name
+  | qualified_name
+  ;
+
+simple_name
+  : IDENTIFIER
+  ;
+
+qualified_name
+  : name DOT IDENTIFIER
+    (concat $1 $2 $3)
+  ;
+
+;;; 19.6) Packages
+;;
+
+;; compilation_unit
+;;   package_declarations_opt
+;;   import_declarations_opt
+;;   type_declarations_opt
+;;
+;; Rewritten to benefit from the Semantic's iterative parser backend.
+;; Must check for order of package, import, and type declarations.
+compilation_unit
+  : package_declaration
+  | import_declaration
+  | type_declaration
+  ;
+
+package_declaration
+  : modifiers_opt PACKAGE name SEMICOLON
+    (EXPANDTAG
+     (PACKAGE-TAG $3 nil :typemodifiers $1)
+     )
+  ;
+
+;; Import_Declaration
+;;     SingleTypeImportDeclaration
+;;     TypeImportOnDemandDeclaration
+;;     StaticSingleTypeImportDeclaration
+;;     StaticTypeImportOnDemandDeclaration
+import_declaration
+  : IMPORT name SEMICOLON
+    (EXPANDTAG
+     (INCLUDE-TAG $2 nil)
+     )
+  | IMPORT name DOT MULT SEMICOLON
+    (EXPANDTAG
+     (INCLUDE-TAG (concat $2 $3 $4) nil)
+     )
+  | IMPORT STATIC name SEMICOLON
+    (EXPANDTAG
+     (INCLUDE-TAG $3 nil
+                  :static-flag t)
+     )
+  | IMPORT STATIC name DOT MULT SEMICOLON
+    (EXPANDTAG
+     (INCLUDE-TAG (concat $3 $4 $5) nil
+                  :static-flag t)
+     )
+  ;
+
+type_declaration
+  : class_declaration
+  | interface_declaration
+  | enum_declaration
+  | annotation_type_declaration
+    ()
+  | SEMICOLON
+    ()
+  ;
+
+;;; 19.7) Productions used only in the LALR(1) grammar
+;;
+modifiers_opt
+  : ;;EMPTY
+  | modifiers
+  ;
+
+modifiers
+  : modifier
+    (list $1)
+  | modifiers modifier
+    (append $1 (list $2))
+  ;
+
+modifier
+  : PUBLIC
+  | PROTECTED
+  | PRIVATE
+  | STATIC
+  | ABSTRACT
+  | FINAL
+  | NATIVE
+  | SYNCHRONIZED
+  | TRANSIENT
+  | VOLATILE
+  | STRICTFP
+  | annotation
+  ;
+
+;;; 19.8) Classes
+;;
+
+;;; 19.8.1) Class Declaration
+;;
+class_declaration
+  : modifiers_opt CLASS IDENTIFIER type_parameters_opt
+    super_opt interfaces_opt class_body
+    (EXPANDTAG
+     (TYPE-TAG $3 $2 $7 (if (or $5 $6) (cons $5 $6))
+               :typemodifiers $1
+               :template-specifier $4)
+     )
+  ;
+
+super
+  : EXTENDS class_type
+    (progn $2)
+  ;
+
+super_opt
+  : ;;EMPTY
+  | super
+  ;
+
+interfaces
+  : IMPLEMENTS interface_type_list
+    (progn $2)
+  ;
+
+interfaces_opt
+  : ;;EMPTY
+  | interfaces 
+    (nreverse $1)
+  ;
+
+interface_type_list
+  : interface_type
+    (list $1)
+  | interface_type_list COMMA interface_type
+    (cons $3 $1)
+  ;
+
+class_body
+  : LBRACE class_body_declarations_opt RBRACE 
+    (progn $2)
+  ;
+
+class_body_opt
+  : ;;EMPTY
+  | class_body
+  ;
+
+class_body_declarations_opt
+  : ;;EMPTY
+  | class_body_declarations
+    (apply 'nconc (nreverse $1))
+  ;
+
+class_body_declarations
+  : class_body_declaration
+    (list $1)
+  | class_body_declarations class_body_declaration
+    (cons $2 $1)
+  ;
+
+class_body_declaration
+  : class_member_declaration
+  | static_initializer
+  | constructor_declaration
+  | block
+  | error
+ ;; On error, skip token and try to continue.
+    (SKIP-TOKEN)
+  ;
+
+class_member_declaration
+  : field_declaration
+  | method_declaration
+  | class_declaration
+  | enum_declaration
+  | interface_declaration
+  | SEMICOLON
+    ()
+  ;
+
+;;; JSR-201) Enum Declaration
+;;
+enum_declaration
+  : modifiers_opt ENUM IDENTIFIER interfaces_opt
+ ;; Mid-rule action that stores the current enum name in scope for
+ ;; later use when producing tags from `enum_constants' compound
+ ;; declaration.
+    (push $3 wisent-java-wy--enums)
+    enum_body
+    (progn
+      ;; Don't forget to remove the current enum name when leaving the
+      ;; enum scope!  Should be error recovery safe.
+      (pop wisent-java-wy--enums)
+      (EXPANDTAG
+       (TYPE-TAG $3 $2 $6 (if $4 (cons nil $4))
+                 :typemodifiers $1))
+      )
+  ;
+
+enum_body
+  : LBRACE enum_constants_opt enum_body_declarations_opt RBRACE
+    (nconc $2 $3)
+  | LBRACE error
+ ;; On error, skip current block and try to continue.
+    (SKIP-BLOCK)
+  ;
+
+enum_constants_opt
+  : ;; EMPTY
+  | enum_constants
+    (apply 'nconc (nreverse $1))
+  ;
+
+enum_constants
+  : enum_constant
+    (list $1)
+  | enum_constants COMMA enum_constant
+    (cons $3 $1)
+  ;
+
+enum_constant
+  : IDENTIFIER enum_arguments_opt
+    (EXPANDTAG
+     (TYPE-TAG $1 (car wisent-java-wy--enums) nil nil
+               :enum-constant-flag t)
+     )
+  | IDENTIFIER enum_arguments_opt class_body
+    (EXPANDTAG
+     (TYPE-TAG $1 (car wisent-java-wy--enums) $3 nil
+               :enum-constant-flag t)
+     )
+  ;
+
+enum_arguments_opt
+  : ;;EMPTY
+  | LPAREN argument_list_opt RPAREN
+  | LPAREN error
+ ;; On error, skip current block and try to continue.
+    (SKIP-BLOCK)
+  ;
+
+enum_body_declarations_opt
+  : ;;EMPTY
+  | SEMICOLON class_body_declarations_opt
+    (progn $2)
+  ;
+
+;;; 19.8.2) Field Declarations
+;;
+field_declaration
+  : modifiers_opt type variable_declarators SEMICOLON
+    (let* ((decls (mapcar 'car $3))
+           (anons (apply 'nconc (nreverse (mapcar 'cdr $3)))))
+      (EXPANDTAG
+       (VARIABLE-TAG decls $2 nil
+                     :typemodifiers $1
+                     :members anons)
+       ))
+  ;
+
+variable_declarators
+  : variable_declarator
+    (list $1)
+  | variable_declarators COMMA variable_declarator
+    (progn
+      ;; Set the end of the compound declaration to the end of the
+      ;; COMMA delimiter.
+      (setcdr (cdar (car $1)) (cdr $region2))
+      (cons $3 $1))
+  ;
+
+variable_declarator
+  : variable_declarator_id
+    (cons (cons $1 $region) nil)
+  | variable_declarator_id
+ ;; Clean-up the stack of anonymous class declarations
+    (setq wisent-java-wy--anons nil)
+    EQ variable_initializer
+    (cons (cons $1 $region) wisent-java-wy--anons)
+  ;
+
+variable_declarator_id
+  : IDENTIFIER
+  | variable_declarator_id LBRACK RBRACK
+    (concat $1 $2 $3)
+  ;
+
+variable_initializer
+  : expression
+  | array_initializer
+  ;
+
+;;; 19.8.3) Method Declarations
+;;
+method_declaration
+  : method_header method_body
+    (let ((tag (eval $1)))
+      ;; Don't store the :body attribute in function tag as this
+      ;; information is not (yet) used by Semantic.  This will save
+      ;; space in the DB.
+      ;;(semantic-tag-put-attribute tag :body $2)
+      (EXPANDTAG tag)
+      )
+  ;
+
+;; Have to expand `type_parameters_opt' here so that we don't force an
+;; early decision of whether this is a `field_declaration' or a
+;; `method_declaration' (the `type_parameters_opt' would have to be
+;; reduced when we see the `type' if this was a method declaration,
+;; but it might still turn out to be a field declaration).
+method_header
+  : modifiers_opt type method_declarator throws_opt
+    `(FUNCTION-TAG ',(car $3) ',$2 ',(cdr $3)
+                   :typemodifiers ',$1
+                   :throws ',$4)
+  | modifiers_opt LT type_parameter_list_1 type method_declarator throws_opt
+    `(FUNCTION-TAG ',(car $5) ',$4 ',(cdr $5)
+                   :typemodifiers ',$1
+                   :template-specifier ',(concat $2 $3)
+                   :throws ',$6)
+  | modifiers_opt VOID method_declarator throws_opt
+    `(FUNCTION-TAG ',(car $3) ',$2 ',(cdr $3)
+                   :typemodifiers ',$1
+                   :throws ',$4)
+  | modifiers_opt LT type_parameter_list_1 VOID method_declarator throws_opt
+    `(FUNCTION-TAG ',(car $5) ',$4 ',(cdr $5)
+                   :typemodifiers ',$1
+                   :template-specifier ',(concat $2 $3)
+                   :throws ',$6)
+  ;
+
+method_declarator
+  : IDENTIFIER LPAREN formal_parameter_list_opt RPAREN
+    (cons $1 $3)
+  | IDENTIFIER LPAREN error
+ ;; On error, skip current block and try to continue.
+    (prog1
+        (list $1)
+      (SKIP-BLOCK $2))
+  | method_declarator LBRACK RBRACK ;; deprecated
+ ;; The above production also allows `void foo() []'.
+    (cons (concat (car $1) $2 $3) (cdr $1))
+  ;
+
+formal_parameter_list_opt
+  : ;;EMPTY
+  | formal_parameter_list
+    (apply 'nconc (nreverse $1))
+  ;
+
+formal_parameter_list
+  : formal_parameter
+    (list $1)
+  | formal_parameter_list COMMA formal_parameter
+    (cons $3 $1)
+  ;
+
+formal_parameter
+  : type variable_declarator_id
+    (EXPANDTAG
+     (VARIABLE-TAG $2 $1 nil)
+     )
+  | modifiers type variable_declarator_id
+    (EXPANDTAG
+     (VARIABLE-TAG $3 $2 nil
+                   :typemodifiers $1)
+     )
+ ;; Productions below allow varargs in non-final positions.
+  | type ELLIPSIS IDENTIFIER
+    (EXPANDTAG
+     (VARIABLE-TAG $3 $1 nil
+                   :vararg-flag t)
+     )
+  | modifiers type ELLIPSIS IDENTIFIER
+    (EXPANDTAG
+     (VARIABLE-TAG $4 $2 nil
+                   :typemodifiers $1
+                   :vararg-flag t)
+     )
+  ;
+
+throws_opt
+  : ;;EMPTY
+  | throws
+  ;
+
+throws
+  : THROWS class_type_list
+    (nreverse $2)
+  ;
+
+class_type_list
+  : class_type
+    (list $1)
+  | class_type_list COMMA class_type
+    (cons $3 $1)
+  ;
+
+method_body
+  : block
+  | SEMICOLON
+    ()
+  ;
+
+;;; 19.8.4) Static Initializers
+;;
+static_initializer
+  : STATIC block
+    (when $2
+      (semantic-tag-put-attribute $2 :typemodifiers (list $1))
+      $2)
+  ;
+
+;;; 19.8.5) Constructor Declarations
+;;
+constructor_declaration
+  : modifiers_opt constructor_declarator throws_opt constructor_body
+    (EXPANDTAG
+     (FUNCTION-TAG (car $2) nil (cdr $2)
+                   :typemodifiers $1
+                   :throws $3
+                   :constructor-flag t
+                   ;; Don't store the :body attribute in function tag
+                   ;; as this information is not (yet) used by
+                   ;; Semantic.  This will save space in the DB.
+                   ;;:body $4
+                   ))
+  | modifiers_opt LT type_parameter_list_1 constructor_declarator
+    throws_opt constructor_body
+    (EXPANDTAG
+     (FUNCTION-TAG (car $4) nil (cdr $4)
+                   :typemodifiers $1
+                   :template-specifier (concat $2 $3)
+                   :throws $5
+                   :constructor-flag t
+                   ;; Don't store the :body attribute in function tag
+                   ;; as this information is not (yet) used by
+                   ;; Semantic.  This will save space in the DB.
+                   ;;:body $6
+                   ))
+  ;
+
+constructor_declarator
+  : simple_name LPAREN formal_parameter_list_opt RPAREN
+    (cons $1 $3)
+  | simple_name LPAREN error
+ ;; On error, skip current block and try to continue.
+    (prog1
+        (list $1)
+      (SKIP-BLOCK $2))
+  ;
+
+constructor_body
+  : LBRACE explicit_constructor_invocation block_statements RBRACE
+    (progn $3)
+  | LBRACE explicit_constructor_invocation RBRACE
+    ()
+  | LBRACE block_statements RBRACE
+    (progn $2)
+  | LBRACE RBRACE
+    ()
+  | LBRACE error
+ ;; On error, skip current block and try to continue.
+    (SKIP-BLOCK)
+  ;
+
+explicit_constructor_invocation
+  : THIS LPAREN argument_list_opt RPAREN SEMICOLON
+  | type_arguments THIS LPAREN argument_list_opt RPAREN SEMICOLON
+  | SUPER LPAREN argument_list_opt RPAREN SEMICOLON
+  | type_arguments SUPER LPAREN argument_list_opt RPAREN SEMICOLON
+  | primary DOT SUPER LPAREN argument_list_opt RPAREN SEMICOLON
+  | primary DOT type_arguments SUPER LPAREN argument_list_opt RPAREN SEMICOLON
+  | name DOT SUPER LPAREN argument_list_opt RPAREN SEMICOLON
+  | name DOT type_arguments SUPER LPAREN argument_list_opt RPAREN SEMICOLON
+  ;
+
+;;; 19.9) Interfaces
+;;
+
+;;; 19.9.1) Interface Declarations
+;;
+interface_declaration
+  : modifiers_opt INTERFACE IDENTIFIER type_parameters_opt
+    extends_interfaces_opt interface_body
+    (EXPANDTAG
+     (TYPE-TAG $3 $2 $6 (if $5 (cons nil $5))
+               :template-specifier $4
+               :typemodifiers $1)
+     )
+  ;
+
+extends_interfaces_opt
+  : ;;EMPTY
+  | extends_interfaces
+    (nreverse $1)
+  ;
+
+extends_interfaces
+  : EXTENDS interface_type
+    (list $2)
+  | extends_interfaces COMMA interface_type
+    (cons $3 $1)
+  ;
+
+interface_body
+  : LBRACE interface_member_declarations_opt RBRACE
+    (progn $2)
+  ;
+
+interface_member_declarations_opt
+  : ;;EMPTY
+  | interface_member_declarations
+    (apply 'nconc (nreverse $1))
+  ;
+
+interface_member_declarations
+  : interface_member_declaration
+    (list $1)
+  | interface_member_declarations interface_member_declaration
+    (cons $2 $1)
+  ;
+
+interface_member_declaration
+  : constant_declaration
+  | abstract_method_declaration
+  | class_declaration
+  | enum_declaration
+  | interface_declaration
+  | SEMICOLON
+    ()
+  | error
+ ;; On error, skip token and try to continue.
+    (SKIP-TOKEN)
+  ;
+
+;; Must check that modifiers include only PUBLIC, STATIC, or FINAL.
+constant_declaration
+  : field_declaration
+  ;
+
+abstract_method_declaration
+  : method_header SEMICOLON
+    (let ((tag (eval $1)))
+      (EXPANDTAG tag)
+      )
+  ;
+
+;;; 19.10) Arrays
+;;
+array_initializer
+  : LBRACE variable_initializers COMMA RBRACE
+  | LBRACE variable_initializers RBRACE
+  | LBRACE COMMA RBRACE
+  | LBRACE RBRACE
+  | LBRACE error
+ ;; On error, skip current block and try to continue.
+    (SKIP-BLOCK)
+  ;
+
+variable_initializers
+  : variable_initializer
+  | variable_initializers COMMA variable_initializer
+  ;
+
+;;; 19.11) Blocks and Statements
+;;
+block
+  : LBRACE block_statements_opt RBRACE
+    (progn $2)
+  | LBRACE error
+ ;; On error, skip current block and try to continue.
+    (SKIP-BLOCK)
+  ;
+
+block_statements_opt
+  : ;;EMPTY
+  | block_statements
+  ;
+
+;; Use `block_statements_reverse' for TAG production.
+block_statements
+  : block_statements_reverse
+    (EXPANDTAG
+     (TAG "block" 'block
+          :members (apply 'nconc (nreverse $1)))
+     )
+  ;
+
+;; Renamed from original `block_statements' for TAG production.
+block_statements_reverse
+  : block_statement
+    (list $1)
+  | block_statements_reverse block_statement
+    (cons $2 $1)
+  ;
+
+;; This production is used for `semantic-get-local-variables'.
+block_statement
+  : local_variable_declaration_statement
+  | statement
+    () ;; TODO
+  | class_declaration
+  | enum_declaration
+  | interface_declaration
+  ;
+
+local_variable_declaration_statement
+  : local_variable_declaration SEMICOLON
+  ;
+
+local_variable_declaration
+  : type variable_declarators
+    (let* ((decls (mapcar 'car $2))
+           (anons (apply 'nconc (nreverse (mapcar 'cdr $2)))))
+      (EXPANDTAG
+       (VARIABLE-TAG decls $1 nil
+                     :members anons)
+       ))
+  | modifiers type variable_declarators
+    (let* ((decls (mapcar 'car $3))
+           (anons (apply 'nconc (nreverse (mapcar 'cdr $3)))))
+      (EXPANDTAG
+       (VARIABLE-TAG decls $2 nil
+                     :typemodifiers $1
+                     :members anons)
+       ))
+  ;
+
+statement
+  : statement_without_trailing_substatement
+  | labeled_statement
+  | if_then_statement
+  | if_then_else_statement
+  | while_statement
+  | for_statement
+  | foreach_statement
+  ;
+
+statement_no_short_if
+  : statement_without_trailing_substatement
+  | labeled_statement_no_short_if
+  | if_then_else_statement_no_short_if
+  | while_statement_no_short_if
+  | for_statement_no_short_if
+  | foreach_statement_no_short_if
+  ;
+
+statement_without_trailing_substatement
+  : block
+  | empty_statement
+  | expression_statement
+  | switch_statement
+  | do_statement
+  | break_statement
+  | continue_statement
+  | return_statement
+  | synchronized_statement
+  | throw_statement
+  | try_statement
+  | assert_statement
+  ;
+
+empty_statement
+  : SEMICOLON
+  ;
+
+labeled_statement
+  : IDENTIFIER COLON statement
+  ;
+
+labeled_statement_no_short_if
+  : IDENTIFIER COLON statement_no_short_if
+  ;
+
+expression_statement
+  : statement_expression SEMICOLON
+  ;
+
+statement_expression
+  : assignment
+  | preincrement_expression
+  | predecrement_expression
+  | postincrement_expression
+  | postdecrement_expression
+  | method_invocation
+  | class_instance_creation_expression
+  ;
+
+if_then_statement
+  : IF LPAREN expression RPAREN statement
+  ;
+
+if_then_else_statement
+  : IF LPAREN expression RPAREN statement_no_short_if 
+    ELSE statement
+  ;
+
+if_then_else_statement_no_short_if
+  : IF LPAREN expression RPAREN statement_no_short_if
+    ELSE statement_no_short_if
+  ;
+
+switch_statement
+  : SWITCH LPAREN expression RPAREN switch_block
+  ;
+
+switch_block
+  : LBRACE switch_block_statement_groups switch_labels RBRACE
+  | LBRACE switch_block_statement_groups RBRACE
+  | LBRACE switch_labels RBRACE
+  | LBRACE RBRACE
+  | LBRACE error
+ ;; On error, skip current block and try to continue.
+    (SKIP-BLOCK)
+  ;
+
+switch_block_statement_groups
+  : switch_block_statement_group
+  | switch_block_statement_groups switch_block_statement_group
+  ;
+
+switch_block_statement_group
+  : switch_labels block_statements
+  ;
+
+switch_labels
+  : switch_label
+  | switch_labels switch_label
+  ;
+
+switch_label
+  : CASE constant_expression COLON
+  | DEFAULT COLON
+  ;
+
+while_statement
+  : WHILE LPAREN expression RPAREN statement
+  ;
+
+while_statement_no_short_if
+  : WHILE LPAREN expression RPAREN statement_no_short_if
+  ;
+
+do_statement
+  : DO statement WHILE LPAREN expression RPAREN SEMICOLON
+  ;
+
+foreach_statement
+  : FOR LPAREN type variable_declarator_id
+    COLON expression RPAREN statement
+    () ;; TODO: local declaration
+  | FOR LPAREN modifiers type variable_declarator_id
+    COLON expression RPAREN statement
+    () ;; TODO: local declaration
+ ;; Must check that first IDENTIFIER is `each' and second one is `in'.
+  | FOR IDENTIFIER LPAREN type variable_declarator_id
+    IDENTIFIER expression RPAREN statement
+    () ;; TODO: local declaration
+ ;; Must check that first IDENTIFIER is `each' and second one is `in'.
+  | FOR IDENTIFIER LPAREN modifiers type variable_declarator_id
+    IDENTIFIER expression RPAREN statement
+    () ;; TODO: local declaration
+  ;
+
+foreach_statement_no_short_if
+  : FOR LPAREN type variable_declarator_id
+    COLON expression RPAREN statement_no_short_if
+    () ;; TODO: local declaration
+  | FOR LPAREN modifiers type variable_declarator_id
+    COLON expression RPAREN statement_no_short_if
+    () ;; TODO: local declaration
+ ;; Must check that first IDENTIFIER is `each' and second one is `in'.
+  | FOR IDENTIFIER LPAREN type variable_declarator_id
+    IDENTIFIER expression RPAREN statement_no_short_if
+    () ;; TODO: local declaration
+ ;; Must check that first IDENTIFIER is `each' and second one is `in'.
+  | FOR IDENTIFIER LPAREN modifiers type variable_declarator_id
+    IDENTIFIER expression RPAREN statement_no_short_if
+    () ;; TODO: local declaration
+  ;
+
+for_statement
+  : FOR LPAREN for_init_opt SEMICOLON expression_opt SEMICOLON
+    for_update_opt RPAREN statement
+    (progn $3) ;; Local declarations
+  ;
+
+for_statement_no_short_if
+  : FOR LPAREN for_init_opt SEMICOLON expression_opt SEMICOLON
+    for_update_opt RPAREN statement_no_short_if
+    (progn $3) ;; Local declarations
+  ;
+
+for_init_opt
+  : ;;EMPTY
+  | for_init
+  ;
+
+for_init
+  : statement_expression_list
+    ()
+  | local_variable_declaration
+  ;
+
+for_update_opt
+  : ;;EMPTY
+  | for_update
+  ;
+
+for_update
+  : statement_expression_list
+  ;
+
+statement_expression_list
+  : statement_expression
+  | statement_expression_list COMMA statement_expression
+  ;
+
+identifier_opt
+  : ;;EMPTY
+  | IDENTIFIER
+  ;
+
+break_statement
+  : BREAK identifier_opt SEMICOLON
+  ;
+
+continue_statement
+  : CONTINUE identifier_opt SEMICOLON
+  ;
+
+return_statement
+  : RETURN expression_opt SEMICOLON
+  ;
+
+throw_statement
+  : THROW expression SEMICOLON
+  ;
+
+synchronized_statement
+  : SYNCHRONIZED LPAREN expression RPAREN block
+  ;
+
+try_statement
+  : TRY block catches
+  | TRY block catches_opt finally
+  ;
+
+catches_opt
+  : ;;EMPTY
+  | catches
+  ;
+
+catches
+  : catch_clause
+  | catches catch_clause
+  ;
+
+catch_clause
+  : CATCH LPAREN formal_parameter RPAREN block
+  ;
+
+finally
+  : FINALLY block
+  ;
+
+assert_statement
+  : ASSERT expression SEMICOLON
+  | ASSERT expression COLON expression SEMICOLON
+  ;
+
+;;; 19.12) Expressions
+;;
+primary
+  : primary_no_new_array
+  | array_creation_init
+  | array_creation_uninit
+  ;
+
+primary_no_new_array
+  : literal
+  | THIS
+  | LPAREN name RPAREN
+  | LPAREN expression_no_name RPAREN
+  | class_instance_creation_expression
+  | field_access
+  | method_invocation
+  | array_access
+  | name DOT THIS
+  | VOID DOT CLASS
+ ;; "Type DOT CLASS", but expanded.
+  | primitive_type DOT CLASS
+  | primitive_type dims DOT CLASS
+  | name DOT CLASS
+  | name dims DOT CLASS
+ ;; The following two productions are part of the expansion of `type
+ ;; DOT CLASS' but are not actually allowed, as they involve params.
+ ;;  | class_or_interface type_arguments DOT name dims DOT CLASS
+ ;;  | class_or_interface LT type_argument_list_1 dims DOT CLASS
+  ;
+
+class_instance_creation_expression
+  : NEW class_or_interface_type
+    LPAREN argument_list_opt RPAREN class_body_opt
+    (when $6
+      (setq wisent-java-wy--anons
+            (nconc wisent-java-wy--anons
+                   (EXPANDTAG
+                    (TYPE-TAG (concat $2 "$") "class" $6 nil))))
+      )
+  | NEW type_arguments class_or_interface_type
+    LPAREN argument_list_opt RPAREN class_body_opt
+    (when $7
+      (setq wisent-java-wy--anons
+            (nconc wisent-java-wy--anons
+                   (EXPANDTAG
+                    (TYPE-TAG (concat $3 "$") "class" $7 nil))))
+      )
+  | primary DOT NEW type_arguments_opt IDENTIFIER type_arguments_opt
+    LPAREN argument_list_opt RPAREN class_body_opt
+    (when $10
+      (setq wisent-java-wy--anons
+            (nconc wisent-java-wy--anons
+                   (EXPANDTAG
+                    (TYPE-TAG (concat $5 "$") "class" $10 nil))))
+      )
+  | name DOT NEW type_arguments_opt IDENTIFIER type_arguments_opt
+    LPAREN argument_list_opt RPAREN class_body_opt
+    (when $10
+      (setq wisent-java-wy--anons
+            (nconc wisent-java-wy--anons
+                   (EXPANDTAG
+                    (TYPE-TAG (concat $5 "$") "class" $10 nil))))
+      )
+  ;
+
+argument_list_opt
+  : ;;EMPTY
+  | argument_list
+  ;
+
+argument_list
+  : expression
+  | argument_list COMMA expression
+  ;
+
+array_creation_uninit
+  : NEW primitive_type dim_exprs dims_opt
+  | NEW class_or_interface_type dim_exprs dims_opt
+  ;
+
+array_creation_init
+  : NEW primitive_type dims array_initializer
+  | NEW class_or_interface_type dims array_initializer
+  ;
+
+dim_exprs
+  : dim_expr
+  | dim_exprs dim_expr
+  ;
+
+dim_expr
+  : LBRACK expression RBRACK
+  | LBRACK error
+ ;; On error, skip current block and try to continue.
+    (SKIP-BLOCK)
+  ;
+
+dims_opt
+  : ;;EMPTY
+    (progn "")
+  | dims
+  ;
+
+dims
+  : LBRACK RBRACK
+    (concat $1 $2)
+  | dims LBRACK RBRACK
+    (concat $1 $2 $3)
+  ;
+
+field_access
+  : primary DOT IDENTIFIER
+  | SUPER DOT IDENTIFIER
+  | name DOT SUPER DOT IDENTIFIER
+  ;
+
+method_invocation
+  : name LPAREN argument_list_opt RPAREN
+ ;; It looks that this production should be removed
+ ;; from the grammar:
+ ;;  | type_arguments name LPAREN argument_list_opt RPAREN
+ ;; It introduces ambiguities in the grammar for expressions like:
+ ;; `A((B)<C,D>E());', which could be either an invocation on E or two
+ ;; boolean comparisons.
+  | primary DOT IDENTIFIER LPAREN argument_list_opt RPAREN
+  | primary DOT type_arguments IDENTIFIER LPAREN argument_list_opt RPAREN
+  | name DOT type_arguments IDENTIFIER LPAREN argument_list_opt RPAREN
+  | SUPER DOT IDENTIFIER LPAREN argument_list_opt RPAREN
+  | SUPER DOT type_arguments IDENTIFIER LPAREN argument_list_opt RPAREN
+  | name DOT SUPER DOT IDENTIFIER LPAREN argument_list_opt RPAREN
+  | name DOT SUPER DOT type_arguments IDENTIFIER LPAREN argument_list_opt RPAREN
+  ;
+
+array_access
+  : name LBRACK expression RBRACK
+  | primary_no_new_array LBRACK expression RBRACK
+  | array_creation_init LBRACK expression RBRACK
+  ;
+
+postfix_expression
+  : primary
+  | name
+  | postincrement_expression
+  | postdecrement_expression
+  ;
+
+postincrement_expression
+  : postfix_expression PLUSPLUS
+  ;
+
+postdecrement_expression
+  : postfix_expression MINUSMINUS
+  ;
+
+unary_expression
+  : preincrement_expression
+  | predecrement_expression
+  | PLUS unary_expression
+  | MINUS unary_expression
+  | unary_expression_not_plus_minus
+  ;
+
+preincrement_expression
+  : PLUSPLUS unary_expression
+  ;
+
+predecrement_expression
+  : MINUSMINUS unary_expression
+  ;
+
+unary_expression_not_plus_minus
+  : postfix_expression
+  | COMP unary_expression
+  | NOT unary_expression
+  | cast_expression
+  ;
+
+;; cast_expression
+;;  : LPAREN type RPAREN unary_expression_not_plus_minus
+;; Introduces ambiguities between parenthesized LT relational
+;; operations and type casts, like in `LPAREN name LT name ...'.
+;; The following `cast_expression' production solves that.  
+cast_expression
+  : LPAREN primitive_type dims_opt RPAREN unary_expression
+  | LPAREN name RPAREN unary_expression_not_plus_minus
+  | LPAREN name dims RPAREN unary_expression_not_plus_minus
+  | LPAREN name LT type_argument_list_1 dims_opt RPAREN
+    unary_expression_not_plus_minus
+  | LPAREN name LT type_argument_list_1 DOT
+    class_or_interface_type dims_opt RPAREN
+    unary_expression_not_plus_minus
+  ;
+
+multiplicative_expression
+  : unary_expression
+  | multiplicative_expression MULT unary_expression
+  | multiplicative_expression DIV unary_expression
+  | multiplicative_expression MOD unary_expression
+  ;
+
+additive_expression
+  : multiplicative_expression
+  | additive_expression PLUS multiplicative_expression
+  | additive_expression MINUS multiplicative_expression
+  ;
+
+shift_expression
+  : additive_expression
+  | shift_expression LSHIFT additive_expression
+  | shift_expression RSHIFT additive_expression
+  | shift_expression URSHIFT additive_expression
+  ;
+
+relational_expression
+  : shift_expression
+  | relational_expression LT shift_expression
+  | relational_expression GT shift_expression
+  | relational_expression LTEQ shift_expression
+  | relational_expression GTEQ shift_expression
+  ;
+
+;; Lower the precendence of instanceof to resolve a grammar ambiguity.
+;; Semantics are unchanged, since relational expressions do not
+;; operate on boolean.
+instanceof_expression
+  : relational_expression
+  | instanceof_expression INSTANCEOF reference_type
+  ;
+
+equality_expression
+  : instanceof_expression
+  | equality_expression EQEQ instanceof_expression
+  | equality_expression NOTEQ instanceof_expression
+  ;
+
+and_expression
+  : equality_expression
+  | and_expression AND equality_expression
+  ;
+
+exclusive_or_expression
+  : and_expression
+  | exclusive_or_expression XOR and_expression
+  ;
+
+inclusive_or_expression
+  : exclusive_or_expression
+  | inclusive_or_expression OR exclusive_or_expression
+  ;
+
+conditional_and_expression
+  : inclusive_or_expression
+  | conditional_and_expression ANDAND inclusive_or_expression
+  ;
+
+conditional_or_expression
+  : conditional_and_expression
+  | conditional_or_expression OROR conditional_and_expression
+  ;
+
+conditional_expression
+  : conditional_or_expression
+  | conditional_or_expression QUESTION expression 
+    COLON conditional_expression
+  ;
+
+assignment_expression
+  : conditional_expression
+  | assignment
+  ;
+
+;; Must check that only a parenthesized variable is valid on the LHS.
+assignment
+  : postfix_expression assignment_operator assignment_expression
+  ;
+
+assignment_operator
+  : EQ
+  | MULTEQ
+  | DIVEQ
+  | MODEQ
+  | PLUSEQ
+  | MINUSEQ
+  | LSHIFTEQ
+  | RSHIFTEQ
+  | URSHIFTEQ
+  | ANDEQ
+  | XOREQ
+  | OREQ
+  ;
+
+expression_opt
+  : ;;EMPTY
+  | expression
+  ;
+
+expression
+  : assignment_expression
+  ;
+
+;; Must check that `expression' is constant, including enum constants.
+constant_expression
+  : expression
+  ;
+
+;;; JSR-14) Generics
+;;
+type_parameters_opt
+  : type_parameters
+  | ;;EMPTY
+  ;
+
+type_parameters
+  : LT type_parameter_list_1
+    (concat $1 $2)
+  ;
+
+type_parameter_list
+  : type_parameter_list COMMA type_parameter
+    (concat $1 $2 $3)
+  | type_parameter
+  ;
+
+type_parameter_list_1
+  : type_parameter_1
+  | type_parameter_list COMMA type_parameter_1
+    (concat $1 $2 $3)
+  ;
+
+type_parameter
+  : type_variable type_bound_opt
+    (concat $1 $2)
+  ;
+
+type_parameter_1
+  : type_variable GT
+    (concat $1 $2)
+  | type_variable type_bound_1
+    (concat $1 $2)
+  ;
+
+type_bound_opt
+  : type_bound
+  | ;;EMPTY
+    (progn "")
+  ;
+
+type_bound
+  : EXTENDS reference_type additional_bound_list_opt
+    (concat $1 " " $2 " " $3)
+  ;
+
+type_bound_1
+  : EXTENDS reference_type_1
+    (concat $1 " " $2)
+  | EXTENDS reference_type additional_bound_list_1
+    (concat $1 " " $2 " " $3)
+  ;
+
+additional_bound_list_opt
+  : additional_bound_list
+  | ;;EMPTY
+    (progn "")
+  ;
+
+additional_bound_list
+  : additional_bound additional_bound_list
+    (concat $1 $2)
+  | additional_bound
+  ;
+
+additional_bound_list_1
+  : additional_bound additional_bound_list_1
+    (concat $1 $2)
+  | additional_bound_1
+  ;
+
+additional_bound
+  : AND interface_type
+    (concat $1 " " $2)
+  ;
+
+additional_bound_1
+  : AND reference_type_1
+    (concat $1 " " $2)
+  ;
+
+;; Duplicate `_no_name' rules to remove ambiguity between `(x)' as an
+;; expression or a type cast.
+postfix_expression_no_name
+  : primary
+ ;; The `name' production was removed here.
+  | postincrement_expression
+  | postdecrement_expression
+  ;
+
+unary_expression_no_name
+  : preincrement_expression
+  | predecrement_expression
+  | PLUS unary_expression
+  | MINUS unary_expression
+  | unary_expression_not_plus_minus_no_name
+  ;
+
+unary_expression_not_plus_minus_no_name
+  : postfix_expression_no_name
+  | COMP unary_expression
+  | NOT unary_expression
+  | cast_expression
+  ;
+
+multiplicative_expression_no_name
+  : unary_expression_no_name
+  | name MULT unary_expression
+  | multiplicative_expression_no_name MULT unary_expression
+  | name DIV unary_expression
+  | multiplicative_expression_no_name DIV unary_expression
+  | name MOD unary_expression
+  | multiplicative_expression_no_name MOD unary_expression
+  ;
+
+additive_expression_no_name
+  : multiplicative_expression_no_name
+  | name PLUS multiplicative_expression
+  | additive_expression_no_name PLUS multiplicative_expression
+  | name MINUS multiplicative_expression
+  | additive_expression_no_name MINUS multiplicative_expression
+  ;
+
+shift_expression_no_name
+  : additive_expression_no_name
+  | name LSHIFT additive_expression
+  | shift_expression_no_name LSHIFT additive_expression
+  | name RSHIFT additive_expression
+  | shift_expression_no_name RSHIFT additive_expression
+  | name URSHIFT additive_expression
+  | shift_expression_no_name URSHIFT additive_expression
+  ;
+
+relational_expression_no_name
+  : shift_expression_no_name
+ ;; These productions for LT/GT disallow a<b<c as a valid expression
+ ;; to avoid ambiguity with parameterized types in casts.
+  | name LT shift_expression
+  | shift_expression_no_name LT shift_expression
+  | name GT shift_expression
+  | shift_expression_no_name GT shift_expression
+  | name LTEQ shift_expression
+  | relational_expression_no_name LTEQ shift_expression
+  | name GTEQ shift_expression
+  | relational_expression_no_name GTEQ shift_expression
+  ;
+
+instanceof_expression_no_name
+  : relational_expression_no_name
+  | name INSTANCEOF reference_type
+  | instanceof_expression_no_name INSTANCEOF reference_type
+  ;
+
+equality_expression_no_name
+  : instanceof_expression_no_name
+  | name EQEQ instanceof_expression
+  | equality_expression_no_name EQEQ instanceof_expression
+  | name NOTEQ instanceof_expression
+  | equality_expression_no_name NOTEQ instanceof_expression
+  ;
+
+and_expression_no_name
+  : equality_expression_no_name
+  | name AND equality_expression
+  | and_expression_no_name AND equality_expression
+  ;
+
+exclusive_or_expression_no_name
+  : and_expression_no_name
+  | name XOR and_expression
+  | exclusive_or_expression_no_name XOR and_expression
+  ;
+
+inclusive_or_expression_no_name
+  : exclusive_or_expression_no_name
+  | name OR exclusive_or_expression
+  | inclusive_or_expression_no_name OR exclusive_or_expression
+  ;
+
+conditional_and_expression_no_name
+  : inclusive_or_expression_no_name
+  | name ANDAND inclusive_or_expression
+  | conditional_and_expression_no_name ANDAND inclusive_or_expression
+  ;
+
+conditional_or_expression_no_name
+  : conditional_and_expression_no_name
+  | name OROR conditional_and_expression
+  | conditional_or_expression_no_name OROR conditional_and_expression
+  ;
+
+conditional_expression_no_name
+  : conditional_or_expression_no_name
+  | name QUESTION expression COLON conditional_expression
+  | conditional_or_expression_no_name QUESTION expression 
+    COLON conditional_expression
+  ;
+
+assignment_expression_no_name
+  : conditional_expression_no_name
+  | assignment
+  ;
+
+expression_no_name
+  : assignment_expression_no_name
+  ;
+ 
+;;; JSR-175) Annotation
+;;
+
+;; AnnotationTypeDeclaration:
+;;     InterfaceModifiersopt @ interface Identifier AnnotationTypeBody
+annotation_type_declaration
+  : modifiers AT INTERFACE IDENTIFIER annotation_type_body
+  | AT INTERFACE IDENTIFIER annotation_type_body
+  ;
+
+;; AnnotationTypeBody:
+;;     { AnnotationTypeMemberDeclarationsopt }
+annotation_type_body
+  : LBRACE annotation_type_member_declarations_opt RBRACE
+  | LBRACE error
+ ;; On error, skip current block and try to continue.
+    (SKIP-BLOCK)
+  ;
+
+annotation_type_member_declarations_opt
+  : ;;EMPTY
+  | annotation_type_member_declarations
+  ;
+
+;; AnnotationTypeMemberDeclarations:
+;;     AnnotationTypeMemberDeclaration
+;;     AnnotationTypeMemberDeclarations AnnotationTypeMemberDeclaration
+annotation_type_member_declarations
+  : annotation_type_member_declaration
+  | annotation_type_member_declarations annotation_type_member_declaration
+  ;
+
+;; AnnotationTypeMemberDeclaration:
+;;     AbstractMethodModifiersopt Type Identifier ( ) DefaultValueopt ;
+;;     ConstantDeclaration
+;;     ClassDeclaration
+;;     InterfaceDeclaration
+;;     EnumDeclaration
+;;     AnnotationTypeDeclaration
+;;     ;
+annotation_type_member_declaration
+  : modifiers_opt type IDENTIFIER LPAREN RPAREN default_value_opt SEMICOLON
+  | constant_declaration
+  | class_declaration
+  | interface_declaration
+  | enum_declaration
+  | annotation_type_declaration
+  | SEMICOLON
+  ;
+
+default_value_opt
+  : ;;EMPTY
+  | default_value
+  ;
+
+;; DefaultValue:
+;;     default MemberValue
+default_value
+  : DEFAULT member_value
+  ;
+
+;; Annotation:
+;;     NormalAnnotation
+;;     MarkerAnnotation
+;;     SingleMemberAnnotation
+;; NormalAnnotation:
+;;     @ TypeName ( MemberValuePairsopt )
+;; MarkerAnnotation:
+;;     @ TypeName
+;; SingleMemberAnnotation:
+;;     @ TypeName ( MemberValue )
+annotation
+  : AT name
+    (concat $1 $2)
+  | AT name LPAREN member_value RPAREN
+    (concat $1 $2)
+  | AT name LPAREN member_value_pairs RPAREN
+    (concat $1 $2)
+  | AT name LPAREN RPAREN
+    (concat $1 $2)
+  | AT name LPAREN error
+    (prog1 (concat $1 $2)
+      ;; On error, skip current block and try to continue.
+      (SKIP-BLOCK $3))
+  ;
+
+;; MemberValuePairs:
+;;     MemberValuePair
+;;     MemberValuePairs , MemberValuePair
+member_value_pairs
+  : member_value_pair
+  | member_value_pairs COMMA member_value_pair
+  ;
+
+;; MemberValuePair:
+;;     SimpleName = MemberValue
+member_value_pair
+  : simple_name EQ member_value
+  ;
+
+;; MemberValue:
+;;     ConditionalExpression
+;;     Annotation
+;;     MemberValueArrayInitializer
+member_value
+  : conditional_expression
+  | annotation
+  | member_value_array_initializer
+  ;
+
+;; MemberValueArrayInitializer:
+;;     { MemberValuesopt ,opt }
+member_value_array_initializer
+  : LBRACE member_values COMMA RBRACE
+  | LBRACE member_values RBRACE
+  | LBRACE COMMA RBRACE
+  | LBRACE RBRACE
+  | LBRACE error
+ ;; On error, skip current block and try to continue.
+    (SKIP-BLOCK)
+  ;
+
+;; MemberValues:
+;;     MemberValue
+;;     MemberValues , MemberValue
+member_values
+  : member_value
+  | member_values COMMA member_value
+  ;
+
+%%
+
+;; Define the lexer for this grammar
+(define-lex wisent-java-lexer
+  "Lexical analyzer that handles Java buffers.
+It ignores whitespaces, newlines and comments."
+  semantic-lex-ignore-whitespace
+  semantic-lex-ignore-newline
+  semantic-lex-ignore-comments
+  ;;;; Auto-generated analyzers.
+  wisent-java-wy--<number>-regexp-analyzer
+  wisent-java-wy--<string>-sexp-analyzer
+  ;; Must detect keywords before other symbols
+  wisent-java-wy--<keyword>-keyword-analyzer
+  wisent-java-wy--<symbol>-regexp-analyzer
+  wisent-java-wy--<punctuation>-string-analyzer
+  wisent-java-wy--<block>-block-analyzer
+  ;;;;
+  semantic-lex-default-action)
+
+;;; wisent-java.wy ends here

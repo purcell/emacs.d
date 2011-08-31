@@ -1,0 +1,88 @@
+<html lang="en">
+<head>
+<title>Version-control support - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="prev" href="Remote-directories.html#Remote-directories" title="Remote directories">
+<link rel="next" href="Using-eshell.html#Using-eshell" title="Using eshell">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Version-control-support"></a>
+<a name="Version_002dcontrol-support"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Using-eshell.html#Using-eshell">Using eshell</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Remote-directories.html#Remote-directories">Remote directories</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>
+<hr>
+</div>
+
+<h3 class="section">10.8 Supporting Version control systems</h3>
+
+<p>Beginning with version 2.30 ECB supports Version-control systems (in
+the following named VC-systems). This means the special tree-buffers
+of ECB display files managed by a VC-system with an appropriate
+image-icon<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a> in front
+of the filename.
+
+   <p>The following four options allow full control over this feature (see
+also <a href="ecb_002dversion_002dcontrol.html#ecb_002dversion_002dcontrol">ecb-version-control</a>:
+
+     <dl>
+<dt><code>ecb-vc-enable-support</code><dd>Enable or disable this feature. 
+<br><dt><code>ecb-vc-supported-backends</code><dd>The most important option for this feature. Allows to specify how ECB
+should test if a directory is managed by a VC-system (how to identify
+the VC-backend of a directory) and - if yes - how it should check the
+VC-state of a certain file. The former ones are called
+<dfn>identify-backend-functions</dfn> and the latter ones
+<dfn>check-state-functions</dfn>. 
+<br><dt><code>ecb-vc-directory-exclude-regexps</code><dd>Allows excluding certain directories (on a regexp-basis) from the
+VC-support even if they are managed by a VC-system. 
+<br><dt><code>ecb-vc-state-mapping</code><dd>Defines the mapping between the state-values returned by a
+check-state-function (a function set in
+<code>ecb-vc-supported-backends</code> and used for getting the VC-state of
+a file, e.g. <code>vc-state</code>) and the allowed state-values ECB can
+understand. 
+</dl>
+
+   <p>Probably the default settings will fit your needs but to get sure you
+should carefully read the documentation of these options!
+
+   <p>The following subsection give you important informations about
+identify-backend-functions, check-state-functions, about working with
+remote repositories.
+
+<ul class="menu">
+<li><a accesskey="1" href="Identifying-backends.html#Identifying-backends">Identifying backends</a>:         How ECB identifies the VC-backend of a dir
+<li><a accesskey="2" href="Checking-the-state.html#Checking-the-state">Checking the state</a>:           How ECB checks the VC-state of a file
+<li><a accesskey="3" href="Remote-repositories.html#Remote-repositories">Remote repositories</a>:          What you should know about this
+<li><a accesskey="4" href="Refreshing-the-VC_002dstate.html#Refreshing-the-VC_002dstate">Refreshing the VC-state</a>:      How to refresh when state changed outside
+<li><a accesskey="5" href="Adding-new-backends.html#Adding-new-backends">Adding new backends</a>:          Necessary steps for adding new backends
+<li><a accesskey="6" href="Known-VC_002dproblems.html#Known-VC_002dproblems">Known VC-problems</a>:            Currently known problems of the VC-support
+</ul>
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> Of course only when Emacs is capable to display
+images; otherwise a suitable ascii-icon will be displayed.</p>
+
+   <p><hr></div>
+
+   </body></html>
+

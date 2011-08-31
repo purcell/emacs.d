@@ -1,0 +1,67 @@
+;; Object COGRE
+;; EDE project file.
+(ede-proj-project "COGRE"
+  :name "COGRE"
+  :version "0.7"
+  :file "Project.ede"
+  :targets (list 
+   (semantic-ede-proj-target-grammar "wy"
+    :name "wy"
+    :path ""
+    :source '("wisent-dot.wy")
+    )
+   (ede-proj-target-elisp-autoloads "autoloads"
+    :name "autoloads"
+    :path ""
+    :autoload-file "cogre-loaddefs.el"
+    )
+   (ede-proj-target-elisp "init"
+    :name "init"
+    :path ""
+    :source '("cogre-load.el")
+    )
+   (ede-proj-target-elisp "dot"
+    :name "dot"
+    :path ""
+    :source '("wisent-dot.el")
+    :aux-packages '("wisent")
+    )
+   (ede-proj-target-elisp "Mode"
+    :name "Mode"
+    :path ""
+    :source '("cogre-mode.el")
+    )
+   (ede-proj-target-makefile-info "info"
+    :name "info"
+    :path ""
+    :source '("cogre.texi")
+    )
+   (ede-proj-target-makefile-miscelaneous "misc"
+    :name "misc"
+    :path ""
+    :source '("INSTALL" "ChangeLog")
+    )
+   (ede-proj-target-elisp "hacks"
+    :name "hacks"
+    :path ""
+    :source '("picture-hack.el")
+    )
+   (ede-proj-target-elisp "COGRE"
+    :name "COGRE"
+    :path ""
+    :source '("cogre.el" "cogre-uml.el" "uml-create.el")
+    :versionsource '("cogre.el")
+    :aux-packages '("eieio" "semantic" "semantic-el" "inversion" "speedbar")
+    )
+   (ede-proj-target-elisp "tests"
+    :name "tests"
+    :path ""
+    :source '("cogre-utest.el")
+    )
+   )
+  :web-site-url "http://cedet.sourceforge.net/cogre.shtml"
+  :web-site-directory "/r@scp:shell.sourceforge.net:cedet/htdocs"
+  :web-site-file "cogre.shtml"
+  :ftp-upload-site "/ftp@upload.sourceforge.net:/incoming"
+  :metasubproject 't
+  )

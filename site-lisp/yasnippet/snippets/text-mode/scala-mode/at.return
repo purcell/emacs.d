@@ -1,0 +1,4 @@
+#Author : Anders Bach Nielsen <andersbach.nielsen@epfl.ch>
+#name : @return description
+# --
+@return ${1:description} $0

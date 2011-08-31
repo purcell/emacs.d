@@ -1,0 +1,6 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : should render_template
+# --
+response.should render_template(:${1:template})
+$0

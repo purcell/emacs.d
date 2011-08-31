@@ -1,0 +1,4 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : Tests
+# --
+assert_instance_of`snippet_paren.rb`${1:ExpectedClass}, ${0:actual_instance}`snippet_paren.rb end`

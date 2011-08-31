@@ -1,0 +1,7 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : @Test def testX = ...
+# --
+//@Test
+def test${1:name} = {
+  $0
+}

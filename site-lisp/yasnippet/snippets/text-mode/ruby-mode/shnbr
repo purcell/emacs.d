@@ -1,0 +1,6 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : should_not be_redirect
+# --
+response.should_not be_redirect
+$0

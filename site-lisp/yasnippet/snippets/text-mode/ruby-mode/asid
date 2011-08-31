@@ -1,0 +1,4 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : Tests
+# --
+assert_in_delta`snippet_paren.rb`${1:expected_float}, ${2:actual_float}, ${0:2 ** -20}`snippet_paren.rb end`

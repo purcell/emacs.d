@@ -1,0 +1,86 @@
+<html lang="en">
+<head>
+<title>ecb-help - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Customizable-options.html#Customizable-options" title="Customizable options">
+<link rel="prev" href="ecb_002dfaces.html#ecb_002dfaces" title="ecb-faces">
+<link rel="next" href="ecb_002deshell.html#ecb_002deshell" title="ecb-eshell">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="ecb-help"></a>
+<a name="ecb_002dhelp"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="ecb_002deshell.html#ecb_002deshell">ecb-eshell</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="ecb_002dfaces.html#ecb_002dfaces">ecb-faces</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Customizable-options.html#Customizable-options">Customizable options</a>
+<hr>
+</div>
+
+<h4 class="subsection">7.3.13 Group ecb-help</h4>
+
+<p class="noindent">This group contains settings for the ECB online help:
+
+<div class="defun">
+&mdash; User Option: <b>help-html-path</b><var><a name="index-help_002dhtml_002dpath-316"></a></var><br>
+<blockquote><p>Path where the ECB online help in HTML format resides. This must be
+the location of the <samp><span class="file">ecb.html</span></samp> which comes with the ECB
+distribution. If is installed by unpacking the archive available on
+the ECB website then this is the subdir <code>ecb-help-html-subdir</code> of
+the installation directory of ECB. If it is installed as
+XEmacs-package (e.g. via the package manager of XEmacs) then this is
+probably either the directory &ldquo;../../html/&rdquo; or
+&ldquo;../../etc/ecb/html/&rdquo; (both relative to the Elisp directory of ECB).
+
+        <p>The path can either be an absolute path or a path relative to the directory
+where the Elisp files of ECB are.
+
+        <p>Normally there should be no need to change this option! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>help-info-path</b><var><a name="index-help_002dinfo_002dpath-317"></a></var><br>
+<blockquote><p>Path where the ECB online help in info format resides. This must be
+the location of the <samp><span class="file">ecb.info</span></samp> which comes with the ECB
+distribution. If is installed by unpacking the archive available on
+the ECB website then this is the subdir <code>ecb-help-info-subdir</code> of
+the installation directory of ECB. If it is installed as
+XEmacs-package (e.g. via the package manager of XEmacs) then this is
+probably the directory &ldquo;../../info/&rdquo; (relative to the Elisp directory
+of ECB).
+
+        <p>The path can either be an absolute path or a path relative to the directory
+where the Elisp files of ECB are.
+
+        <p>Normally there should be no need to change this option! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>show-help-format</b><var><a name="index-show_002dhelp_002dformat-318"></a></var><br>
+<blockquote><p>The format <code>ecb-show-help</code> shows its online help. Allowed values
+are 'info (for the Info format) and 'html (for HTML format). If the
+value is 'html then <code>browse-url-browser-function</code> says which
+browser is used.
+
+        <p>Note: If you got ECB as a standard XEmacs-package maybe the
+HTML-online-documentation is not included. 
+</p></blockquote></div>
+
+   </body></html>
+

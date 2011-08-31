@@ -1,0 +1,10 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : definitions
+# --
+class ${1:${TM_FILENAME/(?:\A|_)([A-Za-z0-9]+)(?:\.rb)?/(?2::\u$1)/g}}
+  def initialize${2/(^.*?\S.*)|.*/(?1:\()/}${2:args}${2/(^.*?\S.*)|.*/(?1:\))/}
+    $0
+  end
+  
+  
+end

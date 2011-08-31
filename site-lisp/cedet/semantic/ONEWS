@@ -1,0 +1,108 @@
+* Changes for Semantic 1.4
+
+** New Non-recursive parser by David Ponce <david@dponce.com>
+
+** Changed contents of some nonterminals to make them language agnostic
+
+*** Variables no longer contain an explicit constant flag.
+
+*** Modifiers field for variable, function, and types is now an association
+    list.
+
+** Semantic Context Analysis library
+
+*** Analyzizes via type information the local context
+
+*** Provides smart completion information
+
+*** Speedbar mode for using analysis information.
+
+** Semantic Class Browser structure generator
+
+*** Generates objects representing a browsable class structure
+    which links parents and subclasses and externally defined
+    methods into an easilly navigated (programatically) structure.
+
+*** Speedbar interface to browser structure (simple)
+
+** User Visible Features
+
+*** semantic-load.el simplifies installation.
+
+*** Added partial reparseing of buffers where only token contents have changed.
+
+*** Added `semantic-show-dirty-mode'.
+
+*** Added `semantic-show-unmatched-syntax-mode'
+
+*** Added `semantic-auto-reparse-mode'
+
+*** Added new tool, `semanticdb'.
+    Semanticdb caches token lists between sessions with a specific file.
+
+*** Added semantic-texi for parsing texinfo files.
+
+**** Commands for creating @deffn sections from source
+
+**** Commands for updating an entire document with the source.
+
+*** Added semantic-scm for parsing Scheme (guile) scripts
+
+*** semantic-el now has a much faster Emacs Lisp parser.
+    It uses the built in Emacs read command.
+
+*** semantic-c updates
+
+**** Handles most of C++, including templates
+
+**** Faster type parsing
+
+**** Faster function/variable parsing
+
+**** Summary text for keywords for eldoc
+
+*** Added Senator (Semantic Navigator) by David Ponce <david@dponce.com>
+
+**** Provides a minor mode keymap and menu.
+
+**** Search and Isearch in token names.
+
+**** Jump to functions by name
+
+**** Token Completion, and completion menu.
+
+**** eldoc support for languages supported by semantic.
+
+**** hippie expand try function for token names.
+
+*** Added Java.bnf by David Ponce <david@dponce.com>
+
+**** java.bnf from JDE by Paul Kinnucan and David Ponce
+
+**** semantic-java.el derived from JDE.
+
+**** eldoc support in bnf modes.
+
+*** semantic-imenu can now tags for all files that had been loaded in
+    emacs in a directory if semanticdb is active
+
+*** Imenu and speedbar group externally defined methods together.
+
+** bnf-mode: Language Author Features
+
+*** Parsing with `semantic-toplevel-bovinate-override' is better supported.
+
+*** Fixed BNF indentation engine to handle Optional Lambda Expressions
+   in a much cleaner way.
+
+*** Keyword table for a language can be generated using %token specifiers
+    and queried using `semantic-flex-map-keywords'.
+
+*** Source level debugging in the .bnf file
+
+*** skeleton.bnf as a good starting point for new languages.
+
+Local variables:
+mode: outline
+paragraph-separate: "[ 	]*$"
+end:

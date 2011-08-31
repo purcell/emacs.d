@@ -1,0 +1,7 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : before
+# --
+before(${1::each}) do
+  $0
+end

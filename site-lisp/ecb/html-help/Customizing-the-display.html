@@ -1,0 +1,107 @@
+<html lang="en">
+<head>
+<title>Customizing the display - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="The-Methods-buffer.html#The-Methods-buffer" title="The Methods buffer">
+<link rel="prev" href="Expanding.html#Expanding" title="Expanding">
+<link rel="next" href="Rebuilding-the-Methods.html#Rebuilding-the-Methods" title="Rebuilding the Methods">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Customizing-the-display"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Rebuilding-the-Methods.html#Rebuilding-the-Methods">Rebuilding the Methods</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Expanding.html#Expanding">Expanding</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="The-Methods-buffer.html#The-Methods-buffer">The Methods buffer</a>
+<hr>
+</div>
+
+<h4 class="subsection">6.6.3 Customizing the display of the Methods-buffer</h4>
+
+<p><a name="index-semantic-tag-47"></a><a name="index-tag-48"></a>The ECB-Methods buffer is probably the most important browsing window
+offered by ECB. It displays all parsing informations of the current
+source-buffer (the buffer displayed in the current active
+edit-window).
+
+   <p>Normally ECB gets all informations displayed in this Methods-buffer from the
+semantic-library - at least for semantic-sources. This library parses auto. 
+the current source-buffer in the edit-window of ECB and returns all
+information in form of <dfn>tags</dfn> to ECB which displays them in a browse-able
+form in its Method-buffer. See <a href="ECB-Methods_002dwindow.html#ECB-Methods_002dwindow">ECB Methods-window</a> for information how to
+use the Methods-buffer.
+
+   <p>There are several options to customize which tags ECB should display
+in general, if the tags should be collapsed or expanded, how to
+fontify them (i.e. syntax-highlighting) and something more.
+
+     <dl>
+<dt><code>ecb-show-tags</code><dd>With the option <code>ecb-show-tags</code> you specify how ECB should
+display the tags returned by the semantic parser. Semantic divides its
+tags in several so called <dfn>tag classes</dfn>. A tag-class is always a
+symbol and can be for example <code>type</code> (tags which represent a
+class<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>, a interface, an enumeration etc.),
+<code>function</code> (tags which represent function or methods),
+<code>variable</code> (variables and attributes), <code>include</code>
+(import-statements) etc. There is no predefined superset of allowed
+tag-class-symbols because each language-parser can define its own
+tag-classes. But to get an overview of the most common tag-classes see
+the default value of the option <code>ecb-show-tags</code>.
+
+     <p>With the option <code>ecb-show-tags</code> you can now specify how ECB
+should display tags of a certain tag-class in a certain major-mode. 
+You can tell ECB that all tags of a tag-class <code>X</code> should be
+displayed in an expanded bucket and all tags of a tag-class <code>Y</code>
+should be displayed in a collapsed bucket and all tags of a tag-class
+<code>Z</code> should be displayed flattened (means not contained in a
+expandable/collapsable bucket-node). These settings can be made
+separately for each major-mode but you can also define a
+default-display which takes effect when for a major-mode no special
+setting can be found in <code>ecb-show-tags</code>.
+
+     <p>For every tag-class you can tell ECB how the tags should be sorted.
+
+     <br><dt><code>ecb-font-lock-tags</code><dt><code>ecb-type-tag-display</code><dd>How to fontify the tags in the Method-buffer
+
+     <br><dt><code>ecb-tag-display-function</code><dd>ECB and semantic offer several predefined functions for displaying the
+tags. Here you can customize, what informations tags should
+contain (only the method-name or the whole signature or something
+else) and what notation should be used, e.g. UML or not.
+
+   </dl>
+
+   <p>These are the most important options for this topic but it is
+recommended to have a look into the customize-group <code>ecb-methods</code>
+(see <a href="ecb_002dmethods.html#ecb_002dmethods">ecb-methods</a>) and check all the options offered there!
+
+   <p>All these options are only relevant for semantic-sources and take no
+effect for non-semantic-sources!
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> Do not confuse the term &ldquo;class&rdquo; in the context of a
+tag, which means the class of the tag and which is a semantic-term and
+a &ldquo;class&rdquo; in the context of an object oriented language like Java or
+C++! Normally the surrounding context sould be sufficient to
+understand which type of &ldquo;class&rdquo; is meant whenever the term
+&ldquo;class&rdquo; is used in this manual.</p>
+
+   <p><hr></div>
+
+   </body></html>
+

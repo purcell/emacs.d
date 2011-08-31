@@ -11,6 +11,13 @@
 (setq *is-a-mac* (eq system-type 'darwin))
 (setq *is-carbon-emacs* (and *is-a-mac* (eq window-system 'mac)))
 (setq *is-cocoa-emacs* (and *is-a-mac* (eq window-system 'ns)))
+(defconst *win32* (eq system-type 'windows-nt) "Windows?")
+(defconst *cygwin* (eq system-type 'cygwin) "Cygwin?")
+(defconst *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) "Linux?")
+(defconst *unix* (or *linux* (eq system-type 'usg-unix-v) (eq system-type 'berkeley-unix)) "Unix")
+(defconst *linux-x* (and window-system *linux*) "X on Linux")
+(defconst *xemacs* (featurep 'xemacs) "Are we running XEmacs?")
+(defconst *emacs23* (and (not *xemacs*) (or (= emacs-major-version 23))) ">=Emacs23")
 
 ;;----------------------------------------------------------------------------
 ;; Make elisp more civilised
@@ -98,6 +105,19 @@
 ;; Finally set up themes, after most possibly-customised faces have been defined
 (require 'init-themes)
 ;; Chinese inut method
+(require 'init-org2blog)
+(require 'init-fill-column-indicator)
+(require 'init-yasnippet)
+(require 'init-better-registers)
+(require 'init-yari)
+(require 'init-gtags)
+(require 'init-cc-mode)
+(require 'init-cedet)
+(require 'init-ecb)
+(require 'init-cmake-mode)
+(require 'init-csharp-mode)
+(require 'init-linum-mode)
+(require 'init-emacs-w3m)
 (require 'init-eim)
 
 ;;----------------------------------------------------------------------------
@@ -118,7 +138,6 @@
 ;;----------------------------------------------------------------------------
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
-
 
 
 ;;----------------------------------------------------------------------------

@@ -1,0 +1,3 @@
+#name : results_report(..) { .. }
+# --
+results.report("${1:name}:") { TESTS.times { $0 } }

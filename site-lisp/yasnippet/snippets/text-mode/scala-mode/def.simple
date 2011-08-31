@@ -1,0 +1,4 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : def f = ...
+# --
+def ${1:name} = $0

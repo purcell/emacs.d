@@ -1,0 +1,68 @@
+Installation instructions for Speedbar
+
+The following updates to your .emacs file will help you get the most out
+of this update of speedbar.
+
+1) Build speedbar
+2) Add speedbar's directory to your load path.
+
+   Follow the INSTALL file in the top level of this distribution.
+
+3) Add bindings to make it easier to use speedbar.
+
+   If you want to choose it from a menu, such as "Tools", and it doesn't
+   already exist in your version of Emacs:
+
+   Emacs:
+   (define-key-after (lookup-key global-map [menu-bar tools])
+      [speedbar] '("Speedbar" . speedbar-frame-mode) [calendar])
+
+   XEmacs:
+   (add-menu-button '("Tools")
+		      ["Speedbar" speedbar-frame-mode
+		       :style toggle
+		       :selected (and (boundp 'speedbar-frame)
+				      (frame-live-p speedbar-frame)
+				      (frame-visible-p speedbar-frame))]
+		      "--")
+
+   Note: New versions of Emacs already have this in the menu.
+
+   If you want to access speedbar using only the keyboard, do this:
+
+   (global-set-key [(f4)] 'speedbar-get-focus)
+
+   Using F4, you can now toggle between the speedbar frame, and the
+   frame speedbar was started from.
+
+4) Add auto loads for the auxiliary packages.
+
+   For any version of emacs:
+
+   ;; Texinfo fancy chapter tags
+   (add-hook 'texinfo-mode-hook (lambda () (require 'sb-texinfo)))
+
+   ;; HTML fancy chapter tags
+   (add-hook 'html-mode-hook (lambda () (require 'sb-html)))
+
+   For any verison of emacs on a linux RPM based system:
+   (autoload 'rpm "sb-rpm" "Rpm package listing in speedbar.")
+
+   For any version of emacs where w3 is installed:
+
+   ;; w3 link listings
+   (autoload 'w3-speedbar-buttons "sb-w3" "s3 specific speedbar button generator.")
+
+   For XEmacs, or Emacs earlier than 20.2:
+
+   ;; chapter listings
+   (autoload 'Info-speedbar-buttons "sb-info" "Info specific speedbar button generator.")
+   ;; folder listings
+   (autoload 'rmail-speedbar-buttons "sb-rmail" "Rmail specific speedbar button generator.")
+   ;; current stack display
+   (autoload 'gud-speedbar-buttons "sb-gud" "GUD specific speedbar button generator.")
+
+   For an info mode in Emacs 20.x and XEmacs, it may be necessary to
+   do this instead:
+
+   (eval-after-load "info" '(require 'sb-info))

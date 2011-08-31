@@ -1,0 +1,288 @@
+This file contains some important release-notes for ECB version 2.40
+
+General:
+--------
+
+Please read also the sections "Known conflicts and bugs" and "Tips and Tricks"
+in the online help ('ecb-show-help'). The former one is a small list of known
+conflicts and for each conflict a proper and easy solution! Please read also
+carefully the upgrade informations below!
+
+
+Installing ECB first time:
+--------------------------
+
+No special notes beyond the contents of README.
+
+
+Upgrading from any version:
+---------------------------
+
+If you are upgrading from version newer then 2.27 (ie. ecb-version > 2.27)
+then you can skip the rest of this release notes.
+
+
+Upgrading from any version < 2.27:
+----------------------------------
+
+The option `ecb-auto-expand-tag-tree-collapse-other' has changed its type. ECB
+autom. upgrades your old setting to the new option-type.
+
+
+Upgrading from any version < 2.26:
+----------------------------------
+
+Some regexp-options has been changed to regexp-list-options:
+`ecb-excluded-directories-regexp' --> `ecb-excluded-directories-regexps'
+`ecb-source-file-regexps'         --> `ecb-source-file-regexps'
+`ecb-exclude-parents-regexp'      --> `ecb-exclude-parents-regexps'
+
+All these options now accept (and require) a list of regexps instead of
+exactly one big regexp. ECB autom. upgrades your old settings to the new
+option-types rsp. also -names (if the option has been renamed).
+
+
+Upgrading from versions < 2.25:
+-------------------------------
+
+`ecb-sort-history-items' has been renamed to `ecb-history-sort-method'. ECB
+autom. upgrades your old setting to the new option-name and -type.!
+
+
+Upgrading from versions < 2.23:
+-------------------------------
+
+The option `ecb-show-tags' has changed its type. ECB autom. upgrades your old
+setting to the new option-type.!
+
+
+Upgrading from versions < 2.20:
+-------------------------------
+
+All user-defined extensions written for and added to one of the options
+`ecb-directories-menu-user-extension', `ecb-sources-menu-user-extension',
+`ecb-methods-menu-user-extension' or `ecb-history-menu-user-extension' MUST be
+rewritten and redefined via the new macro `tree-buffer-defpopup-command'!
+
+The option `ecb-primary-mouse-jump-destination' has been renamed to
+`ecb-mouse-click-destination' and has also changed its default value to
+'last-point.
+
+The option `ecb-split-edit-window' has been renamed in
+`ecb-split-edit-window-after-start'. In addition the value t is not allowed
+anymore for this option - use 'before-activation instead. In a further
+addition this option has a new default value 'before-deactivation. See the
+docstring of this option to get all details.
+
+The Option `ecb-other-window-jump-behavior' has been renamed to
+`ecb-other-window-behavior'.
+
+ECB autom. upgrades your old settings to the new option types/names!
+
+    
+Upgrading from versions < 2.11:
+-------------------------------
+
+The type of the option `ecb-post-process-semantic-taglist' has been changed.
+ECB autom. upgrades the old-value of that option to the new type! There is
+nothing to do for you. 
+
+
+Upgrading from versions < 2.01:
+-------------------------------
+
+The following options have changed their name:
+
+- ecb-auto-expand-token-tree           -> ecb-auto-expand-tag-tree
+- ecb-font-lock-tokens                 -> ecb-font-lock-tags
+- ecb-token-jump-sets-mark             -> ecb-tag-jump-sets-mark
+- ecb-token-display-function           -> ecb-tag-display-function
+- ecb-type-token-display               -> ecb-type-tag-display
+- ecb-post-process-semantic-tokenlist  -> ecb-post-process-semantic-taglist
+- ecb-show-only-positioned-tokens      -> ecb-show-only-positioned-tags
+- ecb-show-tokens                      -> ecb-show-tags
+- ecb-highlight-token-with-point       -> ecb-highlight-tag-with-point
+- ecb-highlight-token-with-point-delay -> ecb-highlight-tag-with-point-delay
+- ecb-token-visit-post-actions         -> ecb-tag-visit-post-actions
+- ecb-token-header-face                -> ecb-tag-header-face
+
+ECB autom. upgrades all old-values of these options to the new options! There
+is nothing to do for you.
+
+The type of the options `ecb-directories-menu-user-extension',
+`ecb-sources-menu-user-extension', `ecb-methods-menu-user-extension' and
+`ecb-history-menu-user-extension' has been changed - now sub-menus are
+allowed. The new default values of these options contains now entries, mostly
+concerning "version control". ECB autom. upgrades the old-values to the new
+option-type by appending the new defaults to your old values. So no old
+personal menu-entries are lost, but cause of the new default maybe you have
+some entries twice. Feel free to delete via customize what you want from the
+new settings.
+
+The old option `ecb-tree-use-image-icons' has been replaced by
+`ecb-tree-buffer-style'.
+
+
+Upgrading from versions < 1.96:
+-------------------------------
+
+The options `ecb-mode-line-data' and `ecb-mode-line-prefixes' have changed
+their type. ECB will autom. upgrade the old values of these options as best as
+possible to the new types!
+
+The option `ecb-layout-switch-to-compilation-window' has been removed. This
+mimic is now done automatically.
+
+The name of the command `ecb-toggle-enlarged-compilation-window' has been
+changed to `ecb-toggle-compile-window-height' (The old name is still available
+as alias but is deprecated). The keybinding [C-. /] remains.
+
+The command `ecb-eshell-goto-eshell' has been removed. Now just use `eshell'
+to work with the eshell. The old binding [C-. e] now simply runs `eshell'.
+
+The command `ecb-eshell-enlarge' has been removed. Now just use the standard
+ECB-command `ecb-toggle-compile-window-height' for this.
+
+
+Upgrading from a version < 1.95.1:
+----------------------------------
+
+If there are byte-compiled(!) user-defined layouts - either created
+interactively by `ecb-create-new-layout' or programmed with the macro
+`ecb-layout-define' - then the file where these user-defined layouts are saved
+(see option `ecb-create-layout-file') must be re-byte-compiled with latest ECB
+version >= 1.95.1! If the user-defined layouts are not byte-compiled then
+there is nothing to do.
+
+Some default key-bindings have changed; the new bindings are:
+
+  C-c . g1: `ecb-goto-window-edit1'       (was C-c . 1)
+  C-c . g2: `ecb-goto-window-edit2'       (was C-c . 2)
+  C-c . gd: `ecb-goto-window-directories' (was C-c . d)
+  C-c . gs: `ecb-goto-window-sources'     (was C-c . s)
+  C-c . gm: `ecb-goto-window-methods'     (was C-c . m)
+  C-c . gh: `ecb-goto-window-history'     (was C-c . h)
+  C-c . gb: `ecb-goto-window-speedbar'    (was C-c . bw)
+  C-c . gc: `ecb-goto-window-compilation' (was C-c . c)
+
+  
+Upgrading from version < 1.95:
+------------------------------
+
+Some default key-bindings have changed; the new bindings are:
+
+  C-c . r:  `ecb-rebuild-methods-buffer' (was not bound before)
+  C-c . lc: `ecb-change-layout'          (was C-c . l)
+  C-c . lr: `ecb-redraw-layout'          (was C-c . r)
+  C-c . lt: `ecb-toggle-layout'          (was C-c . t)
+  C-c . lw: `ecb-toggle-ecb-windows'     (was C-c . w)
+
+ECB now requires speedbar. ECB needs a version >= 0.14beta1.
+
+For XEmacs now the package c-support (contains hideshow.el) has to be
+installed.
+
+
+Upgrading from versions < 1.92:
+--------------------------------
+
+The type of the option `ecb-truncate-lines' has changed.
+ECB autom. upgrades the old value of this option to its new type!
+
+
+Upgrading from version 1.80:
+----------------------------
+
+The type or name of the following options has changed:
+
+- ecb-layout-nr: New name is ecb-layout-name
+- ecb-toggle-layout-sequence: New type
+- ecb-major-modes-activate: New type
+- ecb-layout-window-sizes: New type
+- ecb-show-sources-in-directories-buffer: New type
+- ecb-cache-directory-contents: New type
+- ecb-source-file-regexps: New type
+- ecb-show-ecb-windows-hook: New name is ecb-show-ecb-windows-before-hook
+- ecb-hide-ecb-windows-hook: New name is ecb-hide-ecb-windows-before-hook
+
+ECB autom. upgrades the values of these options to theirs new names/types!
+
+
+Upgrading from version < 1.80:
+------------------------------
+
+The type of the following options has changed:
+
+- 'ecb-token-display-function'
+- 'ecb-window-sync'
+
+ECB has a new feature 'ecb-auto-compatibility-check' which enables a check for
+incompatible or renamed ECB-options at ECB startup. These options are then
+autom. upgraded to the new type or reset to the default-values of current
+ECB-version if no upgrade is possible. All upgraded or reset options are
+displayed to the user with their old and new values!
+
+ECB now requires Semantic version 1.4 and eieio version 0.17! Any previous
+beta version is not supported anymore!
+
+
+Upgrading from any version < 1.60:
+----------------------------------
+
+- The options `ecb-show-node-name-in-minibuffer',
+  `ecb-show-complete-file-name-in-minibuffer' and
+  `ecb-show-file-info-in-minibuffer' are gone and have been replaced by one
+  single new option `ecb-show-node-info-in-minibuffer' where you can define
+  separately for every tree-buffer when and which node info should be
+  displayed in the minibuffer
+
+  
+Upgrading from versions < 1.52:
+-------------------------------
+
++ ECB now requires eieio >= 0.16 (see also README)
+
++ The option ecb-prefix-key has been removed. Now all customization of
+  key-bindings is done via the new option ecb-key-map.
+
++ ecb-layout-window-sizes is now an association list. If you have customized
+  this variable or used the ecb-store-window-sizes function, there will be an
+  error when drawing the ECB layout. Reset ecb-layout-window-sizes to it's
+  default value (nil) and store your window sizes using ecb-store-window-sizes.
+
++ A new customization variable ecb-show-tokens controls the behavior of the
+  methods buffer. Read the documentation for more information.
+
+  
+Upgrading from versions < 1.20:
+-------------------------------
+
++ Now mouse-1 and mouse-2 for opening source-files and jumping to
+  methods/variables is not longer the default key-binding. Please take a look
+  at the new options 'ecb-primary-secondary-mouse-buttons' and
+  'ecb-primary-mouse-jump-destination'.
+
++ Now it is no longer necessary to bind in the ECB-hooks (ecb-activate-hook
+  and ecb-deactivate-hook) some standard-Emacs-keys for window-handling to the
+  ECB replacements for the related standard-functions to get proper
+  window-handling within the edit-window(s) of ECB.
+
+  Example: With ECB < 1.20 it was necessary to bind [C-x o] to
+  'ecb-other-window' in 'ecb-activate-hook' (and also "unbinding" it back to
+  the standard other-window in the 'ecb-deactivate-hook') to get a more
+  ECB-suitable other-window behavior. Same for other window-keys.
+
+  This way will work also in ECB 1.20 but it is NOT the recommended way
+  because the new option 'ecb-advice-window-functions' makes this much easier
+  and better. Please read the documentation of this option exactly!
+
++ Default-value of `ecb-other-window-jump-behavior' is now 'all.
+
++ Interactively calling 'ecb-update-methods-buffer' is not longer necessary as
+  work-around for the bug, that sometimes the error "Wrong type argument,
+  integer-or-marker-p nil" is displayed after clicking onto a method/variable
+  in the ECB-method-buffer. This bug is fixed!
+
++ For a complete list of changes and new features for versions > 1.20 see the
+  NEWS file.
+

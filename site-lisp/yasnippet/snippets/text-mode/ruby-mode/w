@@ -1,0 +1,3 @@
+#name : attr_writer ...
+# --
+attr_writer :

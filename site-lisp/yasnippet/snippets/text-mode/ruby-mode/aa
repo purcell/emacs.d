@@ -1,0 +1,3 @@
+#name : attr_accesor :...
+# --
+attr_accessor :$0

@@ -1,0 +1,5 @@
+# This was cloned from a TextMate bundle for yasnippet.
+# --
+if ARGV.$1
+  abort "Usage:  #{\$PROGRAM_NAME} ${2:ARGS_GO_HERE}"
+end

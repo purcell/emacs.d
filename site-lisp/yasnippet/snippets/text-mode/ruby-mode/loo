@@ -1,0 +1,4 @@
+#name : loop { .. }
+#group : Loops
+# --
+loop { $0 }

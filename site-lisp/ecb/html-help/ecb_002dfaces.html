@@ -1,0 +1,172 @@
+<html lang="en">
+<head>
+<title>ecb-faces - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Customizable-options.html#Customizable-options" title="Customizable options">
+<link rel="prev" href="ecb_002dface_002doptions.html#ecb_002dface_002doptions" title="ecb-face-options">
+<link rel="next" href="ecb_002dhelp.html#ecb_002dhelp" title="ecb-help">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="ecb-faces"></a>
+<a name="ecb_002dfaces"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="ecb_002dhelp.html#ecb_002dhelp">ecb-help</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="ecb_002dface_002doptions.html#ecb_002dface_002doptions">ecb-face-options</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Customizable-options.html#Customizable-options">Customizable options</a>
+<hr>
+</div>
+
+<h4 class="subsection">7.3.12 Group ecb-faces</h4>
+
+<p class="noindent">This group contains all faces used in ECB:
+
+     <dl>
+<dt><code>ecb-bucket-node-face:</code><dd>Face which can be used for displaying bucket tags in the methods
+buffer. See also <code>ecb-bucket-node-display</code>.
+
+     <br><dt><code>ecb-default-general-face:</code><dd>Basic face for all ECB tree-buffers. 
+It's recommended to define here the font-family, the font-size, the basic
+color etc.
+
+     <p>In GNU Emacs 21.X all faces (even the face
+<code>ecb-default-highlight-face</code>) used in the ECB tree-buffers inherit
+from this face. Therefore the default attributes like font etc. of a
+face used in a tree-buffer can be very easily changed with face
+<code>ecb-default-general-face</code>.
+
+     <p>With XEmacs there is no inheritance-feature but the options
+<code>ecb-directories-general-face</code>, <code>ecb-sources-general-face</code>,
+<code>ecb-methods-general-face</code> and <code>ecb-history-general-face</code>
+offer the choice to use the face <code>ecb-default-general-face</code> so
+also with XEmacs the basic face-settings can be easily changed just by
+customizing the face <code>ecb-default-general-face</code>!
+
+     <br><dt><code>ecb-default-highlight-face:</code><dd>Define basic face for highlighting the selected node in an ECB
+tree-buffer.
+
+     <p>In GNU Emacs 21.X all highlighting faces in the ECB tree-buffers
+inherit from this face. Therefore the default attributes like font
+etc. of a face used in a tree-buffer for highlighting the current
+tag can be very easily changed with face
+<code>ecb-default-highlight-face</code>.
+
+     <p>With XEmacs there is no inheritance-feature but the options
+<code>ecb-directory-face</code>, <code>ecb-source-face</code>,
+<code>ecb-method-face</code> and <code>ecb-history-face</code> offer the choice to
+use the face <code>ecb-default-highlight-face</code> so also with XEmacs the
+basic face-settings can be easily changed just by customizing the face
+<code>ecb-default-highlight-face</code>!
+
+     <br><dt><code>ecb-directories-general-face:</code><dd>Basic face for the ECB directories buffer. It큦 recommended to define
+here the font-family, the font-size, the basic color etc.
+
+     <br><dt><code>ecb-directory-face:</code><dd>Define face used for highlighting current directory in the directories
+buffer.
+
+     <br><dt><code>ecb-directory-not-accessible-face</code><dd>Define a face for not accessible dirs in the directories buffer.
+
+     <br><dt><code>ecb-history-bucket-node-face:</code><dd>Face used for displaying a bucket-node in the ECB-history-buffer.
+
+     <p>In GNU Emacs 21.X this face inherits from the face
+<code>ecb-bucket-node-face</code>. With XEmacs and GNU Emacs 20.X there is no
+inheritance-feature so if the buckets in the ECB-history-buffer should be
+displayed with the same basic attributes set by <code>ecb-bucket-node-face</code>
+this set of basic attributes have to be set in
+<code>ecb-history-bucket-node-face</code> too!
+
+     <br><dt><code>ecb-history-dead-buffer-face:</code><dd>Face used for history entries pointing to dead buffers.
+
+     <p>In GNU Emacs 21.X this face inherits from the face
+<code>ecb-history-general-face</code>. With XEmacs and GNU Emacs 20.X there is no
+inheritance-feature so if the buckets in the ECB-history-buffer should be
+displayed with the same basic attributes set by
+<code>ecb-history-general-face</code> this set of basic attributes have to be set in
+<code>ecb-history-dead-buffer-face</code> too!
+
+     <br><dt><code>ecb-history-face:</code><dd>Define face used for highlighting current history-entry in the history
+buffer.
+
+     <br><dt><code>ecb-history-general-face:</code><dd>Basic face for the ECB history buffer. It큦 recommended to define here
+the font-family, the font-size, the basic color etc.
+
+     <br><dt><code>ecb-history-indirect-buffer-face:</code><dd>Face used for history entries pointing to dead buffers.
+
+     <p>In GNU Emacs 21.X this face inherits from the face
+<code>ecb-history-general-face</code>. With XEmacs and GNU Emacs 20.X there is no
+inheritance-feature so if the buckets in the ECB-history-buffer should be
+displayed with the same basic attributes set by
+<code>ecb-history-general-face</code> this set of basic attributes have to be set in
+<code>ecb-history-indirect-buffer-face</code> too!
+
+     <br><dt><code>ecb-method-face:</code><dd>Define face used for highlighting current method, class or variable in
+the methods buffer.
+
+     <br><dt><code>ecb-methods-general-face:</code><dd>Basic face for the ECB methods buffer. It큦 recommended to define here
+the font-family, the font-size, the basic color etc.
+
+     <br><dt><code>ecb-method-non-semantic-face:</code><dd>Define face used for displaying tags of sources not supported by semantic.
+
+     <br><dt><code>ecb-mode-line-data-face</code><dd>Define face for the data in the mode-line. See
+<code>ecb-mode-line-data</code>.
+
+     <br><dt><code>ecb-mode-line-prefix-face</code><dd>Define face for the prefix in the mode-line. See
+<code>ecb-mode-line-prefixes</code>.
+
+     <br><dt><code>ecb-source-face:</code><dd>Define face used for highlighting current source in the sources
+buffer.
+
+     <br><dt><code>ecb-source-in-directories-buffer-face:</code><dd>Define a face for displaying sources in the directories buffer.
+
+     <br><dt><code>ecb-sources-general-face:</code><dd>Basic face for the ECB sources buffer. It큦 recommended to define here
+the font-family, the font-size, the basic color etc.
+
+     <br><dt><code>ecb-source-read-only-face</code><dd>Define a face for read-only sources
+
+     <br><dt><code>ecb-tag-header-face:</code><dd>Define face used for highlighting the tag header after jumping to it
+by clicking onto a node in the methods buffer.
+
+     <br><dt><code>ecb-tree-guide-line-face:</code><dd>Define face for the guide-lines in the tree-buffers. See the option
+<code>ecb-tree-buffer-style</code> for a explanation of guide-lines.
+
+     <br><dt><code>ecb-type-tag-class-face:</code><dd>Define face used with option <code>ecb-type-tag-display</code>.
+
+     <br><dt><code>ecb-type-tag-enum-face:</code><dd>Define face used with option <code>ecb-type-tag-display</code>.
+
+     <br><dt><code>ecb-type-tag-group-face:</code><dd>Define face used with option <code>ecb-type-tag-display</code>.
+
+     <br><dt><code>ecb-type-tag-interface-face:</code><dd>Define face used with option <code>ecb-type-tag-display</code>.
+
+     <br><dt><code>ecb-type-tag-struct-face:</code><dd>Define face used with option <code>ecb-type-tag-display</code>.
+
+     <br><dt><code>ecb-type-tag-typedef-face:</code><dd>Define face used with option <code>ecb-type-tag-display</code>.
+
+     <br><dt><code>ecb-type-tag-union-face:</code><dd>Define face used with option <code>ecb-type-tag-display</code>.
+
+     <br><dt><code>ecb-mode-line-win-nr-face</code><dd>Define face for the window-number in the mode-line. See
+<code>ecb-mode-line-display-window-number</code>.
+
+   </dl>
+
+   <p>Just call <code>customize-face &lt;face-name&gt;</code> to customize these faces
+for your personal taste. Or customize the related option in the group
+<a href="ecb_002dface_002doptions.html#ecb_002dface_002doptions">ecb-face-options</a>.
+
+   </body></html>
+

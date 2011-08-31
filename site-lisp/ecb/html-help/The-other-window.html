@@ -1,0 +1,221 @@
+<html lang="en">
+<head>
+<title>The other window - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Usage-of-ECB.html#Usage-of-ECB" title="Usage of ECB">
+<link rel="prev" href="Temp_002d-and-compile_002dbuffers.html#Temp_002d-and-compile_002dbuffers" title="Temp- and compile-buffers">
+<link rel="next" href="The-Methods-buffer.html#The-Methods-buffer" title="The Methods buffer">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="The-other-window"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="The-Methods-buffer.html#The-Methods-buffer">The Methods buffer</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Temp_002d-and-compile_002dbuffers.html#Temp_002d-and-compile_002dbuffers">Temp- and compile-buffers</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Usage-of-ECB.html#Usage-of-ECB">Usage of ECB</a>
+<hr>
+</div>
+
+<h3 class="section">6.5 How the &ldquo;other window&rdquo; is determined by ECB</h3>
+
+<p><a name="index-other-window-44"></a>Normally all windows in an Emacs-frame are arranged in a cyclic order
+and window-selecting-commands like <code>other-window</code> or
+window-scrolling-commands like <code>scroll-other-window</code> choose
+simply the next<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a> window after the current window as
+&ldquo;other window&rdquo;.
+
+<h4 class="subsection">6.5.1 &ldquo;Other window&rdquo;-basics in ECB</h4>
+
+<p>With a typical window-layout of ECB such a cyclic order of
+<strong>all</strong> windows in the ECB-frame does not make sense because it
+would be not very intuitive and against that what the user wants to
+&ldquo;say&rdquo; when calling <code>other-window</code> or
+<code>scroll-other-window</code>.
+
+   <p>Therefore ECB divides the whole set of windows of the ECB-frame in
+several subsets:
+
+     <ul>
+<li>The edit-windows of the edit-area
+<li>The special tree-windows for browsing-tasks
+<li>The compile-window at the bottom (if there is one)
+<li>The minibuffer-window of the ECB-frame (if active)
+</ul>
+
+   <p>Each of these subsets will be treated as a cyclic ordered subset, i.e. 
+all windows in each of these subsets are ordered as the function
+<code>walk-windows</code> would visit the windows when the windows of a
+subset would be the only windows of a
+frame<a rel="footnote" href="#fn-2" name="fnd-2"><sup>2</sup></a>.
+
+<h4 class="subsection">6.5.2 Builtin &ldquo;other window&rdquo; behaviors of ECB</h4>
+
+<p>ECB now offers to specify the behavior of commands like
+<code>other-window</code> or <code>scroll-other-window</code> within the
+ECB-frame. This can be done with the option
+<code>ecb-other-window-behavior</code>. This option offers several builtin
+behaviors:
+
+     <ul>
+<li>All windows of the ECB-frame are considered
+
+     <p>ECB will cycle through all windows of the ECB-frame or scroll simply
+the next window in the ECB-frame, means it behaves like the original
+<code>other-window</code> rsp. the original
+<code>other-window-for-scrolling</code>.
+
+     <li>Only the windows of the edit-area are considered
+
+     <p>ECB will only cycle through the edit-windows of ECB or only scroll
+another edit-window. If the selected window is not an edit-window then
+all windows are taken into account.
+
+     <li>The edit-windows and the compile-window are considered
+
+     <p>Like above but the compile-window will be added to the subset of the
+edit-windows.
+
+     <li>Behave as smart and intuitive as possible
+
+     <p>This is the default behavior of ECB. ECB tries to choose the
+<code>other-window</code>-destination or the &ldquo;other window&rdquo; to scroll in a
+smart and intuitive way: If point is in one of the edit-windows and if
+the edit-area is splitted then always the &ldquo;next&rdquo; edit-window is
+choosen (whereas the next edit-window of the last edit-window is the
+first edit-window)- if the edit-area is unsplitted then the
+compile-window is used if there is one. In the context of an
+<code>other-window</code>-call the <var>ARG</var> of <code>other-window</code> will be
+taken into account.
+
+     <p>If one of the special ecb-windows is selected then always the &ldquo;next&rdquo;
+ecb-window is choosen (whereas the next ecb-window of the last
+ecb-window is the first ecb-window). In the context of an
+<code>other-window</code>-call the <var>ARG</var> of <code>other-window</code> will be
+taken into account. If there is only one ecb-window then ECB considers
+also the edit-windows.
+
+     <p>If the compile-window is selected then always the last edit-window
+which had the point will be used unless <code>other-window</code> has been
+called with a prefix-argument unequal 1. 
+</ul>
+
+   <p>Regardless of the different behaviors above ECB handles the situation
+of an active minibuffer during a call to <code>other-window</code> or
+<code>scroll-other-window</code> like follows:
+
+   <p>If the minibuffer-window is selected then ECB always chooses the
+window <code>minibuffer-scroll-window</code> points to (when this variable
+is set, otherwise the compile-window or the last selected edit-window
+is choosen) when the called command is called to choose the 1. next
+window (always true for scrolling another window or true when
+<code>other-window</code> called without prefix-arg or with prefix-arg equal
+1). Otherwise the window ARG steps away is choosen (in case of
+<code>other-window</code>).
+
+   <p>If there is an active minibuffer but the minibuffer-window is not
+selected then <code>other-window</code> and <code>scroll-other-window</code>
+behave like the original version.
+
+<h4 class="subsection">6.5.3 User-defined &ldquo;other window&rdquo; behavior</h4>
+
+<p>In addition to the builtin &ldquo;other window&rdquo; behaviors ECB offers a
+user to completely define for himself how ECB should choose another
+window for scrolling it or selecting it. This can be done with the
+option <code>ecb-other-window-behavior</code> too because this option can
+also have a function-symbol as value:
+
+   <p>Such a function gets seven arguments:
+     <ol type=1 start=1>
+<li>A canonical list of all currently visible windows of the
+<code>ecb-frame</code>
+<li>A canonical list of all currently visible edit-windows
+<li>A canonical list of all currently visible ecb-windows
+<li>The window-object of the compile-window if there is any. 
+<li>The minibuffer-window of the ECB-frame if there is an active
+minibuffer. 
+<li>The result of the function <code>ecb-where-is-point</code> - see the
+documentation of this function for details. 
+<li>An integer which indicates how many steps away from the current
+selected window the &ldquo;other-window&rdquo; is. Is nil when this function is
+called in another context than for <code>other-window</code>.
+        </ol>
+
+   <p>The function has to return a window-object which is then used as
+&ldquo;other window&rdquo; for the command <code>other-window</code> or for scrolling
+another window (e.g. with <code>scroll-other-window</code>). Such a function
+has to handle properly all situation for itself.
+
+   <p>Here is an example for such a function:
+
+<pre class="example">   (defun ecb-get-other-window-smart (win-list
+                                      edit-win-list
+                                      ecb-win-list
+                                      comp-win
+                                      minibuf-win
+                                      point-loc
+                                      nth-window)
+     "Implements the smart-setting of `ecb-other-window-behavior'."
+     (if minibuf-win
+         ;; if we have an active mini-buffer we delegate this to
+         ;; `ecb-get-other-window-minibuf-active'
+         (ecb-get-other-window-minibuf-active win-list
+                                              edit-win-list
+                                              ecb-win-list
+                                              comp-win
+                                              minibuf-win
+                                              point-loc
+                                              nth-window)
+       ;; here we have no active minibuffer!
+       (let ((nth-win (or nth-window 1)))
+         (cond ((equal point-loc 'ecb)
+                (ecb-next-listelem ecb-win-list (selected-window) nth-win))
+               ((equal point-loc 'compile)
+                (if (= nth-win 1)
+                    (or (and ecb-last-edit-window-with-point
+                             (window-live-p ecb-last-edit-window-with-point)
+                             ecb-last-edit-window-with-point)
+                        (car edit-win-list))
+                  (ecb-next-listelem (append edit-win-list
+                                             (list (selected-window)))
+                                     (selected-window)
+                                     nth-win)))
+               (t ;; must be an edit-window
+                (ecb-next-listelem (append edit-win-list
+                                           (if (and comp-win
+                                                    (= (length edit-win-list)
+                                                       1))
+                                               (list comp-win)))
+                                   (selected-window)
+                                   nth-win))))))
+</pre>
+   <p>This example implements the builtin smart behavior described above.
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> <code>other-window</code> allows to select ARG'th
+different window, i.e. the window ARG steps away from current window
+in the cyclic order of the windows</p>
+
+   <p class="footnote"><small>[<a name="fn-2" href="#fnd-2">2</a>]</small> <code>other-window</code> uses the same window-ordering as
+<code>walk-windows</code></p>
+
+   <p><hr></div>
+
+   </body></html>
+

@@ -1,0 +1,260 @@
+Emacs-w3m NEWS -- history of user-visible changes.
+
+Copyright (C) 2007 TSUCHIYA Masatoshi
+See the end of the file for license conditions.
+
+Please send bug reports to emacs-w3m@namazu.org.
+If possible, use M-x report-emacs-w3m-bug.
+
+This file is about changes in emacs-w3m version 1.5.
+
+
+* Required Emacs version changes
+
+** Emacs-w3m no longer works with old Emacs versions.
+Now emacs-w3m will hopefully work with Emacs 21.1 or greater, XEmacs
+21.4.17 or greater, or XEmacs 21.5-b19 or greater.
+
+*** Version-specific modules are now w3m-ems.el and w3m-xmas.el.
+The modules w3m-e21.el, w3m-e23.el, and w3m-fsf.el have been
+integrated into w3m-ems.el.
+
+*** We can now use shy group in regular expressions.
+
+
+* Appearance changes
+
+** Emacs-w3m can now display italic text.
+While web pages often use italic text to emphasize words or sentences,
+emacs-w3m (and w3m) displayed them as normal text formerly.  To enable
+this feature, you need to have w3m 0.5.2 or greater installed.  The
+face used to display italic text is `w3m-italic'.
+
+** Emphasizing of text to display has been much improved.
+The face attributes including bold, italic, underline, and strike-thru
+can be overlapped in the same text now.
+
+** Emacs-w3m can now display the uri and the title in the hreader-line.
+This is controlled by the `w3m-use-header-line-title' variable.
+
+** Emacs-w3m can now use the title of the page as a buffer name.
+This is controlled by the `w3m-use-title-buffer-name' variable.
+
+** The PNG icon files in addition to the XPM icons are now available.
+Those are the ones used in the tool bar, are the best suited to Emacs
+built with GTK.  So, emacs-w3m uses them for GTK Emacs by default.
+Which type of icons to use is controlled by the variable
+`w3m-toolbar-icon-preferred-image-types'.
+
+
+* Changes in tabs, sessions, and menu
+
+** A handy menu now pops up by clicking mouse-3 on links.
+It doesn't work on tty of course, though.
+
+** Tabs now have useful menu succeeding to Firefox+TabMixPlus' way.
+You can pop the menu up by a Mouse-3 click on a tab, and may also see
+the key bindings of those menu items.  The menu is also available in
+the `Tab' menu in the menu bar.
+
+** You can now use the mouse wheel to manipulate tabs.
+Rolling the mouse wheel on the tabs line circulates the tabs.  In
+addition to this, pressing the control key while rolling the mouse
+wheel changes the order of the tabs.
+
+** Emacs-w3m can now create a new session in the background.
+If this is enabled, the page you instruct emacs-w3m to visit as a new
+session will not appear unless you select the buffer.  This is disabled
+by default.  You can set the `w3m-new-session-in-background' variable
+to a non-nil value to enable it.
+
+** The w3m menu appears about the middle of the menu bar by default.
+If you'd like to place it in the leftmost of the menu bar as before,
+set the `w3m-menu-on-forefront' variable to a non-nil value.
+
+
+* Changes in contents decoding
+
+** Emacs-w3m now uses a superset of the charset the page specifies.
+For instance, some European web sites sometimes use the `windows-1252'
+charset for encoding contents even if the page is labeled with
+`iso-8859-1'.  In such a case, emacs-w3m uses `windows-1252', which is
+a superset of `iso-8859-1', for decoding contents if it is available.
+The variable `w3m-compatible-encoding-alist' holds the table of
+charsets and their supersets.
+
+** Emacs-w3m can now follow links containing non-ASCII characters.
+Emacs-w3m encodes the urls of links whenever retrieving the contents
+using the charset by which the page containing the links has been
+encoded.  (In shimbun, the charset can be overridden by
+the `shimbun-url-coding-system' class variable; see below.)
+
+** You can now instruct emacs-w3m how much it decodes html sources.
+Give a numeric prefix to the `w3m-view-source' command, which is bound
+to the `\' key.  See the doc string of the command for details.
+
+** Emacs-w3m now decodes application/xml pages as text/html.
+In the case where the page source looks like xhtml+xml.
+
+** Now emacs-w3m trusts the image type gotten from parsing image data.
+Because the type that web sites specify as the Content-Type header is
+sometimes bogus.  Currently, gif, jpeg, and png types can be identified.
+
+
+* New Lisp modules
+
+** w3m-fb.el -- frame-local buffers support.
+You can now have several emacs-w3m frames for various purposes.  For
+example, one is for news sites, the other is for search engines.  See
+(info "(emacs-w3m)Frame Local Buffers").
+
+** w3m-mail.el -- interface to mail-user-agent for sending web pages.
+You can now mail a web page that you are viewing.  The command is
+`M-x w3m-mail'.  Note that you have to have the `mail-user-agent' set
+properly.
+
+** w3m-session.el -- functions to load/save sessions.
+You can now save in the file the current session in which you visit
+several pages.  Moreover the last session you use before quitting
+emacs-w3m will be saved automatically if `w3m-session-autosave' is
+non-nil (the default).  Saved sessions can be loaded afterward.
+The useful commands are `M-S' for saving and `M-s' for selecting saved
+ones.  Those are available also in the `Session' submenu in the `w3m'
+menu.
+
+
+* Search engines changes
+
+** Many search engines have been added.
+See (info "(emacs-w3m)Using Search Engines").
+
+
+* Changes in filters
+
+** Google searches are prevented from getting corrupted and tidied up.
+
+** Displaying shortened uris for Amazon.
+
+** Support direct access to mixi's diaries being displayed externally.
+
+** Support accessing to the online dictionary Eijiro.
+
+
+* Miscellaneous
+
+** vm-w3m.el has been transferred to the new VM team.
+It is now in the VM 8.x package.  See http://www.nongnu.org/viewmail/.
+
+** Emacs-w3m now allows arbitrary string as a uri.
+This feature succeeds to Google's `I'm Feeling Lucky', i.e., the string
+is searched for using Google.  The `w3m-enable-google-feeling-lucky'
+variable controls this feature (enabled by default).
+
+** `w3m-goto-article-function' is now a user option.
+
+** Emacs-w3m now visits the thread page in Gmane semi-automatically.
+Gmane (http://www.gmane.org/) archives articles distributed in a lot
+of the mailing lists and offers them through nntp and http.  If you
+execute the `w3m' command on the References header or the Message-ID
+header of an article, emacs-w3m tries to visit the thread page to
+which the article belongs.
+
+** Run XEmacs 21.5 safely.
+We gave up asynchronous operation when XEmacs 21.5 accesses many pages
+at a time, in order to prevent it from freezing.
+
+** Prevent the byte compiler from issuing useless warnings.
+We will continue to do this thoroughly.  It makes it easy to find real
+errors when compiling emacs-w3m.
+
+** The installation directory name is allowed to have spaces and/or tabs.
+
+** We've done many other improvements and bug fixes in this release.
+(Some of them might cause new bugs, though.)
+
+
+* Shimbun changes
+
+** New shimbun class variable `shimbun-prefer-text-plain'.
+It controls whether a shimbun module generates text/plain articles or
+html articles.  While the sb-asahi.el module (for example) generates
+text/plain articles by default, you can tell it to generate html
+articles by setting the `shimbun-asahi-prefer-text-plain' variable to
+nil.  Oppositely, setting `shimbun-mainichi-prefer-text-plain' to non-
+nil leads the sb-mainichi.el module to generate text/plain articles
+while it generates html articles by default.  With this feature,
+sb-asahi-html.el and sb-yomiuri-html.el have been made semi-obsolete.
+Note that all the shimbun modules don't allow for it.
+
+** Shimbun now supports redirection of urls when fetching articles.
+Urls that some web sites offer in the index pages are not the ones that
+point to the article pages directly.  The real url for the article is
+in the page to which such a url points, and it is also likely to
+require the client to wait for a while (often for displaying ads).
+Shimbun now examines it and fetches the real article contents with no
+wait.
+
+** Shimbun can now convert wide non-ASCII characters into Hankaku.
+English words and numbers displayed with wide (a.k.a. Zenkaku) non-
+ASCII characters are illegible.  Although it is not available in all
+the shimbun modules, it will be worth trying setting
+the `shimbun-japanese-hankaku' variable to non-nil.  It not only
+converts wide non-ASCII characters into the normal ones but also
+performs Wakachi-Gaki (which means separating alphanumeric words and
+Japanese sentences with space characters).  If you want to do it per
+shimbun server, use `shimbun-SERVER-japanese-hankaku' instead.
+
+** New shimbun class `shimbun-newspaper'.
+This is used for adding a caution on the copyright to non-Japanese
+shimbun articles.  For Japanese, use `shimbun-japanese-newspaper'.
+
+** New shimbun class variable `shimbun-url-coding-system'.
+This overrides the charset used for encoding the urls of links which
+contain non-ASCII letters (by default, the urls of links will be
+encoded by the charset by which the page containing the links has been
+encoded).  Use the `shimbun-SERVER-url-coding-system' variable per
+server.
+
+** New shimbun class variable `shimbun-retry-fetching'.
+When fetching contents of a url fails, shimbun retries it up to that
+number of times if it is a positive number.  Use the variable
+`shimbun-SERVER-retry-fetching' per server.
+
+** New shimbun modules have been added.
+sb-aljazeera.el sb-debugmagazin-de.el sb-gendai-net.el sb-nytimes.el
+sb-ohmynews-jp.el sb-perlentaucher-de.el sb-slashdot.el
+sb-sueddeutsche-de.el sb-tech-on.el 
+
+** Some shimbun modules are being well-maintained but others aren't.
+Volunteers welcome!
+
+*** New variable `nnshimbun-default-group-level' for Gnus.
+The value of this variable determines the initial group level of
+a shimbun group that is newly created.  The default value is nil,
+which means that of `gnus-level-default-subscribed' is used.
+
+*** New command `gnus-group-make-shimbun-groups' for Gnus.
+This makes all the shimbun groups a server provides.
+
+
+----------------------------------------------------------------------
+Emacs-w3m is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+Emacs-w3m is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with emacs-w3m; see the file COPYING.  If not, write to the
+Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+Boston, MA 02110-1301, USA.
+
+
+Local variables:
+mode: outline
+paragraph-separate: "[ 	]*$"
+end:

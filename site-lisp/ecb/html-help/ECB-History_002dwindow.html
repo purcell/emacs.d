@@ -1,0 +1,184 @@
+<html lang="en">
+<head>
+<title>ECB History-window - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Basic-ECB_002dwindows.html#Basic-ECB_002dwindows" title="Basic ECB-windows">
+<link rel="prev" href="ECB-Methods_002dwindow.html#ECB-Methods_002dwindow" title="ECB Methods-window">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="ECB-History-window"></a>
+<a name="ECB-History_002dwindow"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="ECB-Methods_002dwindow.html#ECB-Methods_002dwindow">ECB Methods-window</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Basic-ECB_002dwindows.html#Basic-ECB_002dwindows">Basic ECB-windows</a>
+<hr>
+</div>
+
+<h4 class="subsection">4.1.6 The ECB History-window</h4>
+
+<p><a name="index-History-6"></a>ECB offers a ECB-windows for displaying a history of currently open or
+recently closed source-buffers, regardless of the directory the related file
+belongs to.
+
+   <p>Contrary to the ECB-sources-window the ECB-History-window can be flat but
+needn't. Another difference to the ECB-sources window is that the History
+displays not filenames but buffer-names for buffers which are either directly
+related to a file or which are indirect-buffers with a base-buffer which is
+related to a file. For a description of the indirect-buffer concept see the
+Emacs manual (see command <code>clone-indirect-buffer</code> or
+<code>make-indirect-buffer</code> for XEmacs).
+
+   <p><strong>Please note</strong>: The History of ECB is not meant to be a full replacement
+for the Buffers-menu of (X)Emacs! It only displays buffers which are related
+to a file (either directly or via indirect-buffer). All non-file-related
+buffers (e.g. *Help*, *grep* etc.) will never be displayed in the
+ECB-History-window!
+
+<h5 class="subsubsection">4.1.6.1 Usage of the ECB-History-window</h5>
+
+     <ul>
+<li>Buffers in the history can be selected by clicking with the primary mouse button
+(see <a href="Using-the-mouse.html#Using-the-mouse">Using the mouse</a>) or hitting RETURN (see <a href="Using-the-keyboard.html#Using-the-keyboard">Using the keyboard</a>) on
+the buffername-node in the <dfn>ECB-History</dfn>-window. The buffer of the selected
+buffer-name will be displayed in an edit-window - which one depends on the
+setting in <code>ecb-mouse-click-destination</code>.
+
+     <p>IMPORTANT: If you use the POWER-click (i.e. hold down the SHIFT-key while
+clicking with the primary mouse button (see <a href="Using-the-mouse.html#Using-the-mouse">Using the mouse</a>) or RETURN
+(see <a href="Using-the-keyboard.html#Using-the-keyboard">Using the keyboard</a>)) on a node in the ECB-History-window then the
+related buffer will not be displayed in an edit-window but it will be scanned
+in the background and all its contents (e.g. methods and variables) are listed
+in the <dfn>ECB Methods</dfn>-window (see <a href="ECB-Methods_002dwindow.html#ECB-Methods_002dwindow">ECB Methods-window</a>. So you can get an
+overlook over the buffer-contents without changing the buffer in the
+edit-window.
+
+     <li>Clicking on a buffername-node with the secondary mouse button or
+C-RETURN (see <a href="Usage-of-ECB.html#Usage-of-ECB">Usage of ECB</a>) will open the buffer in
+another edit window - which one depends on the setting in
+<code>ecb-mouse-click-destination</code>.
+
+     <li>Right clicking on a buffername-node (mouse-button 3) will open a popup menu
+where different operation on the item under the mouse cursor can be performed. 
+This popup-menu offers operations for version-control, dired, grep, filtering
+the buffernames and some file-operations like deleting the related file from
+disk. In addition the ECB-History-window can be maximized or the bucketizing
+type (s.b. &ldquo;Bucketizing the history&rdquo;) can be changed on the fly via
+popup-menu.
+
+</ul>
+
+<h5 class="subsubsection">4.1.6.2 Activating/Displaying the ECB-History-window</h5>
+
+<p>Either use one of the predefined layouts which contain the ECB-History-window
+(see <a href="Changing-the-ECB_002dlayout.html#Changing-the-ECB_002dlayout">Changing the ECB-layout</a>) (e.g. via <kbd>C-c . l c</kbd>) or create a new
+ecb-layout via the command <code>ecb-create-new-layout</code> and add a buffer of
+type &ldquo;history&rdquo; into this new layout (see <a href="Creating-a-new-ECB_002dlayout.html#Creating-a-new-ECB_002dlayout">Creating a new ECB-layout</a>).
+
+<h5 class="subsubsection">4.1.6.3 Dead buffers in the history</h5>
+
+<p>You can customize if ECB should remove the related buffername-node from the
+history-window after killing a buffer. This is done with the option
+<code>ecb-kill-buffer-clears-history</code>. See the documentation of this option
+for the possible choices. If you decide that ECB should <strong>not</strong> remove
+the related buffername-node then this is named a &ldquo;dead&rdquo; buffer in the
+history-window. It is displayed with a special face (see
+<code>ecb-history-dead-buffer-face</code>), default is a kind of grey.
+
+   <p>You can use such a dead-buffer-node in the history as all other
+buffername-nodes: ECB will reopen the related file in a buffer and perform the
+action you have choosen (see above section &ldquo;Usage of the
+ECB-History-window&rdquo;).
+
+<h5 class="subsubsection">4.1.6.4 Indirect buffers in the history</h5>
+
+<p>You can work with indirect buffers as well with direct buffers. See the
+(X)Emacs manual for an introduction for indirect buffers (e.g. see the command
+<code>clone-indirect-buffer</code> for GNU Emacs).
+
+   <p>Indirect buffers are displayed with the face
+<code>ecb-history-indirect-buffer-face</code>, default is an italic outline.
+
+   <p>There is an option <code>ecb-history-stick-indirect-buffers-to-basebuffer</code>
+which allows to customize how ECB displays indirect buffers in the
+history-window:
+
+   <p>If this option is <code>nil</code> then indirect-buffers are treated as
+non-indirect-buffers and sorted into the history-buffer-sequence according to
+the setting of <code>ecb-history-sort-method</code>. Then the history contains
+something like this:
+
+<pre class="example">   &lt;base-buffer BB&gt;
+   &lt;indirect-buffer 1 of BB&gt;
+   &lt;indirect-buffer 2 of BB&gt;
+   &lt;indirect-buffer 3 of BB&gt;
+</pre>
+   <p>If not nil then indirect-buffers are always sticked to their base-buffer, ie. 
+the base-buffer is displayed as expandable node with all its indirect-buffers
+as children-nodes, so the history contains something like:
+
+<pre class="example">   [-] &lt;base-buffer BB&gt;
+    |  &lt;indirect-buffer 1 of BB&gt;
+    |  &lt;indirect-buffer 2 of BB&gt;
+    `- &lt;indirect-buffer 3 of BB&gt;
+</pre>
+   <p>Here the buffer with name &ldquo;&lt;base-buffer BB&gt;&rdquo; has three indirect-buffers
+which are display as childrens of their base-buffer.
+
+<h5 class="subsubsection">4.1.6.5 Bucketizing the history</h5>
+
+<p>ECB can display the history-contents &ldquo;flat&rdquo; or it can display buckets to
+bucketize the contens according to certain criterias. This is done with the
+option <code>ecb-history-make-buckets</code>. It allows bucketizing according to the
+directory, the file-extension, the major-mode or a list of regular expression
+- see the documentation of this option for details.
+
+   <p>Here is an example for a history-window bucketized according to the major-mode
+of the related buffers:
+
+<pre class="example">   [-] [c++-mode]
+    |  headerfile-1.h
+    |  headerfile-2.h
+    |  codefile-1.cc
+    `- codefile-2.cc
+   [-] [emacs-lisp-mode]
+    |  elisp-buffer-1.el
+    |  elisp-buffer-1.el
+    `- elisp-buffer-1.el
+   [-] [makefile-mode]
+    `- Makefile
+   [-] [java-mode]
+    |  java-buffer-1.java
+    `- java-buffer-2.java
+</pre>
+   <p><strong>Please note</strong>: If <code>ecb-history-make-buckets</code> is nil then this is
+interpreted as an empty list of regular-expressions and the history is display
+with exactly one bucket. Use the value 'never if you want the? contents of the
+history-window to be displayed &ldquo;flat&rdquo;!
+
+   <p>You can change the bucketizing type on the fly via the popup-menu of the
+history-window.
+
+<h5 class="subsubsection">4.1.6.6 Customizing the ECB-History-window</h5>
+
+<p>See <a href="ecb_002dhistory.html#ecb_002dhistory">ecb-history</a> for a list of all options currently available for
+customizing this ECB-windows to your needs.
+
+   </body></html>
+

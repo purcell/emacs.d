@@ -1,0 +1,4 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : Enumerables
+# --
+enum_with_index.map { |${1:e}, ${2:i}| $0 }

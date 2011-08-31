@@ -1,0 +1,4 @@
+#name : { |variable| ... }
+#group : Blocks
+# --
+{ |${1:variable}| $0 }

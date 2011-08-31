@@ -1,0 +1,6 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : class T(args) { .. }
+# --
+class ${1:name}(${2:args}) {
+  $0
+}

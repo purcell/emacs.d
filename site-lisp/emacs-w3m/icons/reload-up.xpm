@@ -1,0 +1,43 @@
+/* XPM */
+static char *reload-up[] = {
+/* width height num_colors chars_per_pixel */
+"    24    24       11            1",
+/* colors */
+". c #b6b8b6 s backgroundToolBarColor",
+"# c #aeb4ae",
+"a c #000000",
+"b c #6580c9",
+"c c #6984d7",
+"d c #7788d7",
+"e c #768cdf",
+"f c #788fe7",
+"g c #6580e7",
+"h c #5195ef",
+"i c #5197f7",
+/* pixels */
+"........................",
+"........................",
+"...........#aaaaa.......",
+"..........aabbbbbaa.....",
+".........abbbbbbbbba....",
+"........accccaaacccca...",
+".......#addda###addda#..",
+".......aeeea#####aeeea..",
+".......afffa#..aaafffaaa",
+".......aaaaa....aggggga#",
+".................ahhha##",
+"..##a.............aia##.",
+".##aia.............a##..",
+"##ahhha.................",
+"#aggggga....aaaaa.......",
+"aaafffaaa..#afffa.......",
+"..aeeea#####aeeea.......",
+"..#addda###addda#.......",
+"...accccaaacccca........",
+"....abbbbbbbbba.........",
+".....aabbbbbaa..........",
+".......aaaaa#...........",
+"........................",
+"........................"
+};
+

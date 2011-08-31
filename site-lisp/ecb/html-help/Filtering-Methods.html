@@ -1,0 +1,143 @@
+<html lang="en">
+<head>
+<title>Filtering Methods - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Filtering-the-tree_002dbuffers.html#Filtering-the-tree_002dbuffers" title="Filtering the tree-buffers">
+<link rel="prev" href="Filtering-History.html#Filtering-History" title="Filtering History">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Filtering-Methods"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Filtering-History.html#Filtering-History">Filtering History</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Filtering-the-tree_002dbuffers.html#Filtering-the-tree_002dbuffers">Filtering the tree-buffers</a>
+<hr>
+</div>
+
+<h4 class="subsection">6.7.4 Applying filters to the Methods-buffer</h4>
+
+<p>The commands <code>ecb-methods-filter</code>,
+<code>ecb-methods-filter-regexp</code>,
+<code>ecb-methods-filter-protection</code>,
+<code>ecb-methods-filter-tagclass</code>,
+<code>ecb-methods-filter-function</code>,
+<code>ecb-methods-filter-delete-last</code>,
+<code>ecb-methods-filter-nofilter</code> allows to filter the tags/nodes of
+the Methods-buffer by several criterias. As for the Sources- and the
+History-buffer the same functionality is also available via the
+popup-menu of the Methods-buffer.
+
+<h5 class="subsubsection">6.7.4.1 Possible filter-criterias</h5>
+
+     <ul>
+<li>Filter by protection:
+Just insert the protection you want the Methods-buffer being filtered:
+private, protected or public! For sources not supported by semantic
+the protection filter will not be offered because these informations
+are not available for such sources.
+
+     <li>Filter by regexp:
+Insert the filter as regular expression.
+
+     <li>Filter by tag-class:
+You can filter by tag-classes. The popup-menu contains mode-dependend
+tag-filter entries and the command <code>ecb-methods-filter</code> offers
+only the tag-classes of the current mode. This means for sources not
+supported by semantic the tag-class filter will not be offered. And
+for semantic-supported sources exactly these tag-classes are offered
+the semantic-parser for the current major-mode offers. For example
+texi-sources can only be filtered by the tag-classes &ldquo;Definitions&rdquo;
+and &ldquo;Sections&rdquo; and java-sources can be filtered by &ldquo;Methods&rdquo;,
+&ldquo;Variables&rdquo;, &ldquo;Classes&rdquo; etc. In general the semantic-variable
+<code>semantic-symbol-&gt;name-assoc-list</code> is used to get the right
+tag-classes.
+
+     <li>Filter by a filter-function:
+Such a function gets two arguments: a tag and the source-buffer of
+this tag. If the tag should be displayed (i.e. not being filtered out)
+then the function has to return not nil otherwise nil.
+
+     <li>No special filter:
+This means to display all tags specified with the option
+<code>ecb-show-tokens</code>. If currently some of the above filters are
+applied they will be all removed.
+
+     <li>Delete the last added:
+This removes only the topmost filter-layer, means that filter added
+last. 
+</ul>
+
+   <p>Be aware that the tag-list specified by the option
+<code>ecb-show-tags</code> is the basis of all filters, i.e. tags which are
+excluded by that option will never be shown regardless of the filter
+type here!
+
+   <p>All tags which match the applied filter(s) will be displayed in the
+Methods-buffer. Such a filter is only applied to the current
+source-buffer, i.e. each source-buffer can have its own tag-filters.
+
+   <p>These tag-filters can also applied to sources which are not supported
+by the semantic-parser but &ldquo;only&rdquo; by imenu or etags. But because for
+these sources not all information are avaiable the protection- and
+tag-class filter are not offered with such &ldquo;non-semantic&rdquo;-sources. 
+See <a href="Non_002dsemantic-sources.html#Non_002dsemantic-sources">Non-semantic sources</a> for further details about working with
+source-files not supported by the semantic-parser.
+
+<h5 class="subsubsection">6.7.4.2 Inverse Filters</h5>
+
+<p>But if <code>ecb-methods-filter</code> is called with a prefix-argument then
+an inverse filter is applied to the Methods-buffer, i.e. all tags
+which do <strong>NOT</strong> match the choosen filter will be displayed in
+the Methods-buffer!
+
+<h5 class="subsubsection">6.7.4.3 Layered filters</h5>
+
+<p>Per default the choosen filter will be applied on top of already
+existing filters. This means that filters applied before are combined
+with the new filter. This behavior can changed via the option
+<code>ecb-methods-filter-replace-existing</code>.
+
+<h5 class="subsubsection">6.7.4.4 Display of currently applied filters</h5>
+
+<p>The current active filter will be displayed in the modeline of the
+Methods-buffer [regexp, prot (= protection), tag-class, function (=
+filter-function)]. If an inverse filter has been applied then this is
+signalized by a preceding caret ^. If currently more than 1 filter is
+applied then always the top-most filter is displayed in the modeline
+but the fact of more than 1 filter is visualized by the number of the
+filters - included in parens. You can see all currently applied
+filters by moving the mouse over the filter-string in modeline of the
+Methods-buffer: They will displayed as help-echo.
+
+<h5 class="subsubsection">6.7.4.5 Default filters for certain files.</h5>
+
+<p>The new option <code>ecb-default-tag-filter</code> allow to define default
+tag-filters for certain files which are applied automatically after
+loading such a file into a buffer. The possible filters are the same
+as offered by the command <code>ecb-methods-filter</code> and they are
+applied in the same manner - the only difference is they are applied
+automatically. The files can be specified on a combined major-mode-
+and filename-regexp-basis.
+
+   <p>Usage-example: This can be used to display in outline-mode files (e.g. 
+<samp><span class="file">NEWS</span></samp>) only the level-1-headings by defining a filter regexp
+&ldquo;^\* .*&rdquo;.
+
+   </body></html>
+

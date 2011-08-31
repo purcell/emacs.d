@@ -1,0 +1,98 @@
+<html lang="en">
+<head>
+<title>ECB as XEmacs-package - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Installation.html#Installation" title="Installation">
+<link rel="prev" href="Requirements.html#Requirements" title="Requirements">
+<link rel="next" href="Standard-ECB_002dInstallation.html#Standard-ECB_002dInstallation" title="Standard ECB-Installation">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="ECB-as-XEmacs-package"></a>
+<a name="ECB-as-XEmacs_002dpackage"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Standard-ECB_002dInstallation.html#Standard-ECB_002dInstallation">Standard ECB-Installation</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Requirements.html#Requirements">Requirements</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Installation.html#Installation">Installation</a>
+<hr>
+</div>
+
+<h4 class="subsection">1.1.2 Installation of ECB as a XEmacs-package</h4>
+
+<p>This section is only relevant for XEmacs-users!
+
+   <p>In previous versions of ECB XEmacs-users could use the
+package-management-system of XEmacs for first-time downloading/installing ECB
+or for upgrading to a newer version of ECB.
+
+   <p>Beginning with version 2.33 ECB does no longer support the old versions of
+semantic, eieio and speedbar not part of the CEDET-suite. ECB &gt;= 2.33 requires
+fully installed CEDET-suite with version &gt;= 1.0pre6. This one is not available as
+XEmacs-package. Therefore ECB can also not be run as XEmacs-package. If cedet
+will become a XEmacs-package then probably ECB will come back as
+XEmacs-package. But in the meanwhile you have to install ECB &ldquo;by hand&rdquo; as
+described in the next section (see <a href="Standard-ECB_002dInstallation.html#Standard-ECB_002dInstallation">Standard ECB-Installation</a>).
+
+<!-- @strong{Recommendation}: If you are able to manually install ECB and its -->
+<!-- requirements as described in @ref{Standard ECB-Installation} then go on and -->
+<!-- proceed with that (you will see, it's easy). You will get a much more powerful -->
+<!-- ECB and also CEDET/semantic. -->
+<!-- If you are desperate to use the package-management-system of ECB for -->
+<!-- installing ECB, then here is a short guide (for details about the -->
+<!-- package-manager of XEmacs see the related info-manual): -->
+<!-- @strong{Caution}: If ECB is already installed and you just want -->
+<!-- upgrading to a newer version then it is recommended to deactivate ECB -->
+<!-- before proceeding with the steps below! -->
+<!-- @enumerate -->
+<!-- @item Choose a download-site -->
+<!-- This can be done via the menu ``Tools -> Packages -> Add Download -->
+<!-- Site'': Choose one of the listed sites. Or you can customize the -->
+<!-- option @code{package-get-remote} by hand and save it for future -->
+<!-- sessions. -->
+<!-- @item Activate the packages list -->
+<!-- This can be done either by the menu ``Tools -> Packages -> List and -->
+<!-- Install'' or via the command @code{pui-list-packages}. After that a -->
+<!-- special packages-buffer is displayed where you can interactively -->
+<!-- install or upgrade packages. At the end of this buffer there is a -->
+<!-- short description how to use this buffer. -->
+<!-- @item Install ECB and all required packages -->
+<!-- Mark the package named ``ecb'' for install. Do this also for the -->
+<!-- required packages ``semantic'', ``eieio'' and ``speedbar''. The -->
+<!-- package ``mail-lib'' is needed for easy submitting of problem-reports -->
+<!-- to the ECB-maintainers and the package ``c-support'' is needed for -->
+<!-- easy using hideshow within the Methods-buffer of ECB@footnote{All -->
+<!-- required packages can simply autom. marked by hitting @kbd{r} in the -->
+<!-- packages buffer. But this installs a lot of packages more (e.g. the -->
+<!-- Newsreader Gnus) which are really not essential for ECB. Therefore it -->
+<!-- is recommended to mark the required packages by hand.}. -->
+<!-- After marking all needed packages for installation hit @kbd{x} to -->
+<!-- install them. -->
+<!-- If you have already installed ECB and you want just upgrading to the -->
+<!-- latest available version then proceed as described above - same if you -->
+<!-- want to upgrade one of the required packages. -->
+<!-- @item Start ECB -->
+<!-- Now you can immediately start ECB via the command @code{ecb-activate}; -->
+<!-- there is no need to restart XEmacs! As an alternative you can first -->
+<!-- read the online-help via @code{ecb-show-help}. -->
+<!-- @end enumerate -->
+<!-- If you do not like the package-manager of XEmacs but you want -->
+<!-- installing ECB ``by hand'' direct from the ECB-website then you have -->
+<!-- to follow the instructions in @ref{Standard ECB-Installation}. -->
+</body></html>
+

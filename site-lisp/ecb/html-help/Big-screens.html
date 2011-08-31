@@ -1,0 +1,52 @@
+<html lang="en">
+<head>
+<title>Big screens - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="prev" href="Small-screens.html#Small-screens" title="Small screens">
+<link rel="next" href="Simulating-speedbar.html#Simulating-speedbar" title="Simulating speedbar">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Big-screens"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Simulating-speedbar.html#Simulating-speedbar">Simulating speedbar</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Small-screens.html#Small-screens">Small screens</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>
+<hr>
+</div>
+
+<h3 class="section">10.3 Working with big screens</h3>
+
+<p>ECB offers a layout type &ldquo;left-right&rdquo; with special ECB-tree-windows
+on the left and right side of the edit-area. The layouts
+&ldquo;leftright1&rdquo; and &ldquo;leftright2&rdquo;are examples for this layout type. 
+See <a href="Creating-a-new-ECB_002dlayout.html#Creating-a-new-ECB_002dlayout">Creating a new ECB-layout</a> and <a href="The-layout_002dengine.html#The-layout_002dengine">The layout-engine</a>
+for details about how to create or program more layouts of this type.
+
+   <p>Such a layout is eventually the best choice for big screens because
+the several ECB-tree-windows are bigger and can display more
+informations without scrolling.
+
+   <p>With such a layout it can could be senseful to reduce the value of the
+option <code>ecb-windows-width</code> compared to layouts of type left or
+right. A value of max. 0.25 should be enough.
+
+   </body></html>
+

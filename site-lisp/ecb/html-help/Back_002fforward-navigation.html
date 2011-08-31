@@ -1,0 +1,73 @@
+<html lang="en">
+<head>
+<title>Back/forward navigation - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Usage-of-ECB.html#Usage-of-ECB" title="Usage of ECB">
+<link rel="prev" href="Maximizing-the-ECB-windows.html#Maximizing-the-ECB-windows" title="Maximizing the ECB windows">
+<link rel="next" href="ECB_002dwindow-synchronizing.html#ECB_002dwindow-synchronizing" title="ECB-window synchronizing">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Back%2fforward-navigation"></a>
+<a name="Back_002fforward-navigation"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="ECB_002dwindow-synchronizing.html#ECB_002dwindow-synchronizing">ECB-window synchronizing</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Maximizing-the-ECB-windows.html#Maximizing-the-ECB-windows">Maximizing the ECB windows</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Usage-of-ECB.html#Usage-of-ECB">Usage of ECB</a>
+<hr>
+</div>
+
+<h3 class="section">6.11 Back- and forward navigation like a browser</h3>
+
+<p>With ECB you can &ldquo;browse&rdquo; in your source-files like with a
+web-browser. This means ECB stores the current buffer- and
+window-position relative to the current tag<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a> in the edit-window after
+
+     <ul>
+<li>selecting a tag in the ECB-methods buffer or
+<li>selecting a source-file in the ECB-sources/history-buffer. 
+</ul>
+
+   <p>ECB offers two commands <code>ecb-nav-goto-next</code> (<kbd>C-c . n</kbd>) and
+<code>ecb-nav-goto-previous</code> (<kbd>C-c . p</kbd>) to go forward and
+backward within this navigation history-list. These commands are also
+available via the menu &ldquo;ECB &ndash;&gt; Navigate&rdquo;.
+
+   <p>Aside normal &ldquo;location-browsing&rdquo; this is useful for example in a
+scenario where the buffer is narrowed to a tag (see
+<code>ecb-tag-visit-post-actions</code>):
+
+     <ol type=1 start=1>
+<li>You edit a function
+<li>Goto another function above the current in the same file
+<li>Add a few lines
+<li>Call ecb-nav-goto-previous
+
+     <p>Now you will edit at the same place in the function.
+        </ol>
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> e.g. a method,
+a variable or any other semantic tag</p>
+
+   <p><hr></div>
+
+   </body></html>
+

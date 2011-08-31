@@ -1,0 +1,55 @@
+<html lang="en">
+<head>
+<title>Do not with tree-buffer - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="tree_002dbuffer.html#tree_002dbuffer" title="tree-buffer">
+<link rel="prev" href="The-tree_002dbuffer_002dAPI.html#The-tree_002dbuffer_002dAPI" title="The tree-buffer-API">
+<link rel="next" href="Tree_002dbuffer-How-to.html#Tree_002dbuffer-How-to" title="Tree-buffer How to">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Do-not-with-tree-buffer"></a>
+<a name="Do-not-with-tree_002dbuffer"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Tree_002dbuffer-How-to.html#Tree_002dbuffer-How-to">Tree-buffer How to</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="The-tree_002dbuffer_002dAPI.html#The-tree_002dbuffer_002dAPI">The tree-buffer-API</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="tree_002dbuffer.html#tree_002dbuffer">tree-buffer</a>
+<hr>
+</div>
+
+<h4 class="subsection">11.3.7 Things which are strictly forbidden</h4>
+
+<p>Variable <code>tree-buffers</code>: Only for internal use! It contains all
+tree-buffers of current Emacs-instance, means <strong>all</strong>
+tree-buffers of <strong>all</strong> applications which uses currently
+tree-buffers. Every application must store its own collection of
+tree-buffers in an own variable! For example: ECB stores its
+tree-buffer set in <code>ecb-tree-buffers</code>!
+
+   <p>Variable <code>tree-buffer-displayed-nodes</code>: Only for internal use! 
+Contains all the current visible nodes of current tree-buffer in
+top-to-bottom order. This variable is buffer-local in each
+tree-buffer! Do not use it directly! When you want to cache the
+current display, then see <a href="Tree_002dbuffer-How-to.html#Tree_002dbuffer-How-to">Tree-buffer How to</a> how to do this.
+
+   <p><strong>IMPORTANT</strong>: An application may only use the API tree-buffer.el
+provides but no internal variables - see <a href="The-tree_002dbuffer_002dAPI.html#The-tree_002dbuffer_002dAPI">The tree-buffer-API</a>!
+
+   </body></html>
+

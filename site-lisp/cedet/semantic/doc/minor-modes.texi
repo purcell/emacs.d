@@ -1,0 +1,320 @@
+@ignore
+@node Semantic Minor Modes
+@chapter Semantic Minor Modes
+@end ignore
+
+Semantic comes with a wide range of minor-modes which use various
+features of semantic.  These modes vary widely in utility.
+
+There are some core modes that are required for smooth operations.
+Some of these are discussed in other chapters, such as @ref{Idle
+Scheduler}, and @ref{semanticdb}
+
+@menu
+* Code Helpers::        Modes for assisting in authoring code.
+* Development Modes::   Modes for assisting in developing/debugging Semantic.
+@end menu
+
+@node Code Helpers
+@section Code Helpers
+
+Code Helpers are minor modes that augment basic Emacs behavior in ways
+that can assist in programming Semantic supported langauges.
+
+@menu
+* Sticky Function Mode::
+* Highlight Func Mode::	
+* Tag Decoration Mode::
+* MRU Bookmarks Mode::
+@end menu
+
+Senator is another mode which can assist in programming @ref{senator}.
+
+@node Development Modes
+@section Development Modes
+
+@menu
+* Highlight Edits Mode::
+* Parser State::
+* Unmatched Syntax Highlighting::
+@end menu
+
+@node Sticky Function Mode
+@subsection Sticky Function Headers
+
+@deffn Command semantic-stickyfunc-mode &optional arg
+Minor mode to show the title of a tag in the header line.
+Enables/disables making the header line of functions sticky.
+A function (or other tag class specified by
+@code{semantic-stickyfunc-sticky-classes}) has a header line, meaning the
+first line which describes the rest of the construct.  This first
+line is what is displayed in the Emacs @var{21} header line.
+
+With prefix argument @var{ARG}, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-@code{nil} if the
+minor mode is enabled.
+@end deffn
+
+@defvar semantic-stickyfunc-sticky-classes
+List of tag classes which sticky func will display in the header line.
+@end defvar
+
+@node Highlight Func Mode
+@subsection Highlight Func Mode
+@cindex semantic-highlight-func-mode
+
+Highlight Func mode will put a highlight overlay over the top
+declaration line of the function or tag the point is in.  Enabling
+this feature also puts a context menu onto the declaration line
+providing easy access to some basic commands.
+
+@defun semantic-highlight-func-mode &optional arg
+@anchor{semantic-highlight-func-mode}
+Minor mode to highlight the first line of the current tag.
+Enables/disables making the header line of functions sticky.
+A function (or other tag class specified by
+@code{semantic-stickfunc-sticky-classes}) is highlighted, meaning the
+first line which describes the rest of the construct.
+
+See @code{semantic-stickfunc-mode} for putting a function in the
+header line.  This mode recycles the stickyfunc configuration
+classes list.
+
+With prefix argument @var{ARG}, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-@code{nil} if the
+minor mode is enabled.
+@end defun
+
+@defun semantic-highlight-func-current-tag-face
+@anchor{semantic-highlight-func-current-tag-face}
+Face used to show the top of current function.
+@end defun
+
+@node Tag Decoration Mode
+@subsection Tag Decoration Mode
+@cindex semantic-decoration-mode
+
+Decoration mode is a harness that allows any parsed tag to be
+decorated based on some arbitrary feature of that tag.  Decoration
+mode is actually a full harness for providing any kind of decoration
+on a tag based on a prefix function.
+
+@deffn Command semantic-decoration-mode &optional arg
+@anchor{semantic-decoration-mode}
+Minor mode for decorating tags.
+Decorations are specified in @code{semantic-decoration-styles}.
+You can define new decoration styles with
+@dfn{define-semantic-decoration-style}.
+With prefix argument @var{arg}, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-@code{nil} if the
+minor mode is enabled.
+@end deffn
+
+To enable or disable specific decorations, you can use this function:
+
+@deffn Command semantic-toggle-decoration-style name &optional arg
+@anchor{semantic-toggle-decoration-style}
+Turn on/off the decoration style with @var{name}.
+Decorations are specified in @code{semantic-decoration-styles}.
+With prefix argument @var{arg}, turn on if positive, otherwise off.
+Return non-@code{nil} if the decoration style is enabled.
+@end deffn
+
+@subsubsection Available decoration modes
+
+There are several decoration modes that comes with semantic.
+
+@defun Command semantic-tag-boundary-mode &optional arg
+Place an overline in front of each long tag.
+
+@deffn Option semantic-tag-boundary-face
+@anchor{semantic-tag-boundary-face}
+Face used to show long tags in.
+Used by decoration style: @code{semantic-tag-boundary}.
+@end deffn
+
+@end defun
+
+
+@defun Command semantic-decoration-on-private-members-mode &optional arg
+Highlight class members that are designated as PRIVATE access.
+
+@deffn Option semantic-decoration-on-private-members-face
+@anchor{semantic-decoration-on-private-members-face}
+Face used to show privately scoped tags in.
+Used by the decoration style: @code{semantic-decoration-on-private-members}.
+@end deffn
+@end defun
+
+@defun Command semantic-decoration-on-protected-members-mode &optional arg
+Highlight class members that are designated as PROTECTED access.
+
+@deffn Option semantic-decoration-on-protected-members-face
+@anchor{semantic-decoration-on-protected-members-face}
+Face used to show protected scoped tags in.
+Used by the decoration style: @code{semantic-decoration-on-protected-members}.
+@end deffn
+@end defun
+
+@deffn Command semantic-decoration-on-includes  &optional arg
+Highlight class members that are includes.
+This mode provides a nice context menu on the include statements.
+Use the menus to ask questions and get help on configuring semantic.
+
+@deffn Option semantic-decoration-on-includes
+@anchor{semantic-decoration-on-includes}
+Overlay Face used on includes that are not in some other state.
+Used by the decoration style: @code{semantic-decoration-on-includes}.
+@end deffn
+
+@deffn Option semantic-decoration-on-unknown-includes
+@anchor{semantic-decoration-on-unknown-includes}
+Face used to show includes that cannot be found.
+Used by the decoration style: @code{semantic-decoration-on-unknown-includes}.
+@end deffn
+
+@deffn Option semantic-decoration-on-unparsed-includes
+@anchor{semantic-decoration-on-unparsed-includes}
+Face used to show includes that have not yet been parsed.
+Used by the decoration style: @code{semantic-decoration-on-unparsed-includes}.
+@end deffn
+
+@end deffn
+
+@subsubsection Create New Decoration Modes
+
+You can create new types of decorations using the following function:
+
+@defun define-semantic-decoration-style name doc &rest flags
+@anchor{define-semantic-decoration-style}
+Define a new decoration style with @var{name}.
+@var{doc} is a documentation string describing the decoration style @var{name}.
+It is appended to auto-generated doc strings.
+An Optional list of @var{flags} can also be specified.  Flags are:
+  @code{:enabled} <value>  - specify the default enabled value for @var{name}.
+
+
+This defines two new overload functions respectively called @code{NAME-p}
+and @code{NAME-highlight}, for which you must provide a default
+implementation in respectively the functions @code{NAME-p-default} and
+@code{NAME-highlight-default}.  Those functions are passed a tag.  @code{NAME-p}
+must return non-@code{nil} to indicate that the tag should be decorated by
+@code{NAME-highlight}.
+
+To put primary decorations on a tag @code{NAME-highlight} must use
+functions like @dfn{semantic-set-tag-face}, @dfn{semantic-set-tag-intangible},
+etc., found in the semantic-decorate library.
+
+To add other kind of decorations on a tag, @code{NAME-highlight} must use
+@dfn{semantic-decorate-tag}, and other functions of the semantic
+decoration @var{api} found in this library.
+@end defun
+
+
+@node MRU Bookmarks Mode
+@subsection MRU Bookmarks Mode
+@cindex semantic-mru-bookmark-mode
+
+MRU stands for Most Recently Used.  Semantic MRU Bookmarks track the
+tags you edit and maintain a ring of things you've been working on.
+You can then switch back to tags you've worked on recently by name.
+
+@deffn Command semantic-mru-bookmark-mode &optional arg
+@anchor{semantic-mru-bookmark-mode}
+Minor mode for tracking tag-based bookmarks automatically.
+Tag based bookmarks a tracked based on editing and viewing habits
+and can then be navigated via the @var{mru} bookmark keymap.
+
+With prefix argument @var{arg}, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-@code{nil} if the
+minor mode is enabled.
+@end deffn
+
+Once this mode is enabled, any edit, or mark setting will add the
+current tag to your MRU bookmark ring.
+
+@table @kbd
+@item C-x B
+This keysequence is like @code{switch-to-buffer}, but uses a capital
+@kbd{B} instead of lower case.  This lets you type in a tag name, or
+use @kbd{M-p} and @kbd{M-n} to cycle through the bookmark list in
+MRU order.
+@end table
+
+
+
+@node Highlight Edits Mode
+@subsection Highlight Edits Mode
+
+Highlight edits mode is useful mostly for debugging the incremental
+parser.  As you change text, that effected text is highlighted, and
+you can visual predict what actions the incremental parser will need
+to make.
+
+@deffn Command semantic-highlight-edits-mode &optional arg
+Minor mode for highlighting changes made in a buffer.
+Changes are tracked by semantic so that the incremental parser can work
+properly.
+With prefix argument @var{ARG}, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-@code{nil} if the
+minor mode is enabled.
+@end deffn
+
+@deffn Face semantic-highlight-edits-face
+Face used to show dirty tokens in @code{semantic-highlight-edits-mode}.
+@end deffn
+
+@node Parser State
+@subsection Parser State
+
+@deffn Command semantic-show-parser-state-mode &optional arg
+Minor mode for displaying parser cache state in the modeline.
+The cache can be in one of three states.  They are
+Up to date, Partial reparse needed, and Full reparse needed.
+The state is indicated in the modeline with the following characters:
+@table @code
+@item -
+The cache is up to date.
+@item !
+The cache requires a full update.
+@item ~
+The cache needs to be incrementally parsed.
+@item %
+The buffer is not lexically parseable.
+@item @@
+Auto-parse in progress (not set here.)
+@end table
+With prefix argument @var{ARG}, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-@code{nil} if the
+minor mode is enabled.
+@end deffn
+
+@node Unmatched Syntax Highlighting
+@subsection Unmatched Syntax Highlighting
+
+@deffn Command semantic-show-unmatched-syntax-mode &optional arg
+Minor mode to highlight unmatched syntax tokens.
+When a parser executes, some elements in the buffer may not match any
+parser rules.  These text characters are considered unmatched syntax.
+Often time, the display of unmatched syntax can expose coding
+problems before the compiler is run.
+
+With prefix argument @var{ARG}, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-@code{nil} if the
+minor mode is enabled.
+
+@kbd{C-c , `}		@dfn{semantic-show-unmatched-syntax-next}
+@end deffn
+
+@deffn Option semantic-unmatched-syntax-face
+Face used to show unmatched-syntax in.
+The face is used in  @dfn{semantic-show-unmatched-syntax-mode}.
+@end deffn
+

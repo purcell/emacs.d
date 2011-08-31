@@ -1,0 +1,458 @@
+--- w3m-0.5.1/file.c~	2004-04-16 18:47:19 +0000
++++ w3m-0.5.1/file.c	2006-12-08 01:04:52 +0000
+@@ -2301,6 +2301,7 @@
+ 	  sizeof(obuf->anchor));
+     obuf->bp.img_alt = obuf->img_alt;
+     obuf->bp.in_bold = obuf->in_bold;
++    obuf->bp.in_italic = obuf->in_italic;
+     obuf->bp.in_under = obuf->in_under;
+     obuf->bp.nobr_level = obuf->nobr_level;
+     obuf->bp.prev_ctype = obuf->prev_ctype;
+@@ -2315,6 +2316,7 @@
+ 	  sizeof(obuf->anchor));
+     obuf->img_alt = obuf->bp.img_alt;
+     obuf->in_bold = obuf->bp.in_bold;
++    obuf->in_italic = obuf->bp.in_italic;
+     obuf->in_under = obuf->bp.in_under;
+     obuf->prev_ctype = obuf->bp.prev_ctype;
+     obuf->pos = obuf->bp.pos;
+@@ -2337,6 +2339,7 @@
+ 	case HTML_IMG_ALT:
+ 	case HTML_B:
+ 	case HTML_U:
++	case HTML_I:
+ 	    push_link(obuf->tag_stack[i]->cmd, obuf->line->length, obuf->pos);
+ 	    break;
+ 	}
+@@ -2551,7 +2554,7 @@
+     FILE *f = h_env->f;
+     Str line = obuf->line, pass = NULL;
+     char *hidden_anchor = NULL, *hidden_img = NULL, *hidden_bold = NULL,
+-	*hidden_under = NULL, *hidden = NULL;
++	*hidden_under = NULL, *hidden_italic = NULL, *hidden = NULL;
+ 
+ #ifdef DEBUG
+     if (w3m_debug) {
+@@ -2589,6 +2592,12 @@
+ 		hidden = hidden_bold;
+ 	}
+     }
++    if (obuf->in_italic) {
++	if ((hidden_italic = has_hidden_link(obuf, HTML_I)) != NULL) {
++	    if (!hidden || hidden_italic < hidden)
++		hidden = hidden_italic;
++	}
++    }
+     if (obuf->in_under) {
+ 	if ((hidden_under = has_hidden_link(obuf, HTML_U)) != NULL) {
+ 	    if (!hidden || hidden_under < hidden)
+@@ -2618,6 +2627,8 @@
+ 	Strcat_charp(line, "</img_alt>");
+     if (obuf->in_bold && !hidden_bold)
+ 	Strcat_charp(line, "</b>");
++    if (obuf->in_italic && !hidden_italic)
++	Strcat_charp(line, "</i>");
+     if (obuf->in_under && !hidden_under)
+ 	Strcat_charp(line, "</u>");
+ 
+@@ -2822,6 +2833,8 @@
+     }
+     if (!hidden_bold && obuf->in_bold)
+ 	push_tag(obuf, "<B>", HTML_B);
++    if (!hidden_italic && obuf->in_italic)
++	push_tag(obuf, "<I>", HTML_I);
+     if (!hidden_under && obuf->in_under)
+ 	push_tag(obuf, "<U>", HTML_U);
+ }
+@@ -2934,6 +2947,8 @@
+     obuf->fontstat_sp++;
+     if (obuf->in_bold)
+ 	push_tag(obuf, "</b>", HTML_N_B);
++    if (obuf->in_italic)
++	push_tag(obuf, "</i>", HTML_N_I);
+     if (obuf->in_under)
+ 	push_tag(obuf, "</u>", HTML_N_U);
+     bzero(obuf->fontstat, FONTSTAT_SIZE);
+@@ -2949,6 +2964,8 @@
+ 	      FONTSTAT_SIZE);
+     if (obuf->in_bold)
+ 	push_tag(obuf, "<b>", HTML_B);
++    if (obuf->in_italic)
++	push_tag(obuf, "<i>", HTML_I);
+     if (obuf->in_under)
+ 	push_tag(obuf, "<u>", HTML_U);
+ }
+@@ -4104,6 +4121,20 @@
+ 		return 0;
+ 	}
+ 	return 1;
++    case HTML_I:
++	obuf->in_italic++;
++	if (obuf->in_italic > 1)
++	    return 1;
++	return 0;
++    case HTML_N_I:
++	if (obuf->in_italic == 1 && close_effect0(obuf, HTML_I))
++	    obuf->in_italic = 0;
++	if (obuf->in_italic > 0) {
++	    obuf->in_italic--;
++	    if (obuf->in_italic == 0)
++		return 0;
++	}
++	return 1;
+     case HTML_U:
+ 	obuf->in_under++;
+ 	if (obuf->in_under > 1)
+@@ -4119,9 +4150,15 @@
+ 	}
+ 	return 1;
+     case HTML_EM:
+-	HTMLlineproc1("<b>", h_env);
++	HTMLlineproc1("<i>", h_env);
+ 	return 1;
+     case HTML_N_EM:
++	HTMLlineproc1("</i>", h_env);
++	return 1;
++    case HTML_STRONG:
++	HTMLlineproc1("<b>", h_env);
++	return 1;
++    case HTML_N_STRONG:
+ 	HTMLlineproc1("</b>", h_env);
+ 	return 1;
+     case HTML_Q:
+@@ -4934,7 +4971,7 @@
+     static int out_size = 0;
+     Anchor *a_href = NULL, *a_img = NULL, *a_form = NULL;
+     char *p, *q, *r, *s, *t, *str;
+-    Lineprop mode, effect;
++    Lineprop mode, effect, ex_effect;
+     int pos;
+     int nlines;
+ #ifdef DEBUG
+@@ -4981,6 +5018,7 @@
+ #endif
+ 
+     effect = 0;
++    ex_effect = 0;
+     nlines = 0;
+     while ((line = feed()) != NULL) {
+ #ifdef DEBUG
+@@ -5005,7 +5043,7 @@
+ 	while (str < endp) {
+ 	    PSIZE;
+ 	    mode = get_mctype(str);
+-	    if (effect & PC_SYMBOL && *str != '<') {
++	    if ((effect | ex_effect) & PC_SYMBOL && *str != '<') {
+ #ifdef USE_M17N
+ 		char **buf = set_symbol(symbol_width0);
+ 		int len;
+@@ -5013,16 +5051,16 @@
+ 		p = buf[(int)symbol];
+ 		len = get_mclen(p);
+ 		mode = get_mctype(p);
+-		PPUSH(mode | effect, *(p++));
++		PPUSH(mode | effect | ex_effect, *(p++));
+ 		if (--len) {
+ 		    mode = (mode & ~PC_WCHAR1) | PC_WCHAR2;
+ 		    while (len--) {
+ 			PSIZE;
+-			PPUSH(mode | effect, *(p++));
++			PPUSH(mode | effect | ex_effect, *(p++));
+ 		    }
+ 		}
+ #else
+-		PPUSH(PC_ASCII | effect, SYMBOL_BASE + symbol);
++		PPUSH(PC_ASCII | effect | ex_effect, SYMBOL_BASE + symbol);
+ #endif
+ 		str += symbol_width;
+ 	    }
+@@ -5031,12 +5069,12 @@
+ #else
+ 	    else if (mode == PC_CTRL || IS_INTSPACE(*str)) {
+ #endif
+-		PPUSH(PC_ASCII | effect, ' ');
++		PPUSH(PC_ASCII | effect | ex_effect, ' ');
+ 		str++;
+ 	    }
+ #ifdef USE_M17N
+ 	    else if (mode & PC_UNKNOWN) {
+-		PPUSH(PC_ASCII | effect, ' ');
++		PPUSH(PC_ASCII | effect | ex_effect, ' ');
+ 		str += get_mclen(str);
+ 	    }
+ #endif
+@@ -5044,13 +5082,13 @@
+ #ifdef USE_M17N
+ 		int len = get_mclen(str);
+ #endif
+-		PPUSH(mode | effect, *(str++));
++		PPUSH(mode | effect | ex_effect, *(str++));
+ #ifdef USE_M17N
+ 		if (--len) {
+ 		    mode = (mode & ~PC_WCHAR1) | PC_WCHAR2;
+ 		    while (len--) {
+ 			PSIZE;
+-			PPUSH(mode | effect, *(str++));
++			PPUSH(mode | effect | ex_effect, *(str++));
+ 		    }
+ 		}
+ #endif
+@@ -5068,12 +5106,12 @@
+ #else
+ 		    if (mode == PC_CTRL || IS_INTSPACE(*str)) {
+ #endif
+-			PPUSH(PC_ASCII | effect, ' ');
++			PPUSH(PC_ASCII | effect | ex_effect, ' ');
+ 			p++;
+ 		    }
+ #ifdef USE_M17N
+ 		    else if (mode & PC_UNKNOWN) {
+-			PPUSH(PC_ASCII | effect, ' ');
++			PPUSH(PC_ASCII | effect | ex_effect, ' ');
+ 			p += get_mclen(p);
+ 		    }
+ #endif
+@@ -5081,13 +5119,13 @@
+ #ifdef USE_M17N
+ 			int len = get_mclen(p);
+ #endif
+-			PPUSH(mode | effect, *(p++));
++			PPUSH(mode | effect | ex_effect, *(p++));
+ #ifdef USE_M17N
+ 			if (--len) {
+ 			    mode = (mode & ~PC_WCHAR1) | PC_WCHAR2;
+ 			    while (len--) {
+ 				PSIZE;
+-				PPUSH(mode | effect, *(p++));
++				PPUSH(mode | effect | ex_effect, *(p++));
+ 			    }
+ 			}
+ #endif
+@@ -5106,6 +5144,12 @@
+ 		case HTML_N_B:
+ 		    effect &= ~PE_BOLD;
+ 		    break;
++		case HTML_I:
++		    ex_effect |= PE_EX_ITALIC;
++		    break;
++		case HTML_N_I:
++		    ex_effect &= ~PE_EX_ITALIC;
++		    break;
+ 		case HTML_U:
+ 		    effect |= PE_UNDER;
+ 		    break;
+@@ -6347,6 +6391,7 @@
+     bzero((void *)&obuf->anchor, sizeof(obuf->anchor));
+     obuf->img_alt = 0;
+     obuf->in_bold = 0;
++    obuf->in_italic = 0;
+     obuf->in_under = 0;
+     obuf->prev_ctype = PC_ASCII;
+     obuf->tag_sp = 0;
+@@ -6382,6 +6427,10 @@
+ 	push_tag(obuf, "</b>", HTML_N_B);
+ 	obuf->in_bold = 0;
+     }
++    if (obuf->in_italic) {
++	push_tag(obuf, "</i>", HTML_N_I);
++	obuf->in_italic = 0;
++    }
+     if (obuf->in_under) {
+ 	push_tag(obuf, "</u>", HTML_N_U);
+ 	obuf->in_under = 0;
+--- w3m-0.5.1/fm.h~	2004-04-16 18:47:19 +0000
++++ w3m-0.5.1/fm.h	2006-12-08 01:04:52 +0000
+@@ -166,6 +166,9 @@
+ #define PE_ACTIVE	0x80
+ #define PE_VISITED	0x4000
+ 
++/* Extra effect */
++#define PE_EX_ITALIC	PE_BOLD
++
+ #define CharType(c)	((c)&P_CHARTYPE)
+ #define CharEffect(c)	((c)&(P_EFFECT|PC_SYMBOL))
+ #define SetCharType(v,c)	((v)=(((v)&~P_CHARTYPE)|(c)))
+@@ -535,7 +538,7 @@
+ 
+ #define FONT_STACK_SIZE 5
+ 
+-#define FONTSTAT_SIZE 4
++#define FONTSTAT_SIZE 5
+ 
+ #define _INIT_BUFFER_WIDTH (COLS - (showLineNum ? 6 : 1))
+ #define INIT_BUFFER_WIDTH ((_INIT_BUFFER_WIDTH > 0) ? _INIT_BUFFER_WIDTH : 0)
+@@ -583,7 +586,8 @@
+ 
+ #define in_bold fontstat[0]
+ #define in_under fontstat[1]
+-#define in_stand fontstat[2]
++#define in_italic fontstat[2]
++#define in_stand fontstat[3]
+ 
+ #define RB_PRE		0x01
+ #define RB_SCRIPT	0x02
+--- w3m-0.5.1/html.c~	2003-09-26 20:48:21 +0000
++++ w3m-0.5.1/html.c	2006-12-08 01:04:52 +0000
+@@ -231,34 +231,44 @@
+     {"/s", NULL, 0, TFLG_END},	/*  106 HTML_N_S      */
+     {"q", NULL, 0, 0},		/*  107 HTML_Q */
+     {"/q", NULL, 0, TFLG_END},	/*  108 HTML_N_Q */
+-    {NULL, NULL, 0, 0},		/* 109 Undefined       */
++    {"i", NULL, 0, 0},		/*  109 HTML_I */
++    {"/i", NULL, 0, TFLG_END},	/*  110 HTML_N_I */
++    {"strong", NULL, 0, 0},		/* 111 HTML_STRONG */
++    {"/strong", NULL, 0, TFLG_END},	/* 112 HTML_N_STRONG */
++    {NULL, NULL, 0, 0},		/* 113 Undefined       */
++    {NULL, NULL, 0, 0},		/* 114 Undefined       */
++    {NULL, NULL, 0, 0},		/* 115 Undefined       */
++    {NULL, NULL, 0, 0},		/* 116 Undefined       */
++    {NULL, NULL, 0, 0},		/* 117 Undefined       */
++    {NULL, NULL, 0, 0},		/* 118 Undefined       */
++    {NULL, NULL, 0, 0},		/* 119 Undefined       */
+ 
+     /* pseudo tag */
+-    {"select_int", ALST_SELECT_INT, MAXA_SELECT_INT, TFLG_INT},	/* 110 HTML_SELECT_INT   */
+-    {"/select_int", NULL, 0, TFLG_INT | TFLG_END},	/* 111 HTML_N_SELECT_INT */
+-    {"option_int", ALST_OPTION, MAXA_OPTION, TFLG_INT},	/* 112 HTML_OPTION_INT   */
+-    {"textarea_int", ALST_TEXTAREA_INT, MAXA_TEXTAREA_INT, TFLG_INT},	/* 113 HTML_TEXTAREA_INT   */
+-    {"/textarea_int", NULL, 0, TFLG_INT | TFLG_END},	/* 114 HTML_N_TEXTAREA_INT */
+-    {"table_alt", ALST_TABLE_ALT, MAXA_TABLE_ALT, TFLG_INT},	/* 115 HTML_TABLE_ALT   */
+-    {"symbol", ALST_SYMBOL, MAXA_SYMBOL, TFLG_INT},	/* 116 HTML_SYMBOL */
+-    {"/symbol", NULL, 0, TFLG_INT | TFLG_END},	/* 117 HTML_N_SYMBOL      */
+-    {"pre_int", NULL, 0, TFLG_INT},	/* 118 HTML_PRE_INT     */
+-    {"/pre_int", NULL, 0, TFLG_INT | TFLG_END},	/* 119 HTML_N_PRE_INT   */
+-    {"title_alt", ALST_TITLE_ALT, MAXA_TITLE_ALT, TFLG_INT},	/* 120 HTML_TITLE_ALT   */
+-    {"form_int", ALST_FORM_INT, MAXA_FORM_INT, TFLG_INT},	/* 121 HTML_FORM_INT    */
+-    {"/form_int", NULL, 0, TFLG_INT | TFLG_END},	/* 122 HTML_N_FORM_INT  */
+-    {"dl_compact", NULL, 0, TFLG_INT},	/* 123 HTML_DL_COMPACT  */
+-    {"input_alt", ALST_INPUT_ALT, MAXA_INPUT_ALT, TFLG_INT},	/* 124 HTML_INPUT_ALT   */
+-    {"/input_alt", NULL, 0, TFLG_INT | TFLG_END},	/* 125 HTML_N_INPUT_ALT */
+-    {"img_alt", ALST_IMG_ALT, MAXA_IMG_ALT, TFLG_INT},	/* 126 HTML_IMG_ALT     */
+-    {"/img_alt", NULL, 0, TFLG_INT | TFLG_END},	/* 127 HTML_N_IMG_ALT   */
+-    {" ", ALST_NOP, MAXA_NOP, TFLG_INT},	/* 128 HTML_NOP         */
+-    {"pre_plain", NULL, 0, TFLG_INT},	/* 129 HTML_PRE_PLAIN         */
+-    {"/pre_plain", NULL, 0, TFLG_INT | TFLG_END},	/* 130 HTML_N_PRE_PLAIN         */
+-    {"internal", NULL, 0, TFLG_INT},	/* 131 HTML_INTERNAL   */
+-    {"/internal", NULL, 0, TFLG_INT | TFLG_END},	/* 132 HTML_N_INTERNAL   */
+-    {"div_int", ALST_P, MAXA_P, TFLG_INT},	/*  133 HTML_DIV_INT    */
+-    {"/div_int", NULL, 0, TFLG_INT | TFLG_END},	/*  134 HTML_N_DIV_INT  */
++    {"select_int", ALST_SELECT_INT, MAXA_SELECT_INT, TFLG_INT},	/* 120 HTML_SELECT_INT   */
++    {"/select_int", NULL, 0, TFLG_INT | TFLG_END},	/* 121 HTML_N_SELECT_INT */
++    {"option_int", ALST_OPTION, MAXA_OPTION, TFLG_INT},	/* 122 HTML_OPTION_INT   */
++    {"textarea_int", ALST_TEXTAREA_INT, MAXA_TEXTAREA_INT, TFLG_INT},	/* 123 HTML_TEXTAREA_INT   */
++    {"/textarea_int", NULL, 0, TFLG_INT | TFLG_END},	/* 124 HTML_N_TEXTAREA_INT */
++    {"table_alt", ALST_TABLE_ALT, MAXA_TABLE_ALT, TFLG_INT},	/* 125 HTML_TABLE_ALT   */
++    {"symbol", ALST_SYMBOL, MAXA_SYMBOL, TFLG_INT},	/* 126 HTML_SYMBOL */
++    {"/symbol", NULL, 0, TFLG_INT | TFLG_END},	/* 127 HTML_N_SYMBOL      */
++    {"pre_int", NULL, 0, TFLG_INT},	/* 128 HTML_PRE_INT     */
++    {"/pre_int", NULL, 0, TFLG_INT | TFLG_END},	/* 129 HTML_N_PRE_INT   */
++    {"title_alt", ALST_TITLE_ALT, MAXA_TITLE_ALT, TFLG_INT},	/* 130 HTML_TITLE_ALT   */
++    {"form_int", ALST_FORM_INT, MAXA_FORM_INT, TFLG_INT},	/* 131 HTML_FORM_INT    */
++    {"/form_int", NULL, 0, TFLG_INT | TFLG_END},	/* 132 HTML_N_FORM_INT  */
++    {"dl_compact", NULL, 0, TFLG_INT},	/* 133 HTML_DL_COMPACT  */
++    {"input_alt", ALST_INPUT_ALT, MAXA_INPUT_ALT, TFLG_INT},	/* 134 HTML_INPUT_ALT   */
++    {"/input_alt", NULL, 0, TFLG_INT | TFLG_END},	/* 135 HTML_N_INPUT_ALT */
++    {"img_alt", ALST_IMG_ALT, MAXA_IMG_ALT, TFLG_INT},	/* 136 HTML_IMG_ALT     */
++    {"/img_alt", NULL, 0, TFLG_INT | TFLG_END},	/* 137 HTML_N_IMG_ALT   */
++    {" ", ALST_NOP, MAXA_NOP, TFLG_INT},	/* 138 HTML_NOP         */
++    {"pre_plain", NULL, 0, TFLG_INT},	/* 139 HTML_PRE_PLAIN         */
++    {"/pre_plain", NULL, 0, TFLG_INT | TFLG_END},	/* 140 HTML_N_PRE_PLAIN         */
++    {"internal", NULL, 0, TFLG_INT},	/* 141 HTML_INTERNAL   */
++    {"/internal", NULL, 0, TFLG_INT | TFLG_END},	/* 142 HTML_N_INTERNAL   */
++    {"div_int", ALST_P, MAXA_P, TFLG_INT},	/*  143 HTML_DIV_INT    */
++    {"/div_int", NULL, 0, TFLG_INT | TFLG_END},	/*  144 HTML_N_DIV_INT  */
+ };
+ 
+ TagAttrInfo AttrMAP[MAX_TAGATTR] = {
+--- w3m-0.5.1/html.h~	2003-10-20 16:41:56 +0000
++++ w3m-0.5.1/html.h	2006-12-08 01:04:52 +0000
+@@ -197,35 +197,39 @@
+ #define HTML_N_S        106
+ #define HTML_Q		107
+ #define HTML_N_Q	108
++#define HTML_I		109
++#define HTML_N_I	110
++#define HTML_STRONG	111
++#define HTML_N_STRONG	112
+ 
+    /* pseudo tag */
+-#define HTML_SELECT_INT     110
+-#define HTML_N_SELECT_INT   111
+-#define HTML_OPTION_INT     112
+-#define HTML_TEXTAREA_INT   113
+-#define HTML_N_TEXTAREA_INT 114
+-#define HTML_TABLE_ALT      115
+-#define HTML_SYMBOL         116
+-#define HTML_N_SYMBOL       117
+-#define HTML_PRE_INT        118
+-#define HTML_N_PRE_INT      119
+-#define HTML_TITLE_ALT      120
+-#define HTML_FORM_INT       121
+-#define HTML_N_FORM_INT     122
+-#define HTML_DL_COMPACT     123
+-#define HTML_INPUT_ALT      124
+-#define HTML_N_INPUT_ALT    125
+-#define HTML_IMG_ALT        126
+-#define HTML_N_IMG_ALT      127
+-#define HTML_NOP	    128
+-#define HTML_PRE_PLAIN	    129
+-#define HTML_N_PRE_PLAIN    130
+-#define HTML_INTERNAL       131
+-#define HTML_N_INTERNAL     132
+-#define HTML_DIV_INT        133
+-#define HTML_N_DIV_INT      134
++#define HTML_SELECT_INT     120
++#define HTML_N_SELECT_INT   121
++#define HTML_OPTION_INT     122
++#define HTML_TEXTAREA_INT   123
++#define HTML_N_TEXTAREA_INT 124
++#define HTML_TABLE_ALT      125
++#define HTML_SYMBOL         126
++#define HTML_N_SYMBOL       127
++#define HTML_PRE_INT        128
++#define HTML_N_PRE_INT      129
++#define HTML_TITLE_ALT      130
++#define HTML_FORM_INT       131
++#define HTML_N_FORM_INT     132
++#define HTML_DL_COMPACT     133
++#define HTML_INPUT_ALT      134
++#define HTML_N_INPUT_ALT    135
++#define HTML_IMG_ALT        136
++#define HTML_N_IMG_ALT      137
++#define HTML_NOP	    138
++#define HTML_PRE_PLAIN	    139
++#define HTML_N_PRE_PLAIN    140
++#define HTML_INTERNAL       141
++#define HTML_N_INTERNAL     142
++#define HTML_DIV_INT        143
++#define HTML_N_DIV_INT      144
+ 
+-#define MAX_HTMLTAG	    135
++#define MAX_HTMLTAG	    145
+ 
+ /* Tag attribute */
+ 
+--- w3m-0.5.1/tagtable.tab~	2003-09-22 21:02:22 +0000
++++ w3m-0.5.1/tagtable.tab	2006-12-08 01:04:52 +0000
+@@ -21,8 +21,8 @@
+ br		HTML_BR
+ b		HTML_B
+ /b		HTML_N_B
+-i		HTML_NOP
+-/i		HTML_NOP
++i		HTML_I
++/i		HTML_N_I
+ tt		HTML_NOP
+ /tt		HTML_NOP
+ ul		HTML_UL
+@@ -60,8 +60,8 @@
+ /kbd		HTML_NOP
+ samp		HTML_NOP
+ /samp		HTML_NOP
+-strong		HTML_EM
+-/strong		HTML_N_EM
++strong		HTML_STRONG
++/strong		HTML_N_STRONG
+ var		HTML_NOP
+ /var		HTML_NOP
+ address		HTML_BR

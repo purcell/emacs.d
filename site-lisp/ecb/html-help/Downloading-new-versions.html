@@ -1,0 +1,95 @@
+<html lang="en">
+<head>
+<title>Downloading new versions - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Upgrading.html#Upgrading" title="Upgrading">
+<link rel="prev" href="Upgrading.html#Upgrading" title="Upgrading">
+<link rel="next" href="Auto_002e-option_002dupgrading.html#Auto_002e-option_002dupgrading" title="Auto. option-upgrading">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Downloading-new-versions"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Auto_002e-option_002dupgrading.html#Auto_002e-option_002dupgrading">Auto. option-upgrading</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Upgrading.html#Upgrading">Upgrading</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Upgrading.html#Upgrading">Upgrading</a>
+<hr>
+</div>
+
+<h3 class="section">9.1 Downloading new versions of ECB and/or CEDET</h3>
+
+<p><a name="index-Download-348"></a>
+<strong>Please note</strong>: THE PACKAGE-DOWNLOAD-FEATURE OF ECB IS COMPLETELY
+DEACTIVATED SINCE VERSION 2.33! Please got to the website of ECB and download
+and install &ldquo;by hand&rdquo;:
+
+     <ol type=1 start=1>
+
+     <li>Download ECB
+
+     <p>Go to
+<a href="http://ecb.sourceforge.net">http://ecb.sourceforge.net</a>
+and download the latest release (or if you are brave and tough the latest
+CVS-snapshot) from the download section.
+
+     <p>Save the archive (either *.tar.gz or *.zip) in a suitable location of your disk.
+
+     <li>Extract the downloaded ECB-archive
+
+     <p>Extract the archive with a suitable extraction-tool. The archive will extract
+into a new directory <samp><span class="file">ecb-&lt;version&gt;</span></samp> whereas &lt;version&gt; is either the
+version number of the downloaded release or &ldquo;latest&rdquo; in case of the
+CVS-snapshot. (example for a release: The archive extracts into a new
+subdirectory <samp><span class="file">ecb-2.33</span></samp>.
+
+     <p>The newly created subdirectory contains all files of ECB in the needed
+subdirectory structure.
+
+     <p><strong>Note</strong>: Do not change the subdirectory structure of the extracted archive -
+this will prevent ECB from working correctly!
+
+     <li>Install and setup ECB
+
+     <p>See <a href="Installation.html#Installation">Installation</a>.
+
+     <li>Start ECB
+
+     <p>ECB will perform some requirements checks, especially for CEDET. 
+<strong>Remark</strong>: By setting the option <code>ecb-version-check</code> to
+<code>nil</code> you can prevent ECB from checking correct versions of CEDET but
+it's strongly recommended not to do this!
+
+     <li>(Optional) Download and install a newer version of CEDET
+
+     <p>If the version-check in (4) fails then you have to install a newer version of
+CEDET which fulfill the version-number ECB reports to you after its version
+check.
+
+     <p>See the instruction of CEDET how to do this. You will find CEDET at
+<a href="http://cedet.sourceforge.net">http://cedet.sourceforge.net</a>
+
+     <p>For setting up CEDET see <a href="Setting-up-CEDET_002fsemantic.html#Setting-up-CEDET_002fsemantic">Setting up CEDET/semantic</a>.
+
+     <p>If you have installed a new CEDET-version you <strong>MUST</strong> re-byte-compile
+ECB unless you run ECB not byte-compiled!
+
+        </ol>
+
+   </body></html>
+

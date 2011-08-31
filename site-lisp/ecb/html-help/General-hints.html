@@ -1,0 +1,84 @@
+<html lang="en">
+<head>
+<title>General hints - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Setting-up-Emacs.html#Setting-up-Emacs" title="Setting up Emacs">
+<link rel="prev" href="Setting-up-Emacs.html#Setting-up-Emacs" title="Setting up Emacs">
+<link rel="next" href="Setting-up-CEDET_002fsemantic.html#Setting-up-CEDET_002fsemantic" title="Setting up CEDET/semantic">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="General-hints"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Setting-up-CEDET_002fsemantic.html#Setting-up-CEDET_002fsemantic">Setting up CEDET/semantic</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Setting-up-Emacs.html#Setting-up-Emacs">Setting up Emacs</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Setting-up-Emacs.html#Setting-up-Emacs">Setting up Emacs</a>
+<hr>
+</div>
+
+<h4 class="subsection">1.2.1 General hints for a correct setup</h4>
+
+<p>ECB is for browsing files and therefore you have to setup your
+Emacs-configuration properly so the file-parsing engines like semantic, imenu
+or etags can be activated automatically for parsing your Emacs-Lisp, C, C++ or
+Java buffers<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>. For this
+Emacs must activate the correct <code>major-mode</code> for the source-files and
+Emacs can only do this if the option <code>auto-mode-alist</code> is setup
+correctly. The correct major-modes and possible
+file-extensions<a rel="footnote" href="#fn-2" name="fnd-2"><sup>2</sup></a> are:
+
+   <p><table summary="">
+<tr align="left"><td valign="top" width="20%"><strong>Language</strong>
+</td><td valign="top" width="50%">
+<strong>Major-mode</strong>
+</td><td valign="top" width="30%">
+<strong>Extension(s)</strong>
+
+<p><br></td></tr><tr align="left"><td valign="top" width="20%">Emacs Lisp </td><td valign="top" width="50%"><code>emacs-lisp-mode</code> </td><td valign="top" width="30%">.el
+
+<p><br></td></tr><tr align="left"><td valign="top" width="20%">C </td><td valign="top" width="50%"><code>c-mode</code> </td><td valign="top" width="30%">.h, .c
+
+<p><br></td></tr><tr align="left"><td valign="top" width="20%">C++ </td><td valign="top" width="50%"><code>c++-mode</code> </td><td valign="top" width="30%">.h, .hxx, .hh, .HH, .cxx, .cpp,
+.cc, .CC
+
+<p><br></td></tr><tr align="left"><td valign="top" width="20%">Java </td><td valign="top" width="50%"><code>java-mode</code> or <code>jde-mode</code> (if you use JDEE)
+</td><td valign="top" width="30%">.java
+   <br></td></tr></table>
+
+   <p>Example: If you want files with extension &ldquo;.cpp&rdquo; being c++-parsed by
+semantic and ECB, your <code>auto-mode-alist</code> must contain an entry
+like:
+
+<pre class="example">   ("\\.cpp\\'" . c++-mode)
+</pre>
+   <p>After this ECB will correctly parse your &ldquo;.cpp&rdquo;-sources and display
+all the parsing information in the ECB-methods buffer.
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> semantic supports some more &ldquo;languages&rdquo; like Phython,
+Makefiles and some more. But these are the most important ones.</p>
+
+   <p class="footnote"><small>[<a name="fn-2" href="#fnd-2">2</a>]</small> Especially for C++ and C you can use any extension
+you want but these are the most common ones!</p>
+
+   <p><hr></div>
+
+   </body></html>
+

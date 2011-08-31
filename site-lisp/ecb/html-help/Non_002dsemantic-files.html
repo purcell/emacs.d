@@ -1,0 +1,59 @@
+<html lang="en">
+<head>
+<title>Non-semantic files - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Setting-up-Emacs.html#Setting-up-Emacs" title="Setting up Emacs">
+<link rel="prev" href="Setting-up-CEDET_002fsemantic.html#Setting-up-CEDET_002fsemantic" title="Setting up CEDET/semantic">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Non-semantic-files"></a>
+<a name="Non_002dsemantic-files"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Setting-up-CEDET_002fsemantic.html#Setting-up-CEDET_002fsemantic">Setting up CEDET/semantic</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Setting-up-Emacs.html#Setting-up-Emacs">Setting up Emacs</a>
+<hr>
+</div>
+
+<h4 class="subsection">1.2.3 Setup for file types not supported by semantic</h4>
+
+<p>From version 1.94 on ECB supports also parsing and displaying
+file-contents for file-types not supported by semantic (i.e. there is
+no semantic-grammar available for such file-types).
+
+   <p>Such non-semantic file-types can often be parsed by imenu and/or
+etags. Both of these parsing methods are now supported: ECB can
+display the results of imenu and/or etags in its Method-buffer. ECB
+uses for this speedbar-logic. Therefore the following speedbar options
+takes effect for this feature:
+
+     <ul>
+<li><code>speedbar-dynamic-tags-function-list</code>
+<li><code>speedbar-tag-split-minimum-length</code>
+<li><code>speedbar-tag-regroup-maximum-length</code>
+<li><code>speedbar-tag-hierarchy-method</code>
+</ul>
+
+   <p>Normally there should be no need for you to bother with these options,
+because the default values are suitable for most situations! But if
+you are not satisfied with the parsing/display results then you can
+change some of these options.
+
+   </body></html>
+

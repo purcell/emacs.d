@@ -1,0 +1,4 @@
+#name : validates_inclusion_of : ...
+#group: ActiveRecord
+# --
+validates_inclusion_of :${attr}

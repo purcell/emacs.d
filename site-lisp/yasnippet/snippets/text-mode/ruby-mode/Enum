@@ -1,0 +1,8 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : Enumerables
+# --
+include Enumerable
+
+def each(&block)
+  $0
+end

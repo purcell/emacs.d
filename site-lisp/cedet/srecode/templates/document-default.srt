@@ -1,0 +1,81 @@
+;; document-default.srt --- 
+
+;; Copyright (C) 2009 Eric M. Ludlam
+
+;; Author: Eric M. Ludlam <eric@siege-engine.com>
+;; X-RCS: $Id: document-default.srt,v 1.2 2009/01/01 19:00:23 zappo Exp $
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+
+set mode "default"
+
+set application "document"
+
+context declaration
+
+template section-comment :blank :indent
+"A comment occuring in front of a group of declarations."
+----
+{{comment_start}} {{?TITLE}}
+{{comment_prefix}}
+{{comment_prefix}} {{^}}
+{{comment_end}}
+----
+
+template function-comment :tag :indent :blank
+"A comment occuring in front of a function."
+----
+{{comment_start}} {{?NAME}} --
+{{DOC:srecode-comment-prefix}}
+{{comment_end}}
+----
+
+template variable-same-line-comment :tag
+"A comment occuring after a veriable declaration."
+----
+{{comment_start}} {{?DOC}} {{comment_end}}
+----
+
+;; These happen to be the same as in a classdecl.
+template group-comment-start :blank :indent
+"A comment occuring in front of a group of declarations."
+----
+{{comment_start}} {{?GROUPNAME}} --
+{{comment_end}}
+----
+
+template group-comment-end :indent
+"A comment occuring at the end of a a group of declarations."
+----
+{{comment_start}} End {{?GROUPNAME}} {{comment_end}}
+----
+
+;; Some templates only show up in classdecls.
+context classdecl
+
+template group-comment-start :blank :indent
+"A comment occuring in front of a group of declarations."
+----
+{{>:declaration:group-comment-start}}
+----
+
+template group-comment-end :indent
+"A comment occuring at the end of a a group of declarations."
+----
+{{>:declaration:group-comment-end}}
+----
+
+;; end

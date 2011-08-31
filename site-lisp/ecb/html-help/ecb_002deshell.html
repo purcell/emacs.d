@@ -1,0 +1,91 @@
+<html lang="en">
+<head>
+<title>ecb-eshell - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Customizable-options.html#Customizable-options" title="Customizable options">
+<link rel="prev" href="ecb_002dhelp.html#ecb_002dhelp" title="ecb-help">
+<link rel="next" href="ecb_002dspeedbar.html#ecb_002dspeedbar" title="ecb-speedbar">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="ecb-eshell"></a>
+<a name="ecb_002deshell"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="ecb_002dspeedbar.html#ecb_002dspeedbar">ecb-speedbar</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="ecb_002dhelp.html#ecb_002dhelp">ecb-help</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Customizable-options.html#Customizable-options">Customizable options</a>
+<hr>
+</div>
+
+<h4 class="subsection">7.3.14 Group ecb-eshell</h4>
+
+<p class="noindent">This group contains settings for eshell integration within the ECB:
+
+<div class="defun">
+&mdash; User Option: <b>eshell-auto-activate</b><var><a name="index-eshell_002dauto_002dactivate-319"></a></var><br>
+<blockquote><p>Startup the eshell and display it in the compile-window. If current
+layout does not display a compile-window (see
+<code>ecb-compile-window-height</code>) then nothing is done. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>eshell-buffer-sync</b><var><a name="index-eshell_002dbuffer_002dsync-320"></a></var><br>
+<blockquote><p>Synchronize eshell with the default-directory of current source-buffer.
+
+        <p>This option takes only effect if a permanant compile-window is used in the
+current layout.
+
+        <p>If 'always then the synchronization takes place always a buffer changes in the
+edit window and if after this the default-directory of the new edit-buffer is
+different from the default-directory of the current eshell-buffer. If value is
+nil then never a synchronization will take place. If a list of major-modes
+then only if the <code>major-mode</code> of the new buffer belongs NOT to this list.
+
+        <p>If the special value 'basic is set then ECB uses the setting of the option
+<code>ecb-basic-buffer-sync</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>eshell-buffer-sync-delay</b><var><a name="index-eshell_002dbuffer_002dsync_002ddelay-321"></a></var><br>
+<blockquote><p>Time Emacs must be idle before the eshell-buffer of ECB is synchronized. 
+Synchronizing is done with the current source displayed in the edit window. If
+nil then there is no delay, means synchronization takes place immediately. A
+small value of about 0.25 seconds saves CPU resources and you get even though
+almost the same effect as if you set no delay.
+
+        <p>If the special value 'basic is set then ECB uses the setting of the option
+<code>ecb-basic-buffer-sync-delay</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>eshell-enlarge-when-eshell</b><var><a name="index-eshell_002denlarge_002dwhen_002deshell-322"></a></var><br>
+<blockquote><p>Enlarge the compile-window if it is selected by <code>eshell</code>. This
+takes only effect if the command <code>eshell</code> is called! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>eshell-fit-window-to-command-output</b><var><a name="index-eshell_002dfit_002dwindow_002dto_002dcommand_002doutput-323"></a></var><br>
+<blockquote><p>Fit the compile-window after an eshell-command to the output. This is
+done by the function <code>ecb-eshell-fit-window-to-output</code> which is
+added to <code>eshell-post-command-hook</code> ie. which is running autom. 
+after each eshell-command. 
+</p></blockquote></div>
+
+   </body></html>
+

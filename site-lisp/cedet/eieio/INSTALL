@@ -1,0 +1,14 @@
+Installation instructions for EIEIO
+
+The following updates to your .emacs file will help you get the most out of this
+update of eieio.
+
+1) Byte compile EIEIO
+2) Add eieio's directory to your load path.
+
+   Follow the INSTALL file in the top level of this distribution.
+
+3) To send bug reports, or participate in discussions about semantic,
+   use the mailing list cedet-eieio@@sourceforge.net via the URL:
+
+   http://lists.sourceforge.net/lists/listinfo/cedet-eieio

@@ -1,0 +1,97 @@
+<html lang="en">
+<head>
+<title>Adviced functions - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Elisp-programming.html#Elisp-programming" title="Elisp programming">
+<link rel="prev" href="tree_002dbuffer.html#tree_002dbuffer" title="tree-buffer">
+<link rel="next" href="The-layout_002dengine.html#The-layout_002dengine" title="The layout-engine">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Adviced-functions"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="The-layout_002dengine.html#The-layout_002dengine">The layout-engine</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="tree_002dbuffer.html#tree_002dbuffer">tree-buffer</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Elisp-programming.html#Elisp-programming">Elisp programming</a>
+<hr>
+</div>
+
+<h3 class="section">11.4 How to deal with the adviced functions</h3>
+
+<p>ECB needs a bunch of advices so ECB can work correctly. ECB has a
+powerful advice-backbone which allows defining sets of adviced
+functions whereas a set means, that all advices of a certain set are
+always enabled or disabled together.
+
+   <p>For this ECB contains four macros:
+
+     <ul>
+<li><code>defecb-advice-set</code>
+<li><code>defecb-advice</code>
+<li><code>ecb-with-original-adviced-function-set</code>
+<li><code>ecb-with-ecb-advice</code> (for this one see below)
+</ul>
+
+   <p>For a detailed explanation of each macro read the documentation with
+<code>describe-function</code>!
+
+   <p>An advice in ECB must not being defined by <code>defadvice</code> but only
+with <code>defecb-advice</code> which in turn needs a previously defined
+advice-set defined by <code>defecb-advice-set</code>.
+
+   <p>So ECB has always full control of all advices. For example ECB
+automatically disables all advices of all advice-sets at load-time of
+ECB and also at deactivation time of ECB. So you can be sure that
+after deactivating ECB all ecb-advices are deactivated/disabled too.
+
+   <p>In addition to the four macros above ECB offers two further macros
+for running code with disabled some ecb-advices:
+
+     <ul>
+<li><code>ecb-with-original-basic-functions</code>
+<li><code>ecb-with-original-permanent-layout-functions</code>
+</ul>
+
+   <p>The advice set <code>ecb-basic-adviced-functions</code> contains most of the
+ecb-advices. See the contents of this variable to see which advices
+are contained in this set. Use
+<code>ecb-with-original-basic-functions</code> when you want evaluating
+elisp-code with disabled basic-advices. 
+<code>ecb-with-original-basic-functions</code> is only a shortcut for
+<code>ecb-with-original-adviced-function-set</code> called for the
+<code>ecb-basic-adviced-functions</code>-set.
+
+   <p>Same for <code>ecb-with-original-permanent-layout-functions</code> which is a
+shortcut for the advice-set <code>ecb-permanent-adviced-layout-functions</code>.
+
+   <p>Last but not least ECB contains an advice-set
+<code>ecb-always-disabled-advices</code>. These advices are always disabled. 
+This advice-set can not be enabled by <code>ecb-enable-advices</code> but
+such an advice has to be activated 'on demand' by the caller. Such an
+advice must be used with the macro <code>ecb-with-ecb-advice</code> (see the
+docstring) and is also enabled within the BODY of the macro-call.
+
+   <p>ECB contains some more advice-sets but don't bother about it.
+
+   <p><strong>Please Note</strong>: See the value of <code>ecb-adviced-function-sets</code> which
+advice-sets are defined and see <code>ecb-adviced-functions</code> for an overview
+for all adviced functions.
+
+   </body></html>
+

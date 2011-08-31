@@ -1,0 +1,6 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : should match
+# --
+${1:target}.should match(/${2:regex}/)
+$0

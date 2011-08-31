@@ -1,0 +1,1438 @@
+2009-02-24  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (EMACSFLAGS): New variable.
+	(srecode,tests,document): Use above.
+
+2009-02-14  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-fields.el (srecode-field-mod-hook):
+	Don't do work if the field object has no overlay.
+
+2009-02-11  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode.texi (SRecode Minor Mode):
+	Talk about srecode-takeover-INS-key.
+
+	* srecode-mode.el (srecode-takeover-INS-key): New option.
+	(srecode-prefix-map): Bind insert same as /.
+	(srecode-mode-map): bind insert as a prefix if option set.
+
+	* srecode.texi (Parts of SRecode): Add field-editing section.
+	(SRecode Minor Mode): Add a field editing section.
+	(Dictionaries, Argument Resolution, Developing Template Functions)
+	(Template Naming Conventions): Minor wording fixes.
+
+	* srecode-insert.el (srecode-fields): New require.
+	(srecode-insert-with-fields-p): New option.
+	(srecode-insert-with-fields-in-progress): New variable.
+	(srecode-insert-fcn): Call srecode--insert-into-buffer
+	when inserting into a buffer.
+	(srecode--insert-into-buffer): New function.
+	Like srecode-insert-method, but will create editable fields
+	in a template insert region.
+	(srecode-template-inserter-variable::srecode-insert-method):
+	Allow compound values to return nil when converting to a string.
+	If so, don't princ to standard out.
+	(srecode-template-inserter-ask::srecode-insert-ask-default):
+	New, extracted from...
+	(srecode-template-inserter-ask::srecode-insert-method):
+	Split out calculation of default.
+	Split out how values are asked into two new functions...
+	(srecode-template-inserter-ask::srecode-insert-method-ask):
+	New method from old code.
+	(srecode-template-inserter-ask::srecode-insert-method-field):
+	New method.  Instead of asking the user right now, create a field
+	that will edit that value later.
+
+	* srecode-dictionary.el (srecode-dictionary-compound-value::srecode-compound-toString):
+	Update doc to describe when you can return nil.
+
+	* Makefile (srecode_LISP): Add srecode-fields.el
+
+	* Project.ede (srecode): Add fields.
+
+	* srecode-fields.el (srecode-overlaid::initialize-instance):
+	Create the overlay as a
+	marker and length.
+	(srecode-overlaid::srecode-overlaid-activate): New.
+	(srecode-template-inserted-region::initialize-instance):
+	Extract some bits into...
+	(srecode-template-inserted-region::srecode-overlaid-activate): New
+	(srecode-template-inserted-region::srecode-delete): Fix arg name.
+	(srecode-field): Add prompt and read-fcn.  (Not used yet.)
+	(srecode-field::initialize-instance): Extract ovleray maintentance into...
+	(srecode-field::srecode-overlaid-activate): New.
+	(srecode-field-mod-hook): Do not operate during an undo.
+	Inhibit change and point-motion hooks.
+	Reposition overlays on self if they moved.
+	Do not replicate text if the change size is too big.
+	(srecode-field-value): New dictionary compound value.
+	(srecode-field-value::srecode-compound-toString): New
+	(srecode-field-utest): Test overlay non-creation activation.
+	Activate regions before tests.
+
+2009-02-07  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-fields.el (srecode-field-utest): Clear last region.
+
+2009-02-06  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-fields.el (Overlay compatibility): Eval and compile.
+
+	* srecode-fields.el: Field editing for SRecode.
+
+2009-02-03  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-map.el (srecode-map-update-map):
+	Fix bug when finding new files where no new files were added after
+	the first one.
+
+2009-01-29  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-test.el (srecode-utest-output::srecode-utest-test):
+	If the test template
+	wasn't found, update the main map.
+	(srecode-utest-template-output): Pass major-mode into the
+	srecode-table query.
+
+2009-01-24  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-test.el (srecode-utest-template-output):
+	Reset current buffer before each
+	test.  XEmacs will change buffers for an unknown reason.
+
+	* srecode-test-getset.el (srecode-utest-getset-output):
+	Fix for XEmacs which doesn't skip
+	preceeding whitespace before jumping a comment.
+
+2009-01-20  Jan Moringen <scymtym@users.sourceforge.net>
+
+	* srecode-cpp.el (srecode-semantic-apply-tag-to-dict):
+	new function; mode-local
+	override, which handles tags of classes include, using and function in
+	a C++-specific manner
+
+	* srecode-semantic.el (srecode-semantic-insert-tag):
+	fixed typo in comment
+
+2009-01-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-test.el (srecode-utest-template-output):
+	Use new cedet-utest APIs.
+
+	* srecode-template-mode.el (srecode-template-add-submode):
+	Comment out this unused section.
+
+	* srecode-test-getset.el (srecode-utest-getset-output):
+	Change to use updated cedet-utest APIs.
+
+	* srecode-getset.el (srecode-insert-getset):
+	Refresh class tag after modification and reparse.
+	(srecode-position-new-methods):
+	Add debugging messages.
+
+	* srecode-document.el (srecode-document-insert-variable-one-line-comment):
+	Eliminate unused variable bindings.
+
+2009-01-16  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-dictionary.el (srecode-adebug-dictionary): New command.
+
+	* srecode-args.el: (srecode-semantic-handle-:user)
+	(srecode-semantic-handle-:system): Reformat some lines.
+
+2009-01-14  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode.texi (Parts of SRecode): Remove Multi positioning system.
+	(SRecode Minor Mode): Fill out some more keybindings.
+	(Variables): Add width variable.
+	(Template Section Dictionaries)
+	(Template Macros): Minor edits.
+	(Setting Dictionary Values):
+	Replace simple :blank arg example with :user.
+	(Creating new Arguments): Minor edits.
+	(Base Arguments): Minor edits
+	(Semantic Arguments): Add THROWS
+	(Language Arguments): Add :java
+
+	* srecode-insert.el (srecode-template-inserter-variable::srecode-insert-method):
+	Convert fcnpart (a string) to a symbol before passing to
+	srecode-compound-toString.
+
+	* templates/srecode-test.srt (column-data): New.
+
+	* srecode-test.el (srecode-utest-output-entries): Add width test.
+
+	* srecode-insert.el (srecode-template-inserter-variable::srecode-insert-variable-secondname-handler):
+	New
+	(srecode-template-inserter-variable::srecode-insert-method):
+	Don't convert second arg to a fcn handle.
+	Call above new method.
+	(srecode-template-inserter-width): New class
+	(srecode-template-inserter-width::srecode-insert-variable-secondname-handler):
+	(srecode-template-inserter-width::srecode-inserter-prin-example):
+	New methods for a bove.
+
+2009-01-13  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-document.el (srecode-document-programmer->english):
+	Support empty string.
+
+2009-01-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-texi.el (srecode-semantic-handle-:texitag):
+	Only add doc if there is some.
+	(srecode-texi-massage-to-texinfo): If a tag has no buffer, then
+	force texification while under texinfo mode.
+
+	* srecode-semantic.el (srecode-semantic-insert-tag):
+	When resolving arguments, set `srecode-semantic-selected-tag' to the
+	tag to insert.  The only add that tag if the args didn't do it for us.
+
+	* srecode-semantic.el (srecode-semantic-apply-tag-to-dict-default):
+	Fix variable default VALUE to go to subdict inside HAVEDEFAULT section.
+
+	* srecode-cpp.el: Formatting changes.
+
+	* Makefile (srecode_LISP): Add srecode-java.el
+
+	* Project.ede ("srecode"): Add srecode-java.el
+
+	* templates/srecode-java.srt (class-tag): implements
+
+	* srecode-test.el (srecode-utest-output::srecode-utest-test):
+	Ask push-mark to activate the region.
+
+2009-01-09  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-template.wy: (<property>)
+	(srecode-template-property-analyzer):
+	Allow arg text as just : to prevent incremental reparsing errors.
+
+	* srecode-template-mode.el:
+	(srecode-template-mode-font-lock-macro-helper)
+	(srecode-template-mode-macro-escape-match)
+	(srecode-macro-help, srecode-parse-this-macro)
+	(srecode-template-mode::semantic-analyze-current-context)
+	(srecode-template-mode::semantic-analyze-possible-completions):
+	Fix unused var bytcomp warning.
+
+	* srecode-table.el (srecode-get-mode-table):
+	Loop over mode lineage to find matching tables.
+
+	* srecode-srt.el (srecode-semantic-handle-:srt):
+	Fix unused var bytcomp warning.
+
+	* srecode-mode.el (mode-local): New require
+	(srecode-edit): Fix unused var bytcomp warning.
+
+	* srecode-map.el (srecode-map::srecode-map-entries-for-mode):
+	Use a mode-local fcn to check mode equivalence.
+	(srecode-adebug-maps): Fix unused var bytcomp warning.
+
+	* srecode-insert.el (srecode-resolve-argument-list, srecode-insert-method):
+	(srecode-inserter-apply-state, srecode-parse-input):
+	(srecode-insert-include-lookup): Fix unused var bytcomp warning.
+
+	* srecode-getset.el (srecode-insert-getset):
+	Fix unused var bytcomp warning.
+
+	* srecode-filters.el (srecode-comment-prefix):
+	Fix unused var bytcomp warning.
+
+	* srecode-extract.el (srecode-inserter-extract):
+	Fix unused var bytcomp warning.
+
+	* srecode-document.el:
+	(srecode-document-insert-variable-one-line-comment)
+	(srecode-document-programmer->english)
+	(srecode-document-function-comment-extract-test):
+	Fix unused var bytcomp warning.
+
+	* srecode-dictionary.el (srecode-dictionary-compound-variable::srecode-dump):
+	Fix unused var bytcomp warning.
+
+	* srecode-ctxt.el (srecode-semantic-handle-:ctxt):
+	Fix unused var bytcomp warning.
+
+	* srecode-compile.el:
+	(srecode-compile-one-template-tag, srecode-compile-split-code)
+	(srecode-compile-template-table): Fix unused var bytcomp warning.
+
+2009-01-06  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-template-mode.el (srecode-font-lock-keywords):
+	Fixup 1 include syntax.
+	(srecode-self-insert-complete-end-macro): Add in-macro detection.
+	(srecode-in-macro-p): Enable unended macros
+	(srecode-parse-this-macro): Enable undeded macros.
+
+	* templates/Makefile (templates_MISC):
+	Move some files to below new Var.
+	Add srecode-make.srt and srecode-java.srt.
+	(document_MISC): New target.
+	Add all document app support templates.
+
+	* templates/Project.ede (templates):
+	Move some files to below new target.
+	Add srecode-make.srt and srecode-java.srt.
+	(document): New target.
+	Add all document app support templates.
+
+	* templates/srecode-document-java.srt:
+	Document comment writing support for Java.
+
+	* srecode-java.el: Basic Java support for srecode.
+
+	* templates/default.srt (filecomment): Added more comment prefixing.
+
+	* templates/srecode-java.srt: Basic java templates.
+
+	* templates/srecode-make.srt: Basic Makefile templates
+
+2009-01-05  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/srecode-el.srt (variable-option):
+	Customtype macro is now an 'ask type
+
+	* srecode-texi.el, srecode-document.el (srecode-semantic): New require.
+
+	* srecode-template-mode.el (srecode-template-mode-map):
+	Add / binding to below
+	(srecode-self-insert-complete-end-macro): New command
+	(srecode-up-context-get-name): Allow incomplete sections to be found.
+
+2009-01-04  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-template-mode.el (srecode-template-mode-syntax-table):
+	Added more punctuation chars.
+	(semantic-ia-insert-tag): New override.
+	(srecode-in-macro-p): New util fcn.
+	(srecode-parse-this-macro): Fix typos.
+	Make work if escape start/end are the same string.
+	(srecode-template-mode::semantic-analyze-current-context):
+	Use functionarg analyzer, since we have slots in a fcn.
+	Record the argtype as a symbol so we know what kind of completion to
+	do.
+	Calculate a scope, and store it.
+	Fix lisp-symbol calculation.
+	If we find no tag, specify the originating prefix.
+	(srecode-template-mode::semantic-analyze-possible-completions):
+	New override.
+
+	* templates/srecode-template.srt (empty):
+	Attempt to derive majormode from :srt argument.
+
+	* srecode.texi (Language Arguments):
+	Add :srt and :el-custom arguments to the doc.
+
+	* srecode-srt.el (srecode-semantic-handle-:srt):
+	Attempt to derive the mode from the
+	file name.
+
+	* srecode-semantic.el (srecode-semantic-apply-tag-to-dict-default):
+	Add support for "THROWS" macro.
+
+	* srecode-insert.el (srecode-resolve-argument-list): Doc fix.
+
+	* srecode-template-mode.el (srecode-template-mode-syntax-table):
+	Add : and $ as punctuation.
+	(srecode-template-mode-font-lock-macro-helper)
+	(srecode-template-mode-macro-escape-match)
+	(srecode-macro-help):
+	Use helper for getting escape start/end.
+	(srecode-template-get-mode): Fix typo in name.
+	(srecode-up-context-get-name, srecode-parse-this-macro): New util
+	(semantic-up-context, semantic-beginning-of-context)
+	(semantic-end-of-context, semantic-get-local-variables)
+	(semantic-get-local-arguments, semantic-ctxt-current-symbol)
+	(semantic-analyze-current-context):
+	New overrides for srecode-template-mode
+	(srecode-template-get-escape-start, srecode-template-get-escape-end)
+	(srecode-template-current-context)
+	(srecode-template-find-templates-of-context):
+	New utility functions.
+
+2009-01-03  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-template-mode.el (srecode-font-lock-keywords):
+	New macro keywords.
+	(srecode-template-mode-font-lock-macro-helper)
+	(srecode-template-mode-macro-escape-match): New fcns.
+
+2009-01-01  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode.texi (Base Arguments): Filled in more about :time
+	(Language Arguments): Fill in all misc args previously left empty.
+
+	* templates/srecode-texi.srt (function, function-command, variable):
+	Use :texitag arg instead of just :tag.
+
+	* templates/srecode-document-cpp.srt (section-comment): New
+
+	* templates/srecode-cpp.srt (doxygen-section-comment): New.
+
+	* templates/document-default.srt (section-comment): New
+	(function-comment, variable-same-line-comment, group-comment-start):
+	Turn var refs into ask variables.
+
+	* srecode-document.el (srecode-document-insert-comment):
+	If no tag is overlapped, then insert a section comment.
+	(srecode-document-insert-section-comment):
+	New fcn.
+
+	* templates/Makefile (templates_MISC): Add document-default.srt
+
+	* templates/Project.ede (templates): Add document-default.srt
+
+	* templates/document-default.srt:
+	Default commenting code for document application.
+
+	* srecode-find.el (srecode-template-table::srecode-template-get-table):
+	Add application argument. (Unused)
+	(srecode-mode-table::srecode-template-get-table):
+	Pass application in when recusring to next template.
+
+	* Makefile (srecode_LISP): Add srecode-extract.el
+	(document_LISP): Add srecode-document-vars.el
+
+	* Project.ede ("srecode"): Add srecode-extract.el
+	("document"): Add srecode-document-vars.el
+
+	* srecode-document.el (srecode-document-vars): New require.
+	(srecode-document-insert-comment): Fix sorting of region b/e
+	(srecode-document-insert-function-comment)
+	(srecode-document-insert-variable-one-line-comment):
+	Use new `srecode-document-function-name-comment'.
+	(srecode-document-insert-group-comments): New impl.
+	(srecode-document-autocomment-common-nouns-abbrevs):
+	Moved to srecode-document-vars.el
+	(srecode-document-function-name-comment)
+	(srecode-document-parameter-comment):
+	New fcns.
+
+	* templates/srecode-document-cpp.srt (variable-same-line-comment):
+	Doc fix.
+	(group-comment-start, group-comment-end):
+	New templates for declaration, and classdecl contexts.
+
+2008-12-31  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-document-vars.el:
+	Variables with tables for generating documentation.
+
+2008-12-30  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-texi.el (srecode-semantic-handle-:texi): Force a tag refresh.
+	(srecode-semantic-handle-:texitag): New arg handler
+	(semantic-insert-foreign-tag): Copied override from semantic.
+	(srecode-texi-massage-to-texinfo)
+	(srecode-texi-texify-docstring)
+	(srecode-texi-texify-docstring-default)
+	(srecode-texi-texify-docstring): New stuff copied from document.el
+	in semantic.
+
+	* srecode.el (mode-local): Add require.
+
+	* templates/srecode-document-cpp.srt (function-comment): Add :indent.
+
+	* srecode-document.el (srecode-document-trim-whitespace): New fcn.
+	(srecode-document-insert-function-comment):
+	Revamp extraction of text from old comments, and the list of questions
+	asked to be more detailed.
+
+	* srecode-extract.el (srecode-extract-method):
+	Simplify, we don't need the template stack.
+
+	* srecode-compile.el (srecode-flush-active-templates): New command.
+
+	* srecode-document.el (srecode-extract, srecode-args): New require.
+	(srecode-document-insert-comment): Added group-comment fcn args.
+	(srecode-document-insert-function-comment)
+	(srecode-document-insert-variable-one-line-comment):
+	Add comment text extraction.
+	(srecode-document-insert-group-comments): New fcn.
+	(srecode-document-function-comment-extract-test):
+	New debugging fcn for a combo of srecode-extract, and
+	extraction for document comments.
+
+	* srecode-extract.el:
+	Extract buffer text into a dictionary based on a template.
+
+2008-12-29  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-insert.el (srecode-insert-fcn):
+	Inhibit mod hooks during insertion, then
+	batch up those changes, and call the hook myself.
+	(srecode-template-inserter-blank::srecode-insert-method):
+	Clear trailing whitespace after point before deciding if a CR is needed.
+
+	* srecode-semantic.el (srecode-semantic-apply-tag-augment-hook):
+	New hook.
+	(srecode-semantic-apply-tag-to-dict-default): Use above hook.
+
+	* srecode-map.el (srecode-map-update-map):
+	Fix bytecomp warnings about copy-list.
+
+	* srecode-insert.el (srecode-resolve-argument-list):
+	Be more explicity about the type of
+	error being caught.
+	(srecode-template-inserter-newline, srecode-template-inserter-blank)
+	(srecode-template-inserter-comment, srecode-template-inserter-variable)
+	(srecode-template-inserter-ask, srecode-template-inserter-point)
+	(srecode-template-inserter-subtemplate, srecode-template-inserter-section-start)
+	(srecode-template-inserter-include, srecode-template-inserter-include-wrap):
+	 Doc enhancement
+	(srecode-template-inserter-comment::srecode-inserter-prin-example)
+	(srecode-template-inserter-point::srecode-inserter-prin-example)
+	(srecode-template-inserter-subtemplate::srecode-inserter-prin-example)
+	(srecode-template-inserter-include::srecode-inserter-prin-example)
+	(srecode-template-inserter-include-wrap::srecode-inserter-prin-example):
+	New methods.
+
+	* srecode-compile.el (srecode-template-inserter::srecode-inserter-prin-example):
+	New.
+
+	* srecode-args.el (srecode-semantic-handle-:time):
+	Add many more time notations.
+
+	* templates/Makefile (templates_MISC): Add srecode-document-cpp.srt.
+
+	* templates/Project.ede (templates): Add srecode-document-cpp.srt.
+
+	* Makefile (doocument_LISP): New var.
+	(all): Add document.
+	(clean): Clean up doc.
+	(dist): Add document files.
+
+	* Project.ede (document): New target.
+
+	* srecode-document.el: Add comments to things in a buffer.
+
+	* templates/srecode-cpp.srt (doxygen-function): Fixed point locator.
+	Fixed name notation.
+	(doxygen-variable-same-line): New.
+
+	* templates/srecode-document-cpp.srt:
+	C++ mode documenting comment macros.
+
+	* srecode-mode.el (srecode-add-code-generator):
+	Support binding overries during development.
+
+	* srecode-dictionary.el (srecode-dictionary::srecode-dump):
+	Add CR at end of each dict entry.
+
+	* srecode-template-mode.el (srecode-separator-face): New.
+	(srecode-font-lock-keywords): Use above on the ---- separators.
+	(srecode-template-mode-map): Add binding for macro help.
+	(srecode-macro-help): New command.
+	(srecode-template-add-submode): Remove unused unknown fcn call.
+
+2008-12-26  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode.texi (Top, Quick Start, Parts of SRecode, Section Show,Automatic Loop Variables):
+	(Templates, Dictionaries, Template Argument Dictionary Entries):
+	(Developing Template Functions): Misc simple fixes from Joakim.
+
+2008-10-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-test.el (cedet-utests): New require
+	(srecode-utest-output::srecode-utest-test)
+	(srecode-utest-template-output): Use cedet-utest for logging.
+
+	* srecode-test-getset.el (cedet-utests): New require.
+	(srecode-utest-getset-output): Use cedet-utest calls for logging.
+
+2008-08-23  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-map.el (srecode-adebug-maps):
+	Require data-debug, not semantic-adebug.
+	(srecode-map-file-still-valid-p): Fix bug when filename is shorter
+	than load path.
+
+2008-07-03  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode.el (eieio): Add require before loading the loaddefs.
+
+2008-06-19  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/srecode-template.srt (NEWMODE): Add new mode prompt reader.
+
+	* srecode-srt.el (srecode-read-major-mode-history): New hitory var.
+	(srecode-read-major-mode-name): New prompt fcn.
+
+	* srecode-insert.el (srecode-template-inserter-include::srecode-insert-include-lookup):
+	Add todo comment.
+
+	* srecode-find.el (srecode-table):
+	Search through mode-local-parent stack.
+
+2008-06-08  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/srecode-getset-cpp.srt (getset-in-class):
+	replace doxygen template names with more generic
+	comment templates.
+	(getset-field): Make type a query.
+
+	* templates/srecode-cpp.srt:
+	(comment-function-group-start, comment-function-group-end)
+	(comment-function): New templates that redirect to doxygen.
+	(doxygen-function): Moved.
+
+	* Makefile (tests_LISP): Add srecode-test-getset.el
+
+	* Project.ede ("SRecode"): Add srecode-test-getset.el
+
+	* srecode-getset.el ("srecode-mode"): New eval-after-load.
+	(srecode-insert-getset-fully-automatic-flag): New flag.
+	(srecode-insert-getset): Add check that templates we need exist
+	for this major mode.
+	Track starting point for inserting new fields as needed.
+	(srecode-position-new-methods): Be smarter about
+	destructor/constructor being public.
+	Don't position before a comment that belongs to preceeding tag.
+	(srecode-position-new-field): Allow to work if starting in the class.
+	(srecode-auto-choose-field): Support fully-automatic mode.
+
+	* srecode-mode.el (srecode-prefix-map): Remove getset binding
+	(srecode-menu-bar): Add "Generate..." menu
+	(srecode-minor-mode-generators): New variable.
+	(srecode-minor-mode-generate-menu): New automatic menu.
+	(srecode-add-code-generator): New utility.
+
+	* srecode-test-getset.el: New tests for getset recoder.
+
+2008-06-06  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/srecode-getset-cpp.srt (getset-in-class):
+	Fix include template names to include the context.
+
+2008-05-14  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-mode.el (srecode-edit): Add todo note.
+
+	* srecode-dictionary.el (srecode-dictionary-compound-value): Fix doc.
+
+2008-05-12  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode.texi (Top): Add some macros.
+	Tighten up purpose statement.
+	(Quick Start): Fix up install statement.
+	(Variables): Describe how variables and dictionaries are related.
+	(Multi-string Values): Renamed from Compound Values.
+	Replace "compound" with "multi-string" in text.
+	(Section Show): Proclaim that I haven't tried this.
+	(Special Variables): Add more about applications
+	(Automatic Loop Variables): New section
+	(Template Macros): Fix typo in example.
+	(Contexts): Fix capitalization in examples.
+	(Prompts): Replace $ escape strings with {{ }}
+	(Dictionaries): Proclaim this chapter mostly for Lisp programmers
+	(Compound Dictionary Values): Fixup description.
+	(Argument Resolution): Provide better intro paragraph.
+	(Creating new Arguments): New section
+	(Base Arguments): Add `indent-according-to-mode' part.
+	Add several intro statements to subsections.
+	(Semantic Arguments): Add more known arguments.
+	(Developing Template Functions): Fix bug in example.
+
+2008-05-04  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/Project.ede ("SRecode templates"): update name.
+
+	* Project.ede ("SRecode"): Update name.
+
+2008-04-14  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (LOADPATH): Added ede to loadpath.
+
+2008-03-27  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-map.el (srecode-adebug-maps):
+	Use new data-debug instead of semantic-adebug.
+
+2008-03-05  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-semantic.el (srecode-semantic-apply-tag-to-dict-default):
+	autoload cookie.
+
+	* srecode-map.el (srecode-map-update-map):
+	Allow ~/.srecode directory to be optional.
+	Don't ask if we are non-interactive, and don't error while scaning the path.
+
+	* srecode-filters.el (newcomment): Optional
+
+2008-03-02  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-load.el (global-srecode-minor-mode):
+	Stop turning on by default.
+
+2008-02-24  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-test.el (srecode-utest-template-output): Add autoload cookie.
+
+	* srecode-map.el (srecode-map-file-still-valid-p): New.
+	(srecode-map-update-map): Use above.
+	Also loop over apps to strip out dead template files.
+
+	* srecode-find.el (srecode-table): Support MODE argument.
+
+	* templates/srecode-texi.srt (empty): Add .info to setfilename.
+	(function): Use defun, not deffn.
+	(variable): Add :blank, and some blank lines.
+	(menu): Add some space and :blank.
+	(menuitem): Add blank.
+	(subnode): New
+
+	* templates/srecode-el.srt (section-comment): Moved
+	(major-mode): Add blank,indent.
+	(include, include-protected): New
+	(function, variable, variable-const, variable-option): add blank,indent.
+	(class): Add blank,indent
+	(class-tag): New, with now starter slots.
+	(method-tag): New
+	(modelocal, defgroup, keymap): add blank, indent.
+	(classdef:variable-tag): New
+	(classdef:variable): add blank,indent
+
+	* templates/srecode-cpp.srt (constructor-tag):
+	Stop using function template, and just write it
+	from scratch.
+
+	* srecode-texi.el (srecode-texi-add-menu): Support arg for node name.
+	Force tags to be up-to-date.
+	Choose between new node macro based on only, or sub nodes.
+
+	* srecode-semantic.el (srecode-semantic-insert-tag):
+	Spell constructor-tag, destructor-tag
+	correctly.  Add support for variable constants.
+
+	* srecode-insert.el (srecode-insert-fcn):
+	Make sure tag table is up-to-date for argument resolution.
+
+	* srecode-el.el (emacs-lisp-mode::srecode-semantic-apply-tag-to-dict):
+	Add override for INTERACTIVE.
+
+2008-02-21  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-mode.el (srecode-minor-mode-templates-menu):
+	Don't compile everything on first
+	menu click.  Instead offer a button to do the load.
+
+2008-02-19  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode.texi (top): Add new chapter.
+	(Template Naming Conventions):
+	Add a few more discovered from srecode-
+	(Inserting Tag Lists): New chapter.
+
+	* templates/Makefile (templates_MISC): Add srecode-test.srt
+
+	* templates/Project.ede ("ede-proj-project"): Added srecode-test.srt
+
+	* templates/srecode-cpp.srt:
+	Revamped to handle `srecode-semantic-insert-tag'.
+
+	* srecode-semantic.el (srecode-semantic-apply-tag-to-dict):
+	Now an overload fcn.
+	Support more tag classes.
+	(srecode-semantic-find-tempalte): New fcn.
+	(srecode-insert-tag): Implemented.
+
+	* srecode-insert.el (srecode-insert-fcn):
+	Always return something, even when no ^ inserter.
+	(srecode-insert-method): Always do indentation reguardless of newline.
+	(srecode-template-inserter-blank::srecode-insert-method):
+	Don't do blanking stuff unless we are the top template.
+	(srecode-template-inserter-point::srecode-insert-method):
+	Disable funcall feature so we don't recurse.
+	(srecode-insert-include-lookup): Track our current app
+	so apps are available to us too.
+
+	* srecode-ctxt.el (srecode-calculate-context-default):
+	Force tags to be updated
+	so our context calculation is accurate.
+
+2008-02-16  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/srecode-template.srt (mode-basics): Add :srt arg.
+	(priority): Add doc string.
+	(application): New template.
+	(point): Add :srt
+	(test, subs, wrapsomething, gapsomething): Deleted.
+	Moved to srecode-test.srt
+
+	* srecode.texi (Top): Add "Template Naming Conventions"
+	(Quick Start): Update examples.
+	Add big new section on map loading.
+	Add section on how to insert templates.
+	(User Templates): Fix
+	(Parts of SRecode): Use new macros.
+	(SRecode Minor Mode): Use new macros.
+	(Setting Dictionary Values): Update "add-section-dictionary" doc.
+	(Semantic Arguments): Remove big FIRST/LAST part.
+	(Getting Started): New section.
+	(Template Naming Conventions): New section.
+
+	* srecode-semantic.el (top): Various section comments.
+	(srecode-semantic-apply-tag-to-dict): Remove setting for FIRST/LAST
+	variables.  This happens automatically.
+
+	* srecode-dictionary.el (srecode-dictionary::srecode-dictionary-add-template-table):
+	Fix doc.
+	(srecode-dictionary::srecode-dictionary-set-value): Fix signal.
+	(srecode-dictionary::srecode-dictionary-add-section-dictionary):
+	Doc fix.  Auto-set values for FIRST,LAST, NOTFIRST, and NOTLAST into
+	created sub dictionaries.
+	(srecode-dictionary::srecode-dictionary-hide-section): New
+	(srecode-dictionary::srecode-dictionary-lookup-name):
+	Strip FIRST, LAST, NOTFIRST, and NOTLAST from upward looking searc.
+
+	* srecode-args.el (srecode-semantic-handle-:indent): Fix doc.
+	(srecode-semantic-handle-:region): Fix doc.
+	(srecode-handle-region-when-non-active-flag): New
+	(srecode-semantic-handle-:region): Fix doc.
+	Use above flag.
+
+	* Makefile, Project.ede (tests): New target.
+
+	* srecode-map.el (srecode-get-maps): Improve spacing in app output.
+	(srecode-adebug-maps): New.
+
+	* srecode-table.el (srecode-template-table::srecode-dump):
+	Output application (if there
+	is one.)
+
+	* srecode-compile.el (srecode-compile-state::srecode-compile-add-prompt):
+	Fix.
+	(srecode-compile-do-hard-newline-p): New
+	(srecode-compile-split-code): Use above.
+
+	* srecode-insert.el (srecode-insert-fcn):
+	Make sure our inserter-point is bound.
+	(srecode-template-inserter-include::srecode-insert-include-lookup):
+	Improve the error.
+	Search through application tables in addition to core tables.
+
+	* srecode-test.el: Tests.
+
+	* templates/srecode-test.srt: Testing application templates
+
+2008-02-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-insert.el (srecode-insert-fcn):
+	Return a mark for the end of the insertion.
+	Useful when a point-inserter is used and the cursor is somewhere in
+	the text of the template.
+
+	* srecode-load.el (srecode-loaddefs): Don't load these.
+	(srecode): Require this.
+
+	* srecode.el ("srecode-loaddefs"): Load the loaddefs here.
+
+	* srecode.el (semantic): Stop requiring it.
+
+	* srecode-args.el (simple):
+	Don't require.  Simple is apprently a new thing in Emacs.
+
+2008-02-07  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-mode.el (srecode-edit): Pass in a good suggestion.
+
+2008-02-04  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-compile.el (srecode-compile-one-template-tag):
+	Set :where value onto blank inserters.
+	(srecode-compile-split-code): When creating a newline tag, specify
+	:hard based on previous compiled input value.
+
+	* srecode-insert.el (srecode-template-inserter-newline):
+	Add :hard slot.
+	(srecode-template-inserter-newline::srecode-insert-method):
+	If :hard, then always insert.  Otherwise, only insert if the various
+	macros in this line evaluated into nothing.
+	Don't do that if standard-output isn't a buffer.
+	(srecode-template-inserter-newline::srecode-dump):
+	Show :hard value.
+	(srecode-template-inserter-blank): Add :where.
+	(srecode-template-inserter-blank::srecode-insert-method):
+	Use :where to make different determinations based on current output.
+
+	* srecode-dictionary.el (srecode-dictionary::srecode-dump):
+	Try to fix newlining issue in dump output.
+
+	* srecode-map.el (srecode-map-update-map):
+	Do not create maps for backup files,
+	auto-save files, or files that can't be read.
+
+	* srecode-args.el (srecode-semantic-handle-:blank): autoload cookie.
+
+2008-02-01  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-map.el (srecode-map-validate-file-for-mode):
+	Look in more places
+	for file before reparsing.
+
+2008-01-31  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-map.el: (srecode-map::srecode-map-update-file-entry)
+	(srecode-map::srecode-map-update-app-file-entry): Return non-nil if
+	the map changes.
+	(srecode-map-update-map): Track if the MAP changed.
+	If it changes, then write out a new version.
+	(srecode-map-validate-file-for-mode): Track if MAP changes, and return status.
+
+	* srecode.texi (Top): Rewrite SRecode goals
+	Add srecode and semantic macros.
+	(Quick Start): Use new macros
+	(User Templates): New section.
+	(Parts of SRecode, SRecode Minor Mode, Template Writing)
+	(Setting Dictionary Values, Getting Started)
+	(Developing Template Functions): Use new macros
+	(Application Writing): New section.
+
+	* srecode-getset.el (srecode-getset-template-file-alist): Deleted
+	(srecode-insert-getset): Use new app loading style.
+
+	* srecode-find.el (srecode-load-tables-for-mode): Doc fix.
+	Handle app level template loading.
+
+	* srecode-map.el (srecode-map): Add apps slot
+	(srecode-map::srecode-map-entry-for-file): Doc fix.
+	(srecode-map::srecode-map-entry-for-app)
+	(srecode-map::srecode-map-entries-for-app-and-mode)
+	(srecode-map::srecode-map-delete-file-entry-from-app)
+	(srecode-map::srecode-map-update-app-file-entry): New methods.
+	(srecode-get-maps): Update print to also show apps.
+	(srecode-mps-dump-file-list): New
+	(srecode-map-validate-file-for-mode): Support app parsing.
+
+	* srecode-mode.el (srecode-map): New require
+	(srecode-menu-bar): Add customize srecode option.
+	(srecode-minor-mode): Do not turn on if there are no templates.
+
+2008-01-30  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (srecode_LISP): Add srecode-maps.el
+
+	* Project.ede (srecode): Add srecode-maps.el
+
+	* srecode-find.el (srecode-template-file-alist, srecode-user-template-directory):
+	Delete.
+	(srecode-load-tables-for-mode): Use srecode-get-maps
+	to find the files for different major modes.
+
+	* srecode-mode.el (srecode-menu-bar): Add more dump menu items.
+
+	* srecode-map.el (srecode-map-load-path, srecode-map-load-path-set):
+	Move to end of file.
+	(srecode-map::srecode-map-entries-for-mode): New method.
+	(srecode-get-maps): Autoload cookie.
+	Add some help to end of the dump.
+
+	* srecode-ctxt.el (srecode-semantic-handle-:ctxt):
+	For templates of fcn/method
+	if preceeding tag is a datatype, use it's name as PARENT.
+
+	* srecode-map.el: First pass at a template map.
+
+	* templates/srecode-template.srt (empty):
+	Add escape_start and escape_end, and "context file" to template.
+	(mode-basics): New
+	(function, variable): Use :blank, add more settings
+	(prompt, priority, context, commentchars): New
+	(escape-start-quoted, escape-end-quoted): New
+	(wrapsomething, gapsomething): New test templates
+
+	* srecode.texi (Base Arguments): Describe :indent, :blank, and :region
+
+	* srecode-template.wy (template):
+	Use templatename instead of symbol so we can have
+	templates with names that are the same as keywords.
+	(templatename): New rule
+
+	* srecode-srt.el (srecode-semantic-handle-:srt):
+	Accept new parser output for variable
+	default value.
+
+	* srecode-insert.el (srecode-insert): Do not resolve arguments here.
+	(srecode-insert-fcn): Do resolve arguments w/in the setting of
+	standard-output.
+	(srecode-template-inserter-blank): New inserter
+	(srecode-template-inserter-blank::srecode-insert-method): New method.
+
+	* srecode-compile.el (srecode-compile-one-template-tag):
+	Extract `code' more cleanly.
+	If :blank arg, then add BLANK inserters.
+	(srecode-compile-split-code): Do not add empty strings to the compiled template.
+
+	* srecode-args.el: (srecode-semantic-handle-:blank)
+	(srecode-semantic-handle-:region): New handlers.
+
+2008-01-29  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (doc_*): Moved.
+	(VERSION): Changed.
+	(dist): Moved parts around.  Removed creation of .tar.gz. (metasubproject)
+
+	* Project.ede (doc): Moved to end.
+	(:version): Changed.
+	(srecode): set as metasubproject.
+
+	* templates/Makefile (VERSION): Fix version number.
+
+	* templates/srecode-wisent.srt (functino, keyword, token):
+	added bindings.
+
+	* templates/srecode-texi.srt (function):
+	Fix the way docstrings are extracted.
+
+	* templates/srecode-template.srt (includewrap): New template.
+
+	* templates/srecode-el.srt (MODESYM, MODENAME, MODEEXTENSION):
+	New prompts
+	(major-mode): Revised to use composition and sectiondictionaries.
+	(syntax-table): new
+	(INTERACTIVE, NAME): New prompts
+	(function, variable, variable-const, custom, method, mode-local)
+	(defgroup, keymap,): Some new.  All now support DOC macro and correct
+	placement of ^ point inserter.
+
+	* srecode.texi (Top): Remove warning. Add QuickStart
+	(Quick Start): New
+	(Parts of SRecode): Re-write.
+	(SRecode Minor Mode): Add links and keybindings.
+	(Template Writing): Fixup intro, and...
+	(Variables, Templates, Template Macros, Prompts, ...):
+	Divide up large nodes.  Add some new ones.
+	(Template Argument Dictionary Entries, Base Arguments)
+	(Semantic Arguments): New sections
+	(Developing Template Functions): Added more info.
+
+	* srecode-texi.el (srecode-texi-add-menu): Autoload cookie.
+	Force table loading. Set return mark to menu area.
+	(srecode-semantic-handle-:texi):
+	Handle changs to semantic texi parsing that includes the @node.
+
+	* srecode-semantic.el (srecode-semantic-tag::srecode-compound-toString):
+	New method.
+	(srecode-semantic-tag-from-kill-ring): Return just the tag
+	(srecode-semantic-handle-:tag): Fix bugs creating the semantic tag
+	compound variable.
+	(srecode-semantic-apply-tag-to-dict): Use the compound macro for tags.
+
+	* srecode-insert.el (srecode-template::srecode-insert-method):
+	Merge in template dictionaries.
+	Split out code stream inserter.
+	(srecode-insert-code-stream): Split from above.
+	(srecode-template-inserter-comment): Doc fix.
+	(srecode-template-inserter-variable::srecode-insert-method):
+	Do not error on missing macros, just warn.
+	Pass fcnpart into the toString method.
+	(srecode-template-inserter-ask::srecode-insert-method):
+	Change how the default-from-dictionary calculation is done.
+	Store user-queried values into the root dictionary, not the local dictionary.
+	(srecode-template-inserter-point-override): New variable.
+	(srecode-template-inserter-point::srecode-insert-method): When above
+	variable has functional value, run that instead of storing this point
+	location.
+	(srecode-inserted-subtemplate)
+	(srecode-inserted-subtemplate::srecode-insert-subtemplate)
+	(srecode-inserted-subtemplate::srecode-insert-method):
+	Support a wider range of subclasses that handle subtemplates.
+	Do not specify the :template slot.
+	(srecode-template-inserter-section-start): Add the :template slot.
+	(srecode-template-inserter-include): Add :includetemplate slot
+	(srecode-template-inserter-include::srecode-insert-include-lookup):
+	New method
+	(srecode-template-inserter-include::srecode-insert-method)
+	Split out above new method.
+	(srecode-template-inserter-include-wrap): New inserter class.
+	(srecode-template-inserter-include-wrap::insert-method): New method.
+
+	* srecode-dictionary.el (srecode-dictionary-compound-value):
+	Fix doc string.
+	(srecode-dictionary-compound-variable): New class
+	(srecode-dictionary-compound-variable::initialize-instance): New method
+	(srecode-create-dictionary): Allow bufferless dictionaries.
+	Better name.
+	(srecode-dictionary::srecode-dictionary-add-template-table): Doc fix.
+	(srecode-dictionary::srecode-dictionary-add-section-dictionary): Doc fix
+	(srecode-dictionary::srecode-dictionary-merge): New fcn.
+	(srecode-dictionary::srecode-dictionary-lookup-name): Doc fix.
+	(srecode-dictionary::srecode-root-dictionary): New method.
+	(srecode-dictionary-compound-value::srecode-compound-toString):
+	Add more complete docstring.  Accept a function.
+	(srecode-dictionary-compound-value::srecode-dump): Add princ
+	(srecode-dictionary-compound-variable::srecode-compound-toString)
+	(srecode-dictionary-compound-variable::srecode-dump): New.
+	(srecode-create-section-dictionary): New fcn.
+	(srecode-dictionary-dump, srecode-dictionary::srecode-dump):
+	Accept new features.  Provide nicer nested output.
+
+	* srecode-compile.el (srecode-template): Add per-template dictionary
+	(srecode-compile-state::srecode-compile-add-prompt): Handle new prompt format.
+	(srecode-compile-templates): Handle compound variables.
+	(srecode-compile-one-template-tag): Handle per-template dictionaries.
+	Remove old statuts messages.
+	(srecode-compile-split-code): Split
+	(srecode-compile-parse-inserter): New fcn split from above.
+	(srecode-template::srecode-dump): Show new features of templates.
+	(srecode-dump-code-list): Remove trailing CR
+
+	* srecode-template.el (srecode-template-mode::semantic-tag-components):
+	New override to
+	handle the added use of variable tag components of templates.
+	(srecode-template-mode-hook): Change hook.
+
+	* srecode-template-mode.el (srecode-font-lock-keywords):
+	Add new syntax support.
+	(srecode-template-mode): new fcn
+
+	* srecode-template.wy (SHOW, MACRO, SECTIONDICTIONARY, DEFAULTMACRO):
+	New keywords.
+	(opt-default-fcn): Add defaultmacro support.
+	(variable): Require a newline.  Enable "show" syntax.
+	(insertable-string-list, insertable-string): New rules
+	(template): Add optinal sectin dictinaries.
+	(opt-section-dictionaries, section-dictionary-list, one-section-dictionary)
+	(variable-list): New rules.
+
+2008-01-26  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/srecode-texi.srt (menu, menuitem): New templates
+
+	* templates/srecode-el.srt (modelocal): New template.
+
+	* srecode-texi.el (srecode-texi-add-menu): Implement.
+	(srecode-semantic-handle-:texi): Add "top" as a level.
+
+	* srecode-template.wy (prompt):
+	Add newline as part of the prompt statement.
+
+2008-01-25  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-template-mode.el (srecode-font-lock-keywords):
+	Support default "" and read keywords.
+
+	* srecode-insert.el (srecode-insert):
+	Rename arg dictentries which looks like a
+	misspelling with dict-entries.
+
+	* srecode-insert.el (srecode-insert):
+	Support optional dictionary plist.
+
+2008-01-22  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/Makefile (templates_MISC): Add srecode-texi.el
+
+	* Makefile (srecode_LISP): Add srecode-texi.el
+
+	* Project.ede (srecode): Add srecode-texi.el
+
+	* templates/Project.ede ("templates"): Add srecode-texi.srt
+
+	* templates/srecode-texi.srt: Texinfo template support.
+
+	* srecode-texi.el: Support for texinfo files.
+
+	* srecode-srt.el (srecode-read-template-name):
+	Delete.  Use the other one.
+
+	* srecode-insert.el (srecode-template-inserter-newline::srecode-insert-method):
+	Use princ, instead of insert.
+	Do not indent an output device that is not a string.
+
+	* srecode-find.el (srecode-template-file-alist): Add texinfo.
+	(srecode-read-template-name): Support more arguments like most prompts.
+
+2008-01-21  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (srecode_LISP): Add two new source files.
+
+	* Project.ede (srecode): Add two new source files.
+
+	* templates/srecode-template.srt (escape_start, escape_end):
+	Don't need to quote as a regexp.
+	(KEY): New prompt.
+	(template): Add bind feature.
+	(context, var, ask,comment, include,point,section): New templates, or
+	new contents to old.  Add key bindings.
+
+	* templates/srecode-el.srt (escape_start, escape_end):
+	Don't need to quote as a regexp.
+	(empty): Whitespace change.
+	(INTERACTIVE, NAME): Added various prompt declarations.
+	(function, variable, variable-const, variable-option, type, method):
+	New templates.  Added bindings.
+
+	* templates/srecode-cpp.srt (comment_end,comment_prefix): Swap values.
+	(function-tag): Use filecomment node.
+	Bind to "f"
+
+	* templates/default.srt (filecomment):
+	Fix typo on cursor placement marker.
+
+	* srecode.texi (Template Writing): Split into submenus
+	(Variables, Templates, Contexts, Prompts): New nodes.
+	Some built from parent node.  Add some more detail.
+
+	* srecode-template-mode.el (srecode-template-mode-syntax-table):
+	Add $ as punctuation.
+	(srecode-font-lock-keywords): Highlight "bind" prefix.
+
+	* srecode-mode.el (srecode-insert, srecode-find): New requires
+	(srecode-prefix-map): srecode-edit bound to E.
+	Bind . to srecode-insert-again.
+	bind all lower case leters to srecode-bind-insert
+	(srecode-menu-bar): Add insert-again and a dynamic submenu listing
+	all templates that could be inserted.
+	(srecode-minor-mode-tmeplates-menu): New menu filter.
+	(srecode-bind-insert): New command.
+
+	* srecode-ctxt.el (srecode-calculate-context): Update doc string.
+	(srecode-calculate-context-default): Apply features found by font-lock.
+	(srecode-calculate-nearby-things): Stop using 'method'.  Just use function.
+	Support virtual and pure.
+	(srecode-calculate-context-font-lock): New fcn
+	(srecode-semanatic-handle-:ctxt): New argument handler.
+
+	* srecode-insert.el (srecode-insertion-start-context): New variable.
+	(srecode-insert-again): New command.
+	(srecode-insert): Track the starting context in var above.
+	(srecode-resolve-arguments): Split into two functions.
+	(srecode-resolve-argument-list): New, split from above.
+	Allow handlers to have an optional 2nd argument for the template being inserted.
+	(srecode-template-inserter-ask::srecode-inserter-apply-state): Supply
+	default read-fcn if there is no attribute.
+	(srecode-template-inserter-ask::srecode-insert-method): Add read-char support.
+
+	* srecode-compile.el (srecode-template): Add binding slot.
+	(srecode-compile-one-template-tag): Inittialize binding slot.
+	(srecode-compile-split-code): Track different start/end escape
+	sequences.  `regexp-quote' the raw string.
+	(srecode-template::srecode-dump): Don't show arg list if there aren't
+	any args.  Show binding if there is one.
+
+	* srecode-template.wy (bind): New keyword.
+	(template): Add opt-bind.
+	(opt-bind): New
+
+	* srecode-find.el (srecode-table): New require.
+	(srecode-mode-table::srecode-template-get-table-for-binding)
+	(srecode-template-table::srecode-template-get-table-for-binding):
+	New methods.
+	(srecode-calculate-default-template): Renamed to...
+	(srecode-calculate-default-template-string): Offer up a prefix
+	even if no exact match was found.
+	(srecode-read-template-name): Use new name above.
+
+	* srecode-table.el (srecode-template-table): Group slots.
+	Add slots for files size and date.  (For use with auto-refresh)
+	(srecode-mode-table-new): Initialize file size and date.
+	(srecode-dump-templates): Improved "no default mode specified" code.
+
+	* srecode-srt.el: Special handlerse for srt files.
+
+2008-01-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-el.el: Added new lisp specific handlers for Emacs Lisp.
+
+	* srecode-template.wy (PROMPT,DEFAULT,READ): Updated the summary.
+	(property): Accept symbol chars in addition to just word chars.
+	(srecode-template-property-analyzer): As above.
+
+	* srecode-insert.el (srecode-template-inserter-ask::srecode-insert-method):
+	After finding the default text string, look it up in the dictionary.
+	If it is there, use that as the string.
+	Make sure y-or-n-p version always sets up some new value.
+	Pass default into general reader.
+
+2007-09-07  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-insert.el (srecode-template-inserter-comment): Moved
+	(srecode-template-inserter-ask): Add a read-fcn
+	(srecode-template-inserter-ask::srecode-inserter-apply-state):
+	Calculate a new read fcn.
+	(srecode-template-inserter-ask::srecode-insert-method):
+	Ask the question with the read-fcn if there is one.
+
+2007-08-30  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-ctxt.el (srecode-calculate-context): Update doc.
+	(srecode-calculate-nearby-things): Return a list
+	(srecode-calculate-context-default): Use a bove.
+
+2007-08-23  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/default.srt (filecomment): Add cursor stop location.
+
+	* templates/srecode-el.srt (empty): Add point set
+	(INTERACTIVE): New prompt
+	(function): Add interactive option.
+	(method): New template.
+
+	* srecode-template.wy (READ): New prompt option
+	(prompt): Support a read option.
+	(opt-lisp-fcn): Deleted
+	(opt-default-fcn): Was opt-lisp-fcn.  Support symbols or strings.
+	(opt-read-fcn): New rule.
+
+2007-06-04  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-mode.el (srecode-prefix-map, srecode-menu-bar):
+	 Add srecode-edit binding.
+	(srecode-edit): New command.
+
+	* srecode-compile.el (srecode-template): Add :table slot.
+	(srecode-compile-template-table): XRef tables to templates.
+
+2007-03-19  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-mode.el (srecode-menu-bar): Add table dumper.
+
+	* srecode-cpp.el (srecode-template-inserter-include::srecode-insert-method):
+	Fix typo.
+
+	* srecode-insert.el (srecode-template-inserter-include::srecode-insert-method):
+	Support multiple nested templates when finding a context to match against.
+
+2007-03-18  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/srecode-el.srt (major-mode): Use MODESYM in doc string.
+
+	* templates/srecode-cpp.srt (declaration): Add in context.
+	(empty): Add :cpp arg, and stuff for header files.
+	(header_guard): New template.
+	(function-tag): Add indent.
+	(constructor-tag, destructor-tag): New temlates.
+	(doxygen-function-group-start, doxygen-function-group-end): add :indent
+
+	* templates/Project.ede (templates): Add expandproto and wisent.
+
+	* templates/Makefile (templates_MISC):
+	Added wisent and expandproto templates.
+
+	* srecode-cpp.el: Special functions for C++ in srecode.
+
+	* srecode-semantic.el (srecode-semantic-handle-:tagtype):
+	New argument handler.
+
+	* srecode-expandproto.el: Prototype expander.
+
+	* Project.ede ("srecode"):
+	Add srecode-cpp.el and srecode-expandproto.el.
+
+	* Makefile (LOADPATH): Strip out duplicates
+	(lang_SEMANTIC_GRAMMAR_EL,dist): Spelling fix.
+
+2007-03-12  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode-compile.el (srecode-compile-state):
+	Fix type for context initform.
+
+	* templates/srecode-cpp.srt: Add context statement.
+	Add GROUPNAME prompt.
+
+	* srecode-insert.el (srecode-template-inserter-ask):
+	Add defaults for prompt & defaultfcn.
+
+	* srecode-getset.el (srecode-insert-getset): Autoload cookie.
+	Add error for the difficult cases of the field we are getsetting.
+	(srecode-position-new-methods): Add constructor search.
+
+	* srecode-mode.el (srecode-prefix-map): Add "G" for getset.
+
+2007-03-11  Eric M. Ludlam  <zappo@gnu.org>
+
+	* srecode.texi (SRecode Minor Mode): New chapter.
+
+2007-03-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/srecode-template.srt (NEWMODE): New prompt
+	(empty): Change name of MODE since that's used by something else now.
+	(NAME): New prompt.
+
+	* srecode-template.wy (PROMPT,DEFAULT): New keywords.
+	(template_file): Add prompt
+	(prompt): New rule
+	(opt-lisp-fcn): New rule
+
+	* srecode-template-mode.el: Font lock up the new prompt command.
+
+	* srecode-insert.el (srecode-template-inserter-ask):
+	Add prompt and default slots.
+	(srecode-template-inserter-ask::srecode-apply-state): New method
+	(srecode-template-inserter-ask::srecode-insert-method): Use nice prompt.
+	(srecode-template-inserter-ask::srecode-dump): New method
+	(srecode-template-inserter-section-start::srecode-parse-input):
+	Use input STATE argument instead of old arguments.
+
+	* srecode-compile.el (srecode-template-inserter::srecode-parse-input):
+	Add START argument.
+	Remove escape arguments
+	(srecode-compile-state): New class
+	(srecode-compile-add-prompt): New method on above.
+	(srecode-compile-templates): Create a compile state and use.
+	Remove local vars of what was in the state.
+	Add support for PROMPTS.
+	(srecode-compile-one-template-tag, srecode-compile-split-code):
+	(srecode-compile-inserter): Take a START arg.  Remove old args.
+
+	* templates/srecode-template.srt: Add context statements.
+
+	* templates/srecode-el.srt (major-mode): Template for new major modes.
+
+	* templates/Project.ede ("ede-proj-project"): Add srecode-wisent.srt
+
+	* templates/default.srt (filecomment):
+	Add an RCS line if the template is in an RCS/CVS directory.
+
+	* srecode-template.wy (wisent-srecode-template-lexer): Doc fix.
+
+	* srecode-insert.el: Add copyright line.
+
+	* srecode-find.el (srecode-template-file-alist): Add wisent.
+
+	* templates/srecode-wisent.srt: Template for Wisent grammar mode
+
+2007-02-24  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/srecode-getset-cpp.srt (getset-in-class): Fix bugs.
+
+	* templates/srecode-cpp.srt (doxygen-function-group-end): Fix contents.
+
+	* srecode-semantic.el (srecode-semantic-selected-tag):
+	New way to pass tags into the dictionary.
+	(srecode-semantic-handle-:tag): Use above.
+
+	* srecode-insert.el (srecode-template-inserter-newline): New insertern
+	(srecode-template-inserter-section-end::srecode-match-end):
+	Fix implementation target.
+
+	* srecode-getset.el (srecode-getset-template-file-alist): New var
+	(srecode-insert-getset): Load in tables.
+	Add positioning for getset methods.
+	Create dict, update dict, find template, and inserter.
+	(srecode-strip-fieldname): New fcn
+	(srecode-position-new-methods): Finish Implementing.
+	(srecode-auto-choose-field): Fix bug.
+
+	* srecode-find.el (srecode-load-tables-for-mode):
+	Support an alist argument.
+	Allow loading from specialized application lists.
+
+	* srecode-compile.el (srecode-compile-split-code):
+	Add special support for newline inserter.
+
+	* srecode-args.el (srecode-semantic-handle-:indent): New arg fcn.
+
+	* Project.ede: *** empty log message ***
+
+2007-02-21  Eric M. Ludlam  <zappo@gnu.org>
+
+	* templates/Project.ede, templates/Makefile, srecode.texi, srecode-template.wy, srecode-template-mode.el, srecode-template.el, srecode-table.el, srecode-semantic.el, srecode-mode.el, srecode-load.el, srecode-insert.el, srecode-getset.el, srecode-find.el, srecode-filters.el, srecode-dictionary.el, srecode-ctxt.el, srecode-compile.el, srecode-args.el, templates/default.srt, templates/srecode-cpp.srt, templates/srecode-el.srt, templates/srecode-getset-cpp.srt, templates/srecode-template.srt, Makefile:
+	*** empty log message ***
+
+	* srecode.el: Semantic Recoder
+

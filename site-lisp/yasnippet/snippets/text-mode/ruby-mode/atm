@@ -1,0 +1,5 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : at_most
+# --
+at_most(${1:n}).times

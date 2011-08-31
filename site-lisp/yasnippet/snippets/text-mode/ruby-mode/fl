@@ -1,0 +1,3 @@
+# This was cloned from a TextMate bundle for yasnippet.
+# --
+flunk`snippet_paren.rb`"${0:Failure message.}"`snippet_paren.rb end`

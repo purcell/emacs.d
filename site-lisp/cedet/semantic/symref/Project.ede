@@ -1,0 +1,14 @@
+;; Object Symref
+;; EDE project file.
+(ede-proj-project "Symref"
+  :name "Symref"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-elisp "symref"
+    :name "symref"
+    :path ""
+    :source '("semantic-symref.el" "semantic-symref-global.el" "semantic-symref-grep.el" "semantic-symref-list.el" "semantic-symref-idutils.el" "semantic-symref-cscope.el")
+    :aux-packages '("eieio" "semantic" "semantic-el" "mode-local" "ede" "speedbar")
+    )
+   )
+  )

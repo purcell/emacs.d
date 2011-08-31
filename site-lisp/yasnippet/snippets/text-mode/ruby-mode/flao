@@ -1,0 +1,4 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : Arrays
+# --
+inject(Array.new) { |${1:arr}, ${2:a}| ${1:arr}.push(*${2:a}) }

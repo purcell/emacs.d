@@ -1,0 +1,73 @@
+<html lang="en">
+<head>
+<title>Add-on synchronization - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="ECB_002dwindow-synchronizing.html#ECB_002dwindow-synchronizing" title="ECB-window synchronizing">
+<link rel="prev" href="Synchronization-of-basic-ECB_002dwindows.html#Synchronization-of-basic-ECB_002dwindows" title="Synchronization of basic ECB-windows">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Add-on-synchronization"></a>
+<a name="Add_002don-synchronization"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Synchronization-of-basic-ECB_002dwindows.html#Synchronization-of-basic-ECB_002dwindows">Synchronization of basic ECB-windows</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="ECB_002dwindow-synchronizing.html#ECB_002dwindow-synchronizing">ECB-window synchronizing</a>
+<hr>
+</div>
+
+<h4 class="subsection">6.12.3 Synchronization of add-on ECB-windows</h4>
+
+<p>Currently ECB has a separate synchronization for the add-on ECB-windows
+ECB-analyse and ECB-symboldef and also for the eshell and
+speedbar-integration. Customizing can be done via:
+
+     <ul>
+<li>ECB-analyse:
+<code>ecb-analyse-buffer-sync</code>, <code>ecb-analyse-buffer-sync-delay</code> and
+<code>ecb-analyse-buffer-sync-hook</code>
+
+     <li>ECB-symboldef:
+<code>ecb-symboldef-buffer-sync</code>, <code>ecb-symboldef-buffer-sync-delay</code> and
+<code>ecb-symboldef-buffer-sync-hook</code>
+
+     <li>ECB-eshell:
+<code>ecb-eshell-buffer-sync</code>, <code>ecb-eshell-buffer-sync-delay</code> and
+<code>ecb-eshell-buffer-sync-hook</code>
+
+     <li>ECB-speedbar:
+<code>ecb-speedbar-buffer-sync</code>, <code>ecb-speedbar-buffer-sync-delay</code> and
+<code>ecb-speedbar-buffer-sync-hook</code>
+
+   </ul>
+
+   <p>Each enabling- and delay-option has an additonal special value 'basic which is
+the default for all these options because it allows to use the current setting
+of <code>ecb-basic-buffer-sync</code> rsp. <code>ecb-basic-buffer-sync-delay</code> for
+the add-on synchronization too. Example: If <code>ecb-basic-buffer-sync</code> is
+set to the value <code>(Info-mode dired-mode)</code> then a setting of 'basic for
+<code>ecb-analyse-buffer-sync</code> means that synchronization is always done
+unless the current major-mode is Info-mode or dired-mode. Per default all
+add-on synchronization enabling- and delay-options are set to 'basic with one
+exeption: <code>ecb-analyse-buffer-sync-delay</code>: See the documentation of this
+option for a detailed description.
+
+   <p>In general it is recommended to read the documentation of all these options.
+
+   </body></html>
+

@@ -1,0 +1,13 @@
+;; Object ede-proj-project
+;; EDE project file.
+(ede-proj-project "common/icons"
+  :name "icons"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-makefile-miscelaneous "icons"
+    :name "icons"
+    :path ""
+    :source '("bitsbang.xpm" "bits.xpm" "box-minus.xpm" "box-plus.xpm" "box.xpm" "checkmark.xpm" "dir-minus.xpm" "dir-plus.xpm" "dir.xpm" "doc-minus.xpm" "doc-plus.xpm" "doc.xpm" "info.xpm" "key.xpm" "label.xpm" "lock.xpm" "mail.xpm" "page-minus.xpm" "page-plus.xpm" "page.xpm" "tag-gt.xpm" "tag-minus.xpm" "tag-plus.xpm" "tag-type.xpm" "tag-v.xpm" "tag.xpm" "unlock.xpm")
+    )
+   )
+  )

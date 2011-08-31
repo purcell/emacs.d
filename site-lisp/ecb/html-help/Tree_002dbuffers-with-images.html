@@ -1,0 +1,97 @@
+<html lang="en">
+<head>
+<title>Tree-buffers with images - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Tree_002dbuffer-styles.html#Tree_002dbuffer-styles" title="Tree-buffer styles">
+<link rel="prev" href="Ascii_002dbased-styles.html#Ascii_002dbased-styles" title="Ascii-based styles">
+<link rel="next" href="Images-for-Methods_002dbuffer.html#Images-for-Methods_002dbuffer" title="Images for Methods-buffer">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Tree-buffers-with-images"></a>
+<a name="Tree_002dbuffers-with-images"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Images-for-Methods_002dbuffer.html#Images-for-Methods_002dbuffer">Images for Methods-buffer</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Ascii_002dbased-styles.html#Ascii_002dbased-styles">Ascii-based styles</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Tree_002dbuffer-styles.html#Tree_002dbuffer-styles">Tree-buffer styles</a>
+<hr>
+</div>
+
+<h5 class="subsubsection">4.1.2.3 Which images are used for the tree</h5>
+
+<p>Depending on the value of <code>ecb-tree-buffer-style</code> and the
+image-support of (X)Emacs, the tree-buffer try to use images instead
+of strings to draw a nice-looking tree.
+
+   <p>If images can and should be used then the option
+<code>ecb-tree-image-icons-directories</code> tells ECB where to search for
+suitable image-icons for each of the nine image-names (see above). An
+image is used for displaying a control with name &ldquo;XXX&rdquo; if one of the
+directories of <code>ecb-tree-image-icons-directories</code> contains an
+image-file with basename &ldquo;ecb-XXX&rdquo; and an extension which is
+supported by (X)Emacs. Currently supported extensions are &ldquo;.xpm&rdquo;,
+&ldquo;.png&rdquo;, &ldquo;.gif&rdquo;, &ldquo;.jpeg&rdquo;, .&rdquo;jpg&rdquo; and &ldquo;.xbm&rdquo;.
+
+   <p>Example: To display the control with name &ldquo;open&rdquo; with a suitable
+image then one of the directories of
+<code>ecb-tree-image-icons-directories</code> must contain a file with name
+&ldquo;ecb-open.xpm&rdquo; or &ldquo;ecb-open.png&rdquo; etc. See the description of this
+option to get all important details how and in which sequence ECB
+searches the directories of <code>ecb-tree-image-icons-directories</code>.
+
+   <p>ECB comes with predefined default-images usable for every tree-buffer
+and special images for the Directories- and the Methods-tree-buffer. 
+They are defined in several different heights - so for the most
+senseful font-heights of a tree-buffer a fitting image-size should be
+available. The shipped images reside either in the subdirectory
+"ecb-images" of the ECB-installation or - if ECB is installed as
+regular XEmacs-package - in the ECB-etc data-directory (the directory
+returned by evaluating (locate-data-directory "ecb"). If you do not
+want to change the images then you normally have nothing to do because
+the default value of <code>ecb-tree-image-icons-directories</code> points
+already to the correct image-directories.
+
+   <p>A special remark for XEmacs:
+
+   <p>At least XEmacs 21.14 (but probably previous versions too) has a bug
+in its display-engine which prevents adjacent images to be displayed
+correctly. The effect is, that in a row of two or more adjacent images
+(e.g. end-guide+handle+open - see the tree-example above) always all
+images are masked by the last one, means only the last one is visible. 
+If at least one normal character (e.g. a space) is placed between two
+images then the images are displayed correctly. Therefore ECB has
+implemented the following work-around to get best possible results
+with XEmacs: open-, close-, empty-, leaf-, guide-, end-guide- and
+no-guide-images are displayed with images and the handle- and the
+no-handle-images are displayed with the corresponding ascii-symbols
+(which is &ldquo;-&rdquo; rsp. &ldquo; &rdquo;). The face (the color) of the handle-symbol
+is customizable via the option <code>ecb-tree-guide-line-face</code>.
+
+   <p>This bug is already reported to the XEmacs-team. If your XEmacs has
+fixed this bug then add the following to your <samp><span class="file">.emacs</span></samp>-file (or
+whereever your emacs-setup is located):
+
+<pre class="lisp">   (setq tree-buffer-enable-xemacs-image-bug-hack nil)
+</pre>
+   <p>Then ECB uses images without any special work-around with XEmacs too. 
+Just try it - if the tree-buffers look ugly then the XEmacs-bug is
+probably not fixed correctly.
+
+   </body></html>
+

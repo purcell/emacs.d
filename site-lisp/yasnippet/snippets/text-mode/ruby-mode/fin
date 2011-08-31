@@ -1,0 +1,4 @@
+#name : find { |e| .. }
+#group : Enumerables
+# --
+find { |${1:e}| $0 }

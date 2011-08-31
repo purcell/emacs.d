@@ -1,0 +1,6 @@
+#Author : Anders Bach Nielsen <andersbach.nielsen@epfl.ch>
+#name : trait T { .. }
+# --
+trait ${1:name} {
+  $0
+}

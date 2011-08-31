@@ -1,0 +1,60 @@
+<html lang="en">
+<head>
+<title>User interface - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Auto_002e-option_002dupgrading.html#Auto_002e-option_002dupgrading" title="Auto. option-upgrading">
+<link rel="prev" href="Auto_002e-option_002dupgrading.html#Auto_002e-option_002dupgrading" title="Auto. option-upgrading">
+<link rel="next" href="Background-information.html#Background-information" title="Background information">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="User-interface"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Background-information.html#Background-information">Background information</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Auto_002e-option_002dupgrading.html#Auto_002e-option_002dupgrading">Auto. option-upgrading</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Auto_002e-option_002dupgrading.html#Auto_002e-option_002dupgrading">Auto. option-upgrading</a>
+<hr>
+</div>
+
+<h4 class="subsection">9.2.1 User interface for option-upgrading</h4>
+
+<p>There are two interactive commands (see <a href="Interactive-ECB-commands.html#Interactive-ECB-commands">Interactive ECB commands</a>):
+
+     <ul>
+<li><code>ecb-upgrade-options</code>:
+Does all necessary beginning with a incompatibility-check for all
+options, upgrading/resetting incompatible options and ending with the
+display of all upgraded or reset options.
+
+     <li><code>ecb-display-upgraded-options</code>:
+Displays an information-buffer which options have been upgraded or
+reset. Offers two buttons where the user can decide if the upgraded
+options should also being saved by ECB for future settings or if the
+buffer should be killed. 
+</ul>
+
+   <p>If the option <code>ecb-auto-compatibility-check</code> has a non-nil value
+(which is the default) then ECB does all this stuff automatically at
+startup. This is very recommended!
+
+   <p>If you are interested in some background information, read
+<a href="Background-information.html#Background-information">Background information</a>!
+
+   </body></html>
+

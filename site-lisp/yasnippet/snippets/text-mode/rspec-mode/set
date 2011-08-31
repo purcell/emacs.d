@@ -1,0 +1,5 @@
+#name: setup do ... end
+# --
+setup do
+  $1
+end

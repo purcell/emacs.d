@@ -1,0 +1,91 @@
+<html lang="en">
+<head>
+<title>Overview - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="prev" href="Install-and-first-steps.html#Install-and-first-steps" title="Install and first steps">
+<link rel="next" href="Manual-usage.html#Manual-usage" title="Manual usage">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Overview"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Manual-usage.html#Manual-usage">Manual usage</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Install-and-first-steps.html#Install-and-first-steps">Install and first steps</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="ecb.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">2 Overview</h2>
+
+<p><a name="index-tree_002dbuffer-1"></a><a name="index-ECB_002dwindows-2"></a>ECB is a global minor-mode which offers a couple of <dfn>ECB-windows</dfn>
+for browsing your sources comfortable with the mouse and the keyboard.
+
+   <p>ECB offers some basic ECB-windows to browse your sources:
+     <ul>
+<li>ECB-Directories for browsing directories
+<li>ECB-Sources for browsing source-files and a file-history
+<li>ECB-Methods for browsing the contents of a source
+</ul>
+
+   <p>See <a href="Basic-ECB_002dwindows.html#Basic-ECB_002dwindows">Basic ECB-windows</a> for a detailled description what these
+basic ECB-windows offer. See <a href="ECB_002dwindows.html#ECB_002dwindows">ECB-windows</a> for a general
+introduction in the ECB-window-concept of ECB.
+
+   <p>In addition to these &ldquo;special&rdquo; ECB-windows you have always an
+<dfn>edit-area</dfn> where you can edit your source-files. The edit-area
+can be divided into several <dfn>edit-windows</dfn> - as many as you need
+(see <a href="The-edit_002darea.html#The-edit_002darea">The edit-area</a>). And at the bottom of the ECB-frame a persistent
+<dfn>compilation-window</dfn> (also called <dfn>compile-window</dfn>) can be
+displayed (optional), where all the output of Emacs-compilation
+(compile, grep etc.) is shown (see <a href="Temp_002d-and-compile_002dbuffers.html#Temp_002d-and-compile_002dbuffers">Temp- and compile-buffers</a>).
+
+   <p>The following &ldquo;screenshot&rdquo; illustrates the typical layout of the
+ECB-frame<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>:
+
+<pre class="example">   ------------------------------------------------------------------
+   |              |                                                 |
+   |  Directories |                                                 |
+   |              |                                                 |
+   |--------------|                                                 |
+   |              |                                                 |
+   |  Sources     |                                                 |
+   |              |                                                 |
+   |--------------|                   Edit-area                     |
+   |              |   (can be splitted in several edit-windows)     |
+   |  Methods     |                                                 |
+   |              |                                                 |
+   |--------------|                                                 |
+   |              |                                                 |
+   |  History     |                                                 |
+   |              |                                                 |
+   ------------------------------------------------------------------
+   |                                                                |
+   |            Persistent Compilation-window (optional)            |
+   |                                                                |
+   ------------------------------------------------------------------
+</pre>
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> This is only one example of the layouts ECB offers,
+see <a href="Changing-the-ECB_002dlayout.html#Changing-the-ECB_002dlayout">Changing the ECB-layout</a></p>
+
+   <p><hr></div>
+
+   </body></html>
+

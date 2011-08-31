@@ -1,0 +1,4 @@
+#contributor : Anders Bach Nielsen <abachn@abachn.net>
+#name : <a href="...">...</a>
+# --
+<a href="$1">$2</a>

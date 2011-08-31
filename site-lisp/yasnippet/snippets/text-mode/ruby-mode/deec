@@ -1,0 +1,3 @@
+# This was cloned from a TextMate bundle for yasnippet.
+# --
+Marshal.load(Marshal.dump(${0:obj_to_copy}))

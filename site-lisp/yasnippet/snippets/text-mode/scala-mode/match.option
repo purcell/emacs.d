@@ -1,0 +1,8 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : option match { case None => .. }
+# --
+${1:option} match {
+  case None => $0
+  case Some(res) => 
+
+}

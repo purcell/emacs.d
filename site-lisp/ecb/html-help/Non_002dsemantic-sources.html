@@ -1,0 +1,171 @@
+<html lang="en">
+<head>
+<title>Non-semantic sources - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="prev" href="Compile_002dwindow-on-demand.html#Compile_002dwindow-on-demand" title="Compile-window on demand">
+<link rel="next" href="Hide_002dshow.html#Hide_002dshow" title="Hide-show">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Non-semantic-sources"></a>
+<a name="Non_002dsemantic-sources"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Hide_002dshow.html#Hide_002dshow">Hide-show</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Compile_002dwindow-on-demand.html#Compile_002dwindow-on-demand">Compile-window on demand</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>
+<hr>
+</div>
+
+<h3 class="section">10.13 Parsing and displaying non-semantic sources</h3>
+
+<p>ECB is mostly designed to display parsing information for files
+supported by semantic. But beginning with version 1.94 it also
+supports other parsing engines like imenu and etags, so also files not
+supported by semantic but by imenu/etags can be displayed in the
+Method-buffer of ECB. See <a href="Definition-of-semantic_002d-and-non_002dsemantic_002dsources.html#Definition-of-semantic_002d-and-non_002dsemantic_002dsources">Definition of semantic- and non-semantic-sources</a> for a description of &ldquo;semantic-sources&rdquo; and
+&ldquo;non-semantic-sources&rdquo;.
+
+   <p>If support of non-semantic-sources is enabled then ECB will display
+the contents of all sources which can be displayed by speedbar too. 
+This comes from the fact that ECB uses speedbar-logic to parse sources
+with imenu or etags.
+
+   <p>In most cases imenu-parsing is preferable over etags-parsing because
+imenu operates on Emacs-buffers and needs no external tool and
+therefore parsing works also if current contents of a buffer are not
+saved to disk.
+
+   <p>This section describes all important aspects about parsing and
+displaying file-contents of file-types not supported by semantic but
+by imenu and/or etags.
+
+<h4 class="subsection">10.13.1 Enabling parsing and displaying of non-semantic-sources</h4>
+
+<p>Enabling is simply done with the option <code>ecb-process-non-semantic-files</code>.
+
+   <p>ECB offers an option <code>ecb-non-semantic-parsing-function</code> to
+specify on a major-mode basis which parsing-method should be used:
+imenu or etags. Normally there should be no need to change this option
+but read the documentation of this option (see <a href="ecb_002dnon_002dsemantic.html#ecb_002dnon_002dsemantic">ecb-non-semantic</a>)
+for further details.
+
+   <p>IMPORTANT:
+
+     <ul>
+<li>If imenu-parsing should be used then the option
+<code>speedbar-use-imenu-flag</code> must be set to not <code>nil</code>!
+
+     <li>If some non-semantic-sources are not parsed (i.e. there is an empty
+Methods-buffer) and you think that they should then maybe they are neither
+supported by imenu nor by etags or you have to check the options
+<code>ecb-non-semantic-parsing-function</code> and
+<code>speedbar-dynamic-tags-function-list</code> and - especially for etags -
+<code>speedbar-fetch-etags-parse-list</code>, <code>speedbar-fetch-etags-arguments</code>
+and <code>speedbar-fetch-etags-command</code>.
+
+     <li>Even with support for semantic-, imenu- and etags-parsing there will
+remain some file-types rsp. <code>major-modes</code> which are not
+parse-able, neither by semantic, imenu nor etags. This is no problem
+because these files simply have an empty Methods-buffer. But
+nevertheless you will get a message &ldquo;Sorry, no support for a file of
+that extension&rdquo; which comes from the speedbar-library and can not
+switched off. Therefore if a <code>major-mode</code> is known as not
+parse-able by semantic, imenu or etags it can be added to the option
+<code>ecb-non-semantic-exclude-modes</code> and then it will be excluded
+from being tried to parsed and this (annoying) message will not occur. 
+</ul>
+
+<h4 class="subsection">10.13.2 Automatic rescanning/reparsing of non-semantic-sources</h4>
+
+<p>In contrast to semantic (see <code>global-semantic-auto-parse-mode</code>)
+there is no built-in mechanism for autom. reparsing
+non-semantic-sources and then updating the contents of the
+Methods-buffer.
+
+   <p>For non-semantic-sources you have always at least to call
+<code>ecb-rebuild-methods-buffer</code> (bound to <kbd>C-c . r</kbd>) or saving
+the source-file (if <code>ecb-auto-update-methods-after-save</code> is true)
+to update the Method-buffer<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>.
+
+   <p>Depending on the parsing-mechanism the following options have to be
+switched on so ECB can rebuild the methods-buffer for
+non-semantic-sources:
+
+     <ul>
+<li>imenu:
+
+     <p>The imenu-option <code>imenu-auto-rescan</code> must be enabled and
+<code>imenu-auto-rescan-maxout</code> has to be set big enough to auto-parse
+big files too! But this results not directly in an autom. updated
+Method-buffer. This is first done after calling the command
+<code>ecb-rebuild-methods-buffer</code> or saving the source-file (if
+<code>ecb-auto-update-methods-after-save</code> is true).
+
+     <li>etags:
+
+     <p>Only if <code>ecb-auto-save-before-etags-methods-rebuild</code> is switched on
+the command <code>ecb-rebuild-methods-buffer</code> rebuilds the
+method-buffer with current source-contents. See description of this
+option for an explanation. 
+</ul>
+
+   <p>Tip: If you want to program your own real. automatic
+rescan/reparse/rebuild mechanism for non-semantic-sources you can do:
+
+   <p>Adding to <code>after-change-functions</code> a function F which either runs
+itself <code>ecb-rebuild-methods-buffer-for-non-semantic</code> or which
+adds only another function FF to an idle-timer and the function FF
+runs <code>ecb-rebuild-methods-buffer-for-non-semantic</code>. The latter
+approach has the advantage that the reparse/rebuild is not performed
+immediately after every change but first after Emacs is idle for a
+senseful interval (e.g. 4 seconds) after last change. Of course the
+function FF has to cancel its own idle-timer at the end, so the next
+idle-timer is first started again after the next change (i.e. by
+function F which is still contained in <code>after-change-functions</code>.
+
+<h4 class="subsection">10.13.3 Customizing the display of the tags</h4>
+
+<p>For non-semantic-sources ECB uses does no special organizing of tags
+in groups and sub-tags but it completely uses the tag-hierarchy the
+imenu- and etags-parsers of speedbar return. So the displayed tag
+hierarchy can only be customized with some options speedbar offers for
+this:
+
+   <p><code>speedbar-tag-hierarchy-method</code>,
+<code>speedbar-tag-group-name-minimum-length</code>,
+<code>speedbar-tag-split-minimum-length</code> and
+<code>speedbar-tag-regroup-maximum-length</code>. See the speedbar
+documentation for details about these options.
+
+   <p>With the option <code>ecb-method-non-semantic-face</code> you can define the
+face used for displaying the tags in the Method-buffer for
+non-semantic-sources.
+
+   <p><code>ecb-non-semantic-methods-initial-expand</code> can be useful too.
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> Maybe future versions of ECB (&gt;
+1.94) will offer an autom. mechanism for this.</p>
+
+   <p><hr></div>
+
+   </body></html>
+

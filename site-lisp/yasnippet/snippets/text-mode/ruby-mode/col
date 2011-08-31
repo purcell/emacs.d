@@ -1,0 +1,4 @@
+#name : collect { |e| ... }
+#group : Enumerables
+# --
+collect { |${e}| $0 }

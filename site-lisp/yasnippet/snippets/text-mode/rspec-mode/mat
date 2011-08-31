@@ -1,0 +1,28 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : custom matcher
+# --
+class ${1:ReverseTo}
+  def initialize($3)
+    @$3 = $3
+  end
+
+  def matches?(actual)
+    @actual = actual
+    # Satisfy expectation here. Return false or raise an error if it's not met.
+    $0@actual.reverse.should == @$3
+    true
+  end
+
+  def failure_message
+    "expected #{@actual.inspect} to $2 #{@$3.inspect}, but it didn't"
+  end
+
+  def negative_failure_message
+    "expected #{@actual.inspect} not to $2 #{@$3.inspect}, but it did"
+  end
+end
+
+def ${2:reverse_to}(${3:expected})
+  $1.new($3)
+end

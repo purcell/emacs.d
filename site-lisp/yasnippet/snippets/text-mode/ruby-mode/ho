@@ -1,0 +1,4 @@
+#name : has_one : ... 
+#group: ActiveRecord
+# --
+has_one :${class}

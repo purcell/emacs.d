@@ -1,0 +1,182 @@
+<html lang="en">
+<head>
+<title>Using the mouse - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Usage-of-ECB.html#Usage-of-ECB" title="Usage of ECB">
+<link rel="prev" href="Usage-of-ECB.html#Usage-of-ECB" title="Usage of ECB">
+<link rel="next" href="Using-the-keyboard.html#Using-the-keyboard" title="Using the keyboard">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Using-the-mouse"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Using-the-keyboard.html#Using-the-keyboard">Using the keyboard</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Usage-of-ECB.html#Usage-of-ECB">Usage of ECB</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Usage-of-ECB.html#Usage-of-ECB">Usage of ECB</a>
+<hr>
+</div>
+
+<h3 class="section">6.1 Working with the mouse in the ECB-windows</h3>
+
+<p><a name="index-primary-button-14"></a><a name="index-secondary-button-15"></a><a name="index-mouse-button-16"></a>Normally you get best usage if you use ECB with a mouse. ECB
+distinguishes between a <dfn>primary</dfn> and a <dfn>secondary</dfn>
+mouse-button.
+
+   <p>With the option <code>ecb-primary-secondary-mouse-buttons</code> the following
+combinations of primary and secondary mouse-buttons are possible:
+
+     <ul>
+<li>primary: mouse-2, secondary: C-mouse-2<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>. This is the default.
+
+     <li>primary: mouse-1, secondary: C-mouse-1
+
+     <li>primary: mouse-1, secondary: mouse-2
+</ul>
+
+   <p>If you change this during ECB is activated you must deactivate and activate
+ECB again to take effect.
+
+<h4 class="subsection">6.1.1 The primary mouse-button</h4>
+
+<p>A click with the primary button causes the main effect in each ECB-buffer:
+
+     <ul>
+<li>ECB Directories:
+Expanding/collapsing nodes and displaying files in the ECB-Sources
+buffer.
+
+     <li>ECB sources/history:
+Opening the file in that edit-window specified by the option
+<code>ecb-mouse-click-destination</code>.
+
+     <li>ECB Methods:
+Jumping to the method in that edit-window specified by the option
+<code>ecb-mouse-click-destination</code>. 
+</ul>
+
+<h4 class="subsection">6.1.2 The POWER- or SHIFT-click</h4>
+
+<p><a name="index-SHIFT_002dclick-17"></a><a name="index-POWER_002dclick-18"></a>A click with the primary mouse-button while the SHIFT-key is pressed
+is called the POWER-click and does the following (depending on the
+ECB-buffer where the POWER-click occurs):
+
+     <ul>
+<li>ECB Directory:
+Refreshing the directory-contents-cache (see
+<code>ecb-cache-directory-contents</code>).
+
+     <li>ECB sources/history:
+Only displaying the source-contents in the method-buffer but not
+displaying the source-file in an edit-window. This means it opens the
+clicked source only in the background and shows all its
+methods/variables in ECB-Methods; the buffer of the edit-window is not
+changed! This is very useful to get only an overlook for a certain
+source.
+
+     <li>ECB Methods:
+Narrowing to the clicked method/variable/ect... (see
+<code>ecb-tag-visit-post-actions</code>). But this works only for sources
+parsed by semantic, not by imenu or etags! 
+</ul>
+
+   <p>Per default the complete node-name of an item in a tree-buffer is displayed in
+the echo-area if the mouse moves over it, regardless if the related window is
+the active one or not. You get the same effect always after a POWER-click. In
+general: For each tree-buffer there is an option <code>ecb-*-show-node-info</code>
+(replace &ldquo;*&rdquo; with directories, sources, methods, history or analyse, e.g. 
+<code>ecb-directories-show-node-info</code> is the option for the
+ECB-directories-window.): you can specify in a detailed manner for the named
+ECB tree-buffer when and which node-info should be displayed in the
+minibuffer.
+
+<h4 class="subsection">6.1.3 The secondary mouse-button</h4>
+
+<p>The secondary mouse-button is for opening (jumping to) the file in
+another edit-window (see the documentation of the option
+<code>ecb-mouse-click-destination</code>).
+
+<h4 class="subsection">6.1.4 The right mouse-button</h4>
+
+<p>In each ECB-buffer mouse-3 (= right button) opens a special context
+popup-menu for the clicked item where you can choose several senseful
+actions.
+
+   <p>With the options <code>ecb-directories-menu-user-extension</code>,
+<code>ecb-sources-menu-user-extension</code>,
+<code>ecb-methods-menu-user-extension</code> and
+<code>ecb-history-menu-user-extension</code> you can add statically new
+commands to the popup-menus. See the docstring of
+<code>ecb-directories-menu-user-extension</code> for more details.
+
+   <p>With the options <code>ecb-directories-menu-user-extension-function</code>,
+<code>ecb-sources-menu-user-extension-function</code>,
+<code>ecb-methods-menu-user-extension-function</code> and
+<code>ecb-history-menu-user-extension-function</code> you can add new
+commands to the popup-menus in a dynamic manner. See the docstring of
+<code>ecb-directories-menu-user-extension-function</code> for more details.
+
+   <p>With the options <code>ecb-directories-menu-sorter</code>,
+<code>ecb-sources-menu-sorter</code>, <code>ecb-methods-menu-sorter</code> and
+<code>ecb-history-menu-sorter</code> you can even re-arrange all the entries
+of the popup-menus.
+
+<h4 class="subsection">6.1.5 Horizontal scrolling with the mouse</h4>
+
+<p>In each tree-buffer of ECB you can easily scroll left and right with
+the mouse if the option <code>ecb-tree-easy-hor-scroll</code> is not
+<code>nil</code>.
+
+   <p>The reason for this is: XEmacs has horizontal scroll-bars so invisible
+parts beyond the right window-border of a tree-buffer can always made
+visible very easy.
+
+   <p>GNU Emacs does not have hor. scroll-bars so especially with the mouse
+it is quite impossible to scroll smoothly right and left. The
+functions <code>scroll-left</code> and <code>scroll-right</code> can be annoying
+and are also not bound to mouse-buttons.
+
+   <p>ECB offers three ways for smoothly hor. scrolling with GNU Emacs if
+<code>ecb-tree-easy-hor-scroll</code> is a positive integer-value S:
+
+     <ul>
+<li>In all ECB-tree-buffers the keys <kbd>M-mouse-1</kbd> and <kbd>M-mouse-3</kbd>
+are bound to scrolling left rsp. right with scroll-step S.
+
+     <li>Clicking with mouse-1 or mouse-2 onto the edge of the modeline has the
+same effect, i.e. if you click with mouse-1 onto the left \(resp
+right) edge of the modeline you will scroll left \(resp. right) with
+scroll-step S.
+
+     <li>Additionally <kbd>C-M-mouse-1</kbd> and <code>C-M-mouse-3</code> are bound to
+scrolling left rsp. right with scroll-step <code>window-width</code> - 2. 
+</ul>
+
+   <p>This is NOT done for XEmacs cause of its horizontal scrollbars. If you
+want scrolling left and right with the mouse in XEmacs then activate
+the horizontal scrollbars.
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> means mouse-2 while CTRL-key
+is pressed.</p>
+
+   <p><hr></div>
+
+   </body></html>
+

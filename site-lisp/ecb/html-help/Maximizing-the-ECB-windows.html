@@ -1,0 +1,127 @@
+<html lang="en">
+<head>
+<title>Maximizing the ECB windows - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Usage-of-ECB.html#Usage-of-ECB" title="Usage of ECB">
+<link rel="prev" href="Hiding-the-ECB-windows.html#Hiding-the-ECB-windows" title="Hiding the ECB windows">
+<link rel="next" href="Back_002fforward-navigation.html#Back_002fforward-navigation" title="Back/forward navigation">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Maximizing-the-ECB-windows"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Back_002fforward-navigation.html#Back_002fforward-navigation">Back/forward navigation</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Hiding-the-ECB-windows.html#Hiding-the-ECB-windows">Hiding the ECB windows</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Usage-of-ECB.html#Usage-of-ECB">Usage of ECB</a>
+<hr>
+</div>
+
+<h3 class="section">6.10 Maximizing the ECB windows</h3>
+
+<h4 class="subsection">6.10.1 How to maximize and minimize special ecb-tree-windows</h4>
+
+<p>To get a better overlook about the contents of a certain ECB-window
+every ECB-window can be &ldquo;maximized&rdquo;, means all other ECB-windows are
+deleted so only the edit-window(s) and this maximized ECB-window are
+visible (and maybe a compile-window if active). There are several ways
+to do this:
+
+     <ul>
+<li>Via the node-popup-menus of the ECB-windows
+
+     <li>Via the main &ldquo;ECB&rdquo;-menu and here &ldquo;Display window maximized&rdquo;
+
+     <li>Via calling the adviced version of
+<code>delete-other-windows</code><a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a> (bound to <kbd>C-x 1</kbd>) in one of
+the ECB windows.
+
+     <li>Via one of the commands <code>ecb-maximize-window-directories</code>,
+<code>ecb-maximize-window-sources</code>, <code>ecb-maximize-window-methods</code>,
+<code>ecb-maximize-window-history</code> or
+<code>ecb-maximize-window-speedbar</code> or the bound short-cuts for those
+commands.
+
+     <li>Via the new command <code>ecb-cycle-maximized-ecb-buffers</code> which
+cycles through all ecb-buffers of current layout by maximizing exactly
+one of the ecb-windows after every cycle-step.
+
+     <li>Via the option <code>ecb-maximize-ecb-window-after-selection</code> and then
+just by selecting an ECB-window. &ldquo;Deselecting&rdquo; an ECB-window brings
+back all ECB-windows of current layout.
+
+     <li>Via the default modeline-mechanisms for deleting other windows. GNU
+Emacs binds <kbd>mouse-2</kbd> in its modeline to
+<code>delete-other-window</code>. XEmacs binds a popup-menu with some window
+commands to <kbd>button-3</kbd> in its modeline.
+
+     <p>ECB combines the best of both worlds by supporting both of these
+mechanisms for both Xemacs and Emacs: ECB binds a toggle-command to
+<kbd>mouse-2</kbd> in the modeline of each tree-buffer which maximizes the
+current tree-window if all ECB-windows are visible and displays all
+ECB-windows if current tree-window is maximized. In addition ECB binds
+a popup-menu to <kbd>mouse-3</kbd> which offers exactly 2 commands:
+Maximizing current tree-window and displaying all ECB-windows. 
+</ul>
+
+   <p>&ldquo;Minimizing&rdquo; such a maximized ECB-window, i.e. bringing back to its
+original size and displays all ecb-windows of current layout, can
+simply be done by redrawing the layout via the command
+<code>ecb-redraw-layout</code> (bound to <kbd>C-c . lr</kbd>).
+
+<h4 class="subsection">6.10.2 Selecting a node in a maximized ecb-tree-window</h4>
+
+<p>When you select a node (either via mouse or RET) in a maximized
+tree-window the default behavior of ECB is the following:
+
+   <p>Maximized directories-window: When selecting a directory then first
+automatically the maximized directories-window will be &ldquo;minimized&rdquo;
+(i.e. all ecb-windows of current layout are displayed) if the current
+layout contains a sources-buffer and no sources are shown in the
+directories-window - see <code>ecb-show-sources-in-directories-buffer</code>. 
+So the source-files can be displayed in the sources-window.
+
+   <p>Maximized sources- or history-window: When selecting a source-file in
+one of these buffers then first automatically the maximized window
+will be &ldquo;minimized&rdquo; (i.e. all ecb-windows of current layout are
+displayed) if the current layout contains a methods-buffer. So the
+tag-contents of the selected source-file can be displayed in the
+methods-window.
+
+   <p>For a even smarter behavior ECB offers the option
+<code>ecb-maximize-next-after-maximized-select</code> which automatically
+maximizes the next logical tree-window after a node selection. The
+definition of &ldquo;next logical is&rdquo;: Directories &ndash;&gt; sources,
+sources/history &ndash;&gt; methods. But if the current maximized tree-buffer
+is also contained in the option
+<code>ecb-tree-do-not-leave-window-after-select</code> (see also the
+tree-buffer-command <code>ecb-toggle-do-not-leave-window-after-select</code>
+which is bound to &lt;C-t&gt; in each tree-buffer) then ECB does *not*
+maximize the next logical tree-window but point stays in the currently
+maximized tree-buffer so for example the user can select more than one
+source-file from the sources-buffer.
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> This command is adviced per
+default, see <a href="The-edit_002darea.html#The-edit_002darea">The edit-area</a>.</p>
+
+   <p><hr></div>
+
+   </body></html>
+

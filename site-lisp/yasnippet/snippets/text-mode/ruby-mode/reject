@@ -1,0 +1,4 @@
+#name : reject { |...| ... }
+#group : Enumerables
+# --
+reject { |${1:element}| $0 }

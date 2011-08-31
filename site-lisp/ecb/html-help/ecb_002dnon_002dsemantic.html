@@ -1,0 +1,135 @@
+<html lang="en">
+<head>
+<title>ecb-non-semantic - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Customizable-options.html#Customizable-options" title="Customizable options">
+<link rel="prev" href="ecb_002dspeedbar.html#ecb_002dspeedbar" title="ecb-speedbar">
+<link rel="next" href="ecb_002dwinman.html#ecb_002dwinman" title="ecb-winman">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="ecb-non-semantic"></a>
+<a name="ecb_002dnon_002dsemantic"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="ecb_002dwinman.html#ecb_002dwinman">ecb-winman</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="ecb_002dspeedbar.html#ecb_002dspeedbar">ecb-speedbar</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Customizable-options.html#Customizable-options">Customizable options</a>
+<hr>
+</div>
+
+<h4 class="subsection">7.3.16 Group ecb-non-semantic</h4>
+
+<p class="noindent">This group contains settings for parsing and displaying non-semantic files:
+
+<div class="defun">
+&mdash; User Option: <b>auto-save-before-etags-methods-rebuild</b><var><a name="index-auto_002dsave_002dbefore_002detags_002dmethods_002drebuild-328"></a></var><br>
+<blockquote><p>Automatic saving of current buffer before rebuilding its methods.
+
+        <p>This option is only relevant for sources which are supported and
+parsed by etags (see <code>ecb-process-non-semantic-files</code>). Because
+etags is an external tool a source-buffer can only be reparsed if the
+buffer is saved to disk. So the command
+<code>ecb-rebuild-methods-buffer</code> checks for sources which are not
+supported by semantic or imenu if either this option is t or if the
+major-mode of the source-buffer is contained in this list: In both
+cases ECB saves the current source-buffer before it re-runs etags for
+reparsing the source. If nil or if the major-mode is not contained
+then no automatic saving will be done!
+
+        <p>For all source supported by semantic or by imenu this option takes no
+effect. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>non-semantic-exclude-modes</b><var><a name="index-non_002dsemantic_002dexclude_002dmodes-329"></a></var><br>
+<blockquote><p>Exclude modes from parsing with imenu or etags. Per default, ECB tries
+to parse all file-types not supported by semantic with imenu or etags
+or some other method (for details see the option
+<code>ecb-non-semantic-parsing-function</code>). If a file-type can not be
+parsed by semantic, imenu or etags than this simply results in an
+empty method-buffer for this file. But nevertheless you will get a
+message &ldquo;Sorry, no support for a file of that extension&rdquo; which comes
+from the speedbar-library and can not switched off. Therefore if a
+<code>major-mode</code> is known as not parse-able by semantic, imenu or etags
+it can be added to this option and then it will be excluded from being
+tried to parsed. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>non-semantic-methods-initial-expand</b><var><a name="index-non_002dsemantic_002dmethods_002dinitial_002dexpand-330"></a></var><br>
+<blockquote><p>Initially expand all tags for not by semantic supported sources. 
+This option can be customized on a major-mode basis, i.e. if a
+<code>major-mode</code> is contained in this option then all tags for this
+modes will be initially expanded - otherwise not. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>non-semantic-parsing-function</b><var><a name="index-non_002dsemantic_002dparsing_002dfunction-331"></a></var><br>
+<blockquote><p>Define mode-dependent parsing functions for non-semantic files. This
+is an alist where the car is a major-mode symbol and the cdr is a
+function-symbol of a function which should be used for parsing a
+non-semantic buffer, i.h. a buffer for which no semantic grammar
+exists. Such a function gets one argument - the filename of current
+buffer - and has to generate and return a tag/tag list which is
+understandable by <code>speedbar-insert-generic-list</code>. speedbar has
+already included two functions <code>speedbar-fetch-dynamic-imenu</code> and
+<code>speedbar-fetch-dynamic-etags</code> which can be used for parsing
+buffers with imenu rsp. etags.
+
+        <p>This option takes only effect if <code>ecb-process-non-semantic-files</code>
+is not nil: Then ECB checks for non-semantic buffers if current
+<code>major-mode</code> is contained in this option and if yes, then the
+specified parsing function is called; if not then the cars of the
+elements of <code>speedbar-dynamic-tags-function-list</code> are called in
+that sequence they are listed in this variable. See option
+<code>speedbar-dynamic-tags-function-list</code> for further details.
+
+        <p>In most cases imenu-parsing is preferable over etags-parsing because
+imenu operates on Emacs-buffers and needs no external tool and
+therefore parsing works also if current contents of a buffer are not
+saved to disk. But maybe sometimes etags may return better parsing
+results
+
+        <p>IMPORTANT: if imenu-parsing should be used then the option
+<code>speedbar-use-imenu-flag</code> must be set to not nil! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>process-non-semantic-files</b><var><a name="index-process_002dnon_002dsemantic_002dfiles-332"></a></var><br>
+<blockquote><p>Display content of non-semantic-files in the ECB-methods-buffer. See
+also <code>ecb-non-semantic-parsing-function</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>rebuild-non-semantic-methods-before-hook</b><var><a name="index-rebuild_002dnon_002dsemantic_002dmethods_002dbefore_002dhook-333"></a></var><br>
+<blockquote><p>Hook running at beginning of the function
+<code>ecb-rebuild-methods-buffer-for-non-semantic</code>. This function is
+always called by the command <code>ecb-rebuild-methods-buffer</code> for not
+semantic supported source-types.
+
+        <p>Every function of this hook gets one argument: The complete filename
+of the current source-buffer in the edit-window. The Method-buffer is
+only rebuild by <code>ecb-rebuild-methods-buffer-for-non-semantic</code> if
+either the hook contains no function (the default) or if no function
+of this hook returns nil! See <code>run-hook-with-args-until-failure</code>
+for description how these function are processed. 
+</p></blockquote></div>
+
+   </body></html>
+

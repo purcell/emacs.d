@@ -1,0 +1,80 @@
+;; srecode-make.srt --- 
+
+;; Copyright (C) 2009 Eric M. Ludlam
+
+;; Author: Eric M. Ludlam <eric@siege-engine.com>
+;; X-RCS: $Id: srecode-make.srt,v 1.1 2009/01/06 01:11:22 zappo Exp $
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+
+set mode "makefile-mode"
+set escape_start "{{"
+set escape_end "}}"
+set comment_start "#"
+set comment_prefix "#"
+set TAB "\t"
+
+context file
+
+template empty :file :user
+----
+{{>:filecomment}}
+
+all: {{^}}
+
+{{comment_start}} end
+----
+
+context declaration
+
+;; GNU Make has real functions you can define, but semantic uses
+;; 'function for rules.  This is unfortunate, and should be fixed.
+template rule :blank
+----
+{{?NAME}}:
+{{TAB}}{{^}}
+----
+bind "r"
+
+template inferencerule :blank
+----
+%.{{?SRCEXTENSION}}: %.{{?DESTEXTENSION}}
+{{TAB}}{{^}}
+----
+bind "i"
+
+template phonyrule :blank
+----
+.PHONY {{?NAME}}
+{{NAME}}:
+{{TAB}}{{^}}
+----
+bind "p"
+
+
+template variable :blank
+"Insert a variable declaration."
+----
+{{?NAME}}:= {{^}}
+----
+bind "v"
+
+template include :blank
+----
+include {{?NAME}}
+----
+
+;; end

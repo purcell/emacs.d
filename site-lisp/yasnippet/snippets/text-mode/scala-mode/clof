@@ -1,0 +1,4 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : classOf[T] 
+# --
+classOf[${1:type}] $0

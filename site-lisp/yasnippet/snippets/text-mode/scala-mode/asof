@@ -1,0 +1,4 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : asInstanceOf[T] 
+# --
+asInstanceOf[${1:type}] $0

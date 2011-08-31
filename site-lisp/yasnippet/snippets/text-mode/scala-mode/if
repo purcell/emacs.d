@@ -1,0 +1,6 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : if (cond) { .. }
+# --
+if (${1:condition}) {
+  $0
+}

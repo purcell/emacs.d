@@ -1,0 +1,4 @@
+#name : Array.new(10) { |i| ... }
+#group : Arrays
+# --
+Array.new(${10}) { |${i}| $0 }

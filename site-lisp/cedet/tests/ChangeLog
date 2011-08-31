@@ -1,0 +1,143 @@
+2009-02-24  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cit-test.sh: Patch from Marcus Harnisch
+	(EMACS): Use conditional value from the environment.
+
+	* Project.ede ("cit"): Add speedbar aux package.
+
+	* Makefile (LOADPATH): Add speedbar.
+	(EMACSFLAGS): New variable
+	(Lisp): Use above.
+
+2009-01-28  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cit-gnustep.el (ede-gnustep): Simplify load.
+
+	* Makefile (LOADPATH): Add contrib.
+	(Misc): New
+	(dist): Add Misc
+
+	* Project.ede ("cit"): Give it a new name.
+	(Misc): New target.
+
+2009-01-24  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cit-gnustep.el: Comment out edebug require.
+
+	* cedet-integ-test.el (cit-version): New variable.
+	(semantic): New require
+
+	* Makefile (LOADPATH): Added
+
+	* Project.ede ("Lisp"): Add :versionsource, and :aux-packages
+
+2009-01-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cit-cpp.el (cit-srecode-fill-cpp): Fixed misspelling of target name.
+
+2008-09-15  Marco (Bj) Bardelli <safanaj@users.sourceforge.net>
+
+	* cit-gnustep.el: fixed the require statement.
+
+2008-09-04  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (Lisp_LISP): Add cit-gnustep.el
+
+	* Project.ede ("Lisp"): Add cit-gnustep.el
+
+2008-09-02  Marco (Bj) Bardelli <safanaj@users.sourceforge.net>
+
+	* cit-gnustep.el: added copyright statement
+
+2008-08-28  Marco (Bj) Bardelli <safanaj@users.sourceforge.net>
+
+	* cedet-integ-test.el:
+	added stuff to test ede-gnustep via `cit-ede-step-test' defined in
+	cit-gnustep.el . Something is not clear (ede-auto-add-method ???)
+
+	* cit-test.sh:
+	remove more dirs because to test ede-gnustep we need another dir, this
+	is because `ede-new' check the :class-sym that don't match in
+	/tmp/CEDET_INTEG (that contain a ede-proj-project).
+
+	* cit-gnustep.el:
+	First test for EDE GNUstep Integration via CIT (cedet-integ-test).
+	Not completly clean.
+
+2008-08-23  Eric M. Ludlam  <zappo@gnu.org>
+
+	* README: How to use the cit-test.sh script.
+
+	* Makefile (all, dist): Add scripts
+	(scripts): New
+
+	* Project.ede ("ede-proj-project"): Add scripts/cit-test.sh
+
+	* cedet-integ-test.el (cit-srecode-fill-with-stuff):
+	Protect erase-buffer call.
+	Add extra whitespace at end of empty filled buffers.
+
+2008-03-23  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cit-test.sh: Run the tests.
+
+2008-03-11  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cit-load.el (inhibit-splash-screen): Set this.
+
+	* cedet-integ-test.el (cedet-integ-test): Post a PASSED message.
+
+2008-02-24  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (templates_MISC, tempaltes): New
+	(all, dist): add templates
+
+	* Project.ede (Lisp): Add cit-srec.el
+	(templates): New
+
+	* Makefile (Lisp_LISP): Add cit-srec.el
+
+	* cit-load.el (cit-src-dir): New var.
+
+	* cedet-integ-test.el (cit-srec): New require
+	(cedet-integ-test): Call srec test.
+
+	* cit-srec.el: SRecoder feature testing.
+
+	* cit-extra-cpp.srt: Base template for cit testing.
+
+	* cedet-integ-test.el (cit-cpp,-el,-texi): Added requires.
+	(cedet-integ-test): Add in new calls to test support files.
+	(cit-header-tags, cit-src-tags, cit-main-tags, cit-srecode-fill):
+	Moved to cit-cpp.el
+	(cit-srecode-fill-with-stuff): Add empty-dict-entries argument.
+	Add pauses for visual effect.
+	(cit-srecode-verify-tags): Fix to work, and actually throw an error
+	if things don't match up.
+	(cit-tag-verify-error-debug): New support class.
+	(cit-compile-and-wait): New fcn.  Error if compilation fails.
+
+	* Makefile (Lisp_LISP): Add cit-cpp, cit-el, cit-texi, cit-load
+
+	* Project.ede ("Lisp"): Add cit-cpp, cit-el, cit-texi, cit-load
+
+	* cit-texi.el: Texinfo support for cedet integration tests.
+
+	* cit-load.el: Test system load file.
+
+	* cit-el.el: Emacs Lisp support for cedet integration tests.
+
+	* cit-cpp.el:
+	CPP integration support.  Core bits copied originally from cedet-integ-test.el
+
+2008-02-19  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile: New Makefile.
+
+	* Project.ede: New metaproject
+
+	* cedet-integ-test.el (cedet-integ-test, cit-srecode-fill, cit-srecode-fill-with-stuff):
+	Updated comments.
+
+	* cedet-integ-test.el: Integration Tests.
+

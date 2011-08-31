@@ -1,0 +1,29 @@
+# This was cloned from a TextMate bundle for yasnippet.
+# --
+require "optparse"
+
+options = {${1::default => "args"}}
+
+ARGV.options do |opts|
+  opts.banner = "Usage:  #{File.basename(\$PROGRAM_NAME)} [OPTIONS]${2/^\s*$|(.*\S.*)/(?1: )/}${2:OTHER_ARGS}"
+  
+  opts.separator ""
+  opts.separator "Specific Options:"
+  
+  $0
+  
+  opts.separator "Common Options:"
+  
+  opts.on( "-h", "--help",
+           "Show this message." ) do
+    puts opts
+    exit
+  end
+  
+  begin
+    opts.parse!
+  rescue
+    puts opts
+    exit
+  end
+end

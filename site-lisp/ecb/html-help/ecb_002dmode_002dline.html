@@ -1,0 +1,150 @@
+<html lang="en">
+<head>
+<title>ecb-mode-line - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Customizable-options.html#Customizable-options" title="Customizable options">
+<link rel="prev" href="ecb_002dwinman.html#ecb_002dwinman" title="ecb-winman">
+<link rel="next" href="ecb_002dversion_002dcontrol.html#ecb_002dversion_002dcontrol" title="ecb-version-control">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="ecb-mode-line"></a>
+<a name="ecb_002dmode_002dline"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="ecb_002dversion_002dcontrol.html#ecb_002dversion_002dcontrol">ecb-version-control</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="ecb_002dwinman.html#ecb_002dwinman">ecb-winman</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Customizable-options.html#Customizable-options">Customizable options</a>
+<hr>
+</div>
+
+<h4 class="subsection">7.3.18 Group ecb-mode-line</h4>
+
+<p class="noindent">This group contains settings for the modelines of the
+ECB-tree-buffers:
+
+<div class="defun">
+&mdash; User Option: <b>mode-line-data</b><var><a name="index-mode_002dline_002ddata-336"></a></var><br>
+<blockquote><p>Data shown in the modelines of the special ECB-buffers. Everey element
+of this list is a cons-cell where the car is used to define a
+buffer-name and the cdr to define the modeline-data for that buffer. 
+For details about how to defining a buffer-name see
+<code>ecb-mode-line-prefixes</code> - its completely the same.
+
+        <p>The cdr is the data for ths modeline and can either be the symbol
+<code>sel-dir</code> or <code>sel-source</code> whereas the former one displays
+the current selected directory as modeline-data and the latter one the
+current selected source-file (without path).
+
+        <p>In addition to these two predefined values for every special
+ECB-buffer a plain string (which is displayed) or a function can be
+specified which gets three args (name of the buffer, current selected
+directory and current selected source-file) and must return a string
+which will be displayed in the modeline (or nil if no data should be
+displayed). Such a function can add the text-property <code>help-echo</code>
+to the result-string. Then this help-string will be displayed when the
+user moves the mouse over this section of the modeline.
+
+        <p>If a special ECB-buffer should not display special data in its
+modeline then this buffer-name should either not being added to this
+option or added with &ldquo;No data&rdquo; (= nil as cdr).
+
+        <p>The whole modeline of the special ECB-buffer consists of the prefix of
+<code>ecb-mode-line-prefixes</code> and the data of
+<code>ecb-mode-line-data</code> - eventually prepended by the window-number,
+see <code>ecb-mode-line-display-window-number</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>mode-line-data-face</b><var><a name="index-mode_002dline_002ddata_002dface-337"></a></var><br>
+<blockquote><p>Face used for the data in the mode-line. See
+<code>ecb-mode-line-data</code>. For XEmacs the face should inherit from the
+face <code>modeline</code> (see <code>set-face-parent</code>)! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>mode-line-display-window-number</b><var><a name="index-mode_002dline_002ddisplay_002dwindow_002dnumber-338"></a></var><br>
+<blockquote><p>Display in the modeline of every special ECB-window the window-number. 
+The left-top-most window in a frame has the window-number 0 and all
+other windows are numbered with increasing numbers in the sequence,
+functions like <code>other-window</code> or <code>next-window</code> would walk
+through the frame.
+
+        <p>This can be used to jump to windows by number with commands like:
+
+     <pre class="lisp">          (defun my-switch-to-window-number (number)
+            ``Switch to the nth window''
+            (interactive ``P'')
+            (if (integerp number)
+                (select-window (nth number (window-list)))))
+   </pre>
+        <p>Currently this feature is only available for GNU Emacs 21.X, because
+neither GNU Emacs &lt; 21 nor XEmacs can evaluate dynamically forms in
+the mode-line. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>mode-line-prefixes</b><var><a name="index-mode_002dline_002dprefixes-339"></a></var><br>
+<blockquote><p>Prefixes shown in the modelines of the special ECB-buffers. The
+displayed prefix then looks like: &ldquo;[ &lt;PREFIX&gt;[: ]]&rdquo;, means if a
+prefix is defined for an special ECB-buffer then a single space is
+prepended and if there is additional text to display (e.g. the current
+directory in the sources buffer, see <code>ecb-mode-line-data</code>) then
+also the string &ldquo;: &rdquo; is appended.
+
+        <p>Everey element of this list is a cons-cell where the car is used to
+define a buffer-name and the cdr to define the modeline-prefix for
+that buffer.
+
+        <p>The buffer-name can either be defined as plain string or with a symbol
+which contains the buffer-name as value. The latter one is recommended
+to define a prefix for one of the builtin ECB-tree-buffers because
+then simply the related option-symbol can be used. To add a prefix for
+the builtin directories tree-buffer just set the symbol
+<code>ecb-directories-buffer-name</code> as car.
+
+        <p>The cdr is the prefix for a buffer and can either be a string which
+used as it is or a function-symbol which is called with three argument
+(the buffer-name, the current selected directory and the current
+selected source-file) and must return either nil (for no prefix) or a
+string which is then used a prefix. Such a function can add the
+text-property <code>help-echo</code> to the result-string. Then this
+help-string will be displayed when the user moves the mouse over this
+section of the modeline.
+
+        <p>If a special ECB-buffer should not have a prefix in its modeline then
+this buffer-name should either not being added to this option or added
+with &ldquo;No prefix&rdquo; (= nil as cdr). 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>mode-line-prefix-face</b><var><a name="index-mode_002dline_002dprefix_002dface-340"></a></var><br>
+<blockquote><p>Face used for the prefix in the mode-line. See
+<code>ecb-mode-line-prefixes</code>. For XEmacs the face should inherit from
+the face <code>modeline</code> (see <code>set-face-parent</code>)! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>mode-line-win-nr-face</b><var><a name="index-mode_002dline_002dwin_002dnr_002dface-341"></a></var><br>
+<blockquote><p>Face used for the window-number in the mode-line. See
+<code>ecb-mode-line-display-window-number</code>. For XEmacs the face should
+inherit from the face <code>modeline</code> (see <code>set-face-parent</code>)! 
+</p></blockquote></div>
+
+   </body></html>
+

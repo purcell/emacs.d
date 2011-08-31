@@ -1,0 +1,4 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : Enumerables
+# --
+max { |a, b| $0 }

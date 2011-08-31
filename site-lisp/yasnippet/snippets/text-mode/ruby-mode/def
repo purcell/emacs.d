@@ -1,0 +1,6 @@
+#name : def ... end
+#group : definitions
+# --
+def ${1:method_name}
+  $0
+end

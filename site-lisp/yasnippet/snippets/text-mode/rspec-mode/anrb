@@ -1,0 +1,5 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : and_return with block
+# --
+and_return { $1 }

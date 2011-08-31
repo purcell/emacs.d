@@ -1,0 +1,71 @@
+<html lang="en">
+<head>
+<title>Hide-show - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="prev" href="Non_002dsemantic-sources.html#Non_002dsemantic-sources" title="Non-semantic sources">
+<link rel="next" href="Window_002dmanagers-and-ECB.html#Window_002dmanagers-and-ECB" title="Window-managers and ECB">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Hide-show"></a>
+<a name="Hide_002dshow"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Window_002dmanagers-and-ECB.html#Window_002dmanagers-and-ECB">Window-managers and ECB</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Non_002dsemantic-sources.html#Non_002dsemantic-sources">Non-semantic sources</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>
+<hr>
+</div>
+
+<h3 class="section">10.14 Using hide-show from the methods-buffer-menu</h3>
+
+<p>The popup-menu of the Methods-buffer offer two entries for either
+hiding or showing the block which is related to the selected tag
+(that tag for which the popup-menu was opened):
+
+     <ul>
+<li>&ldquo;Jump to tag and hide block&rdquo;:
+Jumps to the tag and calls <code>hs-hide-block</code> from the
+hideshow-library which is shipped with (X)Emacs. After that the block
+is hidden, i.e. only the header-line of that tag (method, variable
+etc.) is visible, the rest is hidden behind the &ldquo;...&rdquo;.
+
+     <li>&ldquo;Jump to tag and show block&rdquo;:
+Jumps to the tag and calls <code>hs-show-block</code>. This shows the related
+hidden block if the block was hidden via <code>hs-hide-block</code> or the
+menu-entry &ldquo;Jump to tag and hide block&rdquo; (s.a.). 
+</ul>
+
+   <p>For this feature the library <samp><span class="file">hideshow.el</span></samp> is used which should
+normally being included in the (X)Emacs-distribution. If this library
+is not loaded into Emacs, ECB does this automatically before the first
+call to one of these menu-entries.
+
+   <p>IMPORTANT: If in some <code>major-mode</code> hiding and showing does not
+work as you expect it to work then you must probably add an entry for
+this <code>major-mode</code> to the hideshow-variable
+<code>hs-special-modes-alist</code>. See the documentation of this variable
+for further details. One example of such a <code>major-mode</code> is
+<code>jde-mode</code> of the Java Development Environment JDEE; just add an
+entry for it like the already contained entries for <code>c++-mode</code> or
+<code>java-mode</code> and hiding and showing will work for you with JDEE
+too.
+
+   </body></html>
+

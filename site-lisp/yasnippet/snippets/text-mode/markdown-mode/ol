@@ -1,0 +1,5 @@
+#name : Ordered List
+#contributor: Peng Deng <dengpeng@gmail.com>
+# --
+${1:1}. ${2:Text}
+${1:$(number-to-string (1+ (string-to-number text)))}. $0

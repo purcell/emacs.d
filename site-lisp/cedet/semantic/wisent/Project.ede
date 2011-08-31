@@ -1,0 +1,30 @@
+;; Object semantic/wisent
+;; EDE project file.
+(ede-proj-project "semantic/wisent"
+  :name "wisent"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-elisp "tools"
+    :name "tools"
+    :path ""
+    :source '("bison-wisent.el")
+    )
+   (ede-proj-target-elisp "wisent"
+    :name "wisent"
+    :path ""
+    :source '("wisent.el" "semantic-wisent.el" "wisent-comp.el" "wisent-expr.el" "wisent-grammar.el" "wisent-debug.el" "wisent-grammar-macros.el")
+    :aux-packages '("semantic" "semantic-java" "inversion" "speedbar")
+    )
+   (semantic-ede-proj-target-grammar "wy"
+    :name "wy"
+    :path ""
+    :source '("wisent-java-tags.wy" "wisent-awk.wy" "wisent-calc.wy" "wisent-cim.wy" "wisent-java.wy" "wisent-python.wy" "wisent-javascript-jv.wy")
+    )
+   (ede-proj-target-elisp "languages"
+    :name "languages"
+    :path ""
+    :source '("wisent-calc.el" "wisent-java.el" "wisent-java-tags.el" "wisent-python.el" "wisent-javascript.el")
+    )
+   )
+  :configuration-variables 'nil
+  )

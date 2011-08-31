@@ -1,0 +1,177 @@
+<html lang="en">
+<head>
+<title>ecb-face-options - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Customizable-options.html#Customizable-options" title="Customizable options">
+<link rel="prev" href="ecb_002dcreate_002dlayout.html#ecb_002dcreate_002dlayout" title="ecb-create-layout">
+<link rel="next" href="ecb_002dfaces.html#ecb_002dfaces" title="ecb-faces">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="ecb-face-options"></a>
+<a name="ecb_002dface_002doptions"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="ecb_002dfaces.html#ecb_002dfaces">ecb-faces</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="ecb_002dcreate_002dlayout.html#ecb_002dcreate_002dlayout">ecb-create-layout</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Customizable-options.html#Customizable-options">Customizable options</a>
+<hr>
+</div>
+
+<h4 class="subsection">7.3.11 Group ecb-face-options</h4>
+
+<p class="noindent">This group contains settings for all faces used in ECB:
+
+<div class="defun">
+&mdash; User Option: <b>directories-general-face</b><var><a name="index-directories_002dgeneral_002dface-300"></a></var><br>
+<blockquote><p>Basic face for the ECB directories buffer. This defines the basic face
+the whole directory buffer should displayed with. If the face
+<code>ecb-default-general-face</code> is used then the display of all
+ECB-tree-buffers can be changed by modifying only the face
+<code>ecb-default-general-face</code>.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>directory-face</b><var><a name="index-directory_002dface-301"></a></var><br>
+<blockquote><p>Face used for highlighting current directory in the directories
+buffer. If the face <code>ecb-default-highlight-face</code> is used then the
+display of all ECB-tree-buffers can be changed by modifying only the
+face <code>ecb-default-highlight-face</code>.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>directory-not-accessible-face</b><var><a name="index-directory_002dnot_002daccessible_002dface-302"></a></var><br>
+<blockquote><p>Face for not accessible dirs in the directories buffer. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>history-bucket-node-face</b><var><a name="index-history_002dbucket_002dnode_002dface-303"></a></var><br>
+<blockquote><p>Basic face for displaying a bucket-node in the ECB-history-buffer. 
+This defines the basic face for the bucket-nodes used to bucketize the
+history-entries as defined with the option <code>ecb-history-make-buckets</code>.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>history-dead-buffer-face</b><var><a name="index-history_002ddead_002dbuffer_002dface-304"></a></var><br>
+<blockquote><p>Face for history entries pointing to dead buffers.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>history-face</b><var><a name="index-history_002dface-305"></a></var><br>
+<blockquote><p>Face used for highlighting current history-entry in the history
+buffer. If the face <code>ecb-default-highlight-face</code> is used then the
+display of all ECB-tree-buffers can be changed by modifying only the
+face <code>ecb-default-highlight-face</code>.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>history-general-face</b><var><a name="index-history_002dgeneral_002dface-306"></a></var><br>
+<blockquote><p>Basic face for the ECB directory buffer. This defines the basic face
+the whole history buffer should displayed with. If the face
+<code>ecb-default-general-face</code> is used then the display of all
+ECB-tree-buffers can be changed by modifying only the face
+<code>ecb-default-general-face</code>.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>history-indirect-buffer-face</b><var><a name="index-history_002dindirect_002dbuffer_002dface-307"></a></var><br>
+<blockquote><p>Face for indirect buffers in the history buffer.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>method-face</b><var><a name="index-method_002dface-308"></a></var><br>
+<blockquote><p>Face used for highlighting current method, class or variable in the
+methods buffer. If the face <code>ecb-default-highlight-face</code> is used
+then the display of all ECB-tree-buffers can be changed by modifying
+only the face <code>ecb-default-highlight-face</code>.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>method-non-semantic-face</b><var><a name="index-method_002dnon_002dsemantic_002dface-309"></a></var><br>
+<blockquote><p>Face used for for displaying tags of sources not supported by
+semantic.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>methods-general-face</b><var><a name="index-methods_002dgeneral_002dface-310"></a></var><br>
+<blockquote><p>Basic face for the ECB methods buffer. This defines the basic face the
+whole methods buffer should displayed with. If the face
+<code>ecb-default-general-face</code> is used then the display of all
+ECB-tree-buffers can be changed by modifying only the face
+<code>ecb-default-general-face</code>.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>source-face</b><var><a name="index-source_002dface-311"></a></var><br>
+<blockquote><p>Face used for highlighting current source in the sources buffer. If
+the face <code>ecb-default-highlight-face</code> is used then the display of
+all ECB-tree-buffers can be changed by modifying only the face
+<code>ecb-default-highlight-face</code>.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>source-in-directories-buffer-face</b><var><a name="index-source_002din_002ddirectories_002dbuffer_002dface-312"></a></var><br>
+<blockquote><p>Face for source files in the directories buffer. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>sources-general-face</b><var><a name="index-sources_002dgeneral_002dface-313"></a></var><br>
+<blockquote><p>Basic face for the ECB sources buffer. This defines the basic face the
+whole sources buffer should displayed with. If the face
+<code>ecb-default-general-face</code> is used then the display of all
+ECB-tree-buffers can be changed by modifying only the face
+<code>ecb-default-general-face</code>.
+
+        <p>Changes take first effect after finishing and reactivating ECB! 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>source-read-only-face</b><var><a name="index-source_002dread_002donly_002dface-314"></a></var><br>
+<blockquote><p>Face for read-only sources. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>tag-header-face</b><var><a name="index-tag_002dheader_002dface-315"></a></var><br>
+<blockquote><p>Face used for highlighting the tag header after jumping to it by
+clicking onto a node in the methods buffer. 
+</p></blockquote></div>
+
+   </body></html>
+

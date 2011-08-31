@@ -1,0 +1,13 @@
+#name : foo { ... } ; setFoo { ... }
+# --
+- (${1:id})${2:foo}
+{
+    return $2;
+}
+
+- (void)set${2:$(capitalize text)}:($1)aValue
+{
+    [$2 autorelease];
+    $2 = [aValue retain];
+}
+$0

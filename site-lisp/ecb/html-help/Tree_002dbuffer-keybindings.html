@@ -1,0 +1,111 @@
+<html lang="en">
+<head>
+<title>Tree-buffer keybindings - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="tree_002dbuffer.html#tree_002dbuffer" title="tree-buffer">
+<link rel="prev" href="Updating-a-tree_002dbuffer.html#Updating-a-tree_002dbuffer" title="Updating a tree-buffer">
+<link rel="next" href="The-tree_002dbuffer_002dAPI.html#The-tree_002dbuffer_002dAPI" title="The tree-buffer-API">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Tree-buffer-keybindings"></a>
+<a name="Tree_002dbuffer-keybindings"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="The-tree_002dbuffer_002dAPI.html#The-tree_002dbuffer_002dAPI">The tree-buffer-API</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Updating-a-tree_002dbuffer.html#Updating-a-tree_002dbuffer">Updating a tree-buffer</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="tree_002dbuffer.html#tree_002dbuffer">tree-buffer</a>
+<hr>
+</div>
+
+<h4 class="subsection">11.3.5 Default and customizable keybindings of a tree-buffer</h4>
+
+<p>When creating a tree-buffer with <code>tree-buffer-create</code> the
+following keys will automatically being bound:
+
+     <dl>
+<dt><kbd>delete</kbd><dt><kbd>backspace</kbd><dt><kbd>home</kbd><dt><kbd>end</kbd><dt><kbd>a</kbd> (and each other key bound to <code>self-insert-command</code>)<dd>All of these keys are bound to the command
+<code>tree-buffer-incremental-node-search</code> if the argument
+<var>INCR-SEARCH-P</var> of <code>tree-buffer-create</code> was set to not nil. 
+See the documentation of <code>tree-buffer-incremental-node-search</code>
+for all details.
+
+     <br><dt><kbd>RET</kbd><dt><kbd>C-RET</kbd><dt><kbd>S-RET</kbd><dt><kbd>M-RET</kbd><dt><kbd>C-S-RET</kbd><dt><kbd>mouse-1</kbd><dt><kbd>C-mouse-1</kbd><dt><kbd>S-mouse-1</kbd><dt><kbd>M-mouse-1</kbd><dt><kbd>mouse-2</kbd><dt><kbd>C-mouse-2</kbd><dt><kbd>S-mouse-2</kbd><dt><kbd>M-mouse-2</kbd><dd>All these keys are bound to an action-dispatcher which works as
+follows:
+
+     <p>If the callback-function in slot <var>IS-CLICK-VALID-FN</var> of the
+tree-buffer (see <a href="A-new-tree_002dbuffer.html#A-new-tree_002dbuffer">A new tree-buffer</a>) returns nil then nothing is
+done.
+
+     <p>If either <kbd>RET</kbd> has been hitted or point is as the node-name (i.e. 
+the user has clicked with the mouse-1/2 at the node-name) then the
+callback-function in slot <var>NODE-SELECTED-FN</var> is called with the
+needed arguments (see <a href="A-new-tree_002dbuffer.html#A-new-tree_002dbuffer">A new tree-buffer</a>).
+
+     <p>If point is at the expand/collape-button then depending on the
+expansion-state of the node either the callback in slot
+<var>NODE-EXPANDED-FN</var> or <var>NODE-COLLAPSED-FN</var> is called (for
+parameters see again <a href="A-new-tree_002dbuffer.html#A-new-tree_002dbuffer">A new tree-buffer</a>).
+
+     <p><strong>IMPORTANT</strong>: None of these callbacks must modify the slot
+<var>EXPANDED</var> of the passed node because this is done automatically
+by the action-dispatcher!
+
+     <p>At the end the dispatcher updates the tree-buffer-display with
+optimized display of the clicked/selected node - see <a href="Updating-a-tree_002dbuffer.html#Updating-a-tree_002dbuffer">Updating a tree-buffer</a>. This means <code>tree-buffer-update</code> is called with that
+node as argument.
+
+     <br><dt><kbd>TAB</kbd><dd>Depending on the expansion-state of the node either the callback in
+slot <var>NODE-EXPANDED-FN</var> or <var>NODE-COLLAPSED-FN</var> is called (for
+parameters see again <a href="A-new-tree_002dbuffer.html#A-new-tree_002dbuffer">A new tree-buffer</a>).
+
+     <p><strong>IMPORTANT</strong>: None of these callbacks must modify the slot
+<var>EXPANDED</var> of the passed node because this is done automatically
+by the action-dispatcher!
+
+     <p>At the end the the tree-buffer-display is updated with optimized
+display of the clicked/selected node - see <a href="Updating-a-tree_002dbuffer.html#Updating-a-tree_002dbuffer">Updating a tree-buffer</a>. This means <code>tree-buffer-update</code> is called with that
+node as argument.
+
+     <br><dt><kbd>mouse-3</kbd><dd>Activates the popup-menu for the current tree-buffer for current
+node-type (if defined). See <a href="A-new-tree_002dbuffer.html#A-new-tree_002dbuffer">A new tree-buffer</a> at argument
+<var>MENU-CREATOR</var> and <var>MENU-TITLES</var>. These callbacks are called
+for getting the menu and the menu-title.
+
+     <br><dt><kbd>modeline-mouse-3</kbd><dd>Activates the popup-menu for the modeline of the current tree-buffer
+(if defined). See <a href="A-new-tree_002dbuffer.html#A-new-tree_002dbuffer">A new tree-buffer</a> at argument
+<var>MODELINE-MENU-CREATOR</var>. This callback is called for getting the
+modeline-menu.
+
+     <br><dt><kbd>M-m</kbd><dd>This key is bound to the command
+<code>tree-buffer-show-node-menu-keyboard</code>: Activates the popup-menu
+of current tree-buffer for current node-type via keyboard. If called
+with a prefix-arg then the library <samp><span class="file">tmm.el</span></samp> is used for
+displaying the popup-menu - ignored with XEmacs.
+
+     <br><dt><kbd>&lt;up&gt;</kbd><dt><kbd>&lt;down&gt;</kbd><dt><kbd>&lt;left&gt;</kbd><dt><kbd>&lt;right&gt;</kbd><dd>These keys are bound to the command <code>tree-buffer-arrow-pressed</code>
+which implements the smart arrow-key-navigation described in <a href="A-new-tree_002dbuffer.html#A-new-tree_002dbuffer">A new tree-buffer</a> at argument <var>ARROW-NAVIGATION</var>.
+
+   </dl>
+
+   <p>In addition to these automatically bound keys you can add further
+keybindings to the local-keymap of the tree-buffer with the parameter
+<var>AFTER-CREATE-HOOK</var> of <code>tree-buffer-create</code>. See <a href="A-new-tree_002dbuffer.html#A-new-tree_002dbuffer">A new tree-buffer</a> for an example which binds <kbd>C-t</kbd> in this hook.
+
+   </body></html>
+

@@ -1,0 +1,182 @@
+README for the Emacs Code Browser (ECB) version 2.40
+
+
+About
+-----
+
+This package contains a code browser for several programming-languages for
+(X)Emacs. For instructions on how to use the browser read the online-help
+either with the shipped info-manual (see "Usage" below) or direct from the
+ECB-Homepage at http://ecb.sourceforge.net.
+
+The latest version can be found at: http://ecb.sourceforge.net
+
+------------
+Requirements
+------------
+
+1. Emacs-version: ECB works only with (X)Emacs >= 21! If you have an older
+   one, please upgrade.
+
+2. Install CEDET-suite: Get it from http://cedet.sourceforge.net, read
+   the setup-instructions in http://cedet.sourceforge.net/setup.shtml and
+   read also the shipped file INSTALL.
+
+3. Only for XEmacs-users: If you use XEmacs you must have installed the
+   package c-support (contains hideshow.el). If you want to read the
+   online-help of ECB in HTML-format you must have the library browse-url
+   (part of the mail-lib XEmacs package) installed; this package is also
+   needed for submitting problem-reports to the ECB-maintainers!
+
+4. Optional for Java-coding: If Java code is edited the ECB works best when
+   the JDEE package ( http://jdee.sourceforge.net) is installed.
+
+
+Do not install ECB before you have successfully installed the requirements!
+
+
+------------
+Installation
+------------
+
+*IMPORTANT*: ECB is no longer runnable as XEmacs-package via the
+package-manager of XEmacs. This is because CEDET is not available as
+XEmacs-package. Therefore ECB can also not be run as XEmacs-package. If CEDET
+will later become a XEmacs-package then probably ECB will come back as
+XEmacs-package. But in the meanwhile you have to install ECB "by hand".
+
+  1. Fulfill all requirements ECB needs (*note Requirements::)
+
+     ECB performs two autom checks:
+
+        - At load-time: It checks if the cedet-suite is at least installed so
+          ECB can be loaded. If not it reports an error.
+
+        - At start-time: It checks if the correct versions of cedet and
+          semantic are installed and gives you proper feedback.
+
+     So if you are not sure if you have installed the required packages at
+     all or if you have installed the correct versions of these packages then
+     do not worry about this, just go on with the following installation
+     steps: If ECB is missing something it will give you proper feedback and
+     support not later than at load-time or start-time!
+
+  2. Download and unpack the ECB archive (probably you have already done this
+     :-)
+
+  3. Add the new ECB-directory to your `load-path' variable.
+
+     You *MUST* add the ECB-install-directory to the `load-path' either by
+     changing the `load-path' variable directly in your `.emacs' or
+     `site-lisp/site-start.el' or by working with a file `subdirs.el'(1).
+
+     So for example the needed entry for your `.emacs'-file could be:
+
+        (add-to-list 'load-path
+                     "/path/to/your/ecb/installation/directory")
+
+     *ATTENTION*: ECB is NOT properly installed if it's directory is not
+     added to `load-path' and for example just loaded by
+
+        (load-file "/path/to/ecb/ecb.el")
+
+     Do not do this! It will not work!
+
+  4. Load ECB by adding code to your `.emacs':
+
+     If you want to load the complete ECB at (X)Emacs-loadtime (Advantage:
+     All ECB-options available after loading ECB. Disadvantage: Increasing
+     loadtime(2)):
+
+        (require 'ecb)
+
+     If you want to load the ECB first after starting it by `ecb-activate'
+     (Advantage: Fast loading(3).  Disadvantage: ECB- and semantic-options
+     first available after starting ECB):
+
+        (require 'ecb-autoloads)
+
+     This loads all available autoloads of ECB, e.g. `ecb-activate',
+     `ecb-minor-mode', `ecb-byte-compile' and `ecb-show-help'.
+
+     Regardless which method you prefer: In both cases the used statement
+     must be placed *after* the statement of step 3!
+
+  5. Restart (X)Emacs.
+
+ECB is now ready for use and can be activated by calling `M-x ecb-activate'
+or `ecb-minor-mode'. Now you can either starting using ECB or you can do
+these optional installation steps:
+
+  6. Reading the online help with `ecb-show-help'
+
+     Maybe you are interested to read the online-help of ECB before first
+     start.
+
+  7. Bytecompiling ECB with `ecb-byte-compile'
+
+     This byte compiles ECB. You can safely ignore all messages if there are
+     any. (You can also bytecompile ECB from the command-line either by using
+     the `Makefile' or by using the batch-file `make.bat'; just read the
+     comments in that file you choose.)
+
+  8. Installing the Info-help of ECB
+
+     The ECB distribution contains a subdirectory `info-help' which contains
+     the online-help of ECB in Info-format. You can install this online help
+     so it's available in the Top-directory of Info. There are two ways to do
+     this:
+
+        - Use "install-info" (recommended):
+
+            1. Copy the files of the subdirectory `info-help' into the
+               info-directory of Emacs
+
+            2. Install the file `info-help/ecb.info' with the command
+               "install-info" (if available on your system) in the `dir'-file.
+
+          The supplied `Makefile' offers a target `install-help' which does
+          both of these steps. You have just to call `make install-help' with
+          the correct EMACSINFOPATH set (see the comment in `Makefile'). Here
+          is an example:
+
+             make EMACSINFOPATH=/path/to/emacs/info install-help
+
+        - Manually Installation:
+
+          Copy the files of the subdirectory `info-help' into the
+          info-directory of Emacs and modify the file `dir' manually.
+
+     But it doesn't matter if you do not execute this step (8.) because the
+     online help of ECB is always available though, see `ecb-show-help'.
+
+     
+-----   
+Usage
+-----
+
+Call "M-x ecb-activate" to activated ECB.
+
+Call "M-x ecb-customize-most-important" to get a list of the most important
+options of ECB. These are options you should at least know that they exist.
+
+Call "M-x ecb-show-help" to get a detailed online-help for ECB. If you are
+using ECB the first time you should read the online help accurately!
+
+--------
+Contacts
+--------
+
+Send comments, bug reports and improvement suggestions to:
+
+ecb-list@lists.sourceforge.net
+
+*IMPORTANT*: Cause of extra appearance of SPAM in the mailing-lists,
+SourceForge has changed its policy: Now it is only possible to post to the
+mailing-list for users who have subscribed this mailing-list.
+
+So please be aware you will not be able to send comments, bug reports and
+improvement suggestions before you have subscribed the ECB-mailing-list. See
+the section "Mailing-list" at the ECB-website at http://ecb.sourceforge.net
+how to do this.
+

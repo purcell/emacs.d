@@ -1,0 +1,16 @@
+--- w3m-0.5.1/cookie.c~	2003-09-26 17:59:51 +0000
++++ w3m-0.5.1/cookie.c	2006-12-08 01:04:52 +0000
+@@ -65,6 +65,13 @@
+ 	    if (domain[1] == '\0' || contain_no_dots(host, domain_p))
+ 		return domain_p;
+ 	}
++	/*
++	 * special case for domainName = .hostName
++	 * see nsCookieService.cpp in Firefox.
++	 */
++	else if (domain[0] == '.' && strcasecmp(host, &domain[1]) == 0) {
++	  return host;
++	}
+ 	/* [RFC 2109] s. 2, cases 2, 3 */
+ 	else {
+ 	    offset = (domain[0] != '.') ? 0 : strlen(host) - strlen(domain);

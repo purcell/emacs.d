@@ -1,0 +1,3 @@
+#name: response.should render_template("$template")
+# --
+response.should render_template("${0:template}")

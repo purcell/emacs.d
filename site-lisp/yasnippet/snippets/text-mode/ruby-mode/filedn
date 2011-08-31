@@ -1,0 +1,4 @@
+#name : File.dirname(__FILE__)
+#group : Files
+# --
+File.dirname(${1:__FILE__}) + "/$0"

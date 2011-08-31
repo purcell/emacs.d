@@ -1,0 +1,31 @@
+;; Object cit
+;; EDE project file.
+(ede-proj-project "cit"
+  :name "cit"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-elisp "Lisp"
+    :name "Lisp"
+    :path ""
+    :source '("cedet-integ-test.el" "cit-cpp.el" "cit-el.el" "cit-texi.el" "cit-load.el" "cit-srec.el" "cit-gnustep.el")
+    :versionsource '("cedet-integ-test.el")
+    :aux-packages '("inversion" "eieio" "semantic" "semantic-bovine" "semantic-wisent" "srecode" "ede" "ede-gnustep" "speedbar")
+    )
+   (ede-proj-target-makefile-miscelaneous "templates"
+    :name "templates"
+    :path ""
+    :source '("cit-extra-cpp.srt")
+    )
+   (ede-proj-target-makefile-miscelaneous "scripts"
+    :name "scripts"
+    :path ""
+    :source '("cit-test.sh")
+    )
+   (ede-proj-target-makefile-miscelaneous "Misc"
+    :name "Misc"
+    :path ""
+    :source '("README" "ChangeLog")
+    )
+   )
+  :metasubproject 't
+  )

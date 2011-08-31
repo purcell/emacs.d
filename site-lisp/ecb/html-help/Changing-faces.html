@@ -1,0 +1,108 @@
+<html lang="en">
+<head>
+<title>Changing faces - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="prev" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="next" href="Small-screens.html#Small-screens" title="Small screens">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Changing-faces"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Small-screens.html#Small-screens">Small screens</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>
+<hr>
+</div>
+
+<h3 class="section">10.1 Changing faces in the ECB tree-buffers</h3>
+
+<p><a name="index-Faces-349"></a>There are two basic faces:
+
+     <ul>
+<li><code>ecb-default-general-face</code>:
+Basic face for displaying an ECB-tree-buffer.
+
+     <p>It´s recommended to define the font-family, the font-size, the basic
+color etc. with this face.
+
+     <p>In GNU Emacs 21.X all faces (even the face
+<code>ecb-default-highlight-face</code>) used in the ECB tree-buffers
+inherit from this face. Therefore the default attributes like font
+etc. of a face used in a tree-buffer can be very easily changed with
+face <code>ecb-default-general-face</code>.
+
+     <p>With XEmacs there is no inheritance-feature but the options
+<code>ecb-directories-general-face</code>, <code>ecb-sources-general-face</code>,
+<code>ecb-methods-general-face</code> and <code>ecb-history-general-face</code>
+offer the choice to use the face <code>ecb-default-general-face</code> so
+also with XEmacs the basic face-settings can be easily changed just by
+customizing the face <code>ecb-default-general-face</code>.
+
+     <li><code>ecb-default-highlight-face</code>:
+Basic face for highlighting the current node in an ECB-tree-buffer.
+
+     <p>In GNU Emacs 21.X all highlighting faces used in the ECB tree-buffers
+inherit from this face. Therefore the default attributes like font
+etc. of a highlighting face used in a tree-buffer can be very easily
+changed with face <code>ecb-default-highlight-face</code>.
+
+     <p>With XEmacs there is no inheritance-feature but the options
+<code>ecb-directory-face</code>, <code>ecb-source-face</code>,
+<code>ecb-method-face</code> and <code>ecb-history-face</code> offer the choice to
+use the face <code>ecb-default-highlight-face</code> so also with XEmacs the
+basic face-settings can be easily changed just by customizing the face
+<code>ecb-default-highlight-face</code>.
+
+   </ul>
+
+   <p>With these faces you can change the basic attributes easily and fast
+for ALL ECB-tree-buffers. But you are also able to display each
+ECB-tree-buffer with different faces, see the different options for
+every tree-buffer mentioned above.
+
+   <p><strong>Please note</strong> (only for XEmacs users): Cause of the lack of the
+font-inheritance feature using ONE other font for the ECB-methods
+buffer can NOT be achieved just by setting
+<code>ecb-methods-general-face</code> to <code>ecb-default-general-face</code> and
+changing the font of this default face. In addition you have to set
+the same font also for the face <code>ecb-bucket-node-face</code> like in
+the following example:
+
+<pre class="example">   (defconst my-ecb-font
+             "-outline-Courier-normal-normal-13-97-96-96-c-*-iso8859-1")
+   (set-face-font 'ecb-default-general-face my-ecb-font)
+   (set-face-font 'ecb-bucket-node-face my-ecb-font)
+</pre>
+   <p>This code sets the new defined font <code>my-ecb-font</code> as font for
+all<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a> ECB-tree-buffers (incl. the methods
+buffer).
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> Of course <code>ecb-directories-general-face</code>,
+<code>ecb-sources-general-face</code>, <code>ecb-methods-general-face</code> and
+<code>ecb-history-general-face</code> must be set to
+<code>ecb-default-general-face</code>!</p>
+
+   <p><hr></div>
+
+   </body></html>
+

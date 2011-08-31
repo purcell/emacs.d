@@ -1,0 +1,5 @@
+#name : xpath(..) { .. }
+# --
+elements.each("${1://XPath}") do |${2:node}|
+  $0
+end

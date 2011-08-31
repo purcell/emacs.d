@@ -1,0 +1,71 @@
+<html lang="en">
+<head>
+<title>Tree-buffer How to - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="tree_002dbuffer.html#tree_002dbuffer" title="tree-buffer">
+<link rel="prev" href="Do-not-with-tree_002dbuffer.html#Do-not-with-tree_002dbuffer" title="Do not with tree-buffer">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Tree-buffer-How-to"></a>
+<a name="Tree_002dbuffer-How-to"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Do-not-with-tree_002dbuffer.html#Do-not-with-tree_002dbuffer">Do not with tree-buffer</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="tree_002dbuffer.html#tree_002dbuffer">tree-buffer</a>
+<hr>
+</div>
+
+<h4 class="subsection">11.3.8 How to deal with certain programming-requirements</h4>
+
+<p>This chapter describes in detail how to solve certain
+programming-challenges with tree-buffers.
+
+<h5 class="subsubsection">11.3.8.1 Caching the current tree-buffer display</h5>
+
+<p>Sometimes it can be useful or important to cache the current display
+of a tree-buffer and display later exactly this cached display-state. 
+Here is how to do this:
+
+     <ol type=1 start=1>
+<li>Caching the display:
+You have to do two tasks: First store the current internal structure
+of the tree-buffer; you must do this with the function
+<code>tree-buffer-displayed-nodes-copy</code>. Then store the
+buffer-contents of that tree-buffer you want to cache; you can do this
+for example with <code>buffer-substring</code>. For both tasks you must make
+the tree-buffer the current-buffer.
+
+     <li>Displaying a previous tree-buffer-cache:
+Make the tree-buffer the current buffer, call
+<code>tree-buffer-update</code> and pass as second argument <var>CONTENT</var>
+the data you have stored in step 1. See the documentation of
+<code>tree-buffer-update</code> for details.
+
+     <p>Here is an example:
+
+     <pre class="example">        (tree-buffer-update
+          nil
+          (cons (nth 2 cache-elem) ;; the stored buffer-string
+                (nth 1 cache-elem) ;; the stored tree-structure
+          )))
+   </pre>
+     </ol>
+
+   </body></html>
+

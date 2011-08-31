@@ -1,0 +1,258 @@
+Emacs-w3m ニュース -- ユーザーに判読できる変更の履歴。
+
+Copyright (C) 2007 土屋雅稔
+ライセンスの条件についてはこのファイルの末尾を見てください。
+
+バグリポートは emacs-w3m@namazu.org に送ってください。
+もし可能なら M-x report-emacs-w3m-bug を使ってください。
+
+このファイルは emacs-w3m バージョン 1.5 の変更に関するものです。
+
+
+* 必要な Emacs バージョンが変わりました
+
+** Emacs-w3m はもはや古いバージョンの Emacs では動作しません。
+現在 emacs-w3m は Emacs 21.1 以上、XEmacs 21.4.17 以上、または XEmacs
+21.5-b19 以上で、うまくいけば動作するでしょう。
+
+*** バージョンに特化したモジュールは、現在 w3m-ems.el と w3m-xmas.el です。
+モジュール w3m-e21.el、w3m-e23.el、および w3m-fsf.el は、w3m-ems.el に
+統合されました。
+
+*** 今では正規表現で shy group を使うことができます。
+
+
+* 外観に関する変更
+
+** Emacs-w3m は今ではイタリック体のテキストを表示することができます。
+ウェブページは単語や文を強調するためにイタリック体のテキストを多用しま
+すが、以前 emacs-w3m (と w3m) はそれらを通常のテキストとして表示しまし
+た。この機能を有効にするためには w3m 0.5.2 以上をインストールしてある
+必要があります。イタリック体のテキストを表示するために使う face は
+`w3m-italic' です。
+
+** テキストの強調表示が大きく改善されました。
+太字、イタリック、下線および貫通の face 属性を、今では同じテキストで重
+ねることができます。
+
+** Emacs-w3m は今、ヘッダーラインに uri と題名を表示することができます。
+これは `w3m-use-header-line-title' 変数で制御します。
+
+** Emacs-w3m は今、ページの題名をバッファー名として使うことができます。
+これは `w3m-use-title-buffer-name' 変数で制御します。
+
+** 今や XPM アイコンに加えて PNG アイコンが利用可能です。
+これらはツールバーで使われるもので、GTK を使うように作られた Emacs に
+は絶好です。そういうわけで emacs-w3m は GTK Emacs 用にはデフォルトでそ
+れらを使います。`w3m-toolbar-icon-preferred-image-types' 変数でどのタ
+イプのアイコンを使うかを制御します。
+
+
+* タブ、セッション、およびメニューに関する変更
+
+** 便利なメニューがリンクの上で mouse-3 をクリックすると現れます。
+もちろん tty 上では動きませんけれどね。
+
+** 現在のタブには Firefox+TabMixPlus に倣った便利なメニューがあります。
+メニューはタブでマウス-3 をクリックすると現れ、それらのメニュー項目の
+キーバインドを知ることもできます。そのメニューはメニューバーの `Tab'
+メニューでも利用できます。
+
+** 今ではマウスホイールでタブを操作することができます。
+タブ行でマウスホイールを回すとタブが循環します。加えて、マウスホイール
+を回している間コントロール・キーを押していることによって、タブの並び換
+えができます。
+
+** 今の emacs-w3m は新しいセッションをバックグラウンドで作ることができます。
+これが有効になっていると、emacs-w3m に新しいセッション上で訪問するよう
+に命じたページは、そのバッファを選択するまで現れません。これはデフォル
+トで無効になっています。`w3m-new-session-in-background' 変数を nil で
+はない値にすることによって、それを有効にすることができます。
+
+** デフォルトでは w3m メニューがメニューバーの中ほどに現れるようになりました。
+以前のようにメニューバーの左端に置きたいならば、`w3m-menu-on-forefront'
+変数に nil ではない値を設定してください。
+
+
+* コンテンツのデコードに関する変更
+
+** Emacs-w3m は今、ページが指定する文字セットの上位互換のものを使います。
+例えばいくつかのヨーロッパのウェブサイトは、ときどき `iso-8859-1' 文字
+セットでページをエンコードしていると称していながら `windows-1252' を使っ
+ていることがあります。そのような場合 emacs-w3m はコンテンツのデコード
+に、もし利用可能なら `iso-8859-1' の上位互換である `windows-1252' を使
+います。`w3m-compatible-encoding-alist' 変数が文字セットとその上位互換
+のものの対応表を持ちます。
+
+** 今や emacs-w3m は非-ASCII 文字を含むリンクをたどることができます。
+リンクのコンテンツを取り込むとき、emacs-w3m はそのリンクがあるページを
+デコードするのに使った文字セットで url をエンコードします。(Shimbun で
+は `shimbun-url-coding-system' クラス変数でその文字セットを上書きする
+ことができます。以下を参照してください。)
+
+** html ソースをどの程度デコードするかを emacs-w3m に指示できます。
+`w3m-view-source' コマンド (`\' キーにバインドされている) に数値の接頭
+引数を与えてください。詳細はそのコマンドの説明文を見てください。
+
+** application/xml のページを text/html としてデコードします。
+ページのソースが xhtml+xml のように見える場合にそうします。
+
+** 自前で画像データを解析することによって得た画像の型を信頼します。
+ときどきウェブサイトが Content-Type として指定する画像の型が間違ってい
+るからです。現在 gif, jpeg, および png の型を特定することができます。
+
+
+* 新しい Lisp モジュール
+
+** w3m-fb.el -- frame-local バッファーのサポート。
+いろいろな目的のために複数の emacs-w3m の frame を持つころができます。
+例えば、あるものはニュースサイト用、他は検索エンジン用というふうに。
+(info "(emacs-w3m-ja)Frame Local Buffers") を見てください。
+
+** w3m-mail.el -- ページ送信のための mail-user-agent インターフェース。
+今見ているウェブページをメールで送信することができます。コマンドは
+`M-x w3m-mail' です。`mail-user-agent' を適切に設定しておく必要がある
+ことに注意してください。
+
+** w3m-session.el -- セッションを保存/復元するための機能。
+複数のページを訪問している現在のセッションをファイルに保存することがで
+きます。さらに `w3m-session-autosave' が nil 以外の値なら (それがデフォ
+ルトです)、emacs-w3m を終える前の最後のセッションが自動的に保存されま
+す。保存されたセッションは後で復元できます。有用なコマンドは保存のため
+の `M-S' と、保存されたものの中から選択するための `M-s' です。これらは
+`w3m' メニューにある `Session' サブメニューでも使うことができます。
+
+
+* 検索エンジンに関する変更
+
+** たくさんの検索エンジンが追加されました。
+(info "(emacs-w3m-ja)Using Search Engines") を見てください。
+
+
+* フィルターに関する変更
+
+** Google 検索結果の文字化けを抑制し、見やすく整形することができます。
+
+** Amazon の uri の短縮形を表示することができます。
+
+** mixi での外部日記表示のダイレクトアクセスをサポートします。
+
+** 英辞郎 on the WEB に対応しました。
+
+
+* その他
+
+** vm-w3m.el は新しい VM チームに移管されました。
+現在は VM 8.x パッケージにあります。http://www.nongnu.org/viewmail/ を
+訪ねてください。
+
+** 今や Emacs-w3m は uri として任意の文字列を受け入れます。
+この機能は Google の「I'm Feeling Lucky」に倣ったもので、Google を使っ
+てその文字列を検索します。`w3m-enable-google-feeling-lucky' 変数がこの
+機能を制御します (デフォルトで有効になっています)。
+
+** `w3m-goto-article-function' は今ではユーザーオプションになりました。
+
+** Emacs-w3m は今、半自動で Gmane のスレッドのページに行きます。
+Gmane (http://www.gmane.org/) はたくさんのメーリングリストで配布された
+記事を保管していて、それらを nntp と http で提供しています。もし記事の
+References ヘッダーか Message-ID ヘッダーの上で `w3m' コマンドを実行す
+ると、emacs-w3m はその記事が属しているスレッドのページに行こうとします。
+
+** XEmacs 21.5 を安全に動作させます。
+XEmacs 21.5 が固まってしまうのを防ぐために、一度にたくさんのページをア
+クセスするときは非同期動作を行なうことを諦めました。
+
+** コンパイル時に無用な警告が出ないようにしています。
+今後もこれは徹底して行ないます。それは emacs-w3m をコンパイルする際に
+真のエラーを見つけることを容易にします。
+
+** インストール先のディレクトリ名が空白文字を含むことを許容します。
+
+** このリリースでは他にも多くの改良とバグの修正を行ないました。
+(それらのいくつかは新しいバグを引き起こすかもしれませんけれど。)
+
+
+* Shimbun に関する変更
+
+** 新しい shimbun クラス変数 `shimbun-prefer-text-plain'。
+Shimbun モジュールに text/plain の記事と html 記事のどちらを生成させる
+かを制御します。例えば sb-asahi.el モジュールはデフォルトで text/plain
+の記事を生成しますが、`shimbun-asahi-prefer-text-plain' を nil に設定
+することによって html 記事を生成するように指示することができます。反対
+に、sb-mainichi.el モジュールはデフォルトで html 記事を生成しますが、
+`shimbun-mainichi-prefer-text-plain' を nil ではない値に設定すれば、
+text/plain の記事を生成させます。この機能に伴って sb-asahi-html.el と
+sb-yomiuri-html.el はやや旧式になっています。すべての shimbun モジュー
+ルがこれを認識するわけではないことに注意してください。
+
+** Shimbun は現在では記事を取得するときにリダイレクトをサポートします。
+いくつかのウェブサイトの索引ページが提供する url は記事のページを直接
+指すものではありません。その url が指し示すページに記事の本当の url が
+あって、しかもクライアントにしばらく待つことを要求します (多くは広告を
+表示するため)。現在の shimbun はそれを調べて、待ち時間無しで本当の記事
+の内容を取得します。
+
+** Shimbun は今、全角 ASCII 文字を半角に変換します。
+全角 (幅の広い ASCII ではない文字) で表示される英単語と数字は読みにく
+いものです。すべての shimbun モジュールで使えるわけではないのですが、
+`shimbun-japanese-hankaku' 変数を nil ではない値に設定してみる価値はあ
+るでしょう。それは全角の非-ASCII 文字を普通のものに変換するだけでなく、
+分かち書き (英数字と日本語の文を空白で分離すること) も行ないます。これ
+を shimbun サーバー単位で行ないたいときは、代わりに
+`shimbun-SERVER-japanese-hankaku' を使ってください。
+
+** 新しい shimbun クラス `shimbun-newspaper'。
+日本語以外の shimbun 記事に著作権に関する注意書きを加えるために使うも
+のです。日本語用には `shimbun-japanese-newspaper' を使ってください。
+
+** 新しい shimbun クラス変数 `shimbun-url-coding-system'。
+これはリンクの非-ASCII 文字を含む url をエンコードするための文字セット
+(charset) を上書きします (デフォルトではリンクの url は、そのリンクを
+含むページをエンコードしたときに使った文字セットでエンコードされます)。
+`shimbun-SERVER-url-coding-system' 変数をサーバーごとに使ってください。
+
+** 新しい shimbun クラス変数 `shimbun-retry-fetching'。
+コンテンツの取得に失敗したとき、それが正の数だったら shimbun はその回
+数までリトライします。`shimbun-SERVER-retry-fetching' 変数をサーバーご
+とに使ってください。
+
+** 新しい shimbun モジュールが追加されました。
+sb-aljazeera.el sb-debugmagazin-de.el sb-gendai-net.el sb-nytimes.el
+sb-ohmynews-jp.el sb-perlentaucher-de.el sb-slashdot.el
+sb-sueddeutsche-de.el sb-tech-on.el 
+
+** いくつかの shimbun モジュールは良くメンテされていますが他は否。
+ボランティア歓迎!
+
+*** Gnus のための新しい変数 `nnshimbun-default-group-level'。
+この変数の値は新規に作られる shimbun グループの、グループレベルの初期
+値を決めます。デフォルト値は nil で、その場合
+`gnus-level-default-subscribed' のものが使われます。
+
+*** Gnus のための新しいコマンド `gnus-group-make-shimbun-groups'。
+これは一つのサーバーにあるすべての shimbun グループを作ります。
+
+
+----------------------------------------------------------------------
+Emacs-w3m is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+Emacs-w3m is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with emacs-w3m; see the file COPYING.  If not, write to the
+Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+Boston, MA 02110-1301, USA.
+
+
+Local variables:
+mode: outline
+paragraph-separate: "[ 	]*$"
+coding: iso-2022-7bit
+end:

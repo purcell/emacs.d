@@ -1,0 +1,4 @@
+#name : logger.info " ... "
+#group: general
+# --
+logger.info "${Text here...}"

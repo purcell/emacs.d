@@ -1,0 +1,11 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : describe (RESTful Controller): GET
+# --
+require File.direname(__FILE__) + '/.../spec_helper'
+
+describe ${1:controller}, 'GET ${3:/some/path}${4: with some parameters}' do
+
+  $0
+
+end

@@ -1,0 +1,73 @@
+<html lang="en">
+<head>
+<title>Most important options - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Customizing.html#Customizing" title="Customizing">
+<link rel="prev" href="General-aspects.html#General-aspects" title="General aspects">
+<link rel="next" href="Customizable-options.html#Customizable-options" title="Customizable options">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Most-important-options"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Customizable-options.html#Customizable-options">Customizable options</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="General-aspects.html#General-aspects">General aspects</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Customizing.html#Customizing">Customizing</a>
+<hr>
+</div>
+
+<h3 class="section">7.2 The most important options of ECB</h3>
+
+<p>Here are the most important options (it is recommended to check at
+least the following options before working with ECB). You can
+customize them via the customize-group &ldquo;ecb-most-important&rdquo; or via
+the command <code>ecb-customize-most-important</code>.
+
+     <dl>
+<dt><code>ecb-source-path</code><dd>Where ECB can find your sources. You must set this option! 
+<br><dt><code>ecb-show-help-format</code><dd>Should the online help of ECB be displayed in the standard Info format
+or in HTML format in a web-browser. 
+<br><dt><code>ecb-auto-activate</code><br><dt><code>ecb-major-modes-show-or-hide</code><dd>Auto. activation of ECB after start (see <a href="Automatic-activation.html#Automatic-activation">Automatic activation</a>) or
+major-mode-based showing or hiding the ecb-windows. 
+<br><dt><code>ecb-winman-escreen-number</code><dt><code>ecb-winman-winring-name</code><dd>Support of several window-managers (see <a href="Window_002dmanagers-and-ECB.html#Window_002dmanagers-and-ECB">Window-managers and ECB</a>). 
+<br><dt><code>ecb-key-map</code><dd>All ECB-keybindings incl. a common prefix-key (see <a href="Using-the-keyboard.html#Using-the-keyboard">Using the keyboard</a>). 
+<br><dt><code>ecb-new-ecb-frame</code><dd>Should ECB create a new frame at activation time. 
+<br><dt><code>ecb-primary-secondary-mouse-buttons</code><dt><code>ecb-mouse-click-destination</code><dd>Define how to use the mouse (see <a href="Using-the-mouse.html#Using-the-mouse">Using the mouse</a>). 
+<br><dt><code>ecb-tree-buffer-style</code><dt><code>ecb-tree-expand-symbol-before</code><dt><code>ecb-tree-indent</code><dt><code>ecb-truncate-lines</code><dd>The look&amp;feel of the trees in the tree-buffers. The former option
+defines the general style of the tree-buffers and the latter ones
+allow to customize the ascii-style tree-buffers (maybe you like a
+value of 4 for the latter one if you display the expand-symbol before
+(see <a href="Tree_002dbuffer-styles.html#Tree_002dbuffer-styles">Tree-buffer styles</a>). 
+<br><dt><code>ecb-source-file-regexps</code><dd>Which files will (not) be shown in ECB. 
+<br><dt><code>ecb-layout-name</code><dt><code>ecb-compile-window-height</code><dt><code>ecb-compile-window-width</code><dt><code>ecb-other-window-behavior</code><dd>The ECB layout, means which windows you want to be displayed in the
+ECB-frame and also the location of these windows (see <a href="Changing-the-ECB_002dlayout.html#Changing-the-ECB_002dlayout">Changing the ECB-layout</a>). 
+<br><dt><code>ecb-compilation-buffer-names</code><dd>Which buffers should be treaten as &ldquo;compilation-buffers&rdquo; and
+therefore displayed in the compile-window of ECB - if there is any. 
+<br><dt><code>ecb-tag-display-function</code><dt><code>ecb-type-tag-display</code><dt><code>ecb-type-tag-expansion</code><dt><code>ecb-show-tags</code><dd>How to display the entries in the ECB-method window for semantic
+supported sources (see <a href="Customizing-the-display.html#Customizing-the-display">Customizing the display</a>). These options
+take only effect for semantic-sources (see <a href="Definition-of-semantic_002d-and-non_002dsemantic_002dsources.html#Definition-of-semantic_002d-and-non_002dsemantic_002dsources">Definition of semantic- and non-semantic-sources</a>). 
+<br><dt><code>ecb-process-non-semantic-files</code><dd>Displaying file-contents for not by semantic supported files too, e.g. 
+for LaTeX- and perl-sources (see <a href="Non_002dsemantic-sources.html#Non_002dsemantic-sources">Non-semantic sources</a>). 
+</dl>
+
+   <p>But to make ECB working best for you it is also recommended to have a
+look at <a href="Customizable-options.html#Customizable-options">Customizable options</a>!
+
+   </body></html>
+

@@ -1,0 +1,11 @@
+--- w3m-0.5.1/file.c~	2004-04-16 18:47:19 +0000
++++ w3m-0.5.1/file.c	2006-12-08 01:04:52 +0000
+@@ -6602,6 +6602,8 @@
+ 	if (src)
+ 	    Strfputs(lineBuf2, src);
+ 	linelen += lineBuf2->length;
++	if (w3m_dump & DUMP_EXTRA)
++	    printf("W3m-in-progress: %s\n", convert_size2(linelen, current_content_length, TRUE));
+ 	if (w3m_dump & DUMP_SOURCE)
+ 	    continue;
+ 	showProgress(&linelen, &trbyte);

@@ -1,0 +1,73 @@
+<html lang="en">
+<head>
+<title>Small screens - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="prev" href="Changing-faces.html#Changing-faces" title="Changing faces">
+<link rel="next" href="Big-screens.html#Big-screens" title="Big screens">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Small-screens"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Big-screens.html#Big-screens">Big screens</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Changing-faces.html#Changing-faces">Changing faces</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>
+<hr>
+</div>
+
+<h3 class="section">10.2 Working with small screens</h3>
+
+<p><a name="index-Small-screen-350"></a>If your screen is very small so you need every square-centimeter for
+displaying the buffer which you want to edit, ECB offers you a special
+layouts, where only the ECB-methods buffer is displayed on top or on
+left-side. Here comes what you should/can do to work best with ECB in
+such a situation:
+
+     <ul>
+<li>First customize your ECB:
+
+          <ol type=1 start=1>
+<li>Customize <code>ecb-layout-name</code> to layout-name &ldquo;top2&rdquo; (on top) or
+&ldquo;left9&rdquo; (on left-side)
+
+          <li>Ensure that <code>ecb-compile-window-height</code> is nil.
+
+          <li>Optional: Adjust the <code>ecb-windows-height</code> rsp. <code>ecb-windows-width</code>.
+
+          <li>Save your changes.
+          </ol>
+
+     <li>To edit your buffers:
+Call <code>ecb-toggle-ecb-windows</code> (also available via the menu &ldquo;ECB&rdquo; and
+by <kbd>C-c . lw</kbd>) or <code>ecb-hide-ecb-windows</code> to hide the ECB-method buffer
+so you get all the place of your screen for editing.
+
+     <li>To browse and select functions:
+Call <code>ecb-toggle-ecb-windows</code> or <code>ecb-show-ecb-windows</code> to
+make the ECB-method buffer visible if not already. If you want select
+a method/variable with the keyboard instead with the mouse you should
+read the section <a href="Using-the-keyboard.html#Using-the-keyboard">Using the keyboard</a> in this online help! 
+</ul>
+
+   <p>The possibility of hiding temporally the ECB windows like described
+above is also useful for all the other layouts.
+
+   </body></html>
+

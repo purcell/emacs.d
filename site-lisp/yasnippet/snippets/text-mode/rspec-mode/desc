@@ -1,0 +1,11 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : describe (Controller)
+# --
+require File.dirname(__FILE__) + '/../spec_helper'
+
+describe ${1:controller} do
+
+  $0
+
+end

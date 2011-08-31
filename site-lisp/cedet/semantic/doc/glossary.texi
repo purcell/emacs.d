@@ -1,0 +1,68 @@
+@ignore
+@node Glossary
+@chapter Glossary
+@c This 'ignore' section fools texinfo-all-menus-update into creating
+@c proper menus for this chapter.
+@end ignore
+
+@table @keyword
+@item BNF
+In semantic 1.4, a BNF file represented ``Bovine Normal Form'', the
+grammar file used for the 1.4 parser generator.  This was a play on
+Backus-Naur Form which proved too confusing.
+
+@item bovinate
+A verb representing what happens when a bovine parser parses a file.
+
+@item bovine lambda
+In a bovine, or LL parser, the bovine lambda is a function to execute
+when a specific set of match rules has succeeded in matching text from
+the buffer.
+
+@item bovine parser
+A parser using the bovine parser generator.  It is an LL parser
+suitible for small simple languages.
+
+@item context
+
+@item LALR
+
+@item lexer
+A program which converts text into a stream of tokens by analyzing
+them lexically.  Lexers will commonly create strings, symbols,
+keywords and punctuation, and strip whitespaces and comments.
+
+@item LL
+
+@item nonterminal
+A nonterminal symbol or simply a nonterminal stands for a class of
+syntactically equivalent groupings. A nonterminal symbol name is used
+in writing grammar rules.
+
+@item overloadable
+Some functions are defined via @code{define-overload}.
+These can be overloaded via ....
+
+@item parser
+A program that converts @b{tokens} to @b{tags}.
+
+@item tag
+A tag is a representation of some entity in a language file, such as a
+function, variable, or include statement.  In semantic, the word tag is
+used the same way it is used for the etags or ctags tools.
+
+A tag is usually bound to a buffer region via overlay, or it just
+specifies character locations in a file.
+
+@item token
+A single atomic item returned from a lexer.  It represents some set
+of characters found in a buffer.
+
+@item token stream
+The output of the lexer as well as the input to the parser.
+
+@item wisent parser
+A parser using the wisent parser generator.  It is a port of bison to
+Emacs Lisp.  It is an LALR parser suitable for complex languages.
+
+@end table

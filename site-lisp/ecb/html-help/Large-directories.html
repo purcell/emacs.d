@@ -1,0 +1,84 @@
+<html lang="en">
+<head>
+<title>Large directories - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="prev" href="Integrating-speedbar.html#Integrating-speedbar" title="Integrating speedbar">
+<link rel="next" href="Remote-directories.html#Remote-directories" title="Remote directories">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Large-directories"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Remote-directories.html#Remote-directories">Remote directories</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Integrating-speedbar.html#Integrating-speedbar">Integrating speedbar</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>
+<hr>
+</div>
+
+<h3 class="section">10.6 Working with large directories</h3>
+
+<p>If <code>ecb-source-path</code> contains directories with many files and
+subdirs, especially if these directories are mounted net-drives
+(&ldquo;many&rdquo; means here something &gt; 500, dependent on the speed of the
+net-connection and the machine), actualizing the sources- and/or
+directories- buffer of ECB (if displayed in current layout!) can slow
+down dramatically. If this is a problem the contents of certain
+directories and also the contents of the sources-buffer can be cached
+which increases the speed a lot. See the option
+<code>ecb-cache-directory-contents</code>.
+
+   <p>IMPORTANT: The full speed-advantage of this cache-mechanism is only
+available if <code>ecb-show-sources-in-directories-buffer</code> is
+<code>nil</code>, i.e. sources of a directory are displayed in the
+ECB-sources-window. The reason is that only with a sources window the
+tree-buffer contents for the sources can be cached (i.e. the
+buffer-content of the ECB-sources-window) whereas with sources
+displayed in the directories buffer only the disk-contents of a
+directory are cached - which increases speed too but not so much as
+with sources displayed in the extra window ECB-sources.
+
+   <p>The cache of a directory can be only refreshed by a POWER-click (with
+mouse or keyboard) onto the related directory-node in the
+directories-buffer of ECB (see <a href="Using-the-mouse.html#Using-the-mouse">Using the mouse</a>).
+
+   <p>See also the option <code>ecb-cache-directory-contents-not</code>. Here are
+some useful settings for both of these options:
+
+     <ul>
+<li>Cache all directories with more than 500 entries:
+Set <code>ecb-cache-directory-contents</code> to ((&ldquo;.*&rdquo; . 500)) and set
+<code>ecb-cache-directory-contents-not</code> to nil.
+
+     <li>Cache only all directories &gt; 200 beginning with /usr/
+Set <code>ecb-cache-directory-contents</code> to ((&ldquo;^/usr/.*&rdquo; . 200)) and
+set <code>ecb-cache-directory-contents-not</code> to nil.
+
+     <li>Cache all directories &gt; 500 but NOT these beginning with /usr/:
+Set <code>ecb-cache-directory-contents</code> to ((&ldquo;.*&rdquo; . 500)) and set
+<code>ecb-cache-directory-contents-not</code> to (&ldquo;^/usr/.*&rdquo;). 
+</ul>
+
+   <p>Another way for getting a faster overlook for large directories with
+many source-entries is to apply an online-filter to the
+sources-buffer. This can be done via the command
+<code>ecb-sources-filter</code> or via the popup-menu of the sources-buffer.
+
+   </body></html>
+

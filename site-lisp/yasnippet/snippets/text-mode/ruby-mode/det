@@ -1,0 +1,4 @@
+#name : detect { |...| ... }
+#group : Enumerables
+# --
+detect { |${e}| $0 }

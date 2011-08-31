@@ -1,0 +1,4 @@
+#name : belongs_to : ... 
+#group: ActiveRecord
+# --
+belongs_to :${class}

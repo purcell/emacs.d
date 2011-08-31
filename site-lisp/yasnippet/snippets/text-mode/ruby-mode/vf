@@ -1,0 +1,4 @@
+#name : validates_format_of : ... , :with => / ... /
+#group: ActiveRecord
+# --
+validates_format_of :${attr}, :with => /${regex}/

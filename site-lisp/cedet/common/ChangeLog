@@ -1,0 +1,1107 @@
+2009-02-27  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (top): Add CScope menu
+	(C++ Features, GNU Global, ID Utils, Maintenance): Convert CEDET to @cedet{}
+	(CScope): New node.
+
+	* Makefile (common_LISP): Add cedet-cscope.el
+
+	* Project.ede (common): Add cedet-cscope.el
+
+	* cedet-cscope.el: CScope support.
+
+2009-02-24  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (top): Add ID Utils to menu.
+	(ID Utils): New Node
+
+	* icons/Makefile (VERSION): Changed.
+
+	* Makefile (common_LISP): Add cedet-idutils.el
+	(EMACSFLAGS): New variable.
+	(init, setup, common,tests): Use EMACSFLAGS.
+
+	* Project.ede (common): Add cedet-idutils.el
+
+2009-02-23  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-idutils.el: Basic support for idutils in CEDET.
+
+2009-02-21  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-utests.el (cedet-utest-test-alist):
+	Replace the lex-spp test with a single
+	fcn new in that lib.
+
+2009-02-19  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el: Patch from Marcus Harnisch
+	(inversion-decoders): Add something compatible w/ XEmacs.
+
+2009-02-14  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (top): Add below.
+	(Maintenance): New.
+
+2009-02-11  Eric M. Ludlam  <zappo@gnu.org>
+
+	* data-debug.el (dd-propertize):
+	New alias or implementation depending on platform.
+	(data-debug-insert-hash-table, data-debug-insert-hash-table-button)
+	(data-debug-insert-symbol-from-point, data-debug-insert-symbol-button)
+	(data-debug-insert-string, data-debug-insert-number):
+	Use dd-propertize, not propertize.
+
+	* cedet-utests.el (cedet-utest-test-alist): Comments update.
+	Add srecode-field-utest.
+
+2009-02-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* pulse.el (pulse-available-p): New
+	(pulse-flag): Use above.  Doc new behavior.
+	(pulse-test, pulse-momentary-highlight-overlay):
+	Check also pulse-available-p in case user set the flag to t
+	but the current terminal/frame doesn't support it.
+
+2009-02-04  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-files.el (replace-regexp-in-string): New compatability fcn.
+	Moved from semanticdb-file.el
+
+	* cedet-files.el (cedet-directory-name-to-file-name):
+	Add optional "testmode" argument.
+	(cedet-file-name-to-directory-name): New
+	(cedet-files-utest-list, cedet-files-utest): New tests.
+
+2009-01-29  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Project.ede (common): Updated to 1.0pre6.
+
+	* Makefile (VERSION): Updated to 1.0pre6.
+
+	* cedet.el (cedet-version): Updated to new prerelease
+	(cedet-packages): Updated versions.
+
+2009-01-24  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-utests.el (cedet-utest-test-alist): Fix typo.
+
+	* icons/Project.ede ("common/icons"): Fix name.
+
+	* cedet.texi (GNU Global): Spelling fixes.
+	Be more specific bout how Global is used.
+
+2009-01-24  Jan Moringen <scymtym@users.sourceforge.net>
+
+	* data-debug.el (data-debug-insert-buffer-props):
+	get local variables from the stored
+	buffer instead of the current buffer
+
+2009-01-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* data-debug.el: (data-debug-insert-overlay-from-point)
+	(data-debug-insert-overlay-list-from-point)
+	(data-debug-expand-or-contract-mouse):
+	Eliminate unused variable bindings.
+	(data-debug-insert-string): Convert CRs into \n so text fits on one line.
+
+	* pulse.el (pulse-test): Accept no-error argument.
+	When t, don't throw error if pulse-flag is nil.
+
+	* cedet-utests.el (cedet-utest-test-alist):
+	Make interactive features optional.
+	(cedet-utest): Change use of logging fcns to specify a name.
+	Capture timing information.
+	(cedet-utest-noninteractive, cogre-utest-batch): New.
+	(cedet-utest-log-setup): Accept title arg.
+	(cedet-utest-show-log-shutdown): New
+	(cedet-utest-show-log-shutdown-msg): New
+	(cedet-utest-elapsed-time): New.
+	(cedet-utest-log-timer): New var.
+	(cedet-utest-add-log-item-start)
+	(cedet-utest-add-log-item-done)
+	(cedet-utest-log): Change formatting in noninteractive mode.
+
+2009-01-19  Jan Moringen <scymtym@users.sourceforge.net>
+
+	* data-debug.el (data-debug-insert-symbol-from-point):
+	Expand symbol button
+	(data-debug-insert-symbol-button): Insert expandable button for symbol
+	(data-debug-insert-string): simplified
+	(data-debug-insert-number): simplified
+	(data-debug-insert-symbol): replaced by
+	`data-debug-insert-symbol-button'
+	(data-debug-thing-alist): insert buttons for symbols; improved some
+	comments
+
+	* data-debug.el (data-debug-insert-hash-table):
+	Insert contents of hash-table
+	(data-debug-insert-hash-table-from-point): Expand hash-table button
+	(data-debug-insert-hash-table-button): Insert hash-table button
+	(data-debug-thing-alist): added cell for hash-table
+
+2009-01-14  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-utests.el (cedet-utest-log-start):
+	Protect against frame/window swapping.
+
+	* cedet.texi (GNU Global): Added URL To gnu global
+
+	* cedet.texi (top): Add below
+	(GNU Global): New.
+
+	* cedet-global.el (cedet-gnu-global-version-check):
+	Add arg to not throw an error.
+	If we use that flag, return nil, no error.
+
+	* cedet.texi: (Overview, Semantic, Installation/Basic Configuration)
+	(JDEE Target, C++ Features): Misc spelling fixes.
+
+2009-01-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* working.el (working-wait-for-keypress):
+	Support Emacsen that don't have `read-event'.
+
+	* cedet-compat.el (inversion): new require
+	(cedet-split-string-1): New compat fcn.
+	(cedet-split-string): Alias for working 3 arg split-string.
+
+	* pulse.el (pulse-test): Add autoload cookie
+
+	* sformat.el (Sformat): Fix unused var bytcomp warning.
+
+	* inversion.el (inversion-locate-package-files-and-split):
+	(inversion-check-version): Fix unused var bytcomp warning.
+	(inversion-upgrade-package): Convert mapcar to mapc.
+
+	* data-debug.el: (data-debug-insert-buffer-from-point)
+	(data-debug-insert-buffer-list-from-point)
+	(data-debug-insert-process-from-point)
+	(data-debug-insert-ring-items-from-point)
+	(data-debug-insert-stuff-list-from-point)
+	(data-debug-expand-or-contract-mouse)
+	(data-debug-edebug-expr): Fix unused var bytcomp warning.
+	(data-debug-eval-expression):
+	New command copied from eval-expression.
+
+	* cedet-utests.el (cedet-utest-test-alist): Add cogre tests.
+
+2009-01-09  Eric M. Ludlam  <zappo@gnu.org>
+
+	* mode-local.el (mode-local-use-bindings-p): New fcn.
+
+2008-12-17  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-global.el (cedet-gnu-global-expand-filename): New command/fcn.
+
+2008-12-16  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-global.el (cedet-gnu-global-show-root): New command.
+	(cedet-gnu-global-version-check): If interactive, show useful message.
+
+2008-12-15  Eric M. Ludlam  <zappo@gnu.org>
+
+	* working.el: (working-wait-for-keypress)
+	(working-verify-sleep): Setup so tests work in the CEDET utest suite.
+
+	* pulse.el (pulse-toggle-integration-advice):
+	Remove some dead code.  Fix how the mode is toggled.
+
+	* pulse.el (pulse-test):
+	Make asking questions optional for the cedet test suite.
+
+2008-12-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* data-debug.el (data-debug-insert-buffer-*): New buffer support.
+	(data-debug-thing-alist): Use eieio-object-p, not object-p.
+	Don't use semantic-* fcns.
+	Add buffer support.
+
+2008-12-09  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-global.el (cedet-gnu-global-search): Add more options and doc.
+	(cedet-gnu-global-scan-hits): New fcn.
+
+2008-12-04  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-global.el (semantic-symref-tool-global::semantic-symref-perform-search):
+	Fix copy-paste error passing in searchtext to global-call.
+	(cedet-gnu-global-root): New fcn.
+
+	* Makefile (common_LISP): Add cedet-global.el
+
+	* Project.ede (common): Add cedet-global.el
+
+	* cedet-global.el: GNU Global general interface for tools.
+
+2008-12-01  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-utests.el (cedet-utest-log-start):
+	Reset logging if the buffer has no window.
+
+2008-10-19  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (COGRE): Discuss being incomplete.
+	(Installation/Basic Configuration): Add url to exuberent ctags.
+
+2008-10-16  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el (inversion-decoders): Added decoder for a single number.
+
+2008-10-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-utests.el (cedet-utest-test-alist):
+	Add eieio tests custom and chart.
+	Add semantic lex/spp test.
+	Add srecode getset test.
+	(cedet-utest-last-log-item): New
+	(cedet-utest-show-log-end): New
+	(cedet-utest-post-command-hook): New fcn
+	(cedet-utest-log-setup): Reset the last log item.
+	(cedet-utest-add-log-item-start): Skip logging the same thing twice.
+	Move to end of buffer.
+	(cedet-utest-add-log-item-done): Reset the last log item.
+	(cedet-utest-log-start, cedet-utest-log): New for external tests.
+
+2008-10-05  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-utests.el: One place to run all the unit tests.
+
+2008-10-02  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (tests_LISP): New
+	(tests): New
+	(add,dist): Add tests.
+
+	* Project.ede (tests): New target.
+
+2008-09-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* data-debug.el (data-debug-thing-alist): Support new db/tag combo.
+
+2008-09-17  Eric M. Ludlam  <zappo@gnu.org>
+
+	* data-debug.el (data-debug-insert-lambda-expression): New
+	(data-debug-thing-alist): Add lambda
+
+2008-09-05  Eric M. Ludlam  <zappo@gnu.org>
+
+	* working.el:
+	(working-bar-percent-display, working-percent-bar-display)
+	(working-bubble-percent-display): Simplify.
+	(working-verify-parenthesis-a,b): Setup to show 'done' part for 1 sec.
+
+2008-09-04  Eric M. Ludlam  <zappo@gnu.org>
+
+	* working.el: (working-bar-percent-display)
+	(working-percent-bar-display)
+	(working-bubble-percent-display): Suggestion from David Engster.
+	Fix case where 'done' message causes a 2 line message.
+
+2008-09-02  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.el (Main setup code): Simplified status messages.
+
+	* inversion.el (inversion-add-to-load-path): Removed status messages.
+
+2008-08-26  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.el (code): Call info-initialize, but in a condition case.
+
+2008-08-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* mode-local.el (mode-local-setup-edebug-specs):
+	Support new name for define-overload.
+
+2008-07-03  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-autogen.el (make-autoload):
+	Convert defclass autoload cookies into
+	special eieio autoload forms.
+
+	* cedet.el (cedet-packages): Re-sort.  Put eieio first, and ede later.
+	(default-directory): Force eieio to load.
+
+2008-06-19  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.el (cedet-packages): Update eieio version.
+
+	* data-debug.el (data-debug-mode): Remove font-lock.
+
+2008-06-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-autogen.el (make-autoload):
+	Add define-overloadable-function support.
+
+2008-05-31  Eric M. Ludlam  <zappo@gnu.org>
+
+	* data-debug.el (data-debug-insert-process-props):
+	Display more parts of a process.
+	(data-debug-insert-process-button): The process status in the tag-line.
+
+2008-05-18  Eric M. Ludlam  <zappo@gnu.org>
+
+	* data-debug.el (featurep): Add overlay-p.
+	(data-debug-insert-overlay-props): Do not use safe-length on a string.
+	(data-debug-insert-process-props, data-debug-insert-process-from-point)
+	(data-debug-insert-process-button): New process support
+	(data-debug-thing-alist): Use new overlay-p alias. Add process.
+
+2008-05-17  Eric M. Ludlam  <zappo@gnu.org>
+
+	* data-debug.el (data-debug-insert-overlay-props): Use safe-length.
+	(data-debug-insert-stuff-list): Use cdr-safe.
+	(data-debug-insert-stuff-list-button): Use safe-length
+	(data-debug-insert-number): New
+	(data-debug-thing-alist): Support numbers.
+
+	* mode-local.el (mode-local-font-lock-keywords):
+	Add `define-overloadable-function'.
+
+2008-05-11  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (top, Bug Reporting): Remove bug reporting section.
+
+2008-05-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (top): Add bug reporting seciont
+	(Bug Reporting): New section
+	(Code Completion): Add todo comment.
+
+	* mode-local.el (define-overloadable-function): New name
+	(define-overload): Old name, now an alias.
+
+2008-05-04  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (VERSION): Updated.
+
+	* Project.ede ("common"): Update version.
+
+	* cedet.el (cedet-version): Update to pre5.
+	(cedet-packages): Update table of expected values.
+
+2008-04-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (C++ Features):
+	Discuss semantic-c-obey-conditional-section-parsing-flag.
+
+2008-04-14  Eric M. Ludlam  <zappo@gnu.org>
+
+	* data-debug.el (data-debug-insert-thing): Autoload cookie.
+
+2008-04-13  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (C++ Features):
+	Update w/ new preprocessor symbol info, and details on
+	using custom.
+
+2008-04-01  Eric M. Ludlam  <zappo@gnu.org>
+
+	* data-debug.el (overlay-properties): Compile time fix.
+	(data-debug-expand-or-contract-mouse):
+	Move point to correct window before expand.
+
+2008-03-27  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-edebug.el (edebug-setup-hook, debugger-mode-hook):
+	Use data-debug-edebug-expr
+	bound to A instead of previous fcn.
+
+	* Makefile (common_LISP): Add data-debug.el
+
+	* Project.ede ("common"): Add data-debug.el
+
+	* data-debug.el: Data Debugger, copied initially from semantic-adebug.
+
+2008-03-22  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (C++ Features):
+	Add detail on include path etc when referring to ede-cpp-root.
+
+2008-03-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (C++ Features): fix typo for semantic macro.
+
+2008-03-14  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-load.el (cedet-compat): Added require.
+
+2008-03-11  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (Installation/Basic Configuration): cedet-build.el
+	(C++ Features): turn on EDE for cpp-root type.
+
+2008-02-28  Eric M. Ludlam  <zappo@gnu.org>
+
+	* pulse.el (pulse-overlay-get): Fix XEmacs alias.
+
+2008-02-26  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (ECB Target): Fix italic on ECB.
+	(Code Completion): Link to new debugging section.
+	More on guady code helpers.
+
+2008-02-19  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (top): Added C++ features node
+	(Code Completion): Removed a block of code. Moved to ...
+	(C++ Features): New section.  Added bits from Code Completion, plus
+	more about include paths and preprocessor symbol maps.
+
+2008-02-14  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-files.el (cedet-directory-name-to-file-name):
+	Use `file-truename' on input file.
+
+2008-02-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (all):
+	Convert EDE, EIEIO, and other package names to use macros.
+	Add @url to all the URLs.
+	(Project Management): Rewrite this section to exclude some misc
+	semantic stuff, and add in some srecode stuff.
+
+2008-02-08  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.el (default-directory): Add docdir to let.
+
+2008-01-29  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.el (cedet-packages): Add srecode.
+
+	* cedet.texi (top): Add Code Generation node.
+	(Overview): Add discussion on srecode.
+	(SRecode): New section
+	(Code Generation): New section
+
+2008-01-25  Eric M. Ludlam  <zappo@gnu.org>
+
+	* mode-local.el (mode-local-read-function):
+	User minibuffer prompt for mode-localable functions.
+
+2008-01-11  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi (EIEIO): Quick fix
+	(Code Completion): Reword a few things.
+
+2008-01-09  Eric M. Ludlam  <zappo@gnu.org>
+
+	* pulse.el (pulse-toggle-integration-advice):
+	Show message if the advice is on or off.
+
+2007-08-14  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.texi:
+	(Semantic, Speedbar, JDEE Target, ECB Target, Project Management)
+	(Code Completion): Fix inforef entries so they end in .
+
+	* cedet.el (cedet-emacs-min-version): New const
+	(cedet-xemacs-min-version): New const
+	(default-directory): Make sure the Emacs that is running supports our
+	minimum version.
+
+	* inversion.el (inversion-decoders):
+	Added 4 number decoder (see emacs-version)
+	Added patch level decoder (see XEmacs variable emacs-version)
+	(inversion-<): Support new decoders
+	(inversion-require): Return the package that was required.
+	(inversion-require-emacs): New function.
+	(inversion-unit-test): Test new version decoders.
+
+	* pulse.el: o(pulse-toggle-integration-advice):
+	(goto-lin, echange-point-and-mark, find-tag, tags-search)
+	(tags-loop-continue, pop-tag-mark): Only pulse if interactive.
+
+	* cedet.el (cedet-packages): Add DOCDIR column
+	(code : setting up paths): Add docdir entries into the Info path.
+
+	* pulse.el (pulse-enable-integration-advice): Added more doc.
+
+	* pulse.el (Compatibility): Added pulse-overlay-live-p, and -get
+	(pulse): Don't reset the pulse face.
+	(pulse-test): Don't test for non-pulsing Emacs.
+	Added test for momentary-highlight-overlay-function.
+	(pulse-momentary-highlight-overlay): New function.
+	(pulse-momentary-highlight-region): Use above.
+	Don't use `pulse-momentary-overaly' variable.
+	(pulse-momentary-unhighlight): Test new properties on the overlay.
+	Clear then, and reset things as best we can.
+
+2007-08-12  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (common_LISP): Added pulse.el
+
+	* Project.ede: Add pulse.el.
+
+	* cedet.texi: Added pulse.el
+
+	* pulse.el: Pulse decoration utility.
+
+2007-06-07  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (Doc_TEXINFOS): New
+	(all): Add cedet.info
+	(cedet.info): New target
+	(clean): Add info.
+
+	* Project.ede ("Doc"): New target.
+
+	* cedet.texi: First draft.
+
+2007-06-06  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Project.ede ("common"): regress to prerelease 4
+
+	* Makefile (VERSION): Regress to prerelease 4
+
+	* cedet.el (cedet-version): Regress back to prerelease 4
+	(cedet-packages): Regress some packages back to prerelease 4
+
+2007-05-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (common_LISP): Added cedet-files.el.
+
+	* Project.ede ("common"): Add cedet-files.el.
+
+	* cedet-files.el (cedet-dir-sep-char): Replace semanticdb-dir-sep-char.
+	(cedet-directory-name-to-file-name): New.
+	Copied from semanticdb-file.el, semanticdb-file-name-directory.
+
+	* cedet-compat.el (subst-char-in-string):
+	Compat fcn if it doesn't exist.
+
+2007-05-10  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-edebug.el (edebug-setup-hook, debugger-mode-hook):
+	Add "A" binding into adebug
+	for displaying the values of some variables.
+
+2007-02-19  Eric M. Ludlam  <zappo@gnu.org>
+
+	* working.el: (working-mode-line-update)
+	(working-run-with-timer, working-cancel-timer): Fix byte-comp issues.
+
+	* inversion.el (inversion-decode-version): Use string-to-number.
+	(inversion-find-version): Add autoload cookie.
+
+	* cedet.el (cedet-version): Move.  Try to fix byte-comp warnings.
+
+2006-02-09  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el (inversion-find-version):
+	Don't load in the whole file while
+	scanning for revision numbers.
+	(inversion-add-to-load-path): After adding a load path, make
+	sure the new file has the correct revision number.
+
+2006-02-08  David Ponce  <david@dponce.com>
+
+	* inversion.el (inversion-add-to-load-path):
+	Don't signal an error when shadowing
+	an outdated package.
+
+2006-02-08  Eric M. Ludlam  <zappo@gnu.org>
+
+	* icons/Makefile (VERSION): Updated
+
+	* Project.ede (:version): updated (removed)
+
+	* Makefile (VERSION): updated
+
+	* cedet.el (cedet-version): Updated
+	(cedet-packages): Revised all version numbers.
+	(cedet-version): Improved output table for use w/ PRERELEASE CHECKIST.
+
+	* inversion.el (inversion-version): Update version number
+	(inversion-add-to-load-path): Throw error if revision mismatch.
+
+2006-01-30  David Ponce  <david@dponce.com>
+
+	* mode-local.el (define-mode-local-override):
+	Set the `definition-name' of the
+	symbol generated for the mode local function, so find-func (since
+	Emacs 22) can locate it.
+
+2005-12-07  Eric M. Ludlam  <zappo@gnu.org>
+
+	* ezimage.el: Doc Fixes.
+
+2005-10-13  David Ponce  <david@dponce.com>
+
+	* cedet.el (cedet-packages): Update speedbar version requirement.
+
+2005-09-30  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.el, working.el, pprint.el, mode-local.el, inversion.el, fame.el, ezimage.el, cedet-load.el, cedet-compat.el, cedet-autogen.el:
+	Update all GPL headers with script from savannah.gnu.org.
+
+	* inversion.el (inversion-decoders):
+	Make more robust to some spacing issues.
+	(inversion-decode-version): Allow for empty alpha/beta values. (Assume 1)
+	(inversion-unit-test): Apply some whitespace issues to prove robustness.
+
+2005-09-29  Eric M. Ludlam  <zappo@gnu.org>
+
+	* mode-local.el (find-func): New require.
+
+2005-09-01  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el (inversion-check-version): doc fix
+
+2005-06-30  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Project.ede (:version): Updated.
+
+	* icons/Makefile, Makefile (VERSION): Updated.
+
+	* cedet.el (cedet-version): Updated
+	(cedet-packages): Updated
+
+	* cedet.el (cedet-version): New command.
+
+2005-05-06  Eric M. Ludlam  <zappo@gnu.org>
+
+	* icons/Makefile (VERSION): Updated version.
+
+	* Project.ede ("common"): Updated version.
+
+	* Makefile (VERSION): Updated
+	(autoloads,init,setup,common): Quotes around EMACS.
+
+	* cedet.el (cedet-version): Update revision
+	(cedet-packages): Update revisions of dependent packages.
+
+2005-04-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el (inversion-version): Updated
+	(inversion-unit-test): Added tests for new "prerelease" decoder.
+
+2005-04-19  David Ponce  <david@dponce.com>
+
+	* inversion.el (inversion-decoders):
+	Rename from inversion-decoder-ring.  Define
+	as constant.  Fix prerelease regexp and doc string.
+	(inversion-decode-version)
+	(inversion-release-to-number): Update.
+
+2005-04-19  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el (speedbar-incompatible-version):
+	Support pre-release notation.
+
+	* icons/Makefile, Makefile (VERSION): Updated.
+
+	* Project.ede ("common"): Update Version number
+
+	* cedet.el: Update Version Numbers.
+
+2005-03-24  David Ponce  <david@dponce.com>
+
+	* mode-local.el (activate-mode-local-bindings):
+	Fix call to `local-variable-p' for
+	XEmacs compatibility.
+
+2005-02-22  Eric M. Ludlam  <zappo@gnu.org>
+
+	* mode-local.el (find-function-regexp):
+	Modify it so that `find-function' can find
+	overloaded symbols.
+
+2005-02-03  Eric M. Ludlam  <zappo@gnu.org>
+
+	* icons/Makefile (VERSION): Updated version number
+
+	* cedet.el (cedet-version): Update version number.
+
+	* Makefile (VERSION): Update version number
+
+	* Project.ede ("common"): Update versin number.
+
+2005-01-10  David Ponce  <david@dponce.com>
+
+	* mode-local.el (activate-mode-local-bindings):
+	Return previous bindings of
+	buffer-local variables overridden by mode-local bindings.
+	(with-mode-local): Restore buffer-local bindings overridden by
+	mode-local bindings.
+
+2004-12-13  David Ponce  <david@dponce.com>
+
+	* working.el (working-noninteractive): Fixed definition.
+
+2004-11-29  David Ponce  <david@dponce.com>
+
+	* fame.el: (fame-valid-level-values)
+	(fame-display-choice): Accept 'temp-nolog and 'nolog.
+	(fame-level-widget, fame-channel-widget): Format change.
+	(fame-temp-message-internal): New function.
+	(fame-temp-message): Use it.
+	(fame-temp-message-nolog): New function.
+	(fame-send-functions-alist): New internal constant.
+	(fame-send): Use it.
+	(define-fame-channel): Accept a doc string. Fix generated doc
+	string.
+
+2004-11-25  David Ponce  <david@dponce.com>
+
+	* Makefile: Re-generate.
+
+	* Project.ede ("common"): Add fame.el to source.
+
+	* working.el (fame): Require.
+	(working-noninteractive): New function.
+	(working-message-echo): Use it and `fame-message-nolog'.
+	(working-message-emacs, working-message-xemacs): Remove.
+	(working-current-message): Alias of `fame-current-message'.
+	(working-temp-message): Alias of `fame-temp-message'.
+	(working-temp-message-timer, working-temp-message-delay)
+	(working-temp-restore-message): Remove.
+
+	* fame.el: New library.
+
+2004-09-08  David Ponce  <david@dponce.com>
+
+	* working.el (working-temp-restore-message):
+	Fix error when saved message text
+	contains percent characters.
+
+2004-07-30  Eric M. Ludlam  <zappo@gnu.org>
+
+	* mode-local.el: Updated Commentary.
+
+	* cedet.el: Update required version of semantic.
+
+2004-07-21  Eric M. Ludlam  <zappo@gnu.org>
+
+	* icons/Makefile (VERSION): update to beta3
+	(Makefile): Regenerated
+
+	* Makefile (VERSION): Update to beta3
+
+	* Project.ede ("common"): Update version number.
+
+	* cedet.el (cedet-version): Updated to beta3
+
+2004-07-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (misc_AUX): New
+	(dist): Add misc_AUX
+
+	* Project.ede ("misc"): New target.
+
+2004-06-29  David Ponce  <david@dponce.com>
+
+	* working.el: New feature to display messages temporarily.
+
+	(working-temp-message-delay, working-temp-message-timer)
+	(working-temp-message-saved): New variables.
+	(working-temp-restore-message)
+	(working-temp-message): New functions.
+
+2004-06-24  David Ponce  <david@dponce.com>
+
+	* mode-local.el (mode-local-define-derived-mode-needed-p):
+	New function.
+	(define-derived-mode): Advice if the above returns non-nil.
+
+	(mode-local--init-mode): New variable.
+	(mode-local-initialized-p): New function.
+	(mode-local-post-major-mode-change): Use it.
+	(activate-mode-local-bindings): Register the major mode for which
+	bindings have been activated in current buffer.
+	(deactivate-mode-local-bindings): Unregister it.
+
+	* cedet.el:
+	Run every package setup after the `load-path' has been changed.
+
+2004-05-12  David Ponce  <david@dponce.com>
+
+	* mode-local.el (cl): Require at compile time.
+	(define-derived-mode): Advise to workaround a bug in XEmacs
+	implementation, which don't set the `derived-mode-parent'
+	property.
+
+2004-04-29  David Ponce  <david@dponce.com>
+
+	* icons/Makefile, Makefile: Rebuild.
+
+	* Project.ede ("common"): Add mode-local.el to source.
+
+2004-04-28  David Ponce  <david@dponce.com>
+
+	* mode-local.el: New file.
+
+2004-04-08  David Ponce  <david@dponce.com>
+
+	* pprint.el (pprint-nil): Remove.
+	(pprint-nil-as-list): New function.
+	(pprint-lambda, pprint-defun): Use it.
+	(pprint-let): Likewise.  Improve pretty-printing of let bindings.
+	(pprint-function): Fix error message.
+
+2004-04-06  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Makefile (dist): Distribute the autoload file
+
+2004-03-28  David Ponce  <david@dponce.com>
+
+	* cedet.el (let): Revert previous change.
+
+2004-03-28  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.el (cedet-packages): Added cedet-contrib
+	(inline code): Allow both package-load and package to be loaded.
+
+2004-03-11  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-autogen.el (cedet-batch-update-autoloads):
+	When an error occurs, display both the
+	error message, and the more friendly usage message.
+
+2004-02-12  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet.el (cedet-version): Updated.
+
+	* icons/Makefile (VERSION): updated.
+
+	* Makefile (common_LISP): Added cedet-edebug.
+	(VERSION): Updated.
+	(all lisp compilation rules): updated EDE.
+
+	* Project.ede (version): Update to beta 2.
+
+	* Project.ede (common): Added cedet-edebug.el.
+
+	* cedet-edebug.el (eieio,semantic-tag): Removed these dependencies.
+	(cedet-edebug-prin1-extensions): Removed contents.
+	(cedet-edebug-rebuild-prin1): Change name of generated function.
+	(cedet-edebug-prin1-to-string): New fcn.
+	(cedet-edebug-add-print-override): New utility function.
+	(edebug-setup-hook): Add autoload cookie.
+
+2003-12-29  Eric M. Ludlam  <zappo@gnu.org>
+
+	* working.el: Zajcev Evgeny:
+	(senator-try-expand-semantic): Better check for minibuffer in a window.
+
+2003-12-11  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-edebug.el: Extensions to edebug for projects in CEDET.
+
+2003-11-20  Eric M. Ludlam  <zappo@gnu.org>
+
+	* cedet-autogen.el, ezimage.el: Merged with cedet-1p0beta1 branch.
+
+2003-10-22  Eric M. Ludlam  <zappo@gnu.org>
+
+	* icons/Makefile: EDE Makefile for icons.
+
+	* icons/Project.ede: EDE Project file for icons.
+
+2003-10-02  Eric M. Ludlam  <zappo@gnu.org>
+
+	* Project.ede: Now a meta-subproject.
+
+	* Makefile (dist): Remove local creation of tar file.
+	(icons): New target
+	(all): add icons.
+
+2003-10-01  David Ponce  <david@dponce.com>
+
+	* Makefile: Re-generate.
+
+	* Project.ede (common): Add cedet-compat.el to target sources.
+
+	* cedet-compat.el: New file.
+
+2003-09-24  David Ponce  <david@dponce.com>
+
+	* cedet.el (cedet-packages): Update minimum version requirements.
+
+	* Makefile: Re-generate.
+
+	* Project.ede (common):
+	Add sformat.el and working.el to target sources.
+
+	* sformat.el, working.el: New file, moved from semantic.
+
+2003-09-23  David Ponce  <david@dponce.com>
+
+	* inversion.el (inversion-add-to-load-path):
+	INSTALLDIR actually specifies where
+	PACKAGE is installed.
+
+	* cedet.el (cedet-version): Change to 1.0beta1.
+	(cedet-packages): Add "cedet".
+
+	Handle package installed in a directory with a different name.
+
+	* Makefile, Project.ede, cedet-load.el: New file.
+
+2003-09-17  David Ponce  <david@dponce.com>
+
+	* cedet.el (cedet-packages):
+	No more need an explicit setup file to load.
+	Automatically require the PACKAGE-load feature.
+
+2003-09-08  David Ponce  <david@dponce.com>
+
+	* cedet.el (cl): Require at compile time.
+	(cedet-packages): Update versions.  Add autoloads setup.
+	(main let): Don't setq default-directory.  Use dolist.  load the
+	setup library, don't require it.  Don't stop if failed to load a setup
+	library.  Print an error message and continue.
+
+2003-09-06  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el (inversion-version): Update current version.
+
+	* inversion.el (inversion-require, inversion-upgrade-package):
+	add autoload cookie.
+
+	* cedet-autogen.el (cedet-update-autoloads): Autoload cookie.
+
+2003-09-05  David Ponce  <david@dponce.com>
+
+	* cedet-autogen.el (cedet-update-autoloads):
+	Also accept an explicit list of
+	directories to scan for autoloads.
+
+2003-09-03  David Ponce  <david@dponce.com>
+
+	* cedet-autogen.el: New file.
+
+2003-08-06  David Ponce  <david@dponce.com>
+
+	* ezimage.el (defezimage):
+	Fix typo in definition that uses `make-glyph'.
+
+2003-07-23  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el (inversion-version): set to 1.0
+
+2003-07-18  Eric M. Ludlam  <zappo@gnu.org>
+
+	* ezimage.el (ezimage-insert-image-button-maybe):
+	Use when instead of if.
+	(ezimage-insert-over-text): Only do logic if images enabled.
+	(ezimage-image-over-string): New fcn.
+
+	* icons/bitsbang.xpm, icons/key.xpm, icons/lock.xpm, icons/unlock.xpm:
+	*** empty log message ***
+
+2003-07-17  Eric M. Ludlam  <zappo@gnu.org>
+
+	* icons/bits.xpm, icons/box-minus.xpm, icons/box-plus.xpm, icons/box.xpm, icons/checkmark.xpm, icons/dir-minus.xpm, icons/dir-plus.xpm, icons/dir.xpm, icons/doc-minus.xpm, icons/doc-plus.xpm, icons/doc.xpm, icons/info.xpm, icons/key.xpm, icons/label.xpm, icons/lock.xpm, icons/mail.xpm, icons/page-minus.xpm, icons/page-plus.xpm, icons/page.xpm, icons/tag-gt.xpm, icons/tag-minus.xpm, icons/tag-plus.xpm, icons/tag-type.xpm, icons/tag-v.xpm, icons/tag.xpm, icons/unlock.xpm:
+	*** empty log message ***
+
+	* ezimage.el: Image display code; extracted from speedbar.
+
+2003-03-04  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el (inversion-package-version): Fixed output messages.
+
+2003-03-03  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el (inversion-require): Make file argument optional.
+
+2003-03-02  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el (inversion-test): Fix typo.
+
+	* inversion.el (inversion-reverse-test): New function.
+
+	* inversion.el (inversion-unit-test):
+	New fcn built from previously inline code.
+
+2003-02-17  David Ponce  <david@dponce.com>
+
+	* pprint.el (pprint-defvar): Fixed.
+	(pprint-to-string): Escape left parenthesis at beginning of line
+	in strings.
+
+2003-01-28  David Ponce  <david@dponce.com>
+
+	* cedet.el: New file.
+
+	* inversion.el (inversion-add-to-load-path):
+	Don't change the `load-path' if the
+	package directory don't exist.
+
+2002-12-19  David Ponce  <david@dponce.com>
+
+	* inversion.el (inversion-find-version):
+	Use `locate-library' to avoid compatibility
+	problems.
+
+2002-12-13  David Ponce  <david@dponce.com>
+
+	* inversion.el (inversion-version): Changed to 1.0beta4.
+	(inversion-decoder-ring): Doc fix.
+	(inversion-recode): Implemented.
+	(inversion-check-version): New function.
+	(inversion-test): Use it.
+	(inversion-add-to-load-path): New function.
+
+2002-12-11  David Ponce  <david@dponce.com>
+
+	* inversion.el: (inversion-incompatible-version)
+	(inversion-test): Doc fix.
+	(inversion-find-data): New constant.
+	(inversion-find-version): New function.
+	(inversion-upgrade-package 'semantic): Commented out.
+
+2002-09-05  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el: Updated tesets.
+	(inversion-incompatible-version): Changed for testing
+	(inversion-<): Logic updates
+	(inversion-test): More tests
+	(inversion-require): Added DIRECTORY where new versions to be found.
+	(inversion-locate-package-files, inversion-locate-package-files-and-split)
+	(inversion-download-package-ask, inversion-upgrade-package): New functions.
+
+2002-09-03  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el: Update tests.
+
+	* inversion.el (inversion-test): Indentation issues.
+
+	* inversion.el (inversion-test): fixed typo.
+
+	* inversion.el: Added history.
+	Checkdoc fixes.
+
+	* inversion.el: Changed version number.
+
+2002-08-21  Eric M. Ludlam  <zappo@gnu.org>
+
+	* inversion.el: Version checking functionality.
+
+2002-03-11  David Ponce  <david@dponce.com>
+
+	* pprint.el (pprint-cond): New function.
+	(pprint-with): New function.
+	(pprint-setup-standard-printers): Use them to pretty print `cond' and
+	`with-...' forms.  Added pretty printing of `dotimes' and
+	`unwind-protect'.
+
+	* pprint.el (pprint-min-width): Moved before used.
+	(pprint-close-list): Ditto.  Deleted code commented out.
+
+2002-03-10  David Ponce  <david@dponce.com>
+
+	* pprint.el (pprint-sexp-try): Renamed from `pprint-sexp-width'.
+	(pprint-list): Use it.  Handle whole list.
+	(pprint-close-list): Commented out code that break line.
+	(pprint-sexp): Simplified.
+
+	* pprint.el (pprint-no-break-p):
+	Check that MOTIONS stay on the same line.
+	(pprint-close-list): Check for a newline instead of counting lines.
+	(pprint-min-width): Replaced `defconst' by `defvar'.
+	(pprint-to-string): Locally bind `inhibit-modification-hooks' to
+	non-nil.
+
+	* pprint.el: A flexible Elisp pretty-printer.  Initial revision.
+

@@ -1,0 +1,5 @@
+# This was cloned from a TextMate bundle for yasnippet.
+# --
+def test_${1:case_name}
+  $0
+end

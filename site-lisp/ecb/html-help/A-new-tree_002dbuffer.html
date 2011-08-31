@@ -1,0 +1,587 @@
+<html lang="en">
+<head>
+<title>A new tree-buffer - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="tree_002dbuffer.html#tree_002dbuffer" title="tree-buffer">
+<link rel="prev" href="Introduction.html#Introduction" title="Introduction">
+<link rel="next" href="A-new-tree_002dnode.html#A-new-tree_002dnode" title="A new tree-node">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="A-new-tree-buffer"></a>
+<a name="A-new-tree_002dbuffer"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="A-new-tree_002dnode.html#A-new-tree_002dnode">A new tree-node</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Introduction.html#Introduction">Introduction</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="tree_002dbuffer.html#tree_002dbuffer">tree-buffer</a>
+<hr>
+</div>
+
+<h4 class="subsection">11.3.2 How to create a new tree-buffer</h4>
+
+<p>The creator-function for a new tree-buffer depends on the fact if the
+new tree-buffer should be used as an ECB-window or not. For a new
+ECB-window the macro <code>defecb-tree-buffer-creator</code> has to be
+used, otherwise the function <code>tree-buffer-create</code>. In the end
+both methods use <code>tree-buffer-create</code> because the BODY-argument
+of <code>defecb-tree-buffer-creator</code> must contain a call to this
+function!.
+
+   <p>This section describes all arguments of <code>tree-buffer-create</code>.
+
+   <p>Except the first argument <var>NAME</var> all arguments are key-arguments
+of the form :arg-name arg-value, so for example a call looks like
+
+<pre class="example">   (tree-buffer-create &lt;buffer-name&gt; :frame &lt;frame-object&gt; ...).
+</pre>
+   <p>These key-arguments (all except the first argument <code>NAME</code>) can be
+arranged in any arbitrary order but all of them are not-optional! The
+key-arg-name is always a : followed by the lowercase version of the
+mentioned argument below (e.g. <code>FRAME</code> &ndash;&gt; :frame,
+<code>MOUSE-ACTION-TRIGGER</code> &ndash;&gt; :mouse-action-trigger).
+
+   <p>Here is a description of the arguments of <code>tree-buffer-create</code> -
+also available as docstring for this function (via <kbd>C-h f</kbd>). The
+description below contains also some examples for complex-arguments!
+
+     <dl>
+<dt><code>NAME</code><dd>Buffername of the new tree-buffer.
+
+     <br><dt><var>FRAME</var><dd>Frame in which the tree-buffer is displayed and valid. All
+key-bindings and interactive functions of the tree-buffer work only if
+called in <var>FRAME</var> otherwise nothing is done!
+
+     <br><dt><var>MOUSE-ACTION-TRIGGER</var><dd>When a mouse-action is triggered. Allowed values:
+<code>button-release</code> and <code>button-press</code>.
+
+     <br><dt><var>IS-CLICK-VALID-FN</var><dd><code>tree-buffer-create</code> rebinds <kbd>mouse-1</kbd>, <kbd>mouse-2</kbd>,
+<kbd>RET</kbd> (and <kbd>TAB</kbd>) and also in combination with shift and
+control (not with <kbd>TAB</kbd>). <var>IS-CLICK-VALID-FN</var> is called first
+if a node or an expand-symbol is clicked. This function is called with
+five arguments:
+
+          <ul>
+<li>mouse-button:
+The clicked mouse-button or RET or TAB (0 = RET or TAB, 1 = mouse-1, 2
+= mouse 2)
+<li>shift-pressed:
+Non nil if the SHIFT-key was pressed during mouse-click or RET. 
+<li>control-pressed:
+Non nil if the CONTROL-key was pressed during mouse-click or RET. 
+<li>meta-pressed:
+Non nil if the META-key was pressed during mouse-click or RET. 
+<li>tree-buffer-name:
+The buffer-name of the tree-buffer where the node has been clicked. 
+</ul>
+
+     <p>The function must return not nil iff exactly this click/hit is
+accepted. If the function returns nil then really nothing is done by
+the tree-buffer after this click/hit!
+
+     <p>Here is an example (call <kbd>C-h f</kbd> to see what it does) for this
+callback-function:
+
+     <pre class="example">        (defun ecb-interpret-mouse-click (mouse-button
+                                          shift-pressed
+                                          control-pressed
+                                          meta-pressed
+                                          tree-buffer-name)
+          (if (eq mouse-button 0)
+              (list (if control-pressed 2 1) shift-pressed meta-pressed
+                    'keyboard)
+            (if (and (not (eq mouse-button 1)) (not (eq mouse-button 2)))
+        	nil
+              (case ecb-primary-secondary-mouse-buttons
+                (mouse-1--mouse-2
+                 (if control-pressed
+                     nil
+                   (list mouse-button shift-pressed meta-pressed 'mouse)))
+                (mouse-1--C-mouse-1
+                 (if (not (eq mouse-button 1))
+                     nil
+                   (list (if control-pressed 2 1) shift-pressed meta-pressed
+                         'mouse)))
+                (mouse-2--C-mouse-2
+                 (if (not (eq mouse-button 2))
+                     nil
+                   (list (if control-pressed 2 1) shift-pressed meta-pressed
+                         'mouse)))
+                (otherwise nil)))))
+   </pre>
+     <p>This example would be passed as parameter as follows:
+
+     <pre class="example">        (tree-buffer-create "myname"
+                            :is-click-valid-fn 'ecb-interpret-mouse-click
+                            ...)
+   </pre>
+     <br><dt><var>NODE-SELECTED-FN</var><dd>Function to call if a node has been selected. This function
+is called with the following parameters:
+
+          <ul>
+<li>node: The selected node
+<li>mouse-button (0 = RET, 1 = mouse-1, 2 = mouse 2)
+<li>shift-pressed
+<li>control-pressed
+<li>meta-pressed
+<li>tree-buffer-name
+</ul>
+
+     <p>For the last four arguments see the description above. This function
+has to ensure that the expandable- and expanded-state of the selected
+node is correct after returning.
+
+     <p>Here is an example (call <kbd>C-h f</kbd> to see what it does) for this
+callback-function:
+
+     <pre class="example">        (defun ecb-tree-buffer-node-select-callback (node
+        					     mouse-button
+        					     shift-pressed
+        					     control-pressed
+                                                     meta-pressed
+        					     tree-buffer-name)
+          (let* ((ecb-button-list (ecb-interpret-mouse-click mouse-button
+        						     shift-pressed
+        						     control-pressed
+                                                             meta-pressed
+        						     tree-buffer-name))
+        	 (ecb-button (nth 0 ecb-button-list))
+        	 (shift-mode (nth 1 ecb-button-list))
+                 (meta-mode (nth 2 ecb-button-list))
+                 (keyboard-p (equal (nth 3 ecb-button-list) 'keyboard))
+                 (maximized-p (ecb-buffer-is-maximized-p tree-buffer-name)))
+            ;; now we dispatch to the right action
+            (when ecb-button-list
+              (cond ((ecb-string= tree-buffer-name ecb-directories-buffer-name)
+        	     (ecb-directory-clicked node ecb-button nil shift-mode
+                                            meta-mode))
+        	    ((ecb-string= tree-buffer-name ecb-sources-buffer-name)
+        	     (ecb-source-clicked node ecb-button nil shift-mode
+                                         meta-mode))
+        	    ((ecb-string= tree-buffer-name ecb-history-buffer-name)
+        	     (ecb-history-clicked node ecb-button nil shift-mode
+                                          meta-mode))
+        	    ((ecb-string= tree-buffer-name ecb-methods-buffer-name)
+        	     (ecb-method-clicked node ecb-button nil shift-mode
+                                         meta-mode))
+        	    ((ecb-string= tree-buffer-name ecb-analyse-buffer-name)
+        	     (ecb-analyse-node-clicked node ecb-button nil shift-mode
+                                               meta-mode))
+        	    (t nil)))))
+   </pre>
+     <p>This example would be passed as parameter as follows:
+
+     <pre class="example">        (tree-buffer-create "myname"
+                            :node-selected-fn 'ecb-tree-buffer-node-select-callback
+                            ...)
+   </pre>
+     <p><strong>IMPORTANT</strong>: This callback must not modify the slot
+<var>EXPANDED</var> of the passed node because this is done automatically
+by the tree-buffer-library!
+
+     <br><dt><var>NODE-EXPANDED-FN</var><dd>Function to call if a node is expandable, point stays onto the
+expand-symbol and node is not already expanded. This function is
+called with the following parameters:
+
+          <ul>
+<li>node: The selected node
+<li>mouse-button (0 = TAB, 1 = mouse-1, 2 = mouse 2)
+<li>shift-pressed
+<li>control-pressed
+<li>meta-pressed
+<li>tree-buffer-name
+</ul>
+
+     <p>This function should add all children nodes to this node if not
+already done (if possible). This function has to ensure that the
+expandable- and expanded state of the selected node is correct after
+returning!
+
+     <p><strong>IMPORTANT</strong>: This callback must not modify the slot
+<var>EXPANDED</var> of the passed node because this is done automatically
+by the tree-buffer-library!
+
+     <br><dt><var>NODE-COLLAPSED-FN</var><dd>Function to call if a node is expandable, point stays onto the
+expand-symbol and node is already expanded. This function is called
+with the following parameters:
+
+          <ul>
+<li>node: The selected node
+<li>mouse-button (0 = TAB, 1 = mouse-1, 2 = mouse 2)
+<li>shift-pressed
+<li>control-pressed
+<li>meta-pressed
+<li>tree-buffer-name
+</ul>
+
+     <p>This function is only a callback to inform the owner/user of this
+tree-buffer that this node has been collapsed. This function must not
+modify the expandable- or expanded state of the selected node!
+
+     <p>Often a sensefull value for this parameter is the function
+<code>ignore</code>.
+
+     <p><strong>IMPORTANT</strong>: This callback must not modify the slot
+<var>EXPANDED</var> of the passed node because this is done automatically
+by the tree-buffer-library!
+
+     <br><dt><var>NODE-MOUSE-OVER-FN</var><dd>Function to call when the mouse is moved over a node. This function is
+called with three arguments: NODE, WINDOW, NO-PRINT, each of them
+related to the current tree-buffer. If NO-PRINT is nil then the
+function must print the text itself in any manner. This function must
+always return the text which either is printed by the function itself
+or by the caller (if NO-PRINT is not nil). The current buffer for this
+function is the tree-buffer itself. With XEmacs this function is only
+called if the tree-buffer track-mouse mechanism is activated (see the
+function <code>tree-buffer-activate-follow-mouse</code>). With GNU Emacs &gt;=
+21 this function is called by the <code>help-echo</code> property added to
+each node.
+
+     <p>Here is an example (call <kbd>C-h f</kbd> to see what it does) for this
+callback-function:
+
+     <pre class="example">        (defun ecb-mouse-over-analyse-node (node &amp;optional window no-message
+                                                 click-force)
+          (let ((str (when (or click-force
+                               (ecb-show-minibuffer-info
+                                node window
+                                (car ecb-analyse-show-node-info)))
+                       (if (equal (cdr ecb-analyse-show-node-info)
+                                  'full-info)
+                           (ecb-analyse-gen-tag-info
+                            (car (tree-node-&gt;data node)))
+                         (tree-node-&gt;name node)))))
+            (prog1 str
+              (unless no-message
+                (ecb-nolog-message str)))))
+   </pre>
+     <br><dt><var>MOUSE-HIGHLIGHT-FN</var><dd>If nil then in this tree-buffer no node is highlighted when the mouse
+moves over it. If t then each node is highlighted when the mouse moves
+over it. If a function then it is called with the node as argument and
+if it returns not nil then the node will be highlighted when the mouse
+moves over it - otherwise no highlighting takes place.
+
+     <br><dt><var>NODE-DATA-EQUAL-FN</var><dd>Function used by the tree-buffer to test if the data of two tree-nodes
+are equal. The function is called with two args: The DATA-slots of the
+two tree-nodes (see <a href="A-new-tree_002dnode.html#A-new-tree_002dnode">A new tree-node</a> for details about the
+data-slots).
+
+     <p>Here is an example (call <kbd>C-h f</kbd> to see what it does) for this
+callback-function:
+
+     <pre class="example">        (defun ecb-analyse-compare-node-data (left right)
+          "Return not nil when LEFT and RIGHT are identical node-datas."
+          (and (equal (nth 2 left) (nth 2 right))
+               (ecb-compare-methods-buffer-node-data (car left)
+                                                     (car right))))
+   </pre>
+     <p>Often a suitable value for this parameter is <code>equal</code>.
+
+     <br><dt><var>MAYBE-EMPTY-NODE-TYPES</var><dd>Nil or a list of node-types (a node-type is an integer which must be
+set with <code>tree-node-new</code>). Nodes with one of these types are
+treated as empty if they are not expandable (i.e. they have no
+children) and will be displayed with the empty-symbol ([x]); for other
+nodes see next argument.
+
+     <br><dt><var>LEAF-NODE-TYPES</var><dd>Nil or a list of node-types (see above). Nodes with one of these types
+are treated as leafs and will be displayed with the leaf-symbol (*).
+
+     <p>Summary for <var>MAYBE-EMPTY-NODE-TYPES</var> and <var>LEAF-NODE-TYPES</var>:
+
+          <ul>
+<li>Expandable nodes will always be displayed either with the open- or
+with the close-symbol.
+
+          <li>Not-expandable nodes with a node-type contained in
+<var>MAYBE-EMPTY-NODE-TYPES</var> will be displayed with the empty-symbol.
+
+          <li>Not-expandable nodes with a node-type contained in
+<var>LEAF-NODE-TYPES</var> will be displayed with the leaf-symbol.
+
+          <li>All other nodes will be displayed with no symbol just with correct
+indentation. 
+</ul>
+
+     <br><dt><var>MENU-CREATOR</var><dd>Nil or function which has to return nil or a list of conses, each cons
+for a known node-type of this tree-buffer (the node-type of a node is
+an integer). Example: ((0 . menu-for-type-0) (1 . menu-for-type-1)). 
+The cdr of a cons must be a menu in the same format
+<code>tree-buffer-create-menu</code> expects as argument - see the
+documentation of this function for details. This function gets two
+arguments: The name of the tree-buffer and the node for which a
+popup-menu should be opened.
+
+     <p>Here is an example for such a menu-creator-callback:
+
+     <pre class="example">        (defconst ecb-analyse-nodedata-tag-with-pos 0)
+        (defconst ecb-analyse-nodedata-tag-without-pos 1)
+        (defconst ecb-analyse-nodedata-no-tag 2)
+        
+        (defconst ecb-analyse-nodetype-bucket 0)
+        (defconst ecb-analyse-nodetype-context 1)
+        (defconst ecb-analyse-nodetype-arguments 2)
+        (defconst ecb-analyse-nodetype-completions 3)
+        (defconst ecb-analyse-nodetype-localvars 4)
+        (defconst ecb-analyse-nodetype-prefix 5)
+        (defconst ecb-analyse-nodetype-assignee 6)
+        (defconst ecb-analyse-nodetype-function 7)
+        (defconst ecb-analyse-nodetype-function-arg 8)
+        
+        (defun ecb-analyse-create-menu (node)
+          "Return a popup-menu suitable for NODE."
+          (let* ((data (tree-node-&gt;data node))
+                 (tag-p (not (equal (nth 1 data) ecb-analyse-nodedata-no-tag)))
+                 (tag-with-pos-p (equal (nth 1 data)
+                                        ecb-analyse-nodedata-tag-with-pos))
+                 (nodetype (nth 2 data)))
+            (delq nil (list (if (equal nodetype ecb-analyse-nodetype-completions)
+                                '(ecb-analyse-complete "Complete"))
+                            (if tag-p
+                                '(ecb-analyse-show-tag-info "Show tag info"))
+                            (if tag-with-pos-p
+                                '(ecb-analyse-jump-to-tag "Jump to tag"))))))
+        
+        (defun ecb-analyse-menu-creator (tree-buffer-name node)
+          "Creates the popup-menus for the analyse-buffer."
+          (let ((nodetype (tree-node-&gt;type node)))
+            (unless (equal nodetype ecb-analyse-nodetype-bucket)
+              (mapcar (function (lambda (type)
+                                  (cons type (ecb-analyse-create-menu node))))
+                      `(,ecb-analyse-nodetype-context
+                        ,ecb-analyse-nodetype-arguments
+                        ,ecb-analyse-nodetype-completions
+                        ,ecb-analyse-nodetype-localvars
+                        ,ecb-analyse-nodetype-prefix
+                        ,ecb-analyse-nodetype-assignee
+                        ,ecb-analyse-nodetype-function
+                        ,ecb-analyse-nodetype-function-arg)))))
+   </pre>
+     <p>This example would be passed as parameter as follows:
+
+     <pre class="example">        (tree-buffer-create "myname"
+                            :menu-creator 'ecb-analyse-menu-creator
+                            ...)
+   </pre>
+     <br><dt><var>MENU-TITLES</var><dd>Nil or a list conses, each cons for a node-type. See
+<var>MENU-CREATOR</var>. The cdr of a cons must be either a string or a
+function which will be called with current node under point and must
+return a string which is displayed as the menu-title.
+
+     <br><dt><var>MODELINE-MENU-CREATOR</var><dd>Nil or a function which has to return nil or a menu in the same format
+<code>tree-buffer-create-menu</code> expects as argument - see the
+documentation of this function for details. This function gets one
+argument: The name of the tree-buffer. If the function returns a menu
+then this menu will be displayed when the user clicks with
+mouse-button 3 at the modeline of the tree-buffer. The menu-title will
+be &ldquo;Tree-buffer modeline-menu&rdquo;.
+
+     <br><dt><var>sticky-parent-p</var><dd>If not nil then with GNU Emacs &gt;= 21 the tree-buffer displays in its
+header-line the unvisible parent-node if there is any. sticky-parent-fn is
+used to get this parent node.
+
+     <br><dt><var>sticky-indent-string</var><dd>String used for indendation of the sticky node in the header-line so it
+matches the tree-display.
+
+     <br><dt><var>sticky-parent-fn</var><dd>Function used to get that parent node which should be sticky. This function
+gets as argument a node and should either return nil (if there is not suitable
+parent node) or a node. This node will be displayed as sticky in the
+header-line of the tree-buffer. If nil is returned and sticky-parent-p is not
+nil then just the node under the header-line is displayed. If this argument is
+nil and sticky-parent-p is not nil then always the next unvisible parent node
+will be displayed in the header-line.
+
+     <br><dt><var>TRUNC-LINES</var><dd>Should lines in this tree buffer be truncated (not nil).
+
+     <br><dt><var>READ-ONLY</var><dd>Should the treebuffer be read-only (not nil).
+
+     <br><dt><var>TREE-INDENT</var><dd>Spaces subnodes should be indented. Ignored if <var>TREE-STYLE</var> is
+<code>image</code> (see below).
+
+     <br><dt><var>INCR-SEARCH-P</var><dd>Should the incremental search be enabled in the tree-buffer. Three
+choices: <code>prefix</code>, <code>substring</code>, <code>nil</code>. See the command
+<code>tree-buffer-incremental-node-search</code>.
+
+     <br><dt><var>INCR-SEARCH-ADDITIONAL-PATTERN</var><dd>Every search-pattern is prefixed with a regexp to jump over not
+important stuff of a displayed node-name at incr. search.. This is per
+default: beginning spaces and guide characters (|`-) and all
+expand/collapse-buttons [+], [x], rsp. [-]!
+
+     <p>If this argument is not nil then it must be a cons-cell where car is a
+string which should be a regexp-pattern which is added to the
+basic-prefix pattern (see above) and both of them prefix the
+incr-search-pattern. The cdr is the number of subexpressions in this
+additoonal pattern.
+
+     <br><dt><var>ARROW-NAVIGATION</var><dd>If not nil then a smart navigation with arrow keys is offered:
+
+          <ul>
+<li>Left-arrow:
+If node is expanded then it will be collapsed otherwise point
+jumps to the next "higher" node in the hierarchical tree (higher means
+the next higher tree-level or - if no higher level available - the next
+higher node on the same level).
+
+          <li>Right-arrow:
+If node is not expanded then it will be expanded.
+
+          <p>Onto a not expandable node the horizontal arrow-keys go one character in the
+senseful correct direction.
+
+          <li>Up- and down-key:
+Point jumps to the first character of the previous (up) rsp. next node
+(down). &ldquo;First&rdquo; character means either the first character of the
+expand-symbol (in case <var>EXPAND-SYMBOL-BEFORE-P</var> is not nil) or of
+the displayed node-name. Or with other words: The first
+non-indentation and non-guide-line (see <var>TREE-STYLE</var>) character of
+a node. 
+</ul>
+
+     <br><dt><var>HOR-SCROLL-STEP</var><dd>Number of columns a hor. scroll in the tree-buffer should scroll. If
+not nil then <kbd>M-mouse-1</kbd> and <kbd>M-mouse-2</kbd> scroll left and right
+and also <kbd>M-&lt;left-arrow&gt;</kbd> and <kbd>M-&lt;right-arrow&gt;</kbd>. Ignored with
+XEmacs.
+
+     <br><dt><var>DEFAULT-IMAGES-DIR</var><dd>Full path where the default images for the tree-buffer can be found. 
+It should contain an image for every name of
+<code>tree-buffer-tree-image-names</code>.
+
+     <br><dt><var>ADDITIONAL-IMAGES-DIR</var><dd>Additional image-dir which should be searched first for images needed
+for current tree-buffer. If the image can not be found in this
+directory then <var>DEFAULT-IMAGES-DIR</var> is searched. If the image can't even
+found here the related ascii-symbol is used.
+
+     <br><dt><var>IMAGE-FILE-PREFIX</var><dd>Common prefix for all image-files for this tree-buffer, e.g. &ldquo;ecb-&rdquo;.
+
+     <br><dt><var>TREE-STYLE</var><dd>There are three different styles available: Image-style (value
+<code>image</code>): Very nice and modern because image-icons are used to display
+the tree-buffer. For this style the arguments <var>TREE-INDENT</var> and
+<var>EXPAND-SYMBOL-BEFORE-P</var> have no effect.
+
+     <p>Ascii-style with guide-lines (value <code>ascii-guides</code>) and
+ascii-style without guidelines (value <code>ascii-no-guides</code>. See
+<a href="Tree_002dbuffer-styles.html#Tree_002dbuffer-styles">Tree-buffer styles</a> for details about the tree-styles.
+
+     <p>Both ascii-styles are affected by the args <var>TREE-INDENT</var> and
+<var>EXPAND-SYMBOL-BEFORE-P</var>.
+
+     <br><dt><var>ASCII-GUIDE-FACE</var><dd>If <var>TREE-STYLE</var> is <code>ascii-guides</code> then this defines the face
+the guides should be displayed with.
+
+     <br><dt><var>TYPE-FACER</var><code>:</code><dd>Nil or a list of one or more conses, each cons for a node-type (a
+node-type is an integer which must be set with <code>tree-node-new</code>). 
+The cdr of a cons can be:
+
+          <ul>
+<li>a face-symbol
+
+          <li>a function-symbol which gets two arguments (see
+<code>tree-buffer-insert-text</code>). This function can do anything, but
+normally it should face a tree-node.
+
+          <li>the symbol t. Then the tree-buffer assumes that the node-text is
+already faced and therefore it does not face the node, means it does
+nothing then inserting the node-text, if the tree-buffer is updated. 
+</ul>
+
+     <br><dt><var>EXPAND-SYMBOL-BEFORE-P</var><dd>If not nil then the expand-symbol is displayed before the node-text. 
+Ignored when <var>TREE-STYLE</var> is <code>image</code> and Emacs can display
+images.
+
+     <br><dt><var>HIGHLIGHT-NODE-FACE</var><dd>Face used for highlighting current selected node in this
+tree-buffer.
+
+     <br><dt><var>GENERAL-FACE</var><dd>General face in which the whole tree-buffer should be displayed.
+
+     <br><dt><var>AFTER-CREATE-HOOK</var><code>:</code><dd>A function or a list of functions (with no arguments) called directly
+after creating the tree-buffer and defining it's local keymap. For
+example such a function can add additional key-bindings for this
+tree-buffer local keymap (use <code>local-set-key</code> for this).
+
+     <p>Here is an example for such a hook:
+
+     <pre class="example">        (defun ecb-common-after-tree-buffer-create-actions ()
+          "Things which should be performed after creating a tree-buffer.
+        The tree-buffer is the current buffer."
+          (local-set-key (kbd "C-t")
+                         'ecb-toggle-do-not-leave-window-after-select)
+          (if ecb-running-xemacs
+              (define-key modeline-map
+                '(button2up)
+                'ecb-toggle-maximize-ecb-window-with-mouse)
+            (local-set-key [mode-line mouse-2]
+                           'ecb-toggle-maximize-ecb-window-with-mouse)))
+   </pre>
+     <br><dt><var>AFTER-UPDATE-HOOK</var><code>:</code><dd>A function or a list of functions (with no arguments) called each time
+after the tree-buffer has been updated via <code>tree-buffer-update</code>.
+
+   </dl>
+
+   <p>Here is an example how to create a tree-buffer (if you want a
+tree-buffer not for ECB then just strip off the
+<code>defecb-tree-buffer-creator</code> and just call
+<code>tree-buffer-create</code>):
+
+<pre class="example">   (defecb-tree-buffer-creator ecb-create-analyse-tree-buffer
+       ecb-analyse-buffer-name
+     "Create the tree-buffer for analyse-display."
+     (tree-buffer-create
+      ecb-analyse-buffer-name
+      :frame ecb-frame
+      :mouse-action-trigger ecb-tree-mouse-action-trigger
+      :is-click-valid-fn 'ecb-interpret-mouse-click
+      :node-selected-fn 'ecb-tree-buffer-node-select-callback
+      :node-expanded-fn 'ecb-tree-buffer-node-expand-callback
+      :node-collapsed-fn 'ecb-tree-buffer-node-collapsed-callback
+      :node-mouse-over-fn 'ecb-mouse-over-analyse-node
+      :mouse-highlight-fn 'ecb-analyse-node-mouse-highlighted-p
+      :node-data-equal-fn 'ecb-analyse-compare-node-data
+      :maybe-empty-node-types nil
+      :leaf-node-types nil
+      :menu-creator 'ecb-analyse-menu-creator
+      :menu-titles (ecb-analyse-gen-menu-title-creator)
+      :modeline-menu-creator 'ecb-common-tree-buffer-modeline-menu-creator
+      :trunc-lines (ecb-member-of-symbol/value-list
+                    ecb-analyse-buffer-name
+                    ecb-tree-truncate-lines)
+      :read-only t
+      :tree-indent ecb-tree-indent
+      :incr-search-p t
+      :incr-search-additional-pattern nil
+      :arrow-navigation ecb-tree-navigation-by-arrow
+      :hor-scroll-step ecb-tree-easy-hor-scroll
+      :default-images-dir (car ecb-tree-image-icons-directories)
+      :additional-images-dir (ecb-member-of-symbol/value-list
+                              ecb-analyse-buffer-name
+                              (cdr ecb-tree-image-icons-directories)
+                              'car 'cdr)
+      :image-file-prefix "ecb-"
+      :tree-style ecb-tree-buffer-style
+      :ascii-guide-face ecb-tree-guide-line-face
+      :type-facer nil
+      :expand-symbol-before-p ecb-tree-expand-symbol-before
+      :highlight-node-face ecb-analyse-face
+      :general-face ecb-analyse-general-face
+      :after-create-hook (append
+                          (list (lambda ()
+                                  (ecb-common-after-create-actions)))
+                          ecb-common-tree-buffer-after-create-hook
+                          ecb-analyse-buffer-after-create-hook)
+      :after-update-hook nil))
+</pre>
+   </body></html>
+

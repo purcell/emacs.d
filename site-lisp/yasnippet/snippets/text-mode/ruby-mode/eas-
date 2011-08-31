@@ -1,0 +1,4 @@
+# This was cloned from a TextMate bundle for yasnippet.
+#group : Enumerables
+# --
+each_slice(${1:2}) { |${2:group}| $0 }

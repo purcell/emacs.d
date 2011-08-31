@@ -1,0 +1,6 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : trait T { .. }
+# --
+trait ${1:name} {
+  $0
+}

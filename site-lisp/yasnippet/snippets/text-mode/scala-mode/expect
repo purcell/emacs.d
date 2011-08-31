@@ -1,0 +1,6 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : expect(value) { ..}
+# --
+expect(${1:reply}) {
+  $0
+}

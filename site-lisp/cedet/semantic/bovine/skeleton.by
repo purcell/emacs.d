@@ -1,0 +1,81 @@
+;;; skeleton.by -- Skeleton for creating BY files.
+;;
+;; Copyright (C) 2001, 2003 Eric M. Ludlam
+;;
+;; Author: 
+;; X-RCS: $Id: skeleton.by,v 1.5 2005/09/30 20:22:41 zappo Exp $
+;;
+;; .bnf is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2, or (at your option)
+;; any later version.
+;;
+;; This software is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to the
+;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+;;
+
+;; Replace occurance of "skeleton" with the name of your language.
+
+;; Replace start, and scopestart names with something apropriate for
+;; your language.
+
+%package semantic-skeleton-by
+
+%languagemode  skeleton-mode
+%start         starting_rule
+%scopestart    start_scope_rule
+
+;; Make common keywords into tokens returned by the lexer.
+;; This improves accuracy, makes this file more readable.
+;; Use SOMETHING in your rules as a terminal
+%token SOMETHING "something"
+;; Adding a summary help's `eldoc' mode display useful information
+;; in your language.
+%put SOMETHING summary "Describe something"
+
+;; Turn common punctuation elements into tokens.
+;; This does not effect lexical analysis or accuracy,
+;; but does make your file more readable.
+%token <punctuation> PERIOD "\\`[.]\\'"
+%token <punctuation> OPERATORS "[-+*/%^|&]"
+
+%%
+
+starting_rule : something
+	      ;
+
+start_scope_rule : something_else
+		 ;
+
+
+something : SOMETHING
+	  ;
+
+;; Examples from c.by:
+
+opt-expression : expression
+	       | ;; EMPTY
+	       ;
+
+;; This expression parses over expressions, but doesn't return
+;; anything
+expression : number
+	     ( )
+	   | symbol
+	     ( )
+	   | string
+	     ( )
+           | semantic-list
+	     ( )
+	   | OPERATORS expression
+	   ;; ( nil )
+	   ;
+
+;;; skeleton.by ends here

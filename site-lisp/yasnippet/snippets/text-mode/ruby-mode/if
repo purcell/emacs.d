@@ -1,0 +1,7 @@
+# -*- mode: yasnippet -*-
+#name : if ... end
+#group : Conditions
+# --
+if ${1:condition}
+  $0
+end

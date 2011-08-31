@@ -1,0 +1,50 @@
+;; Object common
+;; EDE project file.
+(ede-proj-project "common"
+  :name "common"
+  :version "1.0pre6"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-makefile-info "Doc"
+    :name "Doc"
+    :path ""
+    :source '("cedet.texi")
+    )
+   (ede-proj-target-aux "misc"
+    :name "misc"
+    :path ""
+    :source '("ChangeLog")
+    )
+   (ede-proj-target-elisp-autoloads "autoloads"
+    :name "autoloads"
+    :path ""
+    :autoload-file "cedet-loaddefs.el"
+    )
+   (ede-proj-target-elisp "init"
+    :name "init"
+    :path ""
+    :source '("cedet-load.el")
+    )
+   (ede-proj-target-elisp "setup"
+    :name "setup"
+    :path ""
+    :source '("cedet.el")
+    :versionsource '("cedet.el")
+    )
+   (ede-proj-target-elisp "common"
+    :name "common"
+    :path ""
+    :source '("cedet-autogen.el" "cedet-compat.el" "ezimage.el" "inversion.el" "pprint.el" "sformat.el" "fame.el" "working.el" "cedet-edebug.el" "mode-local.el" "cedet-files.el" "pulse.el" "data-debug.el" "cedet-global.el" "cedet-idutils.el" "cedet-cscope.el")
+    )
+   (ede-proj-target-elisp "tests"
+    :name "tests"
+    :path ""
+    :source '("cedet-utests.el")
+    )
+   )
+  :web-site-url "http://cedet.sourceforge.net/"
+  :web-site-directory "/r@scp:shell.sourceforge.net:cedet/htdocs"
+  :ftp-upload-site "/ftp@upload.sourceforge.net:/incoming"
+  :configuration-variables 'nil
+  :metasubproject 't
+  )

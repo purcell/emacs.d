@@ -1,0 +1,4 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : val l = List(..)
+# --
+val ${1:l} = List(${2:args}, ${3:args}) $0

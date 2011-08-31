@@ -1,0 +1,10 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : Scenario
+# --
+Scenario '${1:title}' do
+  Given '${2:given}'
+  When '${3:when}'
+  Then '${4:then}'
+end
+$0

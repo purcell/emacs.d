@@ -1,0 +1,36 @@
+@c Headers and Macros for documentation written for Semantic.
+
+@c Originally written and organized by Richard Y. Kim in semantic.texi.
+
+@c *************************************************************************
+@c @ Macros
+@c *************************************************************************
+
+@c The word ``semantic'' is overloaded with two meanings in this manual.
+@c One is the name of this projects, i.e., a noun.
+@c The other is the usual English word, i.e., an adjective.
+@c This macro was created to distinguish between the two meanings.
+@c This macro should be used whenever you are referring to the name of
+@c this project.
+@c For now, this is simply the word ``semantic'' in italic font.
+@c In the future, this may turn into a logo similar to @TeX{}.
+@macro semantic{}
+@i{semantic}
+@end macro
+
+@c To be used within the glossary section.
+@macro keyword{kw}
+@anchor{\kw\}
+@b{\kw\}
+@end macro
+
+@c Simple macro to help document obsoleted functions.
+@macro obsolete{old,new}
+@sp 1
+@strong{Compatibility}:
+@code{\new\} introduced in @semantic{} version 2.0 supercedes
+@code{\old\} which is now obsolete.
+@end macro
+
+@c Common settings
+@paragraphindent none

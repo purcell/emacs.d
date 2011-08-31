@@ -1,0 +1,6 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : should redirect_to
+# --
+response.should redirect_to(${1:url})
+$0

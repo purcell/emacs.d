@@ -1,0 +1,4 @@
+#name : render :text => " ... ", :status =>  ... 
+#group: Rails render
+# --
+render :text => "${Text here...}", :status => ${401}

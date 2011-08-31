@@ -1,0 +1,563 @@
+%% TeX macros to handle Japanese texinfo files for Egg
+%% Modified by Satoru Tomura (tomura@etl.go.jp)
+%% 92.7.8   modified for Mule Ver.0.9.5 by K.Handa <handa@etl.go.jp>
+%%      To detect type of jTeX and its version, the method
+%%      posted by Takafumi SAKURAI <sakurai@math.metro-u.ac.jp> is used.
+%% 92.9.30  modified for Mule Ver.0.9.6 by K.Handa <handa@etl.go.jp>
+%%      For unknown reason, \newif\ifNTTOLD should be before
+%%      \ifNTT.
+%% 93.4.29  modified for Mule Ver.0.9.7 by N.Hikichi <hikichi@sra.co.jp>
+%% 95.10.6  modified for texinfo 2.145 by K.Handa <handa@etl.go.jp>
+%% 95.10.13 modified by J.Sato <jun@svgw.rd.casio.co.jp>
+%%      Support many Japanese oriented phrases (reference, etc)
+%% 95.10.14 modified by K.Handa <handa@etl.go.jp>
+%%      Bug for handling index fixed.
+%% 96.1.16 modified by J.Sato <jun@svgw.rd.casio.co.jp>
+%%      index with [] of @deffn.
+%% 99.6.27 modified by Moimoi <fukusaka@xa2.so-net.ne.jp>
+%%	for texinfo 1999-05-25.6
+%% 2000.2.23 modified by Moimoi <fukusaka@xa2.so-net.ne.jp>
+%%	for texinfo.tex 1999-09-25.10
+%% 2000.4.11 modified by Moimoi <fukusaka@xa2.so-net.ne.jp>
+%%      for texinfo.tex 1999-09-25.10
+%%      fixed for jTeX/pTeX/MulTeX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 92.7.8 by K.Handa
+\newif\ifNTT
+\ifx\gtfam\undefined
+\NTTtrue
+\else
+\NTTfalse
+\fi
+
+\newif\ifNTTOLD
+\ifNTT
+\ifx\jendlinetype\undefined
+\NTTOLDtrue
+\else
+\NTTOLDfalse
+\fi
+\fi
+
+\newif\ifMULTEX
+\ifx\mlbaseversion\undefined
+\MULTEXfalse
+\else
+\MULTEXtrue
+\fi
+
+%% TeX macros to handle Japanese texinfo files
+%% 92/05/24 merged jtexinfo.tex (by H. Isozaki and N. Hikichi) into this
+%% Created by Satoru Tomura (tomura@etl.go.jp)
+
+\def\texinfoJPversion{2.145J.2+++}
+%% これはどう変えるのがいいのかなぁ
+
+\ifNTT
+\ifMULTEX
+\message{txi-ja (Multi-Lingual TeX) package [Version \texinfoJPversion]:}
+\else
+\message{txi-ja (NTT JTeX) package [Version \texinfoJPversion]:}
+\fi
+\else
+\message{txi-ja (ASCII JTeX) package [Version \texinfoJPversion]:}
+\fi
+\message{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Set up fixed words for Japanese.
+\gdef\putwordAppendix{付録}
+\gdef\putwordChapter{章}
+\gdef\putwordfile{ファイル}
+\gdef\putwordin{in}
+\gdef\putwordIndexIsEmpty{(索引が空です)}
+\gdef\putwordIndexNonexistent{(索引がありません)}
+\gdef\putwordInfo{Info}
+\gdef\putwordInstanceVariableof{Instance Variable of}
+\gdef\putwordMethodon{Method on}
+\gdef\putwordNoTitle{無タイトル}
+\gdef\putwordof{of}
+\gdef\putwordon{on}
+\gdef\putwordpage{p.\gobble}
+\gdef\putwordsection{節}
+\gdef\putwordSection{節}
+\gdef\putwordsee{参照}
+\gdef\putwordSee{を参照してください}
+\gdef\putwordShortTOC{簡略目次}
+\gdef\putwordTOC{目次}
+%
+\global\newif\ifIGUMO\IGUMOfalse
+\gdef\igumo{\IGUMOtrue}
+\gdef\putwordMJan{睦月}
+\gdef\putwordMFeb{如月}
+\gdef\putwordMMar{弥生}
+\gdef\putwordMApr{卯月}
+\gdef\putwordMMay{皐月}
+\gdef\putwordMJun{水無月}
+\gdef\putwordMJul{文月}
+\gdef\putwordMAug{葉月}
+\gdef\putwordMSep{長月}
+\gdef\putwordMOct{\ifIGUMO{神在月}\else{神無月}\fi}
+\gdef\putwordMNov{霜月}
+\gdef\putwordMDec{師走}
+%
+\gdef\putwordDefmac{マクロ}
+\gdef\putwordDefspec{Special Form}
+\gdef\putwordDefvar{変数}
+\gdef\putwordDefopt{オプション}
+\gdef\putwordDeftypevar{変数}
+\gdef\putwordDeffunc{関数}
+\gdef\putwordDeftypefun{関数}
+
+\def\today{\number\year 年 \number\month 月 \number\day 日}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% A4 size(Japanese) define, top margin = 20, bottom margin = 21,
+%  left margin = 30, right margin = 15
+%
+
+% ???
+%\global\def\a4book{
+%\global\lispnarrowing = 0.3in
+%\global\baselineskip 12pt
+%\global\parskip 3pt plus 1pt
+%
+%% for @cropmarks
+%%\global\hsize = 6.5in
+%% without @cropmarks
+%\global\hsize = 6.7in
+%
+%\global\doublecolumnhsize=2.4in \global\doublecolumnvsize=15.0in
+%\global\vsize=9.8in
+%\global\tolerance=700
+%\global\hfuzz=1pt
+%
+%\global\pagewidth=\hsize
+%\global\pageheight=\vsize
+%\global\font\ninett=cmtt9
+%
+%\global\let\smalllisp=\smalllispx
+%\global\let\smallexample=\smalllispx
+%\global\def\Esmallexample{\Esmalllisp}
+%
+%% for @cropmarks
+%%\global\voffset = -1.0in
+%%\global\hoffset = -0.2in
+%
+%% without @cropmarks
+%\global\voffset = 0.0in
+%%\global\hoffset = -1.0in
+%\global\hoffset = -0.2in
+%}
+
+% 日本人好きのギッシリ詰まった紙
+% hack please !!
+\global\def\afourbook{{\globaldefs = 1
+  \setleading{12pt}%
+  \parskip = 3pt plus 2pt minus 1pt
+  %
+  \internalpagesizes{248mm}{170mm}{0mm}{-5mm}{0mm}{8mm}%
+  %
+  \tolerance = 700
+  \hfuzz = 1pt
+}}
+
+%% @smallbook for B5
+%\global\def\smallbook{
+%\outerhsize=182mm
+%\outervsize=257mm
+%\hoffset=-0.3in
+%\voffset=-0.3in
+%
+%% These values for secheadingskip and subsecheadingskip are
+%% experiments.  RJC 7 Aug 1992
+%\global\secheadingskip = 17pt plus 6pt minus 3pt
+%\global\subsecheadingskip = 14pt plus 6pt minus 3pt
+%
+%\global\lispnarrowing = 0.3in
+%\setleading{14pt}
+%\advance\topskip by -7mm
+%\global\parskip 3pt plus 1pt
+%\global\hsize = 5.5in
+%\global\vsize=8.25in
+%\global\tolerance=700
+%\global\hfuzz=1pt
+%\global\contentsrightmargin=0pt
+%\global\deftypemargin=0pt
+%\global\defbodyindent=.5cm
+%
+%\global\pagewidth=\hsize
+%\global\pageheight=\vsize
+%
+%\global\let\smalllisp=\smalllispx
+%\global\let\smallexample=\smalllispx
+%\global\def\Esmallexample{\Esmalllisp}
+%}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 日本語フォントに関する互換性
+%
+% Debian/Linux でパッケージ化されている
+%  NTT jTeX / ASCII pTeX / MulTeX(日本語限定) のみ考慮している。
+% (他のサイトの日本語TeXも同様だと期待してる、、、)
+%
+% xdvi/jdvi2kps で使っている vf の種類は 5,6,7,8,9,10/min,goth 。
+%
+
+\ifNTT
+%\global\kanjifiletype=20 % ??
+\global\let\min=\dm\global\let\goth=\dg
+\else
+\global\let\dm=\min\global\let\dg=\goth
+\fi
+
+\def\uniJFont{%
+\ifNTT%
+\ifNTTOLD                       % 92.7.8 by K.Handa
+\let\next=\jTeXoldJFont%
+\else
+\ifMULTEX
+\let\next=\MulTeXJFont%
+\else
+\let\next=\jTeXJFont%
+\fi
+\fi
+\else%
+\let\next=\pTeXJFont%
+\fi%
+\next}
+
+\def\jTeXoldJFont#1#2#3#4{%
+\def\tempa{#2}
+\def\tempb{dm}
+\ifx\tempa\tempb% dm
+\expandafter\gjfont\csname#1\endcsname=dm#3 scaled {#4}%
+\else% dg
+\expandafter\gjfont\csname#1\endcsname=dg#3 scaled {#4}%
+\fi%
+}
+
+% backward compatibility for JTeX で \gjfont が無いとは MulTeX め。
+
+\def\MulTeXJFont#1#2#3#4{%
+\def\tempa{#2}
+\def\tempb{dm}
+{\globaldefs=1%
+\ifx\tempa\tempb% dm
+\expandafter\jfont\csname#1\endcsname=dm#3 scaled #4%
+\else% dg
+\expandafter\jfont\csname#1\endcsname=dg#3 scaled #4%
+\fi}%
+}
+
+\def\jTeXJFont#1#2#3#4{%
+\def\tempa{#2}
+\def\tempb{dm}
+\ifx\tempa\tempb% dm
+\expandafter\gjfont\csname#1\endcsname=dm#3 scaled #4%
+\else% dg
+\expandafter\gjfont\csname#1\endcsname=dg#3 scaled #4%
+\fi%
+}
+
+\def\pTeXJFont#1#2#3#4{%
+\def\tempa{#2}
+\def\tempb{dm}
+\ifx\tempa\tempb% dm
+\global\expandafter\font\csname#1\endcsname=min#3 scaled #4%
+\else% dg
+\global\expandafter\font\csname#1\endcsname=goth#3 scaled #4%
+\fi
+}
+
+%
+% 日本語フォントの定義
+%
+
+%% Fonts for text (10pt)
+\uniJFont{textdm}{dm}{10}{1000}
+\uniJFont{textdg}{dg}{10}{1000}
+
+\global\setfont\textrm\rmshape{10}{1000}
+\global\setfont\texttt\ttshape{10}{1000}
+\global\setfont\textbf\bfshape{10}{1000}
+\global\setfont\textit\itshape{10}{1000}
+\global\setfont\textsl\slshape{10}{1000}
+\global\setfont\textsf\sfshape{10}{1000}
+\global\setfont\textsc\scshape{10}{1000}
+\global\setfont\textttsl\ttslshape{10}{1000}
+\global\font\texti=cmmi10
+\global\font\textsy=cmsy10
+
+%% Fonts for shortcontext (12pt)
+\uniJFont{shortcontdm}{dm}{10}{\magstep1}
+\uniJFont{shortcontdg}{dg}{10}{\magstep1}
+
+%% Fonts for title (20.74pt)
+\uniJFont{titledm}{dg}{10}{\magstep4}
+
+%% Fonts for indics and small examples 
+\uniJFont{smalldm}{dm}{9}{1000}
+\uniJFont{smalldg}{dg}{9}{1000}
+
+%% Fonts for headings (17.28pt)
+\uniJFont{chapdm}{dg}{10}{\magstep3}
+\uniJFont{chapdg}{dg}{10}{\magstep3}
+
+%% Fonts for sections (14.40pt)
+\uniJFont{secdm}{dm}{10}{\magstep2}
+\uniJFont{secdg}{dg}{10}{\magstep2}
+
+%% Fonts for subsections (13.15pt)
+\uniJFont{ssecdm}{dm}{10}{1315}
+\uniJFont{ssecdg}{dg}{10}{1315}
+
+% 95.11.2 by K.Handa
+% Reduce Overfull/Underfull \hbox by relaxing these glues.
+\ifNTT
+\global\jintercharskip=0pt plus 0.5pt minus -0.2pt
+\global\jasciikanjiskip=2.28854pt plus 0.5pt minus -0.2pt
+\fi
+
+%%%%
+
+%% (^^;)
+%\global\def\tendm{}
+%\global\def\tendg{}
+
+%% Re-definitions
+\gdef\addjfont#1#2{%
+\cslet{orig#1}{#1}%
+\expandafter\def\csname#1\endcsname{\csname orig#1\endcsname\csname #2\endcsname}%
+}
+
+\def\gaddjfont#1#2{{\globaldefs=1\addjfont{#1}{#2}}}
+
+\def\gaddjfonts#1#2{{\globaldefs=1%
+\cslet{orig#1fonts}{#1fonts}%
+\expandafter\def\csname#1fonts\endcsname{\csname orig#1fonts\endcsname\cslet{tendm}{#2dm}\cslet{tendg}{#2dg}}%
+}}
+
+\gaddjfont{rm}{tendm}
+\gaddjfont{bf}{tendg}
+\gaddjfont{sl}{tendg}
+\gaddjfont{authorrm}{secdm}
+
+\gaddjfonts{text}{text}
+\gaddjfonts{title}{title}
+\gaddjfonts{chap}{chap}
+\gaddjfonts{sec}{sec}
+\gaddjfonts{subsec}{ssec}
+\gaddjfonts{small}{small}
+
+\global\let\subsubsecfonts = \subsecfonts
+\global\let\subsecentryfonts = \textfonts
+\global\let\subsubsecentryfonts = \textfonts
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Utility routines.
+%%
+
+\def\gaddsequence#1{%
+\if#1[%]
+\def\next{\gaddsequencez#1}%
+\else%
+\def\next{\gaddsequencez[0]{#1}}%
+\fi%
+\next%
+}
+
+\def\gaddsequencez[#1]#2{%
+\if#2[%]
+\def\next{\gaddsequencezz[#1]#2}%
+\else%
+\def\next{\gaddsequencezz[#1][lb]{#2}}%
+\fi%
+\next%
+}
+
+\newif\ifL\newif\ifB
+\def\aslb{\Ltrue\Btrue}
+\def\asla{\Ltrue\Bfalse}
+\def\asgb{\Lfalse\Btrue}
+\def\asga{\Lfalse\Bfalse}
+
+%%
+%% 汚いマクロだなぁ〜
+%%
+
+\def\gaddsequencezz[#1][#2]#3#4{%
+\global\cslet{orig#3}{#3}%
+\csname as#2\endcsname%
+\ifcase#1%
+\ifL
+ \ifB
+  \expandafter\gdef\csname#3\endcsname{{#4\csname orig#3\endcsname}}%
+ \else
+  \expandafter\gdef\csname#3\endcsname{{\csname orig#3\endcsname#4}}%
+ \fi
+\else
+ \ifB
+  \expandafter\gdef\csname#3\endcsname{#3\csname orig#3\endcsname}%
+ \else
+  \expandafter\gdef\csname#3\endcsname{\csname orig#3\endcsname#3}%
+ \fi
+\fi
+\or 
+\ifL
+ \ifB
+  \expandafter\gdef\csname#3\endcsname##1{{#4\csname orig#3\endcsname{##1}}}%
+ \else
+  \expandafter\gdef\csname#3\endcsname##1{{\csname orig#3\endcsname{##1}#4}}%
+ \fi
+\else
+ \ifB
+  \expandafter\gdef\csname#3\endcsname##1{#4\csname orig#3\endcsname{##1}}%
+ \else
+  \expandafter\gdef\csname#3\endcsname##1{\csname orig#3\endcsname{##1}#4}%
+ \fi
+\fi
+\fi
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\gaddsequence[1]{initial}{%
+\addjfont{secbf}{secdg}%
+}
+
+\gaddsequence{summarycontents}{%
+\addjfont{shortcontrm}{shortcontdm}%
+\addjfont{shortcontbf}{shortcontdg}%
+\addjfont{shortcontsl}{shortcontdg}%
+}
+\global\let\shortcontents = \summarycontents
+
+\gaddsequence{shorttitlepagezzz}{%
+\addjfont{chaprm}{chapdm}%
+}
+
+%%
+%%
+
+\global\def\thischapterspace{\hskip \SETthischapterspace em}
+\set thischapterspace 1
+
+\gaddsequence[1][ga]{chapterzzz}{%
+\xdef\thischapter{第\the\chapno\putwordChapter{}\thischapterspace\noexpand\thischaptername}%
+}
+
+\gaddsequence[1][ga]{appendixzzz}{%
+\xdef\thischapter{\putwordAppendix{}\appendixletter\thischapterspace\noexpand\thischaptername}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
+%%
+
+\global\def\inforefzzz #1,#2,#3,#4**{\putwordInfo{}\putwordfile{} \file{\ignorespaces #3{}},  ノード\samp{\ignorespaces#1{}}\putwordSee{}}
+
+\global\def\pxref#1{\xrefX[#1,,,,,,,]\putwordsee{}}
+\global\def\xref#1{\xrefX[#1,,,,,,,]\putwordSee{}}
+
+\global\def\xrefX[#1,#2,#3,#4,#5,#6]{\begingroup
+  \unsepspaces
+  \def\printedmanual{\ignorespaces #5}%
+  \def\printednodename{\ignorespaces #3}%
+  \setbox1=\hbox{\printedmanual}%
+  \setbox0=\hbox{\printednodename}%
+  \ifdim \wd0 = 0pt
+    % No printed node name was explicitly given.
+    \expandafter\ifx\csname SETxref-automatic-section-title\endcsname\relax
+      % Use the node name inside the square brackets.
+      \def\printednodename{\ignorespaces #1}%
+    \else
+      % Use the actual chapter/section title appear inside
+      % the square brackets.  Use the real section title if we have it.
+      \ifdim \wd1 > 0pt
+        % It is in another manual, so we don't have it.
+        \def\printednodename{\ignorespaces #1}%
+      \else
+        \ifhavexrefs
+          % We know the real title if we have the xref values.
+          \def\printednodename{\refx{#1-title}{}}%
+        \else
+          % Otherwise just copy the Info node name.
+          \def\printednodename{\ignorespaces #1}%
+        \fi%
+      \fi
+    \fi
+  \fi
+  %
+  % If we use \unhbox0 and \unhbox1 to print the node names, TeX does not
+  % insert empty discretionaries after hyphens, which means that it will
+  % not find a line break at a hyphen in a node names.  Since some manuals
+  % are best written with fairly long node names, containing hyphens, this
+  % is a loss.  Therefore, we give the text of the node name again, so it
+  % is as if TeX is seeing it for the first time.
+%  \ifpdf
+%    \leavevmode
+%    \getfilename{#4}%
+%    \ifnum\filenamelength>0
+%      \startlink attr{/Border [0 0 0]}%
+%	 goto file{\the\filename.pdf} name{#1@}%
+%    \else
+%      \startlink attr{/Border [0 0 0]}%
+%	 goto name{#1@}%
+%    \fi
+%    \linkcolor
+%  \fi
+  %
+  \ifdim \wd1 > 0pt
+%    \putwordsection{} ``\printednodename'' \putwordin{} \cite{\printedmanual}%
+    \cite{\printedmanual}の``\printednodename''\putwordsection{}%
+  \else
+    % _ (for example) has to be the character _ for the purposes of the
+    % control sequence corresponding to the node, but it has to expand
+    % into the usual \leavevmode...\vrule stuff for purposes of
+    % printing. So we \turnoffactive for the \refx-snt, back on for the
+    % printing, back off for the \refx-pg.
+    {\normalturnoffactive
+     % Only output a following space if the -snt ref is nonempty; for
+     % @unnumbered and @anchor, it won't be.
+     \setbox2 = \hbox{\ignorespaces \refx{#1-snt}{}}%
+%     \ifdim \wd2 > 0pt \refx{#1-snt}\space\fi
+     \ifdim \wd2 > 0pt \refx{#1-snt}\fi
+    }%
+    % [mynode],
+    「\printednodename 」%
+%    [\printednodename],\space
+    % page 3
+    \turnoffactive \putwordpage\tie\refx{#1-pg}{}%
+  \fi
+  \endlink
+\endgroup}
+
+\global\def\Ysectionnumberandtype{%
+\ifnum\secno=0 第\the\chapno\putwordChapter%
+\else \ifnum \subsecno=0 \the\chapno.\the\secno\putwordSection%
+\else \ifnum \subsubsecno=0 %
+\the\chapno.\the\secno.\the\subsecno\putwordSection%
+\else %
+\the\chapno.\the\secno.\the\subsecno.\the\subsubsecno\putwordSection%
+\fi \fi \fi }
+
+\global\def\Yappendixletterandtype{%
+\ifnum\secno=0 \putwordAppendix\xreftie'char\the\appendixno{}%
+\else \ifnum \subsecno=0 \xreftie'char\the\appendixno.\the\secno\putwordSection %
+\else \ifnum \subsubsecno=0 %
+\xreftie'char\the\appendixno.\the\secno.\the\subsecno\putwordSection %
+\else %
+\xreftie'char\the\appendixno.\the\secno.\the\subsecno.\the\subsubsecno\putwordSection %
+\fi \fi \fi }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% @dfn
+\global\def\doublebracket#1{『#1』}
+\global\let\dfn=\doublebracket
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,0 +1,84 @@
+<html lang="en">
+<head>
+<title>First steps - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Install-and-first-steps.html#Install-and-first-steps" title="Install and first steps">
+<link rel="prev" href="Setting-up-Emacs.html#Setting-up-Emacs" title="Setting up Emacs">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="First-steps"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Setting-up-Emacs.html#Setting-up-Emacs">Setting up Emacs</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Install-and-first-steps.html#Install-and-first-steps">Install and first steps</a>
+<hr>
+</div>
+
+<h3 class="section">1.3 First steps after activating ECB first time</h3>
+
+<p>This section of the ECB online-help is displayed automatically by ECB
+after activating ECB first time and describes what are the first basic
+steps:
+
+     <ol type=1 start=1>
+
+     <li>Configure where ECB can find your sources:
+
+     <p>Call <code>M-x customize-option RET ecb-source-path RET</code><a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>. This lets you customize the option
+<code>ecb-source-path</code> with the customize-feature of Emacs. This opens
+a customize-buffer where you can insert all the directories where ECB
+can find your source-files. Save your changes with the button &ldquo;Save
+for future sessions&rdquo; and then throw away this customize-buffer either
+by killing it with <code>M-x kill-buffer</code> or clicking at the button
+&ldquo;Finish&rdquo;.
+
+     <li>Take a look at the most important options of ECB
+Call <code>M-x ecb-customize-most-important RET</code> and see a list of
+options which you should at least know that these options exist.
+
+     <li>Read the online-help of ECB:
+
+     <p>The online-help of ECB is available via
+
+          <ul>
+<li>calling <code>M-x ecb-show-help</code>,
+<li>pressing <kbd>C-c . h</kbd> or
+<li>using the menu &ldquo;ECB&rdquo;. 
+</ul>
+
+     <p>(The section you are currently reading is part of the online-help of
+ECB)
+
+     <p>The chapter &ldquo;Common use-cases&rdquo; is also very interesting!
+
+     <li>Start working with ECB.
+        </ol>
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> This
+means first hitting the keys <kbd>M</kbd> (Meta- or Alt-key) and <kbd>x</kbd>
+simultaneously, inserting &ldquo;customize-option&rdquo; in the minibuffer,
+hitting RETURN, inserting &ldquo;ecb-source-path&rdquo; in the minibuffer and
+finally hitting RETURN again</p>
+
+   <p><hr></div>
+
+   </body></html>
+

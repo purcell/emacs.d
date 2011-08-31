@@ -1,0 +1,115 @@
+<html lang="en">
+<head>
+<title>The layout-engine API - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="The-layout_002dengine.html#The-layout_002dengine" title="The layout-engine">
+<link rel="prev" href="Possible-layout_002doutlines.html#Possible-layout_002doutlines" title="Possible layout-outlines">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="The-layout-engine-API"></a>
+<a name="The-layout_002dengine-API"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Possible-layout_002doutlines.html#Possible-layout_002doutlines">Possible layout-outlines</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="The-layout_002dengine.html#The-layout_002dengine">The layout-engine</a>
+<hr>
+</div>
+
+<h4 class="subsection">11.5.4 The complete layout-engine API of ECB</h4>
+
+<p>This section lists all functions, macros, variables and user-options
+the layout-engine API of ECB offers foreign packages. Call
+<code>describe-function</code> rsp. <code>describe-variable</code> to get a
+detailed description.
+
+   <p>Functions and macros for programming with layouts and special
+ecb-windows:
+     <ul>
+<li><code>defecb-window-dedicator</code>
+<li><code>ecb-available-layouts-member-p</code>
+<li><code>ecb-canonical-ecb-windows-list</code>
+<li><code>ecb-canonical-edit-windows-list</code>
+<li><code>ecb-compile-window-live-p</code>
+<li><code>ecb-compile-window-state</code>
+<li><code>ecb-do-if-buffer-visible-in-ecb-frame</code>
+<li><code>ecb-exec-in-window</code>
+<li><code>ecb-get-current-visible-ecb-buffers</code>
+<li><code>ecb-layout-define</code>
+<li><code>ecb-layout-switch</code>
+<li><code>ecb-layout-undefine</code>
+<li><code>ecb-point-in-compile-window</code>
+<li><code>ecb-point-in-ecb-window-number</code>
+<li><code>ecb-point-in-edit-window-number</code>
+<li><code>ecb-select-edit-window</code>
+<li><code>ecb-split-hor</code>
+<li><code>ecb-split-ver</code>
+<li><code>ecb-where-is-point</code>
+<li><code>ecb-with-dedicated-window</code><a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>
+</ul>
+
+   <p>Utility functions/macros:
+     <ul>
+<li><code>ecb-display-one-ecb-buffer</code>
+<li><code>ecb-enlarge-window</code>
+<li><code>ecb-fix-filename</code>
+<li><code>ecb-goto-ecb-window</code>
+<li><code>ecb-window-live-p</code>
+<li><code>ecb-with-readonly-buffer</code>
+</ul>
+
+   <p>Some other maybe useful functions/macros:
+     <ul>
+<li><code>ecb-with-adviced-functions</code>
+<li><code>ecb-with-original-functions</code>
+<li><code>ecb-with-some-adviced-functions</code>
+</ul>
+
+   <p>Some useful <strong>READONLY</strong> variables:
+     <ul>
+<li><code>ecb-compile-window</code>
+<li><code>ecb-last-edit-window-with-point</code>
+<li><code>ecb-last-source-buffer</code>
+</ul>
+
+   <p><strong>Caution</strong>: DO NOT USE THE VARIABLE <code>ecb-edit-window</code> IN
+YOUR PROGRAMS!
+
+   <p>User-options and hooks related to the layout-engine API:
+     <ul>
+<li><code>ecb-basic-buffer-sync-hook</code>
+<li><code>ecb-hide-ecb-windows-after-hook</code>
+<li><code>ecb-hide-ecb-windows-before-hook</code>
+<li><code>ecb-redraw-layout-after-hook</code>
+<li><code>ecb-redraw-layout-before-hook</code>
+<li><code>ecb-show-ecb-windows-after-hook</code>
+<li><code>ecb-show-ecb-windows-before-hook</code>
+<li><code>ecb-windows-height</code>
+<li><code>ecb-windows-width</code>
+<li><code>ecb-compile-window-height</code>
+</ul>
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> Normally not needed because
+<code>defecb-window-dedicator</code> does all necessary.</p>
+
+   <p><hr></div>
+
+   </body></html>
+

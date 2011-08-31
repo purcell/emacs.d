@@ -1,0 +1,99 @@
+<html lang="en">
+<head>
+<title>Using eshell - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Common-use_002dcases.html#Common-use_002dcases" title="Common use-cases">
+<link rel="prev" href="Version_002dcontrol-support.html#Version_002dcontrol-support" title="Version-control support">
+<link rel="next" href="Grepping-directories.html#Grepping-directories" title="Grepping directories">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Using-eshell"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Grepping-directories.html#Grepping-directories">Grepping directories</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Version_002dcontrol-support.html#Version_002dcontrol-support">Version-control support</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Common-use_002dcases.html#Common-use_002dcases">Common use-cases</a>
+<hr>
+</div>
+
+<h3 class="section">10.9 Optimal using of eshell in ECB</h3>
+
+<p><a name="index-eshell-352"></a>ECB offers a very smart integration of the &ldquo;eshell&rdquo; if you are using
+a compile window (see <a href="Temp_002d-and-compile_002dbuffers.html#Temp_002d-and-compile_002dbuffers">Temp- and compile-buffers</a>)<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>
+
+   <p>Here is a short summary of provided features:
+
+     <ul>
+<li>Ability to jump to the eshell buffer within the compilation window by
+simply call <code>eshell</code> (bound to <kbd>C-c . e</kbd>). If the eshell
+isn't running it will be started.
+
+     <li>Expands the compilation window when you run commands. So for example
+it allows you to view the eshell in minimized mode and then when you
+run &ldquo;ls&rdquo; the window automatically expands (but always depending on
+the output of the command you run).
+
+     <li>Synchronizes the current directory of the eshell with the current
+buffer in the current active edit-window of ECB.
+
+     <li>Provides smart window layout of the eshell buffer. This makes sure
+that the eshell is taking up the exact amount of space and that
+nothing is hidden. 
+</ul>
+
+   <p>Here comes a detailed explanation of these features and how to use it
+(all these features are only available if you use a persistent
+compile-window, i.e. if <code>ecb-compile-window-height</code> is not nil):
+
+   <p>You do not have to learn a new command for the eshell-start - just
+call <code>eshell</code> (for convenience also bound to <kbd>C-c . e</kbd>) and
+the eshell will displayed in the compile-window of ECB (if eshell is
+not already alive then it will be started automatically).
+
+   <p>ECB tries to display the contents of the eshell-buffer as best as
+possible, means ECB can autom. enlarge and shrink the compile-window
+so the contents of the eshell are fitting the window. See option
+<code>ecb-eshell-enlarge-when-eshell</code> and
+<code>ecb-eshell-fit-window-to-command-output</code>. Normally this is done
+autom. but you can also you the standard compile-window
+enlarging-command of ECB: <code>ecb-toggle-compile-window-height</code>.
+
+   <p>ECB tries also to recenter the eshell-buffer as best as possible. 
+Normally this is done autom. but you can do it on demand with the
+command <code>ecb-eshell-recenter</code>.
+
+   <p>If option <code>ecb-eshell-buffer-sync</code> is true then ECB always
+synchronizes the command prompt of eshell with the directory of
+current source-buffer of the current active edit-window.
+
+   <p>With the option <code>ecb-eshell-auto-activate</code> you can start eshell
+autom. in the compile-window when ECB is started but of course if a
+compile-window exists.
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> Of
+course you can use eshell also if there is no compile-window. Then it
+is just displayed in the edit-area and there is no special
+integration.</p>
+
+   <p><hr></div>
+
+   </body></html>
+

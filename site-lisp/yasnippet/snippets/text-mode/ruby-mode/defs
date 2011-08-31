@@ -1,0 +1,5 @@
+#name : def.self ... end
+# --
+def self.${1:class_method_name}
+  $0
+end

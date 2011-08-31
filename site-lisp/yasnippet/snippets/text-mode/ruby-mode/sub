@@ -1,0 +1,3 @@
+#name : sub(/../) { |match| .. }
+# --
+sub(/${pattern}/) { |${match}| $0 }

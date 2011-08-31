@@ -1,0 +1,107 @@
+<html lang="en">
+<head>
+<title>Adding new backends - ECB - the Emacs Code Browser</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="ECB - the Emacs Code Browser">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="ecb.html#Top">
+<link rel="up" href="Version_002dcontrol-support.html#Version_002dcontrol-support" title="Version-control support">
+<link rel="prev" href="Refreshing-the-VC_002dstate.html#Refreshing-the-VC_002dstate" title="Refreshing the VC-state">
+<link rel="next" href="Known-VC_002dproblems.html#Known-VC_002dproblems" title="Known VC-problems">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Adding-new-backends"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Known-VC_002dproblems.html#Known-VC_002dproblems">Known VC-problems</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Refreshing-the-VC_002dstate.html#Refreshing-the-VC_002dstate">Refreshing the VC-state</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Version_002dcontrol-support.html#Version_002dcontrol-support">Version-control support</a>
+<hr>
+</div>
+
+<h4 class="subsection">10.8.5 Necessary steps and informations for adding new backends</h4>
+
+<p>There are mainly three necessary steps for adding a new<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a> backend BE which should be
+supported by ECB:
+
+     <ol type=1 start=1>
+<li>Adding an identify-backend-function to <code>ecb-vc-supported-backends</code>
+ECB needs a function how to identify the new backend BE for a certain
+directory. If there exists already a library (other then VC)
+supporting this backend then this library propably contains already
+such a function which can be used or can be used at least with a small
+elisp-wrapper. If no elisp-library for backend BE exists then you have
+probably write the full identify-backend-function for your self. This
+function has to be added to <code>ecb-vc-supported-backends</code>.
+
+     <li>Adding an check-state-function to <code>ecb-vc-supported-backends</code>
+Associated to the new identify-backend-function mentioned in step 1 a
+new check-state-function is needed which can be used by ECB to get the
+VC-state for a file. See <a href="Checking-the-state.html#Checking-the-state">Checking the state</a> for a description
+about the needed interface of such a function. In combinatio with the
+identify-backend-function from step 1 this function has to be added to
+<code>ecb-vc-supported-backends</code>.
+
+     <li>Enabling automatic state-update after checkin/out
+
+     <p>This step is not essential if you do not need the displayed VC-state
+automatically updated after a checkin/out of a file via the commands
+available for backend BE (e.g. clearcase.el offers for the backend
+Clearcase elisp-commands to checkin and checkout a file which then
+should also update the displayed state in the ECB-tree-buffers. All
+you need is a way to tell these commands that they should clear the
+ECB-VC-cache for the file and then restart the ECB-VC-check-mechanism. 
+This should be done after these commands have finished their original
+job.
+
+     <p>ECB enables this per default for all backends supported by the
+VC-package with the following code. Maybe this is a good starting
+point.
+
+     <pre class="example">        (defvar ecb-checkedin-file nil
+          "Stored the filename of the most recent checked-in file. Is only set by the
+        after-advice of `vc-checkin' and `ecb-vc-checkin-hook' \(resets it to nil).
+        Evaluated only by `ecb-vc-checkin-hook'.
+        
+        This is the communication-channel between `vc-checkin' and
+        `ecb-vc-checkin-hook' so this hook-function gets the filename of the
+        checked-in file.")
+        
+        (defadvice vc-checkin (after ecb)
+          "Simply stores the filename of the checked-in file in `ecb-checkedin-file'
+        so it is available in the `vc-checkin-hook'."
+          (setq ecb-checkedin-file (ecb-fix-filename (ad-get-arg 0))))
+        
+        (defun ecb-vc-checkin-hook ()
+          "Ensures that the ECB-cache is reset and the entry for the most recent
+        checkedin file is cleared. Uses `ecb-checkedin-file' as last checked-in file."
+          (when ecb-checkedin-file
+            (ecb-vc-cache-remove ecb-checkedin-file)
+            (ecb-vc-reset-vc-stealthy-checks)
+            (setq ecb-checkedin-file nil)))
+   </pre>
+        </ol>
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> i.e. 
+not already supported by the VC-package because all these backends are
+automatically supported by ECB too!</p>
+
+   <p><hr></div>
+
+   </body></html>
+

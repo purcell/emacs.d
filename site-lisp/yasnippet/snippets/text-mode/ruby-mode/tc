@@ -1,0 +1,11 @@
+# This was cloned from a TextMate bundle for yasnippet.
+# --
+require "test/unit"
+
+require "${1:library_file_name}"
+
+class Test${2:${1/([\w&&[^_]]+)|./\u$1/g}} < Test::Unit::TestCase
+  def test_${3:case_name}
+    $0
+  end
+end

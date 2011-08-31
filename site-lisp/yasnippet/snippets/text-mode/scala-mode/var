@@ -1,0 +1,4 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : var name = ..
+# --
+var ${1:name} = ${2:obj} $0

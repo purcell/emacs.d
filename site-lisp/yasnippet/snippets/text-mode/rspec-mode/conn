@@ -1,0 +1,5 @@
+#-*- require-final-newline: nil -*-
+#contributor: gary <ge.iams@gmail.com>
+#name : controller_name
+# --
+controller_name :${1:controller}

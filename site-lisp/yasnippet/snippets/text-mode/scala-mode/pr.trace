@@ -1,0 +1,4 @@
+#Author : Jonas Bonèr <jonas@jonasboner.com>
+#name : println("obj: " + obj)
+# --
+println("${1:obj}: " + ${1:obj}) $0

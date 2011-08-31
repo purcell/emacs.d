@@ -1,0 +1,16 @@
+AC_INIT(w3m.el)
+AC_SET_MAKE
+AC_PROG_INSTALL
+AC_CHECK_PROG(MAKEINFO, makeinfo, makeinfo, no)
+AC_CHECK_PROG(TEXI2DVI, texi2dvi, texi2dvi, false)
+AC_CHECK_PROG(PTEX, ptex, ptex, false)
+AC_CHECK_PROG(JBIBTEX, jbibtex, jbibtex, false)
+AC_CHECK_PROG(DVIPDFMX, dvipdfmx, dvipdfmx, false)
+AC_CHECK_PROG(TEXI2PDF, texi2pdf, texi2pdf, false)
+AC_CHECK_PROGS(EGREP, egrep grep, )
+AC_PATH_EMACS
+AC_PATH_LISPDIR
+AC_PATH_PACKAGEDIR
+AC_PATH_ICONDIR
+AC_ADD_LOAD_PATH
+AC_OUTPUT(Makefile doc/Makefile)
