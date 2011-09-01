@@ -33,5 +33,7 @@
 (require-package 'slime-fuzzy)
 (require-package 'slime-repl)
 (require-package 'browse-kill-ring)
+(require-package 'findr)
+(require-package 'jump)
 
 (provide 'init-elpa)
