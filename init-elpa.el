@@ -1,7 +1,7 @@
 (defun require-package (package &optional min-version)
   "Ask elpa to install given PACKAGE."
-  (or (package-installed-p package min-version)
-      (package-install package)))
+  (unless (package-installed-p package min-version)
+    (package-install package)))
 
 ;; When switching between Emacs 23 and 24, we always use the bundled package.el in Emacs 24
 (let ((package-el-site-lisp-dir (expand-file-name "~/.emacs.d/site-lisp/package")))
