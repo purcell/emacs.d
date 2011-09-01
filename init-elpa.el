@@ -32,5 +32,6 @@
 (require-package 'slime)
 (require-package 'slime-fuzzy)
 (require-package 'slime-repl)
+(require-package 'browse-kill-ring)
 
 (provide 'init-elpa)
