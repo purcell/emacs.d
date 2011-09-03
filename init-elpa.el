@@ -35,5 +35,6 @@
 (require-package 'browse-kill-ring)
 (require-package 'findr)
 (require-package 'jump)
+(require-package 'anything)
 
 (provide 'init-elpa)
