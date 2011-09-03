@@ -112,8 +112,6 @@
 (require 'init-yari)
 (require 'init-gtags)
 (require 'init-cc-mode)
-(require 'init-cedet)
-(require 'init-ecb)
 (require 'init-cmake-mode)
 (require 'init-csharp-mode)
 (require 'init-linum-mode)
