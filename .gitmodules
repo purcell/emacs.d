@@ -199,3 +199,12 @@
 [submodule "site-lisp/less-css-mode"]
 	path = site-lisp/less-css-mode
 	url = https://github.com/purcell/less-css-mode.git
+[submodule "site-list/fill-column-indicator"]
+    path = site-lisp/fill-column-indicator
+    url = https://github.com/alpaker/Fill-Column-Indicator.git
+[submodule "site-list/org2blog"]
+    path = site-lisp/org2blog
+    url = git://github.com/punchagan/org2blog.git
+[submodule "site-list/yari"]
+    path = site-lisp/yari
+    url = https://github.com/hron/yari.el.git
