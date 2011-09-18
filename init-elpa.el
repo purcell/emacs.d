@@ -19,6 +19,7 @@
   (package-refresh-contents))
 
 (require-package 'all)
+(require-package 'xml-rpc)
 (require-package 'color-theme)
 (require-package 'erc)
 (require-package 'fringe-helper)
