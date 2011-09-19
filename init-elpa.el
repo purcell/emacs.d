@@ -25,6 +25,7 @@
 (require-package 'gnuplot)
 (require-package 'haskell-mode)
 (require-package 'highlight-symbol)
+(require-package 'ido-ubiquitous)
 (require-package 'flymake-cursor)
 (require-package 'json)
 (require-package 'lua-mode)
