@@ -4,6 +4,7 @@
 (setq ido-enable-flex-matching t)
 (setq ido-use-filename-at-point nil)
 (setq ido-auto-merge-work-directories-length 0)
+(setq ido-use-virtual-buffers t)
 
 ;; Allow the same buffer to be open in different frames
 (setq ido-default-buffer-method 'selected-window)
@@ -11,7 +12,10 @@
 (defun steve-ido-choose-from-recentf ()
   "Use ido to select a recently opened file from the `recentf-list'"
   (interactive)
-  (find-file (ido-completing-read "Open file: " recentf-list nil t)))
+  (if (and ido-use-virtual-buffers (fboundp 'ido-toggle-virtual-buffers))
+      (ido-switch-buffer)
+    (find-file (ido-completing-read "Open file: " recentf-list nil t))))
+
 (global-set-key [(meta f11)] 'steve-ido-choose-from-recentf)
 
 
