@@ -18,13 +18,13 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(require-package 'all)
 (require-package 'color-theme)
 (require-package 'erc)
 (require-package 'fringe-helper)
 (require-package 'gnuplot)
 (require-package 'haskell-mode)
-(require-package 'highlight-symbol)
+(when *vi-emulation-support-enabled*
+  (require-package 'highlight-symbol))
 (require-package 'flymake-cursor)
 (require-package 'json)
 (require-package 'lua-mode)
