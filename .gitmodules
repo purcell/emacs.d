@@ -34,9 +34,6 @@
 [submodule "site-lisp/erlware-mode"]
 	path = site-lisp/erlware-mode
 	url = https://github.com/erlware/erlware-mode.git
-[submodule "site-lisp/gist"]
-	path = site-lisp/gist
-	url = https://github.com/defunkt/gist.el.git
 [submodule "site-lisp/git-blame"]
 	path = site-lisp/git-blame
 	url = https://github.com/tsgates/git-emacs.git
