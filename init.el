@@ -39,7 +39,6 @@
 (require 'init-dired)
 (require 'init-viper)
 (require 'init-isearch)
-(require 'init-iedit)
 (require 'init-uniquify)
 (require 'init-ibuffer)
 (require 'init-flymake)

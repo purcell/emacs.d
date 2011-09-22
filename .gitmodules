@@ -112,9 +112,6 @@
 [submodule "site-lisp/fuzzy-format"]
 	path = site-lisp/fuzzy-format
 	url = https://github.com/emacsmirror/fuzzy-format.git
-[submodule "site-lisp/iedit"]
-	path = site-lisp/iedit
-	url = https://github.com/emacsmirror/iedit.git
 [submodule "site-lisp/mwe-log-commands"]
 	path = site-lisp/mwe-log-commands
 	url = https://github.com/emacsmirror/mwe-log-commands.git
