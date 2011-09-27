@@ -60,7 +60,7 @@
 (require 'init-sessions)
 (require 'init-fonts)
 (require 'init-mmm)
-(require 'init-growl)
+;(require 'init-growl)
 
 (require 'init-editing-utils)
 
@@ -98,7 +98,7 @@
   (require 'init-spelling))
 
 ;; In-Emacs apps
-(require 'init-twitter)
+;(require 'init-twitter)
 
 (require 'init-misc)
 
