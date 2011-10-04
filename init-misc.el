@@ -150,9 +150,6 @@
 ;effiective emacs item9
 (defalias 'qrr 'query-replace-regexp)
 
-(setq x-select-enable-clipboard t)
-(setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
-
 ;@see http://stackoverflow.com/questions/3509919/ \
 ;emacs-c-opening-corresponding-header-file
 (global-set-key (kbd "C-x C-o") 'ff-find-other-file)
