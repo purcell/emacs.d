@@ -45,6 +45,7 @@
   ;1 (was imposed by gnu style by default)
   (setq c-label-minimum-indentation 0)
   (if (or *linux* *cygwin*)
+    (require 'gtags)
     (gtags-mode 1)
     )
   )
