@@ -49,7 +49,6 @@
     (gtags-mode 1)
     )
   )
-(add-hook 'c-mode-hook 'my-c-mode-hook)
-(add-hook 'cc-mode-hook 'my-c-mode-hook)
+(add-hook 'c-mode-common-hook 'my-c-mode-hook)
 
 (provide 'init-cc-mode)

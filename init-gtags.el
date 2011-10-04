@@ -13,7 +13,7 @@
               (local-set-key "\M-/" 'gtags-find-pattern)
               (local-set-key "\M-;" 'gtags-find-with-grep)))
   ;; @see http://emacs-fu.blogspot.com/2009/01/navigating-through-source-code-using.html
-  (defun cgt()
+  (defun djcb-gtags-create-or-update ()
     "create or update the gnu global tag file"
     (interactive)
     (if (not (= 0 (call-process "global" nil nil nil " -p"))) ; tagfile doesn't exist?
