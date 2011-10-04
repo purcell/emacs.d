@@ -11,13 +11,13 @@
 (setq *is-a-mac* (eq system-type 'darwin))
 (setq *is-carbon-emacs* (and *is-a-mac* (eq window-system 'mac)))
 (setq *is-cocoa-emacs* (and *is-a-mac* (eq window-system 'ns)))
-(defconst *win32* (eq system-type 'windows-nt) "Windows?")
-(defconst *cygwin* (eq system-type 'cygwin) "Cygwin?")
-(defconst *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) "Linux?")
-(defconst *unix* (or *linux* (eq system-type 'usg-unix-v) (eq system-type 'berkeley-unix)) "Unix")
-(defconst *linux-x* (and window-system *linux*) "X on Linux")
-(defconst *xemacs* (featurep 'xemacs) "Are we running XEmacs?")
-(defconst *emacs23* (and (not *xemacs*) (or (= emacs-major-version 23))) ">=Emacs23")
+(setq *win32* (eq system-type 'windows-nt) )
+(setq *cygwin* (eq system-type 'cygwin) )
+(setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
+(setq *unix* (or *linux* (eq system-type 'usg-unix-v) (eq system-type 'berkeley-unix)) )
+(setq *linux-x* (and window-system *linux*) )
+(setq *xemacs* (featurep 'xemacs) )
+(setq *emacs23* (and (not *xemacs*) (or (>= emacs-major-version 23))) )
 
 ;;----------------------------------------------------------------------------
 ;; Make elisp more civilised
