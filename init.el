@@ -51,7 +51,6 @@
 (require 'init-ibuffer)
 (require 'init-flymake)
 (require 'init-regex-tool)
-(require 'init-thing-edit)
 
 (require 'init-recentf)
 (require 'init-ido)
@@ -118,6 +117,7 @@
 (require 'init-linum-mode)
 (require 'init-emacs-w3m)
 (require 'init-eim)
+(require 'init-thing-edit)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
