@@ -51,6 +51,7 @@
 (require 'init-ibuffer)
 (require 'init-flymake)
 (require 'init-regex-tool)
+(require 'init-thing-edit)
 
 (require 'init-recentf)
 (require 'init-ido)
