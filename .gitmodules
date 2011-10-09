@@ -142,9 +142,6 @@
 [submodule "site-lisp/twit"]
 	path = site-lisp/twit
 	url = https://github.com/emacsmirror/twit.git
-[submodule "site-lisp/js2-mode"]
-	path = site-lisp/js2-mode
-	url = https://github.com/emacsmirror/js2-mode.git
 [submodule "site-lisp/js-comint"]
 	path = site-lisp/js-comint
 	url = https://github.com/emacsmirror/js-comint.git

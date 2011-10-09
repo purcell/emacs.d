@@ -27,6 +27,7 @@
   (require-package 'highlight-symbol))
 (require-package 'flymake-cursor)
 (require-package 'json)
+(require-package 'js2-mode)
 (require-package 'lua-mode)
 (require-package 'project-local-variables)
 (require-package 'ruby-mode)
