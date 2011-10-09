@@ -1,3 +1,15 @@
+(require 'cc-mode)
+
+(add-to-list  'c++-font-lock-extra-types
+              "\\bwx[A-Z][a-z][a-zA-Z]*?\\b")
+   
+(defun c-wx-lineup-topmost-intro-cont (langelem)
+  (save-excursion
+    (beginning-of-line)
+    (if (re-search-forward "EVT_" (line-end-position) t)
+      'c-basic-offset
+      (c-lineup-topmost-intro-cont langelem))))
+
 ;C/C++ SECTION
 (defun my-c-mode-hook ()
   (local-set-key "\M-f" 'c-forward-into-nomenclature)
@@ -40,6 +52,9 @@
 
   ;make a #define be left-aligned
   (setq c-electric-pound-behavior (quote (alignleft)))
+
+  ;wxwdigets stuff
+  (c-set-offset 'topmost-intro-cont 'c-wx-lineup-topmost-intro-cont)
 
   ;do not impose restriction that all lines not top-level be indented at least
   ;1 (was imposed by gnu style by default)
