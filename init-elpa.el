@@ -63,5 +63,6 @@
 (require-package 'vc-darcs)
 (require-package 'color-theme-sanityinc-solarized)
 (require-package 'scratch)
+(require-package 'hl-sexp)
 
 (provide 'init-elpa)

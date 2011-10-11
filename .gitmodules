@@ -43,9 +43,6 @@
 [submodule "site-lisp/revive"]
 	path = site-lisp/revive
 	url = https://github.com/emacsmirror/revive.git
-[submodule "site-lisp/hl-sexp"]
-	path = site-lisp/hl-sexp
-	url = https://github.com/emacsmirror/hl-sexp.git
 [submodule "site-lisp/mic-paren"]
 	path = site-lisp/mic-paren
 	url = https://github.com/emacsmirror/mic-paren.git
