@@ -169,15 +169,6 @@
 [submodule "site-lisp/flymake-python-pyflakes"]
 	path = site-lisp/flymake-python-pyflakes
 	url = https://github.com/purcell/flymake-python-pyflakes.git
-[submodule "site-lisp/flymake-coffee"]
-	path = site-lisp/flymake-coffee
-	url = https://github.com/purcell/flymake-coffee.git
-[submodule "site-lisp/flymake-haml"]
-	path = site-lisp/flymake-haml
-	url = https://github.com/purcell/flymake-haml.git
-[submodule "site-lisp/flymake-ruby"]
-	path = site-lisp/flymake-ruby
-	url = https://github.com/purcell/flymake-ruby.git
 [submodule "site-lisp/external-abook"]
 	path = site-lisp/external-abook
 	url = https://github.com/emacsmirror/external-abook.git

@@ -35,6 +35,9 @@
 (require-package 'slime-fuzzy)
 (require-package 'slime-repl)
 (require-package 'gist)
+(require-package 'whole-line-or-region)
+(require-package 'flymake-ruby)
+(require-package 'flymake-haml)
+(require-package 'flymake-coffee)
 
 (provide 'init-elpa)
-(require-package 'whole-line-or-region)
