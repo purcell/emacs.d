@@ -7,9 +7,6 @@
 [submodule "site-lisp/clojure-mode"]
 	path = site-lisp/clojure-mode
 	url = https://github.com/technomancy/clojure-mode.git
-[submodule "site-lisp/coffee-mode"]
-	path = site-lisp/coffee-mode
-	url = https://github.com/defunkt/coffee-mode.git
 [submodule "site-lisp/color-theme-railscasts"]
 	path = site-lisp/color-theme-railscasts
 	url = https://github.com/olegshaldybin/color-theme-railscasts.git
@@ -40,9 +37,6 @@
 [submodule "site-lisp/google-weather"]
 	path = site-lisp/google-weather
 	url = git://git.naquadah.org/google-weather-el.git
-[submodule "site-lisp/haml-mode"]
-	path = site-lisp/haml-mode
-	url = https://github.com/nex3/haml-mode.git
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
 	url = https://github.com/magit/magit.git
@@ -76,9 +70,6 @@
 [submodule "site-lisp/rinari"]
 	path = site-lisp/rinari
 	url = https://github.com/eschulte/rinari.git
-[submodule "site-lisp/sass-mode"]
-	path = site-lisp/sass-mode
-	url = https://github.com/nex3/sass-mode.git
 [submodule "site-lisp/scratch"]
 	path = site-lisp/scratch
 	url = https://github.com/cbbrowne/scratch-el.git
@@ -160,9 +151,6 @@
 [submodule "site-lisp/html5-el"]
 	path = site-lisp/html5-el
 	url = https://github.com/hober/html5-el.git
-[submodule "site-lisp/elisp-slime-nav"]
-	path = site-lisp/elisp-slime-nav
-	url = https://github.com/purcell/elisp-slime-nav.git
 [submodule "site-lisp/flymake-python-pyflakes"]
 	path = site-lisp/flymake-python-pyflakes
 	url = https://github.com/purcell/flymake-python-pyflakes.git

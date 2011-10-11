@@ -40,5 +40,9 @@
 (require-package 'flymake-haml)
 (require-package 'flymake-coffee)
 (require-package 'ibuffer-vc)
+(require-package 'coffee-mode)
+(require-package 'elisp-slime-nav)
+(require-package 'haml-mode)
+(require-package 'sass-mode)
 
 (provide 'init-elpa)
