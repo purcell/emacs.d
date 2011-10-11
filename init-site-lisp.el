@@ -79,7 +79,6 @@ source file under ~/.emacs.d/site-lisp/name/"
   ;; TODO: consider smooth-scroll instead
   (ensure-lib-from-url 'smooth-scrolling "http://adamspiers.org/computing/elisp/smooth-scrolling.el")
   (ensure-lib-from-url 'edit-server "http://github.com/stsquad/emacs_chrome/raw/master/servers/edit-server.el")
-  (ensure-lib-from-url 'dsvn "http://svn.apache.org/repos/asf/subversion/trunk/contrib/client-side/emacs/dsvn.el")
 
   (ensure-lib-from-svn 'rdebug "http://ruby-debug.rubyforge.org/svn/trunk/emacs/")
   (ensure-lib-from-svn 'ruby-mode "http://svn.ruby-lang.org/repos/ruby/trunk/misc/"))

@@ -56,7 +56,6 @@
 
 (require 'init-editing-utils)
 
-(require 'init-svn)
 (require 'init-darcs)
 (require 'init-git)
 
