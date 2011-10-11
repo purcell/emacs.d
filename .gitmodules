@@ -70,9 +70,6 @@
 [submodule "site-lisp/quack"]
 	path = site-lisp/quack
 	url = https://github.com/emacsmirror/quack.git
-[submodule "site-lisp/crontab-mode"]
-	path = site-lisp/crontab-mode
-	url = https://github.com/emacsmirror/crontab-mode.git
 [submodule "site-lisp/twit"]
 	path = site-lisp/twit
 	url = https://github.com/emacsmirror/twit.git

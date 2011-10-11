@@ -65,5 +65,6 @@
 (require-package 'scratch)
 (require-package 'hl-sexp)
 (require-package 'dsvn)
+(require-package 'crontab-mode)
 
 (provide 'init-elpa)
