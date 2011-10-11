@@ -21,7 +21,6 @@ cookies
 /elpa
 site-lisp/dsvn/
 site-lisp/edit-server/
-site-lisp/eol-conversion/
 site-lisp/flymake-css/
 site-lisp/rdebug/
 site-lisp/ruby-mode/
