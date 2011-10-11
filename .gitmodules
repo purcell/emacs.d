@@ -97,3 +97,6 @@
 [submodule "site-lisp/pretty-mode"]
 	path = site-lisp/pretty-mode
 	url = https://github.com/emacsmirror/pretty-mode.git
+[submodule "site-lisp/csv-mode"]
+	path = site-lisp/csv-mode
+	url = https://github.com/emacsmirror/csv-mode

@@ -56,7 +56,6 @@
 (require-package 'diminish)
 (require-package 'autopair)
 (require-package 'less-css-mode)
-(require-package 'csv-mode)
 (require-package 'js-comint)
 (require-package 'php-mode)
 (require-package 'ac-slime)
