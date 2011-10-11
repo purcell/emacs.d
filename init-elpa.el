@@ -66,6 +66,5 @@
 (require-package 'hl-sexp)
 (require-package 'dsvn)
 (require-package 'crontab-mode)
-(require-package 'session)
 
 (provide 'init-elpa)
