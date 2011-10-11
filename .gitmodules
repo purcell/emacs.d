@@ -1,9 +1,6 @@
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = https://github.com/purcell/auto-complete.git
-[submodule "site-lisp/color-theme-sanityinc-solarized"]
-	path = site-lisp/color-theme-sanityinc-solarized
-	url = https://github.com/purcell/color-theme-sanityinc-solarized.git
 [submodule "site-lisp/diff-git"]
 	path = site-lisp/diff-git
 	url = https://github.com/alanfalloon/diff-git.el.git

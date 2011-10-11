@@ -61,5 +61,6 @@
 (require-package 'php-mode)
 (require-package 'ac-slime)
 (require-package 'vc-darcs)
+(require-package 'color-theme-sanityinc-solarized)
 
 (provide 'init-elpa)
