@@ -118,9 +118,6 @@
 [submodule "site-lisp/lively"]
 	path = site-lisp/lively
 	url = https://github.com/emacsmirror/lively.git
-[submodule "site-lisp/whole-line-or-region"]
-	path = site-lisp/whole-line-or-region
-	url = https://github.com/purcell/whole-line-or-region.git
 [submodule "site-lisp/pointback"]
 	path = site-lisp/pointback
 	url = https://github.com/emacsmirror/pointback.git

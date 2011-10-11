@@ -37,3 +37,4 @@
 (require-package 'gist)
 
 (provide 'init-elpa)
+(require-package 'whole-line-or-region)
