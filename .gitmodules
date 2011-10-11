@@ -1,6 +1,3 @@
-[submodule "site-lisp/ac-slime"]
-	path = site-lisp/ac-slime
-	url = https://github.com/purcell/ac-slime.git
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = https://github.com/purcell/auto-complete.git

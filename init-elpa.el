@@ -59,5 +59,6 @@
 (require-package 'csv-mode)
 (require-package 'js-comint)
 (require-package 'php-mode)
+(require-package 'ac-slime)
 
 (provide 'init-elpa)
