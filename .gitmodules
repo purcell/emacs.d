@@ -82,9 +82,6 @@
 [submodule "site-lisp/csv-nav"]
 	path = site-lisp/csv-nav
 	url = https://github.com/emacsmirror/csv-nav.git
-[submodule "site-lisp/session"]
-	path = site-lisp/session
-	url = https://github.com/emacsmirror/session.git
 [submodule "site-lisp/html5-el"]
 	path = site-lisp/html5-el
 	url = https://github.com/hober/html5-el.git
