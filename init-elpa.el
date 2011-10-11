@@ -60,5 +60,6 @@
 (require-package 'js-comint)
 (require-package 'php-mode)
 (require-package 'ac-slime)
+(require-package 'vc-darcs)
 
 (provide 'init-elpa)

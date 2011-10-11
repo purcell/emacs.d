@@ -81,7 +81,6 @@ source file under ~/.emacs.d/site-lisp/name/"
   (ensure-lib-from-url 'edit-server "http://github.com/stsquad/emacs_chrome/raw/master/servers/edit-server.el")
   (ensure-lib-from-url 'eol-conversion "http://centaur.maths.qmw.ac.uk/emacs/files/eol-conversion.el")
   (ensure-lib-from-url 'dsvn "http://svn.apache.org/repos/asf/subversion/trunk/contrib/client-side/emacs/dsvn.el")
-  (ensure-lib-from-url 'vc-darcs "http://www.pps.jussieu.fr/~jch/software/repos/vc-darcs/vc-darcs.el")
 
   (ensure-lib-from-svn 'rdebug "http://ruby-debug.rubyforge.org/svn/trunk/emacs/")
   (ensure-lib-from-svn 'ruby-mode "http://svn.ruby-lang.org/repos/ruby/trunk/misc/"))
