@@ -43,9 +43,6 @@
 [submodule "site-lisp/haml-mode"]
 	path = site-lisp/haml-mode
 	url = https://github.com/nex3/haml-mode.git
-[submodule "site-lisp/ibuffer-vc"]
-	path = site-lisp/ibuffer-vc
-	url = https://github.com/purcell/ibuffer-vc.git
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
 	url = https://github.com/magit/magit.git

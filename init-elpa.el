@@ -39,5 +39,6 @@
 (require-package 'flymake-ruby)
 (require-package 'flymake-haml)
 (require-package 'flymake-coffee)
+(require-package 'ibuffer-vc)
 
 (provide 'init-elpa)
