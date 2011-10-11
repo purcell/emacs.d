@@ -1,4 +1,3 @@
-(autoload 'php-mode "php-mode" "mode for editing php files" t)
 (add-auto-mode 'php-mode "\\.php[345]?\\'\\|\\.phtml\\." "\\.(inc|tpl)$" "\\.module$")
 (add-hook 'php-mode-hook
           (lambda ()

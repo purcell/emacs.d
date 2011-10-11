@@ -194,10 +194,6 @@
 
 
 
-;; Get handy scratch buffers for any major mode
-(autoload 'scratch "scratch" nil t)
-
-
 ;;----------------------------------------------------------------------------
 ;; Set indent width according to existing code
 ;;----------------------------------------------------------------------------

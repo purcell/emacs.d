@@ -93,7 +93,6 @@
      (define-key paredit-mode-map (kbd "M-k") 'warn-disabled-command)))
 
 ;; When editing lisp code, highlight the current sexp
-(autoload 'hl-sexp-mode "hl-sexp")
 (add-hook 'paredit-mode-hook (lambda () (hl-sexp-mode t)))
 
 ;; Prevent flickery behaviour due to hl-sexp-mode unhighlighting before each command

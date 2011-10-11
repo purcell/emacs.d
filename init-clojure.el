@@ -1,6 +1,4 @@
-;; Autoloads and basic wiring
-(autoload 'clojure-mode "clojure-mode" "Major mode for editing Clojure code." t nil)
-(autoload 'clojure-test-mode "clojure-test-mode" "A minor mode for running Clojure tests." t nil)
+;; Basic wiring
 (add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
 
 (eval-after-load "clojure-mode"
