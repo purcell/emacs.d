@@ -37,9 +37,6 @@
 [submodule "site-lisp/rinari"]
 	path = site-lisp/rinari
 	url = https://github.com/eschulte/rinari.git
-[submodule "site-lisp/scratch"]
-	path = site-lisp/scratch
-	url = https://github.com/cbbrowne/scratch-el.git
 [submodule "site-lisp/textile-mode"]
 	path = site-lisp/textile-mode
 	url = https://github.com/emacsmirror/textile-mode.git

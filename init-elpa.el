@@ -62,5 +62,6 @@
 (require-package 'ac-slime)
 (require-package 'vc-darcs)
 (require-package 'color-theme-sanityinc-solarized)
+(require-package 'scratch)
 
 (provide 'init-elpa)
