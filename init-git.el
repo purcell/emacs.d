@@ -23,7 +23,6 @@
 
 (require 'magit-svn)
 (require 'rebase-mode)
-(require 'magithub)
 (require 'diff-git)
 
 ;;----------------------------------------------------------------------------
