@@ -19,7 +19,6 @@
 
 
 ;; js2-mode
-(autoload 'js2-mode "js2-mode" "Steve Yegge's javascript IDE mode")
 (setq js2-use-font-lock-faces t)
 (setq js2-mode-must-byte-compile nil)
 (setq js2-basic-offset preferred-javascript-indent-level)
