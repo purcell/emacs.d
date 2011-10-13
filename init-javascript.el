@@ -12,10 +12,9 @@
 
 
 ;; On-the-fly syntax checking
-(autoload 'flymake-js-load "flymake-js" "On-the-fly syntax checking of javascript" t)
 (eval-after-load "js"
   '(progn
-     (add-hook 'js-mode-hook 'flymake-js-load)))
+     (add-hook 'js-mode-hook 'flymake-jslint-load)))
 
 
 ;; js2-mode
@@ -62,12 +61,11 @@
      (dolist (mode (list 'html-mode 'nxml-mode))
        (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?$" 'html-js))))
 
-(autoload 'coffee-mode "coffee-mode" "Coffee Script major mode")
-(add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))(eval-after-load "coffee-mode"
+(add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
+(eval-after-load "coffee-mode"
   `(setq coffee-js-mode preferred-javascript-mode
          coffee-tab-width preferred-javascript-indent-level))
 
-(autoload 'flymake-coffee-load "flymake-coffee" "Flymake for coffee script")
 (add-hook 'coffee-mode-hook 'flymake-coffee-load)
 
 

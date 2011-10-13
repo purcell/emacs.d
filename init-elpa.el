@@ -40,6 +40,7 @@
 (require-package 'flymake-haml)
 (require-package 'flymake-shell)
 (require-package 'flymake-coffee)
+(require-package 'flymake-jslint)
 (require-package 'ibuffer-vc)
 (require-package 'coffee-mode)
 (require-package 'elisp-slime-nav)
