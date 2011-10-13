@@ -61,9 +61,6 @@
 [submodule "site-lisp/darcsum"]
 	path = site-lisp/darcsum
 	url = https://github.com/emacsmirror/darcsum.git
-[submodule "site-lisp/paredit"]
-	path = site-lisp/paredit
-	url = https://github.com/emacsmirror/paredit.git
 [submodule "site-lisp/quack"]
 	path = site-lisp/quack
 	url = https://github.com/emacsmirror/quack.git

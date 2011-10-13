@@ -31,6 +31,7 @@
 (require-package 'lua-mode)
 (require-package 'project-local-variables)
 (require-package 'ruby-mode)
+(require-package 'paredit)
 (require-package 'slime)
 (require-package 'slime-fuzzy)
 (require-package 'slime-repl)
