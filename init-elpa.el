@@ -52,6 +52,7 @@
 (require-package 'js-comint)
 (require-package 'php-mode)
 (require-package 'scratch)
+(require-package 'mic-paren)
 
 ;; I maintain this chunk:
 (require-package 'ac-slime)
