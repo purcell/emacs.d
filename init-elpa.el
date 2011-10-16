@@ -62,6 +62,7 @@
 (require-package 'whole-line-or-region)
 (require-package 'flymake-ruby)
 (require-package 'flymake-haml)
+(require-package 'flymake-sass)
 (require-package 'flymake-shell)
 (require-package 'flymake-coffee)
 (require-package 'flymake-jslint)
