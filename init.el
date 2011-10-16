@@ -27,6 +27,7 @@
 ;;----------------------------------------------------------------------------
 (require 'init-site-lisp)
 (require 'init-elpa)
+(require 'init-marmalade)
 (when *byte-code-cache-enabled*
   (require 'init-byte-code-cache))
 (require 'init-utils)
