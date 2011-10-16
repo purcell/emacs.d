@@ -23,6 +23,5 @@ site-lisp/edit-server/
 site-lisp/flymake-css/
 site-lisp/rdebug/
 site-lisp/ruby-mode/
-site-lisp/smooth-scrolling/
 site-lisp/todochiku/
 /site-lisp/package/package.el
