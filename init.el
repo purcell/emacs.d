@@ -43,7 +43,6 @@
 (require 'init-uniquify)
 (require 'init-ibuffer)
 (require 'init-flymake)
-(require 'init-regex-tool)
 
 (require 'init-recentf)
 (require 'init-ido)

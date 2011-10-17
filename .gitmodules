@@ -25,9 +25,6 @@
 [submodule "site-lisp/org-fstree"]
 	path = site-lisp/org-fstree
 	url = http://repo.or.cz/r/org-fstree.git
-[submodule "site-lisp/regex-tool"]
-	path = site-lisp/regex-tool
-	url = https://github.com/jwiegley/regex-tool.git
 [submodule "site-lisp/ri-emacs"]
 	path = site-lisp/ri-emacs
 	url = https://github.com/pedz/ri-emacs.git

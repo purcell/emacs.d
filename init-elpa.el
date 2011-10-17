@@ -74,5 +74,6 @@
 (require-package 'hl-sexp)
 (require-package 'dsvn)
 (require-package 'crontab-mode)
+(require-package 'regex-tool)
 
 (provide 'init-elpa)

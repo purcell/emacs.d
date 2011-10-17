@@ -12,4 +12,7 @@
 
 (column-number-mode 1)
 
+(setq regex-tool-backend 'perl)
+
+
 (provide 'init-misc)
