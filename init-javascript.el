@@ -1,4 +1,8 @@
-(defvar preferred-javascript-mode 'js-mode)
+(defcustom preferred-javascript-mode 'js2-mode
+  "Javascript mode to use for .js files"
+  :type 'symbol
+  :group 'programming
+  :options '(js2-mode js-mode))
 (defvar preferred-mmm-javascript-mode 'js-mode)
 (defvar preferred-javascript-indent-level 2)
 
