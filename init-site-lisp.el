@@ -76,8 +76,6 @@ source file under ~/.emacs.d/site-lisp/name/"
   (unless (> emacs-major-version 23)
     (ensure-lib-from-url 'package "http://repo.or.cz/w/emacs.git/blob_plain/1a0a666f941c99882093d7bd08ced15033bc3f0c:/lisp/emacs-lisp/package.el"))
   (ensure-lib-from-url 'todochiku "http://www.emacswiki.org/emacs/download/todochiku.el")
-  ;; TODO: consider smooth-scroll instead
-  (ensure-lib-from-url 'smooth-scrolling "http://adamspiers.org/computing/elisp/smooth-scrolling.el")
   (ensure-lib-from-url 'edit-server "http://github.com/stsquad/emacs_chrome/raw/master/servers/edit-server.el")
 
   (ensure-lib-from-svn 'rdebug "http://ruby-debug.rubyforge.org/svn/trunk/emacs/"))
