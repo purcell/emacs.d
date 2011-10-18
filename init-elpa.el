@@ -67,6 +67,7 @@
 (require-package 'flymake-haml)
 (require-package 'flymake-sass)
 (require-package 'flymake-shell)
+(require-package 'flymake-php)
 (require-package 'flymake-coffee)
 (require-package 'flymake-jslint)
 (require-package 'ibuffer-vc)
