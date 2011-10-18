@@ -28,9 +28,6 @@
 [submodule "site-lisp/ri-emacs"]
 	path = site-lisp/ri-emacs
 	url = https://github.com/pedz/ri-emacs.git
-[submodule "site-lisp/rinari"]
-	path = site-lisp/rinari
-	url = https://github.com/eschulte/rinari.git
 [submodule "site-lisp/textile-mode"]
 	path = site-lisp/textile-mode
 	url = https://github.com/emacsmirror/textile-mode.git

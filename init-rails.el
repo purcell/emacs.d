@@ -10,8 +10,6 @@
                    (remove (file-name-as-directory (expand-file-name "util" rinari-lib-dir))
                            load-path)))))
 
-(autoload 'rinari-launch "rinari")
-
 (dolist (hook '(nxml-mode-hook haml-mode-hook sass-mode-hook magit-mode-hook yaml-mode-hook))
   (add-hook hook 'rinari-launch))
 

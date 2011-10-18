@@ -77,5 +77,7 @@
 (require-package 'dsvn)
 (require-package 'crontab-mode)
 (require-package 'regex-tool)
+(require-package 'rinari)
+(require-package 'ruby-compilation)
 
 (provide 'init-elpa)
