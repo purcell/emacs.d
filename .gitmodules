@@ -94,3 +94,6 @@
 [submodule "site-lisp/csv-mode"]
 	path = site-lisp/csv-mode
 	url = https://github.com/emacsmirror/csv-mode
+[submodule "site-lisp/ido-ubiquitous"]
+	path = site-lisp/ido-ubiquitous
+	url = git://github.com/technomancy/ido-ubiquitous.git

@@ -52,7 +52,6 @@
 (require-package 'smex)
 (require-package 'rainbow-mode)
 (require-package 'maxframe)
-(require-package 'org)
 (require-package 'clojure-mode)
 (require-package 'clojure-test-mode)
 (require-package 'diminish)
