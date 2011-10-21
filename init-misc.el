@@ -10,9 +10,6 @@
 (autoload 'mwe:log-keyboard-commands "mwe-log-commands"
   "Log commands executed in the current buffer" t)
 
-(show-paren-mode 1)
-(setq show-paren-style 'parenthesis)
-(setq show-paren-delay 0)
 (column-number-mode 1)
 
 ; NO automatic new line when scrolling down at buffer bottom
@@ -153,5 +150,6 @@
 ;@see http://stackoverflow.com/questions/3509919/ \
 ;emacs-c-opening-corresponding-header-file
 (global-set-key (kbd "C-x C-o") 'ff-find-other-file)
+(setq regex-tool-backend 'perl)
 
 (provide 'init-misc)

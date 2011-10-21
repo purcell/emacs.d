@@ -3,6 +3,7 @@
 ; setup proxy
 ;(setq url-proxy-services '(("http" . "127.0.0.1:8580"))) ; fr*egate
 ;(setq url-proxy-services '(("http" . "127.0.0.1:8000"))) ; gae
+(setq url-proxy-services '(("http" . "127.0.0.1:8118"))) ; privoxy
 (setq org2blog/wp-blog-alist
       '(("wp"
          :url "http://emacsguru.wordpress.com/xmlrpc.php"

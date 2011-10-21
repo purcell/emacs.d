@@ -33,7 +33,6 @@
 (add-hook 'sass-mode-hook 'rainbow-turn-on)
 
 
-(autoload 'less-css-mode "less-css-mode" "Mode for lesscss")
 (add-to-list 'auto-mode-alist '("\\.less" . less-css-mode))
 
 

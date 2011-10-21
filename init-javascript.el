@@ -1,4 +1,8 @@
-(defvar preferred-javascript-mode 'js-mode)
+(defcustom preferred-javascript-mode 'js2-mode
+  "Javascript mode to use for .js files"
+  :type 'symbol
+  :group 'programming
+  :options '(js2-mode js-mode))
 (defvar preferred-mmm-javascript-mode 'js-mode)
 (defvar preferred-javascript-indent-level 2)
 
@@ -12,14 +16,12 @@
 
 
 ;; On-the-fly syntax checking
-(autoload 'flymake-js-load "flymake-js" "On-the-fly syntax checking of javascript" t)
 (eval-after-load "js"
   '(progn
-     (add-hook 'js-mode-hook 'flymake-js-load)))
+     (add-hook 'js-mode-hook 'flymake-jslint-load)))
 
 
 ;; js2-mode
-(autoload 'js2-mode "js2-mode" "Steve Yegge's javascript IDE mode")
 (setq js2-use-font-lock-faces t)
 (setq js2-mode-must-byte-compile nil)
 (setq js2-basic-offset preferred-javascript-indent-level)
@@ -63,12 +65,11 @@
      (dolist (mode (list 'html-mode 'nxml-mode))
        (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?$" 'html-js))))
 
-(autoload 'coffee-mode "coffee-mode" "Coffee Script major mode")
-(add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))(eval-after-load "coffee-mode"
+(add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
+(eval-after-load "coffee-mode"
   `(setq coffee-js-mode preferred-javascript-mode
          coffee-tab-width preferred-javascript-indent-level))
 
-(autoload 'flymake-coffee-load "flymake-coffee" "Flymake for coffee script")
 (add-hook 'coffee-mode-hook 'flymake-coffee-load)
 
 
@@ -82,13 +83,6 @@
   (local-set-key "\C-cl" 'js-load-file-and-go))
 (add-hook 'js2-mode-hook 'add-inferior-js-keys)
 (add-hook 'js-mode-hook 'add-inferior-js-keys)
-
-
-(autoload 'inferior-moz-mode "moz" "MozRepl Inferior Mode" t)
-(autoload 'moz-minor-mode "moz" "MozRepl Minor Mode" t)
-(defun javascript-moz-setup () (moz-minor-mode 1))
-(add-hook 'js2-mode-hook 'javascript-moz-setup)
-(add-hook 'js-mode-hook 'javascript-moz-setup)
 
 
 (provide 'init-javascript)

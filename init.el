@@ -34,6 +34,7 @@
 ;;----------------------------------------------------------------------------
 (require 'init-site-lisp)
 (require 'init-elpa)
+(require 'init-marmalade)
 (when *byte-code-cache-enabled*
   (require 'init-byte-code-cache))
 (require 'init-utils)
@@ -46,11 +47,9 @@
 (require 'init-dired)
 (require 'init-viper)
 (require 'init-isearch)
-(require 'init-iedit)
 (require 'init-uniquify)
 (require 'init-ibuffer)
 (require 'init-flymake)
-(require 'init-regex-tool)
 
 (require 'init-recentf)
 (require 'init-ido)
@@ -64,7 +63,6 @@
 
 (require 'init-editing-utils)
 
-(require 'init-svn)
 (require 'init-darcs)
 (require 'init-git)
 

@@ -22,6 +22,8 @@
 ;;; Change Log:
 ;; Fri Nov 16 00:33:28 EST 2007 - Made more robust against
 ;; pathological recursive invocations.
+;; Thu Jul 08 15:52:00 PST 2010 - Made work even with complex
+;; advise definitions.
 
 ;;; Code:
 
@@ -267,19 +269,10 @@ ORIGNAME. NOERROR and NOMESSAGE mean what they do for LOAD."
            (default-enable-multibyte-characters nil)
            (buffer (get-buffer-create (generate-new-buffer-name " *load*")))
            (load-in-progress t)
-
-           ;; BYTE-COMPILER-WARNINGS is sometimes unbound even though
-           ;; (featurep 'bytecomp) is true. This happens when we're
-           ;; loading custom files, since BYTE-COMPILER-WARNINGS is a
-           ;; customization variable. Advice notices that bytecomp is
-           ;; loaded and tries to compile advised functions, which
-           ;; fails because we're in some strange customize-induced
-           ;; twilight zone.
-           (ad-default-compilation-action
-            (if (and (featurep 'bytecomp)
-                     (not (boundp 'byte-compiler-warnings)))
-                'never
-              ad-default-compilation-action)))
+           (byte-compile-warnings
+            (if (boundp 'byte-compile-warnings) byte-compile-warnings nil))
+           (byte-compile-verbose
+            (if (boundp 'byte-compile-verbose) byte-compile-verbose nil)))
 
       (unless nomessage
         (message "Loading %S as %S..." cachename origname))

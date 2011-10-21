@@ -1,5 +1,4 @@
 ;; Currently loading ruby-mode and inf-ruby from the version bundled with rinari
-(autoload 'ruby-mode "ruby-mode" "Mode for editing ruby source files" t)
 (setq interpreter-mode-alist
       (cons '("ruby" . ruby-mode) interpreter-mode-alist))
 
@@ -82,7 +81,12 @@
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f6] 'recompile)))
 
 
+
+;;----------------------------------------------------------------------------
+;; Yaml
+;;----------------------------------------------------------------------------
 (autoload 'yaml-mode "yaml-mode" "Major mode for YAML source")
-(add-auto-mode 'yaml-mode "\\.yml$")
+(add-auto-mode 'yaml-mode "\\.ya?ml$")
+
 
 (provide 'init-ruby-mode)

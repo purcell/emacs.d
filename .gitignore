@@ -20,14 +20,8 @@ cookies
 /ac-comphist.dat
 \#*
 /elpa
-site-lisp/dsvn/
 site-lisp/edit-server/
-site-lisp/eol-conversion/
 site-lisp/flymake-css/
-site-lisp/moz/
 site-lisp/rdebug/
-site-lisp/ruby-mode/
-site-lisp/smooth-scrolling/
 site-lisp/todochiku/
-site-lisp/vc-darcs/
 /site-lisp/package/package.el

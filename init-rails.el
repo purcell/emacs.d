@@ -4,12 +4,11 @@
        (error "jump.el not found; please run 'git submodule update --init' in %s"
               rinari-lib-dir))
 
-     ;; Prevent rinari from shadowing ruby-mode with its bundled copy
+     ;; Prevent rinari from shadowing ruby-mode and inf-ruby with its bundled copies
      (setq load-path
-           (remove (file-name-as-directory (expand-file-name "util" rinari-lib-dir))
-                   load-path))))
-
-(autoload 'rinari-launch "rinari")
+           (remove (file-name-as-directory (expand-file-name "util/inf-ruby" rinari-lib-dir))
+                   (remove (file-name-as-directory (expand-file-name "util" rinari-lib-dir))
+                           load-path)))))
 
 (dolist (hook '(nxml-mode-hook haml-mode-hook sass-mode-hook magit-mode-hook yaml-mode-hook))
   (add-hook hook 'rinari-launch))

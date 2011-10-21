@@ -7,14 +7,6 @@
   :type 'symbol)
 
 
-(require 'color-theme-autoloads)
-(autoload 'color-theme-vivid-chalk "vivid-chalk" "A dark color theme" t)
-(autoload 'color-theme-sanityinc-light "color-theme-sanityinc" "A light color theme" t)
-(autoload 'color-theme-sanityinc-dark "color-theme-sanityinc" "A dark color theme" t)
-(autoload 'color-theme-sanityinc-solarized-light "color-theme-sanityinc-solarized" "A light color theme" t)
-(autoload 'color-theme-sanityinc-solarized-dark "color-theme-sanityinc-solarized" "A dark color theme" t)
-
-
 (defun color-theme-terminal ()
   (interactive)
   (color-theme-sanityinc-solarized-dark))

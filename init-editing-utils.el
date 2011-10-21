@@ -36,8 +36,7 @@
 ;;----------------------------------------------------------------------------
 ;; Show matching parens
 ;;----------------------------------------------------------------------------
-(require 'mic-paren) ; loading
-(paren-activate)     ; activating
+(paren-activate)     ; activating mic-paren
 
 
 ;;----------------------------------------------------------------------------
@@ -65,13 +64,6 @@
 ;; Rectangle selections, and overwrite text when the selection is active
 ;;----------------------------------------------------------------------------
 (cua-selection-mode t)                  ; for rectangles, CUA is nice
-
-
-;;----------------------------------------------------------------------------
-;; Conversion of line endings
-;;----------------------------------------------------------------------------
-;; Can also use "C-x ENTER f dos" / "C-x ENTER f unix" (set-buffer-file-coding-system)
-(require 'eol-conversion)
 
 
 ;;----------------------------------------------------------------------------
@@ -199,10 +191,6 @@
 (autoload 'turn-on-typing-speed "typing-speed-mode" "Show typing speed in modeline")
 ;(add-hook 'text-mode-hook 'turn-on-typing-speed)
 
-
-
-;; Get handy scratch buffers for any major mode
-(autoload 'scratch "scratch" nil t)
 
 
 ;;----------------------------------------------------------------------------
