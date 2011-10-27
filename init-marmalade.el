@@ -22,7 +22,9 @@
       (unless tag
         (error "Not tagged"))
       (update-version-header tag)
-      (marmalade-upload-buffer buf))))
+      (marmalade-upload-buffer buf)
+      (revert-buffer t t)
+      (message "Submitted version %s to marmalade" tag))))
 
 
 (provide 'init-marmalade)
