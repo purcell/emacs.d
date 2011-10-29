@@ -18,7 +18,8 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(require-package 'color-theme)
+(when (< emacs-major-version 24)
+  (require-package 'color-theme))
 (require-package 'erc)
 (require-package 'fringe-helper)
 (require-package 'gnuplot)
