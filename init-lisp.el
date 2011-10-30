@@ -1,9 +1,7 @@
 (require 'pretty-mode)
 (add-hook 'emacs-lisp-mode-hook 'turn-on-pretty-mode)
 
-(unless (fboundp 'enable-paredit-mode)
-  (defun enable-paredit-mode () (paredit-mode t)))
-
+(autoload 'enable-paredit-mode "paredit")
 (defadvice enable-paredit-mode (before disable-autopair activate)
   (setq autopair-dont-activate t)
   (autopair-mode -1))
