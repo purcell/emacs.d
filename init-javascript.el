@@ -27,6 +27,7 @@
 (setq js2-basic-offset preferred-javascript-indent-level)
 (setq js2-indent-on-enter-key t)
 (setq js2-auto-indent-p t)
+(setq js2-bounce-indent-p t)
 (unless *vi-emulation-support-enabled*
   (setq js2-mirror-mode t))
 
