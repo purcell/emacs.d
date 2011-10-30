@@ -1,9 +1,3 @@
-;; Use regex searching by default
-(global-set-key "\C-s" 'isearch-forward-regexp)
-(global-set-key "\C-r" 'isearch-backward-regexp)
-(global-set-key "\C-\M-s" 'isearch-forward)
-(global-set-key "\C-\M-r" 'isearch-backward)
-
 (defun call-with-current-isearch-string-as-regex (f)
   (let ((case-fold-search isearch-case-fold-search))
     (funcall f (if isearch-regexp isearch-string (regexp-quote isearch-string)))))
