@@ -34,6 +34,7 @@
 (require 'init-frame-hooks)
 (require 'init-xterm)
 (require 'init-title-bar)
+(require 'init-themes)
 (require 'init-osx-keys)
 (require 'init-gui-frames)
 (require 'init-proxies)
@@ -92,9 +93,6 @@
 (require 'init-twitter)
 
 (require 'init-misc)
-
-;; Finally set up themes, after most possibly-customised faces have been defined
-(require 'init-themes)
 
 
 ;;----------------------------------------------------------------------------

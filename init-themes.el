@@ -15,8 +15,7 @@
 (defun apply-best-color-theme-for-frame-type (frame)
   (with-selected-frame frame
     (if window-system
-        (preserving-default-font-size
-         (funcall window-system-color-theme))
+      (funcall window-system-color-theme)
       (funcall tty-color-theme))))
 
 (defun reapply-color-themes ()
