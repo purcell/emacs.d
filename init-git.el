@@ -36,13 +36,18 @@
      (mapcar (lambda (defn) (add-to-list 'compilation-error-regexp-alist defn))
              (list 'git-svn-updated 'git-svn-needs-update))))
 
+(defvar git-svn--available-commands nil "Cached list of git svn subcommands")
+
 (defun git-svn (dir)
+  "Run git svn"
   (interactive "DSelect directory: ")
-  (let* ((default-directory (git-get-top-dir dir))
+  (unless git-svn--available-commands
+    (setq git-svn--available-commands
+          (string-all-matches "^  \\([a-z\\-]+\\) +" (shell-command-to-string "git svn help") 1)))
+  (let* ((default-directory (vc-git-root dir))
          (compilation-buffer-name-function (lambda (major-mode-name) "*git-svn*")))
     (compile (concat "git svn "
-                     (ido-completing-read "git-svn command: "
-                                          (list "rebase" "dcommit" "fetch" "log") nil t)))))
+                     (ido-completing-read "git-svn command: " git-svn--available-commands nil t)))))
 
 
 

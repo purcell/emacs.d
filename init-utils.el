@@ -7,6 +7,20 @@
 
 
 ;;----------------------------------------------------------------------------
+;; An easy way to find all matches in a string
+;;----------------------------------------------------------------------------
+(defun string-all-matches (regex str &optional group)
+  "Find all matches for `REGEX' within `STR', returning the full match string or group `GROUP'."
+  (let ((result nil)
+        (pos 0)
+        (group (or group 0)))
+    (while (string-match regex str pos)
+      (push (match-string group str) result)
+      (setq pos (match-end group)))
+    result)))
+
+
+;;----------------------------------------------------------------------------
 ;; Find the directory containing a given library
 ;;----------------------------------------------------------------------------
 (require 'find-func)
