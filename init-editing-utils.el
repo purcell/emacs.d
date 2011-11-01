@@ -83,6 +83,8 @@
 (global-set-key (kbd "C-c j") 'join-line)
 (global-set-key (kbd "C-c J") (lambda () (interactive) (join-line 1)))
 (global-set-key (kbd "M-T") 'transpose-lines)
+(global-set-key (kbd "C-.") 'set-mark-command)
+(global-set-key (kbd "C-x C-.") 'pop-global-mark)
 
 (defun duplicate-line ()
   (interactive)
