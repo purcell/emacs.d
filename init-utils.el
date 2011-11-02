@@ -17,7 +17,7 @@
     (while (string-match regex str pos)
       (push (match-string group str) result)
       (setq pos (match-end group)))
-    result)))
+    result))
 
 (defun string-rtrim (str)
   "Remove trailing whitespace from `STR'."
