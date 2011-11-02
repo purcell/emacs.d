@@ -4,9 +4,6 @@
 ;; http://www.cs.usyd.edu.au/~massad/project-proxy-config.html
 ;;----------------------------------------------------------------------------
 (when (and *is-a-mac* (executable-find "proxy-config"))
-  (defun string-rtrim (s)
-    (replace-regexp-in-string "[ \t\n]*$" "" s))
-
   (defun mac-configured-proxy (proto)
     (string-rtrim (shell-command-to-string
                    (concat "proxy-config " (cdr (assoc-string proto '(("http" . "-h") ("https" . "-s"))))))))

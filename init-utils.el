@@ -7,7 +7,7 @@
 
 
 ;;----------------------------------------------------------------------------
-;; An easy way to find all matches in a string
+;; String utilities missing from core emacs
 ;;----------------------------------------------------------------------------
 (defun string-all-matches (regex str &optional group)
   "Find all matches for `REGEX' within `STR', returning the full match string or group `GROUP'."
@@ -18,6 +18,10 @@
       (push (match-string group str) result)
       (setq pos (match-end group)))
     result)))
+
+(defun string-rtrim (str)
+  "Remove trailing whitespace from `STR'."
+  (replace-regexp-in-string "[ \t\n]*$" "" str))
 
 
 ;;----------------------------------------------------------------------------
