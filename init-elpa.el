@@ -81,5 +81,6 @@
 (require-package 'regex-tool)
 (require-package 'rinari)
 (require-package 'ruby-compilation)
+(require-package 'iy-go-to-char)
 
 (provide 'init-elpa)
