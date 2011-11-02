@@ -79,10 +79,14 @@
      (global-set-key (kbd "M-]") 'paredit-close-square-and-newline)
      (global-set-key (kbd "M-}") 'paredit-close-curly-and-newline)
 
+     (dolist (binding (list (kbd "C-<left>") (kbd "C-<right>")
+                            (kbd "C-M-<left>") (kbd "C-M-<right>")))
+       (define-key paredit-mode-map binding nil))
+
      ;; Disable kill-sentence, which is easily confused with the kill-sexp
      ;; binding, but doesn't preserve sexp structure
-     (define-key paredit-mode-map (kbd "M-K") 'warn-disabled-command)
-     (define-key paredit-mode-map (kbd "M-k") 'warn-disabled-command)))
+     (define-key paredit-mode-map [remap kill-sentence] 'warn-disabled-command)
+     (define-key paredit-mode-map [remap backward-kill-sentence] 'warn-disabled-command)))
 
 ;; When editing lisp code, highlight the current sexp
 (add-hook 'paredit-mode-hook (lambda () (hl-sexp-mode t)))
