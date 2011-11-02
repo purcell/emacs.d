@@ -11,10 +11,12 @@
                             (setq ido-use-filename-at-point nil)))
 (setq nxml-slash-auto-complete-flag t)
 
-(require 'whattf-dt)
-(eval-after-load "rng-loc"
-  '(push (expand-file-name "schemas.xml" (directory-of-library "whattf-dt"))
-         rng-schema-locating-files))
+
+(eval-after-load 'rng-loc
+  '(progn
+     (require 'whattf-dt)
+     (push (expand-file-name "schemas.xml" (directory-of-library "whattf-dt"))
+           rng-schema-locating-files)))
 
 
 ;;----------------------------------------------------------------------------

@@ -17,17 +17,13 @@
 (require 'cl)
 
 ;;----------------------------------------------------------------------------
-;; Set $PATH
-;;----------------------------------------------------------------------------
-(require 'init-exec-path)
-
-;;----------------------------------------------------------------------------
 ;; Load configs for specific features and modes
 ;;----------------------------------------------------------------------------
-(require 'init-site-lisp)
+(require 'init-utils)
+(require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
 (require 'init-elpa)
 (require 'init-marmalade)
-(require 'init-utils)
+(require 'init-exec-path) ;; Set up $PATH
 (require 'init-frame-hooks)
 (require 'init-xterm)
 (require 'init-title-bar)

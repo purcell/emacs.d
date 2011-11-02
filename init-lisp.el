@@ -1,4 +1,4 @@
-(require 'pretty-mode)
+(autoload 'turn-on-pretty-mode "pretty-mode")
 (add-hook 'emacs-lisp-mode-hook 'turn-on-pretty-mode)
 
 (autoload 'enable-paredit-mode "paredit")
@@ -94,7 +94,6 @@
        (remove-hook 'pre-command-hook #'hl-sexp-unhighlight))))
 
 
-(require 'elisp-slime-nav)
 (add-hook 'emacs-lisp-mode-hook (lambda () (elisp-slime-nav-mode t)))
 
 

@@ -4,8 +4,6 @@
 ;;(add-hook 'erlang-load-hook 'my-erlang-load-hook)
 (setq erlang-root-dir "/opt/local/lib/erlang")
 (require 'erlang-start)
-;;(require 'distel)
-;;(add-hook 'erlang-mode-hook 'distel-erlang-mode-hook))
 
 
 (provide 'init-erlang)

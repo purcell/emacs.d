@@ -1,11 +1,7 @@
-;;(setq load-path (cons (expand-file-name "/usr/share/doc/git-core/contrib/emacs") load-path))
-;; Downloaded from http://git.kernel.org/?p=git/git.git ;a=tree;hb=HEAD;f=contrib/emacs
-(require 'vc-git)
-(when (featurep 'vc-git) (add-to-list 'vc-handled-backends 'git))
 (autoload 'git-blame-mode "git-blame" "Minor mode for incremental blame for Git." t)
 
 
-(require 'magit)
+(autoload 'magit-status "magit")
 (setq magit-save-some-buffers nil)
 (setq magit-process-popup-time 4)
 (setq magit-completing-read-function 'magit-ido-completing-read)
@@ -21,9 +17,13 @@
 (when *is-a-mac*
   (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)]))))
 
-(require 'magit-svn)
-(require 'rebase-mode)
-(require 'diff-git)
+(eval-after-load 'magit
+  '(progn
+     (require 'magit-svn)))
+
+(autoload 'rebase-mode "rebase-mode")
+(add-to-list 'auto-mode-alist '("git-rebase-todo" . rebase-mode))
+(require 'diff-git) ;; TODO: see if magit can do the same thing
 
 ;;----------------------------------------------------------------------------
 ;; git-svn conveniences

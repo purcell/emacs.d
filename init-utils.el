@@ -27,7 +27,7 @@
 ;;----------------------------------------------------------------------------
 ;; Find the directory containing a given library
 ;;----------------------------------------------------------------------------
-(require 'find-func)
+(autoload 'find-library-name "find-func")
 (defun directory-of-library (library-name)
   (file-name-as-directory (file-name-directory (find-library-name library-name))))
 

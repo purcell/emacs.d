@@ -74,7 +74,6 @@
 (add-hook 'coffee-mode-hook 'flymake-coffee-load)
 
 
-(require 'js-comint)
 (setq inferior-js-program-command "js")
 (defun add-inferior-js-keys ()
   (local-set-key "\C-x\C-e" 'js-send-last-sexp)
