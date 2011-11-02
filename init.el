@@ -6,7 +6,6 @@
 ;;----------------------------------------------------------------------------
 (setq *vi-emulation-support-enabled* nil) ; "viper-mode"
 (setq *spell-check-support-enabled* nil)
-(setq *byte-code-cache-enabled* nil)
 (setq *macbook-pro-support-enabled* t)
 (setq *is-a-mac* (eq system-type 'darwin))
 (setq *is-carbon-emacs* (and *is-a-mac* (eq window-system 'mac)))
@@ -28,8 +27,6 @@
 (require 'init-site-lisp)
 (require 'init-elpa)
 (require 'init-marmalade)
-(when *byte-code-cache-enabled*
-  (require 'init-byte-code-cache))
 (require 'init-utils)
 (require 'init-frame-hooks)
 (require 'init-xterm)
