@@ -18,6 +18,7 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
+(require-package 'ido-ubiquitous)
 (when (< emacs-major-version 24)
   (require-package 'color-theme))
 (require-package 'erc)
