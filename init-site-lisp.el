@@ -28,11 +28,13 @@
     (unless (file-directory-p dir)
       (make-directory dir)
       (add-to-list 'load-path dir))
-    (url-copy-file url (site-lisp-library-el-path name) t nil)))
+    (let ((el-file (site-lisp-library-el-path name)))
+      (url-copy-file url el-file t nil)
+      el-file)))
 
 (defun ensure-lib-from-url (name url)
   (unless (site-lisp-library-loadable-p name)
-    (download-site-lisp-module name url)))
+    (byte-compile-file (download-site-lisp-module name url))))
 
 (defun site-lisp-library-loadable-p (name)
   "Return whether or not the library `name' can be loaded from a
@@ -63,7 +65,8 @@ source file under ~/.emacs.d/site-lisp/name/"
 (defun refresh-site-lisp-submodules ()
   (interactive)
   (message "Updating site-lisp git submodules")
-  (shell-command "cd ~/.emacs.d && git submodule foreach 'git pull' &" "*site-lisp-submodules*"))
+  (shell-command "cd ~/.emacs.d && git submodule foreach 'git pull' &" "*site-lisp-submodules*")
+  (byte-recompile-directory "~/.emacs.d/site-lisp"))
 
 ;;----------------------------------------------------------------------------
 ;; Download these upstream libs

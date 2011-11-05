@@ -6,7 +6,6 @@
 ;;----------------------------------------------------------------------------
 (setq *vi-emulation-support-enabled* nil) ; "viper-mode"
 (setq *spell-check-support-enabled* nil)
-(setq *byte-code-cache-enabled* nil)
 (setq *macbook-pro-support-enabled* t)
 (setq *is-a-mac* (eq system-type 'darwin))
 (setq *is-carbon-emacs* (and *is-a-mac* (eq window-system 'mac)))
@@ -25,22 +24,17 @@
 (require 'cl)
 
 ;;----------------------------------------------------------------------------
-;; Set $PATH
-;;----------------------------------------------------------------------------
-(require 'init-exec-path)
-
-;;----------------------------------------------------------------------------
 ;; Load configs for specific features and modes
 ;;----------------------------------------------------------------------------
-(require 'init-site-lisp)
+(require 'init-utils)
+(require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
 (require 'init-elpa)
 (require 'init-marmalade)
-(when *byte-code-cache-enabled*
-  (require 'init-byte-code-cache))
-(require 'init-utils)
+(require 'init-exec-path) ;; Set up $PATH
 (require 'init-frame-hooks)
 (require 'init-xterm)
 (require 'init-title-bar)
+(require 'init-themes)
 (require 'init-osx-keys)
 (require 'init-gui-frames)
 (require 'init-proxies)
@@ -121,6 +115,7 @@
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
+(require 'server)
 (unless (server-running-p)
   (server-start))
 

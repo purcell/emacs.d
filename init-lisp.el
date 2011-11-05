@@ -1,9 +1,7 @@
-(require 'pretty-mode)
+(autoload 'turn-on-pretty-mode "pretty-mode")
 (add-hook 'emacs-lisp-mode-hook 'turn-on-pretty-mode)
 
-(unless (fboundp 'enable-paredit-mode)
-  (defun enable-paredit-mode () (paredit-mode t)))
-
+(autoload 'enable-paredit-mode "paredit")
 (defadvice enable-paredit-mode (before disable-autopair activate)
   (setq autopair-dont-activate t)
   (autopair-mode -1))
@@ -81,15 +79,14 @@
      (global-set-key (kbd "M-]") 'paredit-close-square-and-newline)
      (global-set-key (kbd "M-}") 'paredit-close-curly-and-newline)
 
-     (global-set-key (kbd "C-<right>") 'paredit-forward-slurp-sexp)
-     (global-set-key (kbd "C-<left>") 'paredit-forward-barf-sexp)
-     (global-set-key (kbd "C-M-<left>") 'paredit-backward-slurp-sexp)
-     (global-set-key (kbd "C-M-<right>") 'paredit-backward-barf-sexp)
+     (dolist (binding (list (kbd "C-<left>") (kbd "C-<right>")
+                            (kbd "C-M-<left>") (kbd "C-M-<right>")))
+       (define-key paredit-mode-map binding nil))
 
      ;; Disable kill-sentence, which is easily confused with the kill-sexp
      ;; binding, but doesn't preserve sexp structure
-     (define-key paredit-mode-map (kbd "M-K") 'warn-disabled-command)
-     (define-key paredit-mode-map (kbd "M-k") 'warn-disabled-command)))
+     (define-key paredit-mode-map [remap kill-sentence] 'warn-disabled-command)
+     (define-key paredit-mode-map [remap backward-kill-sentence] 'warn-disabled-command)))
 
 ;; When editing lisp code, highlight the current sexp
 (add-hook 'paredit-mode-hook (lambda () (hl-sexp-mode t)))
@@ -101,7 +98,6 @@
        (remove-hook 'pre-command-hook #'hl-sexp-unhighlight))))
 
 
-(require 'elisp-slime-nav)
 (add-hook 'emacs-lisp-mode-hook (lambda () (elisp-slime-nav-mode t)))
 
 

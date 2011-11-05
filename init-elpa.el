@@ -20,7 +20,9 @@
 
 (require-package 'all)
 (require-package 'xml-rpc)
-(require-package 'color-theme)
+(require-package 'ido-ubiquitous)
+(when (< emacs-major-version 24)
+  (require-package 'color-theme))
 (require-package 'erc)
 (require-package 'fringe-helper)
 (require-package 'gnuplot)
@@ -85,5 +87,6 @@
 (require-package 'regex-tool)
 (require-package 'rinari)
 (require-package 'ruby-compilation)
+(require-package 'iy-go-to-char)
 
 (provide 'init-elpa)

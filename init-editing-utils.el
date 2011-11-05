@@ -1,11 +1,10 @@
-(require 'diminish)
-
 ;;----------------------------------------------------------------------------
 ;; Some basic preferences
 ;;----------------------------------------------------------------------------
 (setq-default
  blink-cursor-delay 0
  blink-cursor-interval 0.4
+ bookmark-default-file "~/.emacs.d/.bookmarks.el"
  buffers-menu-max-size 30
  case-fold-search t
  compilation-scroll-output t
@@ -25,6 +24,13 @@
 
 (transient-mark-mode t)
 
+
+;;----------------------------------------------------------------------------
+;; Zap *up* to char is a more sensible default
+;;----------------------------------------------------------------------------
+(autoload 'zap-up-to-char "misc" "Kill up to ARGth occurrence of CHAR.")
+(global-set-key (kbd "M-z") 'zap-up-to-char)
+(global-set-key (kbd "M-Z") 'zap-to-char)
 
 ;;----------------------------------------------------------------------------
 ;; Don't disable narrowing commands
@@ -75,6 +81,10 @@
 (global-set-key (kbd "C-c j") 'join-line)
 (global-set-key (kbd "C-c J") (lambda () (interactive) (join-line 1)))
 (global-set-key (kbd "M-T") 'transpose-lines)
+(global-set-key (kbd "C-.") 'set-mark-command)
+(global-set-key (kbd "C-x C-.") 'pop-global-mark)
+(global-set-key (kbd "C-;") 'iy-go-to-char)
+(global-set-key (kbd "C-\,") 'iy-go-to-char-backward)
 
 (defun duplicate-line ()
   (interactive)
@@ -153,7 +163,6 @@
 ;;----------------------------------------------------------------------------
 ;; Cut/copy the current line if no region is active
 ;;----------------------------------------------------------------------------
-(require 'whole-line-or-region)
 (whole-line-or-region-mode t)
 (diminish 'whole-line-or-region-mode)
 (make-variable-buffer-local 'whole-line-or-region-mode)

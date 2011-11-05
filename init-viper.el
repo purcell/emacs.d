@@ -6,7 +6,6 @@
      (global-unset-key "\C-z")
      (setq viper-mode t)
      (setq viper-custom-file-name (convert-standard-filename "~/.emacs.d/.viper"))
-     (require 'viper)
      (define-key viper-insert-global-user-map [kp-delete] 'viper-delete-char)
      (define-key viper-insert-global-user-map (kbd "C-n") 'dabbrev-expand)
      (define-key viper-insert-global-user-map (kbd "C-p") 'dabbrev-expand)

@@ -1,5 +1,3 @@
-(global-set-key [f4] 'slime-selector)
-
 (autoload 'slime-fuzzy-init "slime-fuzzy" "" nil)
 (eval-after-load "slime-fuzzy"
   '(require 'slime-repl))
