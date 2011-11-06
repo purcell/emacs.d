@@ -40,6 +40,7 @@ ignored: use `custom-enabled-themes' instead."
 
 ;; If you don't customize it, this is the theme you get.
 (setq-default custom-enabled-themes '(sanityinc-solarized-light))
+(load-theme 'sanityinc-solarized-light t)
 
 
 ;;------------------------------------------------------------------------------
