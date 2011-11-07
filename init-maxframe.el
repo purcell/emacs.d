@@ -3,9 +3,12 @@
   (fset 'maximize-frame 'x-maximize-frame)
   (fset 'restore-frame 'x-restore-frame))
 (when *macbook-pro-support-enabled*
-  (setq mf-max-width 1440)
-  (setq mf-max-height 890)
-  (setq mf-offset-x 0))
+  (setq mf-max-width 1440
+        mf-max-height 890
+        mf-display-padding-width 4
+        mf-offset-x 0)
+  (when ns-auto-hide-menu-bar
+    (setq mf-display-padding-height 23)))
 
 (defun maybe-maximize-frame (&optional frame)
   (with-selected-frame frame
