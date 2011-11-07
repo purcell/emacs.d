@@ -195,13 +195,6 @@
     (message "Word count: %s" (how-many "\\w+" b e))))
 
 
-;; Show typing speed
-(autoload 'typing-speed-mode "typing-speed-mode" "Show typing speed in modeline")
-(autoload 'turn-on-typing-speed "typing-speed-mode" "Show typing speed in modeline")
-;(add-hook 'text-mode-hook 'turn-on-typing-speed)
-
-
-
 ;;----------------------------------------------------------------------------
 ;; Set indent width according to existing code
 ;;----------------------------------------------------------------------------
