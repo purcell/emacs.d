@@ -11,7 +11,7 @@
      (require 'durendal)
      (durendal-enable t)))
 
-(add-hook 'clojure-mode-hook 'enable-paredit-mode)
+(add-hook 'clojure-mode-hook 'smp-lisp-setup)
 
 
 (defun slime-clojure-repl-setup ()
