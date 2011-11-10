@@ -13,6 +13,24 @@
     (kill-line)
     (insert " " val)))
 
+(defun submit-tar-to-marmalade (buf)
+  (interactive "bSubmit buffer library as tar: ")
+  (with-current-buffer buf
+    (let* ((tag (or (latest-git-tag) (error "Not tagged")))
+           (library-name (file-name-nondirectory (file-name-sans-extension buffer-file-name)))
+           (package-dir-name (concat library-name "-" tag))
+           (temp-working-dir (make-temp-file "emacs-marmalade" t))
+           (dest (expand-file-name package-dir-name temp-working-dir))
+           (tar (concat dest ".tar")))
+      (message "Building package in %s" dest)
+      (make-directory dest)
+      (shell-command (format "cp *.el %s && (cd %s && perl -spi -e 's/\\{\\{VERSION\\}\\}/%s/' *.el) && (cd %s && tar cvf %s %s)" dest dest tag temp-working-dir tar package-dir-name))
+      (save-excursion
+        (find-file tar)
+        (marmalade-upload-buffer (current-buffer)))
+;;      (delete-directory temp-working-dir t)
+      )))
+
 (defun submit-to-marmalade (buf)
   (interactive "bSubmit buffer: ")
   (with-current-buffer buf
