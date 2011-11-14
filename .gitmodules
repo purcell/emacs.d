@@ -46,9 +46,6 @@
 [submodule "site-lisp/darcsum"]
 	path = site-lisp/darcsum
 	url = https://github.com/emacsmirror/darcsum.git
-[submodule "site-lisp/twit"]
-	path = site-lisp/twit
-	url = https://github.com/emacsmirror/twit.git
 [submodule "site-lisp/smarty-mode"]
 	path = site-lisp/smarty-mode
 	url = https://github.com/emacsmirror/smarty-mode.git

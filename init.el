@@ -81,9 +81,6 @@
 (when *spell-check-support-enabled*
   (require 'init-spelling))
 
-;; In-Emacs apps
-(require 'init-twitter)
-
 (require 'init-misc)
 
 
