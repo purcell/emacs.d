@@ -1,9 +1,6 @@
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = https://github.com/purcell/auto-complete.git
-[submodule "site-lisp/diff-git"]
-	path = site-lisp/diff-git
-	url = https://github.com/alanfalloon/diff-git.el.git
 [submodule "site-lisp/dired-plus"]
 	path = site-lisp/dired-plus
 	url = https://github.com/emacsmirror/dired-plus.git

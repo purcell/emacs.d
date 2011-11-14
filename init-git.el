@@ -23,7 +23,6 @@
 
 (autoload 'rebase-mode "rebase-mode")
 (add-to-list 'auto-mode-alist '("git-rebase-todo" . rebase-mode))
-(require 'diff-git) ;; TODO: see if magit can do the same thing
 
 ;;----------------------------------------------------------------------------
 ;; git-svn conveniences
