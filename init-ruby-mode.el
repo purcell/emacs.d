@@ -33,8 +33,7 @@
 
 (setq compile-command "rake ")
 
-(autoload 'ri "ri-ruby" "Show ri documentation for Ruby symbols" t)
-(setq ri-ruby-script (concat (directory-of-library "ri-ruby") "ri-emacs.rb"))
+(defalias 'ri 'yari)
 
 
 ;;----------------------------------------------------------------------------

@@ -34,6 +34,7 @@
 (require-package 'project-local-variables)
 (require-package 'ruby-mode)
 (require-package 'inf-ruby)
+(require-package 'yari)
 (require-package 'yaml-mode)
 (require-package 'paredit)
 (require-package 'slime)
