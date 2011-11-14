@@ -77,7 +77,6 @@
 (require 'init-slime)
 (require 'init-clojure)
 (require 'init-common-lisp)
-;(require 'init-scheme)
 
 (when *spell-check-support-enabled*
   (require 'init-spelling))

@@ -52,9 +52,6 @@
 [submodule "site-lisp/darcsum"]
 	path = site-lisp/darcsum
 	url = https://github.com/emacsmirror/darcsum.git
-[submodule "site-lisp/quack"]
-	path = site-lisp/quack
-	url = https://github.com/emacsmirror/quack.git
 [submodule "site-lisp/twit"]
 	path = site-lisp/twit
 	url = https://github.com/emacsmirror/twit.git
