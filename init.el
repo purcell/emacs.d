@@ -97,12 +97,6 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Edit-server for Chrome extension: http://github.com/stsquad/emacs_chrome
-;;----------------------------------------------------------------------------
-(require 'init-edit-server)
-
-
-;;----------------------------------------------------------------------------
 ;; Variables configured via the interactive 'customize' interface
 ;;----------------------------------------------------------------------------
 (setq custom-file "~/.emacs.d/custom.el")
