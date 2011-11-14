@@ -196,15 +196,6 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Set indent width according to existing code
-;;----------------------------------------------------------------------------
-(require 'fuzzy-format)
-(setq fuzzy-format-default-indent-tabs-mode nil)
-(global-fuzzy-format-mode t)
-(diminish 'fuzzy-format-mode)
-
-
-;;----------------------------------------------------------------------------
 ;; Unfill regions or paragraphs (see http://xahlee.org/emacs/emacs_unfill-paragraph.html)
 ;;----------------------------------------------------------------------------
 (defun unfill-paragraph ()

@@ -28,9 +28,6 @@
 [submodule "site-lisp/textile-mode"]
 	path = site-lisp/textile-mode
 	url = https://github.com/emacsmirror/textile-mode.git
-[submodule "site-lisp/fuzzy-format"]
-	path = site-lisp/fuzzy-format
-	url = https://github.com/emacsmirror/fuzzy-format.git
 [submodule "site-lisp/mwe-log-commands"]
 	path = site-lisp/mwe-log-commands
 	url = https://github.com/emacsmirror/mwe-log-commands.git
