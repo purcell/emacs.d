@@ -10,9 +10,6 @@
 [submodule "site-lisp/git-blame"]
 	path = site-lisp/git-blame
 	url = https://github.com/tsgates/git-emacs.git
-[submodule "site-lisp/google-weather"]
-	path = site-lisp/google-weather
-	url = git://git.naquadah.org/google-weather-el.git
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
 	url = https://github.com/magit/magit.git
