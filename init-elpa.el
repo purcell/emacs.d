@@ -77,6 +77,7 @@
 (require-package 'ibuffer-vc)
 (require-package 'coffee-mode)
 (require-package 'elisp-slime-nav)
+(require-package 'hippie-expand-slime)
 (require-package 'mwe-log-commands)
 (require-package 'move-text)
 (require-package 'less-css-mode)
