@@ -45,7 +45,9 @@
 ;; Use paredit in the minibuffer
 (add-hook 'minibuffer-setup-hook 'conditionally-enable-paredit-mode)
 
-(defvar paredit-minibuffer-commands '(eval-expression pp-eval-expression)
+(defvar paredit-minibuffer-commands '(eval-expression
+                                      pp-eval-expression
+                                      eval-expression-with-eldoc)
   "Interactive commands for which paredit should be enabled in the minibuffer.")
 
 (defun conditionally-enable-paredit-mode ()
