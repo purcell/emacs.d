@@ -9,7 +9,7 @@
 
 (column-number-mode 1)
 
-(setq regex-tool-backend 'perl)
+(setq-default regex-tool-backend 'perl)
 
 
 (provide 'init-misc)
