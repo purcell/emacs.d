@@ -78,8 +78,10 @@
 ;; To be able to M-x without meta
 (global-set-key (kbd "C-x C-m") 'execute-extended-command)
 
+;; Vimmy alternatives to M-^ and C-u M-^
 (global-set-key (kbd "C-c j") 'join-line)
 (global-set-key (kbd "C-c J") (lambda () (interactive) (join-line 1)))
+
 (global-set-key (kbd "M-T") 'transpose-lines)
 (global-set-key (kbd "C-.") 'set-mark-command)
 (global-set-key (kbd "C-x C-.") 'pop-global-mark)
@@ -131,6 +133,7 @@
 (make-variable-buffer-local 'whole-line-or-region-mode)
 
 (defun suspend-mode-during-cua-rect-selection (mode-name)
+  "Add an advice to suspend `MODE-NAME' while selecting a CUA rectangle."
   (let ((flagvar (intern (format "%s-was-active-before-cua-rectangle" mode-name)))
         (advice-name (intern (format "suspend-%s" mode-name))))
     (eval-after-load "cua-rect"
@@ -140,7 +143,7 @@
          (defadvice cua--activate-rectangle (after ,advice-name activate)
            (setq ,flagvar (and (boundp ',mode-name) ,mode-name))
            (when ,flagvar
-             (,mode-name -1)))
+             (,mode-name 0)))
          (defadvice cua--deactivate-rectangle (after ,advice-name activate)
            (when ,flagvar
              (,mode-name 1)))))))
