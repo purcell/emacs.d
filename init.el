@@ -111,6 +111,7 @@
 (require 'init-emacs-w3m)
 (require 'init-eim)
 (require 'init-thing-edit)
+(require 'init-which-func)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
