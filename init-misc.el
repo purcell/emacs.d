@@ -152,4 +152,8 @@
 (global-set-key (kbd "C-x C-o") 'ff-find-other-file)
 (setq regex-tool-backend 'perl)
 
+;make speedbar work
+(if (load "mwheel" t)
+  (mwheel-install))
+
 (provide 'init-misc)
