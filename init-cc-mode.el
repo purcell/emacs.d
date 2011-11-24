@@ -59,10 +59,6 @@
   ;do not impose restriction that all lines not top-level be indented at least
   ;1 (was imposed by gnu style by default)
   (setq c-label-minimum-indentation 0)
-  (if (or *linux* *cygwin*)
-    (require 'gtags)
-    (gtags-mode 1)
-    )
   )
 (add-hook 'c-mode-common-hook 'my-c-mode-hook)
 

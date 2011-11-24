@@ -97,7 +97,6 @@
 (require 'init-yasnippet)
 (require 'init-better-registers)
 (require 'init-yari)
-(require 'init-gtags)
 ;(require 'init-etags-select)
 (require 'init-cc-mode)
 (require 'init-cmake-mode)
