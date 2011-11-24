@@ -24,3 +24,16 @@ environments too, with any Emacs version >= 23. If not, please file an
 issue on the github project: https://github.com/purcell/emacs.d
 
 -Steve Purcell
+
+========================================================================
+
+I based my emacs configuration on Purcell's and sync from his frequently.
+
+What I added are,
+    * cc-mode for C/C++ developers
+    * emacs-w3m (console browser)
+    * eim (Chinese pinyin input method)
+    * org2blog (write wordpress blog with org-mode)
+    * make the configuration work under Linux and Cygwin
+
+-Chen Bin
