@@ -7,9 +7,6 @@
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 (setq goto-address-mail-face 'link)
 
-(autoload 'mwe:log-keyboard-commands "mwe-log-commands"
-  "Log commands executed in the current buffer" t)
-
 (column-number-mode 1)
 
 ; NO automatic new line when scrolling down at buffer bottom
@@ -150,7 +147,7 @@
 ;@see http://stackoverflow.com/questions/3509919/ \
 ;emacs-c-opening-corresponding-header-file
 (global-set-key (kbd "C-x C-o") 'ff-find-other-file)
-(setq regex-tool-backend 'perl)
+(setq-default regex-tool-backend 'perl)
 
 ;make speedbar work
 (if (load "mwheel" t)

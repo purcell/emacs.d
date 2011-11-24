@@ -31,6 +31,7 @@
 (if (fboundp 'set-scroll-bar-mode)
   (set-scroll-bar-mode nil))
 
+(setq ns-auto-hide-menu-bar t)
 (require 'init-maxframe)
 
 (defun adjust-opacity (frame incr)

@@ -2,7 +2,7 @@
 (setq interpreter-mode-alist
       (cons '("ruby" . ruby-mode) interpreter-mode-alist))
 
-(add-auto-mode 'ruby-mode "\\.rb$" "Rakefile$" "\.rake$" "\.rxml$" "\.rjs$" ".irbrc$" "\.builder$" "\.ru$" "Gemfile$")
+(add-auto-mode 'ruby-mode "\\.rb$" "Rakefile$" "\.rake$" "\.rxml$" "\.rjs$" ".irbrc$" "\.builder$" "\.ru$" "\.gemspec$" "Gemfile$")
 
 
 (autoload 'run-ruby "inf-ruby" "Run an inferior Ruby process")
@@ -33,8 +33,7 @@
 
 (setq compile-command "rake ")
 
-(autoload 'ri "ri-ruby" "Show ri documentation for Ruby symbols" t)
-(setq ri-ruby-script (concat (directory-of-library "ri-ruby") "ri-emacs.rb"))
+(defalias 'ri 'yari)
 
 
 ;;----------------------------------------------------------------------------

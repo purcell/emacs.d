@@ -78,8 +78,10 @@
 ;; To be able to M-x without meta
 (global-set-key (kbd "C-x C-m") 'execute-extended-command)
 
+;; Vimmy alternatives to M-^ and C-u M-^
 (global-set-key (kbd "C-c j") 'join-line)
 (global-set-key (kbd "C-c J") (lambda () (interactive) (join-line 1)))
+
 (global-set-key (kbd "M-T") 'transpose-lines)
 (global-set-key (kbd "C-.") 'set-mark-command)
 (global-set-key (kbd "C-x C-.") 'pop-global-mark)
@@ -104,46 +106,9 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Shift lines up and down
+;; Shift lines up and down with M-up and M-down
 ;;----------------------------------------------------------------------------
-(defun move-text-internal (arg)
-  (cond
-   ((and mark-active transient-mark-mode)
-    (if (> (point) (mark))
-        (exchange-point-and-mark))
-    (let ((column (current-column))
-          (text (delete-and-extract-region (point) (mark))))
-      (forward-line arg)
-      (move-to-column column t)
-      (set-mark (point))
-      (insert text)
-      (exchange-point-and-mark)
-      (setq deactivate-mark nil)))
-   (t
-    (let ((column (current-column)))
-      (beginning-of-line)
-      (when (or (> arg 0) (not (bobp)))
-        (forward-line)
-        (when (or (< arg 0) (not (eobp)))
-          (transpose-lines arg))
-        (forward-line -1))
-      (move-to-column column t)))))
-
-(defun move-text-down (arg)
-  "Move region (transient-mark-mode active) or current line
-  arg lines down."
-  (interactive "*p")
-  (move-text-internal arg))
-
-(defun move-text-up (arg)
-  "Move region (transient-mark-mode active) or current line
-  arg lines up."
-  (interactive "*p")
-  (move-text-internal (- arg)))
-
-
-(global-set-key [M-up] 'move-text-up)
-(global-set-key [M-down] 'move-text-down)
+(move-text-default-bindings)
 
 
 ;;----------------------------------------------------------------------------
@@ -168,6 +133,7 @@
 (make-variable-buffer-local 'whole-line-or-region-mode)
 
 (defun suspend-mode-during-cua-rect-selection (mode-name)
+  "Add an advice to suspend `MODE-NAME' while selecting a CUA rectangle."
   (let ((flagvar (intern (format "%s-was-active-before-cua-rectangle" mode-name)))
         (advice-name (intern (format "suspend-%s" mode-name))))
     (eval-after-load "cua-rect"
@@ -177,38 +143,12 @@
          (defadvice cua--activate-rectangle (after ,advice-name activate)
            (setq ,flagvar (and (boundp ',mode-name) ,mode-name))
            (when ,flagvar
-             (,mode-name -1)))
+             (,mode-name 0)))
          (defadvice cua--deactivate-rectangle (after ,advice-name activate)
            (when ,flagvar
              (,mode-name 1)))))))
 
 (suspend-mode-during-cua-rect-selection 'whole-line-or-region-mode)
-
-;;----------------------------------------------------------------------------
-;; Easily count words (http://emacs-fu.blogspot.com/2009/01/counting-words.html)
-;;----------------------------------------------------------------------------
-(defun count-words (&optional begin end)
-  "count words between BEGIN and END (region); if no region defined, count words in buffer"
-  (interactive "r")
-  (let ((b (if mark-active begin (point-min)))
-      (e (if mark-active end (point-max))))
-    (message "Word count: %s" (how-many "\\w+" b e))))
-
-
-;; Show typing speed
-(autoload 'typing-speed-mode "typing-speed-mode" "Show typing speed in modeline")
-(autoload 'turn-on-typing-speed "typing-speed-mode" "Show typing speed in modeline")
-;(add-hook 'text-mode-hook 'turn-on-typing-speed)
-
-
-
-;;----------------------------------------------------------------------------
-;; Set indent width according to existing code
-;;----------------------------------------------------------------------------
-(require 'fuzzy-format)
-(setq fuzzy-format-default-indent-tabs-mode nil)
-(global-fuzzy-format-mode t)
-(diminish 'fuzzy-format-mode)
 
 
 ;;----------------------------------------------------------------------------

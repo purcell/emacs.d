@@ -7,7 +7,7 @@
      (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
      (setq slime-protocol-version 'ignore)
      (setq slime-net-coding-system 'utf-8-unix)
-     (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
+     (add-hook 'slime-repl-mode-hook 'smp-lisp-setup)
      (slime-setup '(slime-repl slime-fuzzy))
      (setq slime-complete-symbol*-fancy t)
      (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
@@ -19,11 +19,9 @@
        (define-key slime-repl-mode-map (read-kbd-macro paredit-backward-delete-key) nil))
      (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
 
-     (require 'hippie-expand-slime)
      (add-hook 'slime-mode-hook 'set-up-slime-hippie-expand)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-hippie-expand)
 
-     (require 'ac-slime)
      (add-hook 'slime-mode-hook 'set-up-slime-ac)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
 

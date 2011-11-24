@@ -84,13 +84,9 @@
 (require 'init-slime)
 (require 'init-clojure)
 (require 'init-common-lisp)
-;(require 'init-scheme)
 
 (when *spell-check-support-enabled*
   (require 'init-spelling))
-
-;; In-Emacs apps
-;(require 'init-twitter)
 
 (require 'init-misc)
 
@@ -119,12 +115,6 @@
 (require 'server)
 (unless (server-running-p)
   (server-start))
-
-
-;;----------------------------------------------------------------------------
-;; Edit-server for Chrome extension: http://github.com/stsquad/emacs_chrome
-;;----------------------------------------------------------------------------
-(require 'init-edit-server)
 
 
 ;;----------------------------------------------------------------------------

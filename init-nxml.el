@@ -2,7 +2,6 @@
 (add-to-list 'auto-mode-alist
               (cons (concat "\\." (regexp-opt '("xml" "xsd" "sch" "rng" "xslt" "svg" "rss") t) "\\'")
                     'nxml-mode))
-(unify-8859-on-decoding-mode)
 (setq magic-mode-alist (cons '("<\\?xml " . nxml-mode) magic-mode-alist))
 (fset 'html-mode 'nxml-mode)
 (fset 'xml-mode 'nxml-mode)
@@ -12,6 +11,7 @@
 (setq nxml-slash-auto-complete-flag t)
 
 
+;; There are newer schema files here: http://syntax.whattf.org//relaxng/
 (eval-after-load 'rng-loc
   '(progn
      (require 'whattf-dt)

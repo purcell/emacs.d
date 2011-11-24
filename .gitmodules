@@ -1,9 +1,6 @@
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = https://github.com/purcell/auto-complete.git
-[submodule "site-lisp/diff-git"]
-	path = site-lisp/diff-git
-	url = https://github.com/alanfalloon/diff-git.el.git
 [submodule "site-lisp/dired-plus"]
 	path = site-lisp/dired-plus
 	url = https://github.com/emacsmirror/dired-plus.git
@@ -13,9 +10,6 @@
 [submodule "site-lisp/git-blame"]
 	path = site-lisp/git-blame
 	url = https://github.com/tsgates/git-emacs.git
-[submodule "site-lisp/google-weather"]
-	path = site-lisp/google-weather
-	url = git://git.naquadah.org/google-weather-el.git
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
 	url = https://github.com/magit/magit.git
@@ -25,21 +19,9 @@
 [submodule "site-lisp/org-fstree"]
 	path = site-lisp/org-fstree
 	url = http://repo.or.cz/r/org-fstree.git
-[submodule "site-lisp/ri-emacs"]
-	path = site-lisp/ri-emacs
-	url = https://github.com/pedz/ri-emacs.git
 [submodule "site-lisp/textile-mode"]
 	path = site-lisp/textile-mode
 	url = https://github.com/emacsmirror/textile-mode.git
-[submodule "site-lisp/revive"]
-	path = site-lisp/revive
-	url = https://github.com/emacsmirror/revive.git
-[submodule "site-lisp/fuzzy-format"]
-	path = site-lisp/fuzzy-format
-	url = https://github.com/emacsmirror/fuzzy-format.git
-[submodule "site-lisp/mwe-log-commands"]
-	path = site-lisp/mwe-log-commands
-	url = https://github.com/emacsmirror/mwe-log-commands.git
 [submodule "site-lisp/lively"]
 	path = site-lisp/lively
 	url = https://github.com/emacsmirror/lively.git
@@ -52,12 +34,6 @@
 [submodule "site-lisp/darcsum"]
 	path = site-lisp/darcsum
 	url = https://github.com/emacsmirror/darcsum.git
-[submodule "site-lisp/quack"]
-	path = site-lisp/quack
-	url = https://github.com/emacsmirror/quack.git
-[submodule "site-lisp/twit"]
-	path = site-lisp/twit
-	url = https://github.com/emacsmirror/twit.git
 [submodule "site-lisp/smarty-mode"]
 	path = site-lisp/smarty-mode
 	url = https://github.com/emacsmirror/smarty-mode.git
@@ -93,4 +69,4 @@
     url = https://github.com/hron/yari.el.git
 [submodule "site-lisp/csv-mode"]
 	path = site-lisp/csv-mode
-	url = https://github.com/emacsmirror/csv-mode
+	url = https://github.com/emacsmirror/csv-mode.git
