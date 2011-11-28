@@ -1,0 +1,10 @@
+#name : switch (...) { ...}
+# --
+switch(${1:condition}) {
+case ${2:condition}:
+     $3
+     break;
+default:
+     $0
+     break;
+}
