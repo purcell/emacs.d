@@ -1,4 +1,14 @@
 ;;----------------------------------------------------------------------------
+;; Provide a version of Emacs 24's 'string-prefix-p in older emacsen
+;;----------------------------------------------------------------------------
+(unless (fboundp 'string-prefix-p)
+  (defun string-prefix-p (shorter longer)
+    (let ((n (mismatch shorter longer))
+         (l (length shorter)))
+      (if (or (not n) (= n l)) l nil))))
+
+
+;;----------------------------------------------------------------------------
 ;; Handier way to add modes to auto-mode-alist
 ;;----------------------------------------------------------------------------
 (defun add-auto-mode (mode &rest patterns)
