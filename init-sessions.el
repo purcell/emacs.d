@@ -32,7 +32,9 @@
                 (regexp-history           . 60)
                 (regexp-search-ring       . 20)
                 (search-ring              . 20)
+                (comint-input-ring        . 50)
                 (shell-command-history    . 50)
+                desktop-missing-file-warning
                 tags-file-name
                 register-alist)))
 
