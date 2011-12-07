@@ -22,6 +22,8 @@
      (add-hook 'slime-mode-hook 'set-up-slime-hippie-expand)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-hippie-expand)
 
+     (add-hook 'slime-repl-mode-hook (lambda () (setq show-trailing-whitespace nil)))
+
      (add-hook 'slime-mode-hook 'set-up-slime-ac)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
 
