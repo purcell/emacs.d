@@ -78,6 +78,7 @@
 (require-package 'coffee-mode)
 (require-package 'elisp-slime-nav)
 (require-package 'hippie-expand-slime)
+(require-package 'flymake-css)
 (require-package 'mwe-log-commands)
 (require-package 'move-text)
 (require-package 'less-css-mode)
