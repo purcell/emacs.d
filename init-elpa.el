@@ -59,6 +59,7 @@
 (require-package 'php-mode)
 (require-package 'scratch)
 (require-package 'mic-paren)
+(require-package 'rainbow-delimiters)
 (require-package 'marmalade)
 
 ;; I maintain this chunk:
