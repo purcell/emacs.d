@@ -13,7 +13,7 @@
          :tags-as-categories nil
          )
         ("my"
-         :url "http://binchen.org/wp/xmlrpc.php"
+         :url "http://blog.binchen.org/xmlrpc.php"
          :username "chenbin0"
          :default-title ""
          :default-categories ("Linux")
