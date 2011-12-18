@@ -33,6 +33,12 @@
 (add-hook 'sass-mode-hook 'rainbow-turn-on)
 
 
+(defun maybe-flymake-css-load ()
+  (when (eq major-mode 'css-mode)
+    (flymake-css-load)))
+(add-hook 'css-mode-hook 'maybe-flymake-css-load)
+
+
 (add-to-list 'auto-mode-alist '("\\.less" . less-css-mode))
 
 

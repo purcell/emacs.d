@@ -64,6 +64,7 @@
 (require-package 'php-mode)
 (require-package 'scratch)
 (require-package 'mic-paren)
+(require-package 'rainbow-delimiters)
 (require-package 'marmalade)
 
 ;; I maintain this chunk:
@@ -79,6 +80,7 @@
 (require-package 'flymake-php)
 (require-package 'flymake-coffee)
 (require-package 'flymake-jslint)
+(require-package 'flymake-css)
 (require-package 'ibuffer-vc)
 (require-package 'coffee-mode)
 (require-package 'elisp-slime-nav)
