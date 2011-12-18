@@ -1,13 +1,3 @@
-;make .emacs.d support emacs 23.1 and above
-
-;only emacs 23.3 and above has string-prefix-p defined
-(if (not (fboundp 'string-prefix-p) )
-  (defun string-prefix-p (shorter longer)
-    (let ((n (mismatch shorter longer))
-	  (l (length shorter)))
-      (if (or (not n) (= n l)) l nil)))
-  )
-
 ;; -*- coding: utf-8 -*-
 (add-to-list 'load-path (expand-file-name "~/.emacs.d"))
 
