@@ -37,9 +37,6 @@
 [submodule "site-lisp/smarty-mode"]
 	path = site-lisp/smarty-mode
 	url = https://github.com/emacsmirror/smarty-mode.git
-[submodule "site-lisp/tidy"]
-	path = site-lisp/tidy
-	url = https://github.com/emacsmirror/tidy.git
 [submodule "site-lisp/csv-nav"]
 	path = site-lisp/csv-nav
 	url = https://github.com/emacsmirror/csv-nav.git

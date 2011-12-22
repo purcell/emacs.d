@@ -67,6 +67,7 @@
 (require-package 'vc-darcs)
 (require-package 'color-theme-sanityinc-solarized)
 (require-package 'session)
+(require-package 'tidy)
 (require-package 'whole-line-or-region)
 (require-package 'flymake-ruby)
 (require-package 'flymake-haml)
