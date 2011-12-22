@@ -78,9 +78,7 @@ source file under ~/.emacs.d/site-lisp/name/"
 (defun ensure-site-lisp-libs ()
   (unless (> emacs-major-version 23)
     (ensure-lib-from-url 'package "http://bit.ly/pkg-el23"))
-  (ensure-lib-from-url 'todochiku "http://www.emacswiki.org/emacs/download/todochiku.el")
-
-  (ensure-lib-from-svn 'rdebug "http://ruby-debug.rubyforge.org/svn/trunk/emacs/"))
+  (ensure-lib-from-url 'todochiku "http://www.emacswiki.org/emacs/download/todochiku.el"))
 
 
 
