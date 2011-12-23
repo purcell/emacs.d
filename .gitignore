@@ -20,7 +20,5 @@ cookies
 /ac-comphist.dat
 \#*
 /elpa
-site-lisp/flymake-css/
-site-lisp/rdebug/
 site-lisp/todochiku/
 site-lisp/package/
