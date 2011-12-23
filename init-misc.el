@@ -149,6 +149,17 @@
 (global-set-key (kbd "C-x C-o") 'ff-find-other-file)
 (setq-default regex-tool-backend 'perl)
 
+;shortcut 'ytx', if smex installed
+(defun yank-to-x-clipboard ()
+  (interactive)
+  (if (region-active-p)
+    (progn
+     ; my clipboard manager only intercept CLIPBOARD
+      (shell-command-on-region (region-beginning) (region-end) "xclip -selection clipboard")
+      (message "Yanked region to clipboard!")
+      (deactivate-mark))
+    (message "No region active; can't yank to clipboard!")))
+
 ;make speedbar work
 (if (load "mwheel" t)
   (mwheel-install))
