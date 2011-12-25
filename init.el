@@ -43,6 +43,7 @@
 (require 'init-uniquify)
 (require 'init-ibuffer)
 (require 'init-flymake)
+(require 'init-artbollocks-mode)
 
 (require 'init-recentf)
 (require 'init-ido)
