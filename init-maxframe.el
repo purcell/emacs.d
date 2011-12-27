@@ -6,9 +6,10 @@
   (setq mf-max-width 1440
         mf-max-height 890
         mf-display-padding-width 4
-        mf-offset-x 0)
-  (when ns-auto-hide-menu-bar
-    (setq mf-display-padding-height 23)))
+        mf-offset-x 0
+        mf-display-padding-height (if ns-auto-hide-menu-bar
+                                      23
+                                    (+ 22 23))))
 
 (defun maybe-maximize-frame (&optional frame)
   (with-selected-frame frame
