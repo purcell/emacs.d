@@ -101,6 +101,8 @@
 (require 'init-yari)
 ;(require 'init-etags-select)
 (require 'init-cc-mode)
+(require 'init-auto-complete-clang)
+(require 'init-semantic)
 (require 'init-cmake-mode)
 (require 'init-csharp-mode)
 (require 'init-linum-mode)
