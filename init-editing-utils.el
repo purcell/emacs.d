@@ -16,6 +16,7 @@
  line-spacing 0.2
  make-backup-files nil
  mouse-yank-at-point t
+ set-mark-command-repeat-pop t
  show-trailing-whitespace t
  tooltip-delay 1.5
  truncate-lines nil
