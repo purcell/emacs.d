@@ -4,7 +4,7 @@
   (fset 'restore-frame 'x-restore-frame))
 (when *macbook-pro-support-enabled*
   (setq mf-max-width 1440
-        mf-max-height 890
+        mf-max-height 894
         mf-display-padding-width 4
         mf-offset-x 0
         mf-display-padding-height (if ns-auto-hide-menu-bar
