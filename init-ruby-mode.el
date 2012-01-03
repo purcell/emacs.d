@@ -87,4 +87,22 @@
 (add-auto-mode 'yaml-mode "\\.ya?ml$")
 
 
+
+;;----------------------------------------------------------------------------
+;; Fix a shortcoming of the outdated rvm.el currently in elpa
+;;----------------------------------------------------------------------------
+(eval-after-load 'rvm
+  '(defun rvm--rvmrc-read-version (path-to-rvmrc)
+     (with-temp-buffer
+       (insert-file-contents path-to-rvmrc)
+       (goto-char (point-min))
+       (if (re-search-forward
+            (concat "rvm\s+\\(use\s+\\)?\\(.+\\)" rvm--gemset-separator "\\([^\s]*\\)") nil t)
+           (list (match-string 2) (match-string 3))
+         nil))))
+;; Leave a reminder for myself
+(when (package-installed-p 'rvm '(1 1 1))
+  (message "TODO: remove rvm workaround"))
+
+
 (provide 'init-ruby-mode)

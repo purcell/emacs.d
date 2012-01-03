@@ -35,6 +35,7 @@
 (require-package 'ruby-mode)
 (require-package 'inf-ruby)
 (require-package 'yari)
+(require-package 'rvm)
 (require-package 'yaml-mode)
 (require-package 'paredit)
 (require-package 'eldoc-eval)
