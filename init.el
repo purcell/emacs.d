@@ -44,7 +44,6 @@
 (require 'init-ibuffer)
 (require 'init-flymake)
 (require 'init-artbollocks-mode)
-
 (require 'init-recentf)
 (require 'init-ido)
 (require 'init-hippie-expand)
@@ -106,6 +105,7 @@
 (require 'init-cmake-mode)
 (require 'init-csharp-mode)
 (require 'init-linum-mode)
+(require 'init-delicious)
 (require 'init-emacs-w3m)
 (require 'init-eim)
 (require 'init-thing-edit)

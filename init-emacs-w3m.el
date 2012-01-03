@@ -41,16 +41,9 @@
       browse-url-browser-function 'w3m
       mm-text-html-renderer       'w3m)
 
-(defun ted-delicious-url ()
-  "Bookmark this page with del.icio.us."
-  (interactive)
-  (w3m-goto-url
-    (concat "http://del.icio.us/redguardtoo?"
-            "url="    (w3m-url-encode-string w3m-current-url)
-            "&title=" (w3m-url-encode-string w3m-current-title))))
 ;bind this function to ‘a’, which is the normal w3m bookmark binding:
 (eval-after-load "w3m" '(progn
-                          (define-key w3m-info-like-map "A" 'ted-delicious-url)))
+                          (define-key w3m-info-like-map "A" 'delicious-post)))
 
 (require 'w3m-lnum)
 (autoload 'w3m-link-numbering-mode "w3m-lnum" nil t)
