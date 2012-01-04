@@ -22,7 +22,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary
+;;; Commentary:
 
 ;; This is a set of functions for interacting with the REST API at
 ;; <http://delicious.com>, a "social bookmarking" project. None of these are
@@ -123,7 +123,7 @@ Otherwise, the raw s-expression response is returned."
       resp)))
 
 (defun delicious-api/posts/add (url &optional description tags extended time)
-  "Post a bookmark to your Delicious account.
+  "Post a bookmark for URL to your Delicious account.
 You may include a DESCRIPTION (string), TAGS (space-separated string),
 EXTENDED (extra description string) and TIME (in the format
 %C%y-%m-%dT%H:%M:%SZ)."
@@ -131,7 +131,7 @@ EXTENDED (extra description string) and TIME (in the format
                          'url 'description 'tags 'extended `("dt" . ,time)))
 
 (defun delicious-api/posts/suggest (url &optional cooked)
-  "Return a list of popular, recommended and network tags for URL
+  "Return a list of popular, recommended and network tags for URL.
 Intended as a suggestion for tagging a particular url.
 
 If COOKED is non-nil, the return value is nil if no suggestions

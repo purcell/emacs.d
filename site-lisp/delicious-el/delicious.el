@@ -22,7 +22,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary
+;;; Commentary:
 
 ;; A local Delicious bookmark store with functions and commands to keep it in
 ;; sync with the Delicious server, post and search bookmarks etc. See the
@@ -119,14 +119,25 @@ for managing and sharing bookmarks."
   :group 'delicious)
 
 (defcustom delicious-guess-url-methods
-  '(delicious-guess-check-point
-    delicious-guess-check-w3m
-    delicious-guess-check-buffer
-    delicious-guess-check-selection
-    delicious-guess-check-xsel
-    delicious-guess-check-default)
-  "List of functions to try, in order, to guess a URL to post."
-  :type 'list
+  '(delicious-guess-url-point
+    delicious-guess-url-w3m
+    delicious-guess-url-buffer
+    delicious-guess-url-selection
+    delicious-guess-url-xsel
+    delicious-guess-url-default)
+  "Function or list of functions to try, in order, to guess a URL to post.
+The first one to return non-nil wins."
+  :type 'hook
+  :group 'delicious)
+
+(defcustom delicious-guess-description-methods
+  '(delicious-guess-description-w3m
+    delicious-guess-description-gnus
+    delicious-guess-description-title)
+  "Function or list of functions to try to guess a post description.
+The functions are called, in order, with a single argument -- the
+post URL. The first one to return non-nil wins."
+  :type 'hook
   :group 'delicious)
 
 ;;;;_+ Helper functions
@@ -205,6 +216,7 @@ posts). Point is left just after the last post read.
 
 ;;;_+ Online and offline
 
+;;;###autoload
 (defun delicious-sync-posts (&optional force)
   "Bring the local copy of posts into sync with the Delicious server.
 If FORCE is non-nil, or if a prefix argument is given
@@ -263,13 +275,14 @@ version."
           (error "Duplicate URL, not posted")))
     (list url
           (delicious-read-description
-           (delicious-get-post-field 'description oldpost))
+           url (delicious-get-post-field 'description oldpost))
           (delicious-read-tags url nil nil offline)
           (delicious-read-extended-description
            (delicious-get-post-field 'extended oldpost))
           (delicious-read-time-string
            (delicious-get-post-field 'time oldpost)))))
 
+;;;###autoload
 (defun delicious-post (url description &optional tags extended time nolocal)
   "Post a bookmark with arguments URL, DESCRIPTION, TAGS, EXTENDED, and TIME.
 If NOLOCAL is non-nil, don't add the post to the local list."
@@ -346,6 +359,7 @@ NAME is the name of the field being checked."
   (delicious-set-local-manifest (delicious-api-get-hashes t))
   (delicious-update-timestamp))
 
+;;;###autoload
 (defun delicious-post-offline (url description &optional tags extended time)
   "Input bookmarks to post later.  Don't contact the server for anything."
   (interactive (delicious-post-interactive-args t))
@@ -363,6 +377,7 @@ NAME is the name of the field being checked."
     (call-interactively 'delicious-post-offline))
   (message "Cache saved"))
 
+;;;###autoload
 (defun delicious-post-cache (&optional cache-file)
   "Post bookmarks from `delicious-cache-file', or CACHE-FILE if non-nil."
   (interactive)
@@ -386,6 +401,7 @@ NAME is the name of the field being checked."
       (delete-file cache-file)
       (message "Cache cleared"))))
 
+;;;###autoload
 (defun delicious-clear-cache (&optional cache-file)
   "Delete `delicious-cache-file' or CACHE-FILE and kill the buffer visiting it."
   (interactive)
@@ -428,7 +444,8 @@ Use the current date and time if nothing entered."
 (defun delicious-get-local-timestamp ()
   "Return the timestamp of the last update from the server as a string."
   (or delicious-timestamp
-      (with-current-buffer (find-file-noselect delicious-timestamp-file nil t)
+      (with-temp-buffer
+        (insert-file-contents-literally delicious-timestamp-file)
         (unless (zerop (buffer-size))
           (setq delicious-timestamp (buffer-string))))))
 
@@ -451,52 +468,42 @@ If OFFLINE is non-nil, don't query the server for any information."
    (read-string "(Required) URL: " (delicious-guess-url)) "URL"))
 
 (defun delicious-guess-url ()
-  (let ((methods delicious-guess-url-methods)
-        guess)
-    (while (and (not guess)
-                methods)
-      (setq guess (funcall (car methods))
-            methods (cdr methods)))
-    guess))
+  (run-hook-with-args-until-success 'delicious-guess-url-methods))
 
-(defun delicious-guess-check-w3m ()
+(defun delicious-guess-url-w3m ()
   "If we're in a w3m buffer, use the current URL."
-  (if (and (boundp 'w3m-current-url)
-           w3m-current-url
-           (derived-mode-p 'w3m-mode))
-      w3m-current-url))
+  (and (boundp 'w3m-current-url)
+       (derived-mode-p 'w3m-mode)
+       w3m-current-url))
 
-(defun delicious-guess-check-point ()
+(defun delicious-guess-url-point ()
   "If point is on a URL, return it."
   (if (thing-at-point-looking-at thing-at-point-url-regexp)
       (thing-at-point-url-at-point)))
 
-(defun delicious-guess-check-buffer ()
+(defun delicious-guess-url-buffer ()
   "Check the buffer for a URL and return it."
   (save-excursion
     (goto-char (point-min))
     (if (re-search-forward thing-at-point-url-regexp nil t)
         (match-string-no-properties 0))))
 
-(defun delicious-guess-check-selection ()
+(defun delicious-guess-url-selection ()
   "Check the X selection for a URL and return it."
-  (let (selection url)
-    (when (eq window-system 'x)
-      (setq selection (condition-case nil
-                          (x-get-selection)
-                        (error nil)))
-      (when (and selection
-                 (string-match thing-at-point-url-regexp selection))
-        (setq url (match-string-no-properties 0 selection))))))
+  (when (eq window-system 'x)
+    (let ((selection (condition-case nil (x-get-selection) (error nil))))
+      (and selection
+           (string-match thing-at-point-url-regexp selection)
+           (match-string-no-properties 0 selection)))))
 
-(defun delicious-guess-check-xsel ()
+(defun delicious-guess-url-xsel ()
   "Check output of `delicious-xsel-prog' for a URL."
   (when delicious-xsel-prog
     (let ((selection (shell-command-to-string delicious-xsel-prog)))
       (if (string-match thing-at-point-url-regexp selection)
           (match-string-no-properties 0 selection)))))
 
-(defun delicious-guess-check-default ()
+(defun delicious-guess-url-default ()
   "Return some text to use for the URL guess."
   "http://")
 
@@ -508,23 +515,38 @@ If OFFLINE is non-nil, don't query the server for any information."
 
 ;;;;_+ Description input and suggestion
 
-(defun delicious-read-description (&optional default)
+(defun delicious-read-description (&optional url default)
   "Prompt for a description, suggesting an appropriate default.
 If provided, add DEFAULT to the list of default values."
   (delicious-check-input
    (read-string "(Required) Description: " nil nil
-                (append (delicious-guess-description) default) t)
+                (append (list (delicious-guess-description url)) default) t)
    "Description"))
 
 (defvar gnus-current-headers)
-(defun delicious-guess-description ()
-  "Try some different things to get a default description."
-  (or (if (and (boundp 'w3m-current-title)
-               (not (null w3m-current-title))
-               (derived-mode-p 'w3m-mode))
-          w3m-current-title)
-      (if (derived-mode-p 'gnus-summary-mode 'gnus-article-mode)
-          (aref gnus-current-headers 1))))
+(defun delicious-guess-description (url)
+  "Guess a default post description for URL."
+  (run-hook-with-args-until-success 'delicious-guess-description-methods url))
+
+(defun delicious-guess-description-gnus (_)
+  "Return the current Gnus article title."
+  (when (derived-mode-p 'gnus-summary-mode 'gnus-article-mode)
+    (aref gnus-current-headers 1)))
+
+(defun delicious-guess-description-w3m (_)
+  "Return the title of the page currently browsed with `w3m'."
+  (and (boundp 'w3m-current-title)
+       (derived-mode-p 'w3m-mode)
+       w3m-current-title))
+
+(defun delicious-guess-description-title (url)
+  "Fetch URL and return its HTML title."
+  (with-current-buffer (url-retrieve-synchronously url)
+    (goto-char (point-min))
+    (unwind-protect
+        (when (re-search-forward "<title>\\(.*?\\)</title>" nil t)
+          (match-string 1))
+      (kill-buffer nil))))
 
 ;;;;_+ Extended description
 
@@ -560,9 +582,9 @@ Returns a string consisting of the tags read separated by commas."
   (mapconcat
    'identity
    (let* ((suggestags
-           (when url
-             (apply 'append
-                    (mapcar 'cdr (delicious-api/posts/suggest url t)))))
+           (and nil url (not offline)
+                (apply 'append
+                       (mapcar 'cdr (delicious-api/posts/suggest url t)))))
           (prompt (concat (or prompt-prefix "Tag(s)")
                           (when suggestags
                             (concat " [suggested: "
@@ -601,6 +623,7 @@ If OFFLINE is non-nil, don't query the server."
               (mapc (lambda (tag) (add-to-list 'tags-list tag)) tags))))))
 
 ;; FIXME and what about syncing?
+;;;###autoload
 (defun delicious-rename-tag (old-tag new-tag)
   "Change all instances of OLD-TAG to NEW-TAG.
 NEW-TAG can be multiple tags, comma-separated." ; FIXME check this
@@ -618,6 +641,7 @@ NEW-TAG can be multiple tags, comma-separated." ; FIXME check this
 
 ;;;;_+ Deleting and editing posts
 
+;;;###autoload
 (defun delicious-delete-href-post (href)
   "Delete the post with URL HREF."
   (interactive "sEnter URL to delete: ")
@@ -637,8 +661,9 @@ NEW-TAG can be multiple tags, comma-separated." ; FIXME check this
 (defvar w3m-bookmark-file)
 (defvar w3m-bookmark-section-delimiter)
 (declare-function w3m-bookmark-sections "w3m-bookmark" nil)
-(declare-function w3m-bookmark-write-file "w3m-bookmark"(url title section))
+(declare-function w3m-bookmark-write-file "w3m-bookmark" (url title section))
 
+;;;###autoload
 (defun delicious-w3m-bookmark-recent (count tag section)
   "Add your COUNT recent Delicious posts with TAG to your w3m bookmarks file.
 They will be stored under SECTION."
@@ -655,6 +680,7 @@ sTag to filter by: \nsw3m bookmark section to use: ")
          section))))
   (message "w3m bookmarks updated"))
 
+;;;###autoload
 (defun delicious-w3m-export (section &optional tags extended time)
   "Export your w3m bookmarks from SECTION to Delicious.
 Optionally assign TAGS, EXTENDED description, and TIME to the bookmarks."
@@ -935,6 +961,7 @@ See also `delicious-get-post-field'."
 
 ;;;_+ Search by regexp
 
+;;;###autoload
 (defun delicious-search-posts-regexp (regexp)
   "Display all posts matching REGEXP string in any of their fields.
 With a prefix argument, operate offline."
@@ -947,6 +974,7 @@ With a prefix argument, operate offline."
          (when (string-match regexp (cdr field))
            (throw 'match t)))))))
 
+;;;###autoload
 (defun delicious-search-description-regexp (regexp)
   "Display all posts matching REGEXP string in their description fields.
 With a prefix argument, operate offline."
@@ -956,6 +984,7 @@ With a prefix argument, operate offline."
    (lambda (post)
      (string-match regexp (delicious-get-post-field 'description post)))))
 
+;;;###autoload
 (defun delicious-search-href-regexp (regexp)
   "Display all posts with URL matching REGEXP.
 With a prefix argument, operate offline."
@@ -967,6 +996,7 @@ With a prefix argument, operate offline."
 
 ;;;_+ Search by tag
 
+;;;###autoload
 (defun delicious-search-tags (tags)
   "Display all posts with TAGS.  With a prefix argument, operate offline."
   (interactive (list (delicious-read-tags)))
@@ -981,6 +1011,7 @@ With a prefix argument, operate offline."
              (unless (member tag post-tags)
                (throw 'match nil)))))))))
 
+;;;###autoload
 (defun delicious-search-tags-any (tags)
   "Display all posts matching any of TAGS."
   (interactive (list (delicious-read-tags)))
@@ -997,6 +1028,7 @@ With a prefix argument, operate offline."
 
 ;;;_+ Search by date
 
+;;;###autoload
 (defun delicious-search-date (date)
   "Display all posts matching regexp SEARCH-DATE.
 With a prefix argument, operate offline."
@@ -1008,6 +1040,7 @@ With a prefix argument, operate offline."
 
 ;;;_+ Search by hash
 
+;;;###autoload
 (defun delicious-search-hash (hash)
   "Display the post with hash HASH.
 With a prefix argument, operate offline."
