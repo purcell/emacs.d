@@ -10,7 +10,7 @@
      (add-to-list 'slime-lisp-implementations
 		  '(sbcl ("sbcl") :coding-system utf-8-unix))
      (add-to-list 'slime-lisp-implementations
-		  '(cmucl ("cmucl") :coding-system iso-latin-1-unix))))
+		  '(cmucl ("lisp") :coding-system iso-latin-1-unix))))
 
 ;; From http://bc.tech.coop/blog/070515.html
 (defun lispdoc ()
