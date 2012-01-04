@@ -110,6 +110,7 @@
 (require 'init-eim)
 (require 'init-thing-edit)
 (require 'init-which-func)
+(require 'init-keyfreq)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
