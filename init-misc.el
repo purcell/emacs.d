@@ -155,7 +155,8 @@
   (if (region-active-p)
     (progn
      ; my clipboard manager only intercept CLIPBOARD
-      (shell-command-on-region (region-beginning) (region-end) "xclip -selection clipboard")
+      (shell-command-on-region (region-beginning) (region-end)
+        (if *cygwin* "putclip" "xclip -selection clipboard"))
       (message "Yanked region to clipboard!")
       (deactivate-mark))
     (message "No region active; can't yank to clipboard!")))
