@@ -70,6 +70,7 @@
 (require-package 'ac-slime)
 (require-package 'vc-darcs)
 (require-package 'color-theme-sanityinc-solarized)
+(require-package 'color-theme-sanityinc-tomorrow)
 (require-package 'session)
 (require-package 'tidy)
 (require-package 'whole-line-or-region)
