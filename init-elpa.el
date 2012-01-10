@@ -1,7 +1,12 @@
-(defun require-package (package &optional min-version)
+(defun require-package (package &optional min-version no-refresh)
   "Ask elpa to install given PACKAGE."
-  (unless (package-installed-p package min-version)
-    (package-install package)))
+  (if (package-installed-p package min-version)
+      t
+    (if (or (assoc package package-archive-contents) no-refresh)
+        (package-install package)
+      (progn
+        (package-refresh-contents)
+        (require-package package min-version t)))))
 
 ;; When switching between Emacs 23 and 24, we always use the bundled package.el in Emacs 24
 (let ((package-el-site-lisp-dir (expand-file-name "~/.emacs.d/site-lisp/package")))
@@ -15,8 +20,6 @@
 (add-to-list 'package-archives '("tromey" . "http://tromey.com/elpa/"))
 
 (package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
 
 (require-package 'all)
 (require-package 'xml-rpc)
@@ -37,6 +40,7 @@
 (require-package 'ruby-mode)
 (require-package 'inf-ruby)
 (require-package 'yari)
+(require-package 'rvm)
 (require-package 'yaml-mode)
 (require-package 'paredit)
 (require-package 'eldoc-eval)
@@ -71,6 +75,7 @@
 (require-package 'ac-slime)
 (require-package 'vc-darcs)
 (require-package 'color-theme-sanityinc-solarized)
+(require-package 'color-theme-sanityinc-tomorrow)
 (require-package 'session)
 (require-package 'tidy)
 (require-package 'whole-line-or-region)

@@ -1,11 +1,12 @@
 ;;----------------------------------------------------------------------------
 ;; Stop C-z from minimizing windows under OS X
 ;;----------------------------------------------------------------------------
-(global-set-key (kbd "C-z")
-                (lambda ()
-                  (interactive)
-                  (unless (and *is-a-mac* window-system)
-                    (suspend-frame))))
+(defun maybe-suspend-frame ()
+  (interactive)
+  (unless (and *is-a-mac* window-system)
+                    (suspend-frame)))
+
+(global-set-key (kbd "C-z") 'maybe-suspend-frame)
 
 
 ;;----------------------------------------------------------------------------
@@ -26,12 +27,12 @@
 ;;----------------------------------------------------------------------------
 ;; Window size and features
 ;;----------------------------------------------------------------------------
-(if (fboundp 'tool-bar-mode)
+(when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
-(if (fboundp 'set-scroll-bar-mode)
+(when (fboundp 'set-scroll-bar-mode)
   (set-scroll-bar-mode nil))
 
-(setq ns-auto-hide-menu-bar t)
+(setq ns-auto-hide-menu-bar nil)
 (require 'init-maxframe)
 
 (defun adjust-opacity (frame incr)
@@ -50,14 +51,9 @@
 
 (add-hook 'after-make-frame-functions
           (lambda (frame)
-            (let ((prev-frame (selected-frame)))
-              (select-frame frame)
-              (prog1
-                  (unless window-system
-                    (set-frame-parameter frame 'menu-bar-lines 0))
-                (select-frame prev-frame)))))
-
-
+            (with-selected-frame frame
+              (unless window-system
+                (set-frame-parameter nil 'menu-bar-lines 0)))))
 
 
 (provide 'init-gui-frames)
