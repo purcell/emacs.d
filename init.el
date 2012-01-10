@@ -58,7 +58,6 @@
 (require 'init-sh)
 (require 'init-php)
 (require 'init-org)
-(require 'init-htmlize)
 (require 'init-nxml)
 (require 'init-css)
 (require 'init-haml)
