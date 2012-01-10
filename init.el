@@ -63,7 +63,6 @@
 (require 'init-haml)
 (require 'init-python-mode)
 (require 'init-haskell)
-(require 'init-ocaml)
 (require 'init-ruby-mode)
 (require 'init-rails)
 
