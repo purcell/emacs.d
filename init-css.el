@@ -39,8 +39,6 @@
 (add-hook 'css-mode-hook 'maybe-flymake-css-load)
 
 
-(add-to-list 'auto-mode-alist '("\\.less" . less-css-mode))
-
 
 (eval-after-load "auto-complete"
   '(progn
