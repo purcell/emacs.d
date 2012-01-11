@@ -1,18 +1,5 @@
-(defun call-with-current-isearch-string-as-regex (f)
-  (let ((case-fold-search isearch-case-fold-search))
-    (funcall f (if isearch-regexp isearch-string (regexp-quote isearch-string)))))
-
 ;; Activate occur easily inside isearch
-(define-key isearch-mode-map (kbd "C-o")
-  (lambda ()
-    (interactive)
-    (call-with-current-isearch-string-as-regex 'occur)))
-
-;; or fire up "all"
-(define-key isearch-mode-map (kbd "C-l")
-  (lambda ()
-    (interactive)
-    (call-with-current-isearch-string-as-regex 'all)))
+(define-key isearch-mode-map (kbd "C-o") 'isearch-occur)
 
 ;; Search back/forth for the symbol at point
 ;; See http://www.emacswiki.org/emacs/SearchAtPoint
