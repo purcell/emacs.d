@@ -5,8 +5,4 @@
 
 (setq darcsum-whatsnew-switches "-l")
 
-(eval-after-load "grep"
-  '(add-to-list 'grep-find-ignored-directories "_darcs"))
-
-
 (provide 'init-darcs)
