@@ -47,14 +47,6 @@ to case differences."
 
 
 ;;----------------------------------------------------------------------------
-;; Easy way to check that we're operating on a specific file type
-;;----------------------------------------------------------------------------
-(defun filename-has-extension-p (extensions)
-  (and buffer-file-name
-       (string-match (concat "\\." (regexp-opt extensions t) "\\($\\|\\.\\)") buffer-file-name)))
-
-
-;;----------------------------------------------------------------------------
 ;; Delete the current file
 ;;----------------------------------------------------------------------------
 (defun delete-this-file ()
