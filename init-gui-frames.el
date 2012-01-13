@@ -4,7 +4,7 @@
 (defun maybe-suspend-frame ()
   (interactive)
   (unless (and *is-a-mac* window-system)
-                    (suspend-frame)))
+    (suspend-frame)))
 
 (global-set-key (kbd "C-z") 'maybe-suspend-frame)
 
