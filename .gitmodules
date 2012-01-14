@@ -58,9 +58,6 @@
 [submodule "site-list/fill-column-indicator"]
     path = site-lisp/fill-column-indicator
     url = https://github.com/alpaker/Fill-Column-Indicator.git
-[submodule "site-list/yari"]
-    path = site-lisp/yari
-    url = https://github.com/hron/yari.el.git
 [submodule "site-lisp/csv-mode"]
 	path = site-lisp/csv-mode
 	url = https://github.com/emacsmirror/csv-mode.git
