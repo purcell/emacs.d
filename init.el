@@ -16,7 +16,6 @@
 (require 'init-utils)
 (require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
 (require 'init-elpa)
-(require 'init-marmalade)
 (require 'init-exec-path) ;; Set up $PATH
 (require 'init-frame-hooks)
 (require 'init-xterm)
@@ -70,6 +69,7 @@
 (when *spell-check-support-enabled*
   (require 'init-spelling))
 
+(require 'init-marmalade)
 (require 'init-misc)
 
 
