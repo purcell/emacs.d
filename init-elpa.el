@@ -60,6 +60,8 @@
 (require-package 'smex)
 (require-package 'rainbow-mode)
 (require-package 'maxframe)
+(when (< emacs-major-version 24)
+   (require-package 'org))
 (require-package 'clojure-mode)
 (require-package 'clojure-test-mode)
 (require-package 'diminish)
