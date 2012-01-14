@@ -105,5 +105,6 @@
 (require-package 'rinari)
 (require-package 'ruby-compilation)
 (require-package 'iy-go-to-char)
+(require-package 'keyfreq)
 
 (provide 'init-elpa)
