@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: operator!=
+# key: !=
+# --
+bool ${1:MyClass}::operator!=(const $1 &other) const {
+    return !(*this == other);
+}

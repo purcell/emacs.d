@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: protected
+# key: pt
+# --
+protected:
+        $0

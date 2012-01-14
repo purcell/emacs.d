@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: test case
+# key: tc
+# --
+BOOST_AUTO_TEST_CASE( ${1:test_case} )
+{
+        $0
+}

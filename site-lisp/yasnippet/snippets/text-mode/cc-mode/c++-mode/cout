@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: cout
+# key: cout
+# --
+std::cout << ${1:string} $0<< std::endl;

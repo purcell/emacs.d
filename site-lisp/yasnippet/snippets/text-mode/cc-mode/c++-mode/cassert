@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: cassert
+# key: cass
+# --
+#include <cassert>
+$0
