@@ -4,7 +4,6 @@
 ;;----------------------------------------------------------------------------
 ;; Which functionality to enable (use t or nil for true and false)
 ;;----------------------------------------------------------------------------
-(setq *vi-emulation-support-enabled* nil) ; "viper-mode"
 (setq *spell-check-support-enabled* nil)
 (setq *macbook-pro-support-enabled* t)
 (setq *is-a-mac* (eq system-type 'darwin))
@@ -26,7 +25,6 @@
 (require 'init-gui-frames)
 (require 'init-proxies)
 (require 'init-dired)
-(require 'init-viper)
 (require 'init-isearch)
 (require 'init-uniquify)
 (require 'init-ibuffer)
