@@ -14,6 +14,7 @@ to case differences."
 ;; Handier way to add modes to auto-mode-alist
 ;;----------------------------------------------------------------------------
 (defun add-auto-mode (mode &rest patterns)
+  "Add entries to `auto-mode-alist' to use `MODE' for all given file `PATTERNS'."
   (dolist (pattern patterns)
     (add-to-list 'auto-mode-alist (cons pattern mode))))
 
@@ -41,23 +42,17 @@ to case differences."
 ;;----------------------------------------------------------------------------
 (autoload 'find-library-name "find-func")
 (defun directory-of-library (library-name)
+  "Return the directory in which the `LIBRARY-NAME' load file is found."
   (file-name-as-directory (file-name-directory (find-library-name library-name))))
-
-
-;;----------------------------------------------------------------------------
-;; Easy way to check that we're operating on a specific file type
-;;----------------------------------------------------------------------------
-(defun filename-has-extension-p (extensions)
-  (and buffer-file-name
-       (string-match (concat "\\." (regexp-opt extensions t) "\\($\\|\\.\\)") buffer-file-name)))
 
 
 ;;----------------------------------------------------------------------------
 ;; Delete the current file
 ;;----------------------------------------------------------------------------
 (defun delete-this-file ()
+  "Delete the current file, and kill the buffer."
   (interactive)
-  (or (buffer-file-name) (error "no file is currently being edited"))
+  (or (buffer-file-name) (error "No file is currently being edited"))
   (when (yes-or-no-p (format "Really delete '%s'?"
                              (file-name-nondirectory buffer-file-name)))
     (delete-file (buffer-file-name))
@@ -86,6 +81,7 @@ to case differences."
 ;; Browse current HTML file
 ;;----------------------------------------------------------------------------
 (defun browse-current-file ()
+  "Open the current file as a URL using `browse-url'."
   (interactive)
   (browse-url (concat "file://" (buffer-file-name))))
 

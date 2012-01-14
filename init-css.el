@@ -28,23 +28,21 @@
 
 ;; Colourise CSS colour literals
 (autoload 'rainbow-turn-on "rainbow-mode" "Enable rainbow mode colour literal overlays")
-(add-hook 'css-mode-hook 'rainbow-turn-on)
-(add-hook 'html-mode-hook 'rainbow-turn-on)
-(add-hook 'sass-mode-hook 'rainbow-turn-on)
+(dolist (hook '(css-mode-hook html-mode-hook sass-mode-hook))
+  (add-hook hook 'rainbow-turn-on))
 
 
 (defun maybe-flymake-css-load ()
+  "Activate flymake-css as necessary, but not in derived modes."
   (when (eq major-mode 'css-mode)
     (flymake-css-load)))
 (add-hook 'css-mode-hook 'maybe-flymake-css-load)
 
 
-(add-to-list 'auto-mode-alist '("\\.less" . less-css-mode))
-
 
 (eval-after-load "auto-complete"
   '(progn
-     (add-hook 'css-mode-hook 'ac-css-mode-setup)
-     (add-hook 'sass-mode-hook 'ac-css-mode-setup)))
+     (dolist (hook '(css-mode-hook sass-mode-hook))
+       (add-hook hook 'ac-css-mode-setup))))
 
 (provide 'init-css)
