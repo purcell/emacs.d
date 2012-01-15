@@ -103,6 +103,7 @@
 (require 'init-thing-edit)
 (require 'init-which-func)
 (require 'init-keyfreq)
+(require 'init-gist)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

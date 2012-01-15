@@ -1,0 +1,7 @@
+(require 'gist)
+(let ((github-toke-file "~/.github_token.el.gpg"))
+  (when (file-readable-p github-toke-file)
+    (eval-after-load 'gist '(load github-toke-file))
+    )
+  )
+(provide 'init-gist)
