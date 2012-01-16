@@ -46,9 +46,6 @@
 [submodule "site-lisp/flymake-python-pyflakes"]
 	path = site-lisp/flymake-python-pyflakes
 	url = https://github.com/purcell/flymake-python-pyflakes.git
-[submodule "site-lisp/external-abook"]
-	path = site-lisp/external-abook
-	url = https://github.com/emacsmirror/external-abook.git
 [submodule "site-lisp/pretty-mode"]
 	path = site-lisp/pretty-mode
 	url = https://github.com/emacsmirror/pretty-mode.git
