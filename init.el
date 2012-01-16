@@ -104,6 +104,7 @@
 (require 'init-which-func)
 (require 'init-keyfreq)
 (require 'init-gist)
+(require 'init-emacspeak)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
