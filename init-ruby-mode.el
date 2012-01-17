@@ -13,9 +13,8 @@
 
 (setq ruby-use-encoding-map nil)
 
-(eval-after-load "ruby-mode"
-  '(progn
-     (define-key ruby-mode-map (kbd "RET") 'reindent-then-newline-and-indent)))
+(eval-after-load 'ruby-mode
+  '(define-key ruby-mode-map (kbd "RET") 'reindent-then-newline-and-indent))
 
 
 ;;----------------------------------------------------------------------------
@@ -36,7 +35,7 @@
 ;; Ruby - erb
 ;;----------------------------------------------------------------------------
 (add-auto-mode 'html-mode "\.rhtml$" "\.html\.erb$")
-(eval-after-load "mmm-vars"
+(eval-after-load 'mmm-vars
   '(progn
      (mmm-add-classes
       '((eruby :submode ruby-mode :front "<%[#=]?" :back "-?%>"
@@ -56,7 +55,7 @@
 ;;----------------------------------------------------------------------------
 ;; Ruby - my convention for heredocs containing SQL
 ;;----------------------------------------------------------------------------
-(eval-after-load "mmm-mode"
+(eval-after-load 'mmm-mode
   '(progn
      (mmm-add-classes
       '((ruby-heredoc-sql :submode sql-mode :front "<<-?end_sql.*\r?\n" :back "[ \t]*end_sql" :face mmm-code-submode-face)))

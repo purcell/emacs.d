@@ -137,7 +137,7 @@
   "Add an advice to suspend `MODE-NAME' while selecting a CUA rectangle."
   (let ((flagvar (intern (format "%s-was-active-before-cua-rectangle" mode-name)))
         (advice-name (intern (format "suspend-%s" mode-name))))
-    (eval-after-load "cua-rect"
+    (eval-after-load 'cua-rect
       `(progn
          (defvar ,flagvar nil)
          (make-variable-buffer-local ',flagvar)

@@ -2,7 +2,7 @@
 
 ;; Stop flymake from breaking when ruby-mode is invoked by mmm-mode,
 ;; at which point buffer-file-name is nil
-(eval-after-load "flymake"
+(eval-after-load 'flymake
   '(progn
      (require 'flymake-cursor)
 
@@ -15,7 +15,7 @@ Return nil if we cannot, non-nil if we can."
 
 
 ;; http://nschum.de/src/emacs/fringe-helper/
-(eval-after-load "flymake"
+(eval-after-load 'flymake
   '(progn
      (require 'fringe-helper)
 

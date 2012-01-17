@@ -1,4 +1,4 @@
-(eval-after-load "rinari"
+(eval-after-load 'rinari
   `(let ((rinari-lib-dir (directory-of-library "rinari")))
      (unless (require 'jump nil t)
        (error "jump.el not found; please run 'git submodule update --init' in %s"

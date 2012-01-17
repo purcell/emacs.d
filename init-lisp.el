@@ -12,7 +12,7 @@
 
 (add-hook 'paredit-mode-hook 'maybe-map-paredit-newline)
 
-(eval-after-load "paredit"
+(eval-after-load 'paredit
   '(progn
      ;; These are handy everywhere, not just in lisp modes
      (global-set-key (kbd "M-(") 'paredit-wrap-round)
@@ -82,7 +82,7 @@
   :group 'auto-complete)
 
 ;; Modify ac-source-symbols to add colours
-(eval-after-load "auto-complete"
+(eval-after-load 'auto-complete
   '(progn
      (add-to-list 'ac-source-symbols '(candidate-face . ac-symbol-menu-face))
      (add-to-list 'ac-source-symbols '(selection-face . ac-symbol-selection-face))))
@@ -93,7 +93,7 @@
 ;; ----------------------------------------------------------------------------
 
 ;; Prevent flickery behaviour due to hl-sexp-mode unhighlighting before each command
-(eval-after-load "hl-sexp"
+(eval-after-load 'hl-sexp
   '(defadvice hl-sexp-mode (after unflicker (turn-on) activate)
      (when turn-on
        (remove-hook 'pre-command-hook #'hl-sexp-unhighlight))))

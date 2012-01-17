@@ -1,4 +1,4 @@
-(eval-after-load "mmm-vars"
+(eval-after-load 'mmm-vars
   '(progn
      (mmm-add-group
       'html-css
@@ -40,7 +40,7 @@
 
 
 
-(eval-after-load "auto-complete"
+(eval-after-load 'auto-complete
   '(progn
      (dolist (hook '(css-mode-hook sass-mode-hook))
        (add-hook hook 'ac-css-mode-setup))))

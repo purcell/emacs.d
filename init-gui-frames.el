@@ -32,9 +32,6 @@
 (when (fboundp 'set-scroll-bar-mode)
   (set-scroll-bar-mode nil))
 
-(setq ns-auto-hide-menu-bar nil)
-(require 'init-maxframe)
-
 (defun adjust-opacity (frame incr)
   (let* ((oldalpha (or (frame-parameter frame 'alpha) 100))
          (newalpha (+ incr oldalpha)))

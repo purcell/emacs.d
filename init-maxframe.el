@@ -1,7 +1,15 @@
-(require 'maxframe)
+(dolist (sym '(mf-max-display-pixel-width
+               mf-max-display-pixel-height
+               maximize-frame
+               restore-frame))
+  (autoload sym "maxframe"))
+
 (when *is-cocoa-emacs*
-  (fset 'maximize-frame 'x-maximize-frame)
-  (fset 'restore-frame 'x-restore-frame))
+  (eval-after-load 'maxframe
+    '(progn
+       (fset 'maximize-frame 'x-maximize-frame)
+       (fset 'restore-frame 'x-restore-frame))))
+
 (when *macbook-pro-support-enabled*
   (setq mf-max-width 1440
         mf-max-height 894

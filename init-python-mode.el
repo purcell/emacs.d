@@ -13,7 +13,8 @@
 ;;----------------------------------------------------------------------------
 ;; On-the-fly syntax checking via flymake
 ;;----------------------------------------------------------------------------
-(require 'flymake-python-pyflakes)
+(eval-after-load 'python
+  '(require 'flymake-python-pyflakes))
 
 (add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
 

@@ -66,7 +66,7 @@
 ;;   )
 
 
-(eval-after-load "org"
+(eval-after-load 'org
   '(progn
      (require 'org-exp)
      (require 'org-clock)
