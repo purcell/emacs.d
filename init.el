@@ -4,7 +4,6 @@
 ;;----------------------------------------------------------------------------
 ;; Which functionality to enable (use t or nil for true and false)
 ;;----------------------------------------------------------------------------
-(setq *vi-emulation-support-enabled* nil) ; "viper-mode"
 (setq *spell-check-support-enabled* nil)
 (setq *macbook-pro-support-enabled* t)
 (setq *is-a-mac* (eq system-type 'darwin))
@@ -25,7 +24,6 @@
 (require 'init-utils)
 (require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
 (require 'init-elpa)
-(require 'init-marmalade)
 (require 'init-exec-path) ;; Set up $PATH
 (require 'init-frame-hooks)
 (require 'init-xterm)
@@ -33,7 +31,6 @@
 (require 'init-gui-frames)
 (require 'init-proxies)
 (require 'init-dired)
-(require 'init-viper)
 (require 'init-isearch)
 (require 'init-uniquify)
 (require 'init-ibuffer)
@@ -80,6 +77,7 @@
 (when *spell-check-support-enabled*
   (require 'init-spelling))
 
+(require 'init-marmalade)
 (require 'init-misc)
 
 ;; Finally set up themes, after most possibly-customised faces have been defined

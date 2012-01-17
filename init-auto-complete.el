@@ -32,12 +32,6 @@
   (add-to-list 'ac-modes mode))
 
 
-(eval-after-load "viper"
-  '(progn
-     (define-key ac-completing-map (kbd "C-n") 'dabbrev-expand)
-     (define-key ac-completing-map (kbd "C-p") 'dabbrev-expand)
-     (define-key ac-completing-map viper-ESC-key 'viper-intercept-ESC-key)))
-
 ;; Exclude very large buffers from dabbrev
 (defun smp-dabbrev-friend-buffer (other-buffer)
   (< (buffer-size other-buffer) (* 1 1024 1024)))

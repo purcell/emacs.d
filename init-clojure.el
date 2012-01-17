@@ -56,9 +56,6 @@
 
 
 
-(eval-after-load "viper"
-  '(add-to-list 'viper-vi-state-mode-list 'clojure-mode))
-
 (eval-after-load "gist"
   '(add-to-list 'gist-supported-modes-alist '(clojure-mode . ".clj")))
 

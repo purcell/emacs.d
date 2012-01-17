@@ -31,8 +31,6 @@
 (require-package 'gnuplot)
 (require-package 'haskell-mode)
 (require-package 'tuareg)
-(when *vi-emulation-support-enabled*
-  (require-package 'highlight-symbol))
 (require-package 'flymake-cursor)
 (require-package 'json)
 (require-package 'js2-mode)
