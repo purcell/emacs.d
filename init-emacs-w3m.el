@@ -45,7 +45,6 @@
 (eval-after-load "w3m" '(progn
                           (define-key w3m-info-like-map "A" 'delicious-post)))
 
-(require 'w3m-lnum)
 (autoload 'w3m-link-numbering-mode "w3m-lnum" nil t)
 (add-hook 'w3m-mode-hook 'w3m-link-numbering-mode)
 
