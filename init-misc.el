@@ -161,8 +161,6 @@
       (deactivate-mark))
     (message "No region active; can't yank to clipboard!")))
 
-;make speedbar work
-(if (load "mwheel" t)
-  (mwheel-install))
+(eval-after-load "speedbar" '(if (load "mwheel" t) (mwheel-install)))
 
 (provide 'init-misc)
