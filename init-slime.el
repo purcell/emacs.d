@@ -1,8 +1,8 @@
 (autoload 'slime-fuzzy-init "slime-fuzzy" "" nil)
-(eval-after-load "slime-fuzzy"
+(eval-after-load 'slime-fuzzy
   '(require 'slime-repl))
 
-(eval-after-load "slime"
+(eval-after-load 'slime
   '(progn
      (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
      (setq slime-protocol-version 'ignore)
@@ -27,7 +27,7 @@
      (add-hook 'slime-mode-hook 'set-up-slime-ac)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
 
-     (eval-after-load "auto-complete"
+     (eval-after-load 'auto-complete
        '(add-to-list 'ac-modes 'slime-repl-mode))))
 
 

@@ -1,12 +1,12 @@
 ;; Basic wiring
 (add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
 
-(eval-after-load "clojure-mode"
+(eval-after-load 'clojure-mode
   '(progn
      (require 'clojure-test-mode)))
 
 ;; Use technomancy's bag of fancy clojure/slime tricks
-(eval-after-load "slime"
+(eval-after-load 'slime
   '(progn
      (require 'durendal)
      (durendal-enable t)
@@ -56,7 +56,7 @@
 
 
 
-(eval-after-load "gist"
+(eval-after-load 'gist
   '(add-to-list 'gist-supported-modes-alist '(clojure-mode . ".clj")))
 
 (provide 'init-clojure)

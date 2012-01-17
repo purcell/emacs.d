@@ -27,7 +27,7 @@
 ;;----------------------------------------------------------------------------
 ;; git-svn conveniences
 ;;----------------------------------------------------------------------------
-(eval-after-load "compile"
+(eval-after-load 'compile
   '(progn
      (dolist (defn (list '(git-svn-updated "^\t[A-Z]\t\\(.*\\)$" 1 nil nil 0 1)
                          '(git-svn-needs-update "^\\(.*\\): needs update$" 1 nil nil 2 1)))
@@ -53,7 +53,7 @@
 
 
 
-(eval-after-load "gist"
+(eval-after-load 'gist
   ;; Fix from https://github.com/defunkt/gist.el/pull/16
   '(defun gist-region (begin end &optional private &optional callback)
      "Post the current region as a new paste at gist.github.com

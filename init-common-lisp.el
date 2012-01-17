@@ -5,7 +5,7 @@
                                    (require 'slime)
                                    (normal-mode)))))
 
-(eval-after-load "slime"
+(eval-after-load 'slime
   '(progn
      (add-to-list 'slime-lisp-implementations
 		  '(sbcl ("sbcl") :coding-system utf-8-unix))
