@@ -104,6 +104,7 @@
 (require-package 'ruby-compilation)
 (require-package 'iy-go-to-char)
 (require-package 'csharp-mode)
+(require-package 'cmake-mode)
 (require-package 'keyfreq)
 
 (provide 'init-elpa)
