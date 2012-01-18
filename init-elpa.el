@@ -60,6 +60,7 @@
 (require-package 'rainbow-mode)
 (require-package 'maxframe)
 (when (< emacs-major-version 24)
+   (require-package 'htmlize)
    (require-package 'org))
 (require-package 'org2blog)
 (require-package 'clojure-mode)
