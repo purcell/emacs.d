@@ -25,9 +25,6 @@
 [submodule "site-lisp/lively"]
 	path = site-lisp/lively
 	url = https://github.com/emacsmirror/lively.git
-[submodule "site-lisp/pointback"]
-	path = site-lisp/pointback
-	url = https://github.com/emacsmirror/pointback.git
 [submodule "site-lisp/ac-dabbrev"]
 	path = site-lisp/ac-dabbrev
 	url = https://github.com/emacsmirror/ac-dabbrev.git

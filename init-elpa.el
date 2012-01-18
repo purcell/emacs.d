@@ -92,6 +92,7 @@
 (require-package 'less-css-mode)
 (require-package 'hl-sexp)
 (require-package 'dsvn)
+(require-package 'pointback)
 (require-package 'crontab-mode)
 (require-package 'regex-tool)
 (require-package 'rinari)
