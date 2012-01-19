@@ -10,7 +10,7 @@
 
 (defun update-version-header (val)
   (save-excursion
-    (beginning-of-buffer)
+    (goto-char (point-min))
     (re-search-forward "^;;;? ?Version:")
     (kill-line)
     (insert " " val)))
