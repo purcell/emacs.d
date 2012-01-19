@@ -86,11 +86,15 @@ to case differences."
   (browse-url (concat "file://" (buffer-file-name))))
 
 
+(require 'cl)
+
 (defmacro with-selected-frame (frame &rest forms)
-  (let ((prev-frame (gensym)))
+  (let ((prev-frame (gensym))
+        (new-frame (gensym)))
     `(progn
-       (let ((,prev-frame (selected-frame)))
-         (select-frame (or ,frame (selected-frame)))
+       (let* ((,new-frame (or ,frame (selected-frame)))
+              (,prev-frame (selected-frame)))
+         (select-frame ,new-frame)
          (unwind-protect
              (progn ,@forms)
            (select-frame ,prev-frame))))))
