@@ -60,9 +60,9 @@
 ;; ----------------------------------------------------------------------------
 ;; Hippie-expand
 ;; ----------------------------------------------------------------------------
-
 (defun set-up-hippie-expand-for-elisp ()
-  (make-variable-buffer-local 'hippie-expand-try-functions-list) ;; TODO local-variable
+  "Locally set `hippie-expand' completion functions for use with Emacs Lisp."
+  (make-local-variable 'hippie-expand-try-functions-list)
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol t)
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially t))
 
@@ -86,6 +86,14 @@
   '(progn
      (add-to-list 'ac-source-symbols '(candidate-face . ac-symbol-menu-face))
      (add-to-list 'ac-source-symbols '(selection-face . ac-symbol-selection-face))))
+
+
+(defun maybe-byte-compile ()
+  (when (and (eq major-mode 'emacs-lisp-mode) buffer-file-name)
+    (save-excursion (byte-compile-file buffer-file-name))))
+
+
+(add-hook 'after-save-hook 'maybe-byte-compile)
 
 
 ;; ----------------------------------------------------------------------------
