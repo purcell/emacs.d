@@ -1,5 +1,5 @@
 (require 'yasnippet)
 (yas/initialize)
-(yas/load-directory "~/.emacs.d/site-lisp/yasnippet/snippets")
+(yas/load-directory "~/.emacs.d/snippets")
 
 (provide 'init-yasnippet)

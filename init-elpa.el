@@ -108,5 +108,6 @@
 (require-package 'csharp-mode)
 (require-package 'cmake-mode)
 (require-package 'keyfreq)
+(require-package 'yasnippet)
 
 (provide 'init-elpa)
