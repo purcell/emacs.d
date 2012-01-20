@@ -1,8 +1,3 @@
-(require 'cc-mode)
-
-(add-to-list  'c++-font-lock-extra-types
-              "\\bwx[A-Z][a-z][a-zA-Z]*?\\b")
-   
 (defun c-wx-lineup-topmost-intro-cont (langelem)
   (save-excursion
     (beginning-of-line)
@@ -59,6 +54,11 @@
   ;do not impose restriction that all lines not top-level be indented at least
   ;1 (was imposed by gnu style by default)
   (setq c-label-minimum-indentation 0)
+
+  ; @see https://github.com/seanfisk/cmake-flymake
+  ; make sure you project use cmake
+  (flymake-mode)
+
   )
 (add-hook 'c-mode-common-hook 'my-c-mode-hook)
 
