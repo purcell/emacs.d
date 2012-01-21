@@ -62,6 +62,9 @@
    (format "ctags -f %s/TAGS -e -R %s" dir-name (directory-file-name dir-name)))
   )
 
+; @see http://xahlee.blogspot.com/2012/01/emacs-tip-hotkey-for-repeat-complex.html
+(global-set-key [f2] 'repeat-complex-command)
+
 ;effective emacs item 3
 (global-set-key "\C-w"     'backward-kill-word)
 (global-set-key "\C-x\C-k" 'kill-region)
