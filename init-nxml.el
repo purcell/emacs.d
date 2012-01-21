@@ -6,8 +6,7 @@
 (fset 'html-mode 'nxml-mode)
 (fset 'xml-mode 'nxml-mode)
 (add-hook 'nxml-mode-hook (lambda ()
-                            (make-variable-buffer-local 'ido-use-filename-at-point)
-                            (setq ido-use-filename-at-point nil)))
+                            (set (make-local-variable 'ido-use-filename-at-point) nil)))
 (setq nxml-slash-auto-complete-flag t)
 
 

@@ -1,3 +1,5 @@
+(require 'cl)
+
 (defmacro preserving-maximization (&rest body)
   (let ((maximized-frames (gensym)))
     `(let ((,maximized-frames (loop for f in (frame-list)

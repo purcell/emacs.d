@@ -15,6 +15,13 @@
 
 
 ;;----------------------------------------------------------------------------
+;; Ensure we're freshly byte-compiled
+;;----------------------------------------------------------------------------
+(require 'bytecomp)
+(byte-recompile-directory "~/.emacs.d/site-lisp" 0)
+
+
+;;----------------------------------------------------------------------------
 ;; Utilities for grabbing upstream libs
 ;;----------------------------------------------------------------------------
 (defun site-lisp-dir-for (name)
@@ -66,8 +73,7 @@ source file under ~/.emacs.d/site-lisp/name/"
 (defun refresh-site-lisp-submodules ()
   (interactive)
   (message "Updating site-lisp git submodules")
-  (shell-command "cd ~/.emacs.d && git submodule foreach 'git pull' &" "*site-lisp-submodules*")
-  (byte-recompile-directory "~/.emacs.d/site-lisp"))
+  (shell-command "cd ~/.emacs.d && git submodule foreach 'git pull' &" "*site-lisp-submodules*"))
 
 ;;----------------------------------------------------------------------------
 ;; Download these upstream libs
