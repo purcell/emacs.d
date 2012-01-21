@@ -1,4 +1,5 @@
 ;; -*- coding: utf-8 -*-
+(setq emacs-load-start-time (current-time))
 (add-to-list 'load-path (expand-file-name "~/.emacs.d"))
 
 ;;----------------------------------------------------------------------------
@@ -17,9 +18,9 @@
 (setq *xemacs* (featurep 'xemacs) )
 (setq *emacs23* (and (not *xemacs*) (or (>= emacs-major-version 23))) )
 
-;;----------------------------------------------------------------------------
-;; Load configs for specific features and modes
-;;----------------------------------------------------------------------------
+;----------------------------------------------------------------------------
+; Load configs for specific features and modes
+;----------------------------------------------------------------------------
 (require 'init-modeline)
 (require 'init-utils)
 (require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
@@ -108,9 +109,9 @@
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
-(require 'server)
-(unless (server-running-p)
-  (server-start))
+;(require 'server)
+;(unless (server-running-p)
+  ;(server-start))
 
 
 ;;----------------------------------------------------------------------------
@@ -126,6 +127,10 @@
 ;(require 'init-locales) ;does not work in cygwin
 
 
-;; Local Variables:
-;; no-byte-compile: t
-;; End:
+(when (require 'time-date nil t)
+   (message "Emacs startup time: %d seconds."
+    (time-to-seconds (time-since emacs-load-start-time)))
+   )
+;;; Local Variables:
+;;; no-byte-compile: t
+;;; End:
