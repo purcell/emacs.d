@@ -18,7 +18,7 @@
 ;; Ensure we're freshly byte-compiled
 ;;----------------------------------------------------------------------------
 (require 'bytecomp)
-(byte-recompile-directory "~/.emacs.d/site-lisp" 0)
+;(byte-recompile-directory "~/.emacs.d/site-lisp" 0)
 
 
 ;;----------------------------------------------------------------------------
