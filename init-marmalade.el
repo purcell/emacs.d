@@ -3,7 +3,6 @@
 (autoload 'marmalade-upload-buffer "marmalade")
 
 (defun latest-version-from-git-tag ()
-  ;; TODO: sort versions properly
   (let ((versions (mapcar #'version-to-list (split-string (shell-command-to-string "git tag")))))
     (sort versions #'version-list-<)
     (package-version-join (car (last versions)))))
