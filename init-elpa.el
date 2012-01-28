@@ -68,7 +68,7 @@ ARCHIVE is the string name of the package archive.")
 (setq package-filter-function
       (lambda (package version archive)
         (or (not (string-equal archive "melpa"))
-            (memq package '(magit rvm slime)))))
+            (memq package '(magit rvm slime mmm-mode dired+)))))
 
 
 (defadvice package-download-transaction
@@ -114,6 +114,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'durendal)
 (require-package 'markdown-mode)
 (require-package 'smex)
+(require-package 'dired+)
+(require-package 'mmm-mode)
 (require-package 'rainbow-mode)
 (require-package 'maxframe)
 (when (< emacs-major-version 24)

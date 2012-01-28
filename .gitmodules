@@ -1,18 +1,12 @@
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = https://github.com/purcell/auto-complete.git
-[submodule "site-lisp/dired-plus"]
-	path = site-lisp/dired-plus
-	url = https://github.com/emacsmirror/dired-plus.git
 [submodule "site-lisp/erlware-mode"]
 	path = site-lisp/erlware-mode
 	url = https://github.com/erlware/erlware-mode.git
 [submodule "site-lisp/git-blame"]
 	path = site-lisp/git-blame
 	url = https://github.com/tsgates/git-emacs.git
-[submodule "site-lisp/mmm-mode"]
-	path = site-lisp/mmm-mode
-	url = https://github.com/purcell/mmm-mode.git
 [submodule "site-lisp/org-fstree"]
 	path = site-lisp/org-fstree
 	url = http://repo.or.cz/r/org-fstree.git
