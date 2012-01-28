@@ -10,9 +10,6 @@
 [submodule "site-lisp/git-blame"]
 	path = site-lisp/git-blame
 	url = https://github.com/tsgates/git-emacs.git
-[submodule "site-lisp/magit"]
-	path = site-lisp/magit
-	url = https://github.com/magit/magit.git
 [submodule "site-lisp/mmm-mode"]
 	path = site-lisp/mmm-mode
 	url = https://github.com/purcell/mmm-mode.git
