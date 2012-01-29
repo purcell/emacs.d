@@ -164,6 +164,11 @@
       (deactivate-mark))
     (message "No region active; can't yank to clipboard!")))
 
+(defun paste-from-x-clipboard()
+  (interactive)
+    (shell-command (if *cygwin* "getclip" "xclip -o") 1)
+  )
+
 (eval-after-load "speedbar" '(if (load "mwheel" t) (mwheel-install)))
 
 (provide 'init-misc)
