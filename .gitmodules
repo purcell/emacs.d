@@ -13,9 +13,6 @@
 [submodule "site-lisp/lively"]
 	path = site-lisp/lively
 	url = https://github.com/emacsmirror/lively.git
-[submodule "site-lisp/ac-dabbrev"]
-	path = site-lisp/ac-dabbrev
-	url = https://github.com/emacsmirror/ac-dabbrev.git
 [submodule "site-lisp/smarty-mode"]
 	path = site-lisp/smarty-mode
 	url = https://github.com/emacsmirror/smarty-mode.git
