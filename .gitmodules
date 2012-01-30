@@ -10,18 +10,12 @@
 [submodule "site-lisp/org-fstree"]
 	path = site-lisp/org-fstree
 	url = http://repo.or.cz/r/org-fstree.git
-[submodule "site-lisp/textile-mode"]
-	path = site-lisp/textile-mode
-	url = https://github.com/emacsmirror/textile-mode.git
 [submodule "site-lisp/lively"]
 	path = site-lisp/lively
 	url = https://github.com/emacsmirror/lively.git
 [submodule "site-lisp/ac-dabbrev"]
 	path = site-lisp/ac-dabbrev
 	url = https://github.com/emacsmirror/ac-dabbrev.git
-[submodule "site-lisp/darcsum"]
-	path = site-lisp/darcsum
-	url = https://github.com/emacsmirror/darcsum.git
 [submodule "site-lisp/smarty-mode"]
 	path = site-lisp/smarty-mode
 	url = https://github.com/emacsmirror/smarty-mode.git
@@ -34,9 +28,3 @@
 [submodule "site-lisp/flymake-python-pyflakes"]
 	path = site-lisp/flymake-python-pyflakes
 	url = https://github.com/purcell/flymake-python-pyflakes.git
-[submodule "site-lisp/pretty-mode"]
-	path = site-lisp/pretty-mode
-	url = https://github.com/emacsmirror/pretty-mode.git
-[submodule "site-lisp/csv-mode"]
-	path = site-lisp/csv-mode
-	url = https://github.com/emacsmirror/csv-mode.git
