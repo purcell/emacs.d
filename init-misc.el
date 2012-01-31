@@ -22,10 +22,11 @@
 
 (put 'narrow-to-region 'disabled nil)
 
-(global-set-key "\C-\M-u" 'windmove-left)
-(global-set-key "\C-\M-p" 'windmove-right)
-(global-set-key "\C-\M-o" 'windmove-up)
-(global-set-key "\C-\M-i" 'windmove-down)
+(when (fboundp 'windmove-left)
+  (global-set-key "\C-ch" 'windmove-left)
+  (global-set-key "\C-cj" 'windmove-down)
+  (global-set-key "\C-ck" 'windmove-up)
+  (global-set-key "\C-cl" 'windmove-right))
 
 ; from RobinH
 ;Time management
