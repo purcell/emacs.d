@@ -70,6 +70,8 @@
   '(progn
      (require 'org-exp)
      (require 'org-clock)
+     ; @see http://irreal.org/blog/?p=671
+     (setq org-src-fontify-natively t)
      ;;(require 'org-checklist)
      (require 'org-fstree)))
 
