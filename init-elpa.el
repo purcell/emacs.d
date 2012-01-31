@@ -68,7 +68,7 @@ ARCHIVE is the string name of the package archive.")
       (lambda (package version archive)
         (or (not (string-equal archive "melpa"))
             (memq package '(magit rvm slime mmm-mode dired+ csv-mode
-                                  pretty-mode darcsum textile-mode)))))
+                                  pretty-mode darcsum org-fstree textile-mode)))))
 
 
 (defadvice package-download-transaction
@@ -119,6 +119,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'maxframe)
 (when (< emacs-major-version 24)
   (require-package 'org))
+(require-package 'org-fstree)
 (require-package 'htmlize)
 (require-package 'clojure-mode)
 (require-package 'clojure-test-mode)
