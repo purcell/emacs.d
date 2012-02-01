@@ -1,9 +1,6 @@
 (when *emacs23*
   (global-linum-mode t)
 
-  ;@see http://www.emacswiki.org/emacs-en/GnusEncryptedAuthInfo
-  (require 'epa-file) (epa-file-enable)
-
   ;http://stackoverflow.com/questions/3875213/ \
   ;turning-on-linum-mode-when-in-python-c-mode
   (setq linum-mode-inhibit-modes-list '(eshell-mode
