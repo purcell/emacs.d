@@ -20,6 +20,8 @@
                                       23
                                     (+ 22 23))))
 
+(require 'init-utils) ; for with-selected-frame
+
 (defun maybe-maximize-frame (&optional frame)
   (with-selected-frame frame
     (if window-system (maximize-frame))))
