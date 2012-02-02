@@ -69,7 +69,7 @@ ARCHIVE is the string name of the package archive.")
         (or (not (string-equal archive "melpa"))
             (memq package '(magit rvm slime mmm-mode dired+ csv-mode
                                   pretty-mode darcsum org-fstree textile-mode
-                                  ruby-mode js3 git-blame)))))
+                                  ruby-mode js3 git-blame todochiku)))))
 
 
 (defadvice package-download-transaction
@@ -133,6 +133,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'scratch)
 (require-package 'mic-paren)
 (require-package 'rainbow-delimiters)
+(require-package 'todochiku)
 (require-package 'marmalade)
 (require-package 'textile-mode)
 (require-package 'darcsum)
