@@ -69,7 +69,7 @@ ARCHIVE is the string name of the package archive.")
         (or (not (string-equal archive "melpa"))
             (memq package '(magit rvm slime mmm-mode dired+ csv-mode
                                   pretty-mode darcsum org-fstree textile-mode
-                                  ruby-mode git-blame)))))
+                                  ruby-mode js3 git-blame)))))
 
 
 (defadvice package-download-transaction
@@ -96,6 +96,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'git-blame)
 (require-package 'flymake-cursor)
 (require-package 'json)
+(require-package 'js3)
 (require-package 'js2-mode)
 (require-package 'lua-mode)
 (require-package 'project-local-variables)
