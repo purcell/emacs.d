@@ -69,7 +69,7 @@ ARCHIVE is the string name of the package archive.")
         (or (not (string-equal archive "melpa"))
             (memq package '(magit rvm slime mmm-mode dired+ csv-mode
                                   pretty-mode darcsum org-fstree textile-mode
-                                  git-blame)))))
+                                  ruby-mode git-blame)))))
 
 
 (defadvice package-download-transaction
