@@ -1,7 +1,7 @@
 (autoload 'git-blame-mode "git-blame" "Minor mode for incremental blame for Git." t)
 
+(require 'magit-autoloads)
 
-(autoload 'magit-status "magit")
 (setq magit-save-some-buffers nil
       magit-process-popup-time 10
       magit-completing-read-function 'magit-ido-completing-read)
@@ -19,7 +19,9 @@
 
 (eval-after-load 'magit
   '(progn
-     (require 'magit-svn)))
+     (require 'magit-key-mode)
+     (require 'magit-svn)
+     ))
 
 (autoload 'rebase-mode "rebase-mode")
 (add-to-list 'auto-mode-alist '("git-rebase-todo" . rebase-mode))
