@@ -1,8 +1,8 @@
-(defcustom preferred-javascript-mode 'js2-mode
+(defcustom preferred-javascript-mode 'js3-mode
   "Javascript mode to use for .js files"
   :type 'symbol
   :group 'programming
-  :options '(js2-mode js-mode))
+  :options '(js2-mode js3-mode js-mode))
 (defvar preferred-mmm-javascript-mode 'js-mode)
 (defvar preferred-javascript-indent-level 2)
 
@@ -28,6 +28,12 @@
 (setq js2-indent-on-enter-key t)
 (setq js2-auto-indent-p t)
 (setq js2-bounce-indent-p t)
+
+;; js3-mode
+(setq js3-auto-indent-p t
+      js3-enter-indents-newline t
+      js3-indent-on-enter-key t
+      js3-indent-level preferred-javascript-indent-level)
 
 ;; js-mode
 (setq js-indent-level preferred-javascript-indent-level)

@@ -68,7 +68,8 @@ ARCHIVE is the string name of the package archive.")
       (lambda (package version archive)
         (or (not (string-equal archive "melpa"))
             (memq package '(magit rvm slime mmm-mode dired+ csv-mode
-                                  pretty-mode darcsum org-fstree textile-mode)))))
+                                  pretty-mode darcsum org-fstree textile-mode
+                                  ruby-mode js3 git-blame)))))
 
 
 (defadvice package-download-transaction
@@ -94,8 +95,10 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'haskell-mode)
 (require-package 'tuareg)
 (require-package 'magit)
+(require-package 'git-blame)
 (require-package 'flymake-cursor)
 (require-package 'json)
+(require-package 'js3)
 (require-package 'js2-mode)
 (require-package 'lua-mode)
 (require-package 'project-local-variables)

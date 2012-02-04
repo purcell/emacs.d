@@ -4,9 +4,6 @@
 [submodule "site-lisp/erlware-mode"]
 	path = site-lisp/erlware-mode
 	url = https://github.com/erlware/erlware-mode.git
-[submodule "site-lisp/git-blame"]
-	path = site-lisp/git-blame
-	url = https://github.com/tsgates/git-emacs.git
 [submodule "site-lisp/lively"]
 	path = site-lisp/lively
 	url = https://github.com/emacsmirror/lively.git
