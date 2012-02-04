@@ -105,6 +105,7 @@
 (require 'init-keyfreq)
 (require 'init-gist)
 (require 'init-emacspeak)
+(require 'init-pomodoro)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
