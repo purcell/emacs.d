@@ -39,6 +39,13 @@
       (modify-frame-parameters frame (list (cons 'alpha newalpha))))))
 
 (when (fboundp 'ns-toggle-fullscreen)
+  (defadvice ns-toggle-fullscreen (after mark-full-screen activate)
+    (set-frame-parameter nil
+                         'is-full-screen
+                         (not (frame-parameter nil 'is-full-screen))))
+
+
+
   ;; Command-Option-f to toggle fullscreen mode
   (global-set-key (kbd "M-ƒ") 'ns-toggle-fullscreen))
 

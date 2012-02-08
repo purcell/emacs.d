@@ -1,20 +1,22 @@
 (require 'cl)
 
-(defmacro preserving-maximization (&rest body)
-  (let ((maximized-frames (gensym)))
-    `(let ((,maximized-frames (loop for f in (frame-list)
-                                    when (maximized-p f)
-                                    collect f)))
-       (prog1 (progn ,@body)
-         (dolist (frame ,maximized-frames)
-           (select-frame frame)
-           (maximize-frame))))))
+
+(defun font-name-replace-size (font-name new-size)
+  (let ((parts (split-string font-name "-")))
+    (setcar (nthcdr 7 parts) (format "%d" new-size))
+    (mapconcat 'identity parts "-")))
 
 (defun increment-default-font-height (delta)
-  (preserving-maximization
-   (let ((new-height (+ (face-attribute 'default :height) delta)))
-     (set-face-attribute 'default nil :height new-height)
-     (message "default font size is now %d" (/ new-height 10)))))
+  (let ((new-height (+ (face-attribute 'default :height) delta)))
+    (dolist (f (frame-list))
+      (with-selected-frame f
+        ;; Latest 'set-frame-font supports a "frames" arg, but
+        ;; we cater to Emacs 23 by looping instead.
+        (set-frame-font (font-name-replace-size (face-font 'default)
+                                                (/ new-height 10))
+                        t)))
+    (set-face-attribute 'default nil :height new-height)
+    (message "default font size is now %d" (/ new-height 10))))
 
 (defun increase-default-font-height ()
   (interactive)
@@ -27,12 +29,6 @@
 (global-set-key (kbd "C-M-=") 'increase-default-font-height)
 (global-set-key (kbd "C-M--") 'decrease-default-font-height)
 
-(defmacro preserving-default-font-size (&rest body)
-  (let ((old-size (gensym)))
-    `(preserving-maximization
-      (let ((,old-size (face-attribute 'default :height)))
-        (prog1 (progn ,@body)
-          (set-face-attribute 'default nil :height ,old-size))))))
 
 
 (provide 'init-fonts)
