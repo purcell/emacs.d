@@ -4,10 +4,8 @@
 (setq desktop-save 'if-exists)
 (desktop-save-mode 1)
 (defadvice desktop-read (around trace-desktop-errors)
-  (let ((old-debug-on-error debug-on-error))
-    (setq debug-on-error t)
-    ad-do-it
-    (setq debug-on-error old-debug-on-error)))
+  (let ((debug-on-error t))
+    ad-do-it))
 
 
 ;;----------------------------------------------------------------------------
