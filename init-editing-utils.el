@@ -56,6 +56,21 @@
 ;;----------------------------------------------------------------------------
 ;; Fix per-window memory of buffer point positions
 ;;----------------------------------------------------------------------------
+; If we have a version of called-interactively-p that doesn't accept
+; arguments, redefine it so that it does take arguments. This 
+; retains compatibility with packages that pass arguments to
+; called-interactively-p.
+(condition-case nil (called-interactively-p 'interactive)
+		(error
+		  ; Save reference to called-interactively-p in
+		  ; inglorion-system-called-interactively-p
+		  (fset 'inglorion-system-called-interactively-p
+			(symbol-function 'called-interactively-p))
+		  ; Define called-interactively-p so that it discards
+		  ; its arguments and calls inglorion-system-called-interactively-p
+		  (fset 'called-interactively-p
+			(lambda (&rest args)
+			  (inglorion-system-called-interactively-p)))))
 (global-pointback-mode)
 
 
