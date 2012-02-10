@@ -39,41 +39,50 @@
 ;; Removes clocked tasks with 0:00 duration
 (setq org-clock-out-remove-zero-time-clocks t)
 
-;; ;; Show iCal calendars in the org agenda
-;; (when *is-a-mac*
-;;   (eval-after-load "org"
-;;     '(if *is-a-mac* (require 'org-mac-iCal)))
-;;   (setq org-agenda-include-diary t)
+;; Show iCal calendars in the org agenda
+(when *is-a-mac*
+  (eval-after-load "org"
+    '(if *is-a-mac* (require 'org-mac-iCal)))
+  (setq org-agenda-include-diary t)
 
-;;   (setq org-agenda-custom-commands
-;;         '(("I" "Import diary from iCal" agenda ""
-;;            ((org-agenda-mode-hook
-;;              (lambda ()
-;;                (org-mac-iCal)))))))
+  (setq org-agenda-custom-commands
+        '(("I" "Import diary from iCal" agenda ""
+           ((org-agenda-mode-hook
+             (lambda ()
+               (org-mac-iCal)))))))
 
-;;   (add-hook 'org-agenda-cleanup-fancy-diary-hook
-;;             (lambda ()
-;;               (goto-char (point-min))
-;;               (save-excursion
-;;                 (while (re-search-forward "^[a-z]" nil t)
-;;                   (goto-char (match-beginning 0))
-;;                   (insert "0:00-24:00 ")))
-;;               (while (re-search-forward "^ [a-z]" nil t)
-;;                 (goto-char (match-beginning 0))
-;;                 (save-excursion
-;;                   (re-search-backward "^[0-9]+:[0-9]+-[0-9]+:[0-9]+ " nil t))
-;;                 (insert (match-string 0)))))
-;;   )
+  (add-hook 'org-agenda-cleanup-fancy-diary-hook
+            (lambda ()
+              (goto-char (point-min))
+              (save-excursion
+                (while (re-search-forward "^[a-z]" nil t)
+                  (goto-char (match-beginning 0))
+                  (insert "0:00-24:00 ")))
+              (while (re-search-forward "^ [a-z]" nil t)
+                (goto-char (match-beginning 0))
+                (save-excursion
+                  (re-search-backward "^[0-9]+:[0-9]+-[0-9]+:[0-9]+ " nil t))
+                (insert (match-string 0)))))
+  )
 
 
 (eval-after-load 'org
-  '(progn
-     (require 'org-exp)
-     (require 'org-clock)
-     ; @see http://irreal.org/blog/?p=671
-     (setq org-src-fontify-natively t)
-     ;;(require 'org-checklist)
-     (require 'org-fstree)))
+   '(progn
+      (require 'org-exp)
+      (require 'org-clock)
+      ; @see http://irreal.org/blog/?p=671
+      (setq org-src-fontify-natively t)
+      ;;(require 'org-checklist)
+      (require 'org-fstree)
+      (add-hook 'org-mode-hook 'soft-wrap-lines)
+      (defun soft-wrap-lines ()
+        "Make lines wrap at window edge and on word boundary,
+        in current buffer."
+        (interactive)
+        (setq truncate-lines nil)
+        (setq word-wrap t)
+        )
+        ))
 
 
 (provide 'init-org)
