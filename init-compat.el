@@ -21,3 +21,5 @@ to case differences."
     (defun called-interactively-p (&optional kind)
       "Overridden; see `smp--called-interactively-p' for the wrapped function."
       (smp--called-interactively-p))))
+
+(provide 'init-compat)
