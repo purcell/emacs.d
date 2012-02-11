@@ -22,12 +22,12 @@
 
 
 ;; js2-mode
-(setq js2-use-font-lock-faces t)
-(setq js2-mode-must-byte-compile nil)
-(setq js2-basic-offset preferred-javascript-indent-level)
-(setq js2-indent-on-enter-key t)
-(setq js2-auto-indent-p t)
-(setq js2-bounce-indent-p t)
+(setq js2-use-font-lock-faces t
+      js2-mode-must-byte-compile nil
+      js2-basic-offset preferred-javascript-indent-level
+      js2-indent-on-enter-key t
+      js2-auto-indent-p t
+      js2-bounce-indent-p t)
 
 ;; js3-mode
 (setq js3-auto-indent-p t
@@ -78,6 +78,10 @@
 (add-hook 'coffee-mode-hook 'flymake-coffee-load)
 
 
+;; ---------------------------------------------------------------------------
+;; Run and interact with an inferior JS via js-comint.el
+;; ---------------------------------------------------------------------------
+
 (setq inferior-js-program-command "js")
 (defun add-inferior-js-keys ()
   (local-set-key "\C-x\C-e" 'js-send-last-sexp)
@@ -85,8 +89,9 @@
   (local-set-key "\C-cb" 'js-send-buffer)
   (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
   (local-set-key "\C-cl" 'js-load-file-and-go))
-(add-hook 'js2-mode-hook 'add-inferior-js-keys)
-(add-hook 'js-mode-hook 'add-inferior-js-keys)
+
+(dolist (hook '(js2-mode-hook js3-mode-hook js-mode-hook))
+  (add-hook hook 'add-inferior-js-keys))
 
 
 (provide 'init-javascript)
