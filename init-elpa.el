@@ -185,5 +185,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'vc-darcs)
 (require-package 'whole-line-or-region)
 (require-package 'expand-region)
+(require-package 'track-closed-files)
 
 (provide 'init-elpa)

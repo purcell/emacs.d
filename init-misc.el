@@ -172,4 +172,6 @@
 
 (eval-after-load "speedbar" '(if (load "mwheel" t) (mwheel-install)))
 
+(track-closed-files-mode)
+
 (provide 'init-misc)
