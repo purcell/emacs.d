@@ -174,4 +174,6 @@
 
 (track-closed-files-mode)
 
+(global-set-key (kbd "C-@") 'er/expand-region)
+
 (provide 'init-misc)
