@@ -74,6 +74,8 @@
       (setq org-src-fontify-natively t)
       ;;(require 'org-checklist)
       (require 'org-fstree)
+      (setq org-ditaa-jar-path (format "%s%s" (if *cygwin* "c:/cygwin" "")
+                                       (expand-file-name "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")) )
       (add-hook 'org-mode-hook 'soft-wrap-lines)
       (defun soft-wrap-lines ()
         "Make lines wrap at window edge and on word boundary,
