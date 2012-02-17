@@ -111,6 +111,7 @@
 (require 'init-gist)
 (require 'init-emacspeak)
 (require 'init-pomodoro)
+(require 'init-undo-tree)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

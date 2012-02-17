@@ -174,4 +174,8 @@
 
 (track-closed-files-mode)
 
+(global-set-key (kbd "C-@") 'er/expand-region)
+
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+
 (provide 'init-misc)
