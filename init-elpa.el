@@ -185,6 +185,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'whole-line-or-region)
 (require-package 'expand-region '(0 6 0) nil)
 (require-package 'undo-tree '(0 3 3) nil)
+(require-package 'ace-jump-mode)
 (require-package 'track-closed-files)
 
 (provide 'init-elpa)
