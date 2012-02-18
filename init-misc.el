@@ -175,6 +175,8 @@
 (track-closed-files-mode)
 
 (global-set-key (kbd "C-@") 'er/expand-region)
+(global-set-key (kbd "C-M-@") 'er/contract-region)
+(global-set-key (kbd "M-SPC") 'set-mark-command) ;borrowed from ergoemacs
 
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
