@@ -112,6 +112,7 @@
 (require 'init-emacspeak)
 (require 'init-pomodoro)
 (require 'init-undo-tree)
+(require 'init-moz)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
