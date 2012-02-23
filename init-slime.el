@@ -7,7 +7,7 @@
      (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
      (setq slime-protocol-version 'ignore)
      (setq slime-net-coding-system 'utf-8-unix)
-     (add-hook 'slime-repl-mode-hook 'smp-lisp-setup)
+     (add-hook 'slime-repl-mode-hook 'sanityinc/lisp-setup)
      (slime-setup '(slime-repl slime-fuzzy))
      (setq slime-complete-symbol*-fancy t)
      (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
