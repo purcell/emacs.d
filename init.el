@@ -88,7 +88,7 @@
 (require 'init-misc)
 
 ;; Finally set up themes, after most possibly-customised faces have been defined
-;(require 'init-themes) ; does not work under cygwin
+(require 'init-themes) ; color-themes 6.6.1 has some problem
 ;; Chinese inut method
 (require 'init-org2blog)
 (require 'init-fill-column-indicator)
