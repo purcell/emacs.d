@@ -85,7 +85,6 @@
   (require 'init-spelling))
 
 (require 'init-marmalade)
-(require 'init-misc)
 
 ;; Finally set up themes, after most possibly-customised faces have been defined
 (require 'init-themes) ; color-themes 6.6.1 has some problem
@@ -114,6 +113,7 @@
 (require 'init-undo-tree)
 (require 'init-moz)
 
+(require 'init-misc)
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
