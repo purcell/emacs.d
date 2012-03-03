@@ -20,9 +20,9 @@ ignored: use `custom-enabled-themes' instead."
 
   (defun apply-best-color-theme-for-frame-type (frame)
     (with-selected-frame frame
-      (if window-system
-          (funcall window-system-color-theme)
-        (funcall tty-color-theme))))
+      (funcall (if window-system
+                   window-system-color-theme
+                 tty-color-theme))))
 
   (defun reapply-color-themes ()
     (interactive)
