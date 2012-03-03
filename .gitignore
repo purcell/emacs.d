@@ -19,3 +19,4 @@ cookies
 \#*
 /elpa
 site-lisp/package/
+/swank
