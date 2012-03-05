@@ -25,6 +25,6 @@
 [submodule "site-lisp/evil"]
 	path = site-lisp/evil
 	url = git://gitorious.org/evil/evil.git
-[submodule "/home/cb/.emacs.d/site-lisp/evil-surround"]
-	path = /home/cb/.emacs.d/site-lisp/evil-surround
+[submodule "site-lisp/evil-surround"]
+	path = site-lisp/evil-surround
 	url = git://github.com/timcharper/evil-surround.git
