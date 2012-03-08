@@ -192,4 +192,7 @@
 
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
+;; move window/buffer
+(require 'buffer-move)
+
 (provide 'init-misc)
