@@ -122,13 +122,12 @@
 ;(unless (server-running-p)
   ;(server-start))
 
-
 ;;----------------------------------------------------------------------------
 ;; Variables configured via the interactive 'customize' interface
 ;;----------------------------------------------------------------------------
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
-
+(if (file-readable-p (expand-file-name "~/.emacs.d/custom.el"))
+     (load-file (expand-file-name "~/.emacs.d/custom.el"))
+       nil)
 
 ;;----------------------------------------------------------------------------
 ;; Locales (setting them earlier in this file doesn't work in X)
