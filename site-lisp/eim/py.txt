@@ -8838,6 +8838,7 @@ g-r-f-h-zh-b 个人防护装备
 g-r-j-j 工人阶级
 g-r-j-l 感染剂量
 g-r-r-sh 感染人数
+g-r-w-zh 个人网站
 g-r-x 盖然性 归仁乡
 g-r-x-f-x 感染性腹泻
 g-r-zh 感染者
@@ -9293,6 +9294,7 @@ ge-re-cai-liao 隔热材料
 ge-ren 个人
 ge-ren-dian-nao 个人电脑
 ge-ren-fang-hu-zhuang-bei 个人防护装备
+ge-ren-wang-zhan 个人网站
 ge-se-ge-yang 各色各样
 ge-shang 割伤
 ge-shi 格式
