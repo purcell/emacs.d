@@ -13,6 +13,8 @@
       org-fast-tag-selection-single-key 'expert
       org-tags-column 80)
 
+;; Subscripts and superscripts in org is annoying
+(setq org-export-with-sub-superscripts nil)
 
 ; Refile targets include this file and any file contributing to the agenda - up to 5 levels deep
 (setq org-refile-targets (quote ((nil :maxlevel . 5) (org-agenda-files :maxlevel . 5))))
