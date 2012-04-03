@@ -63,13 +63,16 @@ ARCHIVE is the string name of the package archive.")
 
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 
-;; Only take certain packages from Melpa
+;; Don't take Melpa versions of certain packages
 (setq package-filter-function
       (lambda (package version archive)
         (or (not (string-equal archive "melpa"))
-            (memq package '(magit rvm mmm-mode dired+ csv-mode
-                                  pretty-mode darcsum org-fstree textile-mode
-                                  ruby-mode js3 js2-mode git-blame todochiku)))))
+            (not (memq package
+                       '(jump rinari ruby-compilation slime
+                              color-theme-sanityinc-solarized
+                              color-theme-sanityinc-tomorrow
+                              elisp-slime-nav
+                              findr))))))
 
 
 (defadvice package-download-transaction
