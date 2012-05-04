@@ -27,14 +27,15 @@ issue on the github project: https://github.com/purcell/emacs.d
 
 ========================================================================
 
-I based my emacs configuration on Purcell's and sync from his frequently.
+I based my configuration on Purcell's and sync from his frequently.
 
-What I added are,
+My additions,
     * some major/minor modes for C/C++ developers
     * emacs-w3m (console browser)
     * eim (Chinese pinyin input method)
     * org2blog (write wordpress blog with org-mode)
     * make the configuration work under Linux and Cygwin
+    * The configuration will work with Emacs version >=23.4
 
 Purcell won't list all the 3rd party tools you need install. I will
 try to list them HERE,
@@ -45,7 +46,10 @@ try to list them HERE,
       install pip, then `pip install pyflakes`, but on cygwin you need install
       setuptool in order to install pip.
 
-Please note by default EVIL (Vim emulation in Emacs) is used. You can comment
-out line containing "(require 'init-evil)" in init.el to unload it.
+Warnings,
+   * by default EVIL (Vim emulation in Emacs) is used. You can comment out 
+   line containing "(require 'init-evil)" in init.el to unload it.
+   * Some package cannot be downloaded automatically because of network problem.
+   You need manually `M-x list-packages` and install it.
 
 -Chen Bin
