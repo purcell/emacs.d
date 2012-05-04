@@ -10,9 +10,6 @@
 [submodule "site-lisp/smarty-mode"]
 	path = site-lisp/smarty-mode
 	url = https://github.com/emacsmirror/smarty-mode.git
-[submodule "site-lisp/csv-nav"]
-	path = site-lisp/csv-nav
-	url = https://github.com/emacsmirror/csv-nav.git
 [submodule "site-lisp/html5-el"]
 	path = site-lisp/html5-el
 	url = https://github.com/hober/html5-el.git

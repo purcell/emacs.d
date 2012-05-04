@@ -22,6 +22,8 @@
 (autoload 'rebase-mode "rebase-mode")
 (add-to-list 'auto-mode-alist '("git-rebase-todo" . rebase-mode))
 
+(add-to-list 'auto-mode-alist '("\\(?:\\.gitconfig\\|\\.gitmodules\\|config\\)$" . conf-mode))
+
 ;;----------------------------------------------------------------------------
 ;; git-svn conveniences
 ;;----------------------------------------------------------------------------

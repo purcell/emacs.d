@@ -89,7 +89,10 @@
 
 
 (defun maybe-byte-compile ()
-  (when (and (eq major-mode 'emacs-lisp-mode) buffer-file-name)
+  (when (and (eq major-mode 'emacs-lisp-mode)
+             buffer-file-name
+             (string-match "\\.el$" buffer-file-name)
+             (not (string-match "\\.dir-locals.el$" buffer-file-name)))
     (save-excursion (byte-compile-file buffer-file-name))))
 
 
@@ -112,13 +115,13 @@
 ;; Enable desired features for all lisp modes
 ;; ----------------------------------------------------------------------------
 
-(defun smp-lisp-setup ()
+(defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
   (enable-paredit-mode)
   (turn-on-eldoc-mode)
   (turn-on-pretty-mode))
 
-(defun smp-emacs-lisp-setup ()
+(defun sanityinc/emacs-lisp-setup ()
   "Enable features useful when working with elisp."
   (rainbow-delimiters-mode t)
   (elisp-slime-nav-mode t)
@@ -132,9 +135,9 @@
                                            inferior-lisp-mode-hook
                                            lisp-interaction-mode-hook))))
   (dolist (hook lispy-hooks)
-    (add-hook hook 'smp-lisp-setup))
+    (add-hook hook 'sanityinc/lisp-setup))
   (dolist (hook elispy-hooks)
-    (add-hook hook 'smp-emacs-lisp-setup)))
+    (add-hook hook 'sanityinc/emacs-lisp-setup)))
 
 
 (require 'eldoc-eval)

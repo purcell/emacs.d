@@ -12,7 +12,7 @@
      (durendal-enable t)
      (durendal-disable-slime-repl-font-lock)))
 
-(add-hook 'clojure-mode-hook 'smp-lisp-setup)
+(add-hook 'clojure-mode-hook 'sanityinc/lisp-setup)
 
 
 (defun slime-clojure-repl-setup ()

@@ -13,6 +13,17 @@
 
 
 ;;------------------------------------------------------------------------------
+;; Patch up annoying package.el quirks
+;;------------------------------------------------------------------------------
+
+(defadvice package-generate-autoloads (after close-autoloads (name pkg-dir) activate)
+  "Stop package.el from leaving open autoload files lying around."
+  (let ((path (expand-file-name (concat name "-autoloads.el") pkg-dir)))
+    (with-current-buffer (find-file-existing path)
+      (kill-buffer nil))))
+
+
+;;------------------------------------------------------------------------------
 ;; Add support to package.el for pre-filtering available packages
 ;;------------------------------------------------------------------------------
 
@@ -62,13 +73,16 @@ ARCHIVE is the string name of the package archive.")
 
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 
-;; Only take certain packages from Melpa
+;; Don't take Melpa versions of certain packages
 (setq package-filter-function
       (lambda (package version archive)
         (or (not (string-equal archive "melpa"))
-            (memq package '(magit rvm slime mmm-mode dired+ csv-mode
-                                  pretty-mode darcsum org-fstree textile-mode
-                                  ruby-mode js3 git-blame todochiku)))))
+            (not (memq package
+                       '(jump rinari ruby-compilation slime
+                              color-theme-sanityinc-solarized
+                              color-theme-sanityinc-tomorrow
+                              elisp-slime-nav
+                              findr))))))
 
 
 (defadvice package-download-transaction
@@ -92,14 +106,17 @@ ARCHIVE is the string name of the package archive.")
 (when (< emacs-major-version 24)
   (require-package 'color-theme))
 (require-package 'fringe-helper)
+(require-package 'popup)
 (require-package 'gnuplot)
 (require-package 'haskell-mode)
 (require-package 'tuareg)
 (require-package 'magit)
 (require-package 'git-blame)
 (require-package 'flymake-cursor)
+(require-package 'csv-mode)
+(require-package 'csv-nav)
 (require-package 'json)
-(require-package 'js3)
+(require-package 'js3-mode)
 (require-package 'js2-mode)
 (require-package 'lua-mode)
 (require-package 'project-local-variables)
@@ -134,6 +151,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'org2blog)
 (require-package 'clojure-mode)
 (require-package 'clojure-test-mode)
+(require-package 'clojurescript-mode)
 (require-package 'diminish)
 (require-package 'autopair)
 (require-package 'js-comint)

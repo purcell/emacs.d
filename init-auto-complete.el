@@ -28,15 +28,15 @@
                 sass-mode yaml-mode csv-mode espresso-mode haskell-mode
                 html-mode nxml-mode sh-mode smarty-mode clojure-mode
                 lisp-mode textile-mode markdown-mode tuareg-mode
-                css-mode less-css-mode))
+                js3-mode css-mode less-css-mode))
   (add-to-list 'ac-modes mode))
 
 
 ;; Exclude very large buffers from dabbrev
-(defun smp-dabbrev-friend-buffer (other-buffer)
+(defun sanityinc/dabbrev-friend-buffer (other-buffer)
   (< (buffer-size other-buffer) (* 1 1024 1024)))
 
-(setq dabbrev-friend-buffer-function 'smp-dabbrev-friend-buffer)
+(setq dabbrev-friend-buffer-function 'sanityinc/dabbrev-friend-buffer)
 
 
 (provide 'init-auto-complete)
