@@ -29,7 +29,7 @@
 ;;----------------------------------------------------------------------------
 ;; Zap *up* to char is a more sensible default
 ;;----------------------------------------------------------------------------
-(autoload 'zap-up-to-char "misc" "Kill up to ARGth occurrence of CHAR.")
+(autoload 'zap-up-to-char "misc" "Kill up to, but not including ARGth occurrence of CHAR.")
 (global-set-key (kbd "M-z") 'zap-up-to-char)
 (global-set-key (kbd "M-Z") 'zap-to-char)
 
