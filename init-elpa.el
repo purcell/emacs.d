@@ -188,6 +188,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'ruby-compilation)
 (require-package 'session)
 (require-package 'tidy)
+(require-package 'unfill)
 (require-package 'vc-darcs)
 (require-package 'whole-line-or-region)
 
