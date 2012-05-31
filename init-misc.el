@@ -160,14 +160,25 @@
     (progn
      ; my clipboard manager only intercept CLIPBOARD
       (shell-command-on-region (region-beginning) (region-end)
-        (if *cygwin* "putclip" "xclip -selection clipboard"))
+        (cond
+         (*cygwin* "putclip")
+         (*is-a-mac* "pbcopy")
+         (t "xclip -selection clipboard")
+         )
+        )
       (message "Yanked region to clipboard!")
       (deactivate-mark))
     (message "No region active; can't yank to clipboard!")))
 
 (defun paste-from-x-clipboard()
   (interactive)
-    (shell-command (if *cygwin* "getclip" "xclip -o") 1)
+    (shell-command
+        (cond
+         (*cygwin* "getclip")
+         (*is-a-mac* "pbpaste")
+         (t "xclip -o")
+         )
+     1)
   )
 
 (eval-after-load "speedbar" '(if (load "mwheel" t) (mwheel-install)))
