@@ -4,7 +4,7 @@
   :group 'programming
   :options '(js2-mode js3-mode js-mode))
 (defvar preferred-mmm-javascript-mode 'js-mode)
-(defvar preferred-javascript-indent-level 2)
+(defvar preferred-javascript-indent-level 4)
 
 ;; Need to first remove from list if present, since elpa adds entries too, which
 ;; may be in an arbitrary order
@@ -33,7 +33,10 @@
 (setq js3-auto-indent-p t
       js3-enter-indents-newline t
       js3-indent-on-enter-key t
-      js3-indent-level preferred-javascript-indent-level)
+      js3-indent-level preferred-javascript-indent-level
+      js3-highlight-external-variables t
+      js3-allow-keywords-as-property-names nil
+      )
 
 ;; js-mode
 (setq js-indent-level preferred-javascript-indent-level)
