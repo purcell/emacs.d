@@ -1,7 +1,7 @@
 #contributor : Jimmy Wu <frozenthrone88@gmail.com>
-#name : <ol>...</ol>
+#name : <ul id="...">...</ul>
 #group : list
 # --
-<ol>
+<ul id="$1">
   $0
-</ol>
+</ul>

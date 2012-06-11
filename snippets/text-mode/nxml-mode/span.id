@@ -1,5 +1,4 @@
 #contributor : Jimmy Wu <frozenthrone88@gmail.com>
-#name : <h5>...</h5>
-#group : header
+#name : <span id="...">...</span>
 # --
-<h5>$1</h5>
+<span id="$1">$2</span>

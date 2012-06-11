@@ -1,7 +1,6 @@
 #contributor : Jimmy Wu <frozenthrone88@gmail.com>
-#name : <tr>...</tr>
-#group : table
+#name : <div id="...">...</div>
 # --
-<tr>
+<div id="$1">
   $0
-</tr>
+</div>
