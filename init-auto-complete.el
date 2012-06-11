@@ -17,9 +17,9 @@
   (setq completion-at-point-functions '(auto-complete)))
 (add-hook 'auto-complete-mode-hook 'set-auto-complete-as-completion-at-point-function)
 
-
 (set-default 'ac-sources
-             '(ac-source-dictionary
+             '(ac-source-yasnippet
+               ac-source-dictionary
                ac-source-words-in-buffer
                ac-source-words-in-same-mode-buffers
                ac-source-words-in-all-buffer))
