@@ -1,4 +1,0 @@
-# This was cloned from a TextMate bundle for yasnippet.
-#group : Tests
-# --
-assert_respond_to`snippet_paren.rb`${1:object}, :${0:method}`snippet_paren.rb end`

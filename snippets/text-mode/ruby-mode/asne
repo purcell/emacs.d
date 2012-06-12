@@ -1,4 +1,0 @@
-# This was cloned from a TextMate bundle for yasnippet.
-#group : Tests
-# --
-assert_not_equal`snippet_paren.rb`${1:unexpected}, ${0:actual}`snippet_paren.rb end`
