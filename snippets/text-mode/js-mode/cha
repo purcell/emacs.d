@@ -5,5 +5,5 @@
 # contributor: David Miller <david@deadpansincerity.com>
 # --
 change(function(){
-    $0
+  $0
 });
