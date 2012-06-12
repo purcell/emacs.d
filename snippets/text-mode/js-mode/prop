@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: prop
+# --
+var ${1:name} = ${2:null};
+
+this.__defineGetter__('$1', function () {
+  return $1;
+});
+
+this.__defineSetter__('$1', function (${5:value}) {
+  $1 = $5;
+});

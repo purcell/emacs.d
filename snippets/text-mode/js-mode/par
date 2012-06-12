@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery Parent()
+# key: par
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+parent(${1:item})$0

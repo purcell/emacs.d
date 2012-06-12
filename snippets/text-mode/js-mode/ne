@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery next()
+# key: ne
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+next(${1:'#selector'}).$0

@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery slideDown()
+# key: sli
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+slideDown(${1:'slow'}).$0

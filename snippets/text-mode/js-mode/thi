@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery this
+# key: thi
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+$(this).$0

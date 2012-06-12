@@ -1,0 +1,6 @@
+# -*- mode: snippet; coding: utf-8 -*-
+# name: jQuery siblings()
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+siblings(${1:"#selector"}).$0

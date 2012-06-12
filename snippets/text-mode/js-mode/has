@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery hasClass()
+# key: has
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+hasClass( "${1:class}" )$0

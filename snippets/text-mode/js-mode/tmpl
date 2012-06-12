@@ -1,0 +1,9 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: tmpl
+# key: tmpl
+# group: templating
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+<script id="${1:tmpl_id}" type="text/x-jquery-tmpl">
+  $0
+</script>

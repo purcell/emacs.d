@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery slideUp()
+# key: sli
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+slideUp(${1:'slow'}).$0

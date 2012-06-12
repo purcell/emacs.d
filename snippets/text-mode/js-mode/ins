@@ -1,0 +1,3 @@
+# name: ins
+# --
+instanceof ${1:Function}$0

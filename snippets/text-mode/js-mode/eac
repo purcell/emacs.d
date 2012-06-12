@@ -1,0 +1,9 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery each()
+# key: eac
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+$.each(${1:an-array}, function(i){
+    $0
+});

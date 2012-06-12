@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: try
+# --
+try {
+  $1
+} catch (e) {
+  $0
+}

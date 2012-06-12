@@ -1,0 +1,9 @@
+# -*- mode: snippet; coding: utf-8 -*-
+# name: jQuery Click
+# key: click
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+click( function(){
+    $0
+});

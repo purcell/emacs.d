@@ -1,0 +1,14 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery selector
+# key: hov
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+hover( 
+    function(){
+    $0
+    },
+    function(){
+
+    }
+);

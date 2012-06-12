@@ -1,0 +1,9 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: attr: function
+# key: fun
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+// $1
+${2:attribute}: function (${3:args}) {
+    $0
+}

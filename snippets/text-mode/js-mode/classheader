@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: classheader
+# --
+/**
+ * $0
+ *
+ * @author ${1:Author} <${2:Email}>
+ * @version ${3:1.0}
+ * @class
+ * @constructor
+ */

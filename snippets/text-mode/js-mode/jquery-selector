@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery selector
+# key: $
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+\$(${1:"#selector"}).$0

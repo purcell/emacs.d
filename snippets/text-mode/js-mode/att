@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery Attr()
+# key: att
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+attr(${1:item})$0

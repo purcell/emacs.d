@@ -1,0 +1,19 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: File header
+# key: header
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+//
+// `(file-name-nondirectory (buffer-file-name))` v ${1:version}
+//
+// ${2:Short desc}
+//
+// Commentary:
+//
+// $0
+//
+// Additional Reserved Names:
+//
+// ${3:None}
+//
+// Code:

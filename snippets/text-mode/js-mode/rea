@@ -1,0 +1,9 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery Ready
+# key: rea
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+$(document).ready( function(){
+    $0
+});

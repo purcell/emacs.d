@@ -1,0 +1,9 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery change()
+# key: cha
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+change(function(){
+  $0
+});

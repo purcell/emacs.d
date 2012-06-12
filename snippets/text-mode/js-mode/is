@@ -1,0 +1,7 @@
+# -*- mode: snippet; coding: utf-8 -*-
+# name: jQuery Click
+# key: is
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+is("${1:condition}")$0

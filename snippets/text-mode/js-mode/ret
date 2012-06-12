@@ -1,0 +1,3 @@
+# name: ret
+# --
+return $0

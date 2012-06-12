@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: Children
+# key: chi
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+children( ${1:item} )$0

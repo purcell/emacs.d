@@ -1,0 +1,10 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: if...else
+# key: if
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+if(${1:condition}){
+    $2;
+}else{
+    $0;
+}
