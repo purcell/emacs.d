@@ -2,5 +2,5 @@
 # --
 <p>
   <%= label_tag :$1 %><br />
-  <%= text_field_tag :$1, params[:$1] %>
+  <%= text_field_tag :$1 %>
 </p>
