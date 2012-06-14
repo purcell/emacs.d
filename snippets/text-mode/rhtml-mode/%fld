@@ -1,0 +1,7 @@
+#name : <p><%= label_tag ... %> ... <%= text_field_tag ... %></p>
+# --
+<p>
+  <%= label_tag :$1 %><br />
+  <%= text_field_tag :$1, params[:$1] %>
+</p>
+$0
