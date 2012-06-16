@@ -113,7 +113,7 @@
 (require 'init-pomodoro)
 (require 'init-undo-tree)
 (require 'init-moz)
-;(require 'init-evil) ; use evil mode (vi key binding)
+(require 'init-evil) ; use evil mode (vi key binding)
 (require 'init-misc)
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
