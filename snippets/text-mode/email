@@ -1,3 +1,0 @@
-#name : (user's email)
-# --
-`(replace-regexp-in-string "@" "@NOSPAM." user-mail-address)`

@@ -1,3 +1,0 @@
-#name : ... unless ...
-# --
-${1:expression} unless ${2:condition}

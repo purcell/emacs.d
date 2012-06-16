@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: <sstream>
-# key: ss
-# --
-#include <sstream>

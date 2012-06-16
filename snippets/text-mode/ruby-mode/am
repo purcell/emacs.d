@@ -1,3 +1,0 @@
-#name : alias_method new, old
-# --
-alias_method :${new_name}, :${old_name}

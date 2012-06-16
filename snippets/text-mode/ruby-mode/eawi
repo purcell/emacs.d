@@ -1,4 +1,0 @@
-#name : each_with_index { |e, i| ... }
-#group : Enumerables
-# --
-each_with_index { |${e}, ${i}| $0 }

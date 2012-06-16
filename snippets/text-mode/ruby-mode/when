@@ -1,5 +1,0 @@
-#name : when ...
-#group : Conditions
-# --
-when ${1:condition}
-  $0

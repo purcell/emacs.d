@@ -1,4 +1,0 @@
-#name : all? { |...| ... }
-#group : Enumerables
-# --
-all? { |${e}| $0 }

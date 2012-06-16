@@ -1,4 +1,0 @@
-#name : Inline Code
-#contributor: Peng Deng <dengpeng@gmail.com>
-# --
-\`${1:Code}\` $0

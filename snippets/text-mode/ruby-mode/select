@@ -1,4 +1,0 @@
-#name : select { |...| ... }
-#group : Enumerables
-# --
-select { |${1:element}| $0 }

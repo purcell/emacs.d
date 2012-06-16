@@ -1,6 +1,0 @@
-#name : Chapter title
-# --
-${1:Chapter}
-${1:$(make-string (string-width text) ?\=)}
-
-$0

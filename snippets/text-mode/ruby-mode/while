@@ -1,6 +1,0 @@
-#name : while ... end
-#group : Loops
-# --
-while ${condition}
-  $0
-end

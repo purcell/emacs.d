@@ -1,3 +1,0 @@
-#name : times { |n| ... }
-# --
-times { |${n}| $0 }

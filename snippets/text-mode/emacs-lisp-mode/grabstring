@@ -1,4 +1,0 @@
-#name : grab buffer substring
-#contributor : Xah Lee
-# --
-(setq $0 (buffer-substring-no-properties myStartPos myEndPos))

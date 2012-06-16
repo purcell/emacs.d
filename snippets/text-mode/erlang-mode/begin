@@ -1,5 +1,0 @@
-#name : begin ... end
-# --
-begin
-    $0
-end

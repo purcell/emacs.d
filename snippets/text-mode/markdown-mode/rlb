@@ -1,5 +1,0 @@
-#name : Reference Label
-#contributor: Peng Deng <dengpeng@gmail.com>
-# --
-[${1:Reference}]: ${2:URL} $3
-$0

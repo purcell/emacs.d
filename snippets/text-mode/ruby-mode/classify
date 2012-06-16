@@ -1,4 +1,0 @@
-#name : classify { |...| ... }
-#group : collections
-# --
-classify { |${e}| $0 }

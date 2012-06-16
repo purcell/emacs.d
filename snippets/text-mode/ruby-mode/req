@@ -1,3 +1,0 @@
-#name : require "..."
-# --
-require "$0"

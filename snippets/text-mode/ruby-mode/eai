@@ -1,3 +1,0 @@
-#name : each_index { |i| ... }
-# --
-each_index { |${i}| $0 }

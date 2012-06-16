@@ -1,6 +1,0 @@
-#contributor : Jimmy Wu <frozenthrone88@gmail.com>
-#name : <blockquote>...</blockquote>
-# --
-<blockquote>
-  $1
-</blockquote>

@@ -1,4 +1,0 @@
-#name : Emphasis
-#contributor: Peng Deng <dengpeng@gmail.com>
-# --
-_${1:Text}_ $0
