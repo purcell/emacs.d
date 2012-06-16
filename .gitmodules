@@ -16,9 +16,6 @@
 [submodule "site-list/fill-column-indicator"]
     path = site-lisp/fill-column-indicator
     url = https://github.com/alpaker/Fill-Column-Indicator.git
-[submodule "site-lisp/evil"]
-	path = site-lisp/evil
-	url = git://gitorious.org/evil/evil.git
 [submodule "site-lisp/evil-surround"]
 	path = site-lisp/evil-surround
 	url = git://github.com/timcharper/evil-surround.git

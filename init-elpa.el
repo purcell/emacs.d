@@ -210,5 +210,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'ace-jump-mode)
 (require-package 'track-closed-files)
 (require-package 'auctex)
+(require-package 'evil)
 
 (provide 'init-elpa)
