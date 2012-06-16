@@ -1,36 +1,23 @@
-(require 'auto-complete)
+;; @see http://cx4a.org/software/auto-complete/manual.html 
 (require 'auto-complete-config)
-(global-auto-complete-mode t)
-(setq ac-auto-start nil)
+(global-auto-complete-mode) ; recommended way to (setq global-auto-complete-mode), see info
+(setq ac-auto-start nil) ; popup candidates when you press each character is annoying
 (setq ac-dwim nil) ; To get pop-ups with docs even if a word is uniquely completed
-(define-key ac-completing-map (kbd "C-n") 'ac-next)
-(define-key ac-completing-map (kbd "C-p") 'ac-previous)
+(ac-set-trigger-key "TAB") ; AFTER input prefix, press TAB key ASAP
 
-;;----------------------------------------------------------------------------
-;; Use Emacs' built-in TAB completion hooks to trigger AC (Emacs >= 23.2)
-;;----------------------------------------------------------------------------
-(setq tab-always-indent 'complete)  ;; use 'complete when auto-complete is disabled
-(add-to-list 'completion-styles 'initials t)
-
-;; hook AC into completion-at-point
-(defun set-auto-complete-as-completion-at-point-function ()
-  (setq completion-at-point-functions '(auto-complete)))
-(add-hook 'auto-complete-mode-hook 'set-auto-complete-as-completion-at-point-function)
-
-(set-default 'ac-sources
-             '(ac-source-yasnippet
-               ac-source-dictionary
-               ac-source-words-in-buffer
-               ac-source-words-in-same-mode-buffers
-               ac-source-words-in-all-buffer))
-
+;; Use C-n/C-p to select candidate ONLY when completionion menu is displayed
+;; Below code is copied from offical manual
+(setq ac-use-menu-map t)
+;; Default settings
+(define-key ac-menu-map "\C-n" 'ac-next)
+(define-key ac-menu-map "\C-p" 'ac-previous)
+;; extra modes auto-complete must support 
 (dolist (mode '(magit-log-edit-mode log-edit-mode org-mode text-mode haml-mode
                 sass-mode yaml-mode csv-mode espresso-mode haskell-mode
                 html-mode nxml-mode sh-mode smarty-mode clojure-mode
                 lisp-mode textile-mode markdown-mode tuareg-mode
-                js3-mode css-mode less-css-mode))
+                js2-mode js3-mode css-mode less-css-mode))
   (add-to-list 'ac-modes mode))
-
 
 ;; Exclude very large buffers from dabbrev
 (defun sanityinc/dabbrev-friend-buffer (other-buffer)
@@ -38,5 +25,6 @@
 
 (setq dabbrev-friend-buffer-function 'sanityinc/dabbrev-friend-buffer)
 
+(ac-config-default)
 
 (provide 'init-auto-complete)
