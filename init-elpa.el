@@ -191,7 +191,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'mwe-log-commands)
 (require-package 'pointback)
 (require-package 'regex-tool)
-(require-package 'rinari '(2 6 0) nil) ; use latest rinari
+(require-package 'rinari '(2 8 0) nil) ; use latest rinari
 (require-package 'ruby-compilation)
 (require-package 'iy-go-to-char)
 (require-package 'csharp-mode)
