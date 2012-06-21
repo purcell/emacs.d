@@ -97,7 +97,6 @@
 ;(require 'init-etags-select)
 (require 'init-cc-mode)
 (require 'init-auto-complete) ; after init-yasnippeta to override TAB
-;(require 'init-auto-complete-clang)
 (require 'init-semantic)
 (require 'init-cmake-mode)
 (require 'init-csharp-mode)

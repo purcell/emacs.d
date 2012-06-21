@@ -42,6 +42,8 @@ try to list them HERE,
     * jsl
     * ispell
     * tidy
+    * clang 
+      auto-complete/intellisense by using clang (http://clang.llvm.org)
     * pyflakes 
       install pip, then `pip install pyflakes`, but on cygwin you need install
       setuptool in order to install pip.
