@@ -1,4 +1,4 @@
 #name : session[: ... ]
 #group: Rails
 # --
-session[:${user}]
+session[:${user}]$0
