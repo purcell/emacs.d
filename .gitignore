@@ -8,6 +8,8 @@ CVS
 .svn
 *~
 *.log
+.yas-compiled-snippets.el
+.bookmarks.el
 .cvsignore
 .*.lock
 /tramp
