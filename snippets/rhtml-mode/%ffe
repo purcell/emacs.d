@@ -1,0 +1,16 @@
+#name : <%= form_for @var do |f| ... if @var.errors.only? ... %>
+# --
+<%= form_for @$1 do |f| %>
+  <% if @$1.errors.any? %>
+    <div class="error_messages">
+      <h2>Form is invalid</h2>
+      <ul>
+        <% for message in @$1.errors.full_messages %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  $0
+  <p class="button"><%= f.submit %></p>
+<% end %>
