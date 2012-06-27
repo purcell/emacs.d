@@ -1,4 +1,3 @@
-(require 'w3m-load)
 (setq w3m-coding-system 'utf-8
       w3m-file-coding-system 'utf-8
       w3m-file-name-coding-system 'utf-8
@@ -43,9 +42,8 @@
 
 ;bind this function to ‘a’, which is the normal w3m bookmark binding:
 (eval-after-load "w3m" '(progn
-                          (define-key w3m-info-like-map "A" 'delicious-post)))
-
-(autoload 'w3m-link-numbering-mode "w3m-lnum" nil t)
-(add-hook 'w3m-mode-hook 'w3m-link-numbering-mode)
+                          (define-key w3m-info-like-map "A" 'delicious-post)
+                          (w3m-lnum-mode 1)
+                          ))
 
 (provide 'init-emacs-w3m)
