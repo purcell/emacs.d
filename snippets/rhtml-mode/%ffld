@@ -1,0 +1,6 @@
+#name : <p><%= f.label ... %> ... <%= f.text_field ... %></p>
+# --
+<p>
+  <%= f.label :$1 %><br />
+  <%= f.text_field :$1 %>
+</p>
