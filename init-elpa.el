@@ -213,5 +213,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'track-closed-files)
 (require-package 'auctex)
 (require-package 'evil)
+(require-package 'w3m)
 
 (provide 'init-elpa)
