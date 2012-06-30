@@ -117,13 +117,6 @@
 
 ;; gdb
 (global-set-key "\C-x\C-a\C-g" 'gud-run)
-;;; WINDOW SPLITING
-;; @see http://xahlee.org/emacs/effective_emacs.html
-(global-set-key (kbd "M-3") 'split-window-horizontally);was digit-argument
-(global-set-key (kbd "M-2") 'split-window-vertically) ;was digit-argument
-(global-set-key (kbd "M-1") 'delete-other-window) ; was digit-argument
-(global-set-key (kbd "M-0") 'delete-window) ; was digit-argument
-(global-set-key (kbd "M-o") 'other-window) ; was facemenu-keymap
 (defalias 'list-buffers 'ibuffer)
 ;KEYBOARD SECTION
 ;global keyb maps
@@ -205,5 +198,7 @@
 
 ;; move window/buffer
 (require 'buffer-move)
+(require 'window-numbering)
+(window-numbering-mode 1)
 
 (provide 'init-misc)
