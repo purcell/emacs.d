@@ -1,0 +1,4 @@
+#name : Email
+#contributor : Rick Moynihan <rick@sourcesmouth.co.uk>
+# --
+#+EMAIL: ${1:`user-mail-address`}

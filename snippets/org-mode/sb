@@ -1,0 +1,7 @@
+#name : #+srcname:..#+begin_src...#+end_src
+# expand-env: ((yas/indent-line 'fixed) (yas/wrap-around-region 'nil))
+# --
+#+source: ${1:name}
+#+begin_src ${2:language}
+  $3
+#+end_src
