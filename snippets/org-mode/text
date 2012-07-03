@@ -1,0 +1,4 @@
+#name : Text
+#contributor : Rick Moynihan <rick@sourcesmouth.co.uk>
+# --
+#+TEXT: ${1:text}

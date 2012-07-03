@@ -1,0 +1,4 @@
+#name : KEYWORDS
+#contributor : Rick Moynihan <rick@sourcesmouth.co.uk>
+# --
+#+KEYWORDS: ${0}

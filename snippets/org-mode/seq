@@ -1,0 +1,4 @@
+#name : SEQ TODO
+#contributor : Rick Moynihan <rick@sourcesmouth.co.uk>
+# --
+#+SEQ_TODO: ${1:STATES} | ${2:FINISHED}

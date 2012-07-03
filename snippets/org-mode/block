@@ -1,0 +1,6 @@
+#name : #+begin_...#+end_
+# expand-env: ((yas/indent-line 'fixed) (yas/wrap-around-region 'nil))
+# --
+#+begin_$1 $2
+  $0
+#+end_$1

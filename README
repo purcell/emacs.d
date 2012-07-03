@@ -39,8 +39,8 @@ My additions,
 
 Purcell won't list all the 3rd party tools you need install. I will
 try to list them HERE,
-    * jsl
-    * ispell
+    * jsl (jslint)
+    * aspell, and some dictionary like aspell-en
     * tidy
     * clang
       auto-complete/intellisense by using clang (http://clang.llvm.org)
