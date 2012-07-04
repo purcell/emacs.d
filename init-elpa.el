@@ -214,5 +214,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'auctex)
 (require-package 'evil)
 (require-package 'w3m)
+(require-package 'sunrise-commander)
 
 (provide 'init-elpa)
