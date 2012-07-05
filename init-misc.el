@@ -22,12 +22,6 @@
 
 (put 'narrow-to-region 'disabled nil)
 
-(when (fboundp 'windmove-left)
-  (global-set-key "\C-ch" 'windmove-left)
-  (global-set-key "\C-cj" 'windmove-down)
-  (global-set-key "\C-ck" 'windmove-up)
-  (global-set-key "\C-cl" 'windmove-right))
-
 ; from RobinH
 ;Time management
 (setq display-time-24hr-format t)

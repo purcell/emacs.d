@@ -52,9 +52,11 @@
 (require 'autopair)
 (setq autopair-autowrap t)
 (autopair-global-mode t)
-; input link [[link][title]] in org-mode is annoying when autopair-mode on
-(add-hook 'org-mode-hook #'(lambda () (setq autopair-dont-activate t)))
 
+(defun inhibit-autopair ()
+  "Prevent autopair from enabling in the current buffer."
+  (setq autopair-dont-activate t)
+  (autopair-mode -1))
 
 ;;----------------------------------------------------------------------------
 ;; Fix per-window memory of buffer point positions

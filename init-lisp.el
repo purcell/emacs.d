@@ -36,8 +36,7 @@
 ;; Compatibility with other modes
 
 (defadvice enable-paredit-mode (before disable-autopair activate)
-  (setq autopair-dont-activate t)
-  (autopair-mode -1))
+  (inhibit-autopair))
 
 (suspend-mode-during-cua-rect-selection 'paredit-mode)
 
