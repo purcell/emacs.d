@@ -86,5 +86,6 @@
         )
         ))
 
+(add-hook 'org-mode-hook 'inhibit-autopair)
 
 (provide 'init-org)
