@@ -218,5 +218,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'w3m)
 (require-package 'sunrise-commander)
 (require-package 'idomenu)
+(require-package 'ctags)
 
 (provide 'init-elpa)

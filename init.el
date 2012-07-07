@@ -114,6 +114,7 @@
 (require 'init-moz)
 (require 'init-evil) ; use evil mode (vi key binding)
 (require 'init-misc)
+(require 'init-ctags)
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
