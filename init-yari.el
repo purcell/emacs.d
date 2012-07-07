@@ -4,5 +4,6 @@
   (local-set-key "\C-c;y" 'yari-anything))
 (add-hook 'ruby-mode-hook 'ri-bind-key)
 (add-hook 'nxml-mode-hook 'ri-bind-key)
+(add-hook 'html-mode-hook 'ri-bind-key)
 
 (provide 'init-yari)
