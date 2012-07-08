@@ -20,8 +20,8 @@
 (require 'init-exec-path) ;; Set up $PATH
 (require 'init-frame-hooks)
 (require 'init-xterm)
-(require 'init-themes)
-(require 'init-osx-keys)
+;;(require 'init-themes)
+;;(require 'init-osx-keys)
 (require 'init-gui-frames)
 (require 'init-maxframe)
 (require 'init-proxies)
@@ -38,40 +38,40 @@
 (require 'init-windows)
 (require 'init-sessions)
 (require 'init-fonts)
-(require 'init-mmm)
-(require 'init-growl)
+;;(require 'init-mmm)
+;;(require 'init-growl)
 
 (require 'init-editing-utils)
 
-(require 'init-darcs)
+;;(require 'init-darcs)
 (require 'init-git)
 
-(require 'init-crontab)
-(require 'init-textile)
-(require 'init-markdown)
-(require 'init-csv)
-(require 'init-erlang)
-(require 'init-javascript)
-(require 'init-sh)
+;;(require 'init-crontab)
+;;(require 'init-textile)
+;;(require 'init-markdown)
+;;(require 'init-csv)
+;;(require 'init-erlang)
+;;(require 'init-javascript)
+;;(require 'init-sh)
 (require 'init-php)
-(require 'init-org)
-(require 'init-nxml)
+;;(require 'init-org)
+;;(require 'init-nxml)
 (require 'init-css)
-(require 'init-haml)
-(require 'init-python-mode)
-(require 'init-haskell)
-(require 'init-ruby-mode)
-(require 'init-rails)
+;;(require 'init-haml)
+;;(require 'init-python-mode)
+;;(require 'init-haskell)
+;;(require 'init-ruby-mode)
+;;(require 'init-rails)
 
 (require 'init-lisp)
-(require 'init-slime)
-(require 'init-clojure)
-(require 'init-common-lisp)
-
-(when *spell-check-support-enabled*
-  (require 'init-spelling))
-
-(require 'init-marmalade)
+;;(require 'init-slime)
+;;(require 'init-clojure)
+;;(require 'init-common-lisp)
+;;
+;;(when *spell-check-support-enabled*
+;;  (require 'init-spelling))
+;;
+;;(require 'init-marmalade)
 (require 'init-misc)
 
 
@@ -93,7 +93,7 @@
 ;;----------------------------------------------------------------------------
 ;; Allow users to provide an optional "init-local" containing personal settings
 ;;----------------------------------------------------------------------------
-(require 'init-local nil t)
+(require 'init-local)
 
 
 ;;----------------------------------------------------------------------------
