@@ -42,6 +42,8 @@ try to list them HERE,
     * jsl (jslint)
     * aspell, and some dictionary like aspell-en
     * tidy
+    * zip&unzip
+      export org to odt
     * clang
       auto-complete/intellisense by using clang (http://clang.llvm.org)
     * pyflakes 
