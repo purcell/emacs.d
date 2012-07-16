@@ -24,7 +24,8 @@
 
     (set-syntax-table clojure-mode-syntax-table)
     (setq lisp-indent-function 'clojure-indent-function)
-    (clojure-mode-font-lock-setup)))
+    (let (font-lock-mode)
+      (clojure-mode-font-lock-setup))))
 
 (add-hook 'slime-repl-mode-hook 'slime-clojure-repl-setup)
 
