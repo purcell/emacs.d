@@ -16,7 +16,8 @@
      (setq slime-complete-symbol*-fancy t)
      (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 
-     (add-hook 'sldb-mode-hook 'inhibit-autopair)
+     (dolist (hook '(sldb-mode-hook slime-repl-mode-hook))
+       (add-hook hook 'inhibit-autopair))
 
      ;; Stop SLIME's REPL from grabbing DEL, which is annoying when backspacing over a '('
      (defun override-slime-repl-bindings-with-paredit ()
