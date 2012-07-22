@@ -1,9 +1,6 @@
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = https://github.com/purcell/auto-complete.git
-[submodule "site-lisp/lively"]
-	path = site-lisp/lively
-	url = https://github.com/emacsmirror/lively.git
 [submodule "site-lisp/html5-el"]
 	path = site-lisp/html5-el
 	url = https://github.com/hober/html5-el.git
