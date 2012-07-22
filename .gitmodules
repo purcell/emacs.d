@@ -7,6 +7,3 @@
 [submodule "site-lisp/html5-el"]
 	path = site-lisp/html5-el
 	url = https://github.com/hober/html5-el.git
-[submodule "site-lisp/flymake-python-pyflakes"]
-	path = site-lisp/flymake-python-pyflakes
-	url = https://github.com/purcell/flymake-python-pyflakes.git
