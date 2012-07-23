@@ -200,7 +200,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'cmake-mode)
 (require-package 'keyfreq)
 (require-package 'fuzzy)
-(require-package 'auto-complete) ;auto-complete is dependent on fuzzy
+(require-package 'auto-complete '(20120717 0 0) nil) ;auto-complete is dependent on fuzzy
 (require-package 'yasnippet '(0 7 0) nil)
 (require-package 'auto-complete-clang)
 (require-package 'zencoding-mode)
