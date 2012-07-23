@@ -1,21 +1,6 @@
-[submodule "site-lisp/erlware-mode"]
-	path = site-lisp/erlware-mode
-	url = https://github.com/erlware/erlware-mode.git
-[submodule "site-lisp/lively"]
-	path = site-lisp/lively
-	url = https://github.com/emacsmirror/lively.git
-[submodule "site-lisp/smarty-mode"]
-	path = site-lisp/smarty-mode
-	url = https://github.com/emacsmirror/smarty-mode.git
-[submodule "site-lisp/html5-el"]
-	path = site-lisp/html5-el
-	url = https://github.com/hober/html5-el.git
-[submodule "site-lisp/flymake-python-pyflakes"]
-	path = site-lisp/flymake-python-pyflakes
-	url = https://github.com/purcell/flymake-python-pyflakes.git
-[submodule "site-list/fill-column-indicator"]
-    path = site-lisp/fill-column-indicator
-    url = https://github.com/alpaker/Fill-Column-Indicator.git
 [submodule "site-lisp/evil-surround"]
 	path = site-lisp/evil-surround
 	url = git://github.com/timcharper/evil-surround.git
+[submodule "site-lisp/html5-el"]
+	path = site-lisp/html5-el
+	url = https://github.com/hober/html5-el.git

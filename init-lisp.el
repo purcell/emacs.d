@@ -117,8 +117,7 @@
 (defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
   (enable-paredit-mode)
-  (turn-on-eldoc-mode)
-  (turn-on-pretty-mode))
+  (turn-on-eldoc-mode))
 
 (defun sanityinc/emacs-lisp-setup ()
   "Enable features useful when working with elisp."

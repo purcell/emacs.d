@@ -10,7 +10,9 @@
 (setq ruby-use-encoding-map nil)
 
 (eval-after-load 'ruby-mode
-  '(define-key ruby-mode-map (kbd "RET") 'reindent-then-newline-and-indent))
+  '(progn
+     (define-key ruby-mode-map (kbd "RET") 'reindent-then-newline-and-indent)
+     (define-key ruby-mode-map (kbd "TAB") 'indent-for-tab-command)))
 
 
 ;;----------------------------------------------------------------------------
