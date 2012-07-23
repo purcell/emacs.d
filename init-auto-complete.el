@@ -29,7 +29,10 @@
 ;; @see https://github.com/brianjcj/auto-complete-clang
 (defun my-ac-cc-mode-setup ()
   (require 'auto-complete-clang)
-  (setq ac-sources (append '(ac-source-clang) ac-sources))
+  (when (not *cygwin*)
+    ; I don't do C++ stuff with cygwin+clang
+    (setq ac-sources (append '(ac-source-clang) ac-sources))
+    )
   (setq clang-include-dir-str
         (cond
          (*is-a-mac* "
