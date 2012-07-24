@@ -1,8 +1,7 @@
-(dolist (sym '(mf-max-display-pixel-width
-               mf-max-display-pixel-height
-               maximize-frame
-               restore-frame))
-  (autoload sym "maxframe"))
+(autoload 'mf-max-display-pixel-width "maxframe" "" nil)
+(autoload 'mf-max-display-pixel-height "maxframe" "" nil)
+(autoload 'maximize-frame "maxframe" "" t)
+(autoload 'restore-frame "maxframe" "" t)
 
 (when *is-cocoa-emacs*
   (eval-after-load 'maxframe
