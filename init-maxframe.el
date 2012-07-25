@@ -1,8 +1,7 @@
-(dolist (sym '(mf-max-display-pixel-width
-               mf-max-display-pixel-height
-               maximize-frame
-               restore-frame))
-  (autoload sym "maxframe"))
+(autoload 'mf-max-display-pixel-width "maxframe" "" nil)
+(autoload 'mf-max-display-pixel-height "maxframe" "" nil)
+(autoload 'maximize-frame "maxframe" "" t)
+(autoload 'restore-frame "maxframe" "" t)
 
 (when *is-cocoa-emacs*
   (eval-after-load 'maxframe
@@ -10,15 +9,12 @@
        (fset 'maximize-frame 'x-maximize-frame)
        (fset 'restore-frame 'x-restore-frame))))
 
-(when *macbook-pro-support-enabled*
-  (setq mf-max-width 1440
-        mf-max-height 894
-        mf-display-padding-width 4
-        mf-offset-x 0
+(when *is-a-mac*
+  (setq mf-display-padding-width 4
         mf-display-padding-height (if (when (boundp 'ns-auto-hide-menu-bar)
                                         ns-auto-hide-menu-bar)
                                       23
-                                    (+ 22 23))))
+                                    (+ 27 23))))
 
 (require 'init-utils) ; for with-selected-frame
 
