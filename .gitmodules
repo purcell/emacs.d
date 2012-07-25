@@ -1,6 +1,3 @@
 [submodule "site-lisp/evil-surround"]
 	path = site-lisp/evil-surround
 	url = git://github.com/timcharper/evil-surround.git
-[submodule "site-lisp/html5-el"]
-	path = site-lisp/html5-el
-	url = https://github.com/hober/html5-el.git

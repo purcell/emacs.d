@@ -50,22 +50,9 @@ source file under ~/.emacs.d/site-lisp/name/"
   (let ((f (locate-library (symbol-name name))))
     (and f (string-prefix-p (file-name-as-directory (site-lisp-dir-for name)) f))))
 
-(defun ensure-lib-from-svn (name url)
-  (let ((dir (site-lisp-dir-for name)))
-    (unless (site-lisp-library-loadable-p name)
-      (message "Checking out %s from svn" name)
-      (save-excursion
-        (shell-command (format "svn co %s %s" url dir) "*site-lisp-svn*"))
-      (add-to-list 'load-path dir))))
-
-
 ;;----------------------------------------------------------------------------
 ;; Fix up some load paths for libs from git submodules
 ;;----------------------------------------------------------------------------
-
-(unless (file-directory-p (expand-file-name "~/.emacs.d/site-lisp/html5-el/relaxng"))
-  (error "Please run 'make relaxng' in site-lisp/html5-el"))
-
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/site-lisp/session/lisp"))
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/site-lisp/org-mode/lisp"))
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/site-lisp/org-mode/contrib/lisp"))
