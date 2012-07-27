@@ -88,14 +88,6 @@ ARCHIVE is the string name of the package archive.")
                          findr))))))
 
 
-(defadvice package-download-transaction
-  (around disable-keepalives (&optional args) activate)
-  "Disable HTTP keep-alives to work around network issues with Melpa host."
-  (require 'url-http)
-  (let ((url-http-attempt-keepalives nil))
-    ad-do-it))
-
-
 ;;------------------------------------------------------------------------------
 ;; Fire up package.el and ensure the following packages are installed.
 ;;------------------------------------------------------------------------------
