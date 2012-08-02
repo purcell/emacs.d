@@ -190,6 +190,10 @@
 
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
+;;move-text stuff, move line up/down by pressing hotkey
+(global-set-key (kbd "M-p") 'move-text-up)
+(global-set-key (kbd "M-n") 'move-text-down)
+
 ;; move window/buffer
 (require 'buffer-move)
 (require 'window-numbering)
