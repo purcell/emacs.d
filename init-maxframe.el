@@ -11,6 +11,8 @@
 
 (when *is-a-mac*
   (setq mf-display-padding-width 4
+        mf-offset-x 0
+        mf-offset-y 0
         mf-display-padding-height (if (when (boundp 'ns-auto-hide-menu-bar)
                                         ns-auto-hide-menu-bar)
                                       23
@@ -18,9 +20,17 @@
 
 (require 'init-utils) ; for with-selected-frame
 
+(defvar sanityinc/prev-frame nil "The selected frame before invoking `make-frame-command'.")
+(defadvice make-frame-command (before sanityinc/note-previous-frame activate)
+  "Record the selected frame before creating a new one interactively."
+  (setq sanityinc/prev-frame (selected-frame)))
+
 (defun maybe-maximize-frame (&optional frame)
   (with-selected-frame frame
-    (if window-system (maximize-frame))))
+    (when (and window-system
+               sanityinc/prev-frame
+               (maximized-p sanityinc/prev-frame))
+      (maximize-frame))))
 
 (add-hook 'after-make-frame-functions 'maybe-maximize-frame)
 (add-hook 'after-init-hook 'maybe-maximize-frame)
