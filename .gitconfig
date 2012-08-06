@@ -1,4 +1,0 @@
-;; remote repos
-[remote "purcell"]
-   fetch = +refs/heads/*:refs/remotes/origin/*
-   url = git://github.com/purcell/emacs.d.git
