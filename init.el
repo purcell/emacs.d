@@ -101,7 +101,7 @@
 (require 'init-cmake-mode)
 (require 'init-csharp-mode)
 (require 'init-linum-mode)
-(require 'init-delicious)
+;(require 'init-delicious) ;make startup slow, I don't use delicious in w3m
 (require 'init-emacs-w3m)
 (require 'init-eim)
 (require 'init-thing-edit)
