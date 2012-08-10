@@ -18,6 +18,9 @@
             (when (< emacs-major-version 23)
               (fix-up-xterm-control-arrows))
             (xterm-mouse-mode 1) ; Mouse in a terminal (Use shift to paste with middle button)
-            (mwheel-install)))
+            ;; Enable wheelmouse support by default
+            (cond (window-system
+                   (mwheel-install)))
+            ))
 
 (provide 'init-xterm)
