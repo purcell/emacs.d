@@ -9,6 +9,7 @@
                                          jabber-roster-mode
                                          jabber-chat-mode
                                          gnus-group-mode
+                                         inf-ruby-mode
                                          w3m-mode
                                          gnus-summary-mode
                                          gnus-article-mode))
