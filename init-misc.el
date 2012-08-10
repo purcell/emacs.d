@@ -168,7 +168,10 @@
      1)
   )
 
-(eval-after-load "speedbar" '(if (load "mwheel" t) (mwheel-install)))
+(eval-after-load "speedbar" '(if (load "mwheel" t)
+                               ;; Enable wheelmouse support by default
+                               (cond (window-system
+                                       (mwheel-install)))))
 
 (track-closed-files-mode)
 
