@@ -74,18 +74,15 @@ ARCHIVE is the string name of the package archive.")
 
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 
+(defvar melpa-exclude-packages
+  '(slime)
+  "Don't install Melpa versions of these packages.")
+
 ;; Don't take Melpa versions of certain packages
 (setq package-filter-function
       (lambda (package version archive)
         (or (not (string-equal archive "melpa"))
-            (not (memq package
-                       '(
-                         ruby-compilation
-                         slime
-                         color-theme-sanityinc-solarized
-                         color-theme-sanityinc-tomorrow
-                         elisp-slime-nav
-                         findr))))))
+            (not (memq package melpa-exclude-packages)))))
 
 
 ;;------------------------------------------------------------------------------
