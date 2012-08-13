@@ -121,6 +121,7 @@
 ;(require 'server)
 ;(unless (server-running-p)
   ;(server-start))
+(remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function)
 
 ;;----------------------------------------------------------------------------
 ;; Variables configured via the interactive 'customize' interface
