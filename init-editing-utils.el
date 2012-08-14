@@ -126,22 +126,23 @@
   (turn-on-fci-mode)
   (when show-trailing-whitespace
     (set (make-local-variable 'whitespace-style) '(face trailing))
-    (whitespace-mode 1)))
+    (whitespace-mode 1))
+  (defvar sanityinc/fci-mode-suppressed nil)
+  (defadvice popup-create (before suppress-fci-mode activate)
+             "Suspend fci-mode while popups are visible"
+             (set (make-local-variable 'sanityinc/fci-mode-suppressed) fci-mode)
+             (when fci-mode
+               (turn-off-fci-mode)))
+  (defadvice popup-delete (after restore-fci-mode activate)
+             "Restore fci-mode when all popups have closed"
+             (when (and (not popup-instances) sanityinc/fci-mode-suppressed)
+               (setq sanityinc/fci-mode-suppressed nil)
+               (turn-on-fci-mode)))
+  )
 
-(add-hook 'prog-mode-hook 'sanityinc/prog-mode-fci-settings)
-
-(defvar sanityinc/fci-mode-suppressed nil)
-(defadvice popup-create (before suppress-fci-mode activate)
-  "Suspend fci-mode while popups are visible"
-  (set (make-local-variable 'sanityinc/fci-mode-suppressed) fci-mode)
-  (when fci-mode
-    (turn-off-fci-mode)))
-(defadvice popup-delete (after restore-fci-mode activate)
-  "Restore fci-mode when all popups have closed"
-  (when (and (not popup-instances) sanityinc/fci-mode-suppressed)
-    (setq sanityinc/fci-mode-suppressed nil)
-    (turn-on-fci-mode)))
-
+(if (>= emacs-major-version 24)
+    (add-hook 'prog-mode-hook 'sanityinc/prog-mode-fci-settings)
+    )
 
 ;;----------------------------------------------------------------------------
 ;; Shift lines up and down with M-up and M-down
