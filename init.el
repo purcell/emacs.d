@@ -118,10 +118,27 @@
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
-;(require 'server)
-;(unless (server-running-p)
-  ;(server-start))
-(remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function)
+(defconst --batch-mode (member "--batch-mode" command-line-args)
+          "True when running in batch-mode (--batch-mode command-line switch set).")
+
+(unless --batch-mode
+  (require 'server)
+  (when (and (= emacs-major-version 23)
+             (= emacs-minor-version 1)
+             (equal window-system 'w32))
+    ;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows.
+    (defun server-ensure-safe-dir (dir) "Noop" t))
+  (condition-case nil
+      (unless (server-running-p) (server-start))
+    (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function)
+    (error
+     (let* ((server-dir (if server-use-tcp server-auth-dir server-socket-dir)))
+       (when (and server-use-tcp
+                  (not (file-accessible-directory-p server-dir)))
+         (display-warning
+          'server (format "Creating %S" server-dir) :warning)
+         (make-directory server-dir t)
+         (server-start))))))
 
 ;;----------------------------------------------------------------------------
 ;; Variables configured via the interactive 'customize' interface
