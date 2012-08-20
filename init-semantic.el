@@ -8,5 +8,10 @@
      (add-hook 'semantic-init-hooks 'my-semantic-hook)
      ))
 
+;Try completion with semantic-mode, it may slow the emacs,
+;`M-x complete-symbol` will trigger the completion
+;(semantic-mode)
+;(add-to-list 'completion-at-point-functions 'semantic-completion-at-point-function)
+
 (provide 'init-semantic)
 
