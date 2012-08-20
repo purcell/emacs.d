@@ -5,5 +5,6 @@
 (add-hook 'ruby-mode-hook 'ri-bind-key)
 (add-hook 'nxml-mode-hook 'ri-bind-key)
 (add-hook 'html-mode-hook 'ri-bind-key)
+(add-hook 'inf-ruby-mode-hook 'ri-bind-key)
 
 (provide 'init-yari)
