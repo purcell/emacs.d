@@ -220,5 +220,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'idomenu)
 (require-package 'ctags)
 (require-package 'buffer-move)
+(require-package 'go-mode)
 
 (provide 'init-elpa)
