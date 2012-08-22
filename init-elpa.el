@@ -215,6 +215,7 @@ ARCHIVE is the string name of the package archive.")
 (when (< emacs-major-version 24)
   (require-package 'ert)) ; evil-20120724 requires ert
 (require-package 'evil '(20120807 0 0) nil)
+(require-package 'evil-leader)
 (require-package 'w3m)
 (require-package 'sunrise-commander)
 (require-package 'idomenu)
