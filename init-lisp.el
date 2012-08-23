@@ -14,6 +14,7 @@
 
 (eval-after-load 'paredit
   '(progn
+     (diminish 'paredit-mode " Par")
      ;; These are handy everywhere, not just in lisp modes
      (global-set-key (kbd "M-(") 'paredit-wrap-round)
      (global-set-key (kbd "M-[") 'paredit-wrap-square)
