@@ -122,7 +122,7 @@
 ;;----------------------------------------------------------------------------
 ;; Fill column indicator
 ;;----------------------------------------------------------------------------
-(when (boundp 'prog-mode-hook)
+(when (> emacs-major-version 23)
   (defun sanityinc/prog-mode-fci-settings ()
     (turn-on-fci-mode)
     (when show-trailing-whitespace
