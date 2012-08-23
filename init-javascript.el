@@ -15,13 +15,13 @@
                                   collect entry)))
 
 
-
 ;; On-the-fly syntax checking
 (eval-after-load 'js
   '(add-hook 'js-mode-hook 'flymake-jslint-load))
 
 
 ;; js2-mode
+(add-hook 'js2-mode-hook '(lambda () (setq mode-name "JS2")))
 (setq js2-use-font-lock-faces t
       js2-mode-must-byte-compile nil
       js2-basic-offset preferred-javascript-indent-level
@@ -30,6 +30,7 @@
       js2-bounce-indent-p t)
 
 ;; js3-mode
+(add-hook 'js3-mode-hook '(lambda () (setq mode-name "JS3")))
 (setq js3-auto-indent-p t
       js3-enter-indents-newline t
       js3-indent-on-enter-key t
