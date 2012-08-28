@@ -138,4 +138,25 @@
 #+STYLE: <script src=\"./js/jquery-1.7.2.min.js\"></script>
 #+STYLE: <script src=\"./js/fix.js\"></script>")
 
+(add-to-list 'load-path "~/.emacs.d/site-lisp/remember-2.0")
+(setq org-directory "~/org/")
+(setq org-default-notes-file "~/.notes")
+(setq remember-annotation-functions '(org-remember-annotation))
+(setq remember-handler-functions '(org-remember-handler))
+(add-hook 'remember-mode-hook 'org-remember-apply-template)
+(define-key global-map "\C-cr" 'org-remember)
+
+(setq org-remember-templates
+      '(("Todo" ?t "* TODO %? %^g\n %i\n " "~/gtd/gtd.org")
+        ))
+
+
+(defun gtd ()
+   (interactive)
+   (find-file "~/gtd/gtd.org")
+ )
+
+(require 'magit)
+(global-set-key [(meta f12)] 'magit-status)
+
 (provide 'init-local)
