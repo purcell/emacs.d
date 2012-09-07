@@ -1,4 +1,12 @@
-(color-theme-sanityinc-solarized-dark)
+;;(color-theme-sanityinc-solarized-dark)
+(if (null window-system)
+    (progn
+      (message "tty")
+      (require 'color-theme)
+      (color-theme-initialize)
+      (color-theme-hober))
+  (color-theme-sanityinc-solarized-dark)
+  )
 (menu-bar-mode 0)
 ;;(tool-bar-mode 0)
 (require 'w3m-load)
@@ -93,7 +101,7 @@
 (require 'tramp)
 
 (setq org-todo-keywords
-      (quote ((sequence "TODO(t)" "ONGOING(o)" "|" "DONE(d!/!)")
+      (quote ((sequence "TODO(t)" "STARTED(o)" "|" "DONE(d!/!)")
               (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)"))))
 
 (setq org-todo-keyword-faces
