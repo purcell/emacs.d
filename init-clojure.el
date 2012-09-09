@@ -1,9 +1,6 @@
-;; Basic wiring
-(add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
-
-(eval-after-load 'clojure-mode
-  '(progn
-     (require 'clojure-test-mode)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Slime with Clojure
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Use technomancy's bag of fancy clojure/slime tricks
 (eval-after-load 'slime
@@ -11,9 +8,6 @@
      (require 'durendal)
      (durendal-enable t)
      (durendal-disable-slime-repl-font-lock)))
-
-(add-hook 'clojure-mode-hook 'sanityinc/lisp-setup)
-
 
 (defun slime-clojure-repl-setup ()
   "Some REPL setup additional to that in durendal."
@@ -29,6 +23,24 @@
 
 (add-hook 'slime-repl-mode-hook 'slime-clojure-repl-setup)
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; nrepl with Clojure
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(add-hook 'nrepl-mode-hook 'ac-nrepl-setup)
+(add-hook 'nrepl-interaction-mode-hook 'ac-nrepl-setup)
+(eval-after-load "auto-complete"
+  '(add-to-list 'ac-modes 'nrepl-mode))
+
+(add-hook 'nrepl-mode-hook 'set-auto-complete-as-completion-at-point-function)
+(add-hook 'nrepl-interaction-mode-hook 'set-auto-complete-as-completion-at-point-function)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Misc clojure tweaks
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(add-hook 'clojure-mode-hook 'sanityinc/lisp-setup)
 
 (defmacro defclojureface (name color desc &optional others)
   `(defface ,name '((((class color)) (:foreground ,color ,@others))) ,desc :group 'faces))
