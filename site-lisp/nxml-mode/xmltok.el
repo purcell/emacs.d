@@ -1,24 +1,24 @@
 ;;; xmltok.el --- XML tokenization
 
-;; Copyright (C) 2003 Free Software Foundation, Inc.
+;; Copyright (C) 2003, 2007-2012 Free Software Foundation, Inc.
 
 ;; Author: James Clark
 ;; Keywords: XML
 
-;; This program is free software; you can redistribute it and/or
-;; modify it under the terms of the GNU General Public License as
-;; published by the Free Software Foundation; either version 2 of
-;; the License, or (at your option) any later version.
+;; This file is part of GNU Emacs.
 
-;; This program is distributed in the hope that it will be
-;; useful, but WITHOUT ANY WARRANTY; without even the implied
-;; warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-;; PURPOSE.  See the GNU General Public License for more details.
+;; GNU Emacs is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 
-;; You should have received a copy of the GNU General Public
-;; License along with this program; if not, write to the Free
-;; Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-;; MA 02111-1307 USA
+;; GNU Emacs is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -117,8 +117,8 @@ first member of the alist is t if references to entities not in the
 alist are well-formed \(e.g. because there's an external subset that
 wasn't parsed).
 
-Each general entity name is a string. The definition is either nil, a
-symbol, a string, a cons cell.  If the definition is nil, then it
+Each general entity name is a string.  The definition is either nil,
+a symbol, a string, a cons cell.  If the definition is nil, then it
 means that it's an internal entity but the result of parsing it is
 unknown.  If it is a symbol, then the symbol is either `unparsed',
 meaning the entity is an unparsed entity, `external', meaning the
@@ -126,9 +126,9 @@ entity is or references an external entity, `element', meaning the
 entity includes one or more elements, or `not-well-formed', meaning
 the replacement text is not well-formed.  If the definition is a
 string, then the replacement text of the entity is that string; this
-happens only during the parsing of the prolog. If the definition is a
-cons cell \(ER . AR), then ER specifies the string that results from
-referencing the entity in element content and AR is either nil,
+happens only during the parsing of the prolog.  If the definition is
+a cons cell \(ER . AR), then ER specifies the string that results
+from referencing the entity in element content and AR is either nil,
 meaning the replacement text included a <, or a string which is the
 normalized attribute value.")
 
@@ -151,9 +151,9 @@ arguments followed by the additional arguments if any: the position of
 the start of the changed area in the region, the position of the end
 of the changed area in the region, the length of the changed area
 before the change, the position of the start of the region, the
-position of the end of the region. FUN must return non-nil if the
-region needs reparsing.  FUN will be called in a save-excursion with
-match-data saved.
+position of the end of the region.  FUN must return non-nil if the
+region needs reparsing.  FUN will be called in a `save-excursion'
+with match-data saved.
 
 `xmltok-forward', `xmltok-forward-special' and `xmltok-forward-prolog'
 may add entries to the beginning of this list, but will not clear it.
@@ -200,16 +200,16 @@ indicating the position of the error.")
 
 (defsubst xmltok-attribute-raw-normalized-value (att)
   "Return an object representing the normalized value of ATT.
-This can t indicating that the normalized value is the same as the
-buffer substring from the start to the end of the value or nil
+This can be t indicating that the normalized value is the same as
+the buffer substring from the start to the end of the value, or nil
 indicating that the value is not well-formed or a string."
   (aref att 5))
 
 (defsubst xmltok-attribute-refs (att)
   "Return a list of the entity and character references in ATT.
 Each member is a vector [TYPE START END] where TYPE is either char-ref
-or entity-ref and START and END are integers giving the start and end
-of the reference. Nested entity references are not included in the list."
+or entity-ref and START and END are integers giving the start and end of
+the reference.  Nested entity references are not included in the list."
   (aref att 6))
 
 (defun xmltok-attribute-prefix (att)
@@ -267,9 +267,10 @@ of the reference. Nested entity references are not included in the list."
 				 value-begin
 				 value-end
 				 raw-normalized-value)
-  "Make an attribute.  RAW-NORMALIZED-VALUE is nil if the value is
-not well-formed, t if the normalized value is the string between
-VALUE-BEGIN and VALUE-END, otherwise a STRING giving the value."
+  "Make an attribute.
+RAW-NORMALIZED-VALUE is nil if the value is not well-formed,
+t if the normalized value is the string between VALUE-BEGIN
+and VALUE-END, otherwise a STRING giving the value."
   (vector name-begin
 	  name-colon
 	  name-end
@@ -314,16 +315,14 @@ VALUE-BEGIN and VALUE-END, otherwise a STRING giving the value."
 	   (cond ((> space-count 0)
 		  (setq xmltok-type 'space))
 		 (t
-		  (goto-char (1+ (point)))
+		  (forward-char 1)
 		  (xmltok-scan-after-lt))))
 	  ((eq ch ?\&)
 	   (cond ((> space-count 0)
 		  (setq xmltok-type 'space))
 		 (t
-		  (goto-char (1+ (point)))
-		  (xmltok-scan-after-amp
-		   (lambda (start end)
-		     (xmltok-handle-entity start end))))))
+		  (forward-char 1)
+		  (xmltok-scan-after-amp 'xmltok-handle-entity))))
 	  ((re-search-forward "[<&]\\|\\(]]>\\)" nil t)
 	   (cond ((not (match-beginning 1))
 		  (goto-char (match-beginning 0))
@@ -351,8 +350,8 @@ VALUE-BEGIN and VALUE-END, otherwise a STRING giving the value."
   "Scan forward past the first special token starting at or after point.
 Return nil if there is no special token that starts before BOUND.
 CDATA sections, processing instructions and comments (and indeed
-anything starting with < following by ? or !) count
-as special.  Return the type of the token."
+anything starting with < following by ? or !) count as special.
+Return the type of the token."
   (when (re-search-forward "<[?!]" (1+ bound) t)
     (setq xmltok-start (match-beginning 0))
     (goto-char (1+ xmltok-start))
@@ -392,7 +391,7 @@ as special.  Return the type of the token."
 	     (cons (concat "\\(" ,sym "\\)") (cons ',name nil))
 	   (cons (concat "\\(" (car ,sym) "\\)") (cons ',name (cdr ,sym)))))))
 
-  (defun xmltok-p (&rest r) (xmltok+ "\\(?:" 
+  (defun xmltok-p (&rest r) (xmltok+ "\\(?:"
 				     (apply 'xmltok+ r)
 				     "\\)"))
 
@@ -443,7 +442,7 @@ as special.  Return the type of the token."
 			(list 'match-string-no-properties
 			      (xmltok-get-index group-name ',(cdr r))))
 		       (t (error "Invalid action: %s" action))))))))
-  
+
 
 (eval-when-compile
   (let* ((or "\\|")
@@ -806,7 +805,7 @@ as special.  Return the type of the token."
 				  (+ xmltok-start 2)
 				  (+ xmltok-start 5))))
 	 (setq xmltok-type 'processing-instruction))))
-		
+
 (defun xmltok-scan-after-comment-open ()
   (setq xmltok-type
 	(cond ((not (search-forward "--" nil t))
@@ -946,7 +945,7 @@ as special.  Return the type of the token."
 	    (cons att xmltok-attributes)))
     (and needs-normalizing
 	 att)))
-	 
+
 (defun xmltok-normalize-attribute (att)
   (let ((end (xmltok-attribute-value-end att))
 	(well-formed t)
@@ -1047,7 +1046,7 @@ as special.  Return the type of the token."
 
 (defun xmltok-scan-char-ref (start end base)
   (setq xmltok-replacement
-	(let ((n (string-to-int (buffer-substring-no-properties start end)
+	(let ((n (string-to-number (buffer-substring-no-properties start end)
 				base)))
 	  (cond ((and (integerp n) (xmltok-valid-char-p n))
 		 (setq n (xmltok-unicode-to-char n))
@@ -1061,7 +1060,7 @@ as special.  Return the type of the token."
   (let* ((base (if (eq (char-after (+ start 2)) ?x)
 		   16
 		 10))
-	 (n (string-to-int
+	 (n (string-to-number
 	     (buffer-substring-no-properties (+ start (if (= base 16) 3 2))
 					     (1- end))
 	     base)))
@@ -1097,7 +1096,7 @@ as special.  Return the type of the token."
 				 delimiter)))
 
 (defun xmltok-valid-char-p (n)
-  "Return non-nil if n is the Unicode code of a valid XML character."
+  "Return non-nil if N is the Unicode code of a valid XML character."
   (cond ((< n #x20) (memq n '(#xA #xD #x9)))
 	((< n #xD800) t)
 	((< n #xE000) nil)
@@ -1118,7 +1117,7 @@ Return nil if unsupported in Emacs."
 (defvar xmltok-had-param-entity-ref nil)
 (defvar xmltok-prolog-regions nil)
 (defvar xmltok-standalone nil
-  "Non-nil if there was an XML declaration specifying standalone=\"yes\",")
+  "Non-nil if there was an XML declaration specifying standalone=\"yes\".")
 (defvar xmltok-markup-declaration-doctype-flag nil)
 
 (defconst xmltok-predefined-entity-alist
@@ -1136,7 +1135,7 @@ START and END are integers giving the start and end of the region of
 that type.  TYPE can be one of xml-declaration,
 xml-declaration-attribute-name, xml-declaration-attribute-value,
 comment, processing-instruction-left, processing-instruction-right,
-markup-declaration-open.  markup-declaration-close,
+markup-declaration-open, markup-declaration-close,
 internal-subset-open, internal-subset-close, hash-name, keyword,
 literal, encoding-name.
 Adds to `xmltok-errors' and `xmltok-dependent-regions' as appropriate."
@@ -1177,8 +1176,8 @@ contains an encoding declaration, then return (START . END)
 where START and END are the positions of the start and the end
 of the encoding name; if there is no encoding declaration return
 the position where and encoding declaration could be inserted.
-If there is XML that is not well-formed that looks like an XML declaration,
-return nil.  Otherwise, return t.
+If there is XML that is not well-formed that looks like an XML
+declaration, return nil.  Otherwise, return t.
 If LIMIT is non-nil, then do not consider characters beyond LIMIT."
   (cond ((let ((case-fold-search nil))
 	   (and (looking-at (xmltok-xml-declaration regexp))
@@ -1191,7 +1190,7 @@ If LIMIT is non-nil, then do not consider characters beyond LIMIT."
 		 (+ (point) 5)))))
 	((not (let ((case-fold-search t))
 		(looking-at xmltok-bad-xml-decl-regexp))))))
-		
+
 (defun xmltok-scan-xml-declaration ()
   (when (looking-at (xmltok-xml-declaration regexp))
     (xmltok-add-prolog-region 'xml-declaration (point) (match-end 0))
@@ -1351,7 +1350,7 @@ If LIMIT is non-nil, then do not consider characters beyond LIMIT."
 	     (when (string= (xmltok-current-token-string) "#FIXED")
 	       (xmltok-require-next-token 'literal))
 	     t))))
-		   
+
 (defun xmltok-parse-nmtoken-group ()
   (while (progn
 	   (xmltok-require-next-token 'nmtoken 'prefixed-name 'name)
@@ -1392,7 +1391,7 @@ If LIMIT is non-nil, then do not consider characters beyond LIMIT."
 					  'close-paren-star
 					  'close-paren-occur)
 	       (eq xmltok-type connector))))))
-					  
+
 (defun xmltok-parse-model-group-member ()
   (xmltok-require-token 'name
 			'prefixed-name
@@ -1401,7 +1400,7 @@ If LIMIT is non-nil, then do not consider characters beyond LIMIT."
   (when (eq xmltok-type ?\()
     (xmltok-next-prolog-token)
     (xmltok-parse-model-group)))
-    
+
 (defun xmltok-parse-entity-declaration ()
   (let (paramp name)
     (xmltok-require-next-token 'name ?%)
@@ -1432,7 +1431,7 @@ If LIMIT is non-nil, then do not consider characters beyond LIMIT."
 	     (not (assoc name xmltok-dtd)))
     (setq xmltok-dtd
 	  (cons (cons name value) xmltok-dtd))))
-  
+
 (defun xmltok-parse-entity-value ()
   (let ((lim (1- (point)))
 	(well-formed t)
@@ -1472,7 +1471,7 @@ If LIMIT is non-nil, then do not consider characters beyond LIMIT."
       (apply 'concat
 	     (nreverse (cons (buffer-substring-no-properties start lim)
 			     value-parts))))))
-		     
+
 (defun xmltok-parse-notation-declaration ()
   (xmltok-require-next-token 'name)
   (xmltok-require-next-token "SYSTEM" "PUBLIC")
@@ -1557,9 +1556,9 @@ If LIMIT is non-nil, then do not consider characters beyond LIMIT."
 		      (hash-name . hash-name)))))
 	((and (stringp required) (eq xmltok-type 'name))
 	 'keyword)))
-	 
+
 ;; Return new token type.
-				    
+
 (defun xmltok-next-prolog-token ()
   (skip-chars-forward " \t\r\n")
   (setq xmltok-start (point))
@@ -1587,13 +1586,13 @@ If LIMIT is non-nil, then do not consider characters beyond LIMIT."
 	 (unless (looking-at "[ \t\r\n>),|[%]")
 	   (xmltok-add-error "Missing space after name token"))
 	 (setq xmltok-type 'nmtoken))
-	((xmltok-prolog start name)	
+	((xmltok-prolog start name)
 	 (setq xmltok-name-end (point))
 	 (setq xmltok-name-colon nil)
 	 (unless (looking-at "[ \t\r\n>),|[%]")
 	   (xmltok-add-error "Missing space after name"))
 	 (setq xmltok-type 'name))
-	((xmltok-prolog start hash-name)	
+	((xmltok-prolog start hash-name)
 	 (setq xmltok-name-end (point))
 	 (unless (looking-at "[ \t\r\n>)|%]")
 	   (xmltok-add-error "Missing space after name"))
@@ -1762,10 +1761,10 @@ Processing instruction does not start with a name"
     (while todo
       (xmltok-parse-entity (car todo))
       (setq todo (cdr todo)))))
-  
+
 (defun xmltok-parse-entity (name-def)
   (let ((def (cdr name-def))
-	;; in case its value is buffer local 
+	;; in case its value is buffer local
 	(xmltok-dtd xmltok-dtd)
 	buf)
     (when (stringp def)
@@ -1774,8 +1773,7 @@ Processing instruction does not start with a name"
 	(setcdr name-def 'not-well-formed) ; avoid infinite expansion loops
 	(setq buf (get-buffer-create
 		   (format " *Entity %s*" (car name-def))))
-	(save-excursion
-	  (set-buffer buf)
+	(with-current-buffer buf
 	  (erase-buffer)
 	  (insert def)
 	  (goto-char (point-min))
@@ -1869,7 +1867,7 @@ Processing instruction does not start with a name"
 		   'not-well-formed))
 		((eq def 'unparsed) 'not-well-formed)
 		(t def)))))
-    
+
 (defun xmltok-append-entity-def (d1 d2)
   (cond ((consp d1)
 	 (if (consp d2)
@@ -1892,7 +1890,7 @@ Processing instruction does not start with a name"
 	      xmltok-prolog-regions)))
 
 (defun xmltok-merge-attributes ()
-  "Return a list merging `xmltok-attributes' and 'xmltok-namespace-attributes'.
+  "Return a list merging `xmltok-attributes' and `xmltok-namespace-attributes'.
 The members of the merged list are in order of occurrence in the
 document.  The list may share list structure with `xmltok-attributes'
 and `xmltok-namespace-attributes'."
