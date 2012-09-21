@@ -9,7 +9,7 @@
 ;;----------------------------------------------------------------------------
 ;; Use Emacs' built-in TAB completion hooks to trigger AC (Emacs >= 23.2)
 ;;----------------------------------------------------------------------------
-(setq tab-always-indent 'complete)  ;; use 'complete when auto-complete is disabled
+(setq tab-always-indent 'complete)  ;; use 't when auto-complete is disabled
 (add-to-list 'completion-styles 'initials t)
 
 ;; hook AC into completion-at-point
