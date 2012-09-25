@@ -3,7 +3,6 @@
   :type 'symbol
   :group 'programming
   :options '(js2-mode js3-mode js-mode))
-(defvar preferred-mmm-javascript-mode 'js-mode)
 (defvar preferred-javascript-indent-level 2)
 
 ;; Need to first remove from list if present, since elpa adds entries too, which
@@ -43,33 +42,6 @@
 ;; standard javascript-mode
 (setq javascript-indent-level preferred-javascript-indent-level)
 
-
-;; MMM submode regions in html
-(eval-after-load 'mmm-vars
-  `(progn
-     (mmm-add-group
-      'html-js
-      '((js-script-cdata
-         :submode ,preferred-mmm-javascript-mode
-         :face mmm-code-submode-face
-         :front "<script[^>]*>[ \t\n]*\\(//\\)?<!\\[CDATA\\[[ \t]*\n?"
-         :back "[ \t]*\\(//\\)?]]>[ \t\n]*</script>"
-         :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
-                      @ "\n" _ "\n" @ "</script>" @)))
-        (js-script
-         :submode ,preferred-mmm-javascript-mode
-         :face mmm-code-submode-face
-         :front "<script[^>]*>[ \t]*\n?"
-         :back "[ \t]*</script>"
-         :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
-                      @ "\n" _ "\n" @ "</script>" @)))
-        (js-inline
-         :submode ,preferred-mmm-javascript-mode
-         :face mmm-code-submode-face
-         :front "on\w+=\""
-         :back "\"")))
-     (dolist (mode (list 'html-mode 'nxml-mode))
-       (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?$" 'html-js))))
 
 (add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
 (eval-after-load 'coffee-mode
