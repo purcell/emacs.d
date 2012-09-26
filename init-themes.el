@@ -46,9 +46,8 @@ ignored: use `custom-enabled-themes' instead."
   "Forcibly load the themes listed in `custom-enabled-themes'."
   (dolist (theme custom-enabled-themes)
     (unless (custom-theme-p theme)
-      (load-theme theme)
-      (message "Consider using 'M-x customize-themes' to save your preferred theme.")))
-  (custom-set-variables `(custom-enabled-themes ,custom-enabled-themes)))
+      (load-theme theme)))
+  (custom-set-variables `(custom-enabled-themes (quote ,custom-enabled-themes))))
 
 (add-hook 'after-init-hook 'reapply-themes)
 
