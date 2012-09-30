@@ -9,7 +9,7 @@
 (setq nxml-slash-auto-complete-flag t)
 
 
-;; There are newer schema files here: http://syntax.whattf.org//relaxng/
+;; There are newer schema files here: http://syntax.whattf.org/relaxng/
 (eval-after-load 'rng-loc
   '(progn
      (require 'whattf-dt)
