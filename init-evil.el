@@ -8,6 +8,7 @@
 (evil-set-initial-state 'yari-mode 'emacs)
 (evil-set-initial-state 'erc-mode 'emacs)
 (evil-set-initial-state 'gud-mode 'emacs)
+(evil-set-initial-state 'help-mode 'emacs)
 
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)

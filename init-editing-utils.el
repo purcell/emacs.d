@@ -45,7 +45,6 @@
 ;;----------------------------------------------------------------------------
 (paren-activate)     ; activating mic-paren
 
-
 ;;----------------------------------------------------------------------------
 ;; Autopair quotes and parentheses
 ;;----------------------------------------------------------------------------
@@ -90,8 +89,6 @@
 (global-set-key (kbd "M-T") 'transpose-lines)
 (global-set-key (kbd "C-.") 'set-mark-command)
 (global-set-key (kbd "C-x C-.") 'pop-global-mark)
-(global-set-key (kbd "C-;") 'ace-jump-mode)
-(global-set-key (kbd "C-:") 'ace-jump-word-mode)
 
 
 ;; Mark-multiple and friends
@@ -99,7 +96,6 @@
 (global-set-key (kbd "C-<") 'mark-previous-like-this)
 (global-set-key (kbd "C->") 'mark-next-like-this)
 (global-set-key (kbd "C-M-m") 'mark-more-like-this)
-
 
 (defun duplicate-line ()
   (interactive)
@@ -116,8 +112,6 @@
 ;; Train myself to use M-f and M-b instead
 (global-unset-key [M-left])
 (global-unset-key [M-right])
-
-
 
 ;;----------------------------------------------------------------------------
 ;; Fill column indicator

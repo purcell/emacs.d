@@ -123,6 +123,7 @@
 (require 'init-evil) ; use evil mode (vi key binding)
 (require 'init-misc)
 (require 'init-ctags)
+(require 'init-ace-jump-mode)
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
