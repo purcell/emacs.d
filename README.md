@@ -22,7 +22,7 @@ e.g. the "viper" vi emulation.
 
 I use Emacs HEAD on a Mac, but the config should work in other
 environments too, with any Emacs version >= 23. If not, please file an
-issue on the github project: [https://github.com/purcell/emacs.d]
+issue on the github project: https://github.com/purcell/emacs.d
 
 -Steve Purcell
 
@@ -30,7 +30,7 @@ issue on the github project: [https://github.com/purcell/emacs.d]
 
 I base my configuration on Purcell's and sync from his frequently.
 
-## My Additions
+## My additions
 
 * some major/minor modes for C/C++ developers
 * emacs-w3m (console browser)
@@ -56,15 +56,15 @@ try to list them HERE,
   install pip, then `pip install pyflakes`, but on cygwin you need install
   setuptool in order to install pip.
 
-## Report a bug
+## Report bug
 If you find any bug, please file an issue on the github project:
 https://github.com/redguardtoo/emacs.d
 
-## WARNINGS
+## Warnings
 * by default EVIL (Vim emulation in Emacs) is used. You can comment out
  line containing "(require 'init-evil)" in init.el to unload it.
 * Some package cannot be downloaded automatically because of network problem.
 You need manually `M-x list-packages` and install it.
 * Latest yasnippet is not compatible with auto-complete. If you want to use
 auto-complete. You can download an older version of yasnippet from
-[http://dl.dropbox.com/u/858862/yasnippet-20120718.tar.gz]
+http://dl.dropbox.com/u/858862/yasnippet-20120718.tar.gz
