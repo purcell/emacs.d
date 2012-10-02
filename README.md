@@ -1,3 +1,4 @@
+# Steve Purcell's original README
 This is an emacs configuration tree that supports a number of
 programming languages, particularly Ruby/Rails and other dynamic
 languages including Clojure, PHP, Python etc.
@@ -21,44 +22,49 @@ e.g. the "viper" vi emulation.
 
 I use Emacs HEAD on a Mac, but the config should work in other
 environments too, with any Emacs version >= 23. If not, please file an
-issue on the github project: https://github.com/purcell/emacs.d
+issue on the github project: [https://github.com/purcell/emacs.d]
 
 -Steve Purcell
 
-========================================================================
+# Chen Bin's README
 
-I based my configuration on Purcell's and sync from his frequently.
+I base my configuration on Purcell's and sync from his frequently.
 
-My additions,
-    * some major/minor modes for C/C++ developers
-    * emacs-w3m (console browser)
-    * eim (Chinese pinyin input method)
-    * org2blog (write wordpress blog with org-mode)
-    * make the configuration work under Linux and Cygwin
-    * The configuration will work with Emacs version >=23.4
-    * remove the dependency on subversion (svn)
+## My Additions
+
+* some major/minor modes for C/C++ developers
+* emacs-w3m (console browser)
+* eim (Chinese pinyin input method)
+* org2blog (write wordpress blog with org-mode)
+* make the configuration work under Linux and Cygwin
+* The configuration will work with Emacs version >=23.4
+* remove the dependency on subversion (svn)
+
+## Third party CLI tools Emacs uses
 
 Purcell won't list all the 3rd party tools you need install. I will
 try to list them HERE,
-    * jsl (jslint)
-    * aspell, and some dictionary like aspell-en
-    * tidy
-    * zip&unzip
-      export org to odt
-    * clang
-      auto-complete/intellisense by using clang (http://clang.llvm.org)
-    * pyflakes 
-      install pip, then `pip install pyflakes`, but on cygwin you need install
-      setuptool in order to install pip.
 
+* jsl (jslint)
+* aspell, and some dictionary like aspell-en
+* tidy
+* zip&unzip
+  export org to odt
+* clang
+  auto-complete/intellisense by using clang (http://clang.llvm.org)
+* pyflakes
+  install pip, then `pip install pyflakes`, but on cygwin you need install
+  setuptool in order to install pip.
+
+## Report a bug
 If you find any bug, please file an issue on the github project:
 https://github.com/redguardtoo/emacs.d
 
-WARNINGS,
-   * by default EVIL (Vim emulation in Emacs) is used. You can comment out 
-   line containing "(require 'init-evil)" in init.el to unload it.
-   * Some package cannot be downloaded automatically because of network problem.
-   You need manually `M-x list-packages` and install it.
-   * latest yasnippet is not compatible with auto-complete. If you want to use auto-complete. You can download an older version of yasnippet from http://dl.dropbox.com/u/858862/yasnippet-20120718.tar.gz
-
--Chen Bin
+## WARNINGS
+* by default EVIL (Vim emulation in Emacs) is used. You can comment out
+ line containing "(require 'init-evil)" in init.el to unload it.
+* Some package cannot be downloaded automatically because of network problem.
+You need manually `M-x list-packages` and install it.
+* Latest yasnippet is not compatible with auto-complete. If you want to use
+auto-complete. You can download an older version of yasnippet from
+[http://dl.dropbox.com/u/858862/yasnippet-20120718.tar.gz]
