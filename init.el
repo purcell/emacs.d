@@ -124,6 +124,7 @@
 (require 'init-misc)
 (require 'init-ctags)
 (require 'init-ace-jump-mode)
+(require 'init-multiple-cursors)
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
