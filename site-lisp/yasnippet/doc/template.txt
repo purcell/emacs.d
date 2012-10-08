@@ -1,0 +1,67 @@
+%(head_prefix)s
+%(head)s
+%(stylesheet)s
+%(body_prefix)s
+<div id="header-region" class="clear-block"></div>
+<div id="wrapper">
+  <div id="container" class="clear-block">
+    <div id="header">
+    <div id="logo-floater">
+    %(html_title)s
+    </div>
+    <ul class="primary-links">
+      <li>
+        <a title="" href="index.html">Intro and tutorial</a>
+      </li>
+      <li>
+        <a title="" href="snippet-organization.html">Howto: organize</a>
+      </li>
+      <li>
+        <a title="" href="snippet-expansion.html">Howto: expand</a>
+      </li>
+      <li>
+        <a title="" href="snippet-development.html">Howto: write </a>
+      </li>
+      <li>
+        <a title="" href="snippet-menu.html">Howto: menu </a>
+      </li>
+      <li>
+        <a title="" href="faq.html">FAQ</a>
+      </li>
+      <li>
+        <a title="" href="changelog.html">ChangeLog</a>
+      </li>
+      <li>
+        <a title="" href="http://code.google.com/p/yasnippet/downloads/list">Download</a>
+      </li>
+    </ul>
+    </div>
+    <div id="center">
+      <div id="squeeze">
+        <div class="right-corner">
+          <div class="left-corner">
+            <p>
+              <b>Important:</b> This documentation applies to
+              the <b>SVN trunk</b> of YASnippet, which you
+              get <a href="http://code.google.com/p/yasnippet/source/checkout">here</a>. Documentation
+              for other versions can be found <a title=""
+              href="http://code.google.com/p/yasnippet/downloads/list">here</a>.
+            </p>
+            %(body)s
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+  document.write(unescape("%%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%%3E%%3C/script%%3E"));
+</script>
+<script type="text/javascript">
+  try {
+  var pageTracker = _gat._getTracker("UA-10536822-1");
+  pageTracker._trackPageview();
+  } catch(err) {}
+</script>
+%(body_suffix)s

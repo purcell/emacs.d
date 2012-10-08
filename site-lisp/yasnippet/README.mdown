@@ -1,0 +1,144 @@
+# Intro
+
+**yasnippet** is a template system for Emacs. It allows you to type an
+abbreviation and automatically expand it into function
+templates. Bundled language templates includes: C, C++, C#, Perl,
+Python, Ruby,
+
+SQL, LaTeX, HTML, CSS and more. The snippet syntax is inspired from
+[TextMate's][textmate-snippets] syntax, you can even
+[import][import-docs] most TextMate templates to yasnippet. Watch
+[a demo on YouTube][youtube-demo] or download a
+[higher resolution version][high-res-demo]
+
+[textmate-snippets]: http://manual.macromates.com/en/snippets
+[import-docs]: http://yasnippet.googlecode.com/svn/trunk/doc/snippet-development.html#importing-textmate-snippets
+[youtube-demo]: http://www.youtube.com/watch?v=ZCGmZK4V7Sg
+[high-res-demo]: http://yasnippet.googlecode.com/files/yas_demo.avi
+
+# Installation
+
+## Install the most recent version
+
+Clone this repository somewhere
+
+    $ cd ~/.emacs.d/plugins
+    $ git clone https://github.com/capitaomorte/yasnippet
+
+Add the following in your `.emacs` file:
+
+    (add-to-list 'load-path
+                  "~/.emacs.d/plugins/yasnippet")
+    (require 'yasnippet)
+    (yas/global-mode 1)
+
+Add your own snippets to `~/.emacs.d/snippets` by placing files there or invoking `yas/new-snippet`.
+
+
+## Install with `package-install`
+
+In a recent emacs `M-x list-packages` is the recommended way to list and install packages. 
+[MELPA][melpa] keeps a very recent snapshot of yasnippet, see http://melpa.milkbox.net/#installing.
+
+## Install with el-get
+
+El-get is a nice way to get the most recent version, too. See
+https://github.com/dimitri/el-get for instructions. Be sure to install the
+"master" branch since the 3.x series still use the old googlecode code, base.
+Consider using this "local" recipe.
+
+    (push '(:name yasnippet
+                  :website "https://github.com/capitaomorte/yasnippet.git"
+                  :description "YASnippet is a template system for Emacs."
+                  :type github
+                  :pkgname "capitaomorte/yasnippet"
+                  :features "yasnippet"
+                  :compile "yasnippet.el")
+          el-get-sources)
+
+## Use `yas/minor-mode` on a per-buffer basis
+
+To use yasnippet as a non-global minor mode, replace `(yas/global-mode 1)` with
+`(yas/reload-all)` to load the snippet tables. Then add a call to
+`(yas/minor-mode)` to the major-modes where you to enable yasnippet.
+
+    (add-hook 'prog-mode-hook
+              '(lambda ()
+                 (yas/minor-mode)))
+
+# (NOT) Contributing snippets
+
+Please **do not** open pull requests or ask me to add snippets to
+yasnippet.
+
+The bundled collection under `/snippets` is considered frozen: **I
+will not add more snippets to it**.
+
+You can point `yas/snippet-dirs` to good snippet collections out
+there. If you have created snippets for a mode, or multiple modes,
+consider creating a repository to host them, then tell users that it
+should be added like this to `yas/snippet-dirs`:
+
+    (setq yas/snippet-dirs
+          '("~/.emacs.d/snippets"            ;; personal snippets
+            "/path/to/some/collection/"      ;; just some foo-mode snippets
+            "/path/to/some/othercollection/" ;; some more foo-mode and a complete baz-mode
+            "/path/to/yasnippet/snippets"    ;; the default collection
+            ))
+
+    (yas/global-mode 1) ;; or M-x yas/reload-all if you've started yasnippet already.
+
+# Importing TextMate snippets
+
+There is a tool `extras/textmate-import.rb` than can import many
+actual TextMate snippets. These can be quite complex so the
+`extras/imported/*-mode/.yas-setup.el` files help it with the more
+difficult importation.
+
+I'm focusing on developing `textmate-import.rb` tool and some
+`yas-setup.el` files. In the future `/snippets` snippets will be
+deprecated and might be replaced with `extras/imported`.
+
+## Example importation of rails snippets
+
+To start using [drnic's](https://github.com/drnic) snippets for rails
+development, follow this example. It will convert `ruby`, `rails` and
+`html` bundles from github repositories. The importation will be
+guided by the `.yas-setup.el` files.
+
+After cloning this repository to `~/.emacs.d/plugins/yasnippet`
+
+    cd ~/.emacs.d/plugins/yasnippet
+    git submodule init
+    git submodule update
+    gem install plist trollop
+    rake convert_bundles             # will convert ruby, rails and html bundles
+
+Then, in your `.emacs` file
+
+    (add-to-list 'load-path
+                  "~/.emacs.d/plugins/yasnippet")
+    (require 'yasnippet)
+    (setq yas/snippet-dirs '("~/.emacs.d/snippets" "~/.emacs.d/plugins/yasnippet/extras/imported"))
+    (yas/global-mode 1)
+
+Open some rails file (model, app, etc) and start using the textmate
+snippets.  Note that in the example above we have abandoned the
+default snippet collection on `~/.emacs.d/plugins/yasnippet/snippets`
+
+# Documentation, issues, etc
+
+Please refer to the comprehensive (albeit slightly outdated)
+[documentation][docs] for full customization
+and support.  If you find a bug, please report it on
+[the GitHub issue tracker][issues].  (please **do not** submit new issues to the old
+[googlecode tracker][googlecode tracker])
+
+If you run into problems using yasnippet, or have snippets to contribute, post
+to the [yasnippet google group][forum]. Thank you very much for using yasnippet!
+
+[docs]: http://capitaomorte.github.com/yasnippet/
+[issues]: https://github.com/capitaomorte/yasnippet/issues
+[googlecode tracker]: http://code.google.com/p/yasnippet/issues/list
+[forum]: http://groups.google.com/group/smart-snippet
+[melpa]: http://melpa.milkbox.net/
