@@ -66,6 +66,10 @@ ARCHIVE is the string name of the package archive.")
 
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 
+;; We include the org repository for completeness, but don't normally
+;; use it.
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
+
 
 ;;------------------------------------------------------------------------------
 ;; Also use Melpa for some packages built straight from VC
