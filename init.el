@@ -6,7 +6,7 @@
 ;;----------------------------------------------------------------------------
 (defconst *spell-check-support-enabled* nil)
 (defconst *is-a-mac* (eq system-type 'darwin))
-(defconst *is-carbon-emacs* (and *is-a-mac* (eq window-system 'mac)))
+(defconst *is-carbon-emacs* (eq window-system 'mac))
 (defconst *is-cocoa-emacs* (and *is-a-mac* (eq window-system 'ns)))
 
 ;;----------------------------------------------------------------------------
