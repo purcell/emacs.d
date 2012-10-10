@@ -22,4 +22,9 @@ cookies
 \#*
 /elpa
 site-lisp/package/
+eshell/
+semanticdb/
+*.swp
+*~
+abbrev_defs
 /swank
