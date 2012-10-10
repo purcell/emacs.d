@@ -65,6 +65,5 @@ https://github.com/redguardtoo/emacs.d
  line containing "(require 'init-evil)" in init.el to unload it.
 * Some package cannot be downloaded automatically because of network problem.
 You need manually `M-x list-packages` and install it.
-* Latest yasnippet is not compatible with auto-complete. If you want to use
-auto-complete. You can download an older version of yasnippet from
-http://dl.dropbox.com/u/858862/yasnippet-20120718.tar.gz
+* I downgraded the yasnippet to an older version because latest yasnippet is
+not compatible with auto-complete.
