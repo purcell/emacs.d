@@ -224,5 +224,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'ctags)
 (require-package 'buffer-move)
 (require-package 'go-mode)
+(require-package 'switch-window)
 
 (provide 'init-elpa)

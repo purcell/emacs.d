@@ -193,6 +193,9 @@
 
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
+; http://tapoueh.org/emacs/switch-window.html
+(require 'switch-window)
+
 ;;move-text stuff, move line up/down by pressing hotkey
 (global-set-key (kbd "M-p") 'move-text-up)
 (global-set-key (kbd "M-n") 'move-text-down)
