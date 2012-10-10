@@ -252,4 +252,7 @@
 ;need install browse-kill-ring
 (browse-kill-ring-default-keybindings)
 
+; turns on auto-fill-mode on all text-modes (markdown-mode, change-log-mode, etc.)
+(add-hook 'text-mode-hook 'turn-on-auto-fill)
+
 (provide 'init-editing-utils)
