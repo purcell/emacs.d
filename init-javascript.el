@@ -43,7 +43,6 @@
 (setq javascript-indent-level preferred-javascript-indent-level)
 
 
-(add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
 (eval-after-load 'coffee-mode
   `(setq coffee-js-mode preferred-javascript-mode
          coffee-tab-width preferred-javascript-indent-level))
