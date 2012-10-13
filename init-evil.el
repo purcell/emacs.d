@@ -11,6 +11,7 @@
 (evil-set-initial-state 'help-mode 'emacs)
 ; I need copy words from eshell history
 (evil-set-initial-state 'eshell-mode 'emacs)
+(evil-set-initial-state 'message-mode 'emacs)
 
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)

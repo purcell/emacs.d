@@ -204,4 +204,7 @@
 (require 'window-numbering)
 (window-numbering-mode 1)
 
+;; sig-quote
+;(require 'sig-quote)
+
 (provide 'init-misc)
