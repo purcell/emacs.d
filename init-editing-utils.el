@@ -242,7 +242,12 @@
 ;need install browse-kill-ring
 (browse-kill-ring-default-keybindings)
 
-; turns on auto-fill-mode on all text-modes (markdown-mode, change-log-mode, etc.)
-(add-hook 'text-mode-hook 'turn-on-auto-fill)
+; turns on auto-fill-mode, don't use text-mode-hook becasue for some
+; mode (org-mode for example), this will make the exported document 
+; ugly!
+(add-hook 'markdown-mode-hook 'turn-on-auto-fill)
+(add-hook 'change-log-mode-hook 'turn-on-auto-fill)
+(add-hook 'cc-mode-hook 'turn-on-auto-fill)
+(global-set-key (kbd "C-c q") 'auto-fill-mode)
 
 (provide 'init-editing-utils)
