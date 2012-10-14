@@ -14,6 +14,7 @@
 
 (eval-after-load 'paredit
   '(progn
+     (diminish 'paredit-mode " Par")
      ;; These are handy everywhere, not just in lisp modes
      (global-set-key (kbd "M-(") 'paredit-wrap-round)
      (global-set-key (kbd "M-[") 'paredit-wrap-square)
@@ -124,6 +125,7 @@
 (require 'eldoc-eval)
 
 (add-to-list 'auto-mode-alist '("\\.emacs-project$" . emacs-lisp-mode))
+(add-to-list 'auto-mode-alist '("archive-contents$" . emacs-lisp-mode))
 
 (define-key emacs-lisp-mode-map (kbd "C-x C-a") 'pp-macroexpand-last-sexp)
 
