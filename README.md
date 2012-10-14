@@ -56,6 +56,11 @@ try to list them HERE,
   install pip, then `pip install pyflakes`, but on cygwin you need install
   setuptool in order to install pip.
 
+To install the tools, I suggest using,
+* apt-cyg at Cygwin
+* homebrew at OS X
+* any package manager at Linux
+
 ## Report bug
 If you find any bug, please file an issue on the github project:
 https://github.com/redguardtoo/emacs.d
