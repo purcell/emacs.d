@@ -84,8 +84,10 @@ ARCHIVE is the string name of the package archive.")
 ;; Don't take Melpa versions of certain packages
 (setq package-filter-function
       (lambda (package version archive)
-        (or (not (string-equal archive "melpa"))
-            (not (memq package melpa-exclude-packages)))))
+        (and
+         (not (memq package '(eieio)))
+         (or (not (string-equal archive "melpa"))
+             (not (memq package melpa-exclude-packages))))))
 
 
 ;;------------------------------------------------------------------------------
