@@ -65,7 +65,10 @@ ARCHIVE is the string name of the package archive.")
 ;;------------------------------------------------------------------------------
 
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives '("tromey" . "http://tromey.com/elpa/"))
+
+;; We include the org repository for completeness, but don't normally
+;; use it.
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 
 
 ;;------------------------------------------------------------------------------
@@ -74,26 +77,17 @@ ARCHIVE is the string name of the package archive.")
 
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 
+(defvar melpa-exclude-packages
+  '(slime)
+  "Don't install Melpa versions of these packages.")
+
 ;; Don't take Melpa versions of certain packages
 (setq package-filter-function
       (lambda (package version archive)
-        (or (not (string-equal archive "melpa"))
-            (not (memq package
-                       '(
-                         ruby-compilation
-                         slime
-                         color-theme-sanityinc-solarized
-                         color-theme-sanityinc-tomorrow
-                         elisp-slime-nav
-                         findr))))))
-
-
-(defadvice package-download-transaction
-  (around disable-keepalives (&optional args) activate)
-  "Disable HTTP keep-alives to work around network issues with Melpa host."
-  (require 'url-http)
-  (let ((url-http-attempt-keepalives nil))
-    ad-do-it))
+        (and
+         (not (memq package '(eieio)))
+         (or (not (string-equal archive "melpa"))
+             (not (memq package melpa-exclude-packages))))))
 
 
 ;;------------------------------------------------------------------------------
@@ -105,13 +99,17 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'ido-ubiquitous)
 (when (< emacs-major-version 24)
   (require-package 'color-theme))
+(require-package 'auto-complete)
+(require-package 'ace-jump-mode)
+(require-package 'fill-column-indicator)
+(require-package 'multiple-cursors)
+(require-package 'expand-region)
 (require-package 'fringe-helper)
-(require-package 'popup)
 (require-package 'gnuplot)
 (require-package 'haskell-mode)
-(require-package 'tuareg)
 (require-package 'magit)
 (require-package 'git-blame)
+(require-package 'wgrep)
 (require-package 'flymake-cursor)
 (require-package 'csv-mode)
 (require-package 'csv-nav)
@@ -123,10 +121,10 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'ruby-mode)
 (require-package 'inf-ruby)
 (require-package 'yari)
-(require-package 'rvm)
 (require-package 'yaml-mode)
 (require-package 'paredit)
 (require-package 'eldoc-eval)
+(require-package 'erlang)
 (require-package 'slime)
 (require-package 'slime-fuzzy)
 (require-package 'slime-repl)
@@ -147,10 +145,12 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'clojure-mode)
 (require-package 'clojure-test-mode)
 (require-package 'clojurescript-mode)
+(require-package 'nrepl)
 (require-package 'diminish)
 (require-package 'autopair)
 (require-package 'js-comint)
 (require-package 'php-mode)
+(require-package 'smarty-mode)
 (require-package 'scratch)
 (require-package 'mic-paren)
 (require-package 'rainbow-delimiters)
@@ -162,25 +162,28 @@ ARCHIVE is the string name of the package archive.")
 
 ;; I maintain this chunk:
 (require-package 'ac-slime)
+(require-package 'ac-nrepl)
 (require-package 'coffee-mode)
 (require-package 'color-theme-sanityinc-solarized)
 (require-package 'color-theme-sanityinc-tomorrow)
 (require-package 'crontab-mode)
 (require-package 'dsvn)
 (require-package 'elisp-slime-nav)
+(require-package 'exec-path-from-shell)
 (require-package 'flymake-coffee)
 (require-package 'flymake-css)
 (require-package 'flymake-haml)
 (require-package 'flymake-jslint)
 (require-package 'flymake-php)
+(require-package 'flymake-python-pyflakes)
 (require-package 'flymake-ruby)
 (require-package 'flymake-sass)
 (require-package 'flymake-shell)
 (require-package 'hippie-expand-slime)
 (require-package 'hl-sexp)
 (require-package 'ibuffer-vc)
-(require-package 'iy-go-to-char)
 (require-package 'less-css-mode)
+(require-package 'lively)
 (require-package 'mmm-mode)
 (require-package 'move-text)
 (require-package 'mwe-log-commands)

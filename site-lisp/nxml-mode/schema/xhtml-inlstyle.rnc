@@ -1,3 +1,0 @@
-# Inline Style Module
-
-Core.attrib &= attribute style { text }?

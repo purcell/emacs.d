@@ -14,6 +14,7 @@
 
 (eval-after-load 'paredit
   '(progn
+     (diminish 'paredit-mode " Par")
      ;; These are handy everywhere, not just in lisp modes
      (global-set-key (kbd "M-(") 'paredit-wrap-round)
      (global-set-key (kbd "M-[") 'paredit-wrap-square)
@@ -67,25 +68,8 @@
 
 
 ;; ----------------------------------------------------------------------------
-;; Auto-complete tweaks for emacs-lisp mode
+;; Automatic byte compilation
 ;; ----------------------------------------------------------------------------
-
-(defface ac-symbol-menu-face
-  '((t (:background "lightgray" :foreground "darkgreen")))
-  "Face for slime candidate menu."
-  :group 'auto-complete)
-
-(defface ac-symbol-selection-face
-  '((t (:background "darkgreen" :foreground "white")))
-  "Face for the slime selected candidate."
-  :group 'auto-complete)
-
-;; Modify ac-source-symbols to add colours
-(eval-after-load 'auto-complete
-  '(progn
-     (add-to-list 'ac-source-symbols '(candidate-face . ac-symbol-menu-face))
-     (add-to-list 'ac-source-symbols '(selection-face . ac-symbol-selection-face))))
-
 
 (defun maybe-byte-compile ()
   (when (and (eq major-mode 'emacs-lisp-mode)
@@ -117,8 +101,7 @@
 (defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
   (enable-paredit-mode)
-  (turn-on-eldoc-mode)
-  (turn-on-pretty-mode))
+  (turn-on-eldoc-mode))
 
 (defun sanityinc/emacs-lisp-setup ()
   "Enable features useful when working with elisp."
@@ -142,6 +125,7 @@
 (require 'eldoc-eval)
 
 (add-to-list 'auto-mode-alist '("\\.emacs-project$" . emacs-lisp-mode))
+(add-to-list 'auto-mode-alist '("archive-contents$" . emacs-lisp-mode))
 
 (define-key emacs-lisp-mode-map (kbd "C-x C-a") 'pp-macroexpand-last-sexp)
 

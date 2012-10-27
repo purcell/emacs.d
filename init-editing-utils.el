@@ -45,6 +45,11 @@
 ;;----------------------------------------------------------------------------
 (paren-activate)     ; activating mic-paren
 
+;;----------------------------------------------------------------------------
+;; Expand region
+;;----------------------------------------------------------------------------
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
 
 ;;----------------------------------------------------------------------------
 ;; Autopair quotes and parentheses
@@ -90,8 +95,21 @@
 (global-set-key (kbd "M-T") 'transpose-lines)
 (global-set-key (kbd "C-.") 'set-mark-command)
 (global-set-key (kbd "C-x C-.") 'pop-global-mark)
-(global-set-key (kbd "C-;") 'iy-go-to-char)
-(global-set-key (kbd "C-\,") 'iy-go-to-char-backward)
+(global-set-key (kbd "C-;") 'ace-jump-mode)
+(global-set-key (kbd "C-:") 'ace-jump-word-mode)
+
+
+;; multiple-cursors
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-+") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+;; From active region to multiple cursors:
+(global-set-key (kbd "C-c c r") 'set-rectangular-region-anchor)
+(global-set-key (kbd "C-c c c") 'mc/edit-lines)
+(global-set-key (kbd "C-c c e") 'mc/edit-ends-of-lines)
+(global-set-key (kbd "C-c c a") 'mc/edit-beginnings-of-lines)
+
 
 (defun duplicate-line ()
   (interactive)
@@ -108,6 +126,42 @@
 ;; Train myself to use M-f and M-b instead
 (global-unset-key [M-left])
 (global-unset-key [M-right])
+
+
+
+(defun kill-back-to-indentation ()
+  "Kill from point back to the first non-whitespace character on the line."
+  (interactive)
+  (let ((prev-pos (point)))
+    (back-to-indentation)
+    (kill-region (point) prev-pos)))
+
+(global-set-key (kbd "C-M-<backspace>") 'kill-back-to-indentation)
+
+
+;;----------------------------------------------------------------------------
+;; Fill column indicator
+;;----------------------------------------------------------------------------
+(when (> emacs-major-version 23)
+  (defun sanityinc/prog-mode-fci-settings ()
+    (turn-on-fci-mode)
+    (when show-trailing-whitespace
+      (set (make-local-variable 'whitespace-style) '(face trailing))
+      (whitespace-mode 1)))
+
+  (add-hook 'prog-mode-hook 'sanityinc/prog-mode-fci-settings)
+
+  (defvar sanityinc/fci-mode-suppressed nil)
+  (defadvice popup-create (before suppress-fci-mode activate)
+    "Suspend fci-mode while popups are visible"
+    (set (make-local-variable 'sanityinc/fci-mode-suppressed) fci-mode)
+    (when fci-mode
+      (turn-off-fci-mode)))
+  (defadvice popup-delete (after restore-fci-mode activate)
+    "Restore fci-mode when all popups have closed"
+    (when (and (not popup-instances) sanityinc/fci-mode-suppressed)
+      (setq sanityinc/fci-mode-suppressed nil)
+      (turn-on-fci-mode))))
 
 
 ;;----------------------------------------------------------------------------

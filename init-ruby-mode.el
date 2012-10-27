@@ -2,6 +2,9 @@
 (setq interpreter-mode-alist
       (cons '("ruby" . ruby-mode) interpreter-mode-alist))
 
+(eval-after-load 'rinari
+  '(diminish 'rinari-minor-mode "Rin"))
+
 (add-auto-mode 'ruby-mode "\\.rb$" "Rakefile$" "\.rake$" "\.rxml$" "\.rjs$" ".irbrc$" "\.builder$" "\.ru$" "\.gemspec$" "Gemfile$")
 
 
@@ -10,7 +13,9 @@
 (setq ruby-use-encoding-map nil)
 
 (eval-after-load 'ruby-mode
-  '(define-key ruby-mode-map (kbd "RET") 'reindent-then-newline-and-indent))
+  '(progn
+     (define-key ruby-mode-map (kbd "RET") 'reindent-then-newline-and-indent)
+     (define-key ruby-mode-map (kbd "TAB") 'indent-for-tab-command)))
 
 
 ;;----------------------------------------------------------------------------
@@ -22,30 +27,30 @@
 ;;----------------------------------------------------------------------------
 ;; Ruby - misc
 ;;----------------------------------------------------------------------------
-(setq compile-command "rake ")
-
 (defalias 'ri 'yari)
 
 
 ;;----------------------------------------------------------------------------
 ;; Ruby - erb
 ;;----------------------------------------------------------------------------
-(add-auto-mode 'html-mode "\.rhtml$" "\.html\.erb$")
-(eval-after-load 'mmm-vars
-  '(progn
-     (mmm-add-classes
-      '((eruby :submode ruby-mode :front "<%[#=]?" :back "-?%>"
-               :match-face (("<%#" . mmm-comment-submode-face)
-                            ("<%=" . mmm-output-submode-face)
-                            ("<%"  . mmm-code-submode-face))
-               :insert ((?% erb-code       nil @ "<%"  @ " " _ " " @ "%>" @)
-                        (?# erb-comment    nil @ "<%#" @ " " _ " " @ "%>" @)
-                        (?= erb-expression nil @ "<%=" @ " " _ " " @ "%>" @)))))
-     (dolist (mode (list 'html-mode 'nxml-mode))
-       (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?$" 'eruby))
-     (mmm-add-mode-ext-class 'yaml-mode "\\.yaml$" 'eruby)
-     (dolist (mode (list 'js-mode 'js2-mode))
-       (mmm-add-mode-ext-class mode "\\.js\\.erb$" 'eruby))))
+(defun sanityinc/ensure-mmm-erb-loaded ()
+  (require 'mmm-erb))
+(dolist (hook (list 'html-mode-hook 'nxml-mode-hook 'yaml-mode-hook))
+  (add-hook hook 'sanityinc/ensure-mmm-erb-loaded))
+
+(dolist (mode (list 'html-mode 'html-erb-mode 'nxml-mode))
+  (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-js)
+  (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css)
+  (mmm-add-mode-ext-class mode "\\.erb\\'" 'erb))
+
+(mmm-add-mode-ext-class 'html-erb-mode "\\.jst\\.ejs\\'" 'ejs)
+
+(add-to-list 'auto-mode-alist '("\\.r?html\\(\\.erb\\)?\\'" . html-erb-mode))
+(add-to-list 'auto-mode-alist '("\\.jst\\.ejs\\'"  . html-erb-mode))
+(mmm-add-mode-ext-class 'yaml-mode "\\.yaml$" 'erb)
+
+(dolist (mode (list 'js-mode 'js2-mode 'js3-mode))
+  (mmm-add-mode-ext-class mode "\\.js\\.erb$" 'erb))
 
 
 ;;----------------------------------------------------------------------------

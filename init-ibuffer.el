@@ -1,6 +1,7 @@
 (defun ibuffer-set-up-preferred-filters ()
   (ibuffer-vc-set-filter-groups-by-vc-root)
-  (ibuffer-do-sort-by-filename/process))
+  (unless (eq ibuffer-sorting-mode 'filename/process)
+    (ibuffer-do-sort-by-filename/process)))
 
 (add-hook 'ibuffer-hook 'ibuffer-set-up-preferred-filters)
 

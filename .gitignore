@@ -20,3 +20,4 @@ cookies
 /elpa
 site-lisp/package/
 /swank
+/.mc-lists.el
