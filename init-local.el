@@ -38,31 +38,18 @@
 (setq x-select-enable-clipboard t)
 
 ;;org
-(require 'org-install)
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-(define-key global-map "\C-cl" 'org-store-link)
-(define-key global-map "\C-ca" 'org-agenda)
-(setq org-log-done t)
-(require 'org-latex)
-(setq org-export-latex-listings t)
-(add-to-list 'org-export-latex-classes
-             '("org-article"
-               "\\documentclass{org-article}
-                 [NO-DEFAULT-PACKAGES]
-                 [EXTRA]"
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-               ("\\paragraph{%s}" . "\\paragraph*{%s}")
-               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-(setq org-latex-to-pdf-process '("xelatex %f"))
+;;(require 'org-install)
+;;(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+;;(define-key global-map "\C-cl" 'org-store-link)
+;;(define-key global-map "\C-ca" 'org-agenda)
+;;(setq org-log-done t)
+;;(require 'org-latex)
+;;(setq org-export-latex-listings t)
 
 ;;recentf
 (setq recentf-max-menu-items 25)
 (global-set-key "\C-x\ \C-r" 'recentf-open-files)
 
-(setq org-ditaa-jar-path "~/jar/ditaa0_9.jar")
-(setq org-plantuml-jar-path "~/jar/plantuml.jar")
 
 (add-hook 'org-babel-after-execute-hook 'bh/display-inline-images 'append)
 
@@ -74,52 +61,52 @@
       (org-display-inline-images)
     (error nil)))
 
-(org-babel-do-load-languages
- (quote org-babel-load-languages)
- (quote ((emacs-lisp . t)
-         (dot . t)
-         (ditaa . t)
-         (R . t)
-         (python . t)
-         (ruby . t)
-         (gnuplot . t)
-         (clojure . t)
-         (sh . t)
-         (ledger . t)
-         (org . t)
-         (plantuml . t)
-         (latex . t))))
+;;(org-babel-do-load-languages
+;; (quote org-babel-load-languages)
+;; (quote ((emacs-lisp . t)
+;;         (dot . t)
+;;         (ditaa . t)
+;;         (R . t)
+;;         (python . t)
+;;         (ruby . t)
+;;         (gnuplot . t)
+;;         (clojure . t)
+;;         (sh . t)
+;;         (ledger . t)
+;;         (org . t)
+;;         (plantuml . t)
+;;         (latex . t))))
  
 ; Do not prompt to confirm evaluation
 ; This may be dangerous - make sure you understand the consequences
 ; of setting this -- see the docstring for details
-(setq org-confirm-babel-evaluate nil)
+;;(setq org-confirm-babel-evaluate nil)
 
 ; Use fundamental mode when editing plantuml blocks with C-c '
-(add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
+;;(add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
 
 (require 'tramp)
 
-(setq org-todo-keywords
-      (quote ((sequence "TODO(t)" "STARTED(o)" "|" "DONE(d!/!)")
-              (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)"))))
-
-(setq org-todo-keyword-faces
-      (quote (("TODO" :foreground "red" :weight bold)
-              ("ONGOING" :foreground "#b58900" :weight bold)
-              ("DONE" :foreground "forest green" :weight bold)
-              ("WAITING" :foreground "orange" :weight bold)
-              ("HOLD" :foreground "magenta" :weight bold)
-              ("CANCELLED" :foreground "forest green" :weight bold))))
-
-(setq org-tag-alist '(
-                      ("ShaoXia" . ?s)
-                      ("DingQiu" . ?d)
-                      ("HuoYong" . ?h)
-                      ("ZiCheng" . ?z)
-                      ("MuQian" . ?m)
-                      ("HuangXW" . ?x)
-                      ))
+;;(setq org-todo-keywords
+;;      (quote ((sequence "TODO(t)" "STARTED(o)" "|" "DONE(d!/!)")
+;;              (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)"))))
+;;
+;;(setq org-todo-keyword-faces
+;;      (quote (("TODO" :foreground "red" :weight bold)
+;;              ("ONGOING" :foreground "#b58900" :weight bold)
+;;              ("DONE" :foreground "forest green" :weight bold)
+;;              ("WAITING" :foreground "orange" :weight bold)
+;;              ("HOLD" :foreground "magenta" :weight bold)
+;;              ("CANCELLED" :foreground "forest green" :weight bold))))
+;;
+;;(setq org-tag-alist '(
+;;                      ("ShaoXia" . ?s)
+;;                      ("DingQiu" . ?d)
+;;                      ("HuoYong" . ?h)
+;;                      ("ZiCheng" . ?z)
+;;                      ("MuQian" . ?m)
+;;                      ("HuangXW" . ?x)
+;;                      ))
 
 (define-skeleton org-beamer-skeleton
   "Insert org beamer header"
@@ -146,25 +133,31 @@
 #+STYLE: <script src=\"./js/jquery-1.7.2.min.js\"></script>
 #+STYLE: <script src=\"./js/fix.js\"></script>")
 
-(add-to-list 'load-path "~/.emacs.d/site-lisp/remember-2.0")
-(setq org-directory "~/org/")
-(setq org-default-notes-file "~/.notes")
-(setq remember-annotation-functions '(org-remember-annotation))
-(setq remember-handler-functions '(org-remember-handler))
-(add-hook 'remember-mode-hook 'org-remember-apply-template)
-(define-key global-map "\C-cr" 'org-remember)
-
-(setq org-remember-templates
-      '(("Todo" ?t "* TODO %? %^g\n %i\n " "~/gtd/gtd.org")
-        ))
-
-
-(defun gtd ()
-   (interactive)
-   (find-file "~/gtd/gtd.org")
- )
+;;(add-to-list 'load-path "~/.emacs.d/site-lisp/remember-2.0")
+;;(setq org-directory "~/org/")
+;;(setq org-default-notes-file "~/.notes")
+;;(setq remember-annotation-functions '(org-remember-annotation))
+;;(setq remember-handler-functions '(org-remember-handler))
+;;(add-hook 'remember-mode-hook 'org-remember-apply-template)
+;;(define-key global-map "\C-cr" 'org-remember)
+;;
+;;(setq org-remember-templates
+;;      '(("Todo" ?t "* TODO %? %^g\n %i\n " "~/gtd/gtd.org")
+;;        ))
+;;
+;;
+;;(defun gtd ()
+;;   (interactive)
+;;   (find-file "~/gtd/gtd.org")
+;; )
 
 (require 'magit)
 (global-set-key [(meta f12)] 'magit-status)
 
+(add-to-list 'load-path "~/.emacs.d/site-lisp/irfc")
+(require 'irfc)
+(setq irfc-directory "~/workstation/rfc/")
+(setq irfc-assoc-mode t)
+(require 'my-org-settings)
 (provide 'init-local)
+
