@@ -18,6 +18,7 @@
 (require 'evil-leader)
 (evil-leader/set-key
   "w" 'save-buffer
+  "c" 'qiang-comment-dwim-line
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window
   "p" 'previous-error
