@@ -109,6 +109,25 @@
         )
         ))
 
+; external browser should be firefox
+(setq browse-url-generic-program
+      (cond
+       (*is-a-mac* "open")
+       (*linux* (executable-find "firefox"))
+       )
+      )
+
+(defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
+  (let ((browse-url-browser-function
+         (cond ((equal (ad-get-arg 0) '(4))
+                'browse-url-generic)
+               ((equal (ad-get-arg 0) '(16))
+                'choose-browser)
+               (t
+                (lambda (url &optional new)
+                  (w3m-browse-url url t))))))
+    ad-do-it))
+
 (add-hook 'org-mode-hook 'inhibit-autopair)
 
 (provide 'init-org)
