@@ -55,6 +55,7 @@ try to list them HERE,
 * pyflakes
   install pip, then `pip install pyflakes`, but on cygwin you need install
   setuptool in order to install pip.
+* ditaa, grapviz and planetuml to convert ascii art to diagram and uml.
 
 To install the tools, I suggest using,
 * apt-cyg at Cygwin
