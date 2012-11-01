@@ -4,8 +4,6 @@
 ;; at which point buffer-file-name is nil
 (eval-after-load 'flymake
   '(progn
-     (require 'flymake-cursor)
-
      (global-set-key (kbd "C-`") 'flymake-goto-next-error)
 
      (defun flymake-can-syntax-check-file (file-name)
