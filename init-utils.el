@@ -71,7 +71,7 @@
 (defun browse-current-file ()
   "Open the current file as a URL using `browse-url'."
   (interactive)
-  (browse-url (concat "file://" (buffer-file-name))))
+  (browse-url-generic (concat "file://" (buffer-file-name))))
 
 
 (require 'cl)
