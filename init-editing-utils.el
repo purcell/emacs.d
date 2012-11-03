@@ -161,7 +161,14 @@
     "Restore fci-mode when all popups have closed"
     (when (and (not popup-instances) sanityinc/fci-mode-suppressed)
       (setq sanityinc/fci-mode-suppressed nil)
-      (turn-on-fci-mode))))
+      (turn-on-fci-mode)))
+
+  ;; Regenerate fci-mode line images after switching themes
+  (defadvice load-theme (after recompute-fci-face activate)
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when fci-mode
+          (turn-on-fci-mode))))))
 
 
 ;;----------------------------------------------------------------------------
