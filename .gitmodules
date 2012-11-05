@@ -1,3 +1,0 @@
-[submodule "site-lisp/evil-surround"]
-	path = site-lisp/evil-surround
-	url = git://github.com/timcharper/evil-surround.git
