@@ -37,6 +37,15 @@
 (require 'init-compat)
 (require 'init-utils)
 (require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
+
+;; win32 auto configuration, assuming that cygwin is installed at "c:/cygwin"
+(if *win32*
+	(progn
+		(setq cygwin-mount-cygwin-bin-directory "c:/cygwin/bin")
+		(require 'setup-cygwin)
+		;(setenv "HOME" "c:/cygwin/home/someuser") ;; better to set HOME env in GUI
+		))
+
 (require 'init-elpa)
 (require 'init-exec-path) ;; Set up $PATH
 (require 'init-frame-hooks)
