@@ -32,6 +32,7 @@ I base my configuration on Purcell's and sync from his frequently.
 
 ## My additions
 
+* 'git submodule update --init' is NOT needed. I removed all the 'git submodule' stuff.
 * some major/minor modes for C/C++ developers
 * emacs-w3m (console browser)
 * eim (Chinese pinyin input method)
@@ -45,6 +46,7 @@ I base my configuration on Purcell's and sync from his frequently.
 Purcell won't list all the 3rd party tools you need install. I will
 try to list them HERE,
 
+* w3m (web browser in console)
 * jsl (jslint)
 * aspell, and some dictionary like aspell-en
 * tidy
