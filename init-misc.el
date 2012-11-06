@@ -204,6 +204,9 @@
 (require 'window-numbering)
 (window-numbering-mode 1)
 
+;; cygwin auto configuration, assuming that cygwin is installed at "c:/cygwin"
+(if *cygwin* (require 'setup-cygwin))
+
 ;; sig-quote
 ;(require 'sig-quote)
 
