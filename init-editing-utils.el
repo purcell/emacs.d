@@ -151,6 +151,9 @@
 
   (add-hook 'prog-mode-hook 'sanityinc/prog-mode-fci-settings)
 
+  (defun sanityinc/fci-enabled-p ()
+    (and (boundp 'fci-mode) fci-mode))
+
   (defvar sanityinc/fci-mode-suppressed nil)
   (defadvice popup-create (before suppress-fci-mode activate)
     "Suspend fci-mode while popups are visible"
@@ -167,7 +170,7 @@
   (defadvice load-theme (after recompute-fci-face activate)
     (dolist (buffer (buffer-list))
       (with-current-buffer buffer
-        (when fci-mode
+        (when (sanityinc/fci-enabled-p)
           (turn-on-fci-mode))))))
 
 
