@@ -135,6 +135,8 @@
 (require 'init-ace-jump-mode)
 (require 'init-multiple-cursors)
 (require 'init-uml)
+(require 'init-sunrise-commander)
+
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
