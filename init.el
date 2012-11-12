@@ -136,6 +136,7 @@
 (require 'init-multiple-cursors)
 (require 'init-uml)
 (require 'init-sunrise-commander)
+(require 'init-gnus)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
