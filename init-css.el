@@ -27,9 +27,8 @@
 
 
 ;; Colourise CSS colour literals
-(autoload 'rainbow-turn-on "rainbow-mode" "Enable rainbow mode colour literal overlays")
 (dolist (hook '(css-mode-hook html-mode-hook sass-mode-hook))
-  (add-hook hook 'rainbow-turn-on))
+  (add-hook hook 'rainbow-mode))
 
 
 (defun maybe-flymake-css-load ()
