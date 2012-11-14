@@ -47,5 +47,18 @@
                      (ido-completing-read "git-svn command: " git-svn--available-commands nil t)))))
 
 
+;;----------------------------------------------------------------------------
+;; gist fixes
+;;----------------------------------------------------------------------------
+
+;; If using a "password = !some command" in .gitconfig, we need to
+;; run the specified command to find the actual value
+
+(defadvice gh-config (after sanityinc/maybe-execute-bang (key) activate)
+  (when (and (string= key "password")
+             (string-prefix-p "!" ad-return-value))
+    (setq ad-return-value (shell-command-to-string (substring ad-return-value 1)))))
+
+
 
 (provide 'init-git)
