@@ -228,5 +228,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'buffer-move)
 (require-package 'go-mode)
 (require-package 'switch-window)
+(require-package 'golden-ratio)
 
 (provide 'init-elpa)
