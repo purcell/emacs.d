@@ -75,3 +75,6 @@ https://github.com/redguardtoo/emacs.d
 You need manually `M-x list-packages` and install it.
 * I downgraded the yasnippet to an older version because latest yasnippet is
 not compatible with auto-complete.
+
+## My personal Emacs configuration (custom.el)
+It's publicized at http://blog.binchen.org/?p=430 .
