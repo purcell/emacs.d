@@ -137,6 +137,7 @@
 (require 'init-uml)
 (require 'init-sunrise-commander)
 (require 'init-gnus)
+(require 'init-golden-ratio)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

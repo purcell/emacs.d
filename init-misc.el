@@ -204,9 +204,6 @@
 (require 'window-numbering)
 (window-numbering-mode 1)
 
-;; golden-ratio
-(require 'golden-ratio)
-(golden-ratio-enable)
 
 ;; sig-quote
 ;(require 'sig-quote)
