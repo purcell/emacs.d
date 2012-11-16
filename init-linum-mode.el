@@ -12,7 +12,8 @@
                                          inf-ruby-mode
                                          w3m-mode
                                          gnus-summary-mode
-                                         gnus-article-mode))
+                                         gnus-article-mode
+                                         calendar-mode))
   (defadvice linum-on (around linum-on-inhibit-for-modes)
              "Stop the load of linum-mode for some major modes."
              (unless (member major-mode linum-mode-inhibit-modes-list)
