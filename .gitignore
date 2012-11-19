@@ -21,7 +21,6 @@ cookies
 /ac-comphist.dat
 \#*
 /elpa
-site-lisp/package/
 eshell/
 semanticdb/
 *.swp
