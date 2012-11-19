@@ -138,6 +138,7 @@
 (require 'init-sunrise-commander)
 (require 'init-gnus)
 (require 'init-golden-ratio)
+(require 'init-smarter-compile)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

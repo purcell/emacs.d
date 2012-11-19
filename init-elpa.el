@@ -230,5 +230,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'switch-window)
 (require-package 'golden-ratio)
 (require-package 'maxframe)
+(require-package 'smarter-compile)
 
 (provide 'init-elpa)
