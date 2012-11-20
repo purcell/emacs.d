@@ -51,17 +51,6 @@
 (require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
 
-;;----------------------------------------------------------------------------
-;; Autopair quotes and parentheses
-;;----------------------------------------------------------------------------
-(require 'autopair)
-(setq autopair-autowrap t)
-(autopair-global-mode t)
-
-(defun inhibit-autopair ()
-  "Prevent autopair from enabling in the current buffer."
-  (setq autopair-dont-activate t)
-  (autopair-mode -1))
 
 ;;----------------------------------------------------------------------------
 ;; Fix per-window memory of buffer point positions

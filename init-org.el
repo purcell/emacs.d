@@ -96,6 +96,4 @@
      ;;(require 'org-checklist)
      (require 'org-fstree)))
 
-(add-hook 'org-mode-hook 'inhibit-autopair)
-
 (provide 'init-org)
