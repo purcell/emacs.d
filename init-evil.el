@@ -26,6 +26,7 @@
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)
 (evil-leader/set-key
+  "t" 'ctags-create-or-update-tags-table
   "w" 'save-buffer
   "c" 'qiang-comment-dwim-line
   "W" 'save-some-buffers
