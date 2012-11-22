@@ -5,7 +5,7 @@
 (when *is-a-mac*
   ; Mac's default ctags does not support -e option
   ; If you install Emacs by homebrew, another version of etags is already installed which does not need -e too
-  (setq ctags-command "etags *")
+  ;(setq ctags-command "etags *") ;; the best option is to install latest ctags from sf.net
   )
 
 (provide 'init-ctags)
