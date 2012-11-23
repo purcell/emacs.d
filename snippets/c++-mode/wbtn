@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: wxButton
+# key: wbtn
+# --
+wxButton(this,${1:wxID_ANY},_("${2:&OK}"))

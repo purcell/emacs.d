@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: wxTextCtrl
+# key: wtctrl
+# --
+wxTextCtrl(this,${1:wxID_ANY})
