@@ -70,16 +70,17 @@
 ;; ----------------------------------------------------------------------------
 ;; Automatic byte compilation
 ;; ----------------------------------------------------------------------------
-
-(defun maybe-byte-compile ()
-  (when (and (eq major-mode 'emacs-lisp-mode)
-             buffer-file-name
-             (string-match "\\.el$" buffer-file-name)
-             (not (string-match "\\.dir-locals.el$" buffer-file-name)))
-    (save-excursion (byte-compile-file buffer-file-name))))
-
-
-(add-hook 'after-save-hook 'maybe-byte-compile)
+; byte-compile won't improved the peformance of my .emacs.d since I use autoload
+; and I've *measured* the start up time of each emacs plugins
+;(defun maybe-byte-compile ()
+;  (when (and (eq major-mode 'emacs-lisp-mode)
+;             buffer-file-name
+;             (string-match "\\.el$" buffer-file-name)
+;             (not (string-match "\\.dir-locals.el$" buffer-file-name)))
+;    (save-excursion (byte-compile-file buffer-file-name))))
+;
+;
+;(add-hook 'after-save-hook 'maybe-byte-compile)
 
 
 ;; ----------------------------------------------------------------------------
