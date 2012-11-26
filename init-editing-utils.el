@@ -23,6 +23,10 @@
  truncate-partial-width-windows nil
  visible-bell t)
 
+;; But don't show trailing whitespace in SQLi, inf-ruby etc.
+(add-hook 'comint-mode-hook
+          (lambda () (setq show-trailing-whitespace nil)))
+
 (transient-mark-mode t)
 
 
