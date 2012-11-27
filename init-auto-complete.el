@@ -73,6 +73,20 @@
   (setq ac-clang-flags
         (mapcar (lambda (item) (concat "-I" item))
                 (split-string clang-include-dir-str)))
+
+  ; This should be done at first
+  (cppcm-create-or-update-flymake-files)
+  ; better IntelliSense for auto-complete-clang
+  (when cppcm-include-dirs
+  ; cppcm-include-dirs could be nil
+    (setq ac-clang-flags cppcm-include-dirs)
+    )
+  ; Smart compile, avoid typing full build path for "make -C"
+  (when cppcm-build-dir
+    (setq compile-command (concat "make -C " cppcm-build-dir))
+    ; fixed rinari's bug
+    (remove-hook 'find-file-hook 'rinari-launch)
+    )
   (setq ac-clang-auto-save t)
   )
 (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)

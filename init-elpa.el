@@ -231,5 +231,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'golden-ratio)
 (require-package 'maxframe)
 (require-package 'smarter-compile)
+(require-package 'cpputils-cmake)
 
 (provide 'init-elpa)
