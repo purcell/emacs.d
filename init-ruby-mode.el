@@ -12,7 +12,9 @@
 (eval-after-load 'ruby-mode
   '(progn
      (define-key ruby-mode-map (kbd "RET") 'reindent-then-newline-and-indent)
-     (define-key ruby-mode-map (kbd "TAB") 'indent-for-tab-command)))
+     (define-key ruby-mode-map (kbd "TAB") 'indent-for-tab-command)
+     (setq compile-command "rake ")
+     ))
 
 
 ;;----------------------------------------------------------------------------
@@ -24,7 +26,6 @@
 ;;----------------------------------------------------------------------------
 ;; Ruby - misc
 ;;----------------------------------------------------------------------------
-(setq compile-command "rake ")
 
 (defalias 'ri 'yari)
 
