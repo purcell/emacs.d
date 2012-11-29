@@ -1,0 +1,71 @@
+#name : wxmain (...)
+# --
+project(${1:main})
+cmake_minimum_required(VERSION 2.6)
+
+set(TARGET_NAME ${2:main})
+set(TYPE "")
+
+if(CMAKE_COMPILER_IS_GNUCC)
+  # needed for gcc 4.6+
+  set(CMAKE_CXX_FLAGS "\${CMAKE_CXX_FLAGS} -fpermissive")
+endif()
+
+set( CPP_SRC
+  main.cpp
+  $0
+  )
+
+set( H_SRC
+   #main.hpp
+    )
+
+set(SRC
+  \${CPP_SRC}
+  \${H_SRC}
+  )
+
+# xrc -> xml, adv, html
+#set(wxWidgets_USE_LIBS xrc xml adv html core base)
+# I don't use XML stuff
+set(wxWidgets_USE_LIBS adv html core base)
+find_package(wxWidgets REQUIRED)
+include(\${wxWidgets_USE_FILE})
+
+set(INC
+  \${CMAKE_CURRENT_SOURCE_DIR}
+  )
+
+if(UNIX AND NOT APPLE)
+  include(FindPkgConfig)
+  pkg_check_modules(GTK2 REQUIRED gtk+-2.0>=2.10)
+  set(INC \${INC} \${GTK2_INCLUDE_DIRS})
+endif()
+
+#add other librarie
+include_directories(\${INC})
+
+if(UNIX)
+  add_definitions(-Wno-write-strings)
+endif()
+
+if(WIN32)
+  # WIN32 := subsystem is windows instead of console?
+  set(TYPE WIN32)
+endif()
+
+if(APPLE)
+   set(TYPE MACOSX_BUNDLE)
+endif()
+
+add_executable(\${TARGET_NAME} \${TYPE} \${SRC})
+
+set(LIBS
+  \${wxWidgets_LIBRARIES}
+  )
+
+if(MINGW AND WIN32)
+  set(LIBS \${LIBS} ole32 uuid oleaut32)
+endif()
+
+target_link_libraries(\${TARGET_NAME} \${LIBS})

@@ -1,0 +1,218 @@
+# -*- mode: snippet -*-
+# name: wxmain
+# key: wxmain
+# --
+#include <wx/help.h>
+
+// main.hpp
+#ifndef _MAIN_H_
+#define _MAIN_H_
+
+#include <wx/wx.h>             // wxApp
+
+class wxHelpControllerBase;
+class MainFrame;
+
+// Define a new application type, each program should derive a class from wxApp
+class MyApp : public wxApp
+{
+public:
+    // Override base class virtuals:
+    // wxApp::OnInit() is called on application startup and is a good place
+    // for the app initialization (doing it here and not in the ctor
+    // allows to have an error return: if OnInit() returns false, the
+    // application terminates)
+    virtual bool OnInit();
+
+    // called before OnInit() and before any window is created
+    bool OnPreInit();
+    void OnAfterInit();
+    virtual int OnExit();
+    ~MyApp();
+
+public:
+    MainFrame* frame;
+    wxHelpControllerBase *m_helpController;
+};
+
+DECLARE_APP(MyApp)
+#endif
+
+
+// main_frame.hpp
+#ifndef _MAIN_FRAME_H
+#define _MAIN_FRAME_H
+
+#include <wx/wx.h>
+
+class MainFrame;
+
+class MainFrame:public wxFrame
+{
+public:
+    MainFrame();
+    ~MainFrame();
+    void InitGUI();
+private:
+    void OnExit(wxCommandEvent&);
+    void OnHelpContents(wxCommandEvent&);
+    wxMenuBar* CreateMenubar();
+private:
+    DECLARE_EVENT_TABLE()
+    wxMenuBar *_menubar;
+    wxSizer *_sz;
+};
+#endif
+
+// main_frame.cpp
+#define APP_NAME "${1:MyKillApp}"
+
+#include <wx/textctrl.h>
+#include <wx/stattext.h>
+#include <wx/button.h>
+
+//#include "main_frame.hpp"
+
+//-------------------------------
+// class MainFrame
+//-------------------------------
+BEGIN_EVENT_TABLE(MainFrame, wxFrame)
+    EVT_MENU(wxID_EXIT,MainFrame::OnExit)
+    EVT_MENU(wxID_HELP_CONTENTS,MainFrame::OnHelpContents)
+END_EVENT_TABLE()
+
+//--------------------------------------------------
+// Public method
+//--------------------------------------------------
+MainFrame::MainFrame():wxFrame(0,wxID_ANY,wxEmptyString),_sz(0)
+{
+
+    _sz=new wxBoxSizer(wxVERTICAL);
+    _menubar=new wxMenuBar();
+
+    wxMenu* fMenu=new wxMenu();
+    fMenu->Append(wxID_EXIT, _("E&xit"));
+    _menubar->Append(fMenu,_("&File"));
+
+    wxMenu *vMenu=new wxMenu();
+    vMenu->Append(wxID_VIEW_LIST, _("My &Gallery"));
+    _menubar->Append(vMenu,_("&View"));
+
+    wxMenu* hMenu=new wxMenu();
+    hMenu->Append(wxID_ANY, wxString::Format(_("&About %s..."),_(APP_NAME)));
+    hMenu->Append(wxID_HELP_CONTENTS, _("&Contents"));
+    _menubar->Append(hMenu,_("&Help"));
+    $0
+    SetMenuBar(_menubar);
+
+    Layout();
+    return;
+}
+
+MainFrame::~MainFrame()
+{
+}
+
+void MainFrame::OnExit(wxCommandEvent& WXUNUSED(event))
+{
+    Close();
+    return;
+}
+
+void MainFrame::OnHelpContents(wxCommandEvent& WXUNUSED(event))
+{
+    return;
+}
+
+//main.cpp
+// Create a new application object: this macro will allow wxWidgets to create
+// the application object during program execution (it's better than using a
+// static object for many reasons) and also declares the accessor function
+// wxGetApp() which will return the reference of the right type (i.e. the_app and
+// not wxApp).
+IMPLEMENT_APP(MyApp)
+
+bool MyApp::OnPreInit()
+{
+  return true;
+}
+
+bool MyApp::OnInit()
+{
+  if(!OnPreInit()){ return false; }
+
+  // call the base class initialization method, currently it only parses a
+  // few common command-line options but it could be do more in the future
+  if ( !wxApp::OnInit() )
+      return false;
+
+
+#ifdef __WXMSW__
+  m_helpController = new wxCHMHelpController();
+  //see /Users/cb/wxWidgets-2.9.4/samples/help/doc/
+  //m_helpController->Initialize(CAppConfig::Get()->GetHelpFileName().GetFullPath());
+#else
+  m_helpController = new wxHelpController;
+#endif
+
+  /**
+  * code from src/common/msgout.cpp
+  * wxMessageOutput* wxMessageOutput::Set(wxMessageOutput* msgout)
+  * {
+  *    wxMessageOutput* old = ms_msgOut;
+  *    ms_msgOut = msgout;
+  *    return old;
+  * }
+  */
+
+  delete wxMessageOutput::Set(new wxMessageOutputDebug());
+
+
+  //before create any GUI, let's check if we use skin?
+
+  //OnAfterInit();
+  //frame will be released automatically in DeletePendingObjects()
+  frame=new MainFrame();
+
+  //set the shape again
+  SetTopWindow(frame);
+  frame->Center();
+
+  // Show the frame as it's created initially hidden.
+  frame->Show(true);
+  //frame->Maximize();
+
+#ifndef NDEBUG
+  wxRect rc=frame->GetRect();
+#endif
+
+  SetTopWindow(frame);
+  // Return true to tell program to continue (false would terminate).
+  return true;
+}
+
+void MyApp::OnAfterInit()
+{
+  return;
+}
+
+int MyApp::OnExit()
+{
+#ifdef __WXMSW__
+  m_helpController->Quit();
+  delete m_helpController;
+#endif
+
+  return(wxApp::OnExit());
+}
+
+MyApp::~MyApp()
+{
+}
+
+// Local Variables:
+// c-basic-offset: 2
+// indent-tabs-mode: nil
+// End:
+//
+// vim: et sts=2 sw=2
