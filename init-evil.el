@@ -35,8 +35,11 @@
   "K" 'kill-buffer-and-window
   "p" 'previous-error
   "n" 'next-error
-  "g" 'magit-status
   "." 'evil-ex
-  )
+  "k" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
+  "g" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
+  "q" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
+  "s" '(lambda () (interactive) (require 'w3m) (browse-url-generic (concat "http://code.google.com/codesearch?q=" (w3m-url-encode-string (thing-at-point 'symbol)))))
+  "d" '(lambda () (interactive) (w3m-search "d" (thing-at-point 'symbol))))
 
 (provide 'init-evil)
