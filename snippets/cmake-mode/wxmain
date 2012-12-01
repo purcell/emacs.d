@@ -3,6 +3,8 @@
 project(${1:main})
 cmake_minimum_required(VERSION 2.6)
 
+set(CMAKE_CXX_FLAGS_DEBUG "\${CMAKE_CXX_FLAGS_DEBUG} -D__WXDEBUG__ -DWXDEBUG=1")
+
 set(TARGET_NAME ${2:main})
 set(TYPE "")
 
