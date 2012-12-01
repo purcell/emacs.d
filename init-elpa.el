@@ -233,5 +233,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'smarter-compile)
 (require-package 'cpputils-cmake '(0 0 2) nil)
 (require-package 'flyspell-lazy)
+(require-package 'gtags)
 
 (provide 'init-elpa)

@@ -129,6 +129,7 @@
 (require 'init-pomodoro)
 (require 'init-undo-tree)
 (require 'init-moz)
+(require 'init-gtags)
 (require 'init-evil) ; use evil mode (vi key binding)
 (require 'init-misc)
 (require 'init-ctags)

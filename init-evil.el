@@ -40,6 +40,11 @@
   "g" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
   "q" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
   "s" '(lambda () (interactive) (require 'w3m) (browse-url-generic (concat "http://code.google.com/codesearch?q=" (w3m-url-encode-string (thing-at-point 'symbol)))))
-  "d" '(lambda () (interactive) (w3m-search "d" (thing-at-point 'symbol))))
+  "d" 'gtags-find-tag-from-here
+  "p" 'gtags-pop-stack
+  "r" 'gtags-find-rtag
+  "y" 'gtags-find-symbol
+  "j" 'djcb-gtags-create-or-update
+  )
 
 (provide 'init-evil)
