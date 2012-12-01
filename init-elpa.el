@@ -231,7 +231,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'golden-ratio)
 (require-package 'maxframe)
 (require-package 'smarter-compile)
-(require-package 'cpputils-cmake)
+(require-package 'cpputils-cmake '(0 0 2) nil)
 (require-package 'flyspell-lazy)
 
 (provide 'init-elpa)
