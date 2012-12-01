@@ -43,17 +43,21 @@ I base my configuration on Purcell's and sync from his frequently.
 
 ## Third party CLI tools Emacs uses
 
-Purcell won't list all the 3rd party tools you need install. I will
+Purcell won't list all the 3rd party tools this configuration dependent on. I will
 try to list them HERE,
 
 * w3m (web browser in console)
 * jsl (jslint)
 * aspell, and some dictionary like aspell-en
 * tidy
-* zip&unzip
+* zip and unzip
   export org to odt
 * clang
   auto-complete/intellisense by using clang (http://clang.llvm.org)
+* ctags (http://ctags.sourceforge.net)
+  You use ctags to navigate the code.
+* GNU Global (http://www.gnu.org/software/global)
+  You use this tool to navigate the code.
 * pyflakes
   install pip, then `pip install pyflakes`, but on cygwin you need install
   setuptool in order to install pip.
@@ -64,6 +68,7 @@ To install the tools, I suggest using,
 * homebrew at OS X
 * any package manager at Linux
 
+Please note it's totally fine you don't install these CLI tools. Emacs won't crash. ;)
 ## Report bug
 If you find any bug, please file an issue on the github project:
 https://github.com/redguardtoo/emacs.d
