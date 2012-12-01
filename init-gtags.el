@@ -14,9 +14,9 @@
   )
 
 (defun add-gtagslibpath (libdir &optional del)
-  (let (sl))
   "add external library directory to environment variable GTAGSLIBPATH.\ngtags will can that directory if needed.\nC-u M-x add-gtagslibpath will remove the directory from GTAGSLIBPATH."
   (interactive "DDirectory containing GTAGS:\nP")
+  (let (sl)
   (if (not (file-exists-p (concat (file-name-as-directory libdir) "GTAGS")))
       ;; create tags
       (let ((olddir default-directory))
@@ -26,9 +26,9 @@
         )
     )
   (setq libdir (directory-file-name libdir)) ;remove final slash
-  (setq sl (split-string (getenv "GTAGSLIBPATH") ":" t))
+  (setq sl (split-string (if (getenv "GTAGSLIBPATH") (getenv "GTAGSLIBPATH") "")  ":" t))
   (if del (setq sl (delete libdir sl)) (add-to-list 'sl libdir t))
-  (setenv "GTAGSLIBPATH" (mapconcat 'identity sl ":"))
+  (setenv "GTAGSLIBPATH" (mapconcat 'identity sl ":")))
   )
 
 (defun print-gtagslibpath ()
