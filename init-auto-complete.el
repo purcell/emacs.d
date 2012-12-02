@@ -75,6 +75,8 @@
                 (split-string clang-include-dir-str)))
 
   (cppcm-reload-all)
+  ; fixed rinari's bug
+  (remove-hook 'find-file-hook 'rinari-launch)
 
   (setq ac-clang-auto-save t)
   )
