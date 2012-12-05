@@ -18,6 +18,7 @@
 (evil-set-initial-state 'message-mode 'emacs)
 ; message buffer
 (evil-set-initial-state 'fundamental-mode 'emacs)
+(evil-set-initial-state 'gtags-select-mode 'emacs)
 
 (define-key evil-normal-state-map "Y" (kbd "y$"))
 (define-key evil-normal-state-map "+" 'evil-numbers/inc-at-pt)

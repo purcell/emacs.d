@@ -56,6 +56,7 @@
   ;1 (was imposed by gnu style by default)
   (setq c-label-minimum-indentation 0)
 
+  (setq gtags-suggested-key-mapping t)
   (gtags-mode 1)
 
   ; @see https://github.com/seanfisk/cmake-flymake

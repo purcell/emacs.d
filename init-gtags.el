@@ -1,4 +1,4 @@
-;; @see http://emacs-fu.blogspot.com.au/2009/01/navigating-through-source-code-using.html
+;; @see http://emacs-fu.blogspot.com.au/2008/01/navigating-through-source-code-using.html
 (defun djcb-gtags-create-or-update ()
   "create or update the gnu global tag file"
   (interactive)
