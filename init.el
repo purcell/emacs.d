@@ -140,6 +140,7 @@
 (require 'init-gnus)
 (require 'init-golden-ratio)
 (require 'init-smarter-compile)
+(require 'init-wx)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

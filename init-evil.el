@@ -34,8 +34,6 @@
   "c" 'qiang-comment-dwim-line
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window
-  "p" 'previous-error
-  "n" 'next-error
   "." 'evil-ex
   "k" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
   "g" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
@@ -46,6 +44,9 @@
   "r" 'gtags-find-rtag
   "y" 'gtags-find-symbol
   "j" 'djcb-gtags-create-or-update
+  "lwa" 'wx-list-api
+  "lwc" 'wx-list-class
+  "bc" '(lambda () (interactive) (wx-browse-class (thing-at-point 'symbol)))
   )
 
 (provide 'init-evil)
