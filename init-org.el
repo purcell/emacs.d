@@ -2,6 +2,11 @@
 (define-key global-map "\C-ca" 'org-agenda)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
+(if *is-a-mac*
+  ; make soffice visible when converting odt to doc
+  (setenv "PATH" (concat (getenv "PATH") "/Applications/LibreOffice.app/Contents/MacOS"))
+  )
+
 ;; Various preferences
 (setq org-log-done t
       org-completion-use-ido t
@@ -12,6 +17,7 @@
       org-agenda-window-setup 'current-window
       org-fast-tag-selection-single-key 'expert
       org-export-kill-product-buffer-when-displayed t
+      org-export-odt-preferred-output-format "doc"
       org-tags-column 80
       ;org-startup-indented t
       )
