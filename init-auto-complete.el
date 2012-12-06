@@ -1,12 +1,12 @@
 ;; @see http://cx4a.org/software/auto-complete/manual.html
 (require 'auto-complete-config)
 (global-auto-complete-mode) ; recommended way to (setq global-auto-complete-mode), see info
-(setq ac-auto-start nil) ; popup candidates when you press each character is annoying
+(setq ac-auto-start nil) ; pop up candidates when you press each character is annoying
 (setq ac-dwim nil) ; To get pop-ups with docs even if a word is uniquely completed
 (ac-set-trigger-key "TAB") ; AFTER input prefix, press TAB key ASAP
 
-;; Use C-n/C-p to select candidate ONLY when completionion menu is displayed
-;; Below code is copied from offical manual
+;; Use C-n/C-p to select candidate ONLY when completion menu is displayed
+;; Below code is copied from official manual
 (setq ac-use-menu-map t)
 ;; Default settings
 (define-key ac-menu-map "\C-n" 'ac-next)
