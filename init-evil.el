@@ -31,7 +31,7 @@
 (evil-leader/set-key
   "t" 'ctags-create-or-update-tags-table
   "w" 'save-buffer
-  "c" 'qiang-comment-dwim-line
+  "ci" 'qiang-comment-dwim-line ; same with nerdcommenter in vi
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window
   "." 'evil-ex
