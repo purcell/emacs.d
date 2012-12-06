@@ -211,5 +211,6 @@
 
 ;; sig-quote
 ;(require 'sig-quote)
+(require 'bbdb-vcard)
 
 (provide 'init-misc)

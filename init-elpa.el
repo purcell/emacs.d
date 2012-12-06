@@ -234,5 +234,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'cpputils-cmake '(0 0 2) nil)
 (require-package 'flyspell-lazy)
 (require-package 'gtags)
+(require-package 'bbdb)
 
 (provide 'init-elpa)

@@ -3,6 +3,7 @@
 (setq golden-ratio-exclude-modes '("shell-mode"
                                    "calendar-mode"
                                    "gud-mode"
+                                   "message-mode"
                                    "ediff-mode"
                                    "eshell-mode"))
 (setq golden-ratio-exclude-buffer-names
