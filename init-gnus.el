@@ -7,4 +7,12 @@
            ;; list all the subscribed groups even they contain zero un-read messages
            (lambda () (local-set-key "o" 'my-gnus-group-list-subscribed-groups ))
            )
+(setq message-send-mail-function 'smtpmail-send-it
+      smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+      smtpmail-auth-credentials "~/.authinfo.gpg"
+      ;smtpmail-auth-credentials '(("smtp.gmail.com" 587 "chenbin.sh@gmail.com" nil))
+      smtpmail-default-smtp-server "smtp.gmail.com"
+      smtpmail-smtp-server "smtp.gmail.com"
+      smtpmail-smtp-service 587
+      smtpmail-local-domain "homepc")
 (provide 'init-gnus)

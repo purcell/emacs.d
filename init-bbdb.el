@@ -41,6 +41,6 @@
 
  '(( "From" . "no.?reply\\|DAEMON\\|daemon\\|facebookmail\\|twitter\\|notifications")))
 
-;; necessary because bbdb change this variable's default value, we restore it
-
+;; just remove some warning since bbdb package hook the mail-mode
+(setq compose-mail-user-agent-warnings nil)
 (provide 'init-bbdb)
