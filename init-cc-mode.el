@@ -59,6 +59,9 @@
   (setq gtags-suggested-key-mapping t)
   (gtags-mode 1)
 
+  (require 'fic-mode)
+  (add-hook 'c++-mode-hook 'turn-on-fic-mode) 
+
   ; @see https://github.com/seanfisk/cmake-flymake
   ; make sure you project use cmake
   (flymake-mode)
