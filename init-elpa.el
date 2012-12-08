@@ -235,5 +235,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'flyspell-lazy)
 (require-package 'gtags)
 (require-package 'bbdb)
+(require-package 'twittering-mode)
 
 (provide 'init-elpa)

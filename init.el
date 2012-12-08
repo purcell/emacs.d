@@ -142,6 +142,7 @@
 (require 'init-golden-ratio)
 (require 'init-smarter-compile)
 (require 'init-wx)
+(require 'init-twittering-mode)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

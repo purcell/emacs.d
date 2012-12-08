@@ -8,6 +8,7 @@
                                          erc-mode
                                          jabber-roster-mode
                                          jabber-chat-mode
+                                         twittering-mode
                                          gnus-group-mode
                                          inf-ruby-mode
                                          gud-mode
