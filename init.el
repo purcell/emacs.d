@@ -143,6 +143,7 @@
 (require 'init-smarter-compile)
 (require 'init-wx)
 (require 'init-twittering-mode)
+(require 'init-weibo)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

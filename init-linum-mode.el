@@ -9,6 +9,7 @@
                                          jabber-roster-mode
                                          jabber-chat-mode
                                          twittering-mode
+                                         weibo-timeline-mode
                                          gnus-group-mode
                                          inf-ruby-mode
                                          gud-mode
