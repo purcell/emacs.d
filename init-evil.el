@@ -29,9 +29,10 @@
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)
 (evil-leader/set-key
-  "t" 'ctags-create-or-update-tags-table
+  "ct" 'ctags-create-or-update-tags-table
+  "t" 'ido-goto-symbol ;; same as my vim hotkey
   "w" 'save-buffer
-  "ci" 'qiang-comment-dwim-line ; same with nerdcommenter in vi
+  "ci" 'qiang-comment-dwim-line ; same as nerdcommenter in vi
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window
   "." 'evil-ex
