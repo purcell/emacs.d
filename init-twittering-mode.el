@@ -3,8 +3,10 @@
 (setq twittering-use-master-password t)
 
 (add-hook 'twittering-edit-mode-hook (lambda () (ispell-minor-mode) (flyspell-mode)))
+(autoload 'twittering-numbering "twittering-numbering" nil t)
 (add-hook 'twittering-mode-hook
           (lambda ()
+            (twittering-numbering)
             (mapc (lambda (pair)
                     (let ((key (car pair))
                           (func (cdr pair)))
