@@ -46,7 +46,7 @@
   "p" 'gtags-pop-stack
   "r" 'gtags-find-rtag
   "y" 'gtags-find-symbol
-  "j" 'djcb-gtags-create-or-update
+  "cg" 'djcb-gtags-create-or-update
   "lwa" 'wx-list-api
   "lwc" 'wx-list-class
   "bc" '(lambda () (interactive) (wx-browse-class (thing-at-point 'symbol)))
