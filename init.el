@@ -139,7 +139,6 @@
 (require 'init-sunrise-commander)
 (require 'init-bbdb)
 (require 'init-gnus)
-(require 'init-golden-ratio)
 (require 'init-smarter-compile)
 (require 'init-wx)
 (require 'init-twittering-mode)
