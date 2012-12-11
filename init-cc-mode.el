@@ -5,6 +5,24 @@
       'c-basic-offset
       (c-lineup-topmost-intro-cont langelem))))
 
+;;===== hack gud-mode begin
+;; move the cursor to the end of last line if it's gud-mode
+(defun hack-gud-mode ()
+  (when (string= major-mode "gud-mode")
+    (goto-char (point-max))))
+
+(defadvice switch-to-buffer (after switch-to-buffer-after activate)
+  (hack-gud-mode))
+
+;; from switch-window is from 3rd party plugin switch windows.el
+(defadvice switch-window (after switch-window-after activate)
+  (hack-gud-mode))
+
+;; windmove-do-window-select is from windmove.el
+(defadvice windmove-do-window-select (after windmove-do-window-select-after activate)
+  (hack-gud-mode))
+;; ==== end
+
 ;C/C++ SECTION
 (defun my-c-mode-hook ()
   (local-set-key "\M-f" 'c-forward-into-nomenclature)
@@ -14,6 +32,17 @@
   (setq c-style-variables-are-local-p nil)
   ;give me NO newline automatically after electric expressions are entered
   (setq c-auto-newline nil)
+
+  ; @see http://xugx2007.blogspot.com.au/2007/06/benjamin-rutts-emacs-c-development-tips.html
+  (setq compilation-window-height 8)
+  (setq compilation-finish-function
+        (lambda (buf str)
+          (if (string-match "exited abnormally" str)
+            ;;there were errors
+            (message "compilation errors, press C-x ` to visit")
+            ;;no errors, make the compilation window go away in 0.5 seconds
+            (run-at-time 0.5 nil 'delete-windows-on buf)
+            (message "NO COMPILATION ERRORS!"))))
 
   ;if (0)          becomes        if (0)
   ;    {                          {

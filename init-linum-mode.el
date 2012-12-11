@@ -10,6 +10,7 @@
                                          jabber-chat-mode
                                          twittering-mode
                                          weibo-timeline-mode
+                                         woman-mode
                                          gnus-group-mode
                                          inf-ruby-mode
                                          gud-mode
