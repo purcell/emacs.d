@@ -35,6 +35,8 @@
   "t" 'ido-goto-symbol ;; same as my vim hotkey
   "w" 'save-buffer
   "ci" 'qiang-comment-dwim-line ; same as nerdcommenter in vi
+  "cl" 'compile
+  "ud" '(lambda () (interactive) (switch-to-buffer "*gud-main*"))
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window
   "." 'evil-ex
