@@ -36,7 +36,7 @@
   "w" 'save-buffer
   "ci" 'qiang-comment-dwim-line ; same as nerdcommenter in vi
   "cl" 'compile
-  "ud" '(lambda () (interactive) (switch-to-buffer "*gud-main*"))
+  "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window
   "." 'evil-ex
