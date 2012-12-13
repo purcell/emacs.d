@@ -200,6 +200,9 @@
 (global-set-key (kbd "M-p") 'move-text-up)
 (global-set-key (kbd "M-n") 'move-text-down)
 
+;;iedit-mode
+(global-set-key (kbd "C-c ;") 'iedit-mode-toggle-on-function)
+
 ;; move window
 (require 'window-numbering)
 (window-numbering-mode 1)
