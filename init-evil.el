@@ -39,10 +39,10 @@
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window
-  "ps" 'pomodoro-start
+  "bm" 'pomodoro-start ; beat myself
   "." 'evil-ex
   ;; @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
-  "ov" (lambda () (interactive) (set-selective-display (if selective-display nil 1)))
+  "ov" '(lambda () (interactive) (set-selective-display (if selective-display nil 1)))
   "k" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
   "g" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
   "q" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
