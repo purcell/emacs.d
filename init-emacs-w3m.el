@@ -16,6 +16,9 @@
       w3m-key-binding 'info
       )
 
+;; show images in the browser
+;(setq w3m-default-display-inline-images t)
+
 (setq w3m-search-default-engine "g")
 (eval-after-load "w3m-search" '(progn
                                  ; C-u S g RET <search term> RET
