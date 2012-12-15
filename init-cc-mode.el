@@ -38,11 +38,13 @@
   (setq compilation-finish-function
         (lambda (buf str)
           (if (string-match "exited abnormally" str)
-            ;;there were errors
-            (message "compilation errors, press C-x ` to visit")
+              ;;there were errors
+              (message "compilation errors, press C-x ` to visit")
             ;;no errors, make the compilation window go away in 0.5 seconds
-            (run-at-time 0.5 nil 'delete-windows-on buf)
-            (message "NO COMPILATION ERRORS!"))))
+            (when (string-match "*compilation*" (buffer-name buf))
+              (run-at-time 0.5 nil 'delete-windows-on buf)
+              (message "NO COMPILATION ERRORS!")
+              ))))
 
   ;if (0)          becomes        if (0)
   ;    {                          {
