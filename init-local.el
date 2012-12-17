@@ -3,21 +3,23 @@
     (progn
       (message "tty")
       (require 'color-theme)
-      (color-theme-initialize)
-      (color-theme-hober))
+      ;;(color-theme-initialize)
+      (color-theme-hober)
+      (xterm-mouse-mode 0)
+      )
   (color-theme-sanityinc-solarized-dark)
   )
 (menu-bar-mode 0)
 ;;(tool-bar-mode 0)
-(require 'w3m-load)
-(setq browse-url-browser-function 'w3m-browse-url)
-(autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
-;; optional keyboard short-cut
-;;(global-set-key "\C-xm" 'browse-url-at-point)
-
-(setq w3m-use-cookies t)
-(setq w3m-default-display-inline-images t)
-(setq w3m-command-arguments '("-cookie" "-F"))
+;;(require 'w3m-load)
+;;(setq browse-url-browser-function 'w3m-browse-url)
+;;(autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
+;;;; optional keyboard short-cut
+;;;;(global-set-key "\C-xm" 'browse-url-at-point)
+;;
+;;(setq w3m-use-cookies t)
+;;(setq w3m-default-display-inline-images t)
+;;(setq w3m-command-arguments '("-cookie" "-F"))
 ;; load ibus-mode
 (add-to-list 'load-path "~/.emacs.d/site-lisp/ibus")
 (require 'ibus)
@@ -155,13 +157,14 @@
 (require 'magit)
 (global-set-key [(meta f12)] 'magit-status)
 
-(add-to-list 'load-path "~/.emacs.d/site-lisp/irfc")
-(require 'irfc)
-(setq irfc-directory "~/workstation/rfc/")
-(setq irfc-assoc-mode t)
+;;(add-to-list 'load-path "~/.emacs.d/site-lisp/irfc")
+;;(require 'irfc)
+;;(setq irfc-directory "~/workstation/rfc/")
+;;(setq irfc-assoc-mode t)
 (require 'my-org-settings)
 (load-file "~/.emacs.d/site-lisp/graphviz-dot-mode/graphviz-dot-mode.el")
 (add-hook 'graphviz-dot-mode-hook #'(lambda () (setq autopair-dont-activate t)))
 (setq graphviz-dot-view-command "xdot %s")
+
 (provide 'init-local)
 
