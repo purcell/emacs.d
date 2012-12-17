@@ -140,7 +140,6 @@
 (require 'init-bbdb)
 (require 'init-gnus)
 (require 'init-smarter-compile)
-(require 'init-wx)
 (require 'init-twittering-mode)
 (require 'init-weibo)
 

@@ -236,5 +236,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'bbdb)
 (require-package 'twittering-mode)
 (require-package 'iedit)
+(require-package 'wxwidgets-help)
 
 (provide 'init-elpa)

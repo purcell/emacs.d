@@ -52,9 +52,7 @@
   "r" 'gtags-find-rtag
   "y" 'gtags-find-symbol
   "cg" 'djcb-gtags-create-or-update
-  "lwa" 'wx-list-api
-  "lwc" 'wx-list-class
-  "bc" '(lambda () (interactive) (wx-browse-class (thing-at-point 'symbol)))
+  "bc" '(lambda () (interactive) (wxhelp-browse-class-or-api (thing-at-point 'symbol)))
   )
 
 (provide 'init-evil)
