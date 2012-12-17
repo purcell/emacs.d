@@ -30,6 +30,7 @@
 (setq ibus-cursor-color '("red" "blue" "limegreen"))
 ;; use C-; to toggle IBus
 (global-set-key [(control ?\;)] 'ibus-toggle)
+;;(global-set-key "\C-M-;" 'ibus-toggle)
 ;; Enable C-; key only for preediting
 (ibus-define-common-key [(control ?\;)] nil)
 (ibus-define-preedit-key [(control ?\;)] t)
@@ -159,5 +160,8 @@
 (setq irfc-directory "~/workstation/rfc/")
 (setq irfc-assoc-mode t)
 (require 'my-org-settings)
+(load-file "~/.emacs.d/site-lisp/graphviz-dot-mode/graphviz-dot-mode.el")
+(add-hook 'graphviz-dot-mode-hook #'(lambda () (setq autopair-dont-activate t)))
+(setq graphviz-dot-view-command "xdot %s")
 (provide 'init-local)
 

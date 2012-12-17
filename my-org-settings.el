@@ -66,7 +66,7 @@
 ;;(setq org-agenda-files '("~/mydata/org/work.org" "~/mydata/org/home.org"))
 
 ;; flyspell mode for spell checking everywhere
-(add-hook 'org-mode-hook 'turn-on-flyspell 'append)
+;;(add-hook 'org-mode-hook 'turn-on-flyspell 'append)
 
 ;; Use current window for agenda
 (setq org-agenda-window-setup 'current-window)
@@ -136,8 +136,8 @@
 \\usepackage{textcomp}
 \\usepackage{listings}
 \\usepackage{geometry}
-\\usepackage{algorithm}
-\\usepackage{algorithmic}
+%\\usepackage{algorithm}
+%\\usepackage{algorithmic}
 \\usepackage{marvosym}
 \\usepackage{wasysym}
 \\usepackage{latexsym}
