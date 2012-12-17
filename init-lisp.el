@@ -68,16 +68,9 @@
 ;; Automatic byte compilation
 ;; ----------------------------------------------------------------------------
 
-(defun maybe-byte-compile ()
-  (when (and (eq major-mode 'emacs-lisp-mode)
-             buffer-file-name
-             (string-match "\\.el$" buffer-file-name)
-             (not (string-match "\\.dir-locals.el$" buffer-file-name)))
-    (save-excursion (byte-compile-file buffer-file-name))))
-
-
-(add-hook 'after-save-hook 'maybe-byte-compile)
-
+(auto-compile-on-save-mode 1)
+;; TODO: also use auto-compile-on-load-mode
+;; TODO: exclude .dir-locals.el
 
 ;; ----------------------------------------------------------------------------
 ;; Highlight current sexp
