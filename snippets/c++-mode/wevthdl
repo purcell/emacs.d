@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: wxEventHandler
+# key: wevthdl
+# --
+void ${1:MethodName}(${2:wxCommandEvent}&);
+$0
+void ${3:ClassName}::${1:$(yas/substr text "[^ ]*")}(${2:$(yas/substr text "[^ ]*")}& WXUNUSED(event)) {
+    return;
+}
