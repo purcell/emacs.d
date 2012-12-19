@@ -43,7 +43,8 @@
   "." 'evil-ex
   ;; @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
   "ov" '(lambda () (interactive) (set-selective-display (if selective-display nil 1)))
-  "k" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
+  ;; search the man
+  "mk" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
   "g" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
   "q" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
   "s" '(lambda () (interactive) (require 'w3m) (browse-url-generic (concat "http://code.google.com/codesearch?q=" (w3m-url-encode-string (thing-at-point 'symbol)))))
