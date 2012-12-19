@@ -18,7 +18,13 @@
 
 ;; no annoying beep on errors
 (setq visible-bell t)
-(setq backup-directory-alist '(("." . "~/.backups")))
+;; Write backup files to own directory
+(if (not (file-exists-p (expand-file-name "~/.backups")))
+    (make-directory (expand-file-name "~/.backups"))
+    )
+(setq backup-directory-alist '(("." . (expand-file-name "~/.backups"))))
+;; Make backups of files, even when they're in version control
+(setq vc-make-backup-files t)
 
 (put 'narrow-to-region 'disabled nil)
 
