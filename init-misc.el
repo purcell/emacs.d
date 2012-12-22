@@ -22,7 +22,14 @@
 (if (not (file-exists-p (expand-file-name "~/.backups")))
     (make-directory (expand-file-name "~/.backups"))
     )
-(setq backup-directory-alist '(("." . (expand-file-name "~/.backups"))))
+(setq
+  backup-by-coping t ; don't clobber symlinks
+  backup-directory-alist '(("." . "~/.backups"))
+  delete-old-versions t
+  kept-new-versions 6
+  kept-old-versions 2
+  version-control t  ;use versioned backups
+  )
 ;; Make backups of files, even when they're in version control
 (setq vc-make-backup-files t)
 
