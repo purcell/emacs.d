@@ -22,7 +22,7 @@
          :front "style=\""
          :back "\"")))
      (dolist (mode (list 'html-mode 'nxml-mode))
-       (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?$" 'html-css))))
+       (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css))))
 
 
 

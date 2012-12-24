@@ -5,7 +5,7 @@
 (eval-after-load 'rinari
   '(diminish 'rinari-minor-mode "Rin"))
 
-(add-auto-mode 'ruby-mode "\\.rb$" "Rakefile$" "\.rake$" "\.rxml$" "\.rjs$" ".irbrc$" "\.builder$" "\.ru$" "\.gemspec$" "Gemfile$")
+(add-auto-mode 'ruby-mode "\\.rb\\'" "Rakefile\\'" "\.rake\\'" "\.rxml\\'" "\.rjs\\'" ".irbrc\\'" "\.builder\\'" "\.ru\\'" "\.gemspec\\'" "Gemfile\\'")
 
 
 (autoload 'run-ruby "inf-ruby" "Run an inferior Ruby process")
@@ -47,20 +47,20 @@
 
 (add-to-list 'auto-mode-alist '("\\.r?html\\(\\.erb\\)?\\'" . html-erb-mode))
 (add-to-list 'auto-mode-alist '("\\.jst\\.ejs\\'"  . html-erb-mode))
-(mmm-add-mode-ext-class 'yaml-mode "\\.yaml$" 'erb)
+(mmm-add-mode-ext-class 'yaml-mode "\\.yaml\\'" 'erb)
 
 (dolist (mode (list 'js-mode 'js2-mode 'js3-mode))
-  (mmm-add-mode-ext-class mode "\\.js\\.erb$" 'erb))
+  (mmm-add-mode-ext-class mode "\\.js\\.erb\\'" 'erb))
 
 
 ;;----------------------------------------------------------------------------
 ;; Ruby - my convention for heredocs containing SQL
 ;;----------------------------------------------------------------------------
-(eval-after-load 'mmm-mode
-  '(progn
-     (mmm-add-classes
-      '((ruby-heredoc-sql :submode sql-mode :front "<<-?end_sql.*\r?\n" :back "[ \t]*end_sql" :face mmm-code-submode-face)))
-     (mmm-add-mode-ext-class 'ruby-mode "\\.rb$" 'ruby-heredoc-sql)))
+;; (eval-after-load 'mmm-mode
+;;   '(progn
+;;      (mmm-add-classes
+;;       '((ruby-heredoc-sql :submode sql-mode :front "<<-?end_sql.*\r?\n" :back "[ \t]*end_sql" :face mmm-code-submode-face)))
+;;      (mmm-add-mode-ext-class 'ruby-mode "\\.rb\\'" 'ruby-heredoc-sql)))
 
 
 ;;----------------------------------------------------------------------------
@@ -80,7 +80,7 @@
 ;; Yaml
 ;;----------------------------------------------------------------------------
 (autoload 'yaml-mode "yaml-mode" "Major mode for YAML source")
-(add-auto-mode 'yaml-mode "\\.ya?ml$")
+(add-auto-mode 'yaml-mode "\\.ya?ml\\'")
 
 
 (provide 'init-ruby-mode)
