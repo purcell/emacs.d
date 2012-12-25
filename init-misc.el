@@ -116,6 +116,12 @@
   (interactive)
   (insert (format-time-string "%a %b %e, %Y %l:%M %p")))
 
+(defun insert-blog-version ()
+  "insert version of my blog post"
+  (interactive)
+  (insert (format-time-string "%Y%m%d"))
+  )
+
 ;;compute the length of the marked region
 (defun region-length ()
   "length of a region"
