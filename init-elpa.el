@@ -238,5 +238,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'twittering-mode)
 (require-package 'iedit)
 (require-package 'wxwidgets-help '(0 0 3) nil)
+(require-package 'emms)
 
 (provide 'init-elpa)
