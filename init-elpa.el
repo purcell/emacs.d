@@ -239,5 +239,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'iedit)
 (require-package 'wxwidgets-help '(0 0 3) nil)
 (require-package 'emms)
+(require-package 'pomodoro)
 
 (provide 'init-elpa)
