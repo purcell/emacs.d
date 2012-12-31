@@ -1,7 +1,3 @@
-;; Currently loading ruby-mode and inf-ruby from the version bundled with rinari
-(setq interpreter-mode-alist
-      (cons '("ruby" . ruby-mode) interpreter-mode-alist))
-
 (eval-after-load 'rinari
   '(diminish 'rinari-minor-mode "Rin"))
 
