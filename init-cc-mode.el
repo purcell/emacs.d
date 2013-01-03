@@ -42,10 +42,9 @@
               (message "compilation errors, press C-x ` to visit")
             ;;no errors, make the compilation window go away in 0.5 seconds
             (when (string-match "*compilation*" (buffer-name buf))
-              (if (fboundp 'winner-undo)
-                (winner-undo)
-                (run-at-time -1.5 nil 'delete-windows-on buf)
-                )
+              ;; @see http://emacswiki.org/emacs/ModeCompile#toc2
+              (bury-buffer "*compilation*")
+              (winner-undo)
               (message "NO COMPILATION ERRORS!")
               ))))
 
