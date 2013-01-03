@@ -42,7 +42,10 @@
               (message "compilation errors, press C-x ` to visit")
             ;;no errors, make the compilation window go away in 0.5 seconds
             (when (string-match "*compilation*" (buffer-name buf))
-              (run-at-time 0.5 nil 'delete-windows-on buf)
+              (if (fboundp 'winner-undo)
+                (winner-undo)
+                (run-at-time -1.5 nil 'delete-windows-on buf)
+                )
               (message "NO COMPILATION ERRORS!")
               ))))
 
