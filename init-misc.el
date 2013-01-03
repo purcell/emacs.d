@@ -226,6 +226,11 @@
 (require 'window-numbering)
 (window-numbering-mode 1)
 
+;; my screen is tiny, so I use minimum eshell prompt
+(setq eshell-prompt-function
+       (lambda ()
+         (concat (getenv "USER") " $ ")))
+
 ;; max frame, @see https://github.com/rmm5t/maxframe.el
 (require 'maxframe)
 ;(setq mf-max-width 1600) ;; Pixel width of main monitor. for dual-lcd only
