@@ -236,6 +236,21 @@
 ;(setq mf-max-width 1600) ;; Pixel width of main monitor. for dual-lcd only
 (add-hook 'window-setup-hook 'maximize-frame t)
 
+(defun toggle-env-http-proxy ()
+  "set/unset the environment variable http_proxy which w3m uses"
+  (interactive)
+  (let ((proxy "http://127.0.0.1:8000"))
+    (if (string= (getenv "http_proxy") proxy)
+        ;; clear the the proxy
+        (progn
+          (setenv "http_proxy" "")
+          (message "env http_proxy is empty now")
+          )
+      ;; set the proxy
+      (setenv "http_proxy" proxy)
+      (message "env http_proxy is %s now" proxy)
+        )
+    ))
 ;; sig-quote
 ;(require 'sig-quote)
 (require 'bbdb-vcard)
