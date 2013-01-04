@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: indent
+# key: indent
+# --
+$0
+-- Local Variables:
+-- lua-indent-level: ${1:2}
+-- indent-tabs-mode: nil
+-- End:
+--
+-- vim: et sts=${1:$(yas/substr text "[0-9]*")} sw=${1:$(yas/substr text "[0-9]*")}

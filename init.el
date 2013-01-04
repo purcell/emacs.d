@@ -144,6 +144,7 @@
 (require 'init-twittering-mode)
 (require 'init-weibo)
 (require 'init-emms)
+(require 'init-lua-mode)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
@@ -193,6 +194,7 @@
    (message "Emacs startup time: %d seconds."
     (time-to-seconds (time-since emacs-load-start-time)))
    )
+
 ;;; Local Variables:
 ;;; no-byte-compile: t
 ;;; End:

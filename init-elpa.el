@@ -240,5 +240,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'wxwidgets-help '(0 0 3) nil)
 (require-package 'emms)
 (require-package 'pomodoro)
+(require-package 'flymake-lua)
 
 (provide 'init-elpa)
