@@ -145,6 +145,7 @@
 (require 'init-weibo)
 (require 'init-emms)
 (require 'init-lua-mode)
+(require 'init-doxygen)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
