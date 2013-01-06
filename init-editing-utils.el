@@ -230,12 +230,16 @@
 ;need install browse-kill-ring
 (browse-kill-ring-default-keybindings)
 
-; turns on auto-fill-mode, don't use text-mode-hook becasue for some
-; mode (org-mode for example), this will make the exported document 
-; ugly!
+;; turns on auto-fill-mode, don't use text-mode-hook becasue for some
+;; mode (org-mode for example), this will make the exported document
+;; ugly!
 (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
 (add-hook 'change-log-mode-hook 'turn-on-auto-fill)
 (add-hook 'cc-mode-hook 'turn-on-auto-fill)
 (global-set-key (kbd "C-c q") 'auto-fill-mode)
+
+;; delim-pad, control space padding around delimiters
+(require 'delim-pad)
+(delim-pad-mode 1)
 
 (provide 'init-editing-utils)
