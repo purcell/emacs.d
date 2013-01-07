@@ -14,10 +14,8 @@
  grep-scroll-output t
  indent-tabs-mode nil
  line-spacing 0.2
- make-backup-files nil
  mouse-yank-at-point t
  set-mark-command-repeat-pop t
- show-trailing-whitespace t
  tooltip-delay 1.5
  truncate-lines nil
  truncate-partial-width-windows nil
@@ -229,6 +227,9 @@
 
 ;need install browse-kill-ring
 (browse-kill-ring-default-keybindings)
+
+;; show trailing spaces in a programming mod
+(add-hook 'prog-mode-hook (lambda () (setq show-trailing-whitespace t)))
 
 ;; turns on auto-fill-mode, don't use text-mode-hook becasue for some
 ;; mode (org-mode for example), this will make the exported document
