@@ -66,10 +66,6 @@
 
 (add-hook 'clojure-mode-hook 'tweak-clojure-syntax)
 
-
-
-
-(eval-after-load 'gist
 
 
 ;; Use clojure-mode for clojurescript, since clojurescript-mode
@@ -108,6 +104,6 @@
       (set-process-filter proc 'cljsbuild--insertion-filter)
       (font-lock-mode)
       (message "Started cljsbuild."))))
-  '(add-to-list 'gist-supported-modes-alist '(clojure-mode . ".clj")))
+
 
 (provide 'init-clojure)
