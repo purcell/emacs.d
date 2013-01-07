@@ -175,21 +175,8 @@
         (sort-subr nil 'forward-line 'end-of-line nil nil
                    (lambda (s1 s2) (eq (random 2) 0)))))))
 
-;; copy word, check function mark-sexp
-; @see http://www.emacswiki.org/emacs/CopyWithoutSelection
-;; http://emacser.com/torture-emacs.htm
-(defun qiang-comment-dwim-line (&optional arg)
-  "Replacement for the comment-dwim command.
-  If no region is selected and current line is not blank and we are not at the
-  end of the line, then comment current line.  Replaces default behaviour of
-  comment-dwim, when it inserts comment at the end of the line."
-  (interactive "*P")
-  (comment-normalize-vars)
-  (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))
-    (comment-or-uncomment-region
-     (line-beginning-position) (line-end-position))
-    (comment-dwim arg)))
-(global-set-key "\M-;" 'qiang-comment-dwim-line)
+;; comment/uncomment lines
+(evilnc-default-hotkeys)
 
 ;; line copy, if no region active, it simply copy the current whole line
 (defadvice kill-line (before check-position activate)

@@ -240,5 +240,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'emms)
 (require-package 'pomodoro)
 (require-package 'flymake-lua)
+(require-package 'evil-nerd-commenter '(0 0 1) nil)
 
 (provide 'init-elpa)
