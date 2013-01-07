@@ -37,7 +37,14 @@
       ))))
 
 (defun submit-to-marmalade (buf)
-  (interactive "bSubmit buffer: ")
+  (interactive
+   (list
+    (completing-read "Submit buffer: "
+                     (mapcar 'buffer-name (buffer-list))
+                     (lambda (b)
+                       (with-current-buffer b
+                         (and buffer-file-name
+                              (eq major-mode 'emacs-lisp-mode)))))))
   (with-current-buffer buf
     (let ((tag (latest-version-from-git-tag)))
       (unless tag
