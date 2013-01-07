@@ -70,6 +70,44 @@
 
 
 (eval-after-load 'gist
+
+
+;; Use clojure-mode for clojurescript, since clojurescript-mode
+;; pulls in Slime
+(add-auto-mode 'clojure-mode "\\.cljs\\'")
+
+(autoload 'cljsbuild-mode "cljsbuild-mode")
+
+(require 'ansi-color)
+
+(defun cljsbuild--insertion-filter (proc string)
+  "When PROC sends STRING, apply ansi color codes and insert into buffer."
+  (with-current-buffer (process-buffer proc)
+    (let ((moving (= (point) (process-mark proc))))
+      (save-excursion
+	(goto-char (process-mark proc))
+	(insert (ansi-color-apply string))
+	(set-marker (process-mark proc) (point)))
+      (when moving
+        (goto-char (process-mark proc))))))
+
+(defun cljsbuild-auto ()
+  "Run \"lein cljsbuild auto\" in a background buffer."
+  (interactive)
+  (unless (locate-dominating-file default-directory "project.clj")
+    (error "Not inside a leiningen project"))
+  (with-current-buffer (get-buffer-create "*cljsbuild*")
+    (when (get-buffer-process (current-buffer))
+      (error "Lein cljsbuild is already running"))
+    (buffer-disable-undo)
+    (let* ((proc (start-process "cljsbuild"
+                                (current-buffer)
+                                "lein" "cljsbuild" "auto")))
+      (cljsbuild-mode)
+      ;; Colorize output
+      (set-process-filter proc 'cljsbuild--insertion-filter)
+      (font-lock-mode)
+      (message "Started cljsbuild."))))
   '(add-to-list 'gist-supported-modes-alist '(clojure-mode . ".clj")))
 
 (provide 'init-clojure)
