@@ -44,7 +44,8 @@
                      (lambda (b)
                        (with-current-buffer b
                          (and buffer-file-name
-                              (eq major-mode 'emacs-lisp-mode)))))))
+                              (eq major-mode 'emacs-lisp-mode))))
+                     t)))
   (with-current-buffer buf
     (let ((tag (latest-version-from-git-tag)))
       (unless tag
