@@ -33,6 +33,7 @@
 
 (transient-mark-mode t)
 
+(define-key global-map (kbd "RET") 'newline-and-indent)
 
 ;;----------------------------------------------------------------------------
 ;; Zap *up* to char is a more sensible default
