@@ -2,13 +2,6 @@
 ;; Slime with Clojure
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Use technomancy's bag of fancy clojure/slime tricks
-(eval-after-load 'slime
-  '(progn
-     (require 'durendal)
-     (durendal-enable t)
-     (durendal-disable-slime-repl-font-lock)))
-
 (defun slime-clojure-repl-setup ()
   "Some REPL setup additional to that in durendal."
   (when (string-equal (slime-lisp-implementation-name) "clojure")
