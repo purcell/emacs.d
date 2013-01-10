@@ -214,7 +214,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'vc-darcs)
 (require-package 'whole-line-or-region)
 (require-package 'undo-tree '(20121124 2207 0) nil)
-(require-package 'track-closed-files)
 (require-package 'auctex)
 (when (< emacs-major-version 24)
   (require-package 'ert)) ; evil-20120724 requires ert
