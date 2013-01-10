@@ -1,9 +1,8 @@
 (evil-mode 1)
-; evil-surround
+
 ; @see https://github.com/timcharper/evil-surround
-(require 'surround)
-(require 'evil-numbers)
-(global-surround-mode 0)
+(global-surround-mode 1)
+
 (evil-set-initial-state 'org-mode 'emacs)
 (evil-set-initial-state 'Info-mode 'emacs)
 (evil-set-initial-state 'inf-ruby-mode 'emacs)

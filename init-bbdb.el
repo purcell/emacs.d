@@ -1,46 +1,52 @@
-(require 'bbdb)
-(bbdb-initialize 'message 'gnus 'sendmail)
-(add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
-(bbdb-insinuate-message)
+(require 'bbdb-autoloads)
 
 (add-hook 'message-mode-hook
           '(lambda ()
              (flyspell-mode t)
+             (bbdb-initialize 'message)
              (local-set-key "<TAB>" 'bbdb-complete-name)))
 
-;; @see http://emacs-fu.blogspot.com.au/2009/08/managing-e-mail-addresses-with-bbdb.html
-(setq
- bbdb-offer-save 1                        ;; 1 means save-without-asking
+(add-hook 'message-mode-hook
+          '(lambda ()
+             (bbdb-initialize 'gnus)
+             ))
 
- bbdb-use-pop-up t                        ;; allow popups for addresses
- bbdb-electric-p t                        ;; be disposable with SPC
- bbdb-popup-target-lines  1               ;; very small
+(add-hook 'bbdb-initialize-hook
+          '(lambda ()
+             ;; @see http://emacs-fu.blogspot.com.au/2009/08/managing-e-mail-addresses-with-bbdb.html
+             (setq
+               bbdb-offer-save 1                        ;; 1 means save-without-asking
 
- bbdb-dwim-net-address-allow-redundancy t ;; always use full name
- bbdb-quiet-about-name-mismatches 2       ;; show name-mismatches 2 secs
+               bbdb-use-pop-up t                        ;; allow popups for addresses
+               bbdb-electric-p t                        ;; be disposable with SPC
+               bbdb-popup-target-lines  1               ;; very small
 
- bbdb-always-add-address t                ;; add new addresses to existing...
- ;; ...contacts automatically
- bbdb-canonicalize-redundant-nets-p t     ;; x@foo.bar.cx => x@bar.cx
+               bbdb-dwim-net-address-allow-redundancy t ;; always use full name
+               bbdb-quiet-about-name-mismatches 2       ;; show name-mismatches 2 secs
 
- bbdb-completion-type nil                 ;; complete on anything
+               bbdb-always-add-address t                ;; add new addresses to existing...
+               ;; ...contacts automatically
+               bbdb-canonicalize-redundant-nets-p t     ;; x@foo.bar.cx => x@bar.cx
 
- bbdb-complete-name-allow-cycling t       ;; cycle through matches
- ;; this only works partially
+               bbdb-completion-type nil                 ;; complete on anything
 
- bbbd-message-caching-enabled t           ;; be fast
- bbdb-use-alternate-names t               ;; use AKA
+               bbdb-complete-name-allow-cycling t       ;; cycle through matches
+               ;; this only works partially
 
- bbdb-elided-display t                    ;; single-line addresses
+               bbbd-message-caching-enabled t           ;; be fast
+               bbdb-use-alternate-names t               ;; use AKA
 
- ;; auto-create addresses from mail
- bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook
- bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
- ;; NOTE: there can be only one entry per header (such as To, From)
- ;; http://flex.ee.uec.ac.jp/texi/bbdb/bbdb_11.html
+               bbdb-elided-display t                    ;; single-line addresses
 
- '(( "From" . "no.?reply\\|DAEMON\\|daemon\\|facebookmail\\|twitter\\|notifications")))
+               ;; auto-create addresses from mail
+               bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook
+               bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
+               ;; NOTE: there can be only one entry per header (such as To, From)
+               ;; http://flex.ee.uec.ac.jp/texi/bbdb/bbdb_11.html
 
-;; just remove some warning since bbdb package hook the mail-mode
-(setq compose-mail-user-agent-warnings nil)
+               '(( "From" . "no.?reply\\|DAEMON\\|daemon\\|facebookmail\\|twitter\\|notifications")))
+
+             ;; just remove some warning since bbdb package hook the mail-mode
+             (setq compose-mail-user-agent-warnings nil)
+             ))
 (provide 'init-bbdb)

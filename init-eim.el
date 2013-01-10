@@ -15,10 +15,10 @@
               (let ((map (eim-mode-map)))
                 (define-key eim-mode-map "-" 'eim-previous-page)
                 (define-key eim-mode-map "=" 'eim-next-page)))))
-;prevent the command line to stay at the bottom of the window
-(add-hook 'shell-mode-hook
-          (lambda()
-            (remove-hook 'comint-output-filter-functions
-                         'comint-postoutput-scroll-to-bottom t)))
+;; prevent the command line to stay at the bottom of the window
+;; (add-hook 'shell-mode-hook
+;;           (lambda()
+;;             (remove-hook 'comint-output-filter-functions
+;;                          'comint-postoutput-scroll-to-bottom t)))
 (provide 'init-eim)
 

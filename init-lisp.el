@@ -39,9 +39,6 @@
 (defadvice enable-paredit-mode (before disable-autopair activate)
   (inhibit-autopair))
 
-(suspend-mode-during-cua-rect-selection 'paredit-mode)
-
-
 ;; Use paredit in the minibuffer
 (add-hook 'minibuffer-setup-hook 'conditionally-enable-paredit-mode)
 

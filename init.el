@@ -68,12 +68,8 @@
 (require 'init-fonts)
 (require 'init-mmm)
 ;(require 'init-growl)
-
 (require 'init-editing-utils)
-
-(require 'init-darcs)
 (require 'init-git)
-
 (require 'init-crontab)
 (require 'init-textile)
 (require 'init-markdown)
@@ -112,7 +108,6 @@
 (require 'init-better-registers) ; C-x j - jump to register
 (require 'init-zencoding-mode) ;behind init-better-register to override C-j
 (require 'init-yari)
-;(require 'init-etags-select)
 (require 'init-cc-mode)
 (require 'init-auto-complete) ; after init-yasnippeta to override TAB
 (require 'init-semantic)
@@ -136,41 +131,42 @@
 (require 'init-ctags)
 (require 'init-ace-jump-mode)
 (require 'init-multiple-cursors)
-(require 'init-uml)
+;; (require 'init-uml)
 (require 'init-sunrise-commander)
 (require 'init-bbdb)
 (require 'init-gnus)
 (require 'init-smarter-compile)
 (require 'init-twittering-mode)
 (require 'init-weibo)
-(require 'init-emms)
+;; (require 'init-emms)
 (require 'init-lua-mode)
 (require 'init-doxygen)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
-(defconst --batch-mode (member "--batch-mode" command-line-args)
-          "True when running in batch-mode (--batch-mode command-line switch set).")
-
-(unless --batch-mode
-  (require 'server)
-  (when (and (= emacs-major-version 23)
-             (= emacs-minor-version 1)
-             (equal window-system 'w32))
-    ;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows.
-    (defun server-ensure-safe-dir (dir) "Noop" t))
-  (condition-case nil
-      (unless (server-running-p) (server-start))
-    (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function)
-    (error
-     (let* ((server-dir (if server-use-tcp server-auth-dir server-socket-dir)))
-       (when (and server-use-tcp
-                  (not (file-accessible-directory-p server-dir)))
-         (display-warning
-          'server (format "Creating %S" server-dir) :warning)
-         (make-directory server-dir t)
-         (server-start))))))
+;; Don't use emacsclient, and this code make emacs start up slow
+;;(defconst --batch-mode (member "--batch-mode" command-line-args)
+;;          "True when running in batch-mode (--batch-mode command-line switch set).")
+;;
+;;(unless --batch-mode
+;;  (require 'server)
+;;  (when (and (= emacs-major-version 23)
+;;             (= emacs-minor-version 1)
+;;             (equal window-system 'w32))
+;;    ;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows.
+;;    (defun server-ensure-safe-dir (dir) "Noop" t))
+;;  (condition-case nil
+;;      (unless (server-running-p) (server-start))
+;;    (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function)
+;;    (error
+;;     (let* ((server-dir (if server-use-tcp server-auth-dir server-socket-dir)))
+;;       (when (and server-use-tcp
+;;                  (not (file-accessible-directory-p server-dir)))
+;;         (display-warning
+;;          'server (format "Creating %S" server-dir) :warning)
+;;         (make-directory server-dir t)
+;;         (server-start))))))
 
 ;;----------------------------------------------------------------------------
 ;; Variables configured via the interactive 'customize' interface

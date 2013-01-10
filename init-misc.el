@@ -16,8 +16,6 @@
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
 
-;; no annoying beep on errors
-(setq visible-bell t)
 ;; Write backup files to own directory
 (if (not (file-exists-p (expand-file-name "~/.backups")))
     (make-directory (expand-file-name "~/.backups"))
@@ -33,7 +31,10 @@
 ;; Make backups of files, even when they're in version control
 (setq vc-make-backup-files t)
 
+;; Don't disable narrowing commands
 (put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-defun 'disabled nil)
 
 ; from RobinH
 ;Time management
@@ -41,7 +42,6 @@
 (setq display-time-day-and-date t)
 (display-time)
 
-(global-set-key [f8] 'calendar)
 (global-set-key [f12] 'list-bookmarks)
 
 (when *win32*
@@ -135,11 +135,6 @@
 ;global keyb maps
 (global-set-key "\C-xc" 'clipboard-kill-ring-save)
 (global-set-key "\C-cc" 'copy-region-as-kill)
-(global-set-key [home] 'beginning-of-line)
-(global-set-key [end] 'end-of-line)
-(global-set-key [\C-home] 'beginning-of-buffer)
-(global-set-key [\C-end] 'end-of-buffer)
-(global-set-key [?\C-/] 'void) ;forward reference
 
 ;; @see http://www.emacswiki.org/emacs/BetterRegisters
 ;; This is used in the function below to make marked points visible
@@ -208,14 +203,8 @@
  )
 )
 
-(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
-
 ; http://tapoueh.org/emacs/switch-window.html
 (require 'switch-window)
-
-;;move-text stuff, move line up/down by pressing hotkey
-(global-set-key (kbd "M-p") 'move-text-up)
-(global-set-key (kbd "M-n") 'move-text-down)
 
 ;;iedit-mode
 (global-set-key (kbd "C-c ;") 'iedit-mode-toggle-on-function)
@@ -249,8 +238,5 @@
       (message "env http_proxy is %s now" proxy)
         )
     ))
-;; sig-quote
-;(require 'sig-quote)
-(require 'bbdb-vcard)
 
 (provide 'init-misc)
