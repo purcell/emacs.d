@@ -202,8 +202,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'keyfreq)
 (require-package 'fuzzy)
 (require-package 'auto-complete '(20120717 0 0) nil) ;auto-complete is dependent on fuzzy
-; use yasnippet fb235 because latest version is incompatible to auto-comple
-; (require-package 'yasnippet '(20120718 0 0) nil)
 (require-package 'auto-complete-clang)
 (require-package 'zencoding-mode)
 (require-package 'session)
@@ -238,5 +236,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'flymake-lua)
 (require-package 'evil-nerd-commenter '(0 0 2) nil)
 (require-package 'surround '(20121022 1257 0) nil)
+(require-package 'yasnippet '(20121225 430 0) nil)
+
 
 (provide 'init-elpa)
