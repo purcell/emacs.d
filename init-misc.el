@@ -192,8 +192,6 @@
                                (cond (window-system
                                        (mwheel-install)))))
 
-(track-closed-files-mode)
-
 ; @see http://www.emacswiki.org/emacs/SavePlace
 (require 'saveplace)
 (setq-default save-place t)
