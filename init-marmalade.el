@@ -37,6 +37,7 @@
       ))))
 
 (defun submit-to-marmalade (buf)
+  "Submit the elisp library in BUF to Marmalade."
   (interactive
    (list
     (completing-read "Submit buffer: "
