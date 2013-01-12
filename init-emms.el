@@ -1,4 +1,4 @@
-(require 'emms-setup)
+  (require 'emms-setup)
 (emms-standard)
 (emms-default-players)
 ;; Show the current track each time EMMS
@@ -8,7 +8,7 @@
 ;; When asked for emms-play-directory,
 ;; always start from this one
 (if (not (file-exists-p (expand-file-name "~/.emacs.d/emms")))
-    (make-directory (expand-file-name "~/.emacs.d/emms"))
-    )
+  (make-directory (expand-file-name "~/.emacs.d/emms"))
+  )
 (setq emms-source-file-default-directory "~/Music/")
 (provide 'init-emms)
