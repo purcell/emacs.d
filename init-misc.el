@@ -43,6 +43,7 @@
 (display-time)
 
 (global-set-key [f12] 'list-bookmarks)
+(global-set-key (kbd "M-o") 'switch-window)
 
 (when *win32*
   ;; resize frame
