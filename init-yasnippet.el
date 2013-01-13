@@ -1,13 +1,10 @@
 (require 'yasnippet)
 
-(yas-reload-all)
-(add-hook 'prog-mode-hook
-          '(lambda ()
-             (yas-minor-mode)))
+(yas-global-mode 1)
 
 ;; default TAB key is occupied by auto-complete
 (global-set-key (kbd "C-c k") 'yas-expand)
-;; default hotkey `C-c & C-s` is still valid
+;; default hotkey `C-c C-s` is still valid
 (global-set-key (kbd "C-c l") 'yas-insert-snippet)
 ;; give yas/dropdown-prompt in yas/prompt-functions a chance
 (require 'dropdown-list)
