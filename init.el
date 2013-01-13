@@ -138,8 +138,8 @@
 (require 'init-smarter-compile)
 (require 'init-twittering-mode)
 (require 'init-weibo)
-;; itune cannot play flac, so I use mplayer+emms instead
-(if *is-a-mac* (require 'init-emms))
+;; itune cannot play flac, so I use mplayer+emms instead (updated, use mpd!)
+;; (if *is-a-mac* (require 'init-emms))
 (require 'init-lua-mode)
 (require 'init-doxygen)
 

@@ -1,4 +1,4 @@
-  (require 'emms-setup)
+(require 'emms-setup)
 (emms-standard)
 (emms-default-players)
 ;; Show the current track each time EMMS
