@@ -34,7 +34,7 @@
   "cc" 'evilnc-comment-or-uncomment-to-the-line
   "ct" 'ctags-create-or-update-tags-table
   "t" 'ido-goto-symbol ;; same as my vim hotkey
-  "w" 'save-buffer
+  "ww" 'save-buffer
   "cl" 'compile
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
@@ -61,6 +61,9 @@
   ;; recommended in html
   "md" 'mc/mark-all-like-this-dwim
   "rw" 'rotate-windows
+  "wc" 'wg-create-workgroup
+  "ws" 'wg-save
+  "wl" 'wg-load
   )
 
 (provide 'init-evil)
