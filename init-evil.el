@@ -62,8 +62,9 @@
   "md" 'mc/mark-all-like-this-dwim
   "rw" 'rotate-windows
   "wc" 'wg-create-workgroup
-  "ws" 'wg-save
-  "wl" 'wg-load
+  "ws" 'wgext-save
+  "wl" 'wgext-load
+  "wv" 'wg-switch-to-workgroup
   )
 
 (provide 'init-evil)

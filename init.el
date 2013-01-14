@@ -142,6 +142,7 @@
 ;; (if *is-a-mac* (require 'init-emms))
 (require 'init-lua-mode)
 (require 'init-doxygen)
+(require 'init-workgroups)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
