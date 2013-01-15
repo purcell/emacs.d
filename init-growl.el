@@ -12,5 +12,9 @@ See https://github.com/alloy/terminal-notifier for more information.")
           (list "-title" title "-message" message "-activate" "org.gnu.Emacs")))
   (setq todochiku-command terminal-notifier-path))
 
+(defadvice todochiku-message (around check-for-helper activate)
+  "Suppress message attempts when the `todochiku-command' program is missing."
+  (when (file-exists-p todochiku-command)
+    ad-do-it))
 
 (provide 'init-growl)

@@ -1,6 +1,5 @@
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
 (if *is-a-mac*
   ; make soffice visible when converting odt to doc
@@ -133,7 +132,5 @@
                 (lambda (url &optional new)
                   (w3m-browse-url url t))))))
     ad-do-it))
-
-(add-hook 'org-mode-hook 'inhibit-autopair)
 
 (provide 'init-org)

@@ -15,7 +15,7 @@ to case differences."
 ;; in older Emacsen, including 23.1.
 ;;----------------------------------------------------------------------------
 (let ((fn (symbol-function 'called-interactively-p)))
-  (when (zerop (cdr-safe (subr-arity fn)))
+  (when (and (subrp fn) (zerop (cdr-safe (subr-arity fn))))
     (message "Warning: overriding called-interactively-p to support an argument.")
     (fset 'sanityinc/called-interactively-p fn)
     (defun called-interactively-p (&optional kind)

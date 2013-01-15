@@ -24,7 +24,31 @@
  ;; no annoying beep on errors
  visible-bell t)
 
+(global-auto-revert-mode)
+(setq global-auto-revert-non-file-buffers t
+      auto-revert-verbose nil)
+
+;; But don't show trailing whitespace in SQLi, inf-ruby etc.
+(add-hook 'comint-mode-hook
+          (lambda () (setq show-trailing-whitespace nil)))
+
 (transient-mark-mode t)
+
+(define-key global-map (kbd "RET") 'newline-and-indent)
+
+;;----------------------------------------------------------------------------
+;; Zap *up* to char is a more sensible default
+;;----------------------------------------------------------------------------
+(autoload 'zap-up-to-char "misc" "Kill up to, but not including ARGth occurrence of CHAR.")
+(global-set-key (kbd "M-z") 'zap-up-to-char)
+(global-set-key (kbd "M-Z") 'zap-to-char)
+
+;;----------------------------------------------------------------------------
+;; Don't disable narrowing commands
+;;----------------------------------------------------------------------------
+(put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-defun 'disabled nil)
 
 ;;----------------------------------------------------------------------------
 ;; Show matching parens
@@ -59,9 +83,39 @@
 (global-set-key (kbd "C-x C-.") 'pop-global-mark)
 
 ;;----------------------------------------------------------------------------
+;; Page break lines
+;;----------------------------------------------------------------------------
+(global-page-break-lines-mode)
+
+;;----------------------------------------------------------------------------
 ;; Shift lines up and down with M-up and M-down
 ;;----------------------------------------------------------------------------
 (move-text-default-bindings)
+
+;;----------------------------------------------------------------------------
+;; Cut/copy the current line if no region is active
+;;----------------------------------------------------------------------------
+(whole-line-or-region-mode t)
+(diminish 'whole-line-or-region-mode)
+(make-variable-buffer-local 'whole-line-or-region-mode)
+
+(defun suspend-mode-during-cua-rect-selection (mode-name)
+  "Add an advice to suspend `MODE-NAME' while selecting a CUA rectangle."
+  (let ((flagvar (intern (format "%s-was-active-before-cua-rectangle" mode-name)))
+        (advice-name (intern (format "suspend-%s" mode-name))))
+    (eval-after-load 'cua-rect
+      `(progn
+         (defvar ,flagvar nil)
+         (make-variable-buffer-local ',flagvar)
+         (defadvice cua--activate-rectangle (after ,advice-name activate)
+           (setq ,flagvar (and (boundp ',mode-name) ,mode-name))
+           (when ,flagvar
+             (,mode-name 0)))
+         (defadvice cua--deactivate-rectangle (after ,advice-name activate)
+           (when ,flagvar
+             (,mode-name 1)))))))
+
+(suspend-mode-during-cua-rect-selection 'whole-line-or-region-mode)
 
 ;;----------------------------------------------------------------------------
 ;; Random line sorting

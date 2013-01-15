@@ -22,14 +22,13 @@
          :front "style=\""
          :back "\"")))
      (dolist (mode (list 'html-mode 'nxml-mode))
-       (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?$" 'html-css))))
+       (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css))))
 
 
 
 ;; Colourise CSS colour literals
-(autoload 'rainbow-turn-on "rainbow-mode" "Enable rainbow mode colour literal overlays")
 (dolist (hook '(css-mode-hook html-mode-hook sass-mode-hook))
-  (add-hook hook 'rainbow-turn-on))
+  (add-hook hook 'rainbow-mode))
 
 
 (defun maybe-flymake-css-load ()
@@ -39,10 +38,14 @@
 (add-hook 'css-mode-hook 'maybe-flymake-css-load)
 
 
+(add-hook 'sass-mode-hook 'flymake-sass-load)
+(add-hook 'scss-mode-hook 'flymake-sass-load)
+(setq-default scss-compile-at-save nil)
+
 
 (eval-after-load 'auto-complete
   '(progn
-     (dolist (hook '(css-mode-hook sass-mode-hook))
+     (dolist (hook '(css-mode-hook sass-mode-hook scss-mode-hook))
        (add-hook hook 'ac-css-mode-setup))))
 
 (provide 'init-css)

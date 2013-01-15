@@ -26,6 +26,12 @@ issue on the github project: https://github.com/purcell/emacs.d
 
 -Steve Purcell
 
+<hr>
+
+[![](http://api.coderwall.com/purcell/endorsecount.png)](http://coderwall.com/purcell)
+
+[![](http://www.linkedin.com/img/webpromo/btn_liprofile_blue_80x15.png)](http://uk.linkedin.com/in/stevepurcell)
+
 # Chen Bin's README
 
 I base my configuration on Purcell's and sync from his frequently.
@@ -34,12 +40,15 @@ I base my configuration on Purcell's and sync from his frequently.
 
 * 'git submodule update --init' is NOT needed. I removed all the 'git submodule' stuff.
 * some major/minor modes for C/C++ developers
+* optimized for cross-platform C++ development with CMake and wxWidgets
 * emacs-w3m (console browser)
 * eim (Chinese pinyin input method)
 * org2blog (write wordpress blog with org-mode)
 * make the configuration work under Linux and Cygwin
 * The configuration will work with Emacs version >=23.4
 * remove the dependency on subversion (svn)
+* evil-mode and its plugins (Vim key binding)
+* yasnippet and my customized snippets
 
 ## Third party CLI tools Emacs uses
 
@@ -48,18 +57,19 @@ try to list them HERE,
 
 * w3m (web browser in console)
 * jsl (jslint)
-* aspell, and some dictionary like aspell-en
+* aspell, and dictionary (aspell-en, for example)
 * tidy
 * zip and unzip
   export org to odt
 * clang
-  auto-complete/intellisense by using clang (http://clang.llvm.org)
+  intellisense of C++ code need clang (http://clang.llvm.org)
 * ctags (http://ctags.sourceforge.net)
   You use ctags to navigate the code.
 * GNU Global (http://www.gnu.org/software/global)
   You use this tool to navigate the code.
 * pyflakes
-  install pip, then `pip install pyflakes`, but on cygwin you need install
+  You need pyflakes for real time python syntax check (flymake-python)
+  Install pip, then `pip install pyflakes`, but on cygwin you need install
   setuptool in order to install pip.
 * ditaa, grapviz and planetuml to convert ascii art to diagram and uml.
 
@@ -83,3 +93,7 @@ not compatible with auto-complete.
 
 ## My personal Emacs configuration (custom.el)
 It's publicized at http://blog.binchen.org/?p=430 .
+
+<hr>
+
+[![](http://www.linkedin.com/img/webpromo/btn_liprofile_blue_80x15.png)](http://www.linkedin.com/profile/view?id=31199295)

@@ -1,7 +1,8 @@
 ;; @see http://cx4a.org/software/auto-complete/manual.html
 (require 'auto-complete-config)
-(global-auto-complete-mode) ; recommended way to (setq global-auto-complete-mode), see info
-(setq ac-auto-start nil) ; pop up candidates when you press each character is annoying
+(global-auto-complete-mode t)
+(setq ac-expand-on-auto-complete nil)
+(setq ac-auto-start nil)
 (setq ac-dwim nil) ; To get pop-ups with docs even if a word is uniquely completed
 (ac-set-trigger-key "TAB") ; AFTER input prefix, press TAB key ASAP
 

@@ -36,15 +36,16 @@
 
 ;; Compatibility with other modes
 
-(defadvice enable-paredit-mode (before disable-autopair activate)
-  (inhibit-autopair))
+(suspend-mode-during-cua-rect-selection 'paredit-mode)
 
 ;; Use paredit in the minibuffer
 (add-hook 'minibuffer-setup-hook 'conditionally-enable-paredit-mode)
 
 (defvar paredit-minibuffer-commands '(eval-expression
                                       pp-eval-expression
-                                      eval-expression-with-eldoc)
+                                      eval-expression-with-eldoc
+                                      ibuffer-do-eval
+                                      ibuffer-do-view-and-eval)
   "Interactive commands for which paredit should be enabled in the minibuffer.")
 
 (defun conditionally-enable-paredit-mode ()
@@ -67,18 +68,9 @@
 ;; ----------------------------------------------------------------------------
 ;; Automatic byte compilation
 ;; ----------------------------------------------------------------------------
-; byte-compile won't improved the peformance of my .emacs.d since I use autoload
-; and I've *measured* the start up time of each emacs plugins
-;(defun maybe-byte-compile ()
-;  (when (and (eq major-mode 'emacs-lisp-mode)
-;             buffer-file-name
-;             (string-match "\\.el$" buffer-file-name)
-;             (not (string-match "\\.dir-locals.el$" buffer-file-name)))
-;    (save-excursion (byte-compile-file buffer-file-name))))
-;
-;
-;(add-hook 'after-save-hook 'maybe-byte-compile)
-
+;(auto-compile-on-save-mode 1)
+;; TODO: also use auto-compile-on-load-mode
+;; TODO: exclude .dir-locals.el
 
 ;; ----------------------------------------------------------------------------
 ;; Highlight current sexp
@@ -122,10 +114,48 @@
 
 (require 'eldoc-eval)
 
-(add-to-list 'auto-mode-alist '("\\.emacs-project$" . emacs-lisp-mode))
-(add-to-list 'auto-mode-alist '("archive-contents$" . emacs-lisp-mode))
+(add-to-list 'auto-mode-alist '("\\.emacs-project\\'" . emacs-lisp-mode))
+(add-to-list 'auto-mode-alist '("archive-contents\\'" . emacs-lisp-mode))
 
 (define-key emacs-lisp-mode-map (kbd "C-x C-a") 'pp-macroexpand-last-sexp)
+
+
+;; ----------------------------------------------------------------------------
+;; Delete .elc files when reverting the .el from VC or magit
+;; ----------------------------------------------------------------------------
+
+;; When .el files are open, we can intercept when they are modified
+;; by VC or magit in order to remove .elc files that are likely to
+;; be out of sync.
+
+;; This is handy while actively working on elisp files, though
+;; obviously it doesn't ensure that unopened files will also have
+;; their .elc counterparts removed - VC hooks would be necessary for
+;; that.
+
+(defvar sanityinc/vc-reverting nil
+  "Whether or not VC or Magit is currently reverting buffers.")
+
+(defadvice revert-buffer (after sanityinc/maybe-remove-elc activate)
+  "If reverting from VC, delete any .elc file that will now be out of sync."
+  (when sanityinc/vc-reverting
+    (when (and (eq 'emacs-lisp-mode major-mode)
+               buffer-file-name
+               (string= "el" (file-name-extension buffer-file-name)))
+      (let ((elc (concat buffer-file-name "c")))
+        (when (file-exists-p elc)
+          (message "Removing out-of-sync elc file %s" (file-name-nondirectory elc))
+          (delete-file elc))))))
+
+(defadvice magit-revert-buffers (around sanityinc/reverting activate)
+  (let ((sanityinc/vc-reverting t))
+    ad-do-it))
+(defadvice vc-revert-buffer-internal (around sanityinc/reverting activate)
+  (let ((sanityinc/vc-reverting t))
+    ad-do-it))
+
+
+
 
 
 (provide 'init-lisp)

@@ -1,9 +1,8 @@
 (autoload 'doctest-mode "doctest-mode" "Python doctest editing mode." t)
 
 (setq auto-mode-alist
-      (append '(("\\.py$" . python-mode)
-		("SConstruct$" . python-mode)
-		("SConscript$" . python-mode))
+      (append '(("SConstruct\\'" . python-mode)
+		("SConscript\\'" . python-mode))
               auto-mode-alist))
 
 (setq interpreter-mode-alist

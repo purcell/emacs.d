@@ -10,6 +10,27 @@
 (global-set-key [(meta f12)] 'magit-status)
 (global-set-key [(shift meta f12)] 'magit-status-somedir)
 
+
+
+(eval-after-load 'magit
+  '(progn
+     ;; Don't let magit-status mess up window configurations
+     ;; http://whattheemacsd.com/setup-magit.el-01.html
+     (defadvice magit-status (around magit-fullscreen activate)
+       (window-configuration-to-register :magit-fullscreen)
+       ad-do-it
+       (delete-other-windows))
+
+     (defun magit-quit-session ()
+       "Restores the previous window configuration and kills the magit buffer"
+       (interactive)
+       (kill-buffer)
+       (jump-to-register :magit-fullscreen))
+
+     (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)))
+
+
+
 (when *is-a-mac*
   (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)]))))
 
@@ -18,11 +39,6 @@
      (require 'magit-key-mode)
      (require 'magit-svn)
      ))
-
-(autoload 'rebase-mode "rebase-mode")
-(add-to-list 'auto-mode-alist '("git-rebase-todo" . rebase-mode))
-
-(add-to-list 'auto-mode-alist '("\\(?:\\.gitconfig\\|\\.gitmodules\\|config\\)$" . conf-mode))
 
 ;;----------------------------------------------------------------------------
 ;; git-svn conveniences
@@ -49,33 +65,17 @@
                      (ido-completing-read "git-svn command: " git-svn--available-commands nil t)))))
 
 
+;;----------------------------------------------------------------------------
+;; gist fixes
+;;----------------------------------------------------------------------------
 
+;; If using a "password = !some command" in .gitconfig, we need to
+;; run the specified command to find the actual value
 
-
-
-(eval-after-load 'gist
-  ;; Fix from https://github.com/defunkt/gist.el/pull/16
-  '(defun gist-region (begin end &optional private &optional callback)
-     "Post the current region as a new paste at gist.github.com
-Copies the URL into the kill ring.
-
-With a prefix argument, makes a private paste."
-     (interactive "r\nP")
-     (let* ((file (or (buffer-file-name) (buffer-name)))
-            (name (file-name-nondirectory file))
-            (ext (or (cdr (assoc major-mode gist-supported-modes-alist))
-                     (file-name-extension file)
-                     "txt")))
-       (gist-request
-        (format "https://%s@gist.github.com/gists" 
-                (or (car (github-auth-info)) ""))
-        (or callback 'gist-created-callback)
-        `(,@(if private '(("action_button" . "private")))
-          ("file_ext[gistfile1]" . ,(concat "." ext))
-          ("file_name[gistfile1]" . ,name)
-          ("file_contents[gistfile1]" . ,(buffer-substring begin end)))))))
-
-
+(defadvice gh-config (after sanityinc/maybe-execute-bang (key) activate)
+  (when (and (string= key "password")
+             (string-prefix-p "!" ad-return-value))
+    (setq ad-return-value (shell-command-to-string (substring ad-return-value 1)))))
 
 
 
