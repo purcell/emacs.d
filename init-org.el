@@ -114,6 +114,8 @@
         )
         ))
 
+(add-hook 'org-mode-hook 'inhibit-autopair)
+
 ; external browser should be firefox
 (setq browse-url-generic-program
       (cond
