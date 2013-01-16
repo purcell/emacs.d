@@ -22,6 +22,10 @@
   (interactive)
   (wg-load wg-file))
 
+;; it's rarely used, not worth using evil-leader
+(global-set-key (kbd "C-c w s") 'wgext-save)
+(global-set-key (kbd "C-c w l") 'wgext-load)
+
 ;; workflow
 ;; <prefix> c => new; <prefix> C-s => save; <prefix> C-l =>load;
 (provide 'init-workgroups)
