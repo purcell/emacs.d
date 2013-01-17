@@ -189,6 +189,7 @@
 ;; Fix backward-up-list to understand quotes, see http://bit.ly/h7mdIL
 ;;----------------------------------------------------------------------------
 (defun backward-up-sexp (arg)
+  "Jump up to the start of the ARG'th enclosing sexp."
   (interactive "p")
   (let ((ppss (syntax-ppss)))
     (cond ((elt ppss 3)
