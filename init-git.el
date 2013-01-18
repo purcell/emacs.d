@@ -26,7 +26,7 @@
        (interactive)
        (kill-buffer)
        (when (get-register :magit-fullscreen)
-         (jump-to-register :magit-fullscreenq)))
+         (jump-to-register :magit-fullscreen)))
 
      (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)))
 
