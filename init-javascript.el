@@ -8,11 +8,14 @@
 ;; Need to first remove from list if present, since elpa adds entries too, which
 ;; may be in an arbitrary order
 (eval-when-compile (require 'cl))
-(setq auto-mode-alist (cons `("\\.js\\(\\.erb\\|on\\)?\\'" . ,preferred-javascript-mode)
+(setq auto-mode-alist (cons `("\\.js\\(\\.erb\\)?\\'" . ,preferred-javascript-mode)
                             (loop for entry in auto-mode-alist
                                   unless (eq preferred-javascript-mode (cdr entry))
                                   collect entry)))
 
+
+(add-auto-mode 'js-mode "\\.json\\'")
+(add-hook 'js-mode-hook 'flymake-json-maybe-load)
 
 ;; On-the-fly syntax checking
 (eval-after-load 'js
