@@ -86,7 +86,7 @@
 (require 'init-python-mode)
 (require 'init-haskell)
 (require 'init-ruby-mode)
-(require 'init-rails)
+(if (not (boundp 'light-weight-emacs)) (require 'init-rails))
 ;(require 'init-rcirc)
 
 (require 'init-lisp)
@@ -104,7 +104,7 @@
 ;; Chinese inut method
 (require 'init-org2blog)
 ;; (require 'init-fill-column-indicator) ;make auto-complete dropdown wierd
-(require 'init-yasnippet)
+(if (not (boundp 'light-weight-emacs)) (require 'init-yasnippet))
 (require 'init-better-registers) ; C-x j - jump to register
 (require 'init-zencoding-mode) ;behind init-better-register to override C-j
 (require 'init-yari)
@@ -116,7 +116,7 @@
 (require 'init-linum-mode)
 ;(require 'init-delicious) ;make startup slow, I don't use delicious in w3m
 (require 'init-emacs-w3m)
-(require 'init-eim)
+(if (not (boundp 'light-weight-emacs)) (require 'init-eim))
 (require 'init-thing-edit)
 (require 'init-which-func)
 (require 'init-keyfreq)
@@ -126,7 +126,8 @@
 (require 'init-undo-tree)
 (require 'init-moz)
 (require 'init-gtags)
-(require 'init-evil) ; use evil mode (vi key binding)
+;; use evil mode (vi key binding)
+(if (not (boundp 'light-weight-emacs)) (require 'init-evil))
 (require 'init-misc)
 (require 'init-ctags)
 (require 'init-ace-jump-mode)
@@ -139,7 +140,7 @@
 (require 'init-twittering-mode)
 (require 'init-weibo)
 ;; itune cannot play flac, so I use mplayer+emms instead (updated, use mpd!)
-(if *is-a-mac* (require 'init-emms))
+(if (not (boundp 'light-weight-emacs)) (if *is-a-mac* (require 'init-emms)) )
 (require 'init-lua-mode)
 (require 'init-doxygen)
 (require 'init-workgroups)
