@@ -49,6 +49,7 @@ I base my configuration on Purcell's and sync from his frequently.
 * remove the dependency on subversion (svn)
 * evil-mode and its plugins (Vim key binding)
 * yasnippet and my customized snippets
+* optional start up with a few heavy weight plugins remove
 
 ## Third party CLI tools Emacs uses
 
@@ -83,13 +84,19 @@ Please note it's totally fine you don't install these CLI tools. Emacs won't cra
 If you find any bug, please file an issue on the github project:
 https://github.com/redguardtoo/emacs.d
 
-## Warnings
+## Tips
 * by default EVIL (Vim emulation in Emacs) is used. You can comment out
  line containing "(require 'init-evil)" in init.el to unload it.
 * Some package cannot be downloaded automatically because of network problem.
 You need manually `M-x list-packages` and install it.
 * I downgraded the yasnippet to an older version because latest yasnippet is
 not compatible with auto-complete.
+* You can speed up the start up by NOT loading some heavy weight
+  components like evil or yasnippet. All you need to do is add below
+  code into ~/.bashrc:
+  ```sh
+  alias e=emacs -q --no-splash --eval="(setq light-weight-emacs t)" -l "$HOME/.emacs.d/init.el"
+  ```
 
 ## My personal Emacs configuration (custom.el)
 It's publicized at http://blog.binchen.org/?p=430 .
