@@ -12,6 +12,7 @@
                                          compilation-mode
                                          weibo-timeline-mode
                                          woman-mode
+                                         comint-mode
                                          gnus-group-mode
                                          inf-ruby-mode
                                          gud-mode
