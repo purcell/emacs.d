@@ -46,7 +46,7 @@
   "mq" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
   "gg" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
   "q" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
-  "s" '(lambda () (interactive) (require 'w3m) (browse-url-generic (concat "http://code.google.com/codesearch?q=" (w3m-url-encode-string (thing-at-point 'symbol)))))
+  "s" 'w3mext-hacker-search
   "d" 'gtags-find-tag-from-here
   "p" 'gtags-pop-stack
   "gr" 'gtags-find-rtag

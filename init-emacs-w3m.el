@@ -49,4 +49,23 @@
                           (w3m-lnum-mode 1)
                           ))
 
+; external browser should be firefox
+(setq browse-url-generic-program
+      (cond
+       (*is-a-mac* "open")
+       (*linux* (executable-find "firefox"))
+       ))
+
+;; use external browser to search
+(defun w3mext-hacker-search ()
+  "search word under cursor in google code search and stackoverflow.com"
+  (interactive)
+  (require 'w3m)
+  (let ((keyword (w3m-url-encode-string (thing-at-point 'symbol))))
+    (browse-url-generic (concat "http://code.google.com/codesearch?q=" keyword))
+    (browse-url-generic (concat "http://www.google.com.au/search?hl=en&q=" keyword "+site:stackoverflow.com" )))
+  )
+
+(add-hook 'prog-mode-hook '( lambda () (local-set-key (kbd "C-c ; s") 'w3mext-hacker-search)) )
+
 (provide 'init-emacs-w3m)

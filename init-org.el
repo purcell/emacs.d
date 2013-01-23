@@ -116,13 +116,6 @@
 
 (add-hook 'org-mode-hook 'inhibit-autopair)
 
-; external browser should be firefox
-(setq browse-url-generic-program
-      (cond
-       (*is-a-mac* "open")
-       (*linux* (executable-find "firefox"))
-       )
-      )
 
 (defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
   (let ((browse-url-browser-function
