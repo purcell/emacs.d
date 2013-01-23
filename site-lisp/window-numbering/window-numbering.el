@@ -164,7 +164,9 @@ windows to numbers."
       (window-numbering-assign window))))
 
 (defun window-numbering-get-number-string (&optional window)
-  (int-to-string (window-numbering-get-number window)))
+  (let ((s (int-to-string (window-numbering-get-number window))))
+    (propertize s 'face 'font-lock-warning-face)
+    ))
 
 (defun window-numbering-get-number (&optional window)
   (gethash (or window (selected-window))
