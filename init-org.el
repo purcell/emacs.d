@@ -114,7 +114,7 @@
       (add-hook 'org-mode-hook '(lambda ()
                                   (soft-wrap-lines)
                                   (inhibit-autopair)
-                                  )))
+                                  ))))
 
 (defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
   (let ((browse-url-browser-function
