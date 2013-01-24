@@ -7,7 +7,8 @@
 
 
 (defun maybe-map-paredit-newline ()
-  (unless (or (eq major-mode 'inferior-emacs-lisp-mode) (minibufferp))
+  (unless (or (memq major-mode '(inferior-emacs-lisp-mode nrepl-mode))
+              (minibufferp))
     (local-set-key (kbd "RET") 'paredit-newline)))
 
 (add-hook 'paredit-mode-hook 'maybe-map-paredit-newline)
