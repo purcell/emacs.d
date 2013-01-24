@@ -104,7 +104,6 @@
       (require 'org-fstree)
       (setq org-ditaa-jar-path (format "%s%s" (if *cygwin* "c:/cygwin" "")
                                        (expand-file-name "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")) )
-      (add-hook 'org-mode-hook 'soft-wrap-lines)
       (defun soft-wrap-lines ()
         "Make lines wrap at window edge and on word boundary,
         in current buffer."
@@ -112,10 +111,10 @@
         (setq truncate-lines nil)
         (setq word-wrap t)
         )
-        ))
-
-(add-hook 'org-mode-hook 'inhibit-autopair)
-
+      (add-hook 'org-mode-hook '(lambda ()
+                                  (soft-wrap-lines)
+                                  (inhibit-autopair)
+                                  )))
 
 (defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
   (let ((browse-url-browser-function
