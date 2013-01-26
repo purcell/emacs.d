@@ -49,4 +49,8 @@
              ;; just remove some warning since bbdb package hook the mail-mode
              (setq compose-mail-user-agent-warnings nil)
              ))
+
+;; import Gmail contacts in vcard format into bbdb
+(autoload 'bbdb-vcard-import-file "bbdb-vcard" nil t)
+
 (provide 'init-bbdb)
