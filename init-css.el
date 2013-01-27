@@ -27,8 +27,9 @@
 
 
 ;; Colourise CSS colour literals
-(dolist (hook '(css-mode-hook html-mode-hook sass-mode-hook))
-  (add-hook hook 'rainbow-mode))
+(eval-after-load 'rainbow-mode
+  '(dolist (hook '(css-mode-hook html-mode-hook sass-mode-hook))
+     (add-hook hook 'rainbow-mode)))
 
 
 (defun maybe-flymake-css-load ()
