@@ -66,6 +66,16 @@
     (browse-url-generic (concat "http://www.google.com.au/search?hl=en&q=" keyword "+site:stackoverflow.com" )))
   )
 
+(defun w3mext-open-link-or-image-or-url ()
+  "Opens the current link or image or current page's uri or any url-like text under cursor in firefox."
+  (interactive)
+  (let (url)
+    (if (string= major-mode "w3m-mode")
+        (setq url (or (w3m-anchor) (w3m-image) w3m-current-url)))
+    (browse-url-generic (if url url (car (browse-url-interactive-arg "URL: "))))
+    ))
+(global-set-key (kbd "C-c b") 'w3mext-open-link-or-image-or-url)
+
 (add-hook 'prog-mode-hook '( lambda () (local-set-key (kbd "C-c ; s") 'w3mext-hacker-search)) )
 
 (provide 'init-emacs-w3m)
