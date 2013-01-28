@@ -221,8 +221,14 @@
 
 ;; max frame, @see https://github.com/rmm5t/maxframe.el
 (require 'maxframe)
-;(setq mf-max-width 1600) ;; Pixel width of main monitor. for dual-lcd only
+;; (setq mf-max-width 1600) ;; Pixel width of main monitor. for dual-lcd only
 (add-hook 'window-setup-hook 'maximize-frame t)
+
+;; command-frequency
+(require 'command-frequency)
+(command-frequency-table-load)
+(command-frequency-mode 1)
+(command-frequency-autosave-mode 1)
 
 (defun toggle-env-http-proxy ()
   "set/unset the environment variable http_proxy which w3m uses"
