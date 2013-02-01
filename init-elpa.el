@@ -223,8 +223,8 @@ ARCHIVE is the string name of the package archive.")
 (when (< emacs-major-version 24)
   (require-package 'ert)) ; evil-20120725 requires ert
 (require-package 'etags-select '(1 13 0) nil) ;; evil may need it
-(require-package 'evil '(20130102 1052 0) nil)
-(require-package 'evil-leader '(20111001 1917 0) nil)
+(require-package 'evil '(20130129 1415 0) nil)
+(require-package 'evil-leader '(20121117 1428 0) nil)
 (require-package 'evil-numbers '(20120712 1933 0) nil)
 (require-package 'w3m)
 (require-package 'sunrise-commander '(20121108 2128 0) nil)
