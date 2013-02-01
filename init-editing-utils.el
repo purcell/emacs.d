@@ -132,9 +132,6 @@
         (sort-subr nil 'forward-line 'end-of-line nil nil
                    (lambda (s1 s2) (eq (random 2) 0)))))))
 
-;; comment/uncomment lines
-(evilnc-default-hotkeys)
-
 ;need install browse-kill-ring
 (browse-kill-ring-default-keybindings)
 

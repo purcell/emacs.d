@@ -65,4 +65,7 @@
   "rw" 'rotate-windows
   )
 
+;; comment/uncomment lines
+(evilnc-default-hotkeys)
+
 (provide 'init-evil)
