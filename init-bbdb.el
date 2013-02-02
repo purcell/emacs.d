@@ -4,12 +4,8 @@
           '(lambda ()
              (flyspell-mode t)
              (bbdb-initialize 'message)
-             (local-set-key "<TAB>" 'bbdb-complete-name)))
-
-(add-hook 'message-mode-hook
-          '(lambda ()
              (bbdb-initialize 'gnus)
-             ))
+             (local-set-key "<TAB>" 'bbdb-complete-name)))
 
 (add-hook 'bbdb-initialize-hook
           '(lambda ()
