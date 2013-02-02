@@ -146,8 +146,4 @@
 (add-hook 'cc-mode-hook 'turn-on-auto-fill)
 (global-set-key (kbd "C-c q") 'auto-fill-mode)
 
-;; delim-pad, control space padding around delimiters
-(require 'delim-pad)
-(delim-pad-mode 1)
-
 (provide 'init-editing-utils)
