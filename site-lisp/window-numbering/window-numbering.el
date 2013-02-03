@@ -1,12 +1,12 @@
 ;;; window-numbering --- Numbered window shortcuts
 ;;
-;; Copyright (C) 2006-2007 Nikolaj Schumacher <bugs * nschum , de>
+;; Copyright (C) 2006-2007, 2013 Nikolaj Schumacher <bugs * nschum , de>
 ;;
 ;; Author: Nikolaj Schumacher <bugs * nschum de>
 ;; Version: 1.1.1
 ;; Keywords: faces, matching
 ;; URL: http://nschum.de/src/emacs/window-numbering-mode/
-;; Compatibility: GNU Emacs 22.x
+;; Compatibility: GNU Emacs 22.x, GNU Emacs 23.x, GNU Emacs 24.x
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -21,8 +21,7 @@
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, write to the Free Software
-;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;
 ;;; Commentary:
 ;;
@@ -37,6 +36,9 @@
 ;;       (lambda () (when (equal (buffer-name) "*Calculator*") 9)))
 ;;
 ;;; Changes Log:
+;;
+;;    Fix numbering in terminal mode with menu bar visible.
+;;    Add face for window number.  (thanks to Chen Bin)
 ;;
 ;; 2008-04-11 (1.1.1)
 ;;    Added possibility to delete window with prefix arg.
@@ -79,6 +81,10 @@ return a number to have it assigned to the current-window, nil otherwise."
 
 (defconst window-numbering-mode-line-position 1
   "The position in the mode-line `window-numbering-mode' displays the number.")
+
+(defface window-numbering-face '()
+  "Face used for the number in the mode-line."
+  :group 'window-numbering)
 
 (defun select-window-by-number (i &optional arg)
   "Select window given number I by `window-numbering-mode'.
@@ -150,7 +156,7 @@ windows to numbers."
   (when (and window-numbering-auto-assign-0-to-minibuffer
              (active-minibuffer-window))
     (window-numbering-assign (active-minibuffer-window) 0))
-  (let ((windows (window-list nil 0 (window-at 0 0))))
+  (let ((windows (window-list nil 0 (frame-first-window))))
     (run-hook-with-args 'window-numbering-before-hook windows)
     (when window-numbering-assign-func
       (mapc `(lambda (window)
@@ -165,8 +171,7 @@ windows to numbers."
 
 (defun window-numbering-get-number-string (&optional window)
   (let ((s (int-to-string (window-numbering-get-number window))))
-    (propertize s 'face 'font-lock-warning-face)
-    ))
+    (propertize s 'face 'window-numbering-face)))
 
 (defun window-numbering-get-number (&optional window)
   (gethash (or window (selected-window))

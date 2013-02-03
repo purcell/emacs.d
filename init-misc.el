@@ -204,15 +204,20 @@
  )
 )
 
-; http://tapoueh.org/emacs/switch-window.html
-(require 'switch-window)
-
 ;;iedit-mode
 (global-set-key (kbd "C-c ;") 'iedit-mode-toggle-on-function)
 
+;; window switch ==begin
+;; http://tapoueh.org/emacs/switch-window.html
+(require 'switch-window)
+
 ;; move window
 (require 'window-numbering)
+(custom-set-faces
+  '(window-numbering-face ((t (:foreground "DeepPink" :underline "DeepPink" :weight bold)))))
+;; Weaselwords
 (window-numbering-mode 1)
+;; ==end
 
 ;; my screen is tiny, so I use minimum eshell prompt
 (setq eshell-prompt-function
