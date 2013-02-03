@@ -5,6 +5,8 @@
 
 (evil-set-initial-state 'org-mode 'emacs)
 (evil-set-initial-state 'Info-mode 'emacs)
+(evil-set-initial-state 'term-mode 'emacs)
+(evil-set-initial-state 'log-edit-mode 'emacs)
 (evil-set-initial-state 'inf-ruby-mode 'emacs)
 (evil-set-initial-state 'yari-mode 'emacs)
 (evil-set-initial-state 'erc-mode 'emacs)
