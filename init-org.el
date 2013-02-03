@@ -9,6 +9,7 @@
 ;; Various preferences
 (setq org-log-done t
       org-completion-use-ido t
+      org-edit-src-content-indentation 0
       org-edit-timestamp-down-means-later t
       org-agenda-start-on-weekday nil
       org-agenda-span 14
