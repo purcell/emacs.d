@@ -144,6 +144,8 @@
 (require 'init-lua-mode)
 (require 'init-doxygen)
 (require 'init-workgroups)
+(require 'init-move-window-buffer)
+
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

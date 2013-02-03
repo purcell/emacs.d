@@ -75,9 +75,6 @@
 (global-set-key [f2] 'repeat-complex-command)
 
 ;effective emacs item 3
-(global-set-key "\C-w"     'backward-kill-word)
-(global-set-key "\C-x\C-k" 'kill-region)
-(global-set-key "\C-c\C-k" 'kill-region)
 (global-set-key "\C-s" 'isearch-forward-regexp)
 (global-set-key "\M-s" 'isearch-backward-regexp)
 (global-set-key "\C-\M-s" 'tags-search)
@@ -206,18 +203,6 @@
 
 ;;iedit-mode
 (global-set-key (kbd "C-c ;") 'iedit-mode-toggle-on-function)
-
-;; window switch ==begin
-;; http://tapoueh.org/emacs/switch-window.html
-(require 'switch-window)
-
-;; move window
-(require 'window-numbering)
-(custom-set-faces
-  '(window-numbering-face ((t (:foreground "DeepPink" :underline "DeepPink" :weight bold)))))
-;; Weaselwords
-(window-numbering-mode 1)
-;; ==end
 
 ;; my screen is tiny, so I use minimum eshell prompt
 (setq eshell-prompt-function
