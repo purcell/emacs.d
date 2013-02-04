@@ -133,7 +133,7 @@
 (require 'init-ace-jump-mode)
 (require 'init-multiple-cursors)
 ;; (require 'init-uml)
-(require 'init-sunrise-commander)
+;;(require 'init-sunrise-commander)
 (require 'init-bbdb)
 (require 'init-gnus)
 (require 'init-smarter-compile)

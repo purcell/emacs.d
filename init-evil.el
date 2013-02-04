@@ -9,6 +9,7 @@
 (evil-set-initial-state 'log-edit-mode 'emacs)
 (evil-set-initial-state 'inf-ruby-mode 'emacs)
 (evil-set-initial-state 'yari-mode 'emacs)
+(evil-set-initial-state 'dired-mode 'emacs)
 (evil-set-initial-state 'erc-mode 'emacs)
 (evil-set-initial-state 'gud-mode 'emacs)
 (evil-set-initial-state 'help-mode 'emacs)
