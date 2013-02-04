@@ -59,6 +59,7 @@ try to list them HERE,
 * w3m (web browser in console)
 * jsl (jslint)
 * aspell, and dictionary (aspell-en, for example)
+* sbcl, for lisp stuff
 * tidy
 * zip and unzip
   export org to odt
