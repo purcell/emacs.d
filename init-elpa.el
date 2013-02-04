@@ -249,6 +249,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'surround '(20121022 1257 0) nil)
 (require-package 'yasnippet '(20121225 430 0) nil)
 (require-package 'workgroups)
-(require-package 'command-frequency)
+;; (require-package 'command-frequency)
 
 (provide 'init-elpa)

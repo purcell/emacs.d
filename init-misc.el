@@ -215,10 +215,10 @@
 (add-hook 'window-setup-hook 'maximize-frame t)
 
 ;; command-frequency
-(require 'command-frequency)
-(command-frequency-table-load)
-(command-frequency-mode 1)
-(command-frequency-autosave-mode 1)
+;; (require 'command-frequency)
+;; (command-frequency-table-load)
+;; (command-frequency-mode 1)
+;; (command-frequency-autosave-mode 1)
 
 (defun toggle-env-http-proxy ()
   "set/unset the environment variable http_proxy which w3m uses"
