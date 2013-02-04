@@ -1,4 +1,7 @@
 (autoload 'slime-fuzzy-init "slime-fuzzy" "" nil)
+;; I use sbcl, `C-h v slime-read-interactive-args RET` for details
+;; you need install the program sbcl, of course
+(setq slime-default-lisp 'sbcl)
 (eval-after-load 'slime-fuzzy
   '(require 'slime-repl))
 
