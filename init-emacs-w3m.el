@@ -70,7 +70,7 @@
   "Opens the current link or image or current page's uri or any url-like text under cursor in firefox."
   (interactive)
   (let (url)
-    (if (string= major-mode "w3m-mode")
+    (if (or (string= major-mode "w3m-mode") (string= major-mode "gnus-article-mode"))
         (setq url (or (w3m-anchor) (w3m-image) w3m-current-url)))
     (browse-url-generic (if url url (car (browse-url-interactive-arg "URL: "))))
     ))
