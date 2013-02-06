@@ -251,6 +251,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'workgroups)
 ;; rvm-open-gem to get gem's code
 (require-package 'rvm)
+;; C-x r l to list bookmarks
+(require-package 'bookmark+)
 ;; (require-package 'command-frequency)
 
 (provide 'init-elpa)
