@@ -147,7 +147,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'rainbow-mode)
 (require-package 'maxframe)
 ; org-mode is very important to me, so I always use the latest version
-(require-package 'org '(20130128 0 0) nil)
+(require-package 'org '(20130204 0 0) nil)
 (require-package 'org-mime)
 (require-package 'org-fstree)
 ;; I don't care mac
@@ -204,7 +204,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'page-break-lines)
 (require-package 'pointback)
 (require-package 'regex-tool)
-(require-package 'rinari '(20130107 1109 0) nil) ; use latest rinari
+(require-package 'rinari '(20130202 1020 0) nil) ; use latest rinari
 (require-package 'ruby-compilation)
 (require-package 'iy-go-to-char)
 (require-package 'csharp-mode)
