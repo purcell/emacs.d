@@ -1,7 +1,7 @@
 (eval-after-load 'rinari
   '(diminish 'rinari-minor-mode "Rin"))
 
-(add-auto-mode 'ruby-mode "\\.rb\\'" "Rakefile\\'" "\.rake\\'" "\.rxml\\'" "\.rjs\\'" ".irbrc\\'" "\.builder\\'" "\.ru\\'" "\.gemspec\\'" "Gemfile\\'")
+(add-auto-mode 'ruby-mode "\\.rb\\'" "Rakefile\\'" "\.rake\\'" "\.rxml\\'" "\.rjs\\'" ".irbrc\\'" "\.builder\\'" "\.ru\\'" "\.gemspec\\'" "Gemfile\\'" "Kirkfile\\'")
 
 
 (autoload 'run-ruby "inf-ruby" "Run an inferior Ruby process")
