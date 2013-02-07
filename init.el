@@ -1,4 +1,6 @@
-;; -*- coding: utf-8 -*-
+;;; This file bootstraps the configuration, which is divided into
+;;; a number of other files.
+
 (add-to-list 'load-path (expand-file-name "~/.emacs.d"))
 
 ;;----------------------------------------------------------------------------
@@ -15,7 +17,7 @@
 (require 'init-compat)
 (require 'init-utils)
 (require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
-(require 'init-elpa)
+(require 'init-elpa)      ;; Install/load required packages
 (require 'init-exec-path) ;; Set up $PATH
 (require 'init-frame-hooks)
 (require 'init-xterm)
@@ -102,5 +104,6 @@
 
 
 ;; Local Variables:
+;; coding: utf-8
 ;; no-byte-compile: t
 ;; End:
