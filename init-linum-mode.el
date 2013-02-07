@@ -6,6 +6,7 @@
   (setq linum-mode-inhibit-modes-list '(eshell-mode
                                          shell-mode
                                          erc-mode
+                                         help-mode
                                          jabber-roster-mode
                                          jabber-chat-mode
                                          twittering-mode
