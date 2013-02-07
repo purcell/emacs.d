@@ -197,6 +197,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'mmm-mode)
 (require-package 'move-text)
 (require-package 'mwe-log-commands)
+(when *is-a-mac*
+  (require-package 'osx-location))
 (require-package 'page-break-lines)
 (require-package 'pointback)
 (require-package 'regex-tool)
