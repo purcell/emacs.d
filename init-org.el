@@ -62,16 +62,11 @@
 
 
 ;; ;; Show iCal calendars in the org agenda
-;; (when *is-a-mac*
-;;   (eval-after-load "org"
-;;     '(if *is-a-mac* (require 'org-mac-iCal)))
-;;   (setq org-agenda-include-diary t)
-
-;;   (setq org-agenda-custom-commands
+;; (when (and *is-a-mac* (require 'org-mac-iCal nil t))
+;;   (setq org-agenda-include-diary t
+;;         org-agenda-custom-commands
 ;;         '(("I" "Import diary from iCal" agenda ""
-;;            ((org-agenda-mode-hook
-;;              (lambda ()
-;;                (org-mac-iCal)))))))
+;;            ((org-agenda-mode-hook #'org-mac-iCal)))))
 
 ;;   (add-hook 'org-agenda-cleanup-fancy-diary-hook
 ;;             (lambda ()
@@ -84,8 +79,7 @@
 ;;                 (goto-char (match-beginning 0))
 ;;                 (save-excursion
 ;;                   (re-search-backward "^[0-9]+:[0-9]+-[0-9]+:[0-9]+ " nil t))
-;;                 (insert (match-string 0)))))
-;;   )
+;;                 (insert (match-string 0))))))
 
 
 (eval-after-load 'org
