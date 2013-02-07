@@ -4,12 +4,13 @@
   "Hooks to run after creating a new window-system frame")
 
 (defun run-after-make-frame-hooks (frame)
-  "Selectively run either `after-make-console-frame-hooks' or
+  "Run configured hooks in response to the newly-created FRAME.
+Selectively runs either `after-make-console-frame-hooks' or
 `after-make-window-system-frame-hooks'"
-  (select-frame frame)
-  (run-hooks (if window-system
-                 'after-make-window-system-frame-hooks
-               'after-make-console-frame-hooks)))
+  (with-selected-frame frame
+    (run-hooks (if window-system
+                   'after-make-window-system-frame-hooks
+                 'after-make-console-frame-hooks))))
 
 (add-hook 'after-make-frame-functions 'run-after-make-frame-hooks)
 
