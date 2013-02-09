@@ -1,45 +1,22 @@
-# Steve Purcell's original README
-This is an emacs configuration tree that supports a number of
-programming languages, particularly Ruby/Rails and other dynamic
-languages including Clojure, PHP, Python etc.
+# General
 
-In particular, I have a nice config for tab autocompletion, and
-flymake is used to immediately highlight syntax errors in Ruby, HAML,
-Python, Javascript, PHP and some other languages.
+I base my emacs.d on [Steve Purcell's emacs.d](http://github.com/purcell/emacs.d) and synchronize from his once a month.
 
-To install, clone this repo to ~/.emacs.d, i.e. ensure that the
-'init.el' contained in this repo ends up at ~/.emacs.d/init.el.
-Before starting up Emacs, be sure to run 'git submodule update --init'
-to pull in the dependencies that have git repos. Upon starting up Emacs
-for the first time, further third-party packages will be automatically
-downloaded and installed, which may require 'svn' to be on your PATH.
+To install, clone this repo to ~/.emacs.d, i.e. ensure that the 'init.el' contained in this repo ends up at ~/.emacs.d/init.el and old ~/.emacs does NOT exist.
 
-Although these config files aren't meant to be a replacement for
-emacs-starter-kit, some of the tips & tricks contained herein might be
-useful to others, and there are flags at the top of init.el which can
-toggle certain features that might annoy people who aren't me,
-e.g. the "viper" vi emulation.
+Thanks to Purcell, this emacs.d has
+[fancy features](http://github.com/purcell/emacs.d) for most script
+languages like Clojure, Python, Lisp, PHP, Javascript, Ruby
+etc. Purcell is basically a web geek who use all the modern web
+technologies.
 
-I use Emacs HEAD on a Mac, but the config should work in other
-environments too, with any Emacs version >= 23. If not, please file an
-issue on the github project: https://github.com/purcell/emacs.d
+I does some desktop and backend stuff so I will support all the
+languages a desktop guy may use, like C++, Java, Lua, Objective-C etc.
 
--Steve Purcell
+## Features
 
-<hr>
-
-[![](http://api.coderwall.com/purcell/endorsecount.png)](http://coderwall.com/purcell)
-
-[![](http://www.linkedin.com/img/webpromo/btn_liprofile_blue_80x15.png)](http://uk.linkedin.com/in/stevepurcell)
-
-# Chen Bin's README
-
-I base my configuration on Purcell's and sync from his frequently.
-
-## My additions
-
-* 'git submodule update --init' is NOT needed. I removed all the 'git submodule' stuff.
-* some major/minor modes for C/C++ developers
+* git or subversion is NOT needed. I removed all the 'git submodule update' stuff.
+* enhance major/minor modes for C/C++ developers
 * optimized for cross-platform C++ development with CMake and wxWidgets
 * emacs-w3m (console browser)
 * eim (Chinese pinyin input method)
@@ -59,8 +36,8 @@ try to list them HERE,
 * w3m (web browser in console)
 * jsl (jslint)
 * aspell, and dictionary (aspell-en, for example)
-* sbcl, for lisp stuff
-* tidy
+* sbcl (lisp environment)
+* tidy (html tidy program)
 * zip and unzip
   export org to odt
 * clang
@@ -68,7 +45,7 @@ try to list them HERE,
 * ctags (http://ctags.sourceforge.net)
   You use ctags to navigate the code.
 * GNU Global (http://www.gnu.org/software/global)
-  You use this tool to navigate the code.
+  You use this tool to navigate the C/C++/Java/Objective-C code.
 * pyflakes
   You need pyflakes for real time python syntax check (flymake-python)
   Install pip, then `pip install pyflakes`, but on cygwin you need install
