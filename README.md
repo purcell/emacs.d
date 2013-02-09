@@ -10,8 +10,8 @@ languages like Clojure, Python, Lisp, PHP, Javascript, Ruby
 etc. Purcell is basically a web geek who use all the modern web
 technologies.
 
-I does some desktop and backend stuff so I will support all the
-languages a desktop guy may use, like C++, Java, Lua, Objective-C etc.
+I will support all the languages a desktop developer may use, like
+C++, Java, Lua, Objective-C etc.
 
 ## Features
 
@@ -76,7 +76,7 @@ not compatible with auto-complete.
   alias e=emacs -q --no-splash --eval="(setq light-weight-emacs t)" -l "$HOME/.emacs.d/init.el"
   ```
 
-## My personal Emacs configuration (custom.el)
+## My personal custom.el
 It's publicized at http://blog.binchen.org/?p=430 .
 
 <hr>
