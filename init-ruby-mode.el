@@ -46,13 +46,13 @@
   (add-hook hook 'sanityinc/ensure-mmm-erb-loaded))
 
 (dolist (mode (list 'html-mode 'html-erb-mode 'nxml-mode))
-  (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-js)
-  (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css)
+  (mmm-add-mode-ext-class mode "\\.rhtml\\(\\.erb\\)?\\'" 'html-js)
+  (mmm-add-mode-ext-class mode "\\.rhtml\\(\\.erb\\)?\\'" 'html-css)
   (mmm-add-mode-ext-class mode "\\.erb\\'" 'erb))
 
 (mmm-add-mode-ext-class 'html-erb-mode "\\.jst\\.ejs\\'" 'ejs)
 
-(add-to-list 'auto-mode-alist '("\\.r?html\\(\\.erb\\)?\\'" . html-erb-mode))
+(add-to-list 'auto-mode-alist '("\\.rhtml\\(\\.erb\\)?\\'" . html-erb-mode))
 (add-to-list 'auto-mode-alist '("\\.jst\\.ejs\\'"  . html-erb-mode))
 (mmm-add-mode-ext-class 'yaml-mode "\\.yaml\\'" 'erb)
 
