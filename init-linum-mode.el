@@ -20,6 +20,7 @@
                                          gnus-group-mode
                                          inf-ruby-mode
                                          gud-mode
+					 term-mode
                                          w3m-mode
                                          gnus-summary-mode
                                          gnus-article-mode
