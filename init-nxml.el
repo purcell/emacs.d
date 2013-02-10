@@ -5,8 +5,11 @@
 (setq magic-mode-alist (cons '("<\\?xml " . nxml-mode) magic-mode-alist))
 (fset 'html-mode 'nxml-mode)
 (fset 'xml-mode 'nxml-mode)
-(add-hook 'nxml-mode-hook (lambda ()
-                            (set (make-local-variable 'ido-use-filename-at-point) nil)))
+(add-hook 'nxml-mode-hook
+          (lambda ()
+            (set (make-local-variable 'ido-use-filename-at-point) nil)
+            (local-set-key (kbd "C-x C-o") 'ffap)
+            ))
 (setq nxml-slash-auto-complete-flag t)
 
 ;; See: http://sinewalker.wordpress.com/2008/06/26/pretty-printing-xml-with-emacs-nxml-mode/
