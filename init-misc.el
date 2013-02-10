@@ -149,8 +149,8 @@
 
 (setq-default regex-tool-backend 'perl)
 
-;shortcut 'ytx', if smex installed
-(defun yank-to-x-clipboard ()
+;shortcut 'ctx', if smex installed
+(defun copy-to-x-clipboard ()
   (interactive)
   (if (region-active-p)
     (progn
