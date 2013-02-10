@@ -16,8 +16,8 @@
 ; I need copy words from eshell history
 (evil-set-initial-state 'eshell-mode 'emacs)
 (evil-set-initial-state 'shell-mode 'emacs)
-(evil-set-initial-state 'term-mode 'emacs)
 (evil-set-initial-state 'message-mode 'emacs)
+(evil-set-initial-state 'magit-log-edit-mode 'emacs)
 ; message buffer
 (evil-set-initial-state 'fundamental-mode 'emacs)
 (evil-set-initial-state 'gtags-select-mode 'emacs)
