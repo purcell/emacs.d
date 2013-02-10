@@ -144,7 +144,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'markdown-mode)
 (require-package 'smex '(20120915 2041 0) nil)
 (require-package 'dired+)
-(require-package 'rainbow-mode)
+(require-package 'rainbow-mode '(0 6 0) nil)
 (require-package 'maxframe)
 ; org-mode is very important to me, so I always use the latest version
 (require-package 'org '(20130204 0 0) nil)
