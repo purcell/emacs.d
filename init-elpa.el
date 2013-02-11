@@ -220,9 +220,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'whole-line-or-region)
 (require-package 'undo-tree '(20121124 2207 0) nil)
 (require-package 'auctex)
-(when (< emacs-major-version 24)
-  (require-package 'ert)) ; evil-20120725 requires ert
 (require-package 'etags-select '(1 13 0) nil) ;; evil may need it
+;;evil-20120725 requires ert
 (require-package 'evil '(20130203 1051 0) nil)
 (require-package 'evil-leader '(20121117 1428 0) nil)
 (require-package 'evil-numbers '(20120712 1933 0) nil)
