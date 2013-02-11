@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: console.log
+# key: l
+# contributor: Chen Bin <chenbin.sh@gmail.com>
+# --
+console.log('${1:hello world}');
+$0
