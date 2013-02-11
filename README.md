@@ -26,7 +26,7 @@ C++, Java, Lua, Objective-C etc.
 * remove the dependency on subversion (svn)
 * evil-mode and its plugins (Vim key binding)
 * yasnippet and my customized snippets
-* optional start up with a few heavy weight plugins remove
+* start up WITHOUT heavy weight plugins (OPTIONAL)
 
 ## Third party CLI tools Emacs uses
 
@@ -48,7 +48,8 @@ try to list them HERE,
   You use this tool to navigate the C/C++/Java/Objective-C code.
 * pyflakes
   You need pyflakes for real time python syntax check (flymake-python)
-  Install pip, then `pip install pyflakes`, but on cygwin you need install
+
+Install pip, then `pip install pyflakes`, but on cygwin you need install
   setuptool in order to install pip.
 * ditaa, grapviz and planetuml to convert ascii art to diagram and uml.
 
