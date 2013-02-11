@@ -139,6 +139,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'elein)
 (require-package 'markdown-mode)
 (require-package 'smex)
+(require-package 'sql-indent)
 (require-package 'dired+)
 (when (featurep 'color)
   ;; rainbow-mode needs color.el, bundled with Emacs >= 24.
