@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: wxFileName::GetPathSeparator
+# key: wsep
+# --
+wxFileName::GetPathSeparator()
