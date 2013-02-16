@@ -37,6 +37,7 @@ try to list them HERE,
 * aspell, and dictionary (aspell-en, for example)
 * sbcl (lisp environment)
 * tidy (html tidy program)
+* csslint (install node.js, then `npm install -g csslint`
 * zip and unzip
   export org to odt
 * clang
