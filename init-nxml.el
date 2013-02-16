@@ -9,6 +9,8 @@
           (lambda ()
             (set (make-local-variable 'ido-use-filename-at-point) nil)
             (local-set-key (kbd "C-x C-o") 'ffap)
+            (require 'tagedit)
+            (tagedit-add-paredit-like-keybindings)
             ))
 (setq nxml-slash-auto-complete-flag t)
 
