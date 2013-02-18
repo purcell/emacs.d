@@ -8,7 +8,6 @@
 (add-hook 'nxml-mode-hook
           (lambda ()
             (set (make-local-variable 'ido-use-filename-at-point) nil)
-            (local-set-key (kbd "C-x C-o") 'ffap)
             (require 'tagedit)
             (tagedit-add-paredit-like-keybindings)
             ))

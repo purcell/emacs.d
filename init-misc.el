@@ -9,7 +9,19 @@
 
 (column-number-mode 1)
 
-; NO automatic new line when scrolling down at buffer bottom
+;; I love ffap
+(dolist (hook (list 'html-mode-hook
+                    'nxml-mode-hook
+                    'yaml-mode-hook
+                    'js-mode-hook
+                    'js2-mode-hook
+                    'js3-mode-hook
+                    'css-mode-hook
+                    'scss-mode
+                    'less-css-mode-hook))
+  (add-hook hook (lambda () (local-set-key (kbd "C-x C-o") 'ffap))))
+
+;; NO automatic new line when scrolling down at buffer bottom
 (setq next-line-add-newlines nil)
 
 ;Ctrl-X, u/l  to upper/lowercase regions without confirm
