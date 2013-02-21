@@ -65,8 +65,13 @@ source file under ~/.emacs.d/site-lisp/name/"
 ;; Fix up some load paths for libs from git submodules
 ;;----------------------------------------------------------------------------
 
-(unless (file-directory-p (expand-file-name "~/.emacs.d/site-lisp/html5-el/relaxng"))
-  (error "Please run 'make relaxng' in site-lisp/html5-el"))
+(let ((html5-el-dir "~/.emacs.d/site-lisp/html5-el"))
+ (unless (file-directory-p (expand-file-name "relaxng" html5-el-dir))
+   (if (and (executable-find "svn") (executable-find "make"))
+       (progn
+         (message "Setting up html5-el relaxng schema info")
+         (shell-command (format "cd %s && make relaxng" html5-el-dir) "*make relaxng*"))
+     (error "Please run 'make relaxng' in %s" html5-el-dir))))
 
 (defun refresh-site-lisp-submodules ()
   (interactive)
