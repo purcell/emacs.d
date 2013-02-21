@@ -82,7 +82,9 @@ source file under ~/.emacs.d/site-lisp/name/"
 
 (defun ensure-site-lisp-libs ()
   (unless (> emacs-major-version 23)
-    (ensure-lib-from-url 'package "http://bit.ly/pkg-el23")))
+    (ensure-lib-from-url
+     'package
+     "http://repo.or.cz/w/emacs.git/blob_plain/1a0a666f941c99882093d7bd08ced15033bc3f0c:/lisp/emacs-lisp/package.el")))
 
 
 
