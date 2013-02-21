@@ -68,10 +68,6 @@ source file under ~/.emacs.d/site-lisp/name/"
 (unless (file-directory-p (expand-file-name "~/.emacs.d/site-lisp/html5-el/relaxng"))
   (error "Please run 'make relaxng' in site-lisp/html5-el"))
 
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/site-lisp/session/lisp"))
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/site-lisp/org-mode/lisp"))
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/site-lisp/org-mode/contrib/lisp"))
-
 (defun refresh-site-lisp-submodules ()
   (interactive)
   (message "Updating site-lisp git submodules")
