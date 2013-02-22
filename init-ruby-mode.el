@@ -56,7 +56,7 @@
 (add-to-list 'auto-mode-alist '("\\.jst\\.ejs\\'"  . html-erb-mode))
 (mmm-add-mode-ext-class 'yaml-mode "\\.yaml\\'" 'erb)
 
-(dolist (mode (list 'js-mode 'js2-mode 'js3-mode))
+(dolist (mode (list 'js-mode 'js2-mode))
   (mmm-add-mode-ext-class mode "\\.js\\.erb\\'" 'erb))
 
 

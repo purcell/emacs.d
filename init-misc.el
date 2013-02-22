@@ -15,7 +15,6 @@
                     'yaml-mode-hook
                     'js-mode-hook
                     'js2-mode-hook
-                    'js3-mode-hook
                     'css-mode-hook
                     'scss-mode
                     'less-css-mode-hook))
