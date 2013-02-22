@@ -254,6 +254,12 @@ ARCHIVE is the string name of the package archive.")
 ;; C-x r l to list bookmarks
 (require-package 'bookmark+)
 (require-package 'tagedit)
+(when *emacs24*
+  (require-package 'helm '(20130221 1344 0) nil)
+  (require-package 'helm-ls-git)
+  (require-package 'helm-gtags)
+  (require-package 'helm-c-yasnippet)
+  )
 ;; (require-package 'command-frequency)
 
 (provide 'init-elpa)

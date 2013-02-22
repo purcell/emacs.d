@@ -17,6 +17,7 @@
 (setq *linux-x* (and window-system *linux*) )
 (setq *xemacs* (featurep 'xemacs) )
 (setq *emacs23* (and (not *xemacs*) (or (>= emacs-major-version 23))) )
+(setq *emacs24* (and (not *xemacs*) (or (>= emacs-major-version 24))) )
 
 ;----------------------------------------------------------------------------
 ; Functions (load all files in defuns-dir)
@@ -62,6 +63,7 @@
 (require 'init-artbollocks-mode)
 (require 'init-recentf)
 (require 'init-ido)
+(if *emacs24* (require 'init-helm))
 (require 'init-hippie-expand)
 (require 'init-windows)
 (require 'init-sessions)
