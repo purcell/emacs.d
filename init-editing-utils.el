@@ -66,6 +66,11 @@
 ;; Fix per-window memory of buffer point positions
 ;;----------------------------------------------------------------------------
 (global-pointback-mode)
+(defadvice skeleton-insert (before disable-pointback activate)
+  "Disable pointback when using skeleton functions like `sgml-tag'."
+  (when pointback-mode
+    (message "Disabling pointback.")
+    (pointback-mode -1)))
 
 
 ;;----------------------------------------------------------------------------
