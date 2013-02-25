@@ -71,7 +71,7 @@ source file under ~/.emacs.d/site-lisp/name/"
        (progn
          (message "Setting up html5-el relaxng schema info")
          (shell-command (format "cd %s && make relaxng" html5-el-dir) "*make relaxng*"))
-     (error "Please run 'make relaxng' in %s" html5-el-dir))))
+     (error "Couldn't run 'make relaxng' in %s. One or both of 'svn' and 'make' are not installed." html5-el-dir))))
 
 (defun refresh-site-lisp-submodules ()
   (interactive)
