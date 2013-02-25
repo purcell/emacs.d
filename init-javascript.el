@@ -61,15 +61,20 @@
 ;; ---------------------------------------------------------------------------
 
 (setq inferior-js-program-command "js")
-(defun add-inferior-js-keys ()
-  (local-set-key "\C-x\C-e" 'js-send-last-sexp)
-  (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
-  (local-set-key "\C-cb" 'js-send-buffer)
-  (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
-  (local-set-key "\C-cl" 'js-load-file-and-go))
+
+(defvar inferior-js-minor-mode-map (make-sparse-keymap))
+(define-key inferior-js-minor-mode-map "\C-x\C-e" 'js-send-last-sexp)
+(define-key inferior-js-minor-mode-map "\C-\M-x" 'js-send-last-sexp-and-go)
+(define-key inferior-js-minor-mode-map "\C-cb" 'js-send-buffer)
+(define-key inferior-js-minor-mode-map "\C-c\C-b" 'js-send-buffer-and-go)
+(define-key inferior-js-minor-mode-map "\C-cl" 'js-load-file-and-go)
+
+(define-minor-mode inferior-js-keys-mode
+  "Bindings for communicating with an inferior js interpreter."
+  nil " InfJS" inferior-js-minor-mode-map)
 
 (dolist (hook '(js2-mode-hook js3-mode-hook js-mode-hook))
-  (add-hook hook 'add-inferior-js-keys))
+  (add-hook hook 'inferior-js-keys-mode))
 
 
 (provide 'init-javascript)
