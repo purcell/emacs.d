@@ -6,7 +6,6 @@
             "gpx" "tcx"))
          "\\'"))
 (setq magic-mode-alist (cons '("<\\?xml " . nxml-mode) magic-mode-alist))
-(fset 'html-mode 'nxml-mode)
 (fset 'xml-mode 'nxml-mode)
 (add-hook 'nxml-mode-hook (lambda ()
                             (set (make-local-variable 'ido-use-filename-at-point) nil)))
