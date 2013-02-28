@@ -32,6 +32,8 @@
       js2-auto-indent-p t
       js2-bounce-indent-p nil)
 
+(eval-after-load 'js2-mode '(js2-imenu-extras-setup))
+
 ;; js3-mode
 (add-hook 'js3-mode-hook '(lambda () (setq mode-name "JS3")))
 (setq js3-auto-indent-p t
