@@ -255,7 +255,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'bookmark+)
 (require-package 'tagedit)
 (when *emacs24*
-  (require-package 'helm '(20130221 1344 0) nil)
+  (require-package 'helm '(20130228 2240 0) nil)
   (require-package 'helm-ls-git)
   (require-package 'helm-gtags)
   (require-package 'helm-c-yasnippet)
