@@ -51,7 +51,7 @@
 (require 'init-textile)
 (require 'init-markdown)
 (require 'init-csv)
-(when erlang-available
+(when (package-installed-p 'erlang)
   (require 'init-erlang))
 (require 'init-javascript)
 (require 'init-sh)

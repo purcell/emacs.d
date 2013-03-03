@@ -130,12 +130,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'yaml-mode)
 (require-package 'paredit)
 (require-package 'eldoc-eval)
-(defconst erlang-available
-  (condition-case err
-      (progn
-        (require-package 'erlang)
-        t)
-    (error nil)))
+(ignore-errors
+  (require-package 'erlang))
 (require-package 'slime)
 (require-package 'slime-fuzzy)
 (require-package 'slime-repl)
