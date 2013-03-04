@@ -97,7 +97,6 @@ ARCHIVE is the string name of the package archive.")
 (package-initialize)
 
 (require-package 'ido-ubiquitous)
-(require-package 'ido-complete-space-or-hyphen)
 (when (< emacs-major-version 24)
   (require-package 'color-theme))
 (require-package 'auto-compile)
