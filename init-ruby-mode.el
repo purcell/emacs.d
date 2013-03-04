@@ -52,6 +52,11 @@
   (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css)
   (mmm-add-mode-ext-class mode "\\.erb\\'" 'erb))
 
+(eval-after-load "sgml-mode"
+  '(progn
+     (require 'tagedit)
+     (tagedit-add-paredit-like-keybindings)))
+
 (mmm-add-mode-ext-class 'html-erb-mode "\\.jst\\.ejs\\'" 'ejs)
 
 (add-auto-mode 'html-erb-mode "\\.rhtml\\'" "\\.html\\.erb\\'")
