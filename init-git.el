@@ -31,7 +31,12 @@
      (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)))
 
 
+;;; Use the fringe version of git-gutter
 
+(eval-after-load 'git-gutter
+  '(require 'git-gutter-fringe))
+
+
 (when *is-a-mac*
   (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)]))))
 
