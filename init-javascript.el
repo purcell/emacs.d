@@ -1,3 +1,15 @@
+(require-package 'json)
+(require-package 'js3-mode)
+(when (>= emacs-major-version 24)
+  (require-package 'js2-mode))
+(require-package 'js-comint)
+(require-package 'rainbow-delimiters)
+(require-package 'coffee-mode)
+(require-package 'flymake-coffee)
+(require-package 'flymake-jslint)
+(require-package 'flymake-json)
+
+
 (defcustom preferred-javascript-mode
   (first (remove-if-not #'fboundp '(js2-mode js3-mode)))
   "Javascript mode to use for .js files."

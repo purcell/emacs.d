@@ -1,3 +1,11 @@
+(require-package 'magit)
+(require-package 'git-gutter-fringe)
+(require-package 'git-blame)
+(require-package 'git-commit-mode)
+(require-package 'gitignore-mode)
+(require-package 'gitconfig-mode)
+(require-package 'yagist)
+
 (setq magit-save-some-buffers nil
       magit-process-popup-time 10
       magit-completing-read-function 'magit-ido-completing-read)

@@ -1,3 +1,6 @@
+(require-package 'unfill)
+(require-package 'whole-line-or-region)
+
 ;;----------------------------------------------------------------------------
 ;; Some basic preferences
 ;;----------------------------------------------------------------------------
@@ -53,18 +56,20 @@
 ;;----------------------------------------------------------------------------
 ;; Show matching parens
 ;;----------------------------------------------------------------------------
+(require-package 'mic-paren)
 (paren-activate)     ; activating mic-paren
 
 ;;----------------------------------------------------------------------------
 ;; Expand region
 ;;----------------------------------------------------------------------------
-(require 'expand-region)
+(require-package 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
 
 
 ;;----------------------------------------------------------------------------
 ;; Fix per-window memory of buffer point positions
 ;;----------------------------------------------------------------------------
+(require-package 'pointback)
 (global-pointback-mode)
 (defadvice skeleton-insert (before disable-pointback activate)
   "Disable pointback when using skeleton functions like `sgml-tag'."
@@ -99,10 +104,13 @@
 (global-set-key (kbd "M-T") 'transpose-lines)
 (global-set-key (kbd "C-.") 'set-mark-command)
 (global-set-key (kbd "C-x C-.") 'pop-global-mark)
+
+(require-package 'ace-jump-mode)
 (global-set-key (kbd "C-;") 'ace-jump-mode)
 (global-set-key (kbd "C-:") 'ace-jump-word-mode)
 
 
+(require-package 'multiple-cursors)
 ;; multiple-cursors
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
@@ -146,12 +154,14 @@
 ;;----------------------------------------------------------------------------
 ;; Page break lines
 ;;----------------------------------------------------------------------------
+(require-package 'page-break-lines)
 (global-page-break-lines-mode)
 
 ;;----------------------------------------------------------------------------
 ;; Fill column indicator
 ;;----------------------------------------------------------------------------
 (when (> emacs-major-version 23)
+  (require-package 'fill-column-indicator)
   (defun sanityinc/prog-mode-fci-settings ()
     (turn-on-fci-mode)
     (when show-trailing-whitespace
@@ -188,6 +198,7 @@
 ;;----------------------------------------------------------------------------
 ;; Shift lines up and down with M-up and M-down
 ;;----------------------------------------------------------------------------
+(require-package 'move-text)
 (move-text-default-bindings)
 
 

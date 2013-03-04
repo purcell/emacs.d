@@ -1,3 +1,6 @@
+(require-package 'ido-ubiquitous)
+(require-package 'smex)
+
 ;; Use C-f during file selection to switch to regular find-file
 (ido-mode t)  ; use 'buffer rather than t to use only buffer switching
 (ido-everywhere t)

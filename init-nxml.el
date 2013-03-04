@@ -29,6 +29,7 @@ indentation rules."
 ;;----------------------------------------------------------------------------
 ;; Integration with tidy for html + xml
 ;;----------------------------------------------------------------------------
+(require-package 'tidy)
 (add-hook 'nxml-mode-hook (lambda () (tidy-build-menu nxml-mode-map)))
 (add-hook 'html-mode-hook (lambda () (tidy-build-menu html-mode-map)))
 

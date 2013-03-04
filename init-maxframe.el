@@ -1,3 +1,5 @@
+(require-package 'maxframe)
+
 (autoload 'mf-max-display-pixel-width "maxframe" "" nil)
 (autoload 'mf-max-display-pixel-height "maxframe" "" nil)
 (autoload 'maximize-frame "maxframe" "" t)

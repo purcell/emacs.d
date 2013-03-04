@@ -1,3 +1,11 @@
+(require-package 'mmm-mode)
+(require-package 'sass-mode)
+(require-package 'scss-mode)
+(require-package 'less-css-mode)
+(require-package 'flymake-css)
+(require-package 'flymake-sass)
+
+
 (eval-after-load 'mmm-vars
   '(progn
      (mmm-add-group
@@ -27,6 +35,10 @@
 
 
 ;; Colourise CSS colour literals
+(when (featurep 'color)
+  ;; rainbow-mode needs color.el, bundled with Emacs >= 24.
+  (require-package 'rainbow-mode))
+
 (eval-after-load 'rainbow-mode
   '(dolist (hook '(css-mode-hook html-mode-hook sass-mode-hook))
      (add-hook hook 'rainbow-mode)))

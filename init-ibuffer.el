@@ -1,3 +1,5 @@
+(require-package 'ibuffer-vc)
+
 (defun ibuffer-set-up-preferred-filters ()
   (ibuffer-vc-set-filter-groups-by-vc-root)
   (unless (eq ibuffer-sorting-mode 'filename/process)

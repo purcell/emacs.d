@@ -1,3 +1,15 @@
+(require-package 'ruby-mode)
+(require-package 'flymake-ruby)
+(require-package 'rinari)
+(require-package 'ruby-compilation)
+(require-package 'inf-ruby)
+(require-package 'robe)
+(require-package 'yari)
+(require-package 'yaml-mode)
+(require-package 'haml-mode)
+(require-package 'mmm-mode)
+
+
 (eval-after-load 'rinari
   '(diminish 'rinari-minor-mode "Rin"))
 
@@ -52,9 +64,9 @@
   (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css)
   (mmm-add-mode-ext-class mode "\\.erb\\'" 'erb))
 
+(require-package 'tagedit)
 (eval-after-load "sgml-mode"
   '(progn
-     (require 'tagedit)
      (tagedit-add-paredit-like-keybindings)))
 
 (mmm-add-mode-ext-class 'html-erb-mode "\\.jst\\.ejs\\'" 'ejs)

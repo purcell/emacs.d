@@ -1,3 +1,5 @@
+(require-package 'marmalade)
+
 ;;; Handy code for uploading new versions of my own packages to marmalade
 
 (autoload 'marmalade-upload-buffer "marmalade")

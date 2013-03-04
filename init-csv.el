@@ -1,6 +1,8 @@
-(autoload 'csv-mode "csv-mode" "Major mode for editing comma-separated value files." t)
+(require-package 'csv-mode)
+(require-package 'csv-nav)
+
 (add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
-(autoload 'csv-nav-mode "csv-nav-mode" "Major mode for navigating comma-separated value files." t)
+(autoload 'csv-nav-mode "csv-nav" "Major mode for navigating comma-separated value files." t)
 
 (setq csv-separators '("," ";" "|" " "))
 

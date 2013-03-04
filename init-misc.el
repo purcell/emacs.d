@@ -13,6 +13,7 @@
 
 (setq-default regex-tool-backend 'perl)
 
+(require-package 'sql-indent)
 (eval-after-load "sql"
   '(load-library "sql-indent"))
 

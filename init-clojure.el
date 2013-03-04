@@ -1,3 +1,13 @@
+(require-package 'clojure-mode)
+(require-package 'clojure-test-mode)
+(require-package 'cljsbuild-mode)
+(require-package 'elein)
+(require-package 'nrepl)
+(require-package 'slamhound)
+(require-package 'slime)
+(require-package 'ac-nrepl)
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Slime with Clojure
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
