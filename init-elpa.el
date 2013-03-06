@@ -50,7 +50,9 @@ ARCHIVE is the string name of the package archive.")
 ;;------------------------------------------------------------------------------
 
 (defun require-package (package &optional min-version no-refresh)
-  "Ask elpa to install given PACKAGE."
+  "Install given PACKAGE, optionally requiring MIN-VERSION.
+If NO-REFRESH is non-nil, the available package lists will not be
+re-downloaded in order to locate PACKAGE."
   (if (package-installed-p package min-version)
       t
     (if (or (assoc package package-archive-contents) no-refresh)
