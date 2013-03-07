@@ -10,6 +10,8 @@
             (set (make-local-variable 'ido-use-filename-at-point) nil)
             (require 'tagedit)
             (tagedit-add-paredit-like-keybindings)
+            (local-set-key (kbd "C-M-n") 'nxml-forward-element)
+            (local-set-key (kbd "C-M-p") 'nxml-backward-element)
             ))
 (setq nxml-slash-auto-complete-flag t)
 
