@@ -7,5 +7,7 @@
             (turn-on-haskell-doc-mode)
             (turn-on-haskell-indent)))
 
+(require-package 'flymake-hlint)
+(add-hook 'haskell-mode-hook #'flymake-hlint-init)
 
 (provide 'init-haskell)
