@@ -101,12 +101,12 @@
 
 (defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
+  (rainbow-delimiters-mode t)
   (enable-paredit-mode)
   (turn-on-eldoc-mode))
 
 (defun sanityinc/emacs-lisp-setup ()
   "Enable features useful when working with elisp."
-  (rainbow-delimiters-mode t)
   (elisp-slime-nav-mode t)
   (set-up-hippie-expand-for-elisp)
   (ac-emacs-lisp-mode-setup)
