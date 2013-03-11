@@ -14,6 +14,6 @@
 (add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion)
 
 (require-package 'flymake-hlint)
-(add-hook 'haskell-mode-hook #'flymake-hlint-init)
+(add-hook 'haskell-mode-hook #'flymake-hlint-load)
 
 (provide 'init-haskell)
