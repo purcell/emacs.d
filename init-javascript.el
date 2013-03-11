@@ -90,5 +90,12 @@
 (dolist (hook '(js2-mode-hook js3-mode-hook js-mode-hook))
   (add-hook hook 'inferior-js-keys-mode))
 
+;; ---------------------------------------------------------------------------
+;; Alternatively, use skewer-mode
+;; ---------------------------------------------------------------------------
+
+(require-package 'skewer-mode)
+(add-hook 'skewer-mode-hook (lambda () (inferior-js-keys-mode -1)))
+
 
 (provide 'init-javascript)
