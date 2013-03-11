@@ -7,6 +7,9 @@
             (turn-on-haskell-doc-mode)
             (turn-on-haskell-indent)))
 
+(require-package 'ghci-completion)
+(add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion)
+
 (require-package 'flymake-hlint)
 (add-hook 'haskell-mode-hook #'flymake-hlint-init)
 
