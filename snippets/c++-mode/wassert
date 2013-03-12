@@ -2,4 +2,4 @@
 # name: wxASSERT(...)
 # key: wa
 # --
-wxASSERT(${1:0});
+wxASSERT(${1:0});$0
