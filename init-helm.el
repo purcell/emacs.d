@@ -5,6 +5,9 @@
 (setq helm-c-gtags-path-style 'relative)
 (setq helm-c-gtags-ignore-case t)
 (setq helm-c-gtags-read-only t)
+;; helm-gtags ==end
+
+(global-set-key (kbd "C-c g") 'helm-ls-git-ls)
 
 (add-hook 'c-mode-common-hook (lambda () (helm-gtags-mode)))
 
