@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: wxASSERT(...)
+# key: wa
+# --
+wxASSERT(${1:0});$0
