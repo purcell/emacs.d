@@ -23,5 +23,7 @@
           (lambda ()
             (add-to-list 'flyspell-prog-text-faces 'nxml-text-face)))
 
+;; you can also use "M-x ispell-word" or hotkey "M-$". It pop up a multiple choice
+(global-set-key (kbd "C-c s") 'flyspell-auto-correct-word)
 
 (provide 'init-flyspell)
