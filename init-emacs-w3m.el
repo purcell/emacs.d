@@ -23,13 +23,13 @@
 (eval-after-load "w3m-search" '(progn
                                  ; C-u S g RET <search term> RET
                                  (add-to-list 'w3m-search-engine-alist '("g"
-                                                                         "http://www.google.com.au/search?hl=zh-CN&q=%s" utf-8))
+                                                                         "http://www.google.com.au/search?hl=en&q=%s" utf-8))
                                  (add-to-list 'w3m-search-engine-alist '("wz"
                                                                          "http://zh.wikipedia.org/wiki/Special:Search?search=%s" utf-8))
                                  (add-to-list 'w3m-search-engine-alist '("q"
                                                                          "http://www.google.com.au/search?hl=en&q=%s+site:stackoverflow.com" utf-8))
                                  (add-to-list 'w3m-search-engine-alist '("s"
-                                                                         "http://code.google.com/codesearch?q=%s" utf-8))
+                                                                         "http://code.ohloh.net/search?s=%s&browser=Default"  utf-8))
                                  (add-to-list 'w3m-search-engine-alist '("b"
                                                                          "http://blogsearch.google.com.au/blogsearch?q=%s" utf-8))
                                  (add-to-list 'w3m-search-engine-alist '("w"
@@ -62,8 +62,13 @@
   (interactive)
   (require 'w3m)
   (let ((keyword (w3m-url-encode-string (thing-at-point 'symbol))))
-    (browse-url-generic (concat "http://code.google.com/codesearch?q=" keyword))
-    (browse-url-generic (concat "http://www.google.com.au/search?hl=en&q=" keyword "+site:stackoverflow.com" )))
+    (browse-url-generic (concat "http://www.google.com.au/search?hl=en&q=%22"
+                                keyword
+                                "%22+filetype%3A"
+                                (file-name-extension buffer-file-name) ))
+    (browse-url-generic (concat "http://www.google.com.au/search?hl=en&q="
+                                keyword
+                                "+site:stackoverflow.com" )))
   )
 
 (defun w3mext-open-link-or-image-or-url ()
@@ -79,3 +84,7 @@
 (add-hook 'prog-mode-hook '( lambda () (local-set-key (kbd "C-c ; s") 'w3mext-hacker-search)) )
 
 (provide 'init-emacs-w3m)
+
+
+
+
