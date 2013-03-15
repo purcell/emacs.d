@@ -7,7 +7,6 @@
 (setq helm-c-gtags-read-only t)
 ;; helm-gtags ==end
 
-(global-set-key (kbd "C-c g") 'helm-ls-git-ls)
 
 (add-hook 'c-mode-common-hook (lambda () (helm-gtags-mode)))
 
@@ -27,7 +26,7 @@
       (global-set-key (kbd "C-x C-o") 'helm-find-files)
       (global-set-key (kbd "C-c f") 'helm-for-files)
       (global-set-key (kbd "C-c y") 'helm-c-yas-complete)
-      (global-set-key (kbd "C-c ;") 'helm-ls-git-ls)
+      (global-set-key (kbd "C-c C-g") 'helm-ls-git-ls)
       (global-set-key (kbd "C-c i") 'helm-imenu)
       )
   (global-set-key (kbd "C-x C-o") 'ffap)
