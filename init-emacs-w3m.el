@@ -49,27 +49,32 @@
                           (w3m-lnum-mode 1)
                           ))
 
-; external browser should be firefox
+; external browser
 (setq browse-url-generic-program
       (cond
        (*is-a-mac* "open")
        (*linux* (executable-find "firefox"))
        ))
 
-;; use external browser to search
+;; use external browser to search programming stuff
 (defun w3mext-hacker-search ()
   "search word under cursor in google code search and stackoverflow.com"
   (interactive)
   (require 'w3m)
   (let ((keyword (w3m-url-encode-string (thing-at-point 'symbol))))
+    ;; google
     (browse-url-generic (concat "http://www.google.com.au/search?hl=en&q=%22"
                                 keyword
                                 "%22+filetype%3A"
                                 (file-name-extension buffer-file-name) ))
     (browse-url-generic (concat "http://www.google.com.au/search?hl=en&q="
                                 keyword
-                                "+site:stackoverflow.com" )))
-  )
+                                "+site:stackoverflow.com" ))
+    ;; koders.com
+    (browse-url-generic (concat "http://code.ohloh.net/search?s=\""
+                                keyword
+                                "\"&browser=Default&mp=1&ml=1&me=1&md=1&filterChecked=true" ))
+    ))
 
 (defun w3mext-open-link-or-image-or-url ()
   "Opens the current link or image or current page's uri or any url-like text under cursor in firefox."
