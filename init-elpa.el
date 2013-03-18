@@ -223,8 +223,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'auctex)
 (require-package 'etags-select '(1 13 0) nil) ;; evil may need it
 ;;evil-20120725 requires ert
-(require-package 'evil '(20130225 1812 0) nil)
-(require-package 'evil-leader '(20121117 1428 0) nil)
+(require-package 'evil '(20130315 2026 0) nil)
+(require-package 'evil-leader '(20130316 1414 0) nil)
 (require-package 'evil-numbers '(20120712 1933 0) nil)
 (require-package 'w3m)
 ;;(require-package 'sunrise-commander '(20121108 2128 0) nil)
