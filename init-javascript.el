@@ -11,9 +11,14 @@
 (eval-after-load 'js
   '(add-hook 'js-mode-hook 'flymake-jslint-load))
 
-
 ;; js2-mode
-(add-hook 'js2-mode-hook '(lambda () (setq mode-name "JS2")))
+(add-hook 'js2-mode-hook '(lambda ()
+                            (setq mode-name "JS2")
+                            (require 'js-doc)
+                            (define-key js2-mode-map "\C-cd" 'js-doc-insert-function-doc)
+                            (define-key js2-mode-map "@" 'js-doc-insert-tag)
+                            ))
+
 (setq js2-use-font-lock-faces t
       js2-mode-must-byte-compile nil
       js2-basic-offset preferred-javascript-indent-level
