@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# key: fieldset
+# contributor: Chen Bin <chenbin dot sh at gmail>
+# name: Fieldset
+# --
+<fieldset class="${1:ClassName}"}>
+<legend>${2:`yas/selected-text`}</legend>
+
+$0
+</fieldset>
