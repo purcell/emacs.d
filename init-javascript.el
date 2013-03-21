@@ -6,6 +6,8 @@
 (autoload 'js2-mode "js2-mode" nil t)
 (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\|on\\)?\\'" . js2-mode) auto-mode-alist))
 
+;; json
+(setq auto-mode-alist (cons '("\\.json\\'" . json-mode) auto-mode-alist))
 
 ;; On-the-fly syntax checking
 (eval-after-load 'js

@@ -253,6 +253,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'rvm)
 ;; C-x r l to list bookmarks
 (require-package 'bookmark+)
+(require-package 'json-mode)
 (require-package 'tagedit)
 (when *emacs24*
   (require-package 'helm '(20130313 2255 0) nil)
