@@ -3,7 +3,8 @@
 ;; sr-speedbar config
 (setq sr-speedbar-right-side nil)
 (setq sr-speedbar-skip-other-window-p t)
-(setq sr-speedbar-auto-refresh t)
+;; no auto-refresh
+(setq sr-speedbar-auto-refresh nil)
 
 (setq sr-speedbar-width-console 30)
 (setq sr-speedbar-width-x 30)
@@ -18,5 +19,6 @@
   (speedbar-edit-line)
   (other-window 1))
 
-(global-set-key (kbd "C-c j") 'sr-speedbar-toggle)
+(global-set-key (kbd "C-c j s") 'sr-speedbar-toggle)
+(global-set-key (kbd "C-c j r") 'sr-speedbar-refresh-toggle)
 (provide 'init-sr-speedbar)
