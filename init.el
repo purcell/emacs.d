@@ -149,7 +149,8 @@
 (require 'init-workgroups)
 (require 'init-move-window-buffer)
 (require 'init-term-mode)
-
+(require 'init-web-mode)
+(require 'init-sr-speedbar)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
@@ -206,7 +207,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(bmkp-last-as-first-bookmark-file "~/.emacs.d/.bookmarks.el"))
+ '(bmkp-last-as-first-bookmark-file "~/.emacs.d/.bookmarks.el")
+ '(session-use-package t nil (session)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
