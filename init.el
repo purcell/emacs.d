@@ -150,6 +150,7 @@
 (require 'init-move-window-buffer)
 (require 'init-term-mode)
 (require 'init-web-mode)
+(require 'init-sr-speedbar)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

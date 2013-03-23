@@ -27,6 +27,7 @@
 (evil-set-initial-state 'sr-mode 'emacs)
 (evil-set-initial-state 'dired-mode 'emacs)
 (evil-set-initial-state 'compilation-mode 'emacs)
+(evil-set-initial-state 'speedbar-mode 'emacs)
 
 (define-key evil-normal-state-map "Y" (kbd "y$"))
 (define-key evil-normal-state-map "+" 'evil-numbers/inc-at-pt)
