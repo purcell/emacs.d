@@ -85,7 +85,13 @@
 ;; (eval-after-load 'mmm-mode
 ;;   '(progn
 ;;      (mmm-add-classes
-;;       '((ruby-heredoc-sql :submode sql-mode :front "<<-?end_sql.*\r?\n" :back "[ \t]*end_sql" :face mmm-code-submode-face)))
+;;       '((ruby-heredoc-sql
+;;          :submode sql-mode
+;;          :front "<<-?[\'\"]?\\(end_sql\\)[\'\"]?"
+;;          :save-matches 1
+;;          :front-offset (end-of-line 1)
+;;          :back "^[ \t]*~1$"
+;;          :delimiter-mode nil)))
 ;;      (mmm-add-mode-ext-class 'ruby-mode "\\.rb\\'" 'ruby-heredoc-sql)))
 
 
