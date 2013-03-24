@@ -25,7 +25,6 @@ C++, Java, Lua, Objective-C etc.
 * The configuration will work with Emacs version >=23.3.1
 * evil-mode and its plugins (Vim key binding)
 * yasnippet and my customized snippets
-* start up WITHOUT heavy weight plugins (OPTIONAL)
 
 ## Third party CLI tools Emacs uses
 
@@ -34,6 +33,7 @@ try to list them HERE,
 
 * w3m (web browser in console)
 * jsl (jslint)
+  Install node.js. Then "sudo npm install -g jslint".
 * aspell, and dictionary (aspell-en, for example)
 * sbcl (lisp environment)
 * tidy (html tidy program)
