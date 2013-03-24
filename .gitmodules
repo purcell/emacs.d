@@ -1,0 +1,9 @@
+[submodule "site-lisp/autopair"]
+	path = site-lisp/autopair
+	url = https://github.com/capitaomorte/autopair.git
+[submodule "site-lisp/yasnippet"]
+	path = site-lisp/yasnippet
+	url = https://github.com/capitaomorte/yasnippet.git
+[submodule "snippets/java-mode"]
+	path = snippets/java-mode
+	url = https://github.com/nekop/yasnippet-java-mode.git
