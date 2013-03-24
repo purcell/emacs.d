@@ -32,8 +32,8 @@
 
 (require 'init-frame-hooks)
 (require 'init-xterm)
-(require 'init-themes)
-(require 'init-osx-keys)
+;(require 'init-themes)
+;(require 'init-osx-keys)
 (require 'init-gui-frames)
 (require 'init-maxframe)
 (require 'init-proxies)
@@ -48,7 +48,7 @@
 (require 'init-hippie-expand)
 (require 'init-auto-complete)
 (require 'init-windows)
-(require 'init-sessions)
+;(require 'init-sessions)
 (require 'init-fonts)
 (require 'init-mmm)
 (require 'init-growl)
@@ -107,16 +107,15 @@
 ;;----------------------------------------------------------------------------
 ;; Variables configured via the interactive 'customize' interface
 ;;----------------------------------------------------------------------------
-(setq custom-file "~/.emacs.d/custom.el")
-(when (file-exists-p custom-file)
-  (load custom-file))
+;(setq custom-file "~/.emacs.d/custom.el")
+;(when (file-exists-p custom-file)
+;  (load custom-file))
 
 
 ;;----------------------------------------------------------------------------
 ;; Allow users to provide an optional "init-local" containing personal settings
 ;;----------------------------------------------------------------------------
 (require 'init-local nil t)
-
 
 ;;----------------------------------------------------------------------------
 ;; Locales (setting them earlier in this file doesn't work in X)

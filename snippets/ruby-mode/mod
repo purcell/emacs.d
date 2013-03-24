@@ -1,0 +1,6 @@
+# name: module
+# key: mod
+# --
+module ${1:`(file-name-sans-extension (buffer-name))`}
+  $0
+end
