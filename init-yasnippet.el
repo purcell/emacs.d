@@ -17,5 +17,6 @@
      "Use `yas-completing-prompt' for `yas-prompt-functions' but only here..."
        (let ((yas-prompt-functions '(yas-completing-prompt)))
              ad-do-it))
-
+;; @see http://stackoverflow.com/questions/7619640/emacs-latex-yasnippet-why-are-newlines-inserted-after-a-snippet
+(setq-default mode-require-final-newline nil)
 (provide 'init-yasnippet)

@@ -1,0 +1,4 @@
+#name: Backbone.Model.get
+#key: bg
+# --
+this.model.get('$0')
