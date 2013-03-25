@@ -108,11 +108,18 @@
            (insert (format "%4d %c\n" i i))))
   (beginning-of-buffer))
 
-;insert date into buffer
-(defun insert-date ()
-  "Insert date at point."
-  (interactive)
-  (insert (format-time-string "%a %b %e, %Y %l:%M %p")))
+
+;; I'm in Australia now, so I set the locale to "en_AU"
+(defun insert-date (prefix)
+    "Insert the current date. With prefix-argument, use ISO format. With
+   two prefix arguments, write out the day and month name."
+    (interactive "P")
+    (let ((format (cond
+                   ((not prefix) "%d.%m.%Y")
+                   ((equal prefix '(4)) "%Y-%m-%d")
+                   ((equal prefix '(16)) "%d %B %Y")))
+          )
+      (insert (format-time-string format))))
 
 (defun insert-blog-version ()
   "insert version of my blog post"
