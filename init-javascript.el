@@ -16,6 +16,8 @@
 ;; js2-mode
 (add-hook 'js2-mode-hook '(lambda ()
                             (setq mode-name "JS2")
+                            (require 'requirejs-mode)
+                            (requirejs-mode)
                             (require 'js-doc)
                             (define-key js2-mode-map "\C-cd" 'js-doc-insert-function-doc)
                             (define-key js2-mode-map "@" 'js-doc-insert-tag)
