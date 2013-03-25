@@ -146,4 +146,19 @@
 (add-hook 'cc-mode-hook 'turn-on-auto-fill)
 (global-set-key (kbd "C-c q") 'auto-fill-mode)
 
+;; some project prefer tab, so be it
+;; @see http://stackoverflow.com/questions/69934/set-4-space-indent-in-emacs-in-text-mode
+(setq-default tab-width 4)
+(defun toggle-indent-tab ()
+  (interactive)
+  (if indent-tabs-mode
+      (progn
+        (setq indent-tabs-mode nil)
+        )
+    (progn
+        (setq indent-tabs-mode t)
+        (setq indent-line-function 'insert-tab)
+      )
+      )
+  )
 (provide 'init-editing-utils)

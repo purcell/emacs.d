@@ -65,8 +65,10 @@
     ;; google
     (browse-url-generic (concat "http://www.google.com.au/search?hl=en&q=%22"
                                 keyword
-                                "%22+filetype%3A"
-                                (file-name-extension buffer-file-name) ))
+                                "%22"
+                                (if buffer-file-name
+									(concat "+filetype%3A" (file-name-extension buffer-file-name))
+									"")  ))
     (browse-url-generic (concat "http://www.google.com.au/search?hl=en&q="
                                 keyword
                                 "+site:stackoverflow.com" ))

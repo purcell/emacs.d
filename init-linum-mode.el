@@ -22,6 +22,7 @@
                                          gud-mode
 					 term-mode
                                          w3m-mode
+                                         speedbar-mode
                                          gnus-summary-mode
                                          gnus-article-mode
                                          calendar-mode))
