@@ -1,5 +1,18 @@
 (helm-mode 1)
 
+(setq helm-completing-read-handlers-alist
+      '((describe-function . ido)
+        (describe-variable . ido)
+        (debug-on-entry . helm-completing-read-symbols)
+        (find-function . helm-completing-read-symbols)
+        (find-tag . helm-completing-read-with-cands-in-buffer)
+        (ffap-alternate-file . nil)
+        (tmm-menubar . nil)
+        (dired-do-copy . ido)
+        (dired-do-rename . ido)
+        (dired-create-directory . nil)
+        ))
+
 ;; helm-gtags ==begin
 ;; customize
 (setq helm-c-gtags-path-style 'relative)
