@@ -17,8 +17,13 @@
 (add-hook 'haskell-mode-hook #'flymake-haskell-multi-load)
 
 ;; Make compilation-mode understand "at blah.hs:11:34-50" lines output by GHC
-(add-to-list
- 'compilation-error-regexp-alist-alist
- '(ghc-at-regexp " at \\(.*l?hs\\):\\([0-9]+\\):\\([0-9]+\\)-[0-9]+$" 1 2 3 0 1))
+(eval-after-load 'compile
+  '(progn
+     (let ((alias 'ghc-at-regexp))
+       (add-to-list
+        'compilation-error-regexp-alist-alist
+        (list alias " at \\(.*l?hs\\):\\([0-9]+\\):\\([0-9]+\\)-[0-9]+$" 1 2 3 0 1))
+       (add-to-list
+        'compilation-error-regexp-alist alias))))
 
 (provide 'init-haskell)
