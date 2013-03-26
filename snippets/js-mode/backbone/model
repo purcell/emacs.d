@@ -1,0 +1,20 @@
+#name: model
+#expand-env: ((yas/indent-line 'fixed)
+#key: bm
+# --
+${1:ns}.${2:name} = Backbone.Model.extend({
+     defaults: function(){
+         return {
+             ${3:default}
+         };
+     },
+
+     url: function() {
+         return '/${2:$(downcase text)}/';
+     },
+
+     initialize: function(attrs) {
+          $0
+     }
+
+});

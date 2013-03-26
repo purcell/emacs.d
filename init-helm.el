@@ -11,6 +11,8 @@
         (dired-do-copy . ido)
         (dired-do-rename . ido)
         (dired-create-directory . nil)
+        (find-file . ido)
+        (ido-find-file . nil)
         ))
 
 ;; helm-gtags ==begin

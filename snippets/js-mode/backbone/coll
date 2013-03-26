@@ -1,0 +1,11 @@
+#name: Backbone.Collection
+# expand-env: ((yas/indent-line 'fixed)
+#key: bc
+# --
+
+${1:ns}.${2:name} = Backbone.Collection.extend({
+    model: $3,
+    initialize: function(attrs) {
+         $0
+    }
+});
