@@ -13,6 +13,8 @@
         (dired-create-directory . nil)
         (find-file . ido)
         (ido-find-file . nil)
+        (yas/compile-directory . ido)
+        (yas-compile-directory . ido)
         ))
 
 ;; helm-gtags ==begin
