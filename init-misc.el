@@ -208,6 +208,9 @@
 ;;iedit-mode
 (global-set-key (kbd "C-c ;") 'iedit-mode-toggle-on-function)
 
+;;align text
+(global-set-key (kbd "C-c C-l") 'align-regexp)
+
 ;; my screen is tiny, so I use minimum eshell prompt
 (setq eshell-prompt-function
        (lambda ()

@@ -69,6 +69,7 @@
   ;; recommended in html
   "md" 'mc/mark-all-like-this-dwim
   "rw" 'rotate-windows
+  "l" 'align-regexp
   )
 
 ;; comment/uncomment lines
