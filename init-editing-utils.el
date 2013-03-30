@@ -1,6 +1,9 @@
 (require-package 'unfill)
 (require-package 'whole-line-or-region)
 
+(when (fboundp 'electric-pair-mode)
+  (electric-pair-mode))
+
 ;;----------------------------------------------------------------------------
 ;; Some basic preferences
 ;;----------------------------------------------------------------------------
