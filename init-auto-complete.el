@@ -30,7 +30,7 @@
                 sass-mode yaml-mode csv-mode espresso-mode haskell-mode
                 html-mode nxml-mode sh-mode smarty-mode clojure-mode
                 lisp-mode textile-mode markdown-mode tuareg-mode
-                js3-mode css-mode less-css-mode sql-mode))
+                js3-mode css-mode less-css-mode sql-mode ielm-mode))
   (add-to-list 'ac-modes mode))
 
 
