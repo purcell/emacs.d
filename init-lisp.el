@@ -112,16 +112,29 @@
   (ac-emacs-lisp-mode-setup)
   (checkdoc-minor-mode))
 
-(let* ((elispy-hooks '(emacs-lisp-mode-hook
-                       ielm-mode-hook))
-       (lispy-hooks (append elispy-hooks '(lisp-mode-hook
-                                           inferior-lisp-mode-hook
-                                           lisp-interaction-mode-hook))))
-  (dolist (hook lispy-hooks)
-    (add-hook hook 'sanityinc/lisp-setup))
-  (dolist (hook elispy-hooks)
-    (add-hook hook 'sanityinc/emacs-lisp-setup)))
+(defconst sanityinc/elispy-modes
+  '(emacs-lisp-mode ielm-mode)
+  "Major modes relating to elisp.")
 
+(defconst sanityinc/lispy-modes
+  (append sanityinc/elispy-modes
+          '(lisp-mode inferior-lisp-mode lisp-interaction-mode))
+  "All lispy major modes.")
+
+(require 'derived)
+
+(dolist (hook (mapcar #'derived-mode-hook-name sanityinc/lispy-modes))
+  (add-hook hook 'sanityinc/lisp-setup))
+
+(dolist (hook (mapcar #'derived-mode-hook-name sanityinc/elispy-modes))
+  (add-hook hook 'sanityinc/emacs-lisp-setup))
+
+(defun sanityinc/maybe-check-parens ()
+  "Run `check-parens' if this is a lispy mode."
+  (when (memq major-mode sanityinc/lispy-modes)
+    (check-parens)))
+
+(add-hook 'after-save-hook #'sanityinc/maybe-check-parens)
 
 (require-package 'eldoc-eval)
 (require 'eldoc-eval)
