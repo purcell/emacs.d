@@ -77,7 +77,8 @@ ARCHIVE is the string name of the package archive.")
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 
 (defvar melpa-exclude-packages
-  '(slime)
+  ;; I'm happy my packages included in melpa. But need time to switch to melpa finally
+  '(slime evil-nerd-commenter)
   "Don't install Melpa versions of these packages.")
 
 ;; Don't take Melpa versions of certain packages
@@ -244,7 +245,7 @@ ARCHIVE is the string name of the package archive.")
 (if *is-a-mac* (require-package 'emms))
 (require-package 'pomodoro '(20130114 1543 0) nil)
 (require-package 'flymake-lua)
-(require-package 'evil-nerd-commenter '(0 0 2) nil)
+(require-package 'evil-nerd-commenter '(0 0 4) nil)
 (require-package 'surround '(20121022 1257 0) nil)
 (require-package 'yasnippet '(20121225 430 0) nil)
 (require-package 'workgroups)
