@@ -12,6 +12,9 @@
 ;; NO automatic new line when scrolling down at buffer bottom
 (setq next-line-add-newlines nil)
 
+;; @see http://stackoverflow.com/questions/4222183/emacs-how-to-jump-to-function-definition-in-el-file
+(global-set-key (kbd "C-h C-f") 'find-function)
+
 ;Ctrl-X, u/l  to upper/lowercase regions without confirm
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
