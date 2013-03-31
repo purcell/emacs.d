@@ -2,7 +2,7 @@
 (require-package 'smex)
 
 ;; Use C-f during file selection to switch to regular find-file
-(ido-mode t)  ; use 'buffer rather than t to use only buffer switching
+(ido-mode t)
 (ido-everywhere t)
 (ido-ubiquitous-mode t)
 (setq ido-enable-flex-matching t)
