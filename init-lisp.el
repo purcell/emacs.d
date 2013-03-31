@@ -36,10 +36,29 @@
        (remove-hook 'pre-command-hook #'hl-sexp-unhighlight))))
 
 
+
+;;; Support byte-compilation in a sub-process, as
+;;; required by highlight-cl
+
+(defun sanityinc/byte-compile-file-batch (filename)
+  "Byte-compile FILENAME in batch mode, ie. a clean sub-process."
+  (interactive "fFile to byte-compile in batch mode: ")
+  (let ((emacs (car command-line-args)))
+    (shell-command
+     (concat
+      emacs " "
+      (mapconcat
+       'shell-quote-argument
+       (list "-Q" "-batch" "-f" "batch-byte-compile" filename)
+       " ")))))
+
 
 ;; ----------------------------------------------------------------------------
 ;; Enable desired features for all lisp modes
 ;; ----------------------------------------------------------------------------
+(require-package 'rainbow-delimiters)
+(require-package 'highlight-cl)
+(autoload 'highlight-cl-add-font-lock-keywords "highlight-cl")
 
 (defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
