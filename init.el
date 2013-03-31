@@ -75,6 +75,7 @@
 (require 'init-ruby-mode)
 (require 'init-rails)
 
+(require 'init-paredit)
 (require 'init-lisp)
 (require 'init-slime)
 (require 'init-clojure)
