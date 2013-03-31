@@ -20,8 +20,7 @@
 
 (require-package 'auto-compile)
 (auto-compile-on-save-mode 1)
-;; TODO: also use auto-compile-on-load-mode
-;; TODO: exclude .dir-locals.el
+(auto-compile-on-load-mode 1)
 
 ;; ----------------------------------------------------------------------------
 ;; Highlight current sexp
