@@ -10,6 +10,8 @@
 (setq ido-auto-merge-work-directories-length 0)
 (setq ido-use-virtual-buffers t)
 
+(global-set-key (kbd "M-x") 'smex)
+
 ;; Allow the same buffer to be open in different frames
 (setq ido-default-buffer-method 'selected-window)
 
