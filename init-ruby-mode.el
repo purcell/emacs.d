@@ -1,4 +1,5 @@
 (require-package 'ruby-mode)
+(require-package 'ruby-hash-syntax)
 (require-package 'flymake-ruby)
 (require-package 'rinari)
 (require-package 'ruby-compilation)
@@ -107,20 +108,5 @@
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f6] 'recompile)))
 
 
-;;----------------------------------------------------------------------------
-;; Ruby - handy helpers
-;;----------------------------------------------------------------------------
-
-;; Borrowed from https://github.com/textmate/ruby.tmbundle/blob/master/Commands/Convert%20Ruby%20hash%20to%201_9%20syntax.tmCommand
-(defun sanityinc/ruby-toggle-hash-syntax (beg end)
-  "Toggle between ruby 1.8 and 1.9 hash styles."
-  (interactive "r")
-  (save-excursion
-    (goto-char beg)
-    (cond
-     ((save-excursion (search-forward "=>" end t))
-      (replace-regexp ":\\([a-zA-Z0-9_]+\\) +=> +" "\\1: " nil beg end))
-     ((save-excursion (re-search-forward "\\w+:" end t))
-      (replace-regexp "\\([a-zA-Z0-9_]+\\):\\( *\\(?:\"\\(?:\\\"\\|[^\"]\\)*\"\\|'\\(?:\\'\\|[^']\\)*'\\|[a-zA-Z0-9_]+([^)]*)\\|[^,]+\\)\\)" ":\\1 =>\\2" nil beg end)))))
 
 (provide 'init-ruby-mode)
