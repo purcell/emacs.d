@@ -9,8 +9,11 @@
 
 (column-number-mode 1)
 
-; NO automatic new line when scrolling down at buffer bottom
+;; NO automatic new line when scrolling down at buffer bottom
 (setq next-line-add-newlines nil)
+
+;; @see http://stackoverflow.com/questions/4222183/emacs-how-to-jump-to-function-definition-in-el-file
+(global-set-key (kbd "C-h C-f") 'find-function)
 
 ;Ctrl-X, u/l  to upper/lowercase regions without confirm
 (put 'downcase-region 'disabled nil)
@@ -108,11 +111,18 @@
            (insert (format "%4d %c\n" i i))))
   (beginning-of-buffer))
 
-;insert date into buffer
-(defun insert-date ()
-  "Insert date at point."
-  (interactive)
-  (insert (format-time-string "%a %b %e, %Y %l:%M %p")))
+
+;; I'm in Australia now, so I set the locale to "en_AU"
+(defun insert-date (prefix)
+    "Insert the current date. With prefix-argument, use ISO format. With
+   two prefix arguments, write out the day and month name."
+    (interactive "P")
+    (let ((format (cond
+                   ((not prefix) "%d.%m.%Y")
+                   ((equal prefix '(4)) "%Y-%m-%d")
+                   ((equal prefix '(16)) "%d %B %Y")))
+          )
+      (insert (format-time-string format))))
 
 (defun insert-blog-version ()
   "insert version of my blog post"
@@ -200,6 +210,9 @@
 
 ;;iedit-mode
 (global-set-key (kbd "C-c ;") 'iedit-mode-toggle-on-function)
+
+;;align text
+(global-set-key (kbd "C-c C-l") 'align-regexp)
 
 ;; my screen is tiny, so I use minimum eshell prompt
 (setq eshell-prompt-function

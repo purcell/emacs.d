@@ -1,0 +1,6 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: console.log(array)
+# key: la
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+$.each(${1:arr}, function(i, v) { console.log(${2:v}); });

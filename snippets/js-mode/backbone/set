@@ -1,0 +1,4 @@
+#name: Backbone.Model.set
+#key: bs
+# --
+this.model.set('$1', $0)

@@ -1,0 +1,29 @@
+#name: Backbone.View
+#expand-env: ((yas/indent-line 'fixed)
+#key: bv
+# --
+${1:ns}.${2:name} = Backbone.View.extend({
+    className: "${2:$(un-camelcase-string text)}",
+
+    events: {
+         "${3:event} ${4:selector}" : "${5:funcname}"
+    },
+
+    initialize: function() {
+        this.model.on('change', this.render, this);
+        _.bindAll(this, 'render', '$5');
+    },
+
+    render: function() {
+        var data = this.model.toJSON();
+
+        return this;
+    },
+
+    $5: function() {
+        $0
+
+        return false;
+    }
+
+});
