@@ -56,12 +56,17 @@
 ;; Enable desired features for all lisp modes
 ;; ----------------------------------------------------------------------------
 (require-package 'rainbow-delimiters)
+(require-package 'redshank)
+(eval-after-load 'redshank
+  '(diminish 'redshank-mode " R"))
+
 
 (defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
   (rainbow-delimiters-mode t)
   (enable-paredit-mode)
-  (turn-on-eldoc-mode))
+  (turn-on-eldoc-mode)
+  (redshank-mode))
 
 (defun sanityinc/emacs-lisp-setup ()
   "Enable features useful when working with elisp."
