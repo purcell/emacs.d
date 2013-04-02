@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: BufferedReader
+# key: reader
+# --
+BufferedReader reader = null;
+try {
+    reader =
+        new BufferedReader(
+            new InputStreamReader(in, ${1:"UTF-8"}));
+    while (true) {
+        String line = reader.readLine();
+        if (line == null) {
+            break;
+        }
+        $2
+    }
+} catch (IOException ex) {
+    $3
+} finally {
+    try {
+        if (reader != null) {
+            reader.close();
+        }
+    } catch (Exception ignore) { }
+}
