@@ -151,6 +151,7 @@
 (require 'init-term-mode)
 (require 'init-web-mode)
 (require 'init-sr-speedbar)
+(require 'init-smartparens)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

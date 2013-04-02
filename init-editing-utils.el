@@ -56,13 +56,6 @@
 (paren-activate)     ; activating mic-paren
 
 ;;----------------------------------------------------------------------------
-;; Autopair quotes and parentheses
-;;----------------------------------------------------------------------------
-(add-hook 'prog-mode-hook (lambda ()
-                            (require 'smartparens-config)
-                            ))
-
-;;----------------------------------------------------------------------------
 ;; Fix per-window memory of buffer point positions
 ;;----------------------------------------------------------------------------
 (global-pointback-mode)
