@@ -56,8 +56,6 @@
 ;; Enable desired features for all lisp modes
 ;; ----------------------------------------------------------------------------
 (require-package 'rainbow-delimiters)
-(require-package 'highlight-cl)
-(autoload 'highlight-cl-add-font-lock-keywords "highlight-cl")
 
 (defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
