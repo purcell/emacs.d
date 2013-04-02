@@ -61,6 +61,8 @@ re-downloaded in order to locate PACKAGE."
 ;; use it.
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 
+(when (< emacs-major-version 24)
+  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
 ;;------------------------------------------------------------------------------
 ;; Also use Melpa for some packages built straight from VC
