@@ -1,0 +1,11 @@
+#contributor : Eric Entzel <eric@ubermac.net>
+#name : <c:choose>
+# --
+<c:choose>
+    <c:when test="\${$1}">
+        $2
+    </c:when>
+    <c:otherwise>
+        $3
+    </c:otherwise>
+</c:choose>

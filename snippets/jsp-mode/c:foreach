@@ -1,0 +1,6 @@
+#contributor : Eric Entzel <eric@ubermac.net>
+#name : <c:forEach>
+# --
+<c:forEach var="item" items="\${${1:items}}" varStatus="status">
+$0
+</c:forEach>

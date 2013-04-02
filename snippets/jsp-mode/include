@@ -1,0 +1,5 @@
+include
+#contributor : Eric Entzel <eric@ubermac.net>
+#name : <@ include file="..." />
+# --
+<%@ include file="/WEB-INF/jsp/$1" %>

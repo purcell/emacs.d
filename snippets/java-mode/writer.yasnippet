@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: PrintWriter
+# key: writer
+# --
+PrintWriter writer = null;
+try {
+    writer =
+        new PrintWriter(
+            new BufferedWriter(
+                new OutputStreamWriter(out, ${1:"UTF-8"})), true);
+    $2
+    writer.flush();
+} catch (IOException ex) {
+    $3
+} finally {
+    try {
+        if (writer != null) {
+            writer.close();
+        }
+    } catch (Exception ignore) { }
+}

@@ -1,0 +1,6 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: console.log(object)
+# key: lo
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+console.log("${1:object}="+JSON.stringify(${1:$(yas/substr text "[^ ]*")}, null, 2));
