@@ -49,8 +49,6 @@
   (let ((m (make-sparse-keymap)))
     (define-key m (kbd "C-)") 'paredit-forward-slurp-sexp)
     (define-key m (kbd "C-}") 'paredit-forward-barf-sexp)
-    (define-key m (kbd "C-)") 'paredit-forward-slurp-sexp)
-    (define-key m (kbd "C-}") 'paredit-forward-barf-sexp)
     (define-key m (kbd "M-(") 'paredit-wrap-round)
     (define-key m (kbd "M-[") 'paredit-wrap-square)
     (define-key m (kbd "M-{") 'paredit-wrap-curly)
