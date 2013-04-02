@@ -1,5 +1,6 @@
 (require-package 'ido-ubiquitous)
 (require-package 'smex)
+(require-package 'idomenu)
 
 ;; Use C-f during file selection to switch to regular find-file
 (ido-mode t)
