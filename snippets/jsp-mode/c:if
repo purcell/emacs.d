@@ -1,0 +1,6 @@
+#contributor : Eric Entzel <eric@ubermac.net>
+#name : <c:if test="...">
+# --
+<c:if test="\${$1}">
+    $2
+</c:if>

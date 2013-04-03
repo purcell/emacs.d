@@ -56,19 +56,6 @@
 (paren-activate)     ; activating mic-paren
 
 ;;----------------------------------------------------------------------------
-;; Autopair quotes and parentheses
-;;----------------------------------------------------------------------------
-(add-hook 'prog-mode-hook (lambda ()
-                            (setq autopair-autowrap t)
-                            (autopair-global-mode t)
-                            ))
-
-(defun inhibit-autopair ()
-  "Prevent autopair from enabling in the current buffer."
-  (setq autopair-dont-activate t)
-  (autopair-mode -1))
-
-;;----------------------------------------------------------------------------
 ;; Fix per-window memory of buffer point positions
 ;;----------------------------------------------------------------------------
 (global-pointback-mode)

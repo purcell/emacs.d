@@ -1,0 +1,4 @@
+#contributor : Eric Entzel <eric@ubermac.net>
+#name : <c:out value="..." />
+# --
+<c:out value="$1" />

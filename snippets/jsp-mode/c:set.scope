@@ -1,0 +1,4 @@
+#contributor : Eric Entzel <eric@ubermac.net>
+#name : <c:set var="..." value="..." scope="..." />
+# --
+<c:set var="$1" value="$2" scope="$3" />

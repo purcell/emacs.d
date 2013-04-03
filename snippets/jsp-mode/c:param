@@ -1,0 +1,4 @@
+#contributor : Eric Entzel <eric@ubermac.net>
+#name : <c:param name="..." value="..." />
+# --
+<c:param name="$1" value="$2" />
