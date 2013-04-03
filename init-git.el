@@ -39,6 +39,16 @@
      (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)))
 
 
+;;; When we start working on git-backed files, use git-wip if available
+
+(eval-after-load 'vc-git
+  '(progn
+     (require 'magit-wip)
+     (if (= (magit-git-exit-code "wip" "-h") 0)
+         (global-magit-wip-save-mode)
+       (message "Not enabling magit-wip: git-wip is not installed."))))
+
+
 ;;; Use the fringe version of git-gutter
 
 (eval-after-load 'git-gutter
