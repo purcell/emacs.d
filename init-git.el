@@ -6,10 +6,10 @@
 (require-package 'gitconfig-mode)
 (require-package 'yagist)
 
-(setq magit-save-some-buffers nil
-      magit-process-popup-time 10
-      magit-completing-read-function 'magit-ido-completing-read)
-
+(setq-default
+ magit-save-some-buffers nil
+ magit-process-popup-time 10
+ magit-completing-read-function 'magit-ido-completing-read)
 
 (global-set-key [(meta f12)] 'magit-status)
 
@@ -48,13 +48,13 @@
 (when *is-a-mac*
   (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)]))))
 
+
+;;; git-svn support
+
 (eval-after-load 'magit
   '(progn
      (require 'magit-svn)))
 
-;;----------------------------------------------------------------------------
-;; git-svn conveniences
-;;----------------------------------------------------------------------------
 (eval-after-load 'compile
   '(progn
      (dolist (defn (list '(git-svn-updated "^\t[A-Z]\t\\(.*\\)$" 1 nil nil 0 1)
