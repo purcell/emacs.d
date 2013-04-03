@@ -246,4 +246,6 @@
         )
     ))
 
+(require 'legalese)
+
 (provide 'init-misc)
