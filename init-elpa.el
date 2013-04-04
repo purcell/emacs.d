@@ -258,6 +258,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'sr-speedbar)
 (require-package 'requirejs-mode)
 (require-package 'smartparens)
+(require-package 'legalese)
 
 (when *emacs24*
   (require-package 'helm '(20130313 2255 0) nil)
