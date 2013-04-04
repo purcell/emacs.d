@@ -36,7 +36,9 @@
 ;;; When we start working on git-backed files, use git-wip if available
 
 (eval-after-load 'vc-git
-  '(global-magit-wip-save-mode))
+  '(progn
+     (global-magit-wip-save-mode)
+     (diminish 'magit-wip-save-mode)))
 
 
 ;;; Use the fringe version of git-gutter
