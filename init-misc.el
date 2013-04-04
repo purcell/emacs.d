@@ -208,6 +208,9 @@
  )
 )
 
+;; Use the system clipboard
+(setq x-select-enable-clipboard t)
+
 ;;iedit-mode
 (global-set-key (kbd "C-c ;") 'iedit-mode-toggle-on-function)
 
