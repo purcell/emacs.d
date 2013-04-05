@@ -49,13 +49,12 @@
   "Submit the elisp library in BUF to Marmalade."
   (interactive
    (list
-    (completing-read "Submit buffer: "
-                     (mapcar 'buffer-name (buffer-list))
-                     (lambda (b)
-                       (with-current-buffer b
-                         (and buffer-file-name
-                              (eq major-mode 'emacs-lisp-mode))))
-                     t)))
+    (let ((buffers (loop for b in (mapcar 'buffer-name (buffer-list))
+                         when (with-current-buffer b
+                                (and buffer-file-name
+                                     (eq major-mode 'emacs-lisp-mode)))
+                         collect b)))
+      (completing-read "Submit buffer: " buffers nil t nil nil (car buffers)))))
   (with-current-buffer buf
     (let ((tag (latest-version-from-git-tag)))
       (unless tag
