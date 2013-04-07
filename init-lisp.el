@@ -43,7 +43,7 @@
   "Byte-compile FILENAME in batch mode, ie. a clean sub-process."
   (interactive "fFile to byte-compile in batch mode: ")
   (let ((emacs (car command-line-args)))
-    (shell-command
+    (compile
      (concat
       emacs " "
       (mapconcat
