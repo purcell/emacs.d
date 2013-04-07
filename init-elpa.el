@@ -1,6 +1,4 @@
-;;------------------------------------------------------------------------------
-;; Find and load the correct package.el
-;;------------------------------------------------------------------------------
+;;; Find and load the correct package.el
 
 ;; When switching between Emacs 23 and 24, we always use the bundled package.el in Emacs 24
 (let ((package-el-site-lisp-dir (expand-file-name "~/.emacs.d/site-lisp/package")))
@@ -12,9 +10,8 @@
 (require 'package)
 
 
-;;------------------------------------------------------------------------------
-;; Add support to package.el for pre-filtering available packages
-;;------------------------------------------------------------------------------
+
+;;; Add support to package.el for pre-filtering available packages
 
 (defvar package-filter-function nil
   "Optional predicate function used to internally filter packages used by package.el.
@@ -34,9 +31,32 @@ ARCHIVE is the string name of the package archive.")
     ad-do-it))
 
 
-;;------------------------------------------------------------------------------
-;; On-demand installation of packages
-;;------------------------------------------------------------------------------
+
+;;; Standard package repositories
+
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+
+;; We include the org repository for completeness, but don't normally
+;; use it.
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
+
+(when (< emacs-major-version 24)
+  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+
+;;; Also use Melpa for most packages
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+;; But don't take Melpa versions of certain packages
+(setq package-filter-function
+      (lambda (package version archive)
+        (and
+         (not (memq package '(eieio)))
+         (or (not (string-equal archive "melpa"))
+             (not (memq package '(slime)))))))
+
+
+
+;;; On-demand installation of packages
 
 (defun require-package (package &optional min-version no-refresh)
   "Install given PACKAGE, optionally requiring MIN-VERSION.
@@ -51,41 +71,8 @@ re-downloaded in order to locate PACKAGE."
         (require-package package min-version t)))))
 
 
-;;------------------------------------------------------------------------------
-;; Standard package repositories
-;;------------------------------------------------------------------------------
-
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-
-;; We include the org repository for completeness, but don't normally
-;; use it.
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-
-(when (< emacs-major-version 24)
-  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
-
-;;------------------------------------------------------------------------------
-;; Also use Melpa for some packages built straight from VC
-;;------------------------------------------------------------------------------
-
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
-
-(defvar melpa-exclude-packages
-  '(slime)
-  "Don't install Melpa versions of these packages.")
-
-;; Don't take Melpa versions of certain packages
-(setq package-filter-function
-      (lambda (package version archive)
-        (and
-         (not (memq package '(eieio)))
-         (or (not (string-equal archive "melpa"))
-             (not (memq package melpa-exclude-packages))))))
-
-
-;;------------------------------------------------------------------------------
-;; Fire up package.el and ensure the following packages are installed.
-;;------------------------------------------------------------------------------
+
+;;; Fire up package.el
 
 (package-initialize)
 
