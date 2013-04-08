@@ -105,7 +105,7 @@
 (require 'init-themes) ; color-themes 6.6.1 has some problem
 ;; Chinese inut method
 (require 'init-org2blog)
-(require 'init-fill-column-indicator) ;make auto-complete dropdown wierd
+;;(require 'init-fill-column-indicator) ;make auto-complete dropdown wierd
 (if (not (boundp 'light-weight-emacs)) (require 'init-yasnippet))
 ;; Use bookmark instead
 ;; (require 'init-better-registers) ; C-x j - jump to register
@@ -204,19 +204,6 @@
     (time-to-seconds (time-since emacs-load-start-time)))
    )
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(bmkp-last-as-first-bookmark-file "~/.emacs.d/.bookmarks.el")
- '(session-use-package t nil (session)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(window-numbering-face ((t (:foreground "DeepPink" :underline "DeepPink" :weight bold))) t))
 ;;; Local Variables:
 ;;; no-byte-compile: t
 ;;; End:
