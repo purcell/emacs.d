@@ -101,6 +101,7 @@
   ; @see https://github.com/seanfisk/cmake-flymake
   ; make sure you project use cmake
   (flymake-mode)
+  (cppcm-reload-all)
 
   )
 (add-hook 'c-mode-common-hook 'my-c-mode-hook)
