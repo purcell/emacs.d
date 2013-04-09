@@ -5,6 +5,7 @@
 (require-package 'gitignore-mode)
 (require-package 'gitconfig-mode)
 (require-package 'yagist)
+(require-package 'github-browse-file)
 
 (setq-default
  magit-save-some-buffers nil
