@@ -1,3 +1,8 @@
+# Warning
+I'm using [Vim](http://www.vim.org)'s key binding in this
+configuration. Please scroll down to the Tips section to see how to
+restore the Emacs key binding.
+
 # General
 
 I base my emacs.d on [Steve Purcell's emacs.d](http://github.com/purcell/emacs.d) and synchronize from his once a month.
