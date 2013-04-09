@@ -58,7 +58,7 @@
 (require-package 'rainbow-delimiters)
 (require-package 'redshank)
 (eval-after-load 'redshank
-  '(diminish 'redshank-mode " R"))
+  '(diminish 'redshank-mode))
 
 
 (defun sanityinc/lisp-setup ()
