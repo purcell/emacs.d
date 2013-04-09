@@ -68,7 +68,7 @@
          coffee-tab-width preferred-javascript-indent-level))
 
 (add-hook 'coffee-mode-hook 'flymake-coffee-load)
-
+(add-to-list 'auto-mode-alist '("\\.coffee.erb\\'" . coffee-mode))
 
 ;; ---------------------------------------------------------------------------
 ;; Run and interact with an inferior JS via js-comint.el
