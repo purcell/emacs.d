@@ -263,4 +263,10 @@
                    (lambda (s1 s2) (eq (random 2) 0)))))))
 
 
+
+(require-package 'visual-regexp)
+(global-set-key [remap query-replace-regexp] 'vr/query-replace)
+(global-set-key [remap replace-regexp] 'vr/replace)
+
+
 (provide 'init-editing-utils)
