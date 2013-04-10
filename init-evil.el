@@ -63,7 +63,7 @@
   "ct" 'ctags-create-or-update-tags-table
   "t" 'ido-goto-symbol ;; same as my vim hotkey
   "w" 'save-buffer
-  "cl" 'compile
+  "cp" 'compile
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window
