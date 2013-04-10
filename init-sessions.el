@@ -1,5 +1,4 @@
 ;; save a list of open files in ~/.emacs.d/.emacs.desktop
-;; save the desktop file automatically if it already exists
 (setq desktop-path '("~/.emacs.d"))
 (desktop-save-mode 1)
 (defadvice desktop-read (around trace-desktop-errors)
