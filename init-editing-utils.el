@@ -2,7 +2,7 @@
 (require-package 'whole-line-or-region)
 
 (when (fboundp 'electric-pair-mode)
-  (electric-pair-mode))
+  (setq-default electric-pair-mode 1))
 
 ;;----------------------------------------------------------------------------
 ;; Some basic preferences
