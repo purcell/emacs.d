@@ -3,7 +3,6 @@
 # key: fun
 # contributor: David Miller <david@deadpansincerity.com>
 # --
-// $1
-${2:attribute}: function (${3:args}) {
+${1:attribute}: function (${2:args}) {
     $0
-}
+},
