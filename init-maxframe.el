@@ -26,7 +26,7 @@
   (setq sanityinc/prev-frame (selected-frame)))
 
 (defun maybe-maximize-frame (&optional frame)
-  (with-selected-frame frame
+  (with-selected-frame (or frame (selected-frame))
     (when (and window-system
                sanityinc/prev-frame
                (maximized-p sanityinc/prev-frame))
@@ -39,7 +39,7 @@
   (<= (abs (- b a)) delta))
 
 (defun maximized-p (&optional frame)
-  (or (not (with-selected-frame frame window-system))
+  (or (not (with-selected-frame (or frame (selected-frame)) window-system))
       (and (within-p (mf-max-display-pixel-width)
                      (frame-pixel-width frame)
                      (frame-char-width frame))
