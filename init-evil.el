@@ -53,6 +53,8 @@
        (t (setq unread-command-events (append unread-command-events
                           (list evt))))))))
 
+(define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
+
 ; evil-leader config
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)
