@@ -64,16 +64,12 @@ ignored: use `custom-enabled-themes' instead."
 (defun light ()
   "Activate a light color theme."
   (interactive)
-  (if (boundp 'custom-enabled-themes)
-      (custom-set-variables '(custom-enabled-themes '(sanityinc-solarized-light)))
-    (color-theme-sanityinc-solarized-light)))
+  (color-theme-sanityinc-solarized-light))
 
 (defun dark ()
   "Activate a dark color theme."
   (interactive)
-  (if (boundp 'custom-enabled-themes)
-      (custom-set-variables '(custom-enabled-themes '(sanityinc-solarized-dark)))
-    (color-theme-sanityinc-solarized-dark)))
+  (color-theme-sanityinc-solarized-dark))
 
 
 (provide 'init-themes)
