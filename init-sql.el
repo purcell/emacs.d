@@ -1,3 +1,7 @@
+(require-package 'sql-indent)
+(eval-after-load 'sql
+  '(load-library "sql-indent"))
+
 (eval-after-load 'sql
   '(when (featurep 'dash-at-point)
      (defun sanityinc/maybe-set-dash-db-docset ()
