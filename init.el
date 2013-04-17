@@ -74,6 +74,7 @@
 (require 'init-haskell)
 (require 'init-ruby-mode)
 (require 'init-rails)
+(require 'init-sql)
 
 (require 'init-paredit)
 (require 'init-lisp)
