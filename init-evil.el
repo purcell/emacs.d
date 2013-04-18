@@ -34,16 +34,38 @@
 (define-key evil-normal-state-map "-" 'evil-numbers/dec-at-pt)
 (define-key evil-normal-state-map "go" 'goto-char)
 
+;; @see http://stackoverflow.com/questions/10569165/how-to-map-jj-to-esc-in-emacs-evil-mode
+;; @see http://zuttobenkyou.wordpress.com/2011/02/15/some-thoughts-on-emacs-and-vim/
+(define-key evil-insert-state-map "k" #'cofi/maybe-exit)
+(evil-define-command cofi/maybe-exit ()
+  :repeat change
+  (interactive)
+  (let ((modified (buffer-modified-p)))
+    (insert "k")
+    (let ((evt (read-event (format "Insert %c to exit insert state" ?j)
+               nil 0.5)))
+      (cond
+       ((null evt) (message ""))
+       ((and (integerp evt) (char-equal evt ?j))
+    (delete-char -1)
+    (set-buffer-modified-p modified)
+    (push 'escape unread-command-events))
+       (t (setq unread-command-events (append unread-command-events
+                          (list evt))))))))
+
+(define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
+
 ; evil-leader config
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)
 (evil-leader/set-key
-  "ci" 'evilnc-comment-or-uncomment-lines
-  "cc" 'evilnc-comment-or-uncomment-to-the-line
+  "cc" 'evilnc-comment-or-uncomment-lines
+  "cl" 'evilnc-comment-or-uncomment-to-the-line
+  "ci" 'copy-and-comment-region
   "ct" 'ctags-create-or-update-tags-table
   "t" 'ido-goto-symbol ;; same as my vim hotkey
   "w" 'save-buffer
-  "cl" 'compile
+  "cp" 'compile
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window

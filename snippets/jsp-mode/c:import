@@ -1,0 +1,4 @@
+#contributor : Eric Entzel <eric@ubermac.net>
+#name : <c:import url="..." />
+# --
+<c:import url="/WEB-INF/jsp/$2" />

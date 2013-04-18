@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: property
+# key: prop
+# --
+private ${1:String} ${2:name};$0
+
+public $1 get${2:$(upcase-initials text)}() {
+    return $2;
+}
+
+public void set${2:$(upcase-initials text)}($1 $2) {
+    this.$2 = $2;
+}

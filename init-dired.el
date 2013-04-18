@@ -5,7 +5,7 @@
      (define-key dired-mode-map [mouse-2] 'dired-find-file)
      (dolist (file `(("zathura" "pdf" "dvi" "pdf.gz" "ps" "eps")
                      ("unrar x" "rar")
-                     ("mplayer -stop-xscreensaver" "avi" "mpg" "rmvb" "rm" "flv" "wmv" "mkv" "mp4")
+                     ("mplayer -stop-xscreensaver" "avi" "mpg" "rmvb" "rm" "flv" "wmv" "mkv" "mp4" "m4v" "webm")
                      ("mplayer -playlist" "list" "pls")
                      ("feh" "gif" "jpeg" "jpg" "tif" "png" )
                      ("display" "gif" "jpeg" "jpg" "tif" "png")

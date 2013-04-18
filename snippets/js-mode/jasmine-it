@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: jasmine it
+# key: jit
+# --
+it("$1", function(){
+  expect($2).toBe(${3:true});
+});
+$0

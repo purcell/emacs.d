@@ -46,7 +46,7 @@
 
 
 (eval-after-load 'coffee-mode
-  `(setq coffee-js-mode js2-mode
+  `(setq coffee-js-mode 'js2-mode
          coffee-tab-width preferred-javascript-indent-level))
 
 (add-hook 'coffee-mode-hook 'flymake-coffee-load)
