@@ -1,10 +1,6 @@
 # Warning
-## I'm using [Vim](http://www.vim.org)'s key binding in this
-configuration. Please scroll down to the Tips section to see how to
-restore the Emacs key binding.
-## If you are in Mainland China and has network problem to download packages through ELPA
-* install [goagent](http://http://code.google.com/p/goagent/)
-* Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" in the terminal
+* I'm using [Vim](http://www.vim.org) key binding. Please see "Tips" section for restoring the Emacs key binding.
+* People in Mainland China may need [goagent](http://http://code.google.com/p/goagent/) to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server.
 
 # General
 
