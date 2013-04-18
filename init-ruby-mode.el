@@ -43,7 +43,7 @@
 (add-hook 'robe-mode-hook
           (lambda ()
             (add-to-list 'ac-sources 'ac-source-robe)
-            (setq completion-at-point-functions '(auto-complete))))
+            (set-auto-complete-as-completion-at-point-function)))
 
 
 ;;----------------------------------------------------------------------------
