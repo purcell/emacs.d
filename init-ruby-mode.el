@@ -7,6 +7,7 @@
 (require-package 'robe)
 (require-package 'yari)
 (require-package 'yaml-mode)
+(require-package 'flymake-yaml)
 (require-package 'haml-mode)
 (require-package 'mmm-mode)
 
@@ -51,6 +52,7 @@
 ;;----------------------------------------------------------------------------
 (defalias 'ri 'yari)
 
+(add-hook 'yaml-mode-hook 'flymake-yaml-load)
 
 ;;----------------------------------------------------------------------------
 ;; Ruby - erb
