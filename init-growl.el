@@ -1,7 +1,8 @@
 (require-package 'todochiku)
 
 (require 'todochiku) ;; growl notifications when compilation finishes
-(setq todochiku-icons-directory (expand-file-name "~/.emacs.d/site-lisp/todochiku-icons"))
+(setq todochiku-icons-directory
+      (expand-file-name "site-lisp/todochiku-icons" user-emacs-directory))
 
 (defcustom terminal-notifier-path
   "/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier"

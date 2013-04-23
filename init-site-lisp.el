@@ -12,12 +12,13 @@
                    collecting (expand-file-name dir))
              load-path)))))
 
-(sanityinc/add-subdirs-to-load-path "~/.emacs.d/site-lisp/")
+(sanityinc/add-subdirs-to-load-path
+ (expand-file-name "site-lisp/" user-emacs-directory))
 
 ;;; Utilities for grabbing upstream libs
 
 (defun site-lisp-dir-for (name)
-  (expand-file-name (format "~/.emacs.d/site-lisp/%s" name)))
+  (expand-file-name (format "site-lisp/%s" name) user-emacs-directory))
 
 (defun site-lisp-library-el-path (name)
   (expand-file-name (format "%s.el" name) (site-lisp-dir-for name)))
