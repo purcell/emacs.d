@@ -1,3 +1,6 @@
+;; disable ido-find-file directories swich
+(setq ido-auto-merge-work-directories-length -1)
+
 ;;display line number
 (global-linum-mode 1)
 

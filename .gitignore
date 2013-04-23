@@ -7,6 +7,7 @@
 CVS
 .svn
 *~
+.DS_Store
 .cvsignore
 .*.lock
 /tramp
