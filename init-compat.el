@@ -1,7 +1,7 @@
 ;;----------------------------------------------------------------------------
 ;; Provide a version of Emacs 24's 'string-prefix-p in older emacsen
 ;;----------------------------------------------------------------------------
-(unless (fboundp 'string-prefix-p)
+(when (eval-when-compile (< emacs-major-version 24))
   (defun string-prefix-p (str1 str2 &optional ignore-case)
     "Return non-nil if STR1 is a prefix of STR2.
 If IGNORE-CASE is non-nil, the comparison is done without paying attention
@@ -22,7 +22,7 @@ to case differences."
       "Overridden; see `sanityinc/called-interactively-p' for the wrapped function."
       (sanityinc/called-interactively-p))))
 
-(when (< emacs-major-version 24)
+(when (eval-when-compile (< emacs-major-version 24))
   ;; Help package.el work in older Emacsen, where there's no TRASH arg
   ;; for 'delete-directory
   (message "Warning: overriding delete-directory to support TRASH argument.")
