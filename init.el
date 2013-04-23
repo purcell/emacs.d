@@ -153,6 +153,7 @@
 (require 'init-sr-speedbar)
 (require 'init-smartparens)
 (require 'init-company)
+(require 'init-stripe-buffer)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
