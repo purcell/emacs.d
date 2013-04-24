@@ -11,5 +11,11 @@
         company-complete-selection
         ))
 
-(setq company-clang-modes '(c-mode objc-mode c++-mode))
+;; remove dabbrev related modes because hippie-expand already supports dabbrev
+(setq company-backends '(company-elisp company-nxml company-css
+                                       company-semantic company-clang company-eclim
+                                       company-xcode company-ropemacs
+                                       (company-gtags company-etags company-keywords)
+                                       company-oddmuse company-files)
+      )
 (provide 'init-company)
