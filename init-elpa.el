@@ -78,7 +78,7 @@ ARCHIVE is the string name of the package archive.")
 
 (defvar melpa-exclude-packages
   ;; I'm happy my packages included in melpa. But need time to switch to melpa finally
-  '(slime evil-nerd-commenter)
+  '(slime evil-nerd-commenter company)
   "Don't install Melpa versions of these packages.")
 
 ;; Don't take Melpa versions of certain packages
@@ -258,7 +258,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'sr-speedbar)
 (require-package 'requirejs-mode)
 (require-package 'smartparens)
-(require-package 'company '(20130405 7 0) t)
+(require-package 'company '(0 6 8) t)
 (require-package 'legalese)
 
 (when *emacs24*
