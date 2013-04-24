@@ -17,7 +17,7 @@
                 crontab-mode-hook
                 perl-mode-hook
                 tcl-mode-hook
-                javascript-mode-hook))
+                js2-mode-hook))
   (add-hook hook 'flyspell-prog-mode))
 (add-hook 'nxml-mode-hook
           (lambda ()
