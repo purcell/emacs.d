@@ -2,6 +2,7 @@
 ;;; a number of other files.
 
 (add-to-list 'load-path user-emacs-directory)
+(require 'init-benchmarking) ;; Measure startup time
 
 ;;----------------------------------------------------------------------------
 ;; Which functionality to enable (use t or nil for true and false)
