@@ -59,9 +59,9 @@
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)
 (evil-leader/set-key
-  "cc" 'evilnc-comment-or-uncomment-lines
+  "ci" 'evilnc-comment-or-uncomment-lines
   "cl" 'evilnc-comment-or-uncomment-to-the-line
-  "ci" 'copy-and-comment-region
+  "cc" 'copy-and-comment-region
   "ct" 'ctags-create-or-update-tags-table
   "t" 'ido-goto-symbol ;; same as my vim hotkey
   "w" 'save-buffer
