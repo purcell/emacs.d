@@ -4,12 +4,13 @@
 (global-set-key (kbd "C-c o") 'company-complete)
 (setq company-require-match nil)
 
-(mapc #'evil-declare-change-repeat
-      '(company-complete-common
-        company-select-next
-        company-select-previous
-        company-complete-selection
-        ))
+(if (fboundp 'evil-declare-change-repeat)
+    (mapc #'evil-declare-change-repeat
+          '(company-complete-common
+            company-select-next
+            company-select-previous
+            company-complete-selection
+            )))
 
 ;; remove dabbrev related modes because hippie-expand already supports dabbrev
 ;; (setq company-backends '(company-elisp company-nxml company-css
