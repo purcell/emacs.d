@@ -13,9 +13,12 @@
   "Bind TAB to `indent-for-tab-command', as in regular Slime buffers."
   (local-set-key (kbd "TAB") 'indent-for-tab-command))
 
+(let ((slime-contrib-dir (concat (directory-of-library "slime") "/contrib")))
+  (when (file-directory-p slime-contrib-dir)
+    (add-to-list 'load-path slime-contrib-dir)))
+
 (eval-after-load 'slime
   '(progn
-     (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
      (setq slime-protocol-version 'ignore)
      (setq slime-net-coding-system 'utf-8-unix)
      (add-hook 'slime-repl-mode-hook 'sanityinc/lisp-setup)
