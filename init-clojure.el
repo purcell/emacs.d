@@ -4,7 +4,6 @@
 (require-package 'elein)
 (require-package 'nrepl)
 (require-package 'slamhound)
-(require-package 'slime)
 (require-package 'ac-nrepl)
 
 
