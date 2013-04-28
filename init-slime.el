@@ -1,6 +1,16 @@
 (require-package 'slime)
-(require-package 'slime-fuzzy)
-(require-package 'slime-repl)
+
+;; There are 2 versions of Slime available as packages. The 2010* version
+;; is for Clojure compatibility, and uses separate packages for slime-fuzzy
+;; and slime-repl. The other version is the latest available, which
+;; contains a complete "contrib" dir.
+(let ((slime-contrib-dir (concat (directory-of-library "slime") "/contrib")))
+  (if (file-directory-p slime-contrib-dir)
+      ;; Ensure contrib dir is ahead of any slime-{fuzzy,repl} package
+      (add-to-list 'load-path slime-contrib-dir)
+    (require-package 'slime-fuzzy)
+    (require-package 'slime-repl)))
+
 (require-package 'ac-slime)
 (require-package 'hippie-expand-slime)
 
@@ -13,9 +23,6 @@
   "Bind TAB to `indent-for-tab-command', as in regular Slime buffers."
   (local-set-key (kbd "TAB") 'indent-for-tab-command))
 
-(let ((slime-contrib-dir (concat (directory-of-library "slime") "/contrib")))
-  (when (file-directory-p slime-contrib-dir)
-    (add-to-list 'load-path slime-contrib-dir)))
 
 (eval-after-load 'slime
   '(progn
