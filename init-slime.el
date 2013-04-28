@@ -9,7 +9,7 @@
 (eval-after-load 'slime-fuzzy
   '(require 'slime-repl))
 
-(defun smp/set-up-slime-repl-auto-complete ()
+(defun sanityinc/set-up-slime-repl-auto-complete ()
   "Bind TAB to `indent-for-tab-command', as in regular Slime buffers."
   (local-set-key (kbd "TAB") 'indent-for-tab-command))
 
@@ -39,7 +39,7 @@
      (add-hook 'slime-mode-hook 'set-up-slime-ac)
      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
 
-     (add-hook 'slime-repl-mode-hook 'smp/set-up-slime-repl-auto-complete)
+     (add-hook 'slime-repl-mode-hook 'sanityinc/set-up-slime-repl-auto-complete)
 
      (eval-after-load 'auto-complete
        '(add-to-list 'ac-modes 'slime-repl-mode))))
