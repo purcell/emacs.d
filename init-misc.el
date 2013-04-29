@@ -196,7 +196,10 @@
 (require 'saveplace)
 (setq-default save-place t)
 
-; if emacs-nox, use C-@, else, use C-2;
+;; expand region
+;; if emacs-nox, use C-@, else, use C-2;
+(eval-after-load "nxml-mode" '(require 'html-mode-expansions))
+
 (if window-system
  (progn
    (define-key global-map (kbd "C-2") 'er/expand-region)
