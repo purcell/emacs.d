@@ -118,5 +118,14 @@
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f6] 'recompile)))
 
 
+
+
+;; Stupidly the standard Emacs ruby-mode isn't a derived mode of prog-mode:
+;; we run the latter's hooks anyway
+(add-hook 'ruby-mode-hook
+          (lambda ()
+            (unless (derived-mode-p 'prog-mode)
+              (run-hooks 'prog-mode-hook))))
+
 
 (provide 'init-ruby-mode)
