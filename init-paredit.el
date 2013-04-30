@@ -45,31 +45,7 @@
 ;; Enable some handy paredit functions in all prog modes
 ;; ----------------------------------------------------------------------------
 
-(defvar sanityinc/paredit-mini-mode-map
-  (let ((m (make-sparse-keymap)))
-    (define-key m (kbd "C-)") 'paredit-forward-slurp-sexp)
-    (define-key m (kbd "C-}") 'paredit-forward-barf-sexp)
-    (define-key m (kbd "M-(") 'paredit-wrap-round)
-    (define-key m (kbd "M-[") 'paredit-wrap-square)
-    (define-key m (kbd "M-{") 'paredit-wrap-curly)
-    (define-key m (kbd "M-)") 'paredit-close-round-and-newline)
-    (define-key m (kbd "M-]") 'paredit-close-square-and-newline)
-    (define-key m (kbd "M-}") 'paredit-close-curly-and-newline)
-    m)
-  "Keymap for command `sanityinc/paredit-mini-mode'.")
-
-(define-minor-mode sanityinc/paredit-mini-mode
-  "A cut-down version of paredit which can be used in non-lisp buffers."
-  nil
-  " Par-"
-  sanityinc/paredit-mini-mode-map
-  (require 'paredit))
-
-;; Enable certain paredit keys in all prog modes...
-(add-hook 'prog-mode-hook 'sanityinc/paredit-mini-mode)
-;; ... but disable when full paredit is enabled
-(add-hook 'paredit-mode-hook
-          (lambda () (sanityinc/paredit-mini-mode 0)))
-
+(require-package 'paredit-everywhere)
+(add-hook 'prog-mode-hook 'paredit-everywhere-mode)
 
 (provide 'init-paredit)
