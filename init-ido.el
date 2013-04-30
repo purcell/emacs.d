@@ -1,17 +1,18 @@
-(require-package 'ido-ubiquitous)
-(require-package 'smex)
-(require-package 'idomenu)
-
 ;; Use C-f during file selection to switch to regular find-file
 (ido-mode t)
 (ido-everywhere t)
-(ido-ubiquitous-mode t)
 (setq ido-enable-flex-matching t)
 (setq ido-use-filename-at-point nil)
 (setq ido-auto-merge-work-directories-length 0)
 (setq ido-use-virtual-buffers t)
 
+(require-package 'ido-ubiquitous)
+(ido-ubiquitous-mode t)
+
+(require-package 'smex)
 (global-set-key (kbd "M-x") 'smex)
+
+(require-package 'idomenu)
 
 ;; Allow the same buffer to be open in different frames
 (setq ido-default-buffer-method 'selected-window)
