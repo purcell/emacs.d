@@ -35,13 +35,17 @@
 ;; init size
 (setq initial-frame-alist '((width . 80) (height . 32)))
 
-;; default font
+;; encoding and default font
 (prefer-coding-system 'gb18030)
 (prefer-coding-system 'utf-8)
 
 (set-face-attribute
-  'default nil :font "Monaco-14")
+  'default nil :font "Monaco-14") ; default font
 
+(set-fontset-font
+    (frame-parameter nil 'font)
+    'han
+    (font-spec :family "STHeiti" :size 14)) ; han font
 
 
 ;;display column-number
