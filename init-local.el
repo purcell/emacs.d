@@ -36,7 +36,12 @@
 (setq initial-frame-alist '((width . 80) (height . 32)))
 
 ;; default font
-(add-to-list 'default-frame-alist '(font . "Monaco-14"))
+(prefer-coding-system 'gb18030)
+(prefer-coding-system 'utf-8)
+
+(set-face-attribute
+  'default nil :font "Monaco-14")
+
 
 
 ;;display column-number
