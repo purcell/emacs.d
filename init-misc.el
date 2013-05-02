@@ -215,7 +215,7 @@
 (setq x-select-enable-clipboard t)
 
 ;;iedit-mode
-(global-set-key (kbd "C-c ;") 'iedit-mode-toggle-on-function)
+(global-set-key (kbd "C-c ; i") 'iedit-mode-toggle-on-function)
 
 ;;align text
 (global-set-key (kbd "C-c C-l") 'align-regexp)
