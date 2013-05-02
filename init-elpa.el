@@ -261,6 +261,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'company '(0 6 8) t)
 (require-package 'legalese)
 (require-package 'string-edit)
+(require-package 'dired-details)
 
 (when *emacs24*
   (require-package 'helm '(20130409 1040 0) nil)

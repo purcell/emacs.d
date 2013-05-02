@@ -1,5 +1,14 @@
+(require 'dired-details)
+(dired-details-install)
+
 (eval-after-load 'dired
   '(progn
+     ;; {dired-details
+     (setq-default dired-details-hidden-string "")
+     (define-key dired-mode-map "(" 'dired-details-toggle)
+     (define-key dired-mode-map ")" 'dired-details-toggle)
+     ;; }
+
      (require 'dired+)
      (setq dired-recursive-deletes 'top)
      (define-key dired-mode-map [mouse-2] 'dired-find-file)
@@ -16,5 +25,6 @@
                     (list (concat "\\." (regexp-opt (cdr file) t) "$")
                           (car file))))
      ))
+
 
 (provide 'init-dired)
