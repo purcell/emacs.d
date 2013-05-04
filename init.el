@@ -154,6 +154,7 @@
 (require 'init-smartparens)
 (require 'init-company)
 (require 'init-stripe-buffer)
+(require 'init-popwin)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
