@@ -61,7 +61,6 @@
 (evil-leader/set-key
   "ci" 'evilnc-comment-or-uncomment-lines
   "cl" 'evilnc-comment-or-uncomment-to-the-line
-  "er" 'er/expand-region
   "cc" 'copy-and-comment-region
   "ct" 'ctags-create-or-update-tags-table
   "t" 'ido-goto-symbol ;; same as my vim hotkey
@@ -91,6 +90,7 @@
   "md" 'mc/mark-all-like-this-dwim
   "rw" 'rotate-windows
   "l" 'align-regexp
+  "x" 'er/expand-region
   )
 
 ;; comment/uncomment lines
