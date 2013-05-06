@@ -336,6 +336,24 @@ Current position is preserved."
           (set-buffer-modified-p nil)))))))
 (global-set-key (kbd "C-c C-r")  'rename-file-and-buffer)
 
+(defun copy-file-and-rename-buffer ()
+"copy the current buffer and file it is visiting.
+if the old file is under version control, the new file is added into
+version control automatically"
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (message "Buffer is not visiting a file!")
+      (let ((new-name (read-file-name "New name: " filename)))
+        (copy-file filename new-name t)
+        (rename-buffer new-name)
+        (set-visited-file-name new-name)
+        (set-buffer-modified-p nil)
+        (when (vc-backend filename)
+          (vc-register)
+         )))))
+(global-set-key (kbd "C-c c")  'copy-file-and-rename-buffer)
+
 ;; input open source license
 (require 'legalese)
 
