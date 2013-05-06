@@ -35,7 +35,7 @@
 
 
 ;; Colourise CSS colour literals
-(when (featurep 'color)
+(when (>= emacs-major-version 24)
   ;; rainbow-mode needs color.el, bundled with Emacs >= 24.
   (require-package 'rainbow-mode))
 
