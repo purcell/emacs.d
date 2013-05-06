@@ -149,7 +149,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'rainbow-mode '(0 6 0) nil)
 (require-package 'maxframe)
 ; org-mode is very important to me, so I always use the latest version
-(require-package 'org '(20130401 0 0) nil)
+(require-package 'org '(20130506 0 0) nil)
 (require-package 'org-mime)
 (require-package 'org-fstree)
 ;; I don't care mac
