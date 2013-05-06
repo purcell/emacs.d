@@ -84,8 +84,6 @@
   "gy" 'gtags-find-symbol
   "cg" 'djcb-gtags-create-or-update
   "bc" '(lambda () (interactive) (wxhelp-browse-class-or-api (thing-at-point 'symbol)))
-  "bo" 'kill-other-buffers
-  "bs" 'ido-switch-buffer
   "ma" 'mc/mark-all-like-this-in-defun
   "mw" 'mc/mark-all-words-like-this-in-defun
   "ms" 'mc/mark-all-symbols-like-this-in-defun
