@@ -155,6 +155,7 @@
 (require 'init-company)
 (require 'init-stripe-buffer)
 (require 'init-popwin)
+(require 'init-elnode)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient

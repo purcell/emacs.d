@@ -263,6 +263,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'string-edit)
 (require-package 'dired-details)
 (require-package 'popwin)
+(require-package 'elnode)
 
 (when *emacs24*
   (require-package 'helm '(20130409 1040 0) nil)
