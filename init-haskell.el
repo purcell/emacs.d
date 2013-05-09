@@ -3,6 +3,8 @@
 (dolist (hook '(haskell-mode-hook inferior-haskell-mode-hook))
   (add-hook hook 'turn-on-haskell-doc-mode))
 
+(add-auto-mode 'haskell-mode "\\.ghci\\'")
+
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 
 (eval-after-load 'haskell-mode
