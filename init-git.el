@@ -4,8 +4,6 @@
 (require-package 'git-commit-mode)
 (require-package 'gitignore-mode)
 (require-package 'gitconfig-mode)
-(require-package 'yagist)
-(require-package 'github-browse-file)
 
 (setq-default
  magit-save-some-buffers nil
@@ -85,6 +83,16 @@
          (compilation-buffer-name-function (lambda (major-mode-name) "*git-svn*")))
     (compile (concat "git svn "
                      (ido-completing-read "git-svn command: " git-svn--available-commands nil t)))))
+
+
+
+;;; github
+
+(require-package 'yagist)
+(require-package 'github-browse-file)
+(require-package 'bug-reference-github)
+(add-hook 'prog-mode 'bug-reference-prog-mode)
+
 
 
 (provide 'init-git)
