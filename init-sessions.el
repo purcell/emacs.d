@@ -32,6 +32,7 @@
                 (search-ring              . 20)
                 (comint-input-ring        . 50)
                 (shell-command-history    . 50)
+                (evil-ex                  .100)
                 desktop-missing-file-warning
                 tags-file-name
                 register-alist)))
