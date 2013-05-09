@@ -164,7 +164,7 @@
 ;;----------------------------------------------------------------------------
 ;; Fill column indicator
 ;;----------------------------------------------------------------------------
-(when (> emacs-major-version 23)
+(when (eval-when-compile (> emacs-major-version 23))
   (require-package 'fill-column-indicator)
   (defun sanityinc/prog-mode-fci-settings ()
     (turn-on-fci-mode)
