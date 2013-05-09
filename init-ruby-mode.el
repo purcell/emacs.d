@@ -120,8 +120,8 @@
 
 
 
-;; Stupidly the standard Emacs ruby-mode isn't a derived mode of prog-mode:
-;; we run the latter's hooks anyway
+;; Stupidly the non-bundled ruby-mode isn't a derived mode of
+;; prog-mode: we run the latter's hooks anyway in that case.
 (add-hook 'ruby-mode-hook
           (lambda ()
             (unless (derived-mode-p 'prog-mode)
