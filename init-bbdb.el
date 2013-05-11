@@ -1,5 +1,3 @@
-(require 'bbdb-autoloads)
-
 (add-hook 'message-mode-hook
           '(lambda ()
              (flyspell-mode t)
