@@ -55,6 +55,18 @@
 
 (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 
+(defun evilcvn-change-symbol-in-defun ()
+  "mark the region in defun (definition of function) and use string replacing UI in evil-mode
+to replace the symbol under cursor"
+  (interactive)
+  (let ((old (thing-at-point 'symbol)))
+    (mark-defun)
+    (unless (evil-visual-state-p)
+      (evil-visual-state))
+    (evil-ex (concat "'<,'>s/" (if (= 0 (length old)) "" "\\<\\(") old (if (= 0 (length old)) "" "\\)\\>/"))))
+  )
+(global-set-key (kbd "C-c ; s") 'evilcvn-change-symbol-in-defun)
+
 ; evil-leader config
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)
@@ -63,6 +75,7 @@
   "cl" 'evilnc-comment-or-uncomment-to-the-line
   "cc" 'copy-and-comment-region
   "ct" 'ctags-create-or-update-tags-table
+  "cs" 'evilcvn-change-symbol-in-defun
   "t" 'ido-goto-symbol ;; same as my vim hotkey
   "w" 'save-buffer
   "cp" 'compile

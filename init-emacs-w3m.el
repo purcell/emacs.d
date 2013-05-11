@@ -88,7 +88,7 @@
     ))
 (global-set-key (kbd "C-c b") 'w3mext-open-link-or-image-or-url)
 
-(add-hook 'prog-mode-hook '( lambda () (local-set-key (kbd "C-c ; s") 'w3mext-hacker-search)) )
+(add-hook 'prog-mode-hook '( lambda () (local-set-key (kbd "C-c ; h") 'w3mext-hacker-search)) )
 
 (provide 'init-emacs-w3m)
 
