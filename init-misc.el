@@ -354,6 +354,16 @@ version control automatically"
          )))))
 (global-set-key (kbd "C-c c")  'copy-file-and-rename-buffer)
 
+;; @see http://wenshanren.org/?p=298
+(defun wenshan-edit-current-file-as-root ()
+  "Edit the file that is associated with the current buffer as root"
+  (interactive)
+  (if (buffer-file-name)
+      (progn
+        (setq file (concat "/sudo:root@localhost:" (buffer-file-name)))
+        (find-file file))
+    (message "Current buffer does not have an associated file.")))
+
 ;; input open source license
 (require 'legalese)
 
