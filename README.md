@@ -26,7 +26,7 @@ C++, Java, Lua, Objective-C etc.
 * eim (Chinese pinyin input method)
 * org2blog (write wordpress blog with org-mode)
 * make the configuration work under Linux and Cygwin
-* The configuration will work with Emacs version >=23.3.1
+* The configuration will work with Emacs version >=24
 * evil-mode and its plugins (Vim key binding)
 * yasnippet and my customized snippets
 
