@@ -76,9 +76,5 @@
 (smex-initialize)
 (global-set-key "\M-x" 'smex)
 
-;; emacs GC is bad, so we just allocate enough memory at the beginning
-(setq gc-cons-threshold 20000000)
-(require 'flx-ido)
-(setq flx-ido-use t)
 
 (provide 'init-ido)
