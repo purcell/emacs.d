@@ -148,8 +148,9 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'dired+)
 (require-package 'rainbow-mode '(0 6 0) nil)
 (require-package 'maxframe)
-; org-mode is very important to me, so I always use the latest version
-(require-package 'org '(20130506 0 0) t)
+;; org-mode is very important to me, so I always use the latest ersion
+;; org 8.0 makes org2blog broken, so I just downgrade to the 7.8 and wait
+;; (require-package 'org '(20130506 0 0) t)
 (require-package 'org-mime)
 (require-package 'org-fstree)
 ;; I don't care mac
