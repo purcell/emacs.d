@@ -6,6 +6,7 @@
 (add-auto-mode 'haskell-mode "\\.ghci\\'")
 
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+(add-hook 'haskell-mode-hook (lambda () (subword-mode +1)))
 
 (eval-after-load 'haskell-mode
   '(progn
