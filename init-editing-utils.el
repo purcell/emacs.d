@@ -44,6 +44,11 @@
 
 (define-key global-map (kbd "RET") 'newline-and-indent)
 
+
+(require-package 'undo-tree)
+(global-undo-tree-mode)
+(diminish 'undo-tree-mode)
+
 ;;----------------------------------------------------------------------------
 ;; Zap *up* to char is a handy pair for zap-to-char
 ;;----------------------------------------------------------------------------
