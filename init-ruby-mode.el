@@ -70,14 +70,6 @@
 
 
 
-;;; Rails
-(require-package 'rinari)
-(eval-after-load 'rinari
-  '(diminish 'rinari-minor-mode "Rin"))
-(require-package 'haml-mode)
-
-
-
 ;;; ERB
 (require-package 'mmm-mode)
 (defun sanityinc/ensure-mmm-erb-loaded ()
