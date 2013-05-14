@@ -13,8 +13,9 @@
      (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
      (define-key haskell-mode-map (kbd "RET") 'newline)))
 
-(require-package 'ghci-completion)
-(add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion)
+(when (eval-when-compile (>= emacs-major-version 24))
+  (require-package 'ghci-completion)
+  (add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion))
 
 (require-package 'flymake-haskell-multi)
 (add-hook 'haskell-mode-hook #'flymake-haskell-multi-load)
