@@ -40,7 +40,7 @@
 ;; But don't show trailing whitespace in SQLi, inf-ruby etc.
 (dolist (hook '(term-mode-hook comint-mode-hook compilation-mode-hook))
   (add-hook hook
-   (lambda () (setq show-trailing-whitespace nil))))
+            (lambda () (setq show-trailing-whitespace nil))))
 
 (transient-mark-mode t)
 
