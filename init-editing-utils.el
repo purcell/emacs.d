@@ -25,6 +25,7 @@
  make-backup-files nil
  mouse-yank-at-point t
  save-interprogram-paste-before-kill t
+ scroll-preserve-screen-position t
  set-mark-command-repeat-pop t
  show-trailing-whitespace t
  tooltip-delay 1.5
