@@ -1,3 +1,6 @@
+;; enable delete selection mode
+(delete-selection-mode 1)
+
 ;; disable ido-find-file directories swich
 (setq ido-auto-merge-work-directories-length -1)
 
