@@ -13,9 +13,18 @@
 (setq tab-always-indent 'complete)  ;; use 't when auto-complete is disabled
 (add-to-list 'completion-styles 'initials t)
 
+;; TODO: find solution for php, c++, haskell modes where TAB always does something
+
 ;; hook AC into completion-at-point
+(defun sanityinc/auto-complete-at-point ()
+  (when (and (not (minibufferp)) 
+	     (fboundp 'auto-complete-mode)
+	     auto-complete-mode)
+    (auto-complete)))
+
 (defun set-auto-complete-as-completion-at-point-function ()
-  (setq completion-at-point-functions '(auto-complete)))
+  (add-to-list 'completion-at-point-functions 'sanityinc/auto-complete-at-point))
+
 (add-hook 'auto-complete-mode-hook 'set-auto-complete-as-completion-at-point-function)
 
 
