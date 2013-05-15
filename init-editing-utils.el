@@ -135,6 +135,7 @@
 
 
 (defun duplicate-line ()
+  "Insert a copy of the current line after the current line."
   (interactive)
   (save-excursion
     (let ((line-text (buffer-substring-no-properties
@@ -280,7 +281,6 @@
 (global-set-key [remap replace-regexp] 'vr/replace)
 
 
-
 
 (when (executable-find "ag")
   (require-package 'ag))
