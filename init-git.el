@@ -67,14 +67,13 @@
   '(progn
      (dolist (defn (list '(git-svn-updated "^\t[A-Z]\t\\(.*\\)$" 1 nil nil 0 1)
                          '(git-svn-needs-update "^\\(.*\\): needs update$" 1 nil nil 2 1)))
-       (add-to-list 'compilation-error-regexp-alist-alist defn))
-     (dolist (defn '(git-svn-updated git-svn-needs-update))
-       (add-to-list 'compilation-error-regexp-alist defn))))
+       (add-to-list 'compilation-error-regexp-alist-alist defn)
+       (add-to-list 'compilation-error-regexp-alist (car defn)))))
 
 (defvar git-svn--available-commands nil "Cached list of git svn subcommands")
 
 (defun git-svn (dir)
-  "Run git svn"
+  "Run a git svn subcommand in DIR."
   (interactive "DSelect directory: ")
   (unless git-svn--available-commands
     (setq git-svn--available-commands
