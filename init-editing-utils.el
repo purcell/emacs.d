@@ -44,7 +44,7 @@
 
 (transient-mark-mode t)
 
-(global-set-key (kbd "RET") 'reindent-then-newline-and-indent)
+(global-set-key (kbd "RET") 'newline-and-indent)
 
 
 (require-package 'undo-tree)
