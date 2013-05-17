@@ -10,8 +10,7 @@
 
 (eval-after-load 'haskell-mode
   '(progn
-     (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
-     (define-key haskell-mode-map (kbd "RET") 'newline)))
+     (define-key haskell-mode-map (kbd "C-c h") 'hoogle)))
 
 (when (eval-when-compile (>= emacs-major-version 24))
   (require-package 'ghci-completion)
