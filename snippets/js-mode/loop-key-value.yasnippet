@@ -1,0 +1,9 @@
+# name: loop key/value object
+# key: lpkv
+# --
+for (var k in ${1:obj}) {
+  if ($1.hasOwnProperty(k)) {
+    var ${2:val} = $1[k];
+    $0 
+  }
+}
