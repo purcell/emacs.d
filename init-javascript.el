@@ -1,5 +1,4 @@
 (require-package 'json)
-(require-package 'js3-mode)
 (when (>= emacs-major-version 24)
   (require-package 'js2-mode)
   (require-package 'ac-js2))
@@ -12,11 +11,11 @@
 
 
 (defcustom preferred-javascript-mode
-  (first (remove-if-not #'fboundp '(js2-mode js3-mode)))
+  (first (remove-if-not #'fboundp '(js2-mode js-mode)))
   "Javascript mode to use for .js files."
   :type 'symbol
   :group 'programming
-  :options '(js2-mode js3-mode js-mode))
+  :options '(js2-mode js-mode))
 (defvar preferred-javascript-indent-level 2)
 
 ;; Need to first remove from list if present, since elpa adds entries too, which
@@ -46,13 +45,6 @@
       js2-bounce-indent-p nil)
 
 (eval-after-load 'js2-mode '(js2-imenu-extras-setup))
-
-;; js3-mode
-(add-hook 'js3-mode-hook '(lambda () (setq mode-name "JS3")))
-(setq js3-auto-indent-p t
-      js3-enter-indents-newline t
-      js3-indent-on-enter-key t
-      js3-indent-level preferred-javascript-indent-level)
 
 ;; js-mode
 (setq js-indent-level preferred-javascript-indent-level)
@@ -88,7 +80,7 @@
   "Bindings for communicating with an inferior js interpreter."
   nil " InfJS" inferior-js-minor-mode-map)
 
-(dolist (hook '(js2-mode-hook js3-mode-hook js-mode-hook))
+(dolist (hook '(js2-mode-hook js-mode-hook))
   (add-hook hook 'inferior-js-keys-mode))
 
 ;; ---------------------------------------------------------------------------
