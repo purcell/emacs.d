@@ -41,8 +41,7 @@
 
 ;; Save the running clock and all clock history when exiting Emacs, load it on startup
 ;; @see http://orgmode.org/manual/Clocking-work-time.html
-;; below line don't work on emacs 24.1.1 org 7.8.11
-;; (org-clock-persistence-insinuate)
+(org-clock-persistence-insinuate)
 (setq org-clock-persist 'history)
 (setq org-clock-in-resume t)
 

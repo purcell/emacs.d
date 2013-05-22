@@ -1,0 +1,297 @@
+#+TITLE:	OpenDocumentText Exporter for Orgmode
+#+AUTHOR:	Jambunathan K 
+#+EMAIL:	emacs-orgmode@gnu.org
+#+DATE:		%Y-%m-%d %T %Z
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:dvipng skip:nil d:nil todo:t pri:nil tags:not-in-toc
+
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+#+XSLT:
+
+* Summary
+  
+  This package adds support for exporting of Orgmode files to
+  OpenDocumentText.
+
+  The latest version of this document is available at 
+
+# - Text version :: http://repo.or.cz/w/org-mode/org-jambu.git/blob_plain/HEAD:/doc/ReleaseNotes.org
+  - Web page :: http://repo.or.cz/w/org-mode/org-jambu.git/blob_plain/HEAD:/packages/README.html
+
+* Compatibility with Official Orgmode
+  :PROPERTIES:
+  :CUSTOM_ID: compatibility
+  :END:
+
+  This release is is as good as *org-20110613 (git commit c4737ae)*
+  with *only* the following changes left out.
+
+  | git commit | Description                                                            |
+  |------------+------------------------------------------------------------------------|
+  | 2f50b1     | add an alternate for inline images                                     |
+  | 49e6bc     | Fix for html & docbook export of desc list items                       |
+  | a201b1     | Fix HTML export of footnotes with lists, tables, quotes.               |
+  | 9f57b8     | Mixed export of numbered and unnumbered sections in HTML               |
+  | 438536     | Revert "Change underscores to hyphens in section labels"               |
+  | 33bae1     | Revert "Fix markup problems when using references in source fragments" |
+  | fa12fe     | Revert "org-html.el: Fix export of table.el tables."                   |
+  | f72541     | Revert "HTML export -- Allow to change the name of the global DIV"     |
+
+* Implementation Details
+
+  This package enhances Orgmode in the following manner:
+  1. A new line-oriented generic exporter
+  2. All new html exporter re-implemented as a plugin to (1).
+  3. A odt backend as a plugin to (1).
+
+  Feature (1) is provided by =org-lparse.el=.
+  Feture (2) is provided by =lisp/org-html.el=.
+  Feature (3) is provided by =lisp/org-odt.el=.
+
+  The new html exporter is feature-compatible with the official html
+  exporter.
+
+* Notes for Reviewers and Fellow Developers
+  
+  =org-lparse= is the entry point for the generic exporter and
+  drives html and odt backends. 
+
+  =org-do-lparse= is the genericized version of the original
+  =org-export-as-html= routine.
+
+  =C-h v org-lparse-native-backends= is a good starting point for
+  exploring the generic exporter.
+
+* Package Layout
+  
+  - odt/README.org
+  - odt/lisp/
+    - org-lparse.el :: Generic line-oriented exporter
+    - org-xhtml.el :: All new XHTML exporter
+    - org-odt.el :: The OpenDocumentText backend
+  - contrib/odt/tests
+    - org-mode-unicorn.png :: 
+    - test.org :: Sample files for validating the exporter
+  - contrib/odt/styles
+    - OrgOdtAutomaticStyles.xml :: The default styles.xml file used by
+         the OpenDocumentText exporter.
+    - OrgOdtStyles.xml :: Automatic styles inserted in to content.xml
+  - odt/BasicODConverter/
+    - BasicODConverter-0.8.0.oxt :: OpenOffice extension for
+         converting between various file formats supported by
+         OpenOffice. A poor clone of unoconv.
+    - Filters.bas :: 
+    - Main.bas :: StarBasic files that contribute to the above
+                  extension.
+  - odt/OASIS
+    - OpenDocument-v1.2-cs01-schema.rng :: Copy of
+	 http://docs.oasis-open.org/office/v1.2/cs01/OpenDocument-v1.2-cs01-schema.rng
+    - OpenDocument-v1.2-cs01-manifest-schema.rng :: Copy of
+	 http://docs.oasis-open.org/office/v1.2/cs01/OpenDocument-v1.2-cs01-manifest-schema.rng
+    - OpenDocument-schema-v1.1.rng :: Copy of
+	 http://docs.oasis-open.org/office/v1.1/OS/OpenDocument-schema-v1.1.rng
+  - odt/etc/schema
+    - od-schema-v1.1.rnc :: 
+    - od-manifest-schema-v1.2-cs01.rnc :: 
+    - od-schema-v1.2-cs01.rnc :: rnc files for above rng
+         files. Generated using [[http://www.thaiopensource.com/relaxng/trang.html][trang]].
+
+    - schemas.xml :: schema location file for auto validating the XML
+                     files that form part of an OpenDocument
+                     file. Refer =C-h f
+                     rng-set-schema-file-and-validate= FILENAME and
+                     =C-h f rng-what-schema=. 
+
+    All the above files have been submitted for inclusing in Emacs
+    proper. See
+    http://lists.gnu.org/archive/html/emacs-devel/2011-06/msg00671.html
+
+* Obtaining OpenDocumentExporter
+
+  The OpenDocumentExporter could be downloaded by one of the following
+  methods:
+
+** git checkout
+   - Checkout URL ::  http://repo.or.cz/r/org-mode/org-jambu.git
+   - Web URL :: http://repo.or.cz/w/org-mode/org-jambu.git/
+
+** Conventional tar
+   - Download URL :: http://repo.or.cz/w/org-mode/org-jambu.git/snapshot/HEAD.tar.gz
+
+** ELPA Tarball
+   - Archive URL :: http://repo.or.cz/w/org-mode/org-jambu.git/blob_plain/HEAD:/packages/
+ 		      
+   The tarball is distributed as an org-odt package (for example
+   =org-odt-20110519.tar=).
+
+   You need to have an *Org build >= org-20110626* for the exporter to
+   function properly.
+
+   The most hassle-free way to download and install org-odt is through
+   ELPA.
+
+   More help on all the above methods are available at
+   http://orgmode.org/worg/org-faq.html.
+
+* Test driving the Exporter
+
+  Once the package is installed in to your load-path, use 
+  =C-u M-x org-odt-unit-test= to visit an example org file bundled
+  with this package.
+
+  1. Use =C-c C-e O= to export the buffer to OpenDocumentText.
+  2. Use =M-x org-lparse= or =M-x org-lparse-and-open= for
+     exporting to MS doc format.
+  3. Use =M-x org-export-convert= on a buffer visiting odt file.
+
+  Steps 2 and 3 require that a converter be installed on the
+  system. See [[#converter][this FAQ entry]] for more information on this.
+
+  - Misc. Info :: This package re-implements HTML exporter as
+                  well. You will see the following warning message
+                  *"Exporting to HTML using org-lparse..."* while you
+                  are exporting using new HTML exporter.
+		  
+  - Hint :: If you are using BasicODConverter, you can use steps 2 and
+            3 for exporting an Org outline to presentation formats
+            like OpenOffice Impress (odp) and Microsoft Powerpoint
+            (ppt)
+  - Know Issues :: If you have dvipng installed it is possible that
+                   the exported odt file has embedded images
+                   clobbered. This is *not* a bug in the exporter but
+                   seems like a bug in the package installer. See
+                   http://lists.gnu.org/archive/html/bug-gnu-emacs/2011-06/msg00445.html.
+
+* Bug Reports and Feature Requests
+
+  Send in your bug report and feature requests to
+  =emacs-orgmode@gnu.org= or to =kjambunathan at gmail dot com=. 
+
+  Please search the Mailing List Archive -
+  http://lists.gnu.org/archive/html/emacs-orgmode/ for =org-odt=
+  before posting a question or a request either to me or the mailing
+  list.
+
+  Posting to mailing list is preferable. It is possible that your post
+  helps another user out there.
+
+* Possible Feature Enhacmentes
+
+** TODO Support for fontification of babel blocks
+   May require enhancements to htmlfontify or htmlize packages.
+
+** TODO Enhance table.el to support Odt format
+
+** TODO Add support for exporting to odp
+   
+   Use OpenOffice's File->Send->{Outline to Presentation |
+   AutoAbstract to Presentation}. Also see
+
+   http://wiki.services.openoffice.org/wiki/Documentation/OOoAuthors_User_Manual/Impress_Guide/Creating_slides_from_an_outline
+
+** TODO Support for generating MathML for LaTeX fragments
+   See http://lists.gnu.org/archive/html/emacs-orgmode/2011-03/msg01755.html
+
+* Frequently Asked Questions
+
+** What features does the OpenDocumentExporter support?
+
+   At the moment, the exporter supports the following most commonly
+   used features of Org
+
+   - Various Character Styles
+   - Various Paragraph Styles (including Source Blocks)
+   - Embedded ODT
+   - Embedded MathML
+   - Numbered, Bulleted and Description lists
+   - Embedding and Resizing of Images including embedding of LaTeX fragments
+   - Fuzzy, Dedicated and Radio Targets and Links
+   - Tables
+   - Footnotes
+   - Outline Numbering and Table Of Contents
+   - Special markups for elements like TODOs, Timestamps and Tags
+
+   The exporter is quite usable and stable.
+
+** Is OpenDocumentExporter part of Orgmode or Emacs?
+
+   Not yet. I have expressed my willingness to merge this package in
+   to official Orgmode and thus to Emacs. The current maintainer of
+   Orgmode - =Bastien Guerry bzg at gnu.org= - has agreed to consider
+   the package for integration. If you are interested in having this
+   package merged with Orgmode send your requests to the maintainer.
+
+   For the sake of record, I am the sole author of the changes
+   included in this package and I am consenting to have this work or
+   derivative works make it's way into Emacs proper. My FSF copyright
+   assignment number is #618390.
+
+** How does it compare with official Orgmode
+   For information about the latest release see [[#compatibility][this.]] For general
+   information refer
+   http://lists.gnu.org/archive/html/emacs-orgmode/2011-05/msg00751.html.
+
+** How can I export via command line?
+
+   See the following post
+   http://lists.gnu.org/archive/html/emacs-orgmode/2011-04/msg00952.html.
+
+** How can I export to doc or docx format?
+   :PROPERTIES:
+   :CUSTOM_ID: converter
+   :END:
+   Here are the steps.
+
+*** Install the converter program. 
+
+    There are numerous converters that are available: =unoconv=,
+    =PyODConverter=, =JODConverter= etc etc.
+
+    org-odt is distributed with it's own converter
+    =BasicODConverter=. It is /Basic/ not only because it is
+    implemented in StarBasic but is a a very basic clone of unoconv.
+
+**** BasicODConverter
+     Install [[http://repo.or.cz/w/org-mode/org-jambu.git/blob/HEAD:/contrib/odt/BasicODConverter-0.8.0.oxt][BasicODConverter]] as a OpenOffice Extension.
+
+**** unoconv
+
+     If you prefer using unoconv as the converter add the following
+     snippet to your =.emacs=.
+
+#+begin_src emacs-lisp
+  ;; not tested with unoconv
+  (require 'org-html)
+  (setq org-export-convert-process '("unoconv" "-f" "%f" "-o" "%d" "%i"))
+#+end_src
+
+*** Convert using new interactive functions
+
+**** Export an Org buffer
+     Use =M-x org-lparse= or =M-x org-lparse-and-open= and follow
+     the prompts. Use TAB for completion if you are not already using
+     ido.
+     
+***** Additional Note 
+     1. If you are using BasicODConverter you can export an Org file
+        to =odp= or =ppt= formats.
+     2. You can convert csv files to xls format
+     3. OpenOffice doesn't ship with mediawiki or docbook export
+       	filters by default. So make sure that these extensions are
+       	installed before trying out these converters.
+
+**** Export an existing file
+
+     Use =M-x org-export-convert= to convert an existing file.
+
+
+** How can I apply custom styles?
+
+   See this thread:
+   http://lists.gnu.org/archive/html/emacs-orgmode/2011-03/msg01460.html

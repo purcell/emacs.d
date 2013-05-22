@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<window onload="init();" id="main" title="Static MathJax" width="300" height="300"
+xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script language="JavaScript" src="chrome://staticmathjax/content/main.js"/>
+
+  <browser flex="1" id="docFrame" src="" style="background-color:white;"/>
+  <textbox flex="1" id="logtextbox" multiline="true" style="display:none;"/>
+</window>
