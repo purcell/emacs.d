@@ -17,7 +17,7 @@ See https://github.com/alloy/terminal-notifier for more information.")
 
 (defadvice todochiku-message (around check-for-helper activate)
   "Suppress message attempts when the `todochiku-command' program is missing."
-  (when (file-exists-p todochiku-command)
+  (when (executable-find todochiku-command)
     ad-do-it))
 
 (provide 'init-growl)
