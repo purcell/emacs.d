@@ -133,6 +133,12 @@
 (global-set-key (kbd "C-c c e") 'mc/edit-ends-of-lines)
 (global-set-key (kbd "C-c c a") 'mc/edit-beginnings-of-lines)
 
+(defun duplicate-line-or-region ()
+  "Duplicate a line or a whole region."
+  (interactive)
+  (if mark-active
+      (duplicate-region)
+    (duplicate-line)))
 
 (defun duplicate-line ()
   "Insert a copy of the current line after the current line."
@@ -145,7 +151,19 @@
       (newline)
       (insert line-text))))
 
-(global-set-key (kbd "C-c p") 'duplicate-line)
+(defun duplicate-region ()
+  "Insert a copy of the selected region below it."
+  (save-excursion
+    (let* ((end (region-end))
+           (text (buffer-substring (region-beginning)
+                                   end)))
+      (goto-char end)
+      (move-end-of-line 1)
+      (newline)
+      (insert text)
+      (setq deactivate-mark nil))))
+
+(global-set-key (kbd "C-c p") 'duplicate-line-or-region)
 
 ;; Train myself to use M-f and M-b instead
 (global-unset-key [M-left])
