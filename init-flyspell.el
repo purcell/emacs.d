@@ -22,8 +22,8 @@
                   javascript-mode-hook))
     (add-hook hook 'flyspell-prog-mode)))
 
-(eval-after-load 'flyspell
-  '(add-to-list 'flyspell-prog-text-faces 'nxml-text-face))
+(after-load 'flyspell
+  (add-to-list 'flyspell-prog-text-faces 'nxml-text-face))
 
 
 (provide 'init-flyspell)

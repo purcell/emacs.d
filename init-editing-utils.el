@@ -82,12 +82,12 @@
 ;;----------------------------------------------------------------------------
 (require-package 'pointback)
 (global-pointback-mode)
-(eval-after-load 'skeleton
-  '(defadvice skeleton-insert (before disable-pointback activate)
-     "Disable pointback when using skeleton functions like `sgml-tag'."
-     (when pointback-mode
-       (message "Disabling pointback.")
-       (pointback-mode -1))))
+(after-load 'skeleton
+  (defadvice skeleton-insert (before disable-pointback activate)
+    "Disable pointback when using skeleton functions like `sgml-tag'."
+    (when pointback-mode
+      (message "Disabling pointback.")
+      (pointback-mode -1))))
 
 
 ;;----------------------------------------------------------------------------

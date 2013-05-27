@@ -62,10 +62,9 @@
 (add-hook 'org-clock-out-hook 'sanityinc/hide-org-clock-from-header-line)
 (add-hook 'org-clock-cancel-hook 'sanityinc/hide-org-clock-from-header-line)
 
-(eval-after-load 'org-clock
-  '(progn
-     (define-key org-clock-mode-line-map [header-line mouse-2] 'org-clock-goto)
-     (define-key org-clock-mode-line-map [header-line mouse-1] 'org-clock-menu)))
+(after-load 'org-clock
+  (define-key org-clock-mode-line-map [header-line mouse-2] 'org-clock-goto)
+  (define-key org-clock-mode-line-map [header-line mouse-1] 'org-clock-menu))
 
 
 ;; ;; Show iCal calendars in the org agenda
@@ -89,14 +88,13 @@
 ;;                 (insert (match-string 0))))))
 
 
-(eval-after-load 'org
-  '(progn
-     (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
-     (when *is-a-mac*
-       (define-key org-mode-map (kbd "M-h") nil))
-     (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
-     (when *is-a-mac*
-       (autoload 'omlg-grab-link "org-mac-link-grabber")
-       (define-key org-mode-map (kbd "C-c g") 'omlg-grab-link))))
+(after-load 'org
+  (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
+  (when *is-a-mac*
+    (define-key org-mode-map (kbd "M-h") nil))
+  (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
+  (when *is-a-mac*
+    (autoload 'omlg-grab-link "org-mac-link-grabber")
+    (define-key org-mode-map (kbd "C-c g") 'omlg-grab-link)))
 
 (provide 'init-org)

@@ -6,10 +6,9 @@
 (autoload 'restore-frame "maxframe" "" t)
 
 (when *is-cocoa-emacs*
-  (eval-after-load 'maxframe
-    '(progn
-       (fset 'maximize-frame 'x-maximize-frame)
-       (fset 'restore-frame 'x-restore-frame))))
+  (after-load 'maxframe
+    (fset 'maximize-frame 'x-maximize-frame)
+    (fset 'restore-frame 'x-restore-frame)))
 
 (when *is-a-mac*
   (setq mf-display-padding-width 4

@@ -23,7 +23,8 @@
     (let (font-lock-mode)
       (clojure-mode-font-lock-setup))))
 
-(add-hook 'slime-repl-mode-hook 'slime-clojure-repl-setup)
+(after-load 'slime-repl
+  (add-hook 'slime-repl-mode-hook 'slime-clojure-repl-setup))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -32,29 +33,30 @@
 
 (setq nrepl-popup-stacktraces nil)
 
-(add-hook 'nrepl-mode-hook 'ac-nrepl-setup)
-(add-hook 'nrepl-interaction-mode-hook 'ac-nrepl-setup)
-(eval-after-load "auto-complete"
-  '(add-to-list 'ac-modes 'nrepl-mode))
+(after-load 'nrepl
+  (add-hook 'nrepl-mode-hook 'ac-nrepl-setup)
+  (add-hook 'nrepl-interaction-mode-hook 'ac-nrepl-setup)
+  (after-load 'auto-complete
+    (add-to-list 'ac-modes 'nrepl-mode))
 
-(add-hook 'nrepl-mode-hook 'set-auto-complete-as-completion-at-point-function)
-(add-hook 'nrepl-interaction-mode-hook 'set-auto-complete-as-completion-at-point-function)
-(add-hook 'nrepl-interaction-mode-hook 'nrepl-turn-on-eldoc-mode)
-(add-hook 'nrepl-mode-hook 'subword-mode)
-(add-hook 'nrepl-mode-hook 'paredit-mode)
-(eval-after-load 'nrepl
-  '(define-key nrepl-interaction-mode-map (kbd "C-c C-d") 'ac-nrepl-popup-doc))
+  (add-hook 'nrepl-mode-hook 'set-auto-complete-as-completion-at-point-function)
+  (add-hook 'nrepl-interaction-mode-hook 'set-auto-complete-as-completion-at-point-function)
+  (add-hook 'nrepl-interaction-mode-hook 'nrepl-turn-on-eldoc-mode)
+  (add-hook 'nrepl-mode-hook 'subword-mode)
+  (add-hook 'nrepl-mode-hook 'paredit-mode)
+  (define-key nrepl-interaction-mode-map (kbd "C-c C-d") 'ac-nrepl-popup-doc)
 
-;; nrepl isn't based on comint
-(add-hook 'nrepl-mode-hook
-          (lambda () (setq show-trailing-whitespace nil)))
+  ;; nrepl isn't based on comint
+  (add-hook 'nrepl-mode-hook
+            (lambda () (setq show-trailing-whitespace nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Misc clojure tweaks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(add-hook 'clojure-mode-hook 'sanityinc/lisp-setup)
-(add-hook 'clojure-mode-hook 'subword-mode)
+(after-load 'clojure-mode
+  (add-hook 'clojure-mode-hook 'sanityinc/lisp-setup)
+  (add-hook 'clojure-mode-hook 'subword-mode))
 
 
 

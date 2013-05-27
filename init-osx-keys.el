@@ -8,8 +8,8 @@
     ;; Woohoo!!
     (global-set-key (kbd "M-`") 'ns-next-frame)
     (global-set-key (kbd "M-h") 'ns-do-hide-emacs)
-    (eval-after-load 'nxml-mode
-      '(define-key nxml-mode-map (kbd "M-h") nil))
+    (after-load 'nxml-mode
+      (define-key nxml-mode-map (kbd "M-h") nil))
     (global-set-key (kbd "M-ˍ") 'ns-do-hide-others) ;; what describe-key reports for cmd-option-h
     ))
 
