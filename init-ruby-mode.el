@@ -3,8 +3,8 @@
 (require-package 'ruby-hash-syntax)
 
 (add-auto-mode 'ruby-mode
-               "Rakefile\\'" "\\.rake\\'" "\.rxml\\'"
-               "\\.rjs\\'" ".irbrc\\'" "\.builder\\'" "\\.ru\\'"
+               "Rakefile\\'" "\\.rake\\'" "\\.rxml\\'"
+               "\\.rjs\\'" ".irbrc\\'" "\\.builder\\'" "\\.ru\\'"
                "\\.gemspec\\'" "Gemfile\\'" "Kirkfile\\'")
 
 (setq ruby-use-encoding-map nil)
