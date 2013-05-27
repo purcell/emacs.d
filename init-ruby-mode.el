@@ -25,7 +25,6 @@
 
 ;;; Inferior ruby
 (require-package 'inf-ruby)
-(autoload 'run-ruby "inf-ruby" "Run an inferior Ruby process")
 
 
 
