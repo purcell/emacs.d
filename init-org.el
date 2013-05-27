@@ -95,12 +95,8 @@
      (when *is-a-mac*
        (define-key org-mode-map (kbd "M-h") nil))
      (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
-     (require 'org-exp)
-     (require 'org-clock)
      (when *is-a-mac*
-       (require 'org-mac-link-grabber)
-       (define-key org-mode-map (kbd "C-c g") 'omlg-grab-link))
-     ;;(require 'org-checklist)
-     (require 'org-fstree)))
+       (autoload 'omlg-grab-link "org-mac-link-grabber")
+       (define-key org-mode-map (kbd "C-c g") 'omlg-grab-link))))
 
 (provide 'init-org)
