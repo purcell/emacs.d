@@ -265,6 +265,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'dired-details)
 (require-package 'popwin)
 (require-package 'elnode)
+(require-package 'confluence-edit)
 
 (when *emacs24*
   (require-package 'helm '(20130409 1040 0) nil)

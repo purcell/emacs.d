@@ -401,4 +401,7 @@ version control automatically"
 ;; input open source license
 (require 'legalese)
 
+;; edit confluence wiki
+(autoload 'confluence-edit-mode "confluence-edit" "enable confluence-edit-mode" t)
+
 (provide 'init-misc)
