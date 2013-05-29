@@ -159,7 +159,13 @@
 
 (setq-default regex-tool-backend 'perl)
 
-;shortcut 'ctx', if smex installed
+;;; {{ clipboard stuff
+;; Use the system clipboard
+(setq x-select-enable-clipboard t)
+
+;; shortcut 'ctx', if smex installed
+;; you need install xsel
+;; xclip has some problem when copying
 (defun copy-to-x-clipboard ()
   (interactive)
   (if (region-active-p)
@@ -169,7 +175,7 @@
         (cond
          (*cygwin* "putclip")
          (*is-a-mac* "pbcopy")
-         (t "xclip -selection clipboard")
+         (t "xsel -ib")
          )
         )
       (message "Yanked region to clipboard!")
@@ -178,14 +184,15 @@
 
 (defun paste-from-x-clipboard()
   (interactive)
-    (shell-command
-        (cond
-         (*cygwin* "getclip")
-         (*is-a-mac* "pbpaste")
-         (t "xclip -o")
-         )
-     1)
+  (shell-command
+   (cond
+    (*cygwin* "getclip")
+    (*is-a-mac* "pbpaste")
+    (t "xsel -ob")
+    )
+   1)
   )
+;;; }}
 
 (eval-after-load "speedbar" '(if (load "mwheel" t)
                                ;; Enable wheelmouse support by default
@@ -210,9 +217,6 @@
    (define-key global-map (kbd "C-M-@") 'er/contract-region)
  )
 )
-
-;; Use the system clipboard
-(setq x-select-enable-clipboard t)
 
 ;;iedit-mode
 (global-set-key (kbd "C-c ; i") 'iedit-mode-toggle-on-function)

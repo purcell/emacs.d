@@ -105,6 +105,8 @@ to replace the symbol under cursor"
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)
 (evil-leader/set-key
+  "cx" 'copy-to-x-clipboard
+  "px" 'paste-from-x-clipboard
   "ci" 'evilnc-comment-or-uncomment-lines
   "cl" 'evilnc-comment-or-uncomment-to-the-line
   "cc" 'copy-and-comment-region
@@ -125,7 +127,7 @@ to replace the symbol under cursor"
   "q" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
   "s" 'w3mext-hacker-search
   "d" 'gtags-find-tag-from-here
-  "p" 'gtags-pop-stack
+  "gp" 'gtags-pop-stack
   "gr" 'gtags-find-rtag
   "gy" 'gtags-find-symbol
   "cg" 'djcb-gtags-create-or-update
