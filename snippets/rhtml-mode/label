@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# key: label
+# contributor: Chen Bin <chenbin dot sh at gmail>
+# name: label
+# --
+<label class="${1:className}" for="${2:domID}">${3:labelText}</label>
+$0
