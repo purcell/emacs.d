@@ -10,3 +10,6 @@
 [submodule "snippets/sh-mode"]
 	path = snippets/java-mode
 	url = https://github.com/fourcels/yasnippet-sh-mode.git
+[submodule "snippets/sh-mode"]
+	path = snippets/java-mode
+	url = https://github.com/strazzere/Emacs-Smali.git
