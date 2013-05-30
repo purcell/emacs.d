@@ -36,35 +36,35 @@ Purcell won't list all the 3rd party tools this configuration dependent on. I wi
 try to list them HERE,
 
 ### w3m (web browser in console) 
-- needed by `w3m` (w3m is emacs package name written in elisp)
-- install by OS way
+* needed by `w3m` (w3m is emacs package name written in elisp)
+* install by OS way
 ### jshint
-- required by `flycheck``
-- install node.js by OS way, then `sudo npm install -g jshint`
+* required by `flycheck``
+* install node.js by OS way, then `sudo npm install -g jshint`
 ### aspell, and dictionary (aspell-en, for example)
-- needed by flyspell
-- install by OS way
+* needed by flyspell
+* install by OS way
 ### sbcl (lisp environment)
-- needed by lisp `slime`
-- install by OS way
+* needed by lisp `slime`
+* install by OS way
 ### tidy (html tidy program)
-- needed by nxml-mode
-- install by OS way
+* needed by nxml-mode
+* install by OS way
 ### csslint
-- install node.js by OS way, then `sudo npm install -g csslint`
+* install node.js by OS way, then `sudo npm install -g csslint`
 ### zip and unzip
-- needed by org-mode to export org to odt
-- install by OS way
+* needed by org-mode to export org to odt
+* install by OS way
 ### clang (http://clang.llvm.org)
-- needed by cpputils-cmake, flymake, auto-complete-clang, company-clang
-- install by OS way
+* needed by cpputils-cmake, flymake, auto-complete-clang, company-clang
+* install by OS way
 ### ctags (http://ctags.sourceforge.net)
-- needed by many tags related plugin
-- install by OS way
+* needed by many tags related plugin
+* install by OS way
 ### GNU Global (http://www.gnu.org/software/global)
-- needed by gtags
-- You use this tool to navigate the C/C++/Java/Objective-C code.
-- install by OS way
+* needed by gtags
+* You use this tool to navigate the C/C++/Java/Objective-C code.
+* install by OS way
 ### pyflakes
 - You need pyflakes for real time python syntax check (flymake-python)
 - Install pip by OS way, then `pip install pyflakes`
