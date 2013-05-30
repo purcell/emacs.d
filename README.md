@@ -38,37 +38,47 @@ try to list them HERE,
 ### w3m (web browser in console) 
 * needed by `w3m` (w3m is emacs package name written in elisp)
 * install by OS way
+
 ### jshint
 * required by `flycheck``
 * install node.js by OS way, then `sudo npm install -g jshint`
+
 ### aspell, and dictionary (aspell-en, for example)
 * needed by flyspell
 * install by OS way
+
 ### sbcl (lisp environment)
 * needed by lisp `slime`
 * install by OS way
+
 ### tidy (html tidy program)
 * needed by nxml-mode
 * install by OS way
+
 ### csslint
 * install node.js by OS way, then `sudo npm install -g csslint`
+
 ### zip and unzip
 * needed by org-mode to export org to odt
 * install by OS way
+
 ### clang (http://clang.llvm.org)
 * needed by cpputils-cmake, flymake, auto-complete-clang, company-clang
 * install by OS way
+
 ### ctags (http://ctags.sourceforge.net)
 * needed by many tags related plugin
 * install by OS way
+
 ### GNU Global (http://www.gnu.org/software/global)
 * needed by gtags
 * You use this tool to navigate the C/C++/Java/Objective-C code.
 * install by OS way
 ### pyflakes
-- You need pyflakes for real time python syntax check (flymake-python)
-- Install pip by OS way, then `pip install pyflakes`
-- but on cygwin you need install setuptool in order to install pip.
+* You need pyflakes for real time python syntax check (flymake-python)
+* Install pip by OS way, then `pip install pyflakes`
+* but on cygwin you need install setuptool in order to install pip.
+
 ### ditaa, grapviz and planetuml to convert ascii art to diagram and uml.
 
 ## How to install by OS way
@@ -77,6 +87,7 @@ try to list them HERE,
 * any package manager at Linux
 
 Please note it's totally fine you don't install these CLI tools. Emacs won't crash. ;)
+
 ## Report bug
 If you find any bug, please file an issue on the github project:
 https://github.com/redguardtoo/emacs.d
