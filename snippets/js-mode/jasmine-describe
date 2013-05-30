@@ -3,7 +3,7 @@
 # key: jdescribe
 describe("$1", function(){
   beforeEach(function(){
-    $2 
+    $2
   });
 
   afterEach(function(){
