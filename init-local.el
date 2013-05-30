@@ -1,3 +1,6 @@
+;; show file path in frame title
+(setq-default frame-title-format "%b %f")
+
 ;; enable delete selection mode
 (delete-selection-mode 1)
 
@@ -36,7 +39,7 @@
 ;;(global-whitespace-mode 1)
 
 ;; init size
-(setq initial-frame-alist '((width . 80) (height . 32)))
+(setq initial-frame-alist '((width . 85) (height . 40)))
 
 ;; encoding and default font
 (prefer-coding-system 'gb18030)
@@ -45,10 +48,11 @@
 (set-face-attribute
   'default nil :font "Monaco-14") ; default font
 
-(set-fontset-font
-    (frame-parameter nil 'font)
-    'han
-    (font-spec :family "STHeiti" :size 14)) ; han font
+(if window-system
+    (set-fontset-font
+     (frame-parameter nil 'font)
+     'han
+     (font-spec :family "STHeiti" :size 14))) ; han font
 
 
 ;;display column-number
@@ -113,13 +117,21 @@
   (interactive "P")
   (copy-thing 'backward-word 'forward-word arg))
 
-;;define-key
+;; toggle comment on line
+(defun toggle-comment-on-line ()
+  "comment or uncomment current line"
+  (interactive)
+  (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
+
+;; define-key
 (global-set-key "\C-xf" 'find-file)
 (global-set-key "\M-g" 'goto-line)
 (global-set-key "\C-o" 'custom-open-newline)
 (global-set-key (kbd "C-S-o") 'custom-open-newline-prev)
 (global-set-key "\C-cw" 'copy-word)
 (global-set-key [backtab] 'untab)
+(global-set-key (kbd "C-M-;") 'toggle-comment-on-line)
+
 
 
 ;;color-theme
