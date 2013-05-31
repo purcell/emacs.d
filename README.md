@@ -39,9 +39,9 @@ try to list them HERE,
 * needed by `w3m` (w3m is emacs package name written in elisp)
 * install by OS way
 
-### jshint
-* required by `flycheck``
-* install node.js by OS way, then `sudo npm install -g jshint`
+### lua
+* required by `flymake-lua`
+* install by OS way
 
 ### aspell, and dictionary (aspell-en, for example)
 * needed by flyspell
