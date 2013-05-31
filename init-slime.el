@@ -29,8 +29,9 @@
 
      (add-hook 'slime-repl-mode-hook (lambda () (setq show-trailing-whitespace nil)))
 
-     (add-hook 'slime-mode-hook 'set-up-slime-ac)
-     (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+     ;; I don't use auto-complete anymore
+     ;; (add-hook 'slime-mode-hook 'set-up-slime-ac)
+     ;; (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
 
      (add-hook 'slime-repl-mode-hook 'smp/set-up-slime-repl-auto-complete)
 
