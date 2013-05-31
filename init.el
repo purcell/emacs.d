@@ -84,6 +84,7 @@
 (require 'init-org-mime)
 (require 'init-nxml)
 (require 'init-css)
+(require 'init-haml)
 (require 'init-python-mode)
 (require 'init-haskell)
 (require 'init-ruby-mode)

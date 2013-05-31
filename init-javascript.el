@@ -45,6 +45,9 @@
   `(setq coffee-js-mode 'js2-mode
          coffee-tab-width preferred-javascript-indent-level))
 
+(add-hook 'coffee-mode-hook 'flymake-coffee-load)
+
+
 ;; ---------------------------------------------------------------------------
 ;; Run and interact with an inferior JS via js-comint.el
 ;; ---------------------------------------------------------------------------

@@ -399,9 +399,6 @@ version control automatically"
         (find-file file))
     (message "Current buffer does not have an associated file.")))
 
-(when *emacs24*
-  (add-hook 'after-init-hook #'global-flycheck-mode)
-  )
 ;; input open source license
 (require 'legalese)
 
