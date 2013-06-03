@@ -25,7 +25,7 @@
     ">" 'org-metaright ; indent
     )
 
-(mapcar (lambda (state)
+(mapc (lambda (state)
           (evil-declare-key state org-mode-map
                             (kbd "TAB") 'org-cycle
                             (kbd "M-l") 'org-metaright
@@ -38,30 +38,32 @@
                             (kbd "M-J") 'org-shiftmetadown))
         '(normal insert))
 
-(evil-set-initial-state 'Info-mode 'emacs)
-(evil-set-initial-state 'term-mode 'emacs)
-(evil-set-initial-state 'log-edit-mode 'emacs)
-(evil-set-initial-state 'inf-ruby-mode 'emacs)
-(evil-set-initial-state 'yari-mode 'emacs)
-(evil-set-initial-state 'dired-mode 'emacs)
-(evil-set-initial-state 'erc-mode 'emacs)
-(evil-set-initial-state 'gud-mode 'emacs)
-(evil-set-initial-state 'help-mode 'emacs)
-; I need copy words from eshell history
-(evil-set-initial-state 'eshell-mode 'emacs)
-(evil-set-initial-state 'shell-mode 'emacs)
-(evil-set-initial-state 'message-mode 'emacs)
-(evil-set-initial-state 'magit-log-edit-mode 'emacs)
-; message buffer
-(evil-set-initial-state 'fundamental-mode 'emacs)
-(evil-set-initial-state 'gtags-select-mode 'emacs)
-(evil-set-initial-state 'weibo-timeline-mode 'emacs)
-(evil-set-initial-state 'weibo-post-mode 'emacs)
-(evil-set-initial-state 'diff-mode 'emacs)
-(evil-set-initial-state 'sr-mode 'emacs)
-(evil-set-initial-state 'dired-mode 'emacs)
-(evil-set-initial-state 'compilation-mode 'emacs)
-(evil-set-initial-state 'speedbar-mode 'emacs)
+(loop for (mode . state) in
+      '(
+        (Info-mode . emacs)
+        (term-mode . emacs)
+        (log-edit-mode . emacs)
+        (inf-ruby-mode . emacs)
+        (yari-mode . emacs)
+        (erc-mode . emacs)
+        (gud-mode . emacs)
+        (help-mode . emacs)
+        (eshell-mode . emacs)
+        (shell-mode . emacs)
+        (message-mode . emacs)
+        (magit-log-edit-mode . emacs)
+        (fundamental-mode . emacs)
+        (gtags-select-mode . emacs)
+        (weibo-timeline-mode . emacs)
+        (weibo-post-mode . emacs)
+        (diff-mode . emacs)
+        (sr-mode . emacs)
+        (dired-mode . emacs)
+        (compilation-mode . emacs)
+        (speedbar-mode . emacs)
+        )
+      do (evil-set-initial-state mode state))
+
 
 (define-key evil-normal-state-map "Y" (kbd "y$"))
 (define-key evil-normal-state-map "+" 'evil-numbers/inc-at-pt)
