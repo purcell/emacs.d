@@ -319,4 +319,9 @@ With arg N, insert N newlines."
   (require-package 'ag))
 
 
+
+(require-package 'highlight-escape-sequences)
+(hes-mode)
+
+
 (provide 'init-editing-utils)
