@@ -80,6 +80,7 @@ try to list them HERE,
 * needed by gtags
 * You use this tool to navigate the C/C++/Java/Objective-C code.
 * install by OS way
+
 ### pyflakes
 * You need pyflakes for real time python syntax check (flymake-python)
 * Install pip by OS way, then `pip install pyflakes`
