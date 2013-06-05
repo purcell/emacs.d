@@ -46,6 +46,12 @@ try to list them HERE,
 ### aspell, and dictionary (aspell-en, for example)
 * needed by flyspell
 * install by OS way
+* I force the dictionary to "en_US" in init-spelling.el
+
+### hunspel
+* alternative of aspell
+* install by OS way
+* I force the dictionary to "en_US" in init-spelling.el
 
 ### sbcl (lisp environment)
 * needed by lisp `slime`
