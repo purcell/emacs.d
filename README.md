@@ -32,11 +32,8 @@ Python, Javascript, PHP and some other languages.
 
 To install, clone this repo to `~/.emacs.d`, i.e. ensure that the
 `init.el` contained in this repo ends up at `~/.emacs.d/init.el`.
-Before starting up Emacs, be sure to run `git submodule update --init`
-to pull in the dependencies that have git repos. Upon starting up
-Emacs for the first time, further third-party packages will be
-automatically downloaded and installed, which may require tools such
-as `svn` to be on your PATH.
+Upon starting up Emacs for the first time, further third-party
+packages will be automatically downloaded and installed.
 
 ## Similar configs
 
