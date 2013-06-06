@@ -39,12 +39,12 @@ You need to install some command line tools to use some features in Emacs. All t
 * install by OS way
 
 ### aspell, and corresponding dictionary (aspell-en, for example)
-* needed by `flyspell``
+* needed by `flyspell`
 * install by OS way
 * I force the dictionary to "en_US" in init-spelling.el
 
 ### hunspel
-* alternative of `aspell``
+* alternative of `aspell`
 * install by OS way
 * I force the dictionary to "en_US" in init-spelling.el
 
@@ -57,14 +57,14 @@ You need to install some command line tools to use some features in Emacs. All t
 * install by OS way
 
 ### csslint
-* install `node.js`` by OS way, then `sudo npm install -g csslint`
+* install `node.js` by OS way, then `sudo npm install -g csslint`
 
 ### zip and unzip
-* needed by `org-mode`` to export org to odt
+* needed by `org-mode` to export org to odt
 * install by OS way
 
 ### clang (http://clang.llvm.org)
-* needed by `cpputils-cmake``, `flymake``, `auto-complete-clang`, `company-clang``
+* needed by `cpputils-cmake`, `flymake`, `auto-complete-clang`, `company-clang`
 * install by OS way
 
 ### ctags (http://ctags.sourceforge.net)
@@ -79,13 +79,13 @@ You need to install some command line tools to use some features in Emacs. All t
 ### pyflakes
 * You need pyflakes for real time python syntax checker like `flymake-python`
 * Install pip by OS way, then `pip install pyflakes`
-* On cygwin you need install `setuptool`` in order to install `pip``.
+* On cygwin you need install `setuptool` in order to install `pip`.
 
 ### ditaa, grapviz and planetuml to convert ascii art to diagram and uml.
 I don't use them now.
 
 ## How to install by OS way
-* `apt-cyg`` at Cygwin
+* `apt-cyg` at Cygwin
 * `homebrew` at OS X
 * any package manager at Linux
 
