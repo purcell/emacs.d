@@ -58,6 +58,8 @@
 
 ;;; LESS
 (require-package 'less-css-mode)
+(require-package 'flymake-less)
+(add-hook 'less-css-mode-hook 'flymake-less-load)
 
 
 
