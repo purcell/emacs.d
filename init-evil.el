@@ -128,8 +128,12 @@ to replace the symbol under cursor"
   "mq" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
   "gg" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
   "q" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
-  "s" 'w3mext-hacker-search
-  "d" 'gtags-find-tag-from-here
+  "so" 'delete-other-windows
+  "sh" 'split-window-below
+  "sv" 'split-window-right
+  "su" 'winner-undo
+  "hs" 'w3mext-hacker-search
+  "gf" 'gtags-find-tag-from-here
   "gp" 'gtags-pop-stack
   "gr" 'gtags-find-rtag
   "gy" 'gtags-find-symbol
