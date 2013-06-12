@@ -139,7 +139,6 @@
 (require 'init-sunrise-commander)
 (require 'init-bbdb)
 (require 'init-gnus)
-(require 'init-smarter-compile)
 (require 'init-twittering-mode)
 (require 'init-weibo)
 ;; itune cannot play flac, so I use mplayer+emms instead (updated, use mpd!)
