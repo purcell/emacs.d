@@ -125,6 +125,7 @@
         (setq word-wrap t)
         )
       (add-hook 'org-mode-hook '(lambda ()
+                                  (setq evil-auto-indent nil)
                                   (soft-wrap-lines)
                                   ))))
 
