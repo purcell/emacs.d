@@ -77,6 +77,14 @@
              (string-prefix-p "!" ad-return-value))
     (setq ad-return-value (shell-command-to-string (substring ad-return-value 1)))))
 
-
+(require 'git-messenger)
+;; show to details to play `git blame' game
+(setq git-messenger:show-detail t)
+(add-hook 'git-messenger:after-popup-hook (lambda (msg)
+                                            (kill-new msg)
+                                            (message "commit details > clipboard")
+                                            ))
+(global-set-key (kbd "C-x v p") 'git-messenger:popup-message)
 
 (provide 'init-git)
+

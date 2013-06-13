@@ -405,7 +405,4 @@ version control automatically"
 ;; edit confluence wiki
 (autoload 'confluence-edit-mode "confluence-edit" "enable confluence-edit-mode" t)
 
-(require 'git-messenger)
-(global-set-key (kbd "C-x v p") 'git-messenger:popup-message)
-
 (provide 'init-misc)
