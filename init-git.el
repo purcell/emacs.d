@@ -77,14 +77,24 @@
              (string-prefix-p "!" ad-return-value))
     (setq ad-return-value (shell-command-to-string (substring ad-return-value 1)))))
 
+;; {{ git-messenger
 (require 'git-messenger)
 ;; show to details to play `git blame' game
 (setq git-messenger:show-detail t)
 (add-hook 'git-messenger:after-popup-hook (lambda (msg)
                                             (kill-new msg)
-                                            (message "commit details > clipboard")
+                                            (with-temp-buffer
+                                              (insert msg)
+                                              (shell-command-on-region (point-min) (point-max)
+                                                                       (cond
+                                                                        ((eq system-type 'cygwin) "putclip")
+                                                                        ((eq system-type 'darwin) "pbcopy")
+                                                                        (t "xsel -ib")
+                                                                        )))
+                                            (message "commit details > clipboard & kill-ring")
                                             ))
 (global-set-key (kbd "C-x v p") 'git-messenger:popup-message)
+;; }}
 
 (provide 'init-git)
 
