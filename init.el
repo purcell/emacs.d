@@ -126,6 +126,8 @@
 ;;----------------------------------------------------------------------------
 (require 'init-locales)
 
+(message "init completed in %.2fms"
+         (sanityinc/time-subtract-millis (current-time) before-init-time))
 
 ;; Local Variables:
 ;; coding: utf-8
