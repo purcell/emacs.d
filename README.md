@@ -63,6 +63,10 @@ You need to install some command line tools to use some features in Emacs. All t
 * needed by `org-mode` to export org to odt
 * install by OS way
 
+### xsel
+* needed by my clipboard command `copy-to-x-clipboard` and `paste-from-x-clipboard` under Linux
+* install by OS way
+
 ### clang (http://clang.llvm.org)
 * needed by `cpputils-cmake`, `flymake`, `auto-complete-clang`, `company-clang`
 * install by OS way
@@ -80,6 +84,13 @@ You need to install some command line tools to use some features in Emacs. All t
 * You need pyflakes for real time python syntax checker like `flymake-python`
 * Install pip by OS way, then `pip install pyflakes`
 * On cygwin you need install `setuptool` in order to install `pip`.
+
+### libreoffice
+* Its binary `soffice` is actually needed
+* needed when converting odt file into doc (Microsoft Word 97)
+* conversion will happen automatically when exporting org-mode to odt
+* The conversion command is stored in variable `org-export-odt-convert-processes`
+* Install by OS way
 
 ### ditaa, grapviz and planetuml to convert ascii art to diagram and uml.
 I don't use them now.
@@ -101,6 +112,7 @@ You need manually `M-x list-packages` and install it.
   ```sh
   alias e=emacs -q --no-splash --eval="(setq light-weight-emacs t)" -l "$HOME/.emacs.d/init.el"
   ```
+* If you use `gnus` for email thing (Gmail, for example). Most set up is already except privacy stuff. Please check `init-gnus.el` for my set up. There is also [a tutorial at my blog](http://blog.binchen.org/?p=403).
 
 ## My personal custom.el
 It's publicized at http://blog.binchen.org/?p=430 .
