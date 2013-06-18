@@ -353,6 +353,23 @@ point reaches the beginning or end of the buffer, stop there."
                 'smarter-move-beginning-of-line)
 ;; }
 
+(defun open-readme-in-git-root-directory ()
+  (interactive)
+  (let (filename
+        (root-dir (locate-dominating-file (file-name-as-directory (file-name-directory buffer-file-name)) ".git"))
+        )
+    ;; (message "root-dir=%s" root-dir)
+    (and root-dir (file-name-as-directory root-dir))
+    (setq filename (concat root-dir "README.org"))
+    (if (not (file-exists-p filename))
+        (setq filename (concat root-dir "README.md"))
+      )
+    ;; (message "filename=%s" filename)
+    (if (file-exists-p filename)
+        (switch-to-buffer (find-file-noselect filename nil nil))
+      (message "NO README.org or README.md found!"))
+    ))
+(global-set-key (kbd "C-c C-q") 'open-readme-in-git-root-directory)
 
 ;; from http://emacsredux.com/blog/2013/05/04/rename-file-and-buffer/
 (defun rename-file-and-buffer ()
