@@ -22,15 +22,16 @@
         (yas-compile-directory . ido)
         ))
 
-;; helm-gtags ==begin
+;; {{helm-gtags
 ;; customize
 (setq helm-c-gtags-path-style 'relative)
 (setq helm-c-gtags-ignore-case t)
 (setq helm-c-gtags-read-only t)
-;; helm-gtags ==end
+(add-hook 'c-mode-hook (lambda () (helm-gtags-mode)))
+(add-hook 'c++-mode-hook (lambda () (helm-gtags-mode)))
+;; }}
 
 
-(add-hook 'c-mode-common-hook (lambda () (helm-gtags-mode)))
 
 ;; key bindings
 (add-hook 'helm-gtags-mode-hook
