@@ -94,9 +94,10 @@
 
 (defun custom-open-newline-prev ()
   (interactive)
-  (move-beginning-of-line nil)
-  (newline-and-indent)
-  (forward-line -1))
+  (custom-open-newline)
+  (move-text-up 1)
+  (indent-according-to-mode))
+
 
 
 ;; copy word
@@ -145,6 +146,9 @@
 ;;auto pair
 (require 'autopair)
 (autopair-global-mode)
+
+;;gradle mode
+(require 'gradle-mode)
 
 
 (provide 'init-local)
