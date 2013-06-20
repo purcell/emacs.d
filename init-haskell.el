@@ -23,7 +23,7 @@
   (let ((alias 'ghc-at-regexp))
     (add-to-list
      'compilation-error-regexp-alist-alist
-     (list alias " at \\(.*l?hs\\):\\([0-9]+\\):\\([0-9]+\\)-[0-9]+$" 1 2 3 0 1))
+     (list alias " at \\(.*\\.\\(?:l?[gh]hs\\|hi\\)\\):\\([0-9]+\\):\\([0-9]+\\)-[0-9]+$" 1 2 3 0 1))
     (add-to-list
      'compilation-error-regexp-alist alias)))
 
