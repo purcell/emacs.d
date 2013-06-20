@@ -422,4 +422,7 @@ version control automatically"
 ;; edit confluence wiki
 (autoload 'confluence-edit-mode "confluence-edit" "enable confluence-edit-mode" t)
 
+;; {{ issue-tracker
+(global-set-key (kbd "C-c C-t") 'issue-tracker-increment-issue-id-under-cursor)
+;; }}
 (provide 'init-misc)
