@@ -13,5 +13,7 @@
     (defadvice sql-set-product (after set-dash-docset activate)
       (sanityinc/maybe-set-dash-db-docset))))
 
+(setq-default sql-input-ring-file-name
+              (expand-file-name ".sqli_history" user-emacs-directory))
 
 (provide 'init-sql)
