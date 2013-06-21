@@ -104,7 +104,7 @@ to replace the symbol under cursor"
   )
 (global-set-key (kbd "C-c ; s") 'evilcvn-change-symbol-in-defun)
 
-; evil-leader config
+;; {{ evil-leader config
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)
 (evil-leader/set-key
@@ -121,7 +121,8 @@ to replace the symbol under cursor"
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window
-  "bm" 'pomodoro-start ; beat myself
+  "it" 'issue-tracker-increment-issue-id-under-cursor
+  "bm" 'pomodoro-start ;; beat myself
   "." 'evil-ex
   ;; toggle overview,  @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
   "ov" '(lambda () (interactive) (set-selective-display (if selective-display nil 1)))
@@ -148,6 +149,7 @@ to replace the symbol under cursor"
   "l" 'align-regexp
   "x" 'er/expand-region
   )
+;; }}
 
 ;; change mode-line color by evil state
 (lexical-let ((default-color (cons (face-background 'mode-line)
