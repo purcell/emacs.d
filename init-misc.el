@@ -416,6 +416,31 @@ version control automatically"
         (find-file file))
     (message "Current buffer does not have an associated file.")))
 
+;; {{ eval and replace anywhere
+;; @see http://emacs.wordpress.com/2007/01/17/eval-and-replace-anywhere/ 
+(defun fc-eval-and-replace ()
+  "Replace the preceding sexp with its value."
+  (interactive)
+  (backward-kill-sexp)
+  (condition-case nil
+      (prin1 (eval (read (current-kill 0)))
+             (current-buffer))
+    (error (message "Invalid expression")
+           (insert (current-kill 0)))))
+(global-set-key (kbd "C-c e") 'fc-eval-and-replace)
+
+(defun calc-eval-and-insert (&optional start end)
+(interactive "r")
+(let ((result (calc-eval (buffer-substring-no-properties start end))))
+(goto-char (point-at-eol))
+(insert " = " result)))
+
+(defun calc-eval-line-and-insert ()
+(interactive)
+(calc-eval-and-insert (point-at-bol) (point-at-eol)))
+(global-set-key (kbd "C-c C-e") 'calc-eval-line-and-insert)
+;; }}
+
 ;; input open source license
 (require 'legalese)
 
