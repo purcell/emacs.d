@@ -105,14 +105,20 @@ If you find any bug, please file an issue on the github project:
 https://github.com/redguardtoo/emacs.d
 
 ## Tips
-* by default EVIL (Vim emulation in Emacs) is used. You can comment out line containing "(require 'init-evil)" in init.el to unload it. * Some package cannot be downloaded automatically because of network problem.
+* By default EVIL (Vim emulation in Emacs) is used. You can comment out line containing "(require 'init-evil)" in init.el to unload it.
+
+* Some package cannot be downloaded automatically because of network problem.
 You need manually `M-x list-packages` and install it.
+
 * If you use yasnippet and auto-complete, I suggest not using yasnippet as input source of auto-complete. 
+
 * You can speed up the start up by NOT loading some heavy weight components like evil or yasnippet. All you need to do is add below code into ~/.bashrc:
   ```sh
   alias e=emacs -q --no-splash --eval="(setq light-weight-emacs t)" -l "$HOME/.emacs.d/init.el"
   ```
 * If you use `gnus` for email thing (Gmail, for example). Most set up is already except privacy stuff. Please check `init-gnus.el` for my set up. There is also [a tutorial at my blog](http://blog.binchen.org/?p=403).
+
+* To toggle Chinese input method (eim, for example), press `C-\` or run command `M-x toggle-input-method`.
 
 ## My personal custom.el
 It's publicized at http://blog.binchen.org/?p=430 .
