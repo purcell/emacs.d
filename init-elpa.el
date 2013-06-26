@@ -217,7 +217,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'fuzzy)
 (require-package 'auto-complete '(20120717 0 0) nil) ;auto-complete is dependent on fuzzy
 (require-package 'auto-complete-clang)
-(require-package 'zencoding-mode)
+(require-package 'emmet-mode)
 (require-package 'session)
 (require-package 'tidy)
 (require-package 'unfill)
