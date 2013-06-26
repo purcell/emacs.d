@@ -61,6 +61,9 @@
 (require-package 'flymake-less)
 (add-hook 'less-css-mode-hook 'flymake-less-load)
 
+(require-package 'skewer-mode)
+(autoload 'skewer-eval "skewer-mode")
+
 (defvar sanityinc/skewer-less-mode-map
   (let ((m (make-sparse-keymap)))
     (define-key m (kbd "C-c C-k") 'sanityinc/skewer-less-save-and-reload)
