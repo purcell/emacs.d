@@ -61,6 +61,31 @@
 (require-package 'flymake-less)
 (add-hook 'less-css-mode-hook 'flymake-less-load)
 
+(defvar sanityinc/skewer-less-mode-map
+  (let ((m (make-sparse-keymap)))
+    (define-key m (kbd "C-c C-k") 'sanityinc/skewer-less-save-and-reload)
+    m)
+  "Keymap for `sanityinc/skewer-less-mode'.")
+
+(define-minor-mode sanityinc/skewer-less-mode
+  "Minor mode allowing LESS stylesheet manipulation via `skewer-mode'."
+  nil
+  " LessSkew"
+  sanityinc/skewer-less-mode-map
+  (progn
+    (add-hook 'after-save-hook 'sanityinc/skewer-less-reload nil t)))
+
+(defun sanityinc/skewer-less-save-and-reload ()
+  "When skewer appears to be active, ask for a reload."
+  (interactive)
+  (save-buffer)
+  (sanityinc/skewer-less-reload))
+
+(defun sanityinc/skewer-less-reload ()
+  "When skewer appears to be active, ask for a reload."
+  (interactive)
+  (skewer-eval "less.refresh();"))
+
 
 
 ;;; Auto-complete CSS keywords
