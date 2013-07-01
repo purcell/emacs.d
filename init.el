@@ -55,6 +55,7 @@
 (require 'init-growl)
 
 (require 'init-editing-utils)
+(require 'init-smartparens)
 
 (require 'init-darcs)
 (require 'init-git)
@@ -77,7 +78,6 @@
 (require 'init-rails)
 (require 'init-sql)
 
-(require 'init-paredit)
 (require 'init-lisp)
 (require 'init-slime)
 (require 'init-clojure)
