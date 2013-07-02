@@ -13,6 +13,16 @@
                  (sanityinc/time-subtract-millis (current-time)
                                                  start-time)))))
 
+(defadvice desktop-create-buffer (around time-create activate)
+  (let ((start-time (current-time))
+        (filename (ad-get-arg 1)))
+    (prog1
+        ad-do-it
+      (message "Desktop: %.2fms to restore %s"
+               (sanityinc/time-subtract-millis (current-time)
+                                               start-time)
+               (when filename
+		 (abbreviate-file-name filename))))))
 
 ;;----------------------------------------------------------------------------
 ;; Restore histories and registers after saving
