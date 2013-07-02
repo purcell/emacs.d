@@ -66,14 +66,24 @@
 
 (defvar sanityinc/skewer-less-mode-map
   (let ((m (make-sparse-keymap)))
+    ;; for consistency with skewer-css
     (define-key m (kbd "C-c C-k") 'sanityinc/skewer-less-save-and-reload)
     m)
   "Keymap for `sanityinc/skewer-less-mode'.")
 
 (define-minor-mode sanityinc/skewer-less-mode
-  "Minor mode allowing LESS stylesheet manipulation via `skewer-mode'."
+  "Minor mode allowing LESS stylesheet manipulation via `skewer-mode'.
+
+Operates by invoking \"less.refresh()\" via skewer whenever the
+buffer is saved.
+
+For this to work properly, the less javascript should be included
+in the target web page, and less should be configured in
+development mode, using:
+
+        var less = {env: \"development\"};"
   nil
-  " LessSkew"
+  " skewer-less"
   sanityinc/skewer-less-mode-map
   (progn
     (add-hook 'after-save-hook 'sanityinc/skewer-less-reload nil t)))
