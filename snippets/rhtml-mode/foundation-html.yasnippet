@@ -1,0 +1,29 @@
+# -*- mode: snippet -*-
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# name: <html>foudation html ...</html>
+# key: foundation
+# --
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>${1:Test foundation.css}</title>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/css/foundation.css" />
+</head>
+<body>
+  <script>window.jQuery || document.write('<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js"><\/script>')</script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/foundation.min.js"></script>
+  <a href="#" class="button success">Success Button</a>
+  $0
+  <script>
+  $(document).ready(function(){
+    $(document).foundation();
+    //insert code below this line
+  });
+</script>
+</body>
+</html>
