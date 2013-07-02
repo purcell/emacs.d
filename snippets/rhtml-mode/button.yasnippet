@@ -1,0 +1,38 @@
+# -*- mode: snippet -*-
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# name: three column button
+# key: button3column
+# --
+<style type="text/css" media="screen">
+.${1:prefix}_button3Column {
+}
+
+.${1:$(yas-substr text "[a-zA-Z0-9]*")}_button3Column .${1:$(yas-substr text "[a-zA-Z0-9]*")}_button3ColumnMiddle {
+  float:left;
+  display:inline-block;
+  background-color:${2:blue};
+  white-space:nowrap;
+  height:${3:30}px;
+  line-height:${3:$(yas-substr text "[0-9]*")}px;
+  text-align:center;
+}
+
+.${1:$(yas-substr text "[a-zA-Z0-9]*")}_button3Column .${1:$(yas-substr text "[a-zA-Z0-9]*")}_button3ColumnLeft {
+  float:left;
+  display:inline-block;
+  width:${4:20}px;
+  height:${3:$(yas-substr text "[0-9]*")}px;
+}
+
+.${1:$(yas-substr text "[a-zA-Z0-9]*")}_button3Column .${1:$(yas-substr text "[a-zA-Z0-9]*")}_button3ColumnRight {
+  float:left;
+  display:inline-block;
+  width:${5:20}px;
+  height:${3:$(yas-substr text "[0-9]*")}px;
+}
+</style>
+<div class='${1:$(yas-substr text "[a-zA-Z0-9]*")}_button3Column'>
+  <div class='${1:$(yas-substr text "[a-zA-Z0-9]*")}_button3ColumnLeft'></div>
+  <div class='${1:$(yas-substr text "[a-zA-Z0-9]*")}_button3ColumnMiddle'><a href='#'>$0</a></div>
+  <div class='${1:$(yas-substr text "[a-zA-Z0-9]*")}_button3ColumnRight'></div>
+</div>
