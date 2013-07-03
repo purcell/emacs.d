@@ -1,6 +1,9 @@
 (require-package 'unfill)
 (require-package 'whole-line-or-region)
 
+(when (fboundp 'electric-pair-mode)
+  (setq-default electric-pair-mode 1))
+
 ;;----------------------------------------------------------------------------
 ;; Some basic preferences
 ;;----------------------------------------------------------------------------
@@ -60,6 +63,12 @@
 (put 'narrow-to-region 'disabled nil)
 (put 'narrow-to-page 'disabled nil)
 (put 'narrow-to-defun 'disabled nil)
+
+;;----------------------------------------------------------------------------
+;; Show matching parens
+;;----------------------------------------------------------------------------
+(require-package 'mic-paren)
+(paren-activate)     ; activating mic-paren
 
 ;;----------------------------------------------------------------------------
 ;; Expand region
@@ -201,7 +210,9 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Shift lines up and down with M-S-up and M-S-down.
+;; Shift lines up and down with M-up and M-down. When paredit is enabled,
+;; it will use those keybindings. For this reason, you might prefer to
+;; use M-S-up and M-S-down, which will work even in lisp modes.
 ;;----------------------------------------------------------------------------
 (require-package 'move-text)
 (move-text-default-bindings)
