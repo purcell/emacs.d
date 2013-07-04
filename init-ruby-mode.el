@@ -38,13 +38,6 @@
 
 
 
-;;; Ruby flymake
-(require-package 'flymake-ruby)
-(after-load 'ruby-mode
-  (add-hook 'ruby-mode-hook 'flymake-ruby-load))
-
-
-
 ;;; Robe
 (require-package 'robe)
 (after-load 'ruby-mode
@@ -66,8 +59,6 @@
 ;;; YAML
 
 (require-package 'yaml-mode)
-(require-package 'flymake-yaml)
-(add-hook 'yaml-mode-hook 'flymake-yaml-load)
 
 
 

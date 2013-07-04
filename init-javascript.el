@@ -5,9 +5,6 @@
 (require-package 'js-comint)
 (require-package 'rainbow-delimiters)
 (require-package 'coffee-mode)
-(require-package 'flymake-coffee)
-(require-package 'flymake-jslint)
-(require-package 'flymake-json)
 
 
 (defcustom preferred-javascript-mode
@@ -28,12 +25,6 @@
 
 
 (add-auto-mode 'js-mode "\\.json\\'")
-(after-load 'js
-  (add-hook 'js-mode-hook 'flymake-json-maybe-load))
-
-;; On-the-fly syntax checking
-(after-load 'js
-  (add-hook 'js-mode-hook 'flymake-jslint-load))
 
 
 ;; js2-mode
@@ -64,8 +55,7 @@
 
 (after-load 'coffee-mode
   (setq coffee-js-mode preferred-javascript-mode
-        coffee-tab-width preferred-javascript-indent-level)
-  (add-hook 'coffee-mode-hook 'flymake-coffee-load))
+        coffee-tab-width preferred-javascript-indent-level))
 
 (add-to-list 'auto-mode-alist '("\\.coffee\\.erb\\'" . coffee-mode))
 

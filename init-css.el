@@ -35,31 +35,17 @@
     (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css)))
 
 
-
-;;; CSS flymake
-(require-package 'flymake-css)
-(defun maybe-flymake-css-load ()
-  "Activate flymake-css as necessary, but not in derived modes."
-  (when (eq major-mode 'css-mode)
-    (flymake-css-load)))
-(add-hook 'css-mode-hook 'maybe-flymake-css-load)
-
 
 
 ;;; SASS and SCSS
 (require-package 'sass-mode)
 (require-package 'scss-mode)
-(require-package 'flymake-sass)
-(add-hook 'sass-mode-hook 'flymake-sass-load)
-(add-hook 'scss-mode-hook 'flymake-sass-load)
 (setq-default scss-compile-at-save nil)
 
 
 
 ;;; LESS
 (require-package 'less-css-mode)
-(require-package 'flymake-less)
-(add-hook 'less-css-mode-hook 'flymake-less-load)
 
 (require-package 'skewer-mode)
 (autoload 'skewer-eval "skewer-mode")
