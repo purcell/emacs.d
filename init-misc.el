@@ -291,38 +291,6 @@ Current position is preserved."
 ;; http://emacsredux.com/blog/2013/04/21/camelcase-aware-editing/
 (add-hook 'prog-mode-hook 'subword-mode)
 
-(defun copy-and-comment-region (beg end)
-  "Insert a copy of the lines in region and comment them.
-When transient-mark-mode is enabled, if no region is active then only the
-current line is acted upon.
-
-If the region begins or ends in the middle of a line, that entire line is
-copied, even if the region is narrowed to the middle of a line.
-The copied lines are commented according to mode.
-
-Current position is preserved."
-  (interactive "r")
-  (let ((orig-pos (point-marker)))
-  (save-restriction
-    (widen)
-    (when (and transient-mark-mode (not (use-region-p)))
-      (setq beg (line-beginning-position)
-            end (line-beginning-position 2)))
-
-    (goto-char beg)
-    (setq beg (line-beginning-position))
-    (goto-char end)
-    (unless (= (point) (line-beginning-position))
-      (setq end (line-beginning-position 2)))
-
-    (goto-char beg)
-    (insert-before-markers (buffer-substring-no-properties beg end))
-    (comment-region beg end)
-    (goto-char orig-pos))))
-
-;; (global-set-key (kbd "C-c c") 'copy-and-comment-region)
-(global-set-key (kbd "C-c c") 'copy-and-comment-region)
-
 ;; { smarter navigation to the beginning of a line
 ;; http://emacsredux.com/blog/2013/05/22/smarter-navigation-to-the-beginning-of-a-line/
 (defun smarter-move-beginning-of-line (arg)
