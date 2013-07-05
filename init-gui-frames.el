@@ -38,16 +38,10 @@
     (when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
       (modify-frame-parameters frame (list (cons 'alpha newalpha))))))
 
-(when (fboundp 'ns-toggle-fullscreen)
-  (defadvice ns-toggle-fullscreen (after mark-full-screen activate)
-    (set-frame-parameter nil
-                         'is-full-screen
-                         (not (frame-parameter nil 'is-full-screen))))
-
-
-
+(when (and *is-a-mac* (fboundp 'toggle-frame-fullscreen))
   ;; Command-Option-f to toggle fullscreen mode
-  (global-set-key (kbd "M-ƒ") 'ns-toggle-fullscreen))
+  ;; Hint: Customize `ns-use-native-fullscreen'
+  (global-set-key (kbd "M-ƒ") 'toggle-frame-fullscreen))
 
 (global-set-key (kbd "M-C-8") '(lambda () (interactive) (adjust-opacity nil -5)))
 (global-set-key (kbd "M-C-9") '(lambda () (interactive) (adjust-opacity nil 5)))
