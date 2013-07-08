@@ -54,4 +54,8 @@
                 tags-file-name
                 register-alist)))
 
+(when (eval-when-compile (>= emacs-major-version 24))
+  (require-package 'frame-restore)
+  (frame-restore))
+
 (provide 'init-sessions)
