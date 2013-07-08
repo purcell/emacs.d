@@ -150,6 +150,8 @@ to replace the symbol under cursor"
   "rw" 'rotate-windows
   "l" 'align-regexp
   "x" 'er/expand-region
+  "vd" 'scroll-other-window
+  "vu" '(lambda () (interactive) (scroll-other-window-down nil))
   )
 ;; }}
 
