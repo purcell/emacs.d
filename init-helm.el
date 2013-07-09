@@ -20,6 +20,7 @@
         (read-file-name . ni)
         (yas/compile-directory . ido)
         (yas-compile-directory . ido)
+        (execute-extended-command . ido)
         ))
 
 ;; {{helm-gtags
