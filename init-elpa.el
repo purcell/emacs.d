@@ -268,7 +268,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'popwin)
 (require-package 'elnode)
 (require-package 'confluence-edit)
-(require-package 'key-chord)
 (require-package 'git-messenger '(20130613 1222 0) nil)
 (require-package 'issue-tracker '(0 0 1) nil)
 

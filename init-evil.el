@@ -166,13 +166,6 @@ to replace the symbol under cursor"
                 (set-face-background 'mode-line (car color))
                 (set-face-foreground 'mode-line (cdr color))))))
 
-;; the only purpose I use key-chord is avoid typing esc in evil-mode
-(key-chord-mode 1)
-(key-chord-define evil-normal-state-map ",," 'evil-force-normal-state)
-(key-chord-define evil-visual-state-map ",," 'evil-change-to-previous-state)
-(key-chord-define evil-insert-state-map ",," 'evil-normal-state)
-(key-chord-define evil-replace-state-map ",," 'evil-normal-state)
-
 ;; comment/uncomment lines
 (evilnc-default-hotkeys)
 
