@@ -7,8 +7,6 @@
 ;; Remap org-mode meta keys for convenience
 (evil-declare-key 'normal org-mode-map
     "gh" 'outline-up-heading
-    "gj" 'org-forward-same-level
-    "gk" 'org-backward-same-level
     "gl" 'outline-next-visible-heading
     "H" 'org-beginning-of-line ; smarter behaviour on headlines etc.
     "L" 'org-end-of-line ; smarter behaviour on headlines etc.
