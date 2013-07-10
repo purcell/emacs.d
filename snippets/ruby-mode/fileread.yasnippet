@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: File.open("...","r")
+# key: fread
+# --
+File.open(${1:"/my/file/path"}, "r").each_line do |${2:l}|
+  ${3:puts l}
+  $0
+end
