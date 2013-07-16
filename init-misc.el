@@ -163,9 +163,30 @@
 ;; Use the system clipboard
 (setq x-select-enable-clipboard t)
 
-;; shortcut 'ctx', if smex installed
-;; you need install xsel
-;; xclip has some problem when copying
+;; you need install xsel under Linux
+;; xclip has some problem when copying under Linux
+(defun copy-yank-str (msg)
+  (kill-new msg)
+  (with-temp-buffer
+    (insert msg)
+    (shell-command-on-region (point-min) (point-max)
+                             (cond
+                              ((eq system-type 'cygwin) "putclip")
+                              ((eq system-type 'darwin) "pbcopy")
+                              (t "xsel -ib")
+                              ))))
+
+(defun copy-full-path-of-current-buffer ()
+  "copy full path into the yank ring and OS clipboard"
+  (interactive)
+  (when buffer-file-name
+    (kill-new (file-truename buffer-file-name))
+    (copy-yank-str (file-truename buffer-file-name))
+    (message "full path of current buffer => clipboard & yank ring")
+    ))
+
+(global-set-key (kbd "C-x v f") 'copy-full-path-of-current-buffer)
+
 (defun copy-to-x-clipboard ()
   (interactive)
   (if (region-active-p)
