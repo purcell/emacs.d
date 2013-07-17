@@ -117,8 +117,9 @@
          (popuped-message (if (git-messenger:show-detail-p commit-id)
                               (git-messenger:format-detail commit-id author msg)
                             msg)))
+    (run-hook-with-args 'git-messenger:after-popup-hook popuped-message)
     (popup-tip popuped-message)
-    (run-hook-with-args 'git-messenger:after-popup-hook popuped-message)))
+    ))
 
 (provide 'git-messenger)
 
