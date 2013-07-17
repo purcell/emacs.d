@@ -7,10 +7,14 @@
   (let ((current-prefix-arg t))
     (magit-status default-directory)))
 
+;; Sometimes I want check other developer's commit
+;; show file of specific version
+(autoload 'magit-show "magit" "" t nil)
+;; show the commit
+(autoload 'magit-show-commit "magit" "" t nil)
+
 (global-set-key [(meta f12)] 'magit-status)
 (global-set-key [(shift meta f12)] 'magit-status-somedir)
-
-
 
 (eval-after-load 'magit
   '(progn
@@ -28,8 +32,6 @@
        (jump-to-register :magit-fullscreen))
 
      (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)))
-
-
 
 (when *is-a-mac*
   (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)]))))

@@ -59,6 +59,7 @@
         (dired-mode . emacs)
         (compilation-mode . emacs)
         (speedbar-mode . emacs)
+        (magit-commit-mode . normal)
         )
       do (evil-set-initial-state mode state))
 
