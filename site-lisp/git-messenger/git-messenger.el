@@ -53,7 +53,7 @@
   :group 'git-messenger)
 
 (defsubst git-messenger:blame-command (file line)
-  (format "git --no-pager blame -L %d,+1 --porcelain %s"
+  (format "git --no-pager blame -w -L %d,+1 --porcelain %s"
           line (shell-quote-argument file)))
 
 (defsubst git-messenger:cat-file-command (commit-id)
