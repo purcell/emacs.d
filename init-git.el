@@ -84,6 +84,9 @@
 ;; show to details to play `git blame' game
 (setq git-messenger:show-detail t)
 (add-hook 'git-messenger:after-popup-hook (lambda (msg)
+                                            ;; extract commit id and put into the kill ring
+                                            (when (string-match "\\(commit *: *\\)\\([0-9a-z]+\\)" msg)
+                                              (kill-new (match-string 2 msg)))
                                             (kill-new msg)
                                             (with-temp-buffer
                                               (insert msg)
@@ -93,8 +96,7 @@
                                                                         ((eq system-type 'darwin) "pbcopy")
                                                                         (t "xsel -ib")
                                                                         )))
-                                            (message "commit details > clipboard & kill-ring")
-                                            ))
+                                            (message "commit details > clipboard & kill-ring")))
 (global-set-key (kbd "C-x v p") 'git-messenger:popup-message)
 ;; }}
 
