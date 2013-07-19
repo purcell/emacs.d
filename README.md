@@ -1,6 +1,8 @@
 # Warning
 * I'm using [Vim](http://www.vim.org) key binding. Please see "Tips" section for restoring the Emacs key binding.
 * People in Mainland China may need [goagent](http://code.google.com/p/goagent/) to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server.
+* C++/C developers, you need tell Emacs where to search headers to make auto-complete work. See section `clang` for details.
+
 
 # General
 
@@ -70,6 +72,9 @@ You need to install some command line tools to use some features in Emacs. All t
 ### clang (http://clang.llvm.org)
 * needed by `cpputils-cmake`, `flymake`, `auto-complete-clang`, `company-clang`
 * install by OS way
+* If you use `company-clang` (default), add `(setq company-clang-arguments '("-I/example1/dir" "-I/example2/dir"))` into ~/.emacs.d/init.el
+* If you prefer `auto-complete-clang` instead, add `(setq ac-clang-flags ("-I/example1/dir" "-I/example2/dir"))` into ~/.emacs.d/init.el
+* If you use `cpputils-cmake` and `cmake`, `cpputils-cmake` will do all the set up for you.
 
 ### ctags (http://ctags.sourceforge.net)
 * needed by many tags related plugin

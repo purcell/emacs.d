@@ -78,7 +78,7 @@ ARCHIVE is the string name of the package archive.")
 
 (defvar melpa-exclude-packages
   ;; I'm happy my packages included in melpa. But need time to switch to melpa finally
-  '(slime evil-nerd-commenter company evil)
+  '(slime evil-nerd-commenter company evil auto-complete)
   "Don't install Melpa versions of these packages.")
 
 ;; Don't take Melpa versions of certain packages
@@ -216,7 +216,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'cmake-mode)
 (require-package 'keyfreq)
 (require-package 'fuzzy)
-(require-package 'auto-complete '(20120717 0 0) nil) ;auto-complete is dependent on fuzzy
+(require-package 'auto-complete) ;auto-complete is dependent on fuzzy
 (require-package 'auto-complete-clang)
 (require-package 'emmet-mode)
 (require-package 'session)
