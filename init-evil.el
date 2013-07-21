@@ -151,6 +151,7 @@ to replace the symbol under cursor"
   "x" 'er/expand-region
   "vd" 'scroll-other-window
   "vu" '(lambda () (interactive) (scroll-other-window-down nil))
+  "jj" 'w3mext-search-js-api-mdn
   )
 ;; }}
 
