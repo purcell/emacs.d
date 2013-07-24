@@ -3,6 +3,7 @@
               (cons (concat "\\." (regexp-opt '("cshtml"
                                                 "aspx"
                                                 "xml"
+                                                "ftl"
                                                 "xsd"
                                                 "sch"
                                                 "rng"
