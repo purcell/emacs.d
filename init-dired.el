@@ -1,7 +1,7 @@
 (require-package 'dired+)
 
 (setq diredp-hide-details-initially-flag nil)
-(global-dired-hide-details-mode -1)
+(setq global-dired-hide-details-mode -1)
 
 (after-load 'dired
   (require 'dired+)
