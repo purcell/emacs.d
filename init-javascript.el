@@ -7,7 +7,8 @@
 (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\|on\\)?\\'" . js2-mode) auto-mode-alist))
 
 ;; json
-(setq auto-mode-alist (cons '("\\.json\\'" . json-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.json$" . json-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.jason$" . json-mode) auto-mode-alist))
 
 ;; js2-mode
 (add-hook 'js2-mode-hook '(lambda ()
