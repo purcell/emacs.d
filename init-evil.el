@@ -111,9 +111,6 @@ to replace the symbol under cursor"
 (evil-leader/set-key
   "cx" 'copy-to-x-clipboard
   "px" 'paste-from-x-clipboard
-  "ci" 'evilnc-comment-or-uncomment-lines
-  "cl" 'evilnc-comment-or-uncomment-to-the-line
-  "cc" 'evilnc-copy-and-comment-lines
   "ct" 'ctags-create-or-update-tags-table
   "cs" 'evilcvn-change-symbol-in-defun
   "t" 'ido-goto-symbol ;; same as my vim hotkey
