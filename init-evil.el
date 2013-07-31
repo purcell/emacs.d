@@ -109,6 +109,7 @@ to replace the symbol under cursor"
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)
 (evil-leader/set-key
+  "em" 'erase-message-buffer
   "cx" 'copy-to-x-clipboard
   "px" 'paste-from-x-clipboard
   "ct" 'ctags-create-or-update-tags-table

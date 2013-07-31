@@ -439,4 +439,52 @@ version control automatically"
 ;; {{ issue-tracker
 (global-set-key (kbd "C-c C-t") 'issue-tracker-increment-issue-id-under-cursor)
 ;; }}
+
+;; {{ messge buffer things
+(defun erase-message-buffer (&optional num)
+  "Erase the content of the *Messages* buffer in emacs.
+    Keep the last num lines if argument num if given."
+  (interactive "p")
+  (let ((message-buffer (get-buffer "*Messages*"))
+        (old-buffer (current-buffer)))
+    (save-excursion
+      (if (buffer-live-p message-buffer)
+          (progn
+            (switch-to-buffer message-buffer)
+            (if (not (null num))
+                (progn
+                  (end-of-buffer)
+                  (dotimes (i num)
+                    (previous-line))
+                  (set-register t (buffer-substring (point) (point-max)))
+                  (erase-buffer)
+                  (insert (get-register t))
+                  (switch-to-buffer old-buffer))
+              (progn
+                (erase-buffer)
+                (switch-to-buffer old-buffer))))
+        (error "Message buffer doesn't exists!")
+        ))))
+
+;; }}
+
+(defmacro debug-print (obj)
+  "Debug macro that prints the object OBJ together with a
+    timestamp in a buffer named \"*debug*\". Scroll to bottom in case
+    the debug buffer is visible. Return OBJ so the macro can be put
+    inline."
+  (let ((obsym (make-symbol "object")))
+    `(let ((,obsym ,obj))
+       (unless (get-buffer "*debug*")
+         (with-current-buffer (get-buffer-create "*debug*")
+           (emacs-lisp-mode)))
+       (with-current-buffer  (get-buffer "*debug*")
+         (goto-char (point-max))
+         (or (bolp) (newline))
+         (insert (format ";; [%s]\n%s" (current-time-string)
+                         (pp-to-string ,obsym)))
+         (if (get-buffer-window "*debug*")
+             (set-window-point (get-buffer-window "*debug*") (point))))
+       ,obsym)))
+
 (provide 'init-misc)
