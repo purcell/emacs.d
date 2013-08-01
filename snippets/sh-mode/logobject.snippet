@@ -1,0 +1,6 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: echo "object=${object}"
+# key: lo
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+echo "${1:object}=\$\{${1:$(yas/substr text "[^ ]*")}\}"
