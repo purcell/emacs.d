@@ -145,7 +145,8 @@
 (require 'init-workgroups)
 (require 'init-move-window-buffer)
 (require 'init-term-mode)
-(require 'init-web-mode)
+;; I'm fine with nxml-mode, so web-mode is not used
+;;(require 'init-web-mode)
 (require 'init-sr-speedbar)
 (require 'init-smartparens)
 ;; Choose either auto-complete or company-mode by commenting one of below two lines!
