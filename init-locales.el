@@ -1,3 +1,4 @@
+(require-package 'cl-lib "0.2")
 (require 'cl-lib)
 
 (defun locale-is-utf8-p ()
