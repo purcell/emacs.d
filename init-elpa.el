@@ -152,7 +152,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'maxframe)
 ;; org-mode is very important to me, so I always use the latest ersion
 ;; org 8.0 makes org2blog broken, so I just downgrade to the 7.8 and wait
-;; (require-package 'org '(20130506 0 0) t)
+(require-package 'org '(20130802 0 0) t)
 (require-package 'org-mime)
 (require-package 'org-fstree)
 ;; I don't care mac
@@ -160,7 +160,7 @@ ARCHIVE is the string name of the package archive.")
 ;;  (require-package 'org-mac-link-grabber)
 ;;  (require-package 'org-mac-iCal))
 (require-package 'htmlize)
-(require-package 'org2blog '(20130115 2217 0) nil)
+(require-package 'org2blog '(20130704 908 0) nil)
 (require-package 'clojure-mode)
 (require-package 'clojure-test-mode)
 (require-package 'cljsbuild-mode)
