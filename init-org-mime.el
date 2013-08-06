@@ -1,5 +1,8 @@
 ;; @see http://orgmode.org/worg/org-contrib/org-mime.html
-;; demo video: http://vimeo.com/album/1970595/video/13158054
+;; demo video: http://vimeo.com/album/1970594/video/13158054
+(autoload 'org-mime-htmlize "org-mime" nil t)
+(autoload 'org-mime-org-buffer-htmlize "org-mime" nil t)
+
 (add-hook 'message-mode-hook
           (lambda ()
             (local-set-key "\C-c\M-o" 'org-mime-htmlize)))

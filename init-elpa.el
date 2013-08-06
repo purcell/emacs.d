@@ -152,8 +152,9 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'maxframe)
 ;; org-mode is very important to me, so I always use the latest ersion
 ;; org 8.0 makes org2blog broken, so I just downgrade to the 7.8 and wait
-(require-package 'org '(20130802 0 0) t)
-(require-package 'org-mime)
+(require-package 'org '(20130805 0 0) t)
+;; org-mime is not upgrade in repository. I put right version in elpa
+;; (require-package 'org-mime)
 (require-package 'org-fstree)
 ;; I don't care mac
 ;;(when *is-a-mac*
