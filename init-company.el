@@ -1,5 +1,6 @@
 (add-hook 'after-init-hook 'global-company-mode)
 
+;; does not matter, I never use this hotkey
 (global-set-key (kbd "C-c o") 'company-complete)
 (setq company-require-match nil)
 
