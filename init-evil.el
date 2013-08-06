@@ -3,6 +3,13 @@
 ; @see https://github.com/timcharper/evil-surround
 (global-surround-mode 1)
 
+(defun toggle-org-or-message-mode ()
+  (interactive)
+  (if (eq major-mode 'message-mode)
+    (org-mode)
+    (if (eq major-mode 'org-mode) (message-mode))
+    ))
+
 ;; (evil-set-initial-state 'org-mode 'emacs)
 ;; Remap org-mode meta keys for convenience
 (evil-declare-key 'normal org-mode-map
@@ -10,7 +17,6 @@
     "gl" 'outline-next-visible-heading
     "H" 'org-beginning-of-line ; smarter behaviour on headlines etc.
     "L" 'org-end-of-line ; smarter behaviour on headlines etc.
-    "t" 'org-todo ; mark a TODO item as DONE
     ",c" 'org-cycle
     ",e" 'org-export-dispatch
     ",n" 'outline-next-visible-heading
@@ -48,7 +54,7 @@
         (help-mode . emacs)
         (eshell-mode . emacs)
         (shell-mode . emacs)
-        (message-mode . emacs)
+        ;;(message-mode . emacs)
         (magit-log-edit-mode . emacs)
         (fundamental-mode . emacs)
         (gtags-select-mode . emacs)
@@ -148,6 +154,7 @@ to replace the symbol under cursor"
   ;; recommended in html
   "md" 'mc/mark-all-like-this-dwim
   "rw" 'rotate-windows
+  "om" 'toggle-org-or-message-mode
   "l" 'align-regexp
   "x" 'er/expand-region
   "vd" 'scroll-other-window
