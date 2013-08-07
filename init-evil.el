@@ -98,6 +98,8 @@
 
 (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "C-k") 'kill-line)
+(define-key evil-insert-state-map (kbd "M-j") 'evil-normal-state)
+(define-key evil-visual-state-map (kbd "M-j") 'evil-exit-visual-state)
 
 (defun evilcvn-change-symbol-in-defun ()
   "mark the region in defun (definition of function) and use string replacing UI in evil-mode
