@@ -99,6 +99,8 @@
 
 (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "C-k") 'kill-line)
+(global-set-key (kbd "M-k") 'keyboard-quit)
+(define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
 (define-key evil-visual-state-map (kbd ",k") 'evil-exit-visual-state)
 (define-key minibuffer-local-map (kbd ",k") 'abort-recursive-edit)
 
@@ -166,7 +168,7 @@ to replace the symbol under cursor"
   "vd" 'scroll-other-window
   "vu" '(lambda () (interactive) (scroll-other-window-down nil))
   "jj" 'w3mext-search-js-api-mdn
-  "zz" 'suspend-frame
+  "xz" 'suspend-frame
   )
 ;; }}
 
