@@ -96,10 +96,11 @@
        (t (setq unread-command-events (append unread-command-events
                           (list evt))))))))
 
+
 (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "C-k") 'kill-line)
-(define-key evil-insert-state-map (kbd "M-j") 'evil-normal-state)
-(define-key evil-visual-state-map (kbd "M-j") 'evil-exit-visual-state)
+(define-key evil-visual-state-map (kbd ",k") 'evil-exit-visual-state)
+(define-key minibuffer-local-map (kbd ",k") 'abort-recursive-edit)
 
 (defun evilcvn-change-symbol-in-defun ()
   "mark the region in defun (definition of function) and use string replacing UI in evil-mode
@@ -130,7 +131,7 @@ to replace the symbol under cursor"
   "cp" 'compile
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
-  "K" 'kill-buffer-and-window
+  "K" 'kill-buffer-and-window ;; "k" is preserved to replace "C-g"
   "it" 'issue-tracker-increment-issue-id-under-cursor
   "bm" 'pomodoro-start ;; beat myself
   "." 'evil-ex
@@ -159,6 +160,9 @@ to replace the symbol under cursor"
   "om" 'toggle-org-or-message-mode
   "al" 'align-regexp
   "xx" 'er/expand-region
+  "xf" 'ido-find-file
+  "xb" 'ido-switch-buffer
+  "xc" 'save-buffers-kill-terminal
   "vd" 'scroll-other-window
   "vu" '(lambda () (interactive) (scroll-other-window-down nil))
   "jj" 'w3mext-search-js-api-mdn
