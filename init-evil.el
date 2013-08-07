@@ -103,6 +103,7 @@
 (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
 (define-key evil-visual-state-map (kbd ",k") 'evil-exit-visual-state)
 (define-key minibuffer-local-map (kbd ",k") 'abort-recursive-edit)
+(define-key evil-insert-state-map (kbd "M-j") 'yas-expand)
 
 (defun evilcvn-change-symbol-in-defun ()
   "mark the region in defun (definition of function) and use string replacing UI in evil-mode
