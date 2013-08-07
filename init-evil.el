@@ -155,11 +155,12 @@ to replace the symbol under cursor"
   "md" 'mc/mark-all-like-this-dwim
   "rw" 'rotate-windows
   "om" 'toggle-org-or-message-mode
-  "l" 'align-regexp
-  "x" 'er/expand-region
+  "al" 'align-regexp
+  "xx" 'er/expand-region
   "vd" 'scroll-other-window
   "vu" '(lambda () (interactive) (scroll-other-window-down nil))
   "jj" 'w3mext-search-js-api-mdn
+  "zz" 'suspend-frame
   )
 ;; }}
 
