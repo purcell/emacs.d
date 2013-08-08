@@ -132,6 +132,7 @@ to replace the symbol under cursor"
   "t" 'ido-goto-symbol ;; same as my vim hotkey
   "w" 'save-buffer
   "cp" 'compile
+  "cg" 'helm-ls-git-ls
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window ;; "k" is preserved to replace "C-g"
@@ -152,7 +153,7 @@ to replace the symbol under cursor"
   "gp" 'gtags-pop-stack
   "gr" 'gtags-find-rtag
   "gy" 'gtags-find-symbol
-  "cg" 'djcb-gtags-create-or-update
+  "dg" 'djcb-gtags-create-or-update
   "bc" '(lambda () (interactive) (wxhelp-browse-class-or-api (thing-at-point 'symbol)))
   "ma" 'mc/mark-all-like-this-in-defun
   "mw" 'mc/mark-all-words-like-this-in-defun
@@ -170,6 +171,9 @@ to replace the symbol under cursor"
   "vu" '(lambda () (interactive) (scroll-other-window-down nil))
   "jj" 'w3mext-search-js-api-mdn
   "xz" 'suspend-frame
+  "xvv" 'vc-next-action
+  "xv=" 'vc-diff
+  "xvl" 'vc-print-log
   )
 ;; }}
 
