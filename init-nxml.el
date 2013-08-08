@@ -29,7 +29,8 @@
             (local-set-key (kbd "C-M-n") 'nxml-forward-element)
             (local-set-key (kbd "C-M-p") 'nxml-backward-element)
             ))
-(setq nxml-slash-auto-complete-flag t)
+;; useless when used with auto-pair
+(setq nxml-slash-auto-complete-flag nil)
 
 ;; See: http://sinewalker.wordpress.com/2008/06/26/pretty-printing-xml-with-emacs-nxml-mode/
 (defun pp-xml-region (begin end)
