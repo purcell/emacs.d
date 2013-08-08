@@ -23,6 +23,14 @@
         (execute-extended-command . ido)
         ))
 
+;; {{make helm-ls-git-ls more UI friendly
+(require 'helm-ls-git)
+(helm-attrset 'header-name
+                '(lambda (name) (concat name ", `C-]' to toggle full path"))
+                helm-source-ls-git)
+(define-key helm-map (kbd ",k") 'helm-keyboard-quit)
+;; }}
+
 ;; {{helm-gtags
 ;; customize
 (setq helm-c-gtags-path-style 'relative)
