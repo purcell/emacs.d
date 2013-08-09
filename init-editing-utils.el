@@ -133,6 +133,12 @@
 (add-hook 'cc-mode-hook 'turn-on-auto-fill)
 (global-set-key (kbd "C-c q") 'auto-fill-mode)
 
+;; {{ whitespace
+;; (require 'whitespace)
+;; (setq whitespace-style '(face empty tabs lines-tail trailing))
+;; (global-whitespace-mode t)
+;; }}
+
 ;; some project prefer tab, so be it
 ;; @see http://stackoverflow.com/questions/69934/set-4-space-indent-in-emacs-in-text-mode
 (setq-default tab-width 4)
