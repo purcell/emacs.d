@@ -101,7 +101,9 @@
 (define-key evil-insert-state-map (kbd "C-k") 'kill-line)
 (global-set-key (kbd "M-k") 'keyboard-quit)
 (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
+(define-key evil-visual-state-map (kbd "M-k") 'evil-exit-visual-state)
 (define-key evil-visual-state-map (kbd ",k") 'evil-exit-visual-state)
+(define-key minibuffer-local-map (kbd "M-k") 'abort-recursive-edit)
 (define-key minibuffer-local-map (kbd ",k") 'abort-recursive-edit)
 (define-key evil-insert-state-map (kbd "M-j") 'yas-expand)
 
@@ -122,6 +124,8 @@ to replace the symbol under cursor"
 (require 'evil-leader)
 (evil-leader/set-key
   "em" 'erase-message-buffer
+  "eb" 'eval-buffer
+  "ee" 'eval-expression
   "cx" 'copy-to-x-clipboard
   "px" 'paste-from-x-clipboard
   "ci" 'evilnc-comment-or-uncomment-lines
