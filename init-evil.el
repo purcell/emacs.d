@@ -32,10 +32,6 @@
 (mapc (lambda (state)
           (evil-declare-key state org-mode-map
                             (kbd "TAB") 'org-cycle
-                            (kbd "M-l") 'org-metaright
-                            (kbd "M-h") 'org-metaleft
-                            (kbd "M-k") 'org-metaup
-                            (kbd "M-j") 'org-metadown
                             (kbd "M-L") 'org-shiftmetaright
                             (kbd "M-H") 'org-shiftmetaleft
                             (kbd "M-K") 'org-shiftmetaup
