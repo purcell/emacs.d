@@ -124,14 +124,14 @@ to replace the symbol under cursor"
   "ee" 'eval-expression
   "cx" 'copy-to-x-clipboard
   "px" 'paste-from-x-clipboard
-  "ci" 'evilnc-comment-or-uncomment-lines
-  "cl" 'evilnc-comment-or-uncomment-to-the-line
-  "cc" 'evilnc-copy-and-comment-lines
+  ;; "ci" 'evilnc-comment-or-uncomment-lines
+  ;; "cl" 'evilnc-comment-or-uncomment-to-the-line
+  ;; "cc" 'evilnc-copy-and-comment-lines
+  ;; "cp" 'evilnc-comment-or-uncomment-paragraphs
   "ct" 'ctags-create-or-update-tags-table
   "cs" 'evilcvn-change-symbol-in-defun
   "t" 'ido-goto-symbol ;; same as my vim hotkey
   "w" 'save-buffer
-  "cp" 'compile
   "cg" 'helm-ls-git-ls
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
