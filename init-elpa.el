@@ -76,9 +76,36 @@ ARCHIVE is the string name of the package archive.")
 
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 
+(defvar melpa-include-packages
+  '(bbdb
+     lua-mode
+     mmm-mode
+     pomodoro
+     helm
+     helm-ls-git
+     helm-c-yasnippet
+     auto-compile
+     packed
+     cl-lib
+     gitconfig-mode
+     project-local-variables
+     org-fstree
+     smarty-mode
+     todochiku
+     textile-mode
+     pretty-mode
+     lively
+     auto-complete-clang
+     w3m
+     ctags
+     fakir
+     erlang
+     )
+  "Don't install any Melpa packages except these packages")
+
 (defvar melpa-exclude-packages
   ;; I'm happy my packages included in melpa. But need time to switch to melpa finally
-  '(slime evil-nerd-commenter company evil auto-complete)
+  '(slime evil-nerd-commenter company evil auto-complete dash)
   "Don't install Melpa versions of these packages.")
 
 ;; Don't take Melpa versions of certain packages
@@ -86,8 +113,9 @@ ARCHIVE is the string name of the package archive.")
       (lambda (package version archive)
         (and
          (not (memq package '(eieio)))
-         (or (not (string-equal archive "melpa"))
-             (not (memq package melpa-exclude-packages))))))
+         (or (and (string-equal archive "melpa") (memq package melpa-include-packages))
+             (not (string-equal archive "melpa")))
+         )))
 
 
 ;;------------------------------------------------------------------------------
@@ -99,54 +127,53 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'all)
 (require-package 'xml-rpc)
 (require-package 'ido-ubiquitous)
-(require-package 'dash '(20130513 1618 0) nil)
+(require-package 'dash)
 ; color-theme 6.6.1 in elpa is buggy
 (when (< emacs-major-version 24)
   (require-package 'color-theme))
 (require-package 'auto-compile)
 (require-package 'ace-jump-mode)
 (require-package 'multiple-cursors)
-(require-package 'expand-region '(20130302 1954 0) nil)
+(require-package 'expand-region '(0 8 0) nil)
 (require-package 'fringe-helper)
 (require-package 'gnuplot)
-(require-package 'haskell-mode '(20130523 10 0) nil)
+(require-package 'haskell-mode '(13 7 0) nil)
 (require-package 'cl-lib '(0 3 0) nil)
-(require-package 'magit '(20130523 125 0) nil)
+(require-package 'magit '(1 2 0) nil)
 (require-package 'git-commit-mode)
 (require-package 'gitignore-mode)
 (require-package 'gitconfig-mode)
 (require-package 'wgrep)
 (require-package 'flymake-cursor)
 (require-package 'csv-mode)
-(require-package 'csv-nav)
 (require-package 'json)
 (when (and (>= emacs-major-version 24) (>= emacs-minor-version 1))
   (require-package 'js2-mode)
   )
-(require-package 'lua-mode '(20120919 1821 0) nil)
+(require-package 'lua-mode)
 (require-package 'project-local-variables)
 (require-package 'ruby-mode)
 (require-package 'robe)
-(require-package 'inf-ruby '(20120722 0 0) nil)
+(require-package 'inf-ruby '(2 3 0) nil)
 (require-package 'yari)
 (require-package 'yaml-mode)
 (require-package 'paredit)
 (require-package 'eldoc-eval)
-(require-package 'erlang)
+(require-package 'erlang '(20120612 0 0) nil)
 (require-package 'slime)
 (require-package 'slime-fuzzy)
 (require-package 'slime-repl)
 (require-package 'browse-kill-ring)
 (require-package 'findr)
-(require-package 'jump '(20120820 1951 0) nil)
+(require-package 'jump '(2 3 0) nil)
 (require-package 'anything)
-;; (require-package 'gist)
+(require-package 'gist)
 (require-package 'haml-mode)
 (require-package 'sass-mode)
 (require-package 'scss-mode)
 (require-package 'elein)
 (require-package 'markdown-mode)
-(require-package 'smex '(20120915 2041 0) nil)
+(require-package 'smex '(2 1 0) nil)
 (require-package 'dired+)
 (require-package 'rainbow-mode '(0 6 0) nil)
 (require-package 'maxframe)
@@ -161,7 +188,7 @@ ARCHIVE is the string name of the package archive.")
 ;;  (require-package 'org-mac-link-grabber)
 ;;  (require-package 'org-mac-iCal))
 (require-package 'htmlize)
-(require-package 'org2blog '(20130704 908 0) nil)
+(require-package 'org2blog '(0 5 0) nil)
 (require-package 'clojure-mode)
 (require-package 'clojure-test-mode)
 (require-package 'cljsbuild-mode)
@@ -210,7 +237,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'page-break-lines)
 (require-package 'pointback)
 (require-package 'regex-tool)
-(require-package 'rinari '(20130202 1020 0) nil) ; use latest rinari
+(require-package 'rinari)
 (require-package 'ruby-compilation)
 (require-package 'iy-go-to-char)
 (require-package 'csharp-mode)
@@ -224,12 +251,11 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'tidy)
 (require-package 'unfill)
 (require-package 'whole-line-or-region)
-(require-package 'undo-tree '(20121124 2207 0) nil)
+(require-package 'undo-tree '(0 6 3) nil)
 (require-package 'auctex)
 (require-package 'etags-select '(1 13 0) nil) ;; evil may need it
 ;;evil-20120725 requires ert
 (require-package 'evil '(1 0 3) nil)
-(require-package 'evil-numbers '(20120712 1933 0) nil)
 (require-package 'w3m)
 (require-package 'idomenu)
 (require-package 'ctags)
@@ -248,9 +274,9 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'pomodoro '(20130114 1543 0) nil)
 (require-package 'flymake-lua)
 (require-package 'evil-nerd-commenter '(1 1 0) nil)
-(require-package 'surround '(20121022 1257 0) nil)
+(require-package 'surround)
 (require-package 'dropdown-list)
-(require-package 'yasnippet '(20130505 2115 0) nil)
+(require-package 'yasnippet '(0 8 0) nil)
 (require-package 'workgroups)
 ;; rvm-open-gem to get gem's code
 (require-package 'rvm)
@@ -268,7 +294,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'dired-details)
 (require-package 'popwin)
 (require-package 'elnode)
-(require-package 'confluence-edit)
 ;;(require-package 'git-messenger '(20130613 1222 0) nil)
 (require-package 'issue-tracker '(0 0 1) nil)
 
