@@ -1,0 +1,44 @@
+Please email the following information to assign@gnu.org, and we
+will send you the assignment form for your past and future changes.
+
+Please use your full legal name (in ASCII characters) as the subject
+line of the message.
+----------------------------------------------------------------------
+REQUEST: SEND FORM FOR PAST AND FUTURE CHANGES
+
+[What is the name of the program or package you're contributing to?]
+
+  Org-mode, which is part of Emacs
+
+[Did you copy any files or text written by someone else in these changes?
+Even if that material is free software, we need to know about it.]
+
+
+[Do you have an employer who might have a basis to claim to own
+your changes?  Do you attend a school which might make such a claim?]
+
+
+[For the copyright registration, what country are you a citizen of?]
+
+
+[What year were you born?]
+
+
+[Please write your email address here.]
+
+
+[Please write your postal address here.]
+
+
+
+
+
+[Which files have you changed so far, and which new files have you written
+so far?]
+
+
+
+
+
+
+
