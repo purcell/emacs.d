@@ -6,14 +6,15 @@
 
 # General
 
-I base my emacs.d on [Steve Purcell's emacs.d](http://github.com/purcell/emacs.d) and synchronize from his once a month.
+I based my emacs.d on [Steve Purcell's emacs.d](http://github.com/purcell/emacs.d).
 
-To install, clone this repo to ~/.emacs.d, i.e. ensure that the 'init.el' contained in this repo ends up at ~/.emacs.d/init.el and old ~/.emacs does NOT exist.
+My first priority is stable. So I use few cutting-edge packages from [melpa](http://melpa.milkbox.net).
+
+To install, Download [this zip file](https://github.com/redguardtoo/emacs.d/archive/master.zip) and extract its content into ~/.emacs.d. Ensure that the 'init.el' contained in this repo ends up at ~/.emacs.d/init.el and old ~/.emacs does NOT exist.
 
 Thanks to Purcell, this emacs.d has [fancy features](http://github.com/purcell/emacs.d) for most script languages like Clojure, Python, Lisp, PHP, Javascript, Ruby etc. Purcell is basically a web geek who use all the modern web technologies.
 
-I will support all the languages a desktop developer may use, like
-C++, Java, Lua, Objective-C etc.
+I will support all the languages a desktop developer may use, like C++, Java, Lua, Objective-C etc.
 
 ## Features
 
