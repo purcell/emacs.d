@@ -123,6 +123,8 @@ to replace the symbol under cursor"
   "eb" 'eval-buffer
   "ee" 'eval-expression
   "cx" 'copy-to-x-clipboard
+  "bb" 'evil-scroll-page-up
+  "ff" 'evil-scroll-page-down
   "px" 'paste-from-x-clipboard
   ;; "ci" 'evilnc-comment-or-uncomment-lines
   ;; "cl" 'evilnc-comment-or-uncomment-to-the-line
@@ -149,6 +151,7 @@ to replace the symbol under cursor"
   "s2" 'split-window-below
   "s3" 'split-window-right
   "su" 'winner-undo
+  "sp" '(lambda (&optional NUM) (interactive "p") (sp-select-next-thing NUM))
   "hs" 'w3mext-hacker-search
   "gf" 'gtags-find-tag-from-here
   "gp" 'gtags-pop-stack
@@ -169,9 +172,11 @@ to replace the symbol under cursor"
   "xf" 'ido-find-file
   "xb" 'ido-switch-buffer
   "xc" 'save-buffers-kill-terminal
+  "xo" 'helm-find-files
   "vd" 'scroll-other-window
   "vu" '(lambda () (interactive) (scroll-other-window-down nil))
   "jj" 'w3mext-search-js-api-mdn
+  "xk" 'ido-kill-buffer
   "xz" 'suspend-frame
   "xvv" 'vc-next-action
   "xv=" 'vc-diff
