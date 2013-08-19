@@ -146,12 +146,13 @@ to replace the symbol under cursor"
   "or" 'open-readme-in-git-root-directory
   "mq" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
   "gg" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
-  "q" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
+  "qq" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
   "s1" 'delete-other-windows
   "s2" 'split-window-below
   "s3" 'split-window-right
   "su" 'winner-undo
   "sp" '(lambda (&optional NUM) (interactive "p") (sp-select-next-thing NUM))
+  "ls" 'package-list-packages
   "hs" 'w3mext-hacker-search
   "gf" 'gtags-find-tag-from-here
   "gp" 'gtags-pop-stack
