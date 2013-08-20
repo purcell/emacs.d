@@ -21,6 +21,7 @@
         (yas/compile-directory . ido)
         (yas-compile-directory . ido)
         (execute-extended-command . ido)
+        (wg-load . ido)
         ))
 
 ;; {{make helm-ls-git-ls more UI friendly
