@@ -1,6 +1,9 @@
 (defun my-smartparens-config ()
   (smartparens-global-mode t)
 
+  (setq sp-navigate-consider-sgml-tags '(html-mode
+                                         nxml-mode
+                                         xml-mode))
   ;; highlights matching pairs
   (show-smartparens-global-mode t)
 
