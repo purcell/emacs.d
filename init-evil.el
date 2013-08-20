@@ -133,7 +133,6 @@ to replace the symbol under cursor"
   "ct" 'ctags-create-or-update-tags-table
   "cs" 'evilcvn-change-symbol-in-defun
   "t" 'ido-goto-symbol ;; same as my vim hotkey
-  "w" 'save-buffer
   "cg" 'helm-ls-git-ls
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
@@ -151,7 +150,11 @@ to replace the symbol under cursor"
   "s2" 'split-window-below
   "s3" 'split-window-right
   "su" 'winner-undo
-  "sp" '(lambda (&optional NUM) (interactive "p") (sp-select-next-thing NUM))
+  "sp" '(lambda (&optional NUM)
+          (interactive "p")
+          (re)
+          (sp-select-next-thing NUM)
+          )
   "ls" 'package-list-packages
   "hs" 'w3mext-hacker-search
   "gf" 'gtags-find-tag-from-here
@@ -169,6 +172,17 @@ to replace the symbol under cursor"
   "rw" 'rotate-windows
   "om" 'toggle-org-or-message-mode
   "al" 'align-regexp
+  "ww" 'save-buffer
+  "w0" 'select-window-0
+  "w1" 'select-window-1
+  "w2" 'select-window-2
+  "w3" 'select-window-3
+  "w4" 'select-window-4
+  "w5" 'select-window-5
+  "w6" 'select-window-6
+  "w7" 'select-window-7
+  "w8" 'select-window-8
+  "w9" 'select-window-9
   "xx" 'er/expand-region
   "xf" 'ido-find-file
   "xb" 'ido-switch-buffer
