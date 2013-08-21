@@ -152,8 +152,13 @@ to replace the symbol under cursor"
   "su" 'winner-undo
   "sp" '(lambda (&optional NUM)
           (interactive "p")
-          (re)
-          (sp-select-next-thing NUM)
+          ;; move cursor
+          (if (or (eq major-mode 'html-mode)
+                  (eq major-mode 'xml-mode)
+                  (eq major-mode 'nxml-mode)
+                  )
+              )
+          (my-sp-select-next-thing NUM)
           )
   "ls" 'package-list-packages
   "hs" 'w3mext-hacker-search
