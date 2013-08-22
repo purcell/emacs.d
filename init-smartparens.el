@@ -35,6 +35,7 @@
 
 ;; make sp-select-next-thing works even the cusor is in the open/close tag
 ;; like matchit in vim
+;; @return t => start from open tag; nil start from close tag
 (defun my-sp-select-next-thing (&optional NUM)
   (interactive "p")
   (let ((b (line-beginning-position))
@@ -43,6 +44,7 @@
         (p (point))
         rbeg
         rend
+        (rlt t)
         )
     ;; "<" char code is 60
     ;; search backward
@@ -73,10 +75,12 @@
           (progn
             ;; </
             (backward-char)
+            (setq rlt nil)
             )
         (progn
           ;; < , looks fine
           (backward-char)
+          (setq rlt t)
           )
         )
       (sp-select-next-thing)
@@ -94,6 +98,7 @@
       (push-mark rbeg t t)
       (goto-char rend)
       )
+    rlt
     )
   )
 

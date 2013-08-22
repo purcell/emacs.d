@@ -2,7 +2,6 @@
 
 ; @see https://github.com/timcharper/evil-surround
 (global-surround-mode 1)
-
 (defun toggle-org-or-message-mode ()
   (interactive)
   (if (eq major-mode 'message-mode)
@@ -72,6 +71,26 @@
 (define-key evil-normal-state-map "+" 'evil-numbers/inc-at-pt)
 (define-key evil-normal-state-map "-" 'evil-numbers/dec-at-pt)
 (define-key evil-normal-state-map "go" 'goto-char)
+
+;; {{ evil-matchit
+(defun my-evil-jump-item-enhanced-for-html ()
+  (interactive)
+  (if (or (eq major-mode 'html-mode)
+          (eq major-mode 'xml-mode)
+          (eq major-mode 'nxml-mode)
+          )
+      (progn
+        (if (not (my-sp-select-next-thing 1)) (exchange-point-and-mark))
+        (deactivate-mark)
+        )
+    (progn
+      (message "hi")
+      (evil-jump-item)
+      )
+    )
+  )
+(define-key evil-normal-state-map "%" 'my-evil-jump-item-enhanced-for-html)
+;; }}
 
 ;; @see http://stackoverflow.com/questions/10569165/how-to-map-jj-to-esc-in-emacs-evil-mode
 ;; @see http://zuttobenkyou.wordpress.com/2011/02/15/some-thoughts-on-emacs-and-vim/
