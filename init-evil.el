@@ -157,8 +157,8 @@ to replace the symbol under cursor"
                   (eq major-mode 'xml-mode)
                   (eq major-mode 'nxml-mode)
                   )
+              (my-sp-select-next-thing NUM)
               )
-          (my-sp-select-next-thing NUM)
           )
   "ls" 'package-list-packages
   "hs" 'w3mext-hacker-search
