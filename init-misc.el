@@ -469,23 +469,6 @@ version control automatically"
 
 ;; }}
 
-(defmacro debug-print (obj)
-  "Debug macro that prints the object OBJ together with a
-    timestamp in a buffer named \"*debug*\". Scroll to bottom in case
-    the debug buffer is visible. Return OBJ so the macro can be put
-    inline."
-  (let ((obsym (make-symbol "object")))
-    `(let ((,obsym ,obj))
-       (unless (get-buffer "*debug*")
-         (with-current-buffer (get-buffer-create "*debug*")
-           (emacs-lisp-mode)))
-       (with-current-buffer  (get-buffer "*debug*")
-         (goto-char (point-max))
-         (or (bolp) (newline))
-         (insert (format ";; [%s]\n%s" (current-time-string)
-                         (pp-to-string ,obsym)))
-         (if (get-buffer-window "*debug*")
-             (set-window-point (get-buffer-window "*debug*") (point))))
-       ,obsym)))
+(require 'highlight-symbol)
 
 (provide 'init-misc)
