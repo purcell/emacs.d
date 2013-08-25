@@ -5,7 +5,6 @@
   (dolist (hook '(css-mode-hook html-mode-hook sass-mode-hook))
     (add-hook hook 'rainbow-mode)))
 
-
 
 ;;; Embedding in html
 (require-package 'mmm-mode)
@@ -91,6 +90,12 @@ development mode, using:
 (after-load 'auto-complete
   (dolist (hook '(css-mode-hook sass-mode-hook scss-mode-hook))
     (add-hook hook 'ac-css-mode-setup)))
+
+
+;;; Use eldoc for syntax hints
+(require-package 'css-eldoc)
+(autoload 'turn-on-css-eldoc "css-eldoc")
+(add-hook 'css-mode-hook 'turn-on-css-eldoc)
 
 
 (provide 'init-css)
