@@ -112,7 +112,9 @@
                           (list evt))))))))
 
 
+(define-key evil-insert-state-map (kbd "M-a") 'move-beginning-of-line)
 (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
+(define-key evil-insert-state-map (kbd "M-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "C-k") 'kill-line)
 (global-set-key (kbd "M-k") 'keyboard-quit)
 (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
@@ -220,6 +222,7 @@ to replace the symbol under cursor"
   "vu" '(lambda () (interactive) (scroll-other-window-down nil))
   "jj" 'w3mext-search-js-api-mdn
   "xk" 'ido-kill-buffer
+  "xs" 'save-buffer
   "xz" 'suspend-frame
   "xvv" 'vc-next-action
   "xv=" 'vc-diff
