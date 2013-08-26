@@ -92,6 +92,9 @@
 (define-key evil-normal-state-map "%" 'my-evil-jump-item-enhanced-for-html)
 ;; }}
 
+
+(eval-after-load "evil" '(setq expand-region-contract-fast-key "z"))
+
 ;; @see http://stackoverflow.com/questions/10569165/how-to-map-jj-to-esc-in-emacs-evil-mode
 ;; @see http://zuttobenkyou.wordpress.com/2011/02/15/some-thoughts-on-emacs-and-vim/
 (define-key evil-insert-state-map "k" #'cofi/maybe-exit)
