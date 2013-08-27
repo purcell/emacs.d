@@ -156,7 +156,7 @@ to replace the symbol under cursor"
   ;; "cp" 'evilnc-comment-or-uncomment-paragraphs
   "ct" 'ctags-create-or-update-tags-table
   "cs" 'evilcvn-change-symbol-in-defun
-  "t" 'ido-goto-symbol ;; same as my vim hotkey
+  "tt" 'ido-goto-symbol ;; same as my vim hotkey
   "cg" 'helm-ls-git-ls
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "W" 'save-some-buffers
