@@ -8,10 +8,23 @@
 
 (yas-global-mode 1)
 
+(defun my-yas-expand ()
+  (interactive)
+  (let ((ext (car (cdr (split-string (buffer-file-name) "\\."))) )
+        (old-yas-flag yas-indent-line)
+        )
+    (when (or (string= ext "ftl") (string= ext "jsp"))
+      (setq yas-indent-line nil)
+        )
+    (yas-expand)
+    ;; restore the flag
+    (setq yas-indent-line old-yas-flag)
+    ))
+
 ;; default TAB key is occupied by auto-complete
-(global-set-key (kbd "C-c k") 'yas-expand)
+(global-set-key (kbd "C-c k") 'my-yas-expand)
 ;; default hotkey `C-c C-s` is still valid
-(global-set-key (kbd "C-c l") 'yas-insert-snippet)
+;; (global-set-key (kbd "C-c l") 'yas-insert-snippet)
 ;; give yas/dropdown-prompt in yas/prompt-functions a chance
 (require 'dropdown-list)
 (setq yas-prompt-functions '(yas-dropdown-prompt
