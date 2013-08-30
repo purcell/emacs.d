@@ -178,7 +178,8 @@ to replace the symbol under cursor"
   "mq" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
   "gg" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
   "qq" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
-  "rf" 'helm-recentf
+  "hr" 'helm-recentf
+  "sr" 'steve-ido-choose-from-recentf
   "s1" 'delete-other-windows
   "s2" 'split-window-below
   "s3" 'split-window-right
