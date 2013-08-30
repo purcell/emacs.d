@@ -17,6 +17,7 @@
         (w3m-goto-url . nil)
         (ido-find-file . nil)
         (ido-edit-input . nil)
+        (mml-attach-file . nil)
         (read-file-name . ni)
         (yas/compile-directory . ido)
         (yas-compile-directory . ido)
