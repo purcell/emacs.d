@@ -1,0 +1,14 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: freemarker function
+# key: function
+# group: freemarker
+# contributor: chen bin <chenbin.sh@gmail.com>
+# --
+<#function ${1:functionName} >
+    <#if ${2:flag}?? && ${2:$(yas/substr text "[^ ]*")}>
+        <#return "${3:true}">
+    <#else>
+        <#return "${4:false}">
+    </#if>
+</#function>
+$0
