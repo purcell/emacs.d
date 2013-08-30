@@ -204,6 +204,7 @@ to replace the symbol under cursor"
   "md" 'mc/mark-all-like-this-dwim
   "rw" 'rotate-windows
   "om" 'toggle-org-or-message-mode
+  "ops" 'my-org2blog-post-subtree
   "al" 'align-regexp
   "ww" 'save-buffer
   "w0" 'select-window-0
