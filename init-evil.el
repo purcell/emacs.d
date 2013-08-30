@@ -231,6 +231,7 @@ to replace the symbol under cursor"
   "xvv" 'vc-next-action
   "xv=" 'vc-diff
   "xvl" 'vc-print-log
+  "xvp" 'git-messenger:popup-message
   )
 ;; }}
 
