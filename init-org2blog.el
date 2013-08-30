@@ -38,7 +38,7 @@
                                   ((eq system-type 'darwin) "pbcopy")
                                   (t "xsel -ib")
                                   )))
-      (message url " => clipboard")
+      (message (concat url " => clipboard"))
       )))
 
 (provide 'init-org2blog)
