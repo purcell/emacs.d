@@ -143,6 +143,10 @@ to replace the symbol under cursor"
 (setq evil-leader/leader "," evil-leader/in-all-states t)
 (require 'evil-leader)
 (evil-leader/set-key
+  "as" 'ack-same
+  "ac" 'ack
+  "aa" 'ack-find-same-file
+  "af" 'ack-find-file
   "em" 'erase-message-buffer
   "eb" 'eval-buffer
   "ee" 'eval-expression
