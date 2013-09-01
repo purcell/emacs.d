@@ -169,10 +169,11 @@ to replace the symbol under cursor"
   "hh" 'highlight-symbol-at-point
   "hn" 'highlight-symbol-next
   "hp" 'highlight-symbol-prev
-  "hqr" 'highlight-symbol-query-replace
+  "hq" 'highlight-symbol-query-replace
   "bm" 'pomodoro-start ;; beat myself
   "." 'evil-ex
   ;; toggle overview,  @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
+  "oo" 'switch-window
   "ov" '(lambda () (interactive) (set-selective-display (if selective-display nil 1)))
   "or" 'open-readme-in-git-root-directory
   "mq" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
@@ -213,16 +214,21 @@ to replace the symbol under cursor"
   "ops" 'my-org2blog-post-subtree
   "al" 'align-regexp
   "ww" 'save-buffer
-  "w0" 'select-window-0
-  "w1" 'select-window-1
-  "w2" 'select-window-2
-  "w3" 'select-window-3
-  "w4" 'select-window-4
-  "w5" 'select-window-5
-  "w6" 'select-window-6
-  "w7" 'select-window-7
-  "w8" 'select-window-8
-  "w9" 'select-window-9
+  "bk" 'buf-move-up
+  "bj" 'buf-move-down
+  "bh" 'buf-move-left
+  "bl" 'buf-move-right
+  "0" 'select-window-0
+  "1" 'select-window-1
+  "2" 'select-window-2
+  "3" 'select-window-3
+  "4" 'select-window-4
+  "5" 'select-window-5
+  "6" 'select-window-6
+  "7" 'select-window-7
+  "8" 'select-window-8
+  "9" 'select-window-9
+  "xm" 'smex
   "xx" 'er/expand-region
   "xf" 'ido-find-file
   "xb" 'ido-switch-buffer
