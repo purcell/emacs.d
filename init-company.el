@@ -13,6 +13,10 @@
             )))
 
 (eval-after-load 'company
-                   '(add-to-list 'company-backends 'company-cmake))
+  '(progn
+     (add-to-list 'company-backends 'company-cmake)
+     ;; I donot like the downcase code in company-dabbrev
+     (setq company-backends (delete 'company-dabbrev company-backends))
+     ))
 
 (provide 'init-company)
