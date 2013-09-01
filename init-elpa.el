@@ -241,7 +241,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'iy-go-to-char)
 (require-package 'csharp-mode)
 (require-package 'cmake-mode)
-(require-package 'keyfreq)
 (require-package 'fuzzy)
 (require-package 'auto-complete) ;auto-complete is dependent on fuzzy
 (require-package 'auto-complete-clang)
