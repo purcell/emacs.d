@@ -28,6 +28,10 @@
             (tagedit-add-paredit-like-keybindings)
             (local-set-key (kbd "C-M-n") 'nxml-forward-element)
             (local-set-key (kbd "C-M-p") 'nxml-backward-element)
+            ;; @see http://stackoverflow.com/questions/18122400/emacs-xml-mode-indent-with-tabs
+            ;; btw, you can run toggle-indent-tab to insert tab only,
+            ;; which is NOT a perfect solution, because it will confuse nxml-mode
+            (setq nxml-child-indent 4)
             ))
 ;; useless when used with auto-pair
 (setq nxml-slash-auto-complete-flag nil)
