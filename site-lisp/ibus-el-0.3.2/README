@@ -1,0 +1,153 @@
+ibus.el README
+
+----------------------------------------------------------------------
+0. Introduction
+----------------------------------------------------------------------
+
+IBus is a new input method framework under active development which
+is designed to overcome the limitations of SCIM.
+
+IBus uses D-Bus protocol for communication between the ibus-daemon
+and clients (engines, panel, config tools). Since the components
+run in separate processes there is enhanced modularity and stability.
+Client processes can be loaded, started and stopped independently.
+The input method engines and clients can be written in any language
+with a dbus binding.
+
+ibus.el is a IBus client for GNU Emacs. This program allows users
+on-the-spot style input with IBus. The input statuses are individually
+kept for each buffer, and prefix-keys such as C-x and C-c can be used
+even if IBus is active. So you can input various languages fast and
+comfortably by using it.
+
+This program is *not* a part of IBus.
+
+----------------------------------------------------------------------
+1. License
+----------------------------------------------------------------------
+
+GNU General Public License version 3
+
+----------------------------------------------------------------------
+2. Requirements
+----------------------------------------------------------------------
+
+emacs (>= 22)
+python (>= 2.5)
+ibus (>= 1.2)
+python-xlib
+
+----------------------------------------------------------------------
+3. Installation
+----------------------------------------------------------------------
+
+i) Common settings
+
+Save this file as ibus.el and byte-compile in a directory that is
+listed in load-path, and also save ibus-el-agent somewhere in
+your system.
+
+Put the following in your .emacs file:
+
+ (require 'ibus)
+ (add-hook 'after-init-hook 'ibus-mode-on)
+
+If ibus.el and ibus-el-agent are saved in different directories,
+add a setting to the above as follows:
+
+ (setq ibus-agent-file-name "/PATH/TO/ibus-el-agent")
+
+To disable XIM in Emacs, put the following in ~/.Xresources:
+
+ Emacs*useXIM: false
+
+and restart X session or execute a shell command:
+
+ xrdb ~/.Xresources
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ii-a) Using ibus-anthy
+
+To toggle half-width eisu mode by C-j, add the following to .emacs:
+
+ (ibus-define-common-key ?\C-j t)
+
+To use kana input method with jp106 keyboard, you can enable kana
+onbiki key as follows:
+
+ (setq ibus-use-kana-onbiki-key t)
+
+If you use thumb shift input method, you have to specify the
+simultaneous pressing time as:
+
+ (setq ibus-ibus-simultaneous-pressing-time 0.1)
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ii-b) Using ibus-skk
+
+To enter kana mode by C-j, add the following to .emacs:
+
+ (ibus-define-common-key ?\C-j t)
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ii-c) Using ibus-mozc
+
+To toggle half-width eisu mode by C-j, add the following to .emacs:
+
+ (ibus-define-common-key ?\C-j t)
+
+By default, the suggestion window is shown under the start point of
+preedit text. To put the window at the cursor position as in the other
+applications, add the following to .emacs:
+
+ (setq ibus-prediction-window-position t)
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ii-d) Using ibus-chewing
+
+Please set input style to "in application window" in ibus-chewing's
+configuration dialog.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+iii) Example of settings in .emacs
+
+ (require 'ibus)
+ ;; Turn on ibus-mode automatically after loading .emacs
+ (add-hook 'after-init-hook 'ibus-mode-on)
+ ;; Use C-SPC for Set Mark command
+ (ibus-define-common-key ?\C-\s nil)
+ ;; Use C-/ for Undo command
+ (ibus-define-common-key ?\C-/ nil)
+ ;; Change cursor color depending on IBus status
+ (setq ibus-cursor-color '("red" "blue" "limegreen"))
+
+----------------------------------------------------------------------
+4. Web sites
+----------------------------------------------------------------------
+
+Home page (in Japanese):
+
+ http://www11.atwiki.jp/s-irie/pages/21.html
+
+Wiki:
+
+ http://www.emacswiki.org/emacs/IBusMode
+
+Development:
+
+ https://launchpad.net/ibus.el
+
+Bug tracker:
+
+ https://bugs.launchpad.net/ibus.el
+
+----------------------------------------------------------------------
+5. Author
+----------------------------------------------------------------------
+
+IRIE Shinsuke <irieshinsuke@yahoo.co.jp>

@@ -1,0 +1,53 @@
+ibus-el (0.3.2) oneiric; urgency=low
+
+  * New release
+
+ -- IRIE Shinsuke <irieshinsuke@yahoo.co.jp>  Wed, 29 Feb 2012 22:42:58 +0900
+
+ibus-el (0.3.1) oneiric; urgency=low
+
+  * New release
+  * Removed debian/README.Debian file (Debian #648596)
+
+ -- IRIE Shinsuke <irieshinsuke@yahoo.co.jp>  Tue, 14 Feb 2012 14:39:30 +0900
+
+ibus-el (0.3.0) oneiric; urgency=low
+
+  * New release
+  * debian/copyright: Rewrote in DEP5 format
+  * Added debian/watch file
+  * Bumped Standards-Version to 3.9.2
+
+ -- IRIE Shinsuke <irieshinsuke@yahoo.co.jp>  Sat, 24 Dec 2011 19:08:27 +0900
+
+ibus-el (0.2.1) lucid; urgency=low
+
+  * New release
+  * Changed installation directory of ibus.el to site-lisp/ibus/
+  * debian/rules: Leave symlink to ibus.el in the same directory as ibus.elc
+
+ -- IRIE Shinsuke <irieshinsuke@yahoo.co.jp>  Wed, 03 Nov 2010 18:40:45 +0900
+
+ibus-el (0.2.0) lucid; urgency=low
+
+  * New release
+
+ -- IRIE Shinsuke <irieshinsuke@yahoo.co.jp>  Thu, 19 Aug 2010 09:25:24 +0900
+
+ibus-el (0.1.1) lucid; urgency=low
+
+  * New release
+
+ -- IRIE Shinsuke <irieshinsuke@yahoo.co.jp>  Sat, 12 Jun 2010 02:00:29 +0900
+
+ibus-el (0.1.0) lucid; urgency=low
+
+  * Initial release
+
+ -- IRIE Shinsuke <irieshinsuke@yahoo.co.jp>  Sun, 30 May 2010 01:50:10 +0900
+
+ibus-el (0.0.2.60) lucid; urgency=low
+
+  * Test package
+
+ -- IRIE Shinsuke <irieshinsuke@yahoo.co.jp>  Thu, 27 May 2010 21:24:27 +0900

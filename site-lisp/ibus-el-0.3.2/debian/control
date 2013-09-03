@@ -1,0 +1,27 @@
+Source: ibus-el
+Section: lisp
+Priority: extra
+Maintainer: IRIE Shinsuke <irieshinsuke@yahoo.co.jp>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.9.2
+Homepage: http://www11.atwiki.jp/s-irie/pages/21.html
+Bugs: https://bugs.launchpad.net/ibus.el
+
+Package: ibus-el
+Architecture: all
+Depends: ${misc:Depends}, emacs23 | emacs22 | emacs-snapshot,
+	 python (>= 2.5), ibus (>= 1.2), python-xlib
+Suggests: ibus-gtk, ibus-qt4
+Description: IBus client for GNU Emacs
+ IBus is an Intelligent Input Bus. It is a new input framework
+ for Linux OS. It provides full featured and user friendly input
+ method user interface. It also may help developers to develop
+ input method easily.
+ .
+ ibus.el is a IBus client for GNU Emacs. This program allows
+ users on-the-spot style input with IBus. The input statuses are
+ individually kept for each buffer, and prefix-keys such as C-x
+ and C-c can be used even if IBus is active. So you can input
+ various languages fast and comfortably by using it.
+ .
+ This program is *not* a part of IBus.

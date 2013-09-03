@@ -81,6 +81,8 @@
 (require 'init-clojure)
 (require 'init-common-lisp)
 
+(require 'init-ibus)
+
 (when *spell-check-support-enabled*
   (require 'init-spelling))
 
