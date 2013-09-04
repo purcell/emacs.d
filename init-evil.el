@@ -84,7 +84,6 @@
         (deactivate-mark)
         )
     (progn
-      (message "hi")
       (evil-jump-item)
       )
     )

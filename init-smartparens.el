@@ -83,7 +83,14 @@
           (setq rlt t)
           )
         )
-      (sp-select-next-thing)
+      (condition-case nil
+          (sp-select-next-thing)
+        (error
+         (push-mark (point) t t)
+         (re-search-forward "/>" (line-end-position))
+         ))
+
+      ;; (sp-select-next-thing)
       (setq rbeg (region-beginning))
       (setq rend (region-end))
 
@@ -91,7 +98,13 @@
         ;; well, sp-select-next-thing is kind of wierd
         (re-search-forward "<[^!]")
         (backward-char 2)
-        (sp-select-next-thing)
+        (condition-case nil
+            (sp-select-next-thing)
+          (error
+           (push-mark (point) t t)
+           (re-search-forward "/>" (line-end-position))
+           ))
+        ;; (sp-select-next-thing)
         (setq rend (region-end))
         (setq NUM (1- NUM))
         )
