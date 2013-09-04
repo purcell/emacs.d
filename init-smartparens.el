@@ -96,7 +96,7 @@
         (setq NUM (1- NUM))
         )
       (push-mark rbeg t t)
-      (goto-char rend)
+      (goto-char (1- rend))
       )
     rlt
     )
