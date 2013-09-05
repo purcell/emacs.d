@@ -90,8 +90,8 @@
 
 (require-package 'yagist)
 (require-package 'github-browse-file)
-;(require-package 'bug-reference-github)
-;(add-hook 'prog-mode-hook 'bug-reference-prog-mode)
+(require-package 'bug-reference-github)
+(add-hook 'prog-mode-hook 'bug-reference-prog-mode)
 
 
 
