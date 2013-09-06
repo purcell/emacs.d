@@ -6,8 +6,10 @@
 (setq ido-auto-merge-work-directories-length 0)
 (setq ido-use-virtual-buffers t)
 
-(require-package 'ido-ubiquitous)
-(ido-ubiquitous-mode t)
+(when (eval-when-compile (>= emacs-major-version 24))
+ (require-package 'ido-ubiquitous)
+ (ido-ubiquitous-mode t)
+ (ido-ubiquitous-disable-in elp-instrument-package))
 
 (require-package 'smex)
 (global-set-key (kbd "M-x") 'smex)
