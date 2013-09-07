@@ -474,9 +474,17 @@ version control automatically"
 
 (require 'highlight-symbol)
 
+;; {{ ack
 (autoload 'ack-same "full-ack" nil t)
 (autoload 'ack "full-ack" nil t)
 (autoload 'ack-find-same-file "full-ack" nil t)
 (autoload 'ack-find-file "full-ack" nil t)
+;; }}
+
+;; {{ show email sent by `git send-email' in gnus
+(require 'gnus-article-treat-patch)
+(setq gnus-article-patch-conditions
+      '( "^@@ -[0-9]+,[0-9]+ \\+[0-9]+,[0-9]+ @@" ))
+;; }}
 
 (provide 'init-misc)
