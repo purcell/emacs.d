@@ -50,12 +50,6 @@
 ;; Org clock
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Save the running clock and all clock history when exiting Emacs, load it on startup
-;; @see http://orgmode.org/manual/Clocking-work-time.html
-(org-clock-persistence-insinuate)
-(setq org-clock-persist 'history)
-(setq org-clock-in-resume t)
-
 ;; Change task state to STARTED when clocking in
 (setq org-clock-in-switch-to-state "STARTED")
 ;; Save clock data and notes in the LOGBOOK drawer
