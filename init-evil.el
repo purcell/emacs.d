@@ -26,16 +26,8 @@
     "-" 'org-ctrl-c-minus ; change bullet style
     "<" 'org-metaleft ; out-dent
     ">" 'org-metaright ; indent
+    (kbd "TAB") 'org-cycle
     )
-
-(mapc (lambda (state)
-          (evil-declare-key state org-mode-map
-                            (kbd "TAB") 'org-cycle
-                            (kbd "M-L") 'org-shiftmetaright
-                            (kbd "M-H") 'org-shiftmetaleft
-                            (kbd "M-K") 'org-shiftmetaup
-                            (kbd "M-J") 'org-shiftmetadown))
-        '(normal insert))
 
 (loop for (mode . state) in
       '(
