@@ -8,8 +8,7 @@
 
 (when (eval-when-compile (>= emacs-major-version 24))
  (require-package 'ido-ubiquitous)
- (ido-ubiquitous-mode t)
- (ido-ubiquitous-disable-in elp-instrument-package))
+ (ido-ubiquitous-mode t))
 
 (require-package 'smex)
 (global-set-key (kbd "M-x") 'smex)
