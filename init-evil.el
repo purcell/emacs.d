@@ -173,10 +173,11 @@ to replace the symbol under cursor"
   "qq" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
   "hr" 'helm-recentf
   "sr" 'steve-ido-choose-from-recentf
-  "s1" 'delete-other-windows
-  "s2" 'split-window-below
-  "s3" 'split-window-right
-  "su" 'winner-undo
+  "x0" 'delete-window
+  "x1" 'delete-other-windows
+  "x2" 'split-window-below
+  "x3" 'split-window-right
+  "xu" 'winner-undo
   "sp" '(lambda (&optional NUM)
           (interactive "p")
           ;; move cursor
