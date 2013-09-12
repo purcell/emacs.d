@@ -70,6 +70,7 @@
   (if (or (eq major-mode 'html-mode)
           (eq major-mode 'xml-mode)
           (eq major-mode 'nxml-mode)
+          (eq major-mode 'web-mode)
           )
       (progn
         (if (not (my-sp-select-next-thing 1)) (exchange-point-and-mark))
@@ -184,6 +185,7 @@ to replace the symbol under cursor"
                   (eq major-mode 'nxml-mode)
                   )
               (my-sp-select-next-thing NUM)
+            (sp-select-next-thing)
               )
           )
   "ls" 'package-list-packages
