@@ -184,6 +184,7 @@ to replace the symbol under cursor"
           (if (or (eq major-mode 'html-mode)
                   (eq major-mode 'xml-mode)
                   (eq major-mode 'nxml-mode)
+                  (eq major-mode 'web-mode)
                   )
               (my-sp-select-next-thing NUM)
             (sp-select-next-thing)
