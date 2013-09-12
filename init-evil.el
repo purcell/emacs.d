@@ -203,6 +203,7 @@ to replace the symbol under cursor"
   ;; recommended in html
   "md" 'mc/mark-all-like-this-dwim
   "rw" 'rotate-windows
+  "oc" 'occur
   "om" 'toggle-org-or-message-mode
   "ops" 'my-org2blog-post-subtree
   "al" 'align-regexp
