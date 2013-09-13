@@ -127,7 +127,6 @@ ARCHIVE is the string name of the package archive.")
 
 (require-package 'all)
 (require-package 'xml-rpc)
-(require-package 'ido-ubiquitous)
 (require-package 'dash)
 ; color-theme 6.6.1 in elpa is buggy
 (when (< emacs-major-version 24)
