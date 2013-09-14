@@ -172,12 +172,12 @@ to replace the symbol under cursor"
   "gg" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
   "qq" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
   "hr" 'helm-recentf
-  "sr" 'steve-ido-choose-from-recentf
-  "x0" 'delete-window
-  "x1" 'delete-other-windows
-  "x2" 'split-window-below
-  "x3" 'split-window-right
-  "xu" 'winner-undo
+  "s0" 'delete-window
+  "ss" 'toggle-full-window
+  "s1" 'delete-other-windows
+  "s2" 'split-window-below
+  "s3" 'split-window-right
+  "su" 'winner-undo
   "sp" '(lambda (&optional NUM)
           (interactive "p")
           ;; move cursor
