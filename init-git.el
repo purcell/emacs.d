@@ -59,6 +59,7 @@
 
 ;;; git-svn support
 
+(require-package 'magit-svn)
 (after-load 'magit-key-mode
   (require 'magit-svn))
 
