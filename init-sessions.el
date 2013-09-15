@@ -54,7 +54,9 @@
                 tags-file-name
                 register-alist)))
 
-(when (eval-when-compile (>= emacs-major-version 24))
+(when (eval-when-compile (and (>= emacs-major-version 24)
+                              (string< emacs-version "24.3.50")
+                              ))
   (unless (boundp 'desktop-restore-frames)
     (require-package 'frame-restore)
     (frame-restore)))
