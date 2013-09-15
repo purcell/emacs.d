@@ -128,7 +128,21 @@
 (message "init completed in %.2fms"
          (sanityinc/time-subtract-millis (current-time) before-init-time))
 
+(require 'rcodetools)
+
+(define-key ruby-mode-map (kbd "C-c C-c") 'xmp)
+;;(define-key ruby-mode-map (kbd "C-c C-c") 'rct-complete-symbol)
+
+(setq visible-bell nil)
+(setq ring-bell-function `(lambda ()
+                            (set-face-background 'default "black")))
+
+
 ;; Local Variables:
 ;; coding: utf-8
 ;; no-byte-compile: t
 ;; End:
+
+
+
+
