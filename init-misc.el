@@ -176,6 +176,17 @@
                               (t "xsel -ib")
                               ))))
 
+(defun copy-filename-of-current-buffer ()
+  "copy file name (NOT full path) into the yank ring and OS clipboard"
+  (interactive)
+  (let ((filename))
+    (when buffer-file-name
+      (setq filename (file-name-nondirectory buffer-file-name))
+      (kill-new filename)
+      (copy-yank-str filename)
+      (message "filename %s => clipboard & yank ring" filename)
+      )))
+
 (defun copy-full-path-of-current-buffer ()
   "copy full path into the yank ring and OS clipboard"
   (interactive)

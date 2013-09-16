@@ -143,6 +143,8 @@ to replace the symbol under cursor"
   "eb" 'eval-buffer
   "ee" 'eval-expression
   "cx" 'copy-to-x-clipboard
+  "cfn" 'copy-filename-of-current-buffer
+  "cfp" 'copy-full-path-of-current-buffer
   "pp" 'evil-scroll-page-up
   "nn" 'evil-scroll-page-down
   "ff" 'toggle-full-window ;; I use WIN+F in i3
