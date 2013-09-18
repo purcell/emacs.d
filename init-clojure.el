@@ -43,7 +43,7 @@
   (add-hook 'cider-mode-hook 'set-auto-complete-as-completion-at-point-function)
   (add-hook 'cider-mode-hook 'nrepl-turn-on-eldoc-mode)
   (add-hook 'cider-repl-mode-hook 'subword-mode)
-  (add-hook 'cider-repl-mode-hook 'paredit-mode)
+  (add-hook 'cider-repl-mode-hook 'sanityinc/smartparens-lisp-setup)
   (define-key cider-mode-map (kbd "C-c C-d") 'ac-nrepl-popup-doc)
 
   ;; nrepl isn't based on comint

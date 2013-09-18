@@ -35,9 +35,6 @@
   (setq show-trailing-whitespace nil))
 
 (after-load 'slime-repl
-  ;; Stop SLIME's REPL from grabbing DEL, which is annoying when backspacing over a '('
-  (define-key slime-repl-mode-map (read-kbd-macro paredit-backward-delete-key) nil)
-
   ;; Bind TAB to `indent-for-tab-command', as in regular Slime buffers.
   (define-key slime-repl-mode-map (kbd "TAB") 'indent-for-tab-command)
 
