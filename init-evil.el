@@ -145,6 +145,7 @@ to replace the symbol under cursor"
   "cx" 'copy-to-x-clipboard
   "cfn" 'copy-filename-of-current-buffer
   "cfp" 'copy-full-path-of-current-buffer
+  "dj" 'dired-jump ;; open the dired from current file
   "pp" 'evil-scroll-page-up
   "nn" 'evil-scroll-page-down
   "ff" 'toggle-full-window ;; I use WIN+F in i3
