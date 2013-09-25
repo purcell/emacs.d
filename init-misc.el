@@ -507,4 +507,20 @@ version control automatically"
     (winner-undo)
     ))
 
+;; {{ copy the file-name/full-path in dired buffer into clipboard
+;; `w` => copy file name
+;; `C-u 0 w` => copy full path
+(defadvice dired-copy-filename-as-kill (after dired-filename-to-clipboard activate)
+  (with-temp-buffer
+    (insert (current-kill 0))
+    (shell-command-on-region (point-min) (point-max)
+                             (cond
+                              ((eq system-type 'cygwin) "putclip")
+                              ((eq system-type 'darwin) "pbcopy")
+                              (t "xsel -ib")
+                              )))
+  (message "%s => clipboard" (current-kill 0))
+  )
+
+;; }}
 (provide 'init-misc)
