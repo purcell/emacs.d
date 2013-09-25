@@ -45,6 +45,9 @@
   (add-hook hook
             (lambda () (setq show-trailing-whitespace nil))))
 
+
+(require-package 'whitespace-cleanup-mode)
+
 (transient-mark-mode t)
 
 (global-set-key (kbd "RET") 'newline-and-indent)
