@@ -15,6 +15,8 @@
   (require-package 'ghci-completion)
   (add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion))
 
+(eval-after-load 'page-break-lines
+  '(push 'haskell-mode page-break-lines-modes))
 
 ;; Make compilation-mode understand "at blah.hs:11:34-50" lines output by GHC
 (after-load 'compile
