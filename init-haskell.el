@@ -9,7 +9,8 @@
 (add-hook 'haskell-mode-hook (lambda () (subword-mode +1)))
 
 (after-load 'haskell-mode
-  (define-key haskell-mode-map (kbd "C-c h") 'hoogle))
+  (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
+  (define-key haskell-mode-map (kbd "C-o") 'open-line))
 
 (when (eval-when-compile (>= emacs-major-version 24))
   (require-package 'ghci-completion)
