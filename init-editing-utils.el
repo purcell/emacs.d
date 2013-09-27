@@ -47,6 +47,7 @@
 
 
 (require-package 'whitespace-cleanup-mode)
+(global-whitespace-cleanup-mode t)
 
 (transient-mark-mode t)
 
