@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: $('#myform).validate({rules:...})
+# key: validate
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+$('${1:#myform}').validate({
+  rules: {
+    ${2:itemName}: {
+      required: true
+    },
+    messages: {
+      ${2:$(yas/substr text "[^ ]*")}: "${3:itemMessage}"
+    }
+  },
+  submitHandler: function(form) {
+    // $(form).ajaxSubmit();
+    form.submit();
+  },
+  invalidHandler: function(event, validator) {
+    // 'this' refers to the form
+    var errors = validator.numberOfInvalids();
+    if (errors) {
+      $0
+    } else {
+    }
+  }
+});

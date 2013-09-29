@@ -4,6 +4,6 @@
 # group: jquery
 # contributor: David Miller <david@deadpansincerity.com>
 # --
-click( function(){
+$('${1:#myid}').click( function(){
     $0
 });

@@ -1,0 +1,13 @@
+# contributor: Jimmy Wu <frozenthrone88@gmail.com>
+# name :<form><fieldset><p><label><input></p></fieldset></form>
+# key: form
+# --
+<form method="${1:post}" id="$2" action="$3">
+<fieldset><legend>${4:formTitle}</legend>
+<p>
+<label for="${5:ctrlid}">${5:labelText}</label>
+<input id="${5:$(yas/substr text "[^ ]*")}" name="${5:$(yas/substr text "[^ ]*")}" type="text" />
+</p>
+  $0
+</fieldset>
+</form>
