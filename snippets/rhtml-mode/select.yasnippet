@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# key: select
+# contributor: Translated from TextMate Snippet
+# name: Select Box
+# --
+<select name="${1:some_name}" id="${1:$(yas/substr text "[^ ]*")}">
+<option value="${2:value1}">${2:$(yas/substr text "[^ ]*")}</option>
+<option value="${3:value2}">${3:$(yas/substr text "[^ ]*")}</option>
+$0
+</select>
