@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: func
+# --
+function ${1:func_name}(${2:var})
+    $0
+end

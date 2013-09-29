@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: for i=1, n ... end
+# --
+for i=${1:1}, ${2:n} do
+    $0
+end

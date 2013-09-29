@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: for i,v in pairs() ... end
+# --
+for ${1:i}, ${2:val} in ${3:i}pairs($4) do
+    $0
+end
