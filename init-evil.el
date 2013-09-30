@@ -1,7 +1,10 @@
 (evil-mode 1)
 
-; @see https://github.com/timcharper/evil-surround
+;; {{@see https://github.com/timcharper/evil-surround
+(require 'surround)
 (global-surround-mode 1)
+;; }}
+
 (defun toggle-org-or-message-mode ()
   (interactive)
   (if (eq major-mode 'message-mode)

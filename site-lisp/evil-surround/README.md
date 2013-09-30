@@ -61,6 +61,19 @@ or to add a pair that surrounds with two ` if you enter ~:
     (setq-default surround-pairs-alist (cons '(?~ ("``" . "``"))
                                              surround-pairs-alist))
 
+## Add new supported operators ##
+You can add support for new operators by adding them to `surround-operator-alist`.
+For more information do: `C-h v surround-operator-alist`.
+
+By default, surround works with `evil-change` and `evil-delete`.
+To add support for the evil-paredit package, you need to add `evil-paredit-change`
+and `evil-paredit-delete` to `surround-operator-alist`, like so:
+
+    (add-to-list 'surround-operator-alist
+                 '(evil-paredit-change . change))
+    (add-to-list 'surround-operator-alist
+                 '(evil-paredit-delete . delete))
+
 ## Usage examples ##
 
 Here are some usage examples (taken from
@@ -114,3 +127,15 @@ visual mode) followed by `S<p class="important">`.
     <p class="important">
       <em>Hello</em> world!
     </p>
+
+Suppose you want to call a function on your visual selection or a text
+object. You can simply press `f` instead of the aforementioned keys
+and are then prompted for a functionname in the minibuffer, like with
+the tags. So with:
+
+	"Hello world!"
+
+... after selecting the string, then pressing `sf`, entering `print`
+and pressing return you would get
+
+    print("Hello world!")

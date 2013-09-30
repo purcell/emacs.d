@@ -54,7 +54,8 @@
     (?B . ("{" . "}"))
     (?> . ("<" . ">"))
     (?t . surround-read-tag)
-    (?< . surround-read-tag))
+    (?< . surround-read-tag)
+    (?f . surround-function))
   "Association list of surround items.
 Each item is of the form (TRIGGER . (LEFT . RIGHT)), all strings.
 Alternatively, a function can be put in place of (LEFT . RIGHT).
@@ -64,11 +65,26 @@ This only affects inserting pairs, not deleting or changing them."
                        (symbol :tag "Surround pair"))))
 (make-variable-buffer-local 'surround-pairs-alist)
 
+(defcustom surround-operator-alist
+  '((evil-change . change)
+    (evil-delete . delete))
+  "Association list of operators to their fundamental operation.
+Each item is of the form (OPERATOR . OPERATION)."
+  :group 'surround
+  :type '(repeat (cons (symbol :tag "Operator")
+                       (symbol :tag "Operation"))))
+
 (defvar surround-read-tag-map
   (let ((map (copy-keymap minibuffer-local-map)))
     (define-key map ">" 'exit-minibuffer)
     map)
   "Keymap used by `surround-read-tag'.")
+
+(defun surround-function ()
+  "Read a functionname from the minibuffer and wrap selection in function call"
+  (let ((fname (read-from-minibuffer "" "" )))
+    (cons (format "%s(" (or fname ""))
+          ")")))
 
 (defun surround-read-tag ()
   "Read a XML tag from the minibuffer."
@@ -101,6 +117,7 @@ See also `surround-inner-overlay'."
     (when (functionp outer)
       (setq outer (funcall outer))
       (when (evil-range-p outer)
+        (surround-trim-whitespace-from-range outer "[ \t]")
         (setq outer (make-overlay (evil-range-beginning outer)
                                   (evil-range-end outer)
                                   nil nil t))))))
@@ -131,6 +148,7 @@ See also `surround-outer-overlay'."
                                   (evil-range-end inner)
                                   nil nil t))))))
 
+;;;###autoload
 (defun surround-delete (char &optional outer inner)
   "Delete the surrounding delimiters represented by CHAR.
 Alternatively, the text to delete can be represented with
@@ -154,6 +172,7 @@ between these overlays is what is deleted."
         (when outer (delete-overlay outer))
         (when inner (delete-overlay inner)))))))
 
+;;;###autoload
 (defun surround-change (char &optional outer inner)
   "Change the surrounding delimiters represented by CHAR.
 Alternatively, the text to delete can be represented with the
@@ -187,8 +206,7 @@ Otherwise call `surround-delete'."
      ;; abort the calling operator
      (setq evil-inhibit-operator t)
      (list (assoc-default evil-this-operator
-                          '((evil-change . change)
-                            (evil-delete . delete))))))
+                          surround-operator-alist))))
   (cond
    ((eq operation 'change)
     (call-interactively 'surround-change))
@@ -250,19 +268,23 @@ Becomes this:
   (interactive "<R>c")
   (surround-region beg end type char t))
 
+;;;###autoload
 (define-minor-mode surround-mode
   "Buffer-local minor mode to emulate surround.vim."
   :keymap (make-sparse-keymap)
   (evil-normalize-keymaps))
 
+;;;###autoload
 (defun turn-on-surround-mode ()
   "Enable surround-mode in the current buffer."
   (surround-mode 1))
 
+;;;###autoload
 (defun turn-off-surround-mode ()
   "Disable surround-mode in the current buffer."
   (surround-mode -1))
 
+;;;###autoload
 (define-globalized-minor-mode global-surround-mode
   surround-mode turn-on-surround-mode
   "Global minor mode to emulate surround.vim.")
