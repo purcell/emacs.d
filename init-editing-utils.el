@@ -53,6 +53,9 @@
 
 (global-set-key (kbd "RET") 'newline-and-indent)
 
+(after-load 'subword
+  (diminish 'subword-mode))
+
 
 (require-package 'undo-tree)
 (global-undo-tree-mode)
