@@ -16,11 +16,10 @@
     "gl" 'outline-next-visible-heading
     "H" 'org-beginning-of-line ; smarter behaviour on headlines etc.
     "L" 'org-end-of-line ; smarter behaviour on headlines etc.
-    ",c" 'org-cycle
-    ",e" 'org-export-dispatch
-    ",n" 'outline-next-visible-heading
-    ",p" 'outline-previous-visible-heading
-    ",t" 'org-set-tags-command
+    ",oe" 'org-export-dispatch
+    ",on" 'outline-next-visible-heading
+    ",op" 'outline-previous-visible-heading
+    ",ot" 'org-set-tags-command
     "$" 'org-end-of-line ; smarter behaviour on headlines etc.
     "^" 'org-beginning-of-line ; ditto
     "-" 'org-ctrl-c-minus ; change bullet style
@@ -181,6 +180,11 @@ to replace the symbol under cursor"
   "s2" 'split-window-below
   "s3" 'split-window-right
   "su" 'winner-undo
+  "x0" 'delete-window
+  "x1" 'delete-other-windows
+  "x2" 'split-window-below
+  "x3" 'split-window-right
+  "xu" 'winner-undo
   "sp" '(lambda (&optional NUM)
           (interactive "p")
           ;; move cursor
