@@ -21,7 +21,7 @@
          :face mmm-code-submode-face
          :front "style=\""
          :back "\"")))
-     (dolist (mode (list 'html-mode 'nxml-mode))
+     (dolist (mode (list 'html-mode 'web-mode))
        (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css))))
 
 

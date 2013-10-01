@@ -22,7 +22,7 @@
                                 (mode . c-mode)
                                 (mode . java-mode)
                                 (mode . idl-mode)
-                                (mode . nxml-mode)
+                                (mode . web-mode)
                                 (mode . lisp-mode)
                                 (mode . js2-mode)
                                 (mode . c++-mode)

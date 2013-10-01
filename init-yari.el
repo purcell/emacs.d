@@ -3,7 +3,7 @@
 (defun ri-bind-key ()
   (local-set-key "\C-c;y" 'yari-anything))
 (add-hook 'ruby-mode-hook 'ri-bind-key)
-(add-hook 'nxml-mode-hook 'ri-bind-key)
+(add-hook 'web-mode-hook 'ri-bind-key)
 (add-hook 'html-mode-hook 'ri-bind-key)
 (add-hook 'inf-ruby-mode-hook 'ri-bind-key)
 

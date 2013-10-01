@@ -2,7 +2,7 @@
   (smartparens-global-mode t)
 
   (setq sp-navigate-consider-sgml-tags '(html-mode
-                                         nxml-mode
+                                         web-mode
                                          xml-mode))
   ;; highlights matching pairs
   (show-smartparens-global-mode t)
@@ -20,7 +20,7 @@
     (sp-local-tag "i" "1d5f8e69396c521f645375107197ea4dfbc7b792quot;<" "1d5f8e69396c521f645375107197ea4dfbc7b792quot;>"))
 
 ;;; html-mode
-  (sp-with-modes '(html-mode sgml-mode nxml-mode)
+  (sp-with-modes '(html-mode sgml-mode web-mode )
     (sp-local-pair "<" ">"))
 
 ;;; lisp modes

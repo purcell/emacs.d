@@ -42,10 +42,10 @@
 ;;----------------------------------------------------------------------------
 (defun sanityinc/ensure-mmm-erb-loaded ()
   (require 'mmm-erb))
-(dolist (hook (list 'html-mode-hook 'nxml-mode-hook 'yaml-mode-hook))
+(dolist (hook (list 'html-mode-hook 'web-mode-hook 'yaml-mode-hook))
   (add-hook hook 'sanityinc/ensure-mmm-erb-loaded))
 
-(dolist (mode (list 'html-mode 'html-erb-mode 'nxml-mode))
+(dolist (mode (list 'html-mode 'html-erb-mode 'web-mode))
   (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-js)
   (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css)
   (mmm-add-mode-ext-class mode "\\.erb\\'" 'erb))

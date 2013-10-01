@@ -56,7 +56,7 @@ You need to install some command line tools to use some features in Emacs. All t
 * install by OS way
 
 ### tidy (html tidy program)
-* needed by `nxml-mode`
+* needed by `web-mode`
 * install by OS way
 
 ### csslint
