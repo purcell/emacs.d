@@ -19,10 +19,6 @@
     "gl" 'outline-next-visible-heading
     "H" 'org-beginning-of-line ; smarter behaviour on headlines etc.
     "L" 'org-end-of-line ; smarter behaviour on headlines etc.
-    ",oe" 'org-export-dispatch
-    ",on" 'outline-next-visible-heading
-    ",op" 'outline-previous-visible-heading
-    ",ot" 'org-set-tags-command
     "$" 'org-end-of-line ; smarter behaviour on headlines etc.
     "^" 'org-beginning-of-line ; ditto
     "-" 'org-ctrl-c-minus ; change bullet style
