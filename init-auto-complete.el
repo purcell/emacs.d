@@ -21,7 +21,9 @@
     (auto-complete)))
 
 (defun set-auto-complete-as-completion-at-point-function ()
-  (add-to-list 'completion-at-point-functions 'sanityinc/auto-complete-at-point))
+  (setq completion-at-point-functions
+        (cons 'sanityinc/auto-complete-at-point
+              (remove 'sanityinc/auto-complete-at-point completion-at-point-functions))))
 
 (add-hook 'auto-complete-mode-hook 'set-auto-complete-as-completion-at-point-function)
 
