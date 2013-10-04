@@ -1,16 +1,16 @@
 # Warning
-* I'm using [Vim](http://www.vim.org) key binding. Please see "Tips" section for restoring the Emacs key binding.
+* I'm using [Vim](http://www.vim.org) key binding. Please see "Tips" section if you prefer restoring the Emacs key binding.
 * People in Mainland China may need [goagent](http://code.google.com/p/goagent/) to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server.
 * C++/C developers, you need tell Emacs where to search headers to make auto-complete work. See section `clang` for details.
 
 
 # General
 
-I based my emacs.d on [Steve Purcell's emacs.d](http://github.com/purcell/emacs.d).
+I base my emacs.d on [Steve Purcell's emacs.d](http://github.com/purcell/emacs.d).
 
-My first priority is stable. So I use few cutting-edge packages from [melpa](http://melpa.milkbox.net).
+My first priority is *stable*. So I use fewer cutting-edge packages from [melpa](http://melpa.milkbox.net) than average geeks.
 
-To install, Download [this zip file](https://github.com/redguardtoo/emacs.d/archive/master.zip) and extract its content into ~/.emacs.d. Ensure that the 'init.el' contained in this repo ends up at ~/.emacs.d/init.el and old ~/.emacs does NOT exist.
+To install, Download [this zip file](https://github.com/redguardtoo/emacs.d/archive/master.zip) and extract its content into ~/.emacs.d. Ensure that the 'init.el' contained in this repo ends up at ~/.emacs.d/init.el and old *~/.emacs does NOT exist*.
 
 Thanks to Purcell, this emacs.d has [fancy features](http://github.com/purcell/emacs.d) for most script languages like Clojure, Python, Lisp, PHP, Javascript, Ruby etc. Purcell is basically a web geek who use all the modern web technologies.
 
@@ -18,7 +18,7 @@ I will support all the languages a desktop developer may use, like C++, Java, Lu
 
 ## Features
 
-* git or subversion is NOT needed. I removed all the 'git submodule update' stuff.
+* git or subversion is *NOT** needed. I removed all the 'git submodule update' stuff.
 * enhance major/minor modes for C/C++ developers
 * optimized for cross-platform C++ development with CMake and wxWidgets
 * emacs-w3m (console browser)
@@ -49,7 +49,7 @@ You need to install some command line tools to use some features in Emacs. All t
 ### hunspel
 * alternative of `aspell`
 * install by OS way
-* I force the dictionary to "en_US" in init-spelling.el
+* I force the dictionary to "en_US" in init-spelling.el. You can modify init-spelling.el.
 
 ### sbcl (lisp environment)
 * needed by lisp `slime`
@@ -92,7 +92,7 @@ You need to install some command line tools to use some features in Emacs. All t
 * On cygwin you need install `setuptool` in order to install `pip`.
 
 ### libreoffice
-* Its binary `soffice` is actually needed
+* Its binary `soffice` is needed
 * needed when converting odt file into doc (Microsoft Word 97)
 * conversion will happen automatically when exporting org-mode to odt
 * The conversion command is stored in variable `org-export-odt-convert-processes`
@@ -122,12 +122,12 @@ You need manually `M-x list-packages` and install it.
   ```sh
   alias e=emacs -q --no-splash --eval="(setq light-weight-emacs t)" -l "$HOME/.emacs.d/init.el"
   ```
-* If you use `gnus` for email thing (Gmail, for example). Most set up is already except privacy stuff. Please check `init-gnus.el` for my set up. There is also [a tutorial at my blog](http://blog.binchen.org/?p=403).
+* If you use `gnus` for email thing (Gmail, for example). Check ~/.emacs.d/init-gnus.el which includes my most settings except my private stuff. There is also [a tutorial at my blog](http://blog.binchen.org/?p=403) on how to use gnus effectively.
 
 * To toggle Chinese input method (eim, for example), press `C-\` or run command `M-x toggle-input-method`.
 
-## My personal custom.el
-It's publicized at http://blog.binchen.org/?p=430 .
+## My personal custom.el (OPTIONAL)
+It's publicized at http://blog.binchen.org/?p=430 which containing my personal stuff like color-theme and time locale.
 
 <hr>
 
