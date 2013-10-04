@@ -18,20 +18,20 @@ I will support all the languages a desktop developer may use, like C++, Java, Lu
 
 ## Features
 
-* git or subversion is *NOT** needed. I removed all the 'git submodule update' stuff.
-* enhance major/minor modes for C/C++ developers
+* Real time HTML syntax checker enabled (you need install tidy)
+* git or subversion is *NOT* needed. I removed all the 'git submodule update' stuff.
 * optimized for cross-platform C++ development with CMake and wxWidgets
 * emacs-w3m (console browser)
 * eim (Chinese pinyin input method)
-* org2blog (write wordpress blog with org-mode)
-* make the configuration work under Linux and Cygwin
-* The configuration will work with Emacs version >=24
+* org2blog (post wordpress blog with org-mode)
+* make the configuration work on *ALL* platforms (Linux/Cgywin/Mac). BTW, when I say Linux, I mean all the popular distributions (Debian, Ubuntu, Mint, Centos, ArchLinux, Gentoo ...).
+* The configuration will work with Emacs version >=24 but still usable with Emacs version 23.
 * evil-mode and its plugins (Vim key binding)
-* yasnippet and my customized snippets
+* yasnippet and my customized snippets (insert code snippet by typing less keys)
 
 ## Third party command line tools Emacs uses
 
-You need to install some command line tools to use some features in Emacs. All those command line tools are *optional*. Your Emacs will not crash if some tools are not installed.
+Some command line tools may be needed.  They are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 
 ### w3m (web browser in console) 
 * needed by `w3m` (w3m is emacs package name written in elisp)
@@ -56,7 +56,7 @@ You need to install some command line tools to use some features in Emacs. All t
 * install by OS way
 
 ### tidy (html tidy program)
-* needed by `web-mode`
+* needed by `web-mode` for real time HTML syntax check
 * install by OS way
 
 ### csslint
