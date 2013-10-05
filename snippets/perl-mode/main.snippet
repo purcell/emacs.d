@@ -1,0 +1,28 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: main
+# key: main
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+# @see http://www.perlmonks.org/?node_id=88222
+use Getopt::Std;
+
+my %args;
+getopts('h',\%args);
+
+sub usage() {
+print <<END
+Usage: ${1:program} [options]
+END
+}
+
+## main
+if( $args{h} ) {
+  usage();
+  exit(1);
+}
+
+print "hello world\n";
