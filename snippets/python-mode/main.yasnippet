@@ -1,0 +1,38 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: main
+# key: main
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# expand-env: ((yas/indent-line 'fixed) (yas/wrap-around-region 'nil))
+# --
+#!/usr/bin/python
+
+import getopt, sys
+def usage():
+    print '''
+NAME
+    ${1:description}
+Usage
+    python ${2:program.py} [options]
+'''[1:-1]
+
+if __name__ == '__main__':
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hf:", ["help", "file="])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print str(err) # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+
+    file=""
+
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif o in ("-f", "--file"):
+            file= a
+        else:
+            assert False, "unhandled option"
+
+    print "hello world";
