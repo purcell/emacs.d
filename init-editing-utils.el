@@ -88,19 +88,6 @@
 
 
 ;;----------------------------------------------------------------------------
-;; Fix per-window memory of buffer point positions
-;;----------------------------------------------------------------------------
-(require-package 'pointback)
-(global-pointback-mode)
-(after-load 'skeleton
-  (defadvice skeleton-insert (before disable-pointback activate)
-    "Disable pointback when using skeleton functions like `sgml-tag'."
-    (when pointback-mode
-      (message "Disabling pointback.")
-      (pointback-mode -1))))
-
-
-;;----------------------------------------------------------------------------
 ;; Don't disable case-change functions
 ;;----------------------------------------------------------------------------
 (put 'upcase-region 'disabled nil)
