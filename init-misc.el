@@ -523,4 +523,37 @@ version control automatically"
   )
 
 ;; }}
+
+(defun insert-file-link-from-clipboard ()
+  (interactive)
+  (let (str)
+    (with-temp-buffer
+      (shell-command
+       (cond
+        (*cygwin* "getclip")
+        (*is-a-mac* "pbpaste")
+        (t "xsel -ob")
+        )
+       1)
+      (setq str (buffer-string))
+      )
+
+    (message "str=%s" str)
+
+    ;; convert to relative path (relative to current buffer) if possible
+    (let ((m (string-match (file-name-directory (buffer-file-name)) str) ))
+      (message "prefix=%s" (file-name-directory (buffer-file-name)))
+      (message "m=%s" m)
+
+      (when m
+        (if (= 0 m )
+            (setq str (substring str (length (file-name-directory (buffer-file-name)))))
+          )
+        (message "str=%s" str)
+
+        )
+        (insert (format "[[file:%s]]" str))
+      )
+    ))
+
 (provide 'init-misc)
