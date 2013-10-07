@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: (function(){ css+js+gif })();
+# key: lambda
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+(function(){
+  //set up css style
+  (function(){
+    var style=''
+      + '${1:div {display:block; }}\n'
+      ;
+    var styleElement = document.createElement("style");
+    styleElement.type = "text/css";
+    if (styleElement.styleSheet) {
+      styleElement.styleSheet.cssText = style;
+    } else {
+      styleElement.appendChild(document.createTextNode(style));
+    }
+    document.getElementsByTagName("head")[0].appendChild(styleElement);
+  })();
+
+  //jquery plugin code placed here
+  (function($) {
+    $0
+  })(jQuery);
+
+  //place your code below this line
+  console.log('hello world');
+})();
