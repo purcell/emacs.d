@@ -525,6 +525,8 @@ version control automatically"
 ;; }}
 
 (defun insert-file-link-from-clipboard ()
+  "Make sure the full path of file exist in clipboard. This command will convert
+The full path into relative path insert it as a local file link in org-mode"
   (interactive)
   (let (str)
     (with-temp-buffer
@@ -538,22 +540,37 @@ version control automatically"
       (setq str (buffer-string))
       )
 
-    (message "str=%s" str)
-
     ;; convert to relative path (relative to current buffer) if possible
     (let ((m (string-match (file-name-directory (buffer-file-name)) str) ))
-      (message "prefix=%s" (file-name-directory (buffer-file-name)))
-      (message "m=%s" m)
-
       (when m
         (if (= 0 m )
             (setq str (substring str (length (file-name-directory (buffer-file-name)))))
           )
-        (message "str=%s" str)
-
         )
         (insert (format "[[file:%s]]" str))
       )
+    ))
+
+(defun convert-image-to-css-code ()
+  "convert a image into css code (base64 encode)"
+  (interactive)
+  (let (str
+        rlt
+        (file (read-file-name "The path of image:"))
+        )
+    (with-temp-buffer
+      (shell-command (concat "cat " file "|base64") 1)
+      (setq str (replace-regexp-in-string "\n" "" (buffer-string)))
+      )
+    (setq rlt (concat "background:url(data:image/"
+                      (car (last (split-string file "\\.")))
+                      ";base64,"
+                      str
+                      ") no-repeat 0 0;}"
+                      ))
+    (kill-new rlt)
+    (copy-yank-str rlt)
+    (message "css code => clipboard & yank ring")
     ))
 
 (provide 'init-misc)
