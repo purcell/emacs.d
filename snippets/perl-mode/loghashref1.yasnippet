@@ -1,0 +1,6 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: print $hashref { key => [e1,e2] }
+# key: lhash
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+print "hash \\\$${1:h}:\n"; print "\$_=>[".join(" ",@{\$${1:$(yas/substr text "[^ ]*")}->{\$_}})."]\n" for (keys %\$${1:$(yas/substr text "[^ ]*")});

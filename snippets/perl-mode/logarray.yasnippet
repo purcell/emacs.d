@@ -1,0 +1,6 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: print @array
+# key: larray
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+print "array @${1:arr}:\n"; print "(".join(" ",@${1:$(yas/substr text "[^ ]*")}).")\n";
