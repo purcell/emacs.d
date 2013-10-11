@@ -22,4 +22,13 @@
       smtpmail-smtp-service 587
       smtpmail-local-domain "homepc")
 
+;; @see http://www.fnal.gov/docs/products/emacs/emacs/gnus_3.html#SEC60
+;; QUOTED: If you are using an unthreaded display for some strange reason ...
+;; Yes, when I search email in IMAP folder, emails are not threaded
+(setq gnus-article-sort-functions
+      '(
+        (not gnus-article-sort-by-date)
+        (not gnus-article-sort-by-number)
+        ))
+
 (provide 'init-gnus)
