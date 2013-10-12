@@ -1,0 +1,40 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: $('#myform).validate({rules:...})
+# key: validate
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+// @see http://jqueryvalidation.org/validate/
+$('${1:#myform}').validate({
+  rules: {
+    ${2:itemName}: {
+      required: true
+    }
+  },
+  messages: {
+    ${2:$(yas/substr text "[^ ]*")}: "${3:itemMessage}"
+  },
+  // OPTIONAL
+  errorPlacement: function(label, element) {
+    // special control
+    if(element[0].id==='${4:item1}' ){
+      label.insertAfter(element.parent()[0]);
+    } else {
+      // default behaviour
+      label.insertAfter(element[0]);
+    }
+  },
+  // OPTIONAL
+  submitHandler: function(form) {
+    // $(form).ajaxSubmit();
+    form.submit();
+  },
+  // OPTIONAL
+  invalidHandler: function(event, validator) {
+    // 'this' refers to the form
+    var errors = validator.numberOfInvalids();
+    if (errors) {
+      $0
+    } else {
+    }
+  }
+});
