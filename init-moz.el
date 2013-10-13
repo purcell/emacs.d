@@ -13,15 +13,6 @@
 (add-hook 'nxml-mode-hook 'moz-custom-setup)
 (add-hook 'web-mode-hook 'moz-custom-setup)
 
-(eval-after-load 'moz
-  '(progn
-     (global-set-key (kbd "C-x p")
-                     (lambda ()
-                       (interactive)
-                       (comint-send-string (inferior-moz-process)
-                                           "BrowserReload();")))
-     ))
-
 (defun auto-reload-firefox-on-after-save-hook ()
   (add-hook 'after-save-hook
             '(lambda ()
