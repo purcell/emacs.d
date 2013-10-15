@@ -244,6 +244,12 @@ to replace the symbol under cursor"
   "xv=" 'vc-diff
   "xvl" 'vc-print-log
   "xvp" 'git-messenger:popup-message
+  "xnn" 'narrow-to-region
+  "xnw" 'widen
+  "xnd" 'narrow-to-defun
+  "xn" 'narrow-to-region
+  "xw" 'widen
+  "xd" 'narrow-to-defun
   )
 ;; }}
 
