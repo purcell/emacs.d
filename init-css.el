@@ -70,8 +70,9 @@ development mode, using:
   nil
   " skewer-less"
   sanityinc/skewer-less-mode-map
-  (progn
-    (add-hook 'after-save-hook 'sanityinc/skewer-less-reload nil t)))
+  (if sanityinc/skewer-less-mode
+      (add-hook 'after-save-hook 'sanityinc/skewer-less-reload nil t)
+    (remove-hook 'after-save-hook 'sanityinc/skewer-less-reload t)))
 
 (defun sanityinc/skewer-less-save-and-reload ()
   "When skewer appears to be active, ask for a reload."
