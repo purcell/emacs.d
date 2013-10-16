@@ -1,4 +1,5 @@
 (require-package 'json)
+(require-package 'json-mode)
 (when (>= emacs-major-version 24)
   (require-package 'js2-mode)
   (require-package 'ac-js2))
@@ -24,9 +25,6 @@
                             (loop for entry in auto-mode-alist
                                   unless (eq preferred-javascript-mode (cdr entry))
                                   collect entry)))
-
-
-(add-auto-mode 'js-mode "\\.json\\'")
 
 
 ;; js2-mode
