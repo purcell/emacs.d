@@ -7,6 +7,9 @@
 (require-package 'pretty-mode)
 (autoload 'turn-on-pretty-mode "pretty-mode")
 
+(setq-default initial-scratch-message
+              (concat ";; Happy hacking " (or user-login-name "") "!\n\n"))
+
 ;; ----------------------------------------------------------------------------
 ;; Hippie-expand
 ;; ----------------------------------------------------------------------------
