@@ -45,7 +45,6 @@
         (gtags-select-mode . emacs)
         (weibo-timeline-mode . emacs)
         (weibo-post-mode . emacs)
-        (diff-mode . emacs)
         (sr-mode . emacs)
         (dired-mode . emacs)
         (compilation-mode . emacs)
@@ -152,8 +151,6 @@ to replace the symbol under cursor"
   "cfn" 'copy-filename-of-current-buffer
   "cfp" 'copy-full-path-of-current-buffer
   "dj" 'dired-jump ;; open the dired from current file
-  "pp" 'evil-scroll-page-up
-  "nn" 'evil-scroll-page-down
   "ff" 'toggle-full-window ;; I use WIN+F in i3
   "px" 'paste-from-x-clipboard
   ;; "ci" 'evilnc-comment-or-uncomment-lines
