@@ -289,6 +289,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'dired-details)
 (require-package 'popwin)
 (require-package 'elnode)
+(require-package 'evil-matchit '(0 0 4) nil)
 ;;(require-package 'git-messenger '(20130613 1222 0) nil)
 (require-package 'issue-tracker '(0 0 1) nil)
 

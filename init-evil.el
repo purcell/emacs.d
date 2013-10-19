@@ -61,25 +61,7 @@
 (define-key evil-normal-state-map "-" 'evil-numbers/dec-at-pt)
 (define-key evil-normal-state-map "go" 'goto-char)
 
-;; {{ evil-matchit
-(defun my-evil-jump-item-enhanced-for-html ()
-  (interactive)
-  (if (or (eq major-mode 'html-mode)
-          (eq major-mode 'xml-mode)
-          (eq major-mode 'web-mode)
-          )
-      (progn
-        (if (not (my-sp-select-next-thing 1)) (exchange-point-and-mark))
-        (deactivate-mark)
-        )
-    (progn
-      (evil-jump-item)
-      )
-    )
-  )
-(define-key evil-normal-state-map "%" 'my-evil-jump-item-enhanced-for-html)
-;; }}
-
+(global-evil-matchit-mode 1)
 
 (eval-after-load "evil" '(setq expand-region-contract-fast-key "z"))
 
@@ -189,17 +171,6 @@ to replace the symbol under cursor"
   "x2" 'split-window-below
   "x3" 'split-window-right
   "xu" 'winner-undo
-  "sp" '(lambda (&optional NUM)
-          (interactive "p")
-          ;; move cursor
-          (if (or (eq major-mode 'html-mode)
-                  (eq major-mode 'xml-mode)
-                  (eq major-mode 'web-mode)
-                  )
-              (my-sp-select-next-thing NUM)
-            (sp-select-next-thing)
-              )
-          )
   "ls" 'package-list-packages
   "hs" 'w3mext-hacker-search
   "gf" 'gtags-find-tag-from-here
