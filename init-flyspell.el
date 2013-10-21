@@ -16,7 +16,6 @@
                 c++-mode-hook
                 c-mode-hook
                 lua-mode-hook
-                web-mode-hook
                 crontab-mode-hook
                 perl-mode-hook
                 tcl-mode-hook
