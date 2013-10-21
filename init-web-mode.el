@@ -34,5 +34,6 @@
             (setq web-mode-css-indent-offset 4)
             (setq web-mode-markup-indent-offset 4)
             (flymake-html-load)
+            (flyspell-mode 1)
             ))
 (provide 'init-web-mode)
