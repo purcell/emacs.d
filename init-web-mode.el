@@ -1,3 +1,5 @@
+(require 'web-mode)
+
 (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.jsp\\'" . web-mode))
@@ -27,6 +29,15 @@
          )
     (flymake-mode t)))
 
+(defun web-mode-hook ()
+  "Hooks for Web mode."
+  (remove-hook 'yas-after-exit-snippet-hook
+               'web-mode-yasnippet-exit-hook t)
+  (remove-hook 'yas/after-exit-snippet-hook
+               'web-mode-yasnippet-exit-hook t)
+  )
+(add-hook 'web-mode-hook  'web-mode-hook)
+
 (add-hook 'web-mode-hook
           (lambda ()
             (setq web-mode-indent-style 4)
@@ -35,5 +46,9 @@
             (setq web-mode-markup-indent-offset 4)
             (flymake-html-load)
             (flyspell-mode 1)
+            (remove-hook 'yas-after-exit-snippet-hook
+                         'web-mode-yasnippet-exit-hook t)
+            (remove-hook 'yas/after-exit-snippet-hook
+                         'web-mode-yasnippet-exit-hook t)
             ))
 (provide 'init-web-mode)
