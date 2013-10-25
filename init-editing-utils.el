@@ -53,8 +53,10 @@
 
 (global-set-key (kbd "RET") 'newline-and-indent)
 
-(after-load 'subword
-  (diminish 'subword-mode))
+(when (eval-when-compile (string< "24.3.1" emacs-version))
+  ;; https://github.com/purcell/emacs.d/issues/138
+  (after-load 'subword
+    (diminish 'subword-mode)))
 
 
 (require-package 'undo-tree)
