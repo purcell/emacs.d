@@ -1,3 +1,6 @@
+;; load undo-tree and ert
+(add-to-list 'load-path "~/.emacs.d/site-lisp/evil/lib")
+(require 'evil)
 (evil-mode 1)
 
 ;; {{@see https://github.com/timcharper/evil-surround
@@ -190,6 +193,7 @@ to replace the symbol under cursor"
   "oc" 'occur
   "om" 'toggle-org-or-message-mode
   "ops" 'my-org2blog-post-subtree
+  "ut" 'undo-tree-visualize
   "al" 'align-regexp
   "ww" 'save-buffer
   "bk" 'buf-move-up

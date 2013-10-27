@@ -231,11 +231,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'tidy)
 (require-package 'unfill)
 (require-package 'whole-line-or-region)
-(require-package 'undo-tree '(0 6 3) nil)
 (require-package 'auctex)
 (require-package 'etags-select '(1 13 0) nil) ;; evil may need it
-;;evil-20120725 requires ert
-(require-package 'evil '(1 0 3) nil)
 (require-package 'w3m)
 (require-package 'idomenu)
 (require-package 'ctags)
