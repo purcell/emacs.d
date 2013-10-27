@@ -166,13 +166,13 @@ to replace the symbol under cursor"
   "hr" 'helm-recentf
   "s0" 'delete-window
   "s1" 'delete-other-windows
-  "s2" 'split-window-below
-  "s3" 'split-window-right
+  "s2" '(lambda () (interactive) (if *emacs23* (split-window-horizontally) (split-window-below)))
+  "s3" '(lambda () (interactive) (if *emacs23* (split-window-vertically) (split-window-right)))
   "su" 'winner-undo
   "x0" 'delete-window
   "x1" 'delete-other-windows
-  "x2" 'split-window-below
-  "x3" 'split-window-right
+  "x2" '(lambda () (interactive) (if *emacs23* (split-window-horizontally) (split-window-below)))
+  "x3" '(lambda () (interactive) (if *emacs23* (split-window-vertically) (split-window-right)))
   "xu" 'winner-undo
   "ls" 'package-list-packages
   "hs" 'w3mext-hacker-search
