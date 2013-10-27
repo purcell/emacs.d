@@ -96,7 +96,6 @@
 (defun sanityinc/emacs-lisp-setup ()
   "Enable features useful when working with elisp."
   (rainbow-delimiters-mode t)
-  (elisp-slime-nav-mode t)
   (set-up-hippie-expand-for-elisp)
   ;; (ac-emacs-lisp-mode-setup)
   (checkdoc-minor-mode))
