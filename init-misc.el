@@ -573,4 +573,10 @@ The full path into relative path insert it as a local file link in org-mode"
     (message "css code => clipboard & yank ring")
     ))
 
+(when (< emacs-major-version 24)
+  (require 'color-theme)
+  (setq color-theme-is-global t)
+  (color-theme-lethe)
+  )
+
 (provide 'init-misc)
