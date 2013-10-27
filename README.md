@@ -25,7 +25,7 @@ I will support all the languages a desktop application developer use, like C++, 
 * eim (Chinese pinyin input method)
 * org2blog (post wordpress blog with org-mode)
 * make the configuration work on *ALL* platforms (Linux/Cygwin/Mac). BTW, when I say Linux, I mean all the popular distributions (Debian, Ubuntu, Mint, Centos, ArchLinux, Gentoo ...).
-* The configuration will work with Emacs version >=24 but still usable with Emacs version 23.
+* The configuration will work with Emacs version >=24 but still usable with Emacs version 23 (tested with Emacs 23.4.1).
 * evil-mode and its plugins (Vim key binding)
 * yasnippet and my customized snippets (insert code snippet by typing less keys)
 
@@ -67,10 +67,9 @@ They are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 * install by OS way
 
 ### clang (http://clang.llvm.org)
-* needed by `cpputils-cmake`, `flymake`, `auto-complete-clang`, `company-clang`
+* needed by `cpputils-cmake`, `flymake`, `company-clang`
 * install by OS way
 * If you use `company-clang` (default), add `(setq company-clang-arguments '("-I/example1/dir" "-I/example2/dir"))` into ~/.emacs.d/init.el
-* If you prefer `auto-complete-clang` instead, add `(setq ac-clang-flags ("-I/example1/dir" "-I/example2/dir"))` into ~/.emacs.d/init.el
 * If you use `cpputils-cmake` and `cmake`, `cpputils-cmake` will do all the set up for you.
 
 ### MozRepl firefox addon (https://addons.mozilla.org/en-us/firefox/addon/mozrepl/)
@@ -115,8 +114,6 @@ https://github.com/redguardtoo/emacs.d
 
 * Some package cannot be downloaded automatically because of network problem.
 You need manually `M-x list-packages` and install it.
-
-* If you use yasnippet and auto-complete, I suggest not using yasnippet as input source of auto-complete. 
 
 * You can speed up the start up by NOT loading some heavy weight components like evil or yasnippet. All you need to do is add below code into ~/.bashrc:
   ```sh
