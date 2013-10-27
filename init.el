@@ -126,7 +126,7 @@
 (require 'init-moz)
 (require 'init-gtags)
 ;; use evil mode (vi key binding)
-(if (not (boundp 'light-weight-emacs)) (require 'init-evil))
+(if *emacs24* (if (not (boundp 'light-weight-emacs)) (require 'init-evil)))
 (require 'init-misc)
 (require 'init-ctags)
 (require 'init-ace-jump-mode)
@@ -147,9 +147,11 @@
 (require 'init-web-mode)
 (require 'init-sr-speedbar)
 (require 'init-smartparens)
-;; Choose either auto-complete or company-mode by commenting one of below two lines!
-;; (require 'init-auto-complete) ; after init-yasnippeta to override TAB
-(require 'init-company)
+(when *emacs24*
+    (require 'init-company)
+  ;; Choose either auto-complete or company-mode by commenting one of below two lines!
+  ;; (require 'init-auto-complete) ; after init-yasnippeta to override TAB
+  )
 (require 'init-stripe-buffer)
 (require 'init-popwin)
 (require 'init-elnode)
