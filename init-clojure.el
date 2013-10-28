@@ -3,7 +3,7 @@
 (require-package 'cljsbuild-mode)
 (require-package 'elein)
 (require-package 'cider)
-(require-package 'slamhound)
+;(require-package 'slamhound)
 (require-package 'ac-nrepl)
 
 
