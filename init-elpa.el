@@ -254,6 +254,7 @@ ARCHIVE is the string name of the package archive.")
 ;; C-x r l to list bookmarks
 (require-package 'bookmark+)
 (require-package 'json-mode)
+(require-package 'js2-mode)
 (require-package 'tagedit)
 (require-package 'sr-speedbar)
 (require-package 'requirejs-mode)
