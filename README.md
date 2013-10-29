@@ -3,6 +3,7 @@
 * People in Mainland China may need [goagent](http://code.google.com/p/goagent/) to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server.
 * C++/C developers, you need tell Emacs where to search headers to make auto-complete work. See section `clang` for details.
 * For Windows users, I would suggest [Cygwin](http://www.cygwin.com/) Emacs instead of native one to avoid some overhead on set up third party tools. But this configuration is still usable even with native windows Emacs.
+* I whitelist packages on melpa because packages in melpa is kind of too cutting edge. Modify variable "melpa-include-packages" in init-elpa.el if you want add new package into that whitelist.
 
 # General
 

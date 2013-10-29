@@ -81,6 +81,7 @@ ARCHIVE is the string name of the package archive.")
   '(bbdb
      lua-mode
      mmm-mode
+     emms
      pomodoro
      helm
      helm-ls-git

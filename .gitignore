@@ -35,5 +35,7 @@ GTAGS
 GPATH
 GRTAGS
 .emacs.d/emms/
+tutorial/
 /var
 org-clock-save.el
+.\#*
