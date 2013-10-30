@@ -573,6 +573,15 @@ The full path into relative path insert it as a local file link in org-mode"
     (message "css code => clipboard & yank ring")
     ))
 
+(defun current-font-face ()
+  "get the font face under cursor"
+  (interactive)
+  (let ((rlt (format "%S" (get-text-property (- (point) 1) 'face))))
+    (kill-new rlt)
+    (copy-yank-str rlt)
+    (message "%s => clipboard & yank ring" rlt)
+      ))
+
 (when (< emacs-major-version 24)
   (require 'color-theme)
   (setq color-theme-is-global t)
