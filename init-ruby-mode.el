@@ -40,35 +40,8 @@
 ;;----------------------------------------------------------------------------
 ;; Ruby - erb
 ;;----------------------------------------------------------------------------
-(defun sanityinc/ensure-mmm-erb-loaded ()
-  (require 'mmm-erb))
-(dolist (hook (list 'html-mode-hook 'yaml-mode-hook))
-  (add-hook hook 'sanityinc/ensure-mmm-erb-loaded))
-
-(dolist (mode (list 'html-mode 'html-erb-mode ))
-  (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-js)
-  (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css)
-  (mmm-add-mode-ext-class mode "\\.erb\\'" 'erb))
-
-(mmm-add-mode-ext-class 'html-erb-mode "\\.jst\\.ejs\\'" 'ejs)
-
-(add-to-list 'auto-mode-alist '("\\.rhtml\\(\\.erb\\)?\\'" . html-erb-mode))
-(add-to-list 'auto-mode-alist '("\\.jst\\.ejs\\'"  . html-erb-mode))
-(mmm-add-mode-ext-class 'yaml-mode "\\.yaml\\'" 'erb)
-
-(dolist (mode (list 'js-mode 'js2-mode))
-  (mmm-add-mode-ext-class mode "\\.js\\.erb\\'" 'erb))
-
-
-;;----------------------------------------------------------------------------
-;; Ruby - my convention for heredocs containing SQL
-;;----------------------------------------------------------------------------
-;; (eval-after-load 'mmm-mode
-;;   '(progn
-;;      (mmm-add-classes
-;;       '((ruby-heredoc-sql :submode sql-mode :front "<<-?end_sql.*\r?\n" :back "[ \t]*end_sql" :face mmm-code-submode-face)))
-;;      (mmm-add-mode-ext-class 'ruby-mode "\\.rb\\'" 'ruby-heredoc-sql)))
-
+(add-to-list 'auto-mode-alist '("\\.rhtml\\(\\.erb\\)?\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.jst\\.ejs\\'"  . web-mode))
 
 ;;----------------------------------------------------------------------------
 ;; Ruby - compilation
@@ -81,5 +54,13 @@
 
 (add-hook 'ruby-mode-hook (lambda () (local-set-key [f6] 'recompile)))
 
+;; {{ rails stuff
+(require 'rinari)
+
+(defun update-rails-ctags ()
+  (interactive)
+  (let ((default-directory (or (rinari-root) default-directory)))
+    (shell-command (concat "ctags -a -e -f " rinari-tags-file-name " --tag-relative -R app lib vendor test"))))
+;; }}
 
 (provide 'init-ruby-mode)

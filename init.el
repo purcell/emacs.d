@@ -68,7 +68,6 @@
 (require 'init-windows)
 (require 'init-sessions)
 (require 'init-fonts)
-(require 'init-mmm)
 ;(require 'init-growl)
 (require 'init-editing-utils)
 (require 'init-git)
@@ -87,7 +86,6 @@
 (require 'init-python-mode)
 (require 'init-haskell)
 (require 'init-ruby-mode)
-(if (not (boundp 'light-weight-emacs)) (require 'init-rails))
 ;(require 'init-rcirc)
 
 (require 'init-lisp)

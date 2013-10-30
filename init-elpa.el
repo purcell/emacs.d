@@ -80,7 +80,6 @@ ARCHIVE is the string name of the package archive.")
 (defvar melpa-include-packages
   '(bbdb
      lua-mode
-     mmm-mode
      emms
      pomodoro
      helm
@@ -211,7 +210,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'ibuffer-vc)
 (require-package 'less-css-mode)
 (require-package 'lively)
-(require-package 'mmm-mode '(20130210 133 0) nil)
 (require-package 'move-text)
 (require-package 'mwe-log-commands)
 (require-package 'page-break-lines)
