@@ -141,6 +141,7 @@
 (require 'init-web-mode)
 (require 'init-sr-speedbar)
 (require 'init-smartparens)
+(require 'init-slime)
 (when *emacs24*
     (require 'init-company)
   ;; Choose either auto-complete or company-mode by commenting one of below two lines!

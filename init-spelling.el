@@ -13,7 +13,8 @@
                    web-mode-css-color-face
                    web-mode-type-face
                    )
-               ))))
+               ))
+    ))
 (put 'web-mode 'flyspell-mode-predicate 'web-mode-flyspefll-verify)
 
 (require 'flyspell-lazy)
