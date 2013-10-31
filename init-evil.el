@@ -176,7 +176,9 @@ to replace the symbol under cursor"
   "x3" '(lambda () (interactive) (if *emacs23* (split-window-horizontally) (split-window-below)))
   "xu" 'winner-undo
   "ls" 'package-list-packages
-  "hs" 'w3mext-hacker-search
+  "ws" 'w3mext-hacker-search
+  "hs" 'helm-swoop
+  "hb" 'helm-back-to-last-point
   "gf" 'gtags-find-tag-from-here
   "gp" 'gtags-pop-stack
   "gr" 'gtags-find-rtag

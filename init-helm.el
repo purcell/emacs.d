@@ -65,4 +65,11 @@
       )
   (global-set-key (kbd "C-x C-o") 'ffap)
   )
+
+(autoload 'helm-swoop "helm-swoop" "helm-swoop" t)
+(autoload 'helm-back-to-last-point "helm-swoop" t)
+
+;; When doing isearch, hand the word over to helm-swoop
+(define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+
 (provide 'init-helm)
