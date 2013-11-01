@@ -45,9 +45,6 @@
 (setq js-indent-level preferred-javascript-indent-level)
 
 
-;; standard javascript-mode
-(setq javascript-indent-level preferred-javascript-indent-level)
-
 (add-to-list 'interpreter-mode-alist (cons "node" preferred-javascript-mode))
 
 
