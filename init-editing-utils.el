@@ -308,11 +308,6 @@ With arg N, insert N newlines."
 
 
 
-(require-package 'visual-regexp)
-(global-set-key [remap query-replace-regexp] 'vr/query-replace)
-(global-set-key [remap replace-regexp] 'vr/replace)
-
-
 
 (when (executable-find "ag")
   (require-package 'ag)
