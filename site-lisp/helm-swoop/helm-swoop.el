@@ -344,3 +344,57 @@
 
 (provide 'helm-swoop)
 ;;; helm-swoop.el ends here
+(defadvice helm-resume-select-buffer
+  (around helm-swoop-if-selected-as-resume activate)
+  "Resume if *Helm Swoop* buffer selected as a resume
+ when helm-resume with prefix"
+  (if (boundp 'helm-swoop-last-query)
+      ad-do-it
+    ;; When the buffer never call helm-swoop, just hide from options
+    (let ((helm-buffers (delete "*Helm Swoop*" helm-buffers)))
+      ad-do-it))
+  (when (and (equal ad-return-value "*Helm Swoop*")
+             (boundp 'helm-swoop-last-query))
+    (helm-swoop helm-swoop-last-prefix-number helm-swoop-last-query)
+    (setq ad-return-value nil)))
+
+(defadvice helm-resume (around helm-swoop-resume activate)
+  "Resume if the last used helm buffer is *Helm Swoop*"
+  (if (equal helm-last-buffer "*Helm Swoop*") ;; 1
+      (if (boundp 'helm-swoop-last-query)  ;; 2
+          (if (not (ad-get-arg 0)) ;; 3
+              (helm-swoop helm-swoop-last-prefix-number helm-swoop-last-query))
+        ;; Temporary apply second last buffer
+        (let ((helm-last-buffer (cadr helm-buffers))) ad-do-it)) ;; 2 else
+    ad-do-it) ;; 1 else
+    )
+
+;; For caret beginning-match -----------------------------
+(defun helm-swoop-caret-match-delete ($o $aft $beg $end &optional $len)
+  (if $aft
+      (- $end $beg $len) ;; Unused argument? to avoid byte compile error
+    (delete-region (overlay-start $o) (1- (overlay-end $o)))))
+
+(defun helm-swoop-caret-match (&optional $resume)
+  (interactive)
+  (if (and (string-match "^Swoop: " (buffer-substring-no-properties
+                                     (point-min) (point-max)) )
+           (eq (point) 8))
+      (progn
+        (if $resume
+            (insert )
+          (insert "^[0-9]+."))
+        (goto-char (point-min))
+        (re-search-forward "^Swoop: \\(\\^\\[0\\-9\\]\\+\\.\\)" nil t)
+        (let (($o (make-overlay (match-beginning 1) (match-end 1))))
+          (overlay-put $o 'face 'helm-swoop-target-word-face)
+          (overlay-put $o 'modification-hooks '(helm-swoop-caret-match-delete))
+          (overlay-put $o 'display "^")
+          (overlay-put $o 'evaporate t)))
+    (insert "^")))
+
+(unless (featurep 'helm-migemo)
+  (define-key helm-map (kbd "^") 'helm-swoop-caret-match))
+
+(provide 'helm-swoop)
+;;; helm-swoop.el ends here
