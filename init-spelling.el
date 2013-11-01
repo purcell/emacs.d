@@ -12,6 +12,7 @@
                    web-mode-css-selector-face
                    web-mode-css-color-face
                    web-mode-type-face
+                   web-mode-block-control-face
                    )
                ))
     ))
