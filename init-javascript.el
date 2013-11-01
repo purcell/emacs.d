@@ -1,4 +1,3 @@
-(require-package 'json)
 (require-package 'json-mode)
 (when (>= emacs-major-version 24)
   (require-package 'js2-mode)
