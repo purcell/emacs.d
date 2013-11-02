@@ -139,6 +139,23 @@ to replace the symbol under cursor"
   "dj" 'dired-jump ;; open the dired from current file
   "ff" 'toggle-full-window ;; I use WIN+F in i3
   "px" 'paste-from-x-clipboard
+  "pf" 'projectile-find-file
+  "pd" 'projectile-find-dir
+  "pT" 'projectile-toggle-between-implemenation-and-test
+  "pg" 'projectile-grep
+  "pb" 'projectile-switch-to-buffer
+  "po" 'projectile-multi-occur
+  "pr" 'projectile-replace
+  "pi" 'projectile-invalidate-cache
+  "pR" 'projectile-regenerate-tags
+  "pk" 'projectile-kill-buffers
+  "pD" 'projectile-dired
+  "pe" 'projectile-recentf
+  "pa" 'projectile-ack
+  "pc" 'projectile-compile-project
+  "pp" 'projectile-test-project
+  "pz" 'projectile-cache-current-file
+  "ps" 'projectile-switch-project
   ;; "ci" 'evilnc-comment-or-uncomment-lines
   ;; "cl" 'evilnc-comment-or-uncomment-to-the-line
   ;; "cc" 'evilnc-copy-and-comment-lines

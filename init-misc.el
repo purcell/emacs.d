@@ -588,4 +588,8 @@ The full path into relative path insert it as a local file link in org-mode"
   (color-theme-lethe)
   )
 
+;o; {{ projectile
+(projectile-global-mode)
+;; }}
+
 (provide 'init-misc)
