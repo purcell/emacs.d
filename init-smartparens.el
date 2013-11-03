@@ -16,9 +16,25 @@
 (suspend-mode-during-cua-rect-selection 'smartparens-mode)
 
 ;; TODO: kill sexp
-;; TODO: wrap round
+
+(defun sanityinc/sp-wrap-round (&optional arg)
+  (interactive "P")
+  (sp-wrap-with-pair "("))
+(defun sanityinc/sp-wrap-curly (&optional arg)
+  (interactive "P")
+  (sp-wrap-with-pair "{"))
+(defun sanityinc/sp-wrap-square (&optional arg)
+  (interactive "P")
+  (sp-wrap-with-pair "["))
+(defun sanityinc/sp-wrap-quote (&optional arg)
+  (interactive "P")
+  (sp-wrap-with-pair "\""))
 
 (define-key sp-keymap [remap kill-sexp] 'sp-kill-sexp)
+(define-key sp-keymap (kbd "M-(") 'sanityinc/sp-wrap-round)
+(define-key sp-keymap (kbd "M-{") 'sanityinc/sp-wrap-curly)
+(define-key sp-keymap (kbd "M-[") 'sanityinc/sp-wrap-square)
+(define-key sp-keymap (kbd "M-\"") 'sanityinc/sp-wrap-quote)
 
 ;; Use smartparens in the minibuffer too
 
