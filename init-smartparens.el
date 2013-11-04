@@ -57,4 +57,8 @@
   (when (memq this-command lispy-minibuffer-commands)
     (sanityinc/smartparens-lisp-setup)))
 
+;; https://github.com/Fuco1/smartparens/issues/33
+(sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil)
+
+
 (provide 'init-smartparens)
