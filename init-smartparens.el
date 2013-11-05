@@ -3,6 +3,10 @@
 (smartparens-global-mode t)
 (show-smartparens-global-mode t)
 
+;; Make smartparens' C-k behave as normally expected
+(setq sp-hybrid-kill-excessive-whitespace nil
+      sp-hybrid-kill-entire-symbol nil)
+
 (require 'smartparens-config)
 
 (defun sanityinc/smartparens-lisp-setup ()
