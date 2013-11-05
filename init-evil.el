@@ -182,6 +182,7 @@ to replace the symbol under cursor"
   "gg" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
   "qq" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
   "hr" 'helm-recentf
+  "se" 'string-edit-at-point
   "s0" 'delete-window
   "s1" 'delete-other-windows
   "s2" '(lambda () (interactive) (if *emacs23* (split-window-vertically) (split-window-right)))

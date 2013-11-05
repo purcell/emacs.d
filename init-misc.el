@@ -447,6 +447,10 @@ version control automatically"
 (autoload 'confluence-edit-mode "confluence-edit" "enable confluence-edit-mode" t)
 (add-to-list 'auto-mode-alist '("\\.wiki\\'" . confluence-edit-mode))
 
+;; {{string-edit.el
+(autoload 'string-edit-at-point "string-edit" "enable string-edit-mode" t)
+;; }}
+
 ;; {{ issue-tracker
 (global-set-key (kbd "C-c C-t") 'issue-tracker-increment-issue-id-under-cursor)
 ;; }}
