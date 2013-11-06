@@ -24,3 +24,4 @@ site-lisp/package/
 /var
 /.sqli_history
 /frame-restore-parameters
+/.achievements
