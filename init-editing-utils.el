@@ -63,6 +63,13 @@
 (global-undo-tree-mode)
 (diminish 'undo-tree-mode)
 
+
+(require-package 'highlight-symbol)
+(add-hook 'prog-mode-hook 'highlight-symbol-mode)
+(add-hook 'prog-mode-hook 'highlight-symbol-nav-mode)
+(eval-after-load 'highlight-symbol
+  '(diminish 'highlight-symbol-mode))
+
 ;;----------------------------------------------------------------------------
 ;; Zap *up* to char is a handy pair for zap-to-char
 ;;----------------------------------------------------------------------------
