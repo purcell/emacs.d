@@ -10,7 +10,6 @@
 (setq ruby-use-encoding-map nil)
 
 (after-load 'ruby-mode
-  (setq-default ruby-use-smie nil)
   (define-key ruby-mode-map (kbd "RET") 'reindent-then-newline-and-indent)
   (define-key ruby-mode-map (kbd "TAB") 'indent-for-tab-command)
 
