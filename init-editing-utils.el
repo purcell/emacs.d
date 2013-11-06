@@ -41,7 +41,7 @@
       auto-revert-verbose nil)
 
 ;; But don't show trailing whitespace in SQLi, inf-ruby etc.
-(dolist (hook '(term-mode-hook comint-mode-hook compilation-mode-hook twittering-mode-hook))
+(dolist (hook '(special-mode-hook term-mode-hook comint-mode-hook compilation-mode-hook twittering-mode-hook))
   (add-hook hook
             (lambda () (setq show-trailing-whitespace nil))))
 
