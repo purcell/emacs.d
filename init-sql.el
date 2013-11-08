@@ -2,7 +2,17 @@
 (after-load 'sql
   (require 'sql-indent))
 
+(defun sanityinc/pop-to-sqli-buffer ()
+  "Switch to the corresponding sqli buffer."
+  (interactive)
+  (if sql-buffer
+      (progn
+        (pop-to-buffer sql-buffer)
+        (goto-char (point-max)))
+    (error "No matching SQLi buffer")))
+
 (after-load 'sql
+  (define-key sql-mode-map (kbd "C-c C-z") 'sanityinc/pop-to-sqli-buffer)
   (when (package-installed-p 'dash-at-point)
     (defun sanityinc/maybe-set-dash-db-docset ()
       (when (eq sql-product 'postgres)
