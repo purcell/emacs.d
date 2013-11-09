@@ -17,7 +17,10 @@
   ;; Disable kill-sentence, which is easily confused with the kill-sexp
   ;; binding, but doesn't preserve sexp structure
   (define-key paredit-mode-map [remap kill-sentence] nil)
-  (define-key paredit-mode-map [remap backward-kill-sentence] nil))
+  (define-key paredit-mode-map [remap backward-kill-sentence] nil)
+
+  ;; Allow my global binding of M-? to work when paredit is active
+  (define-key paredit-mode-map (kbd "M-?") nil))
 
 
 ;; Compatibility with other modes
