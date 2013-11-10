@@ -76,7 +76,9 @@
   (interactive "DSelect directory: ")
   (unless git-svn--available-commands
     (setq git-svn--available-commands
-          (string-all-matches "^  \\([a-z\\-]+\\) +" (shell-command-to-string "git svn help") 1)))
+          (sanityinc/string-all-matches
+           "^  \\([a-z\\-]+\\) +"
+           (shell-command-to-string "git svn help") 1)))
   (let* ((default-directory (vc-git-root dir))
          (compilation-buffer-name-function (lambda (major-mode-name) "*git-svn*")))
     (compile (concat "git svn "
