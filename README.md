@@ -53,6 +53,8 @@ create a file `~/.emacs.d/init-local.el` which looks like this:
 (provide 'init-local)
 ```
 
+Alternatively, fork the repo and hack away at the config to make it your own!
+
 ## Similar configs
 
 You might also want to check out `emacs-starter-kit` and `emacs-prelude`.
