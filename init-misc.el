@@ -596,4 +596,6 @@ The full path into relative path insert it as a local file link in org-mode"
 (projectile-global-mode)
 ;; }}
 
+(setq system-time-locale "C")
+
 (provide 'init-misc)
