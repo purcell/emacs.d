@@ -20,6 +20,18 @@
 	     auto-complete-mode)
     (auto-complete)))
 
+(defun sanityinc/indent-only-at-bol ()
+  "An `indent-line-function' which indents only at bol."
+  (if (bolp)
+      (insert-tab)
+    'noindent))
+
+(defun sanityinc/dumb-indent ()
+  (set (make-local-variable 'indent-line-function) 'sanityinc/indent-only-at-bol))
+
+(defun sanityinc/never-indent ()
+  (set (make-local-variable 'indent-line-function) (lambda () 'noindent)))
+
 (defun set-auto-complete-as-completion-at-point-function ()
   (setq completion-at-point-functions
         (cons 'sanityinc/auto-complete-at-point
@@ -39,7 +51,9 @@
                 sass-mode yaml-mode csv-mode espresso-mode haskell-mode
                 html-mode nxml-mode sh-mode smarty-mode clojure-mode
                 lisp-mode textile-mode markdown-mode tuareg-mode
-                js3-mode css-mode less-css-mode sql-mode inferior-emacs-lisp-mode))
+                js3-mode css-mode less-css-mode sql-mode
+                sql-interactive-mode
+                inferior-emacs-lisp-mode))
   (add-to-list 'ac-modes mode))
 
 
