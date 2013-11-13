@@ -15,7 +15,7 @@
 
 ;; hook AC into completion-at-point
 (defun sanityinc/auto-complete-at-point ()
-  (when (and (not (minibufferp)) 
+  (when (and (not (minibufferp))
 	     (fboundp 'auto-complete-mode)
 	     auto-complete-mode)
     (auto-complete)))
