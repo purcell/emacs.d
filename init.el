@@ -122,6 +122,9 @@
 (message "init completed in %.2fms"
          (sanityinc/time-subtract-millis (current-time) before-init-time))
 
+
+(provide 'init)
+
 ;; Local Variables:
 ;; coding: utf-8
 ;; no-byte-compile: t
