@@ -20,15 +20,6 @@
 	     auto-complete-mode)
     (auto-complete)))
 
-(defun sanityinc/indent-only-at-bol ()
-  "An `indent-line-function' which indents only at bol."
-  (if (bolp)
-      (insert-tab)
-    'noindent))
-
-(defun sanityinc/dumb-indent ()
-  (set (make-local-variable 'indent-line-function) 'sanityinc/indent-only-at-bol))
-
 (defun sanityinc/never-indent ()
   (set (make-local-variable 'indent-line-function) (lambda () 'noindent)))
 
