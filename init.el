@@ -135,7 +135,7 @@
 (require 'init-emms)
 (require 'init-lua-mode)
 (require 'init-doxygen)
-(require 'init-workgroups)
+(require 'init-workgroups2)
 (require 'init-move-window-buffer)
 (require 'init-term-mode)
 (require 'init-web-mode)

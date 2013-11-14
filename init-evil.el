@@ -253,6 +253,27 @@ to replace the symbol under cursor"
   "xn" 'narrow-to-region
   "xw" 'widen
   "xd" 'narrow-to-defun
+  "zc" 'wg-create-workgroup
+  "zk" 'wg-kill-workgroup
+  "zv" 'wg-switch-to-workgroup
+  "zj" 'wg-switch-to-workgroup-at-index
+  "z0" 'wg-switch-to-workgroup-at-index-0
+  "z1" 'wg-switch-to-workgroup-at-index-1
+  "z2" 'wg-switch-to-workgroup-at-index-2
+  "z3" 'wg-switch-to-workgroup-at-index-3
+  "z4" 'wg-switch-to-workgroup-at-index-4
+  "z5" 'wg-switch-to-workgroup-at-index-5
+  "z6" 'wg-switch-to-workgroup-at-index-6
+  "z7" 'wg-switch-to-workgroup-at-index-7
+  "z8" 'wg-switch-to-workgroup-at-index-8
+  "z9" 'wg-switch-to-workgroup-at-index-9
+  "zs" 'wg-save-session
+  "zb" 'wg-switch-to-buffer
+  "zp" 'wg-switch-to-workgroup-left
+  "zn" 'wg-switch-to-workgroup-right
+  "zu" 'wg-undo-wconfig-change
+  "zr" 'wg-redo-wconfig-change
+  "zs" 'wg-save-wconfig
   )
 ;; }}
 
