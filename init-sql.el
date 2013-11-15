@@ -9,7 +9,9 @@
       (progn
         (pop-to-buffer sql-buffer)
         (goto-char (point-max)))
-    (error "No matching SQLi buffer")))
+    (sql-set-sqli-buffer)
+    (when sql-buffer
+      (sanityinc/pop-to-sqli-buffer))))
 
 (after-load 'sql
   (define-key sql-mode-map (kbd "C-c C-z") 'sanityinc/pop-to-sqli-buffer)
