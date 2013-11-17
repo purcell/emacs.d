@@ -10,16 +10,20 @@
 
 (defun my-yas-expand ()
   (interactive)
-  (let ((ext (car (cdr (split-string (buffer-file-name) "\\."))) )
-        (old-yas-flag yas-indent-line)
-        )
-    (when (or (string= ext "ftl") (string= ext "jsp"))
-      (setq yas-indent-line nil)
+  (if (buffer-file-name)
+      (let ((ext (car (cdr (split-string (buffer-file-name) "\\."))) )
+            (old-yas-flag yas-indent-line)
+            )
+        (when (or (string= ext "ftl") (string= ext "jsp"))
+          (setq yas-indent-line nil)
+          )
+        (yas-expand)
+        ;; restore the flag
+        (setq yas-indent-line old-yas-flag)
         )
     (yas-expand)
-    ;; restore the flag
-    (setq yas-indent-line old-yas-flag)
-    ))
+    )
+  )
 
 ;; default TAB key is occupied by auto-complete
 (global-set-key (kbd "C-c k") 'my-yas-expand)
