@@ -240,6 +240,7 @@ to replace the symbol under cursor"
   "vd" 'scroll-other-window
   "vu" '(lambda () (interactive) (scroll-other-window-down nil))
   "jj" 'w3mext-search-js-api-mdn
+  "xh" 'mark-whole-buffer
   "xk" 'ido-kill-buffer
   "xs" 'save-buffer
   "xz" 'suspend-frame
