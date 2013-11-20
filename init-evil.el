@@ -32,6 +32,7 @@
 
 (loop for (mode . state) in
       '(
+        (minibuffer-inactive-mode . emacs)
         (Info-mode . emacs)
         (term-mode . emacs)
         (log-edit-mode . emacs)
@@ -94,9 +95,7 @@
 (define-key evil-insert-state-map (kbd "C-k") 'kill-line)
 (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
 (define-key evil-visual-state-map (kbd "M-k") 'evil-exit-visual-state)
-(define-key evil-visual-state-map (kbd ",k") 'evil-exit-visual-state)
 (define-key minibuffer-local-map (kbd "M-k") 'abort-recursive-edit)
-(define-key minibuffer-local-map (kbd ",k") 'abort-recursive-edit)
 (define-key evil-insert-state-map (kbd "M-j") 'my-yas-expand)
 (global-set-key (kbd "M-k") 'keyboard-quit)
 
@@ -122,7 +121,8 @@ to replace the symbol under cursor"
 (global-set-key (kbd "C-c ; s") 'evilcvn-change-symbol-in-defun)
 
 ;; {{ evil-leader config
-(setq evil-leader/leader "," evil-leader/in-all-states t)
+(setq evil-leader/leader ",")
+
 (require 'evil-leader)
 (evil-leader/set-key
   "as" 'ack-same
