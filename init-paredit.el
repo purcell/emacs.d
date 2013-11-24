@@ -2,7 +2,7 @@
 (autoload 'enable-paredit-mode "paredit")
 
 (defun maybe-map-paredit-newline ()
-  (unless (or (memq major-mode '(inferior-emacs-lisp-mode nrepl-mode))
+  (unless (or (memq major-mode '(inferior-emacs-lisp-mode cider-repl-mode))
               (minibufferp))
     (local-set-key (kbd "RET") 'paredit-newline)))
 
