@@ -111,12 +111,12 @@
 \\usepackage[slantfont, boldfont]{xeCJK} % 允许斜体和粗体
 \\usepackage[xetex, colorlinks=true, CJKbookmarks=true, urlcolor=red, linkcolor=blue, menucolor=blue]{hyperref}
 
-\\setCJKmainfont{WenQuanYi Micro Hei} % 默认中文字体
-\\setCJKmonofont{WenQuanYi Micro Hei Mono} % 中文等宽字体
-\\setmainfont{TeX Gyre Pagella} % 英文衬线字体
-\\setmonofont{Monaco} % 英文等宽字体
-\\setsansfont{Trebuchet MS} % 英文无衬线字体
-\\punctstyle{kaiming} % 开明式标点格式: 句末点号用全角, 其他半角
+%\\setCJKmainfont{Song} % 默认中文字体
+%\\setCJKmonofont{Courier New} % 中文等宽字体
+%\\setmainfont{TeX Gyre Pagella} % 英文衬线字体
+%\\setmonofont{Monaco} % 英文等宽字体
+%\\setsansfont{Trebuchet MS} % 英文无衬线字体
+%\\punctstyle{kaiming} % 开明式标点格式: 句末点号用全角, 其他半角
 
 % 定义\\mono字体命令供listings宏配置使用
 \\newcommand\\fontnamemono{Monaco}

@@ -162,6 +162,7 @@
 ;;(setq irfc-directory "~/workstation/rfc/")
 ;;(setq irfc-assoc-mode t)
 (require 'my-org-settings)
+(require 'my-font-settings)
 (load-file "~/.emacs.d/site-lisp/graphviz-dot-mode/graphviz-dot-mode.el")
 (add-hook 'graphviz-dot-mode-hook #'(lambda () (setq autopair-dont-activate t)))
 (setq graphviz-dot-view-command "xdot %s")
