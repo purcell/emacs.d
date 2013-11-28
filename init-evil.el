@@ -107,18 +107,27 @@
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 
+(defun evilcvn--change-symbol(fn)
+  (let ((old (thing-at-point 'symbol)))
+    (funcall fn)
+    (unless (evil-visual-state-p)
+      (evil-visual-state))
+    (evil-ex (concat "'<,'>s/" (if (= 0 (length old)) "" "\\<\\(") old (if (= 0 (length old)) "" "\\)\\>/"))))
+  )
+
+(defun evilcvn-change-symbol-in-whole-buffer()
+  "mark the region in whole buffer and use string replacing UI in evil-mode
+to replace the symbol under cursor"
+  (interactive)
+  (evilcvn--change-symbol 'mark-whole-buffer)
+  )
 
 (defun evilcvn-change-symbol-in-defun ()
   "mark the region in defun (definition of function) and use string replacing UI in evil-mode
 to replace the symbol under cursor"
   (interactive)
-  (let ((old (thing-at-point 'symbol)))
-    (mark-defun)
-    (unless (evil-visual-state-p)
-      (evil-visual-state))
-    (evil-ex (concat "'<,'>s/" (if (= 0 (length old)) "" "\\<\\(") old (if (= 0 (length old)) "" "\\)\\>/"))))
+  (evilcvn--change-symbol 'mark-defun)
   )
-(global-set-key (kbd "C-c ; s") 'evilcvn-change-symbol-in-defun)
 
 ;; {{ evil-leader config
 (setq evil-leader/leader ",")
@@ -161,7 +170,8 @@ to replace the symbol under cursor"
   ;; "cc" 'evilnc-copy-and-comment-lines
   ;; "cp" 'evilnc-comment-or-uncomment-paragraphs
   "ct" 'ctags-create-or-update-tags-table
-  "cs" 'evilcvn-change-symbol-in-defun
+  "cd" 'evilcvn-change-symbol-in-defun
+  "cb" 'evilcvn-change-symbol-in-whole-buffer
   "tt" 'ido-goto-symbol ;; same as my vim hotkey
   "cg" 'helm-ls-git-ls
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
