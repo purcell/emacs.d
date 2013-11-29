@@ -255,6 +255,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'rvm)
 ;; C-x r l to list bookmarks
 (require-package 'bookmark+)
+(require-package 'multi-term)
 (require-package 'json-mode)
 (require-package 'js2-mode)
 (require-package 'tagedit)

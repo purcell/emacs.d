@@ -148,6 +148,7 @@ to replace the symbol under cursor"
   "cfp" 'copy-full-path-of-current-buffer
   "dj" 'dired-jump ;; open the dired from current file
   "ff" 'toggle-full-window ;; I use WIN+F in i3
+  "gt" 'get-term
   "px" 'paste-from-x-clipboard
   "pf" 'projectile-find-file
   "pd" 'projectile-find-dir
