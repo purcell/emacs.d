@@ -5,6 +5,11 @@
 ;; ----------------------------------------------------------------------------
 (autoload 'enable-paredit-mode "paredit")
 
+;; {{
+(setq scheme-program-name "guile")
+(require 'quack)
+;; }}
+
 
 (defun maybe-map-paredit-newline ()
   (unless (or (eq major-mode 'inferior-emacs-lisp-mode) (minibufferp))
