@@ -142,6 +142,7 @@ to replace the symbol under cursor"
   "eb" 'eval-buffer
   "ee" 'eval-expression
   "cx" 'copy-to-x-clipboard
+  "cy" 'strip-convert-lines-into-one-big-string
   "cff" 'current-font-face
   "cfn" 'copy-filename-of-current-buffer
   "cfp" 'copy-full-path-of-current-buffer

@@ -17,7 +17,7 @@
       (term-send-raw-string (current-kill 0)))))
 (add-hook 'term-mode-hook 'ash-term-hooks)
 
-;; {{@see http://emacs-journey.blogspot.com.au/2012/06/improving-ansi-term.html
+;; {{ @see http://emacs-journey.blogspot.com.au/2012/06/improving-ansi-term.html
 ;; kill the buffer when terminal is exited
 (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
   (if (memq (process-status proc) '(signal exit))

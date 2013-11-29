@@ -316,7 +316,6 @@ Current position is preserved."
     (kill-new str)
     (goto-char orig-pos)))
   )
-(global-set-key (kbd "C-c C-y") 'strip-convert-lines-into-one-big-string)
 
 ;; enable for all programming modes
 ;; http://emacsredux.com/blog/2013/04/21/camelcase-aware-editing/
