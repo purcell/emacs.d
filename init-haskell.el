@@ -1,7 +1,7 @@
 (require-package 'haskell-mode)
 
 (require-package 'flycheck-hdevtools)
-(after-load 'haskell-mode
+(after-load 'flycheck
   (require 'flycheck-hdevtools))
 
 (dolist (hook '(haskell-mode-hook inferior-haskell-mode-hook))
