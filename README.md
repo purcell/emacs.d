@@ -42,6 +42,13 @@ git clone https://github.com/purcell/emacs.d.git ~/.emacs.d
 Upon starting up Emacs for the first time, further third-party
 packages will be automatically downloaded and installed.
 
+## Updates
+
+Update the config with `git pull`. You'll probably also want/need to update
+the third-party packages regularly too:
+
+<kbd>M-x package-list-packages</kbd>, then <kbd>U</kbd> followed by <kbd>x</kbd>.
+
 ## Adding your own customization
 
 To add your own customization, use <kbd>M-x customize</kbd> and/or
