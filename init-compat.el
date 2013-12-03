@@ -28,6 +28,8 @@ to case differences."
     (defalias 'cl-gensym 'gensym)
     (defalias 'cl-gentemp 'gentemp)
     (defalias 'cl-case 'case)
+    (defalias 'cl-mapcar 'mapcar)
+    (defalias 'cl-coerce 'coerce)
   )
 
 (when (< emacs-major-version 24)
