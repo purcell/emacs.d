@@ -284,9 +284,9 @@ to replace the symbol under cursor"
   "zb" 'wg-switch-to-buffer
   "zp" 'wg-switch-to-workgroup-left
   "zn" 'wg-switch-to-workgroup-right
-  "zu" 'wg-undo-wconfig-change
-  "zr" 'wg-redo-wconfig-change
-  "zs" 'wg-save-wconfig
+  "zwu" 'wg-undo-wconfig-change
+  "zwr" 'wg-redo-wconfig-change
+  "zws" 'wg-save-wconfig
   )
 ;; }}
 
