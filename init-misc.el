@@ -13,5 +13,7 @@
 
 (setq-default regex-tool-backend 'perl)
 
+(add-auto-mode 'conf-mode "Procfile")
+
 
 (provide 'init-misc)

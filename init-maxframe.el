@@ -5,12 +5,10 @@
 (autoload 'maximize-frame "maxframe" "" t)
 (autoload 'restore-frame "maxframe" "" t)
 
-(when *is-cocoa-emacs*
+(when *is-a-mac*
   (after-load 'maxframe
     (fset 'maximize-frame 'x-maximize-frame)
-    (fset 'restore-frame 'x-restore-frame)))
-
-(when *is-a-mac*
+    (fset 'restore-frame 'x-restore-frame))
   (setq mf-display-padding-width 4
         mf-offset-x 0
         mf-offset-y 0
@@ -34,11 +32,20 @@
 (add-hook 'after-make-frame-functions 'sanityinc/maybe-maximize-frame)
 (add-hook 'after-init-hook 'sanityinc/maybe-maximize-frame)
 
+(defadvice maximize-frame (around skip-if-fullscreen (&optional frame) activate)
+  (unless (sanityinc/maximized-p frame)
+    ad-do-it))
+
+(defadvice restore-frame (around skip-if-fullscreen (&optional frame) activate)
+  (when (sanityinc/maximized-p frame)
+    ad-do-it))
+
 (defun within-p (a b delta)
   (<= (abs (- b a)) delta))
 
 (defun sanityinc/maximized-p (&optional frame)
   (or (not (with-selected-frame (or frame (selected-frame)) window-system))
+      (eq 'fullboth (frame-parameter frame 'fullscreen))
       (and (within-p (mf-max-display-pixel-width)
                      (frame-pixel-width frame)
                      (frame-char-width frame))

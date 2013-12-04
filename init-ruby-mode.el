@@ -4,7 +4,7 @@
 
 (add-auto-mode 'ruby-mode
                "Rakefile\\'" "\\.rake\\'" "\\.rxml\\'"
-               "\\.rjs\\'" ".irbrc\\'" "\\.builder\\'" "\\.ru\\'"
+               "\\.rjs\\'" "\\.irbrc\\'" "\\.pryrc\\'" "\\.builder\\'" "\\.ru\\'"
                "\\.gemspec\\'" "Gemfile\\'" "Kirkfile\\'")
 
 (setq ruby-use-encoding-map nil)
@@ -20,10 +20,20 @@
               (unless (derived-mode-p 'prog-mode)
                 (run-hooks 'prog-mode-hook)))))
 
+(add-hook 'ruby-mode-hook 'subword-mode)
+
+;; TODO: hippie-expand ignoring : for names in ruby-mode
+;; TODO: hippie-expand adaptor for auto-complete sources
 
 
 ;;; Inferior ruby
 (require-package 'inf-ruby)
+(require-package 'ac-inf-ruby)
+(after-load 'auto-complete
+  (add-to-list 'ac-modes 'inf-ruby-mode))
+(add-hook 'inf-ruby-mode-hook 'ac-inf-ruby-enable)
+(after-load 'inf-ruby
+  (define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
 
 
 

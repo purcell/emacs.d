@@ -1,4 +1,4 @@
-(require-package 'json)
+(require-package 'json-mode)
 (when (>= emacs-major-version 24)
   (require-package 'js2-mode)
   (require-package 'ac-js2))
@@ -6,6 +6,8 @@
 (require-package 'rainbow-delimiters)
 (require-package 'coffee-mode)
 
+(after-load 'js2-mode
+  (define-key js2-mode-map (kbd "TAB") 'indent-for-tab-command))
 
 (defcustom preferred-javascript-mode
   (first (remove-if-not #'fboundp '(js2-mode js-mode)))
@@ -22,9 +24,6 @@
                             (loop for entry in auto-mode-alist
                                   unless (eq preferred-javascript-mode (cdr entry))
                                   collect entry)))
-
-
-(add-auto-mode 'js-mode "\\.json\\'")
 
 
 ;; js2-mode
@@ -44,9 +43,6 @@
 ;; js-mode
 (setq js-indent-level preferred-javascript-indent-level)
 
-
-;; standard javascript-mode
-(setq javascript-indent-level preferred-javascript-indent-level)
 
 (add-to-list 'interpreter-mode-alist (cons "node" preferred-javascript-mode))
 

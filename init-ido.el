@@ -10,8 +10,9 @@
  (require-package 'ido-ubiquitous)
  (ido-ubiquitous-mode t))
 
+;; Use smex to handle M-x
 (require-package 'smex)
-(global-set-key (kbd "M-x") 'smex)
+(global-set-key [remap execute-extended-command] 'smex)
 
 (require-package 'idomenu)
 
