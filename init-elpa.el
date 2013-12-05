@@ -54,7 +54,7 @@ ARCHIVE is the string name of the package archive.")
 (setq package-filter-function
       (lambda (package version archive)
         (or (not (string-equal archive "melpa"))
-            (not (memq package '(slime))))))
+            (not (memq package '())))))
 
 
 
