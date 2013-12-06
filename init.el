@@ -136,7 +136,6 @@
 ;;;(setq ring-bell-function `(lambda ()
 ;;;                             (set-face-background 'default "dark")))
 
-
 (provide 'init)
 
 
