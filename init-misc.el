@@ -3,8 +3,6 @@
 ;;----------------------------------------------------------------------------
 (add-auto-mode 'tcl-mode "Portfile\\'")
 (fset 'yes-or-no-p 'y-or-n-p)
-(add-hook 'find-file-hooks 'goto-address-prog-mode)
-(setq goto-address-mail-face 'link)
 
 (column-number-mode 1)
 

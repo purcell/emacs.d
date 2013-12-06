@@ -1,7 +1,5 @@
 ;; @see http://stackoverflow.com/questions/2886184/copy-paste-in-emacs-ansi-term-shell/2886539#2886539
 (defun ash-term-hooks ()
-  ;; url clickable
-  (goto-address-mode)
   ;; dabbrev-expand in term
   (define-key term-raw-escape-map "/"
     (lambda ()
