@@ -54,6 +54,7 @@
         (compilation-mode . emacs)
         (speedbar-mode . emacs)
         (magit-commit-mode . normal)
+        (js2-error-buffer-mode . emacs)
         )
       do (evil-set-initial-state mode state))
 
@@ -138,6 +139,9 @@ to replace the symbol under cursor"
   "ac" 'ack
   "aa" 'ack-find-same-file
   "af" 'ack-find-file
+  "bf" 'beginning-of-defun
+  "ef" 'end-of-defun
+  "mf" 'mark-defun
   "em" 'erase-message-buffer
   "eb" 'eval-buffer
   "ee" 'eval-expression
@@ -184,7 +188,10 @@ to replace the symbol under cursor"
   "hn" 'highlight-symbol-next
   "hp" 'highlight-symbol-prev
   "hq" 'highlight-symbol-query-replace
-  "bm" 'pomodoro-start ;; beat myself
+  "
+
+bm" 'pomodoro-start ;; beat myself
+  "im" 'helm-imenu
   "." 'evil-ex
   ;; toggle overview,  @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
   "oo" 'switch-window
@@ -251,7 +258,10 @@ to replace the symbol under cursor"
   "xo" 'helm-find-files
   "vd" 'scroll-other-window
   "vu" '(lambda () (interactive) (scroll-other-window-down nil))
-  "jj" 'w3mext-search-js-api-mdn
+  "js" 'w3mext-search-js-api-mdn
+  "je" 'js2-display-error-list
+  "te" 'js2-mode-toggle-element
+  "tf" 'js2-mode-toggle-hide-functions
   "xh" 'mark-whole-buffer
   "xk" 'ido-kill-buffer
   "xs" 'save-buffer
@@ -263,7 +273,7 @@ to replace the symbol under cursor"
   "xnn" 'narrow-to-region
   "xnw" 'widen
   "xnd" 'narrow-to-defun
-  "xn" 'narrow-to-region
+  "xr" 'narrow-to-region
   "xw" 'widen
   "xd" 'narrow-to-defun
   "zc" 'wg-create-workgroup
