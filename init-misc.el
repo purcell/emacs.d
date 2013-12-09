@@ -588,7 +588,18 @@ The full path into relative path insert it as a local file link in org-mode"
   (color-theme-lethe)
   )
 
-;o; {{ projectile
+(defun add-directory-into-load-path ()
+  "add current directory into load-path, useful for elisp developers"
+  (interactive)
+  (let ((dir (expand-file-name default-directory)))
+    (if (not (memq dir load-path))
+        (add-to-list 'load-path dir)
+        )
+    (message "Directory added into load-path:%s" dir)
+    )
+  )
+
+;; {{ projectile
 (projectile-global-mode)
 ;; }}
 
