@@ -588,7 +588,7 @@ The full path into relative path insert it as a local file link in org-mode"
   (color-theme-lethe)
   )
 
-(defun add-directory-into-load-path ()
+(defun add-pwd-into-load-path ()
   "add current directory into load-path, useful for elisp developers"
   (interactive)
   (let ((dir (expand-file-name default-directory)))
