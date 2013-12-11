@@ -112,6 +112,7 @@
   (let ((old (thing-at-point 'symbol)))
     (funcall fn)
     (unless (evil-visual-state-p)
+      (kill-new old)
       (evil-visual-state))
     (evil-ex (concat "'<,'>s/" (if (= 0 (length old)) "" "\\<\\(") old (if (= 0 (length old)) "" "\\)\\>/"))))
   )
