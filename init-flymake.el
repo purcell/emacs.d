@@ -13,5 +13,4 @@ Return nil if we cannot, non-nil if we can."
        (if (and file-name (flymake-get-init-function file-name)) t nil))
      ))
 
-
 (provide 'init-flymake)

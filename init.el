@@ -89,6 +89,7 @@
 ;(require 'init-rcirc)
 
 (require 'init-lisp)
+(require 'init-elisp)
 
 (when *spell-check-support-enabled*
   (require 'init-spelling))
