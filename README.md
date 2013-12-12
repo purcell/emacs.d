@@ -52,7 +52,7 @@ the third-party packages regularly too:
 ## Adding your own customization
 
 To add your own customization, use <kbd>M-x customize</kbd> and/or
-create a file `~/.emacs.d/init-local.el` which looks like this:
+create a file `~/.emacs.d/lisp/init-local.el` which looks like this:
 
 ```el
 ... your code here ...
