@@ -134,14 +134,23 @@
 (setq ring-bell-function `(lambda ()
                             (set-face-background 'default "black")))
 
+(define-key ruby-mode-map (kbd "C-c C-c") 'xmp)
+
+(set-frame-font "monofur-18")
+
+;;;
+;;; Flash the screen
+;;;
+
+;;;(setq visible-bell nil)
+;;;(setq ring-bell-function `(lambda ()
+;;;                             (set-face-background 'default "dark")))
+
 (provide 'init)
 
 
 ;; Local Variables:
 ;; coding: utf-8
-;; no-byte-compile: t
+;; no-byte-compile: 
 ;; End:
-
-
-
 
