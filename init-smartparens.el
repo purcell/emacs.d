@@ -1,5 +1,6 @@
 (defun my-smartparens-config ()
   (setq sp-navigate-consider-sgml-tags '(html-mode
+                                          nxml-mode
                                           web-mode
                                           xml-mode))
   ;; highlights matching pairs
