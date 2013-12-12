@@ -22,16 +22,6 @@ to case differences."
       "Overridden; see `sanityinc/called-interactively-p' for the wrapped function."
       (sanityinc/called-interactively-p))))
 
-(when (or (< emacs-major-version 24) (and (= emacs-major-version 24) (< emacs-minor-version 3)))
-    (defalias 'cl-loop 'loop)
-    (defalias 'cl-do 'do)
-    (defalias 'cl-gensym 'gensym)
-    (defalias 'cl-gentemp 'gentemp)
-    (defalias 'cl-case 'case)
-    (defalias 'cl-mapcar 'mapcar)
-    (defalias 'cl-coerce 'coerce)
-  )
-
 (when (< emacs-major-version 24)
   ;; Help package.el work in older Emacsen, where there's no TRASH arg
   ;; for 'delete-directory

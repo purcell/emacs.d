@@ -87,7 +87,6 @@ ARCHIVE is the string name of the package archive.")
      helm-c-yasnippet
      auto-compile
      packed
-     cl-lib
      gitconfig-mode
      project-local-variables
      org-fstree
@@ -139,7 +138,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'fringe-helper)
 (require-package 'gnuplot)
 (require-package 'haskell-mode '(13 7 0) nil)
-(require-package 'cl-lib '(0 3 0) nil)
 (require-package 'magit '(1 2 0) nil)
 (require-package 'git-commit-mode)
 (require-package 'gitignore-mode)
