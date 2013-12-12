@@ -125,7 +125,6 @@
 (require 'init-misc)
 (require 'init-ctags)
 (require 'init-ace-jump-mode)
-(require 'init-multiple-cursors)
 ;; (require 'init-uml)
 (require 'init-sunrise-commander)
 (require 'init-bbdb)
