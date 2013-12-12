@@ -114,7 +114,7 @@ https://github.com/redguardtoo/emacs.d
 * By default EVIL (Vim emulation in Emacs) is used. You can comment out line containing "(require 'init-evil)" in init.el to unload it.
 
 * Some package cannot be downloaded automatically because of network problem.
-You need manually `M-x list-packages` and install it.
+You need manually `M-x list-packages` and install it or just `M-x package-refresh-content` and restart Emacs.
 
 * You can speed up the start up by NOT loading some heavy weight components like evil or yasnippet. All you need to do is add below code into ~/.bashrc:
   ```sh
