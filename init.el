@@ -132,7 +132,10 @@
 
 (setq visible-bell nil)
 (setq ring-bell-function `(lambda ()
-                            (set-face-background 'default "black")))
+
+                            (set-face-background 'default "dark")))
+
+
 
 (define-key ruby-mode-map (kbd "C-c C-c") 'xmp)
 
