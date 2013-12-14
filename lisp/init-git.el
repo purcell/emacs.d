@@ -16,6 +16,9 @@
 ;; quickly open magit on any one of your projects.
 (global-set-key [(meta f12)] 'magit-status)
 
+(after-load 'magit
+  (define-key magit-status-mode-map (kbd "C-M-<up>") 'magit-goto-parent-section))
+
 (require-package 'fullframe)
 (fullframe magit-status magit-mode-quit-window :magit-fullscreen nil)
 
