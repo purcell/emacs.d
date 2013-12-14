@@ -70,8 +70,7 @@
         (when (file-exists-p filename)
          (rename-file filename new-name 1))
         (rename-buffer new-name)
-        (set-visited-file-name new-name)
-        (set-buffer-modified-p nil)))))
+        (set-visited-file-name new-name)))))
 
 ;;----------------------------------------------------------------------------
 ;; Browse current HTML file
