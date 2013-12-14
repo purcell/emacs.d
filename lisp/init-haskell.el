@@ -1,6 +1,7 @@
 (require-package 'haskell-mode)
 
-(require-package 'flycheck-hdevtools)
+(when (> emacs-major-version 23)
+  (require-package 'flycheck-hdevtools))
 (after-load 'flycheck
   (require 'flycheck-hdevtools))
 
@@ -9,7 +10,10 @@
 
 (add-auto-mode 'haskell-mode "\\.ghci\\'")
 
-(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+(require-package 'hi2)
+;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+(add-hook 'haskell-mode-hook 'turn-on-hi2)
+
 (add-hook 'haskell-mode-hook (lambda () (subword-mode +1)))
 
 (after-load 'haskell-mode
