@@ -133,7 +133,7 @@
 (setq visible-bell nil)
 (setq ring-bell-function `(lambda ()
 
-                            (set-face-background 'default "dark")))
+                            (set-face-background 'default "bisque")))
 
 
 
