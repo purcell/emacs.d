@@ -132,8 +132,8 @@
 
 (setq visible-bell nil)
 (setq ring-bell-function `(lambda ()
-
-                            (set-face-background 'default "bisque")))
+                            (set-face-background 'default "DodgerBlue")
+                            (set-face-background 'default "dark")))
 
 
 
