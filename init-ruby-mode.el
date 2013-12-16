@@ -28,7 +28,7 @@
 (add-hook 'ruby-mode-hook 'robe-mode)
 (add-hook 'robe-mode-hook
           (lambda ()
-            (add-to-list 'ac-sources 'ac-source-robe)
+            ;;(add-to-list 'ac-sources 'ac-source-robe)
             (setq completion-at-point-functions '(auto-complete))))
 
 ;;----------------------------------------------------------------------------
