@@ -268,7 +268,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'popwin)
 (require-package 'projectile)
 (require-package 'elnode)
-(require-package 'evil-matchit '(1 2 2) nil)
+(require-package 'evil-matchit '(1 2 3) nil)
 (require-package 'quack) ;; for scheme
 ;;(require-package 'git-messenger '(20130613 1222 0) nil)
 (require-package 'issue-tracker '(0 0 1) nil)
