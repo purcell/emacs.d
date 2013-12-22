@@ -77,3 +77,9 @@ If you hit any problems, please [file an issue on the github project](https://gi
 [![](http://api.coderwall.com/purcell/endorsecount.png)](http://coderwall.com/purcell)
 
 [![](http://www.linkedin.com/img/webpromo/btn_liprofile_blue_80x15.png)](http://uk.linkedin.com/in/stevepurcell)
+
+
+some tips
+
+* 使用C + x C + f的时候， 经常会找 buffer 中存在的相似的文件， 而不是新建个文件， 这点是 ido 的一个补全策略， 如果不想要， 可以
+**  C ＋ j  去掉， 参见 [Emacs will not visit new file but insists on opening a similar one](http://stackoverflow.com/questions/16615253/emacs-will-not-visit-new-file-but-insists-on-opening-a-similar-one
