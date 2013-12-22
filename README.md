@@ -72,6 +72,12 @@ If you hit any problems, please [file an issue on the github project](https://gi
 
 -Steve Purcell
 
+
+
+## Tips
+
+* [emacs create new file with ido enabled](http://stackoverflow.com/questions/5138110/emacs-create-new-file-with-ido-enabled) or [Emacs will not visit new file but insists on opening a similar one](http://stackoverflow.com/questions/16615253/emacs-will-not-visit-new-file-but-insists-on-opening-a-similar-one)
+
 <hr>
 
 [![](http://api.coderwall.com/purcell/endorsecount.png)](http://coderwall.com/purcell)
