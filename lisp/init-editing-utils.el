@@ -333,5 +333,11 @@ With arg N, insert N newlines."
 (require-package 'highlight-escape-sequences)
 (hes-mode)
 
+
+(require-package 'guide-key)
+(setq guide-key/guide-key-sequence '("C-x r" "C-x 4"))
+(guide-key-mode 1)
+(diminish 'guide-key-mode)
+
 
 (provide 'init-editing-utils)
