@@ -2,11 +2,11 @@
 
 ;; my private snippets
 (setq my-yasnippets (expand-file-name "~/my-yasnippets"))
-(if (and  (file-exists-p my-yasnippets) (not (member my-yasnippets yas-snippet-dirs)))
-    (add-to-list 'yas-snippet-dirs my-yasnippets))
-;; (message "yas-snippet-dirs=%s" (mapconcat 'identity yas-snippet-dirs ":"))
+(if (and  (file-exists-p my-yasnippets) (not (member my-yasnippets yas/snippet-dirs)))
+    (add-to-list 'yas/snippet-dirs my-yasnippets))
+;; (message "yas/snippet-dirs=%s" (mapconcat 'identity yas-snippet-dirs ":"))
 
-(yas-global-mode 1)
+(yas/global-mode 1)
 
 (defun my-yas-expand ()
   (interactive)
