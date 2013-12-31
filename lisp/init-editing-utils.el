@@ -335,7 +335,7 @@ With arg N, insert N newlines."
 
 
 (require-package 'guide-key)
-(setq guide-key/guide-key-sequence '("C-x r" "C-x 4"))
+(setq guide-key/guide-key-sequence '("C-x r" "C-x 4" "C-x 5" "C-c ;" "C-c ; f"))
 (guide-key-mode 1)
 (diminish 'guide-key-mode)
 
