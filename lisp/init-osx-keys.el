@@ -4,7 +4,9 @@
   (setq default-input-method "MacOSX")
   (define-key key-translation-map "\e[21~" [f10])
   ;; Make mouse wheel / trackpad scrolling less jerky
-  (setq mouse-wheel-scroll-amount '(0.001))
+  (setq mouse-wheel-scroll-amount '(1
+                                    ((shift) . 5)
+                                    ((control))))
   (global-set-key (kbd "M-`") 'ns-next-frame)
   (global-set-key (kbd "M-h") 'ns-do-hide-emacs)
   (after-load 'nxml-mode
