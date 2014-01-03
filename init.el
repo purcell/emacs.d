@@ -83,6 +83,7 @@
 (require 'init-misc)
 
 (require 'init-dash)
+(require 'init-ledger)
 ;; Extra packages which don't require any configuration
 
 (require-package 'gnuplot)
