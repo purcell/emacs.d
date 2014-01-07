@@ -28,6 +28,9 @@
 ;;----------------------------------------------------------------------------
 ;; Restore histories and registers after saving
 ;;----------------------------------------------------------------------------
+(setq-default history-length 1000)
+(savehist-mode t)
+
 (require-package 'session)
 
 (setq session-save-file (expand-file-name ".session" user-emacs-directory))
