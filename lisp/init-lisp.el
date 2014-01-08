@@ -21,6 +21,8 @@
       (eval-region beg end)
     (pp-eval-last-sexp prefix)))
 
+(global-set-key (kbd "M-:") 'pp-eval-expression)
+
 (after-load 'lisp-mode
   (define-key emacs-lisp-mode-map (kbd "C-x C-e") 'sanityinc/eval-last-sexp-or-region))
 
