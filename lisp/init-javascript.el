@@ -3,7 +3,6 @@
   (require-package 'js2-mode)
   (require-package 'ac-js2))
 (require-package 'js-comint)
-(require-package 'rainbow-delimiters)
 (require-package 'coffee-mode)
 
 (after-load 'js2-mode
@@ -45,6 +44,14 @@
 
 
 (add-to-list 'interpreter-mode-alist (cons "node" preferred-javascript-mode))
+
+
+;; Javascript nests {} and () a lot, so I find this helpful
+
+(require-package 'rainbow-delimiters)
+(dolist (hook '(js2-mode-hook js-mode-hook json-mode-hook))
+  (add-hook hook 'rainbow-delimiters-mode))
+
 
 
 ;;; Coffeescript
