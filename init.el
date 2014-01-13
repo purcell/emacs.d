@@ -41,12 +41,18 @@
 (require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
 
 ;; win32 auto configuration, assuming that cygwin is installed at "c:/cygwin"
-(if *win32*
-	(progn
-		(setq cygwin-mount-cygwin-bin-directory "c:/cygwin/bin")
-		(require 'setup-cygwin)
-		;(setenv "HOME" "c:/cygwin/home/someuser") ;; better to set HOME env in GUI
-		))
+(condition-case nil
+    (when *win32*
+      (setq cygwin-mount-cygwin-bin-directory "c:/cygwin/bin")
+      (require 'setup-cygwin)
+      ;; better to set HOME env in GUI
+      ;; (setenv "HOME" "c:/cygwin/home/someuser")
+      )
+  (error
+   (message "setup-cygwin failed, continue anyway")
+   )
+  )
+
 
 (require 'init-elpa)
 (require 'init-exec-path) ;; Set up $PATH
