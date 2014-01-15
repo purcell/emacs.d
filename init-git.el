@@ -66,6 +66,33 @@
     (compile (concat "git svn "
                      (ido-completing-read "git-svn command: " git-svn--available-commands nil t)))))
 
+(defun git-reset-current-file ()
+  "git reset file of current buffer"
+  (interactive)
+  (let ((filename))
+    (when buffer-file-name
+      (setq filename (file-truename buffer-file-name))
+      (shell-command (concat "git reset " filename))
+      (message "DONE! git reset %s" filename)
+      )))
+
+(defun git-add-current-file ()
+  "git add file of current buffer"
+  (interactive)
+  (let ((filename))
+    (when buffer-file-name
+      (setq filename (file-truename buffer-file-name))
+      (shell-command (concat "git add " filename))
+      (message "DONE! git add %s" filename)
+      )))
+
+(defun git-add-option-update ()
+  "git add only tracked files of default directory"
+  (interactive)
+  (when buffer-file-name
+    (shell-command "git add -u")
+    (message "DONE! git add -u %s" default-directory)
+    ))
 
 ;; {{ git-messenger
 (require 'git-messenger)

@@ -273,6 +273,9 @@ bm" 'pomodoro-start ;; beat myself
   "xs" 'save-buffer
   "xz" 'suspend-frame
   "xvv" 'vc-next-action
+  "xva" 'git-add-current-file
+  "xvr" 'git-reset-current-file
+  "xvu" 'git-add-option-update
   "xv=" 'vc-diff
   "xvl" 'vc-print-log
   "xvp" 'git-messenger:popup-message
