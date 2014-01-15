@@ -213,6 +213,9 @@ bm" 'pomodoro-start ;; beat myself
   "x2" '(lambda () (interactive) (if *emacs23* (split-window-vertically) (split-window-right)))
   "x3" '(lambda () (interactive) (if *emacs23* (split-window-horizontally) (split-window-below)))
   "xu" 'winner-undo
+  "sl" 'sort-lines
+  "ur" 'uniquify-all-lines-region
+  "ub" 'uniquify-all-lines-buffer
   "ls" 'package-list-packages
   "ws" 'w3mext-hacker-search
   "hs" 'helm-swoop
@@ -222,6 +225,7 @@ bm" 'pomodoro-start ;; beat myself
   "gr" 'gtags-find-rtag
   "fb" 'flyspell-buffer
   "fe" 'flyspell-goto-next-error
+  "fa" 'flyspell-auto-correct-word
   "fw" 'ispell-word
   "gy" 'gtags-find-symbol
   "dg" 'djcb-gtags-create-or-update
