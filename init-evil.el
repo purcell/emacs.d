@@ -221,7 +221,8 @@ bm" 'pomodoro-start ;; beat myself
   "gp" 'gtags-pop-stack
   "gr" 'gtags-find-rtag
   "fb" 'flyspell-buffer
-  "fg" 'flyspell-goto-next-error
+  "fe" 'flyspell-goto-next-error
+  "fw" 'ispell-word
   "gy" 'gtags-find-symbol
   "dg" 'djcb-gtags-create-or-update
   "bc" '(lambda () (interactive) (wxhelp-browse-class-or-api (thing-at-point 'symbol)))
