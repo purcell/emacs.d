@@ -125,7 +125,6 @@ ARCHIVE is the string name of the package archive.")
 
 (package-initialize)
 
-(require-package 'popup)
 (require-package 'all)
 (require-package 'xml-rpc)
 (require-package 'dash)
