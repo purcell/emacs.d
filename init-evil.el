@@ -35,6 +35,7 @@
         (minibuffer-inactive-mode . emacs)
         (Info-mode . emacs)
         (term-mode . emacs)
+        (sdcv-mode . emacs)
         (log-edit-mode . emacs)
         (inf-ruby-mode . emacs)
         (yari-mode . emacs)
@@ -142,6 +143,8 @@ to replace the symbol under cursor"
   "af" 'ack-find-file
   "bf" 'beginning-of-defun
   "ef" 'end-of-defun
+  "db" 'sdcv-search-pointer ;; in another buffer
+  "dt" 'sdcv-search-input+ ;; in tip
   "mf" 'mark-defun
   "em" 'erase-message-buffer
   "eb" 'eval-buffer

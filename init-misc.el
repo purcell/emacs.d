@@ -628,4 +628,9 @@ The full path into relative path insert it as a local file link in org-mode"
   (interactive "*")
   (uniquify-all-lines-region (point-min) (point-max)))
 ;; }}
+
+;; start dictionary lookup
+(autoload 'sdcv-search-pointer "sdcv" "show word explanation in buffer" t)
+(autoload 'sdcv-search-input+ "sdcv" "show word explanation in tooltip" t)
+
 (provide 'init-misc)
