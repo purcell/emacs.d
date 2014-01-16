@@ -1,7 +1,8 @@
 (require-package 'haskell-mode)
 
 (when (> emacs-major-version 23)
-  (require-package 'flycheck-hdevtools))
+  (require-package 'flycheck-hdevtools)
+  (require-package 'flycheck-haskell))
 (after-load 'flycheck
   (require 'flycheck-hdevtools))
 
