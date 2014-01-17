@@ -130,6 +130,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'dash)
 ; color-theme 6.6.1 in elpa is buggy
 (require-package 'color-theme)
+(require-package 'color-theme-molokai)
 (require-package 'auto-compile)
 (require-package 'ace-jump-mode)
 (require-package 'expand-region '(0 8 0) nil)

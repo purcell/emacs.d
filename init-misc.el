@@ -633,4 +633,8 @@ The full path into relative path insert it as a local file link in org-mode"
 (autoload 'sdcv-search-pointer "sdcv" "show word explanation in buffer" t)
 (autoload 'sdcv-search-input+ "sdcv" "show word explanation in tooltip" t)
 
+;; color theme
+(require 'color-theme)
+(color-theme-molokai)
+
 (provide 'init-misc)
