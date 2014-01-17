@@ -380,12 +380,14 @@ Argument DICTIONARY-LIST the word that need transform."
   ;; Record current translate object.
   (setq sdcv-current-translate-object word)
   ;; Return translate result.
-  (sdcv-filter
-   (shell-command-to-string
-    (format "sdcv -n %s %s"
-            (mapconcat (lambda (dict)
-                         (concat "-u " dict))
-                       dictionary-list " ") word))))
+  (let (cmd)
+    (setq cmd
+          (format "sdcv -n %s %s"
+                  (mapconcat (lambda (dict)
+                               (concat "-u \"" dict "\""))
+                             dictionary-list " ") word))
+    (sdcv-filter (shell-command-to-string cmd)))
+  )
 
 (defun sdcv-filter (sdcv-string)
   "This function is for filter sdcv output string,.
