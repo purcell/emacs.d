@@ -379,15 +379,19 @@ Argument DICTIONARY-LIST the word that need transform."
   (or word (setq word (sdcv-region-or-word)))
   ;; Record current translate object.
   (setq sdcv-current-translate-object word)
+
+  (mapconcat (lambda (dict)
+               (concat "-u \"" dict "\""))
+             dictionary-list " ")
   ;; Return translate result.
   (let (cmd)
-    (setq cmd
-          (format "sdcv -n %s %s"
-                  (mapconcat (lambda (dict)
-                               (concat "-u \"" dict "\""))
-                             dictionary-list " ") word))
-    (sdcv-filter (shell-command-to-string cmd)))
-  )
+    (sdcv-filter
+     (mapconcat
+      (lambda (dict)
+        (setq cmd (format "sdcv -n -u \"%s\" \"%s\"" dict word))
+        (shell-command-to-string cmd))
+      dictionary-list "\n")
+     )))
 
 (defun sdcv-filter (sdcv-string)
   "This function is for filter sdcv output string,.
