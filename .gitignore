@@ -42,3 +42,4 @@ org-clock-save.el
 .\#*
 emms/
 projectile-bookmarks.eld
+history
