@@ -132,7 +132,6 @@
 (require 'init-misc)
 (require 'init-ctags)
 (require 'init-ace-jump-mode)
-;; (require 'init-uml)
 (require 'init-sunrise-commander)
 (require 'init-bbdb)
 (require 'init-gnus)
