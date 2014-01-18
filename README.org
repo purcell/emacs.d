@@ -33,6 +33,10 @@ The package manager will extract packages into ~/.emacs.d/elpa/.
 
 I also manually download and extract some packages into ~/.emacs.d/site-lisp/. Packages in ~/.emacs.d/site-lisp/ is not visible to Emacs package manager.
 
+My own snippets for [[https://github.com/capitaomorte/yasnippet][Yasnippet]] is in ~/.emacs.d/snippets.
+
+Other directoris do not matter.
+
 * Third party command line tools
 These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 
