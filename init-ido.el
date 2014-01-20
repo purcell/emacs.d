@@ -70,11 +70,4 @@
 
 (global-set-key "\C-ci" 'ido-goto-symbol) ; or any key you see fit
 
-;;----------------------------------------------------------------------------
-;; ido completion in M-x
-;;----------------------------------------------------------------------------
-(smex-initialize)
-(global-set-key "\M-x" 'smex)
-
-
 (provide 'init-ido)

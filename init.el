@@ -70,6 +70,7 @@
 (require 'init-artbollocks-mode)
 (require 'init-recentf)
 (require 'init-ido)
+(require 'init-smex)
 (if *emacs24* (require 'init-helm))
 (require 'init-hippie-expand)
 (require 'init-windows)
