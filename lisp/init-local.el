@@ -1,14 +1,8 @@
 
-;;去掉工具栏
-(tool-bar-mode nil)
-
-;;不要滚动栏，现在都用滚轴鼠标了，可以不用滚动栏了
-(scroll-bar-mode nil)
-
 ;;# Begin # 状态栏设置 
 ;; 在状态栏显示日期时间
-;;(setq display-time-day-and-date t)
-;;(display-time)
+(setq display-time-day-and-date t)
+(display-time)
 
 ;; 在mode-line上用彩色显示当前buffer数
 (when window-system
@@ -48,16 +42,16 @@
 	(:eval (or (buffer-file-name) (buffer-name)))))
 ;; End 标题栏设置
 
-(setq auto-save-default nil)
-(setq font-lock-maximum-decoration t)
-(setq global-font-lock-mode t)
-(setq line-prefix (quote(80 . t)))
-(setq line-prefix (quote(80 . t)))
-(setq wrap-prefix (quote(80 . t)))
-(size-indication-mode t)
-(setq truncate-partial-width-windows nil)
-(setq visual-line-mode nil)
-(setq linum-mode t)
+;;; (setq auto-save-default nil)
+;;; (setq font-lock-maximum-decoration t)
+;;; (setq global-font-lock-mode t)
+;;; (setq line-prefix (quote(80 . t)))
+;;; (setq line-prefix (quote(80 . t)))
+;;; (setq wrap-prefix (quote(80 . t)))
+;;; (size-indication-mode t)
+;;; (setq truncate-partial-width-windows nil)
+;;; (setq visual-line-mode nil)
+;;; (setq linum-mode t)
 
 ;;按Tab的时候，嘘～～，闭嘴!!
 (setq visible-bell t)
