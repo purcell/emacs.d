@@ -260,9 +260,14 @@ bm" 'pomodoro-start ;; beat myself
   "xz" 'suspend-frame
   "xvv" 'vc-next-action
   "xva" 'git-add-current-file
-  "xvr" 'git-reset-current-file
+  "xrf" 'git-reset-current-file
   "xvu" 'git-add-option-update
-  "xv=" 'vc-diff
+  "xvg" 'vc-annotate
+  "xv=" 'git-gutter:popup-hunk
+  "pp" 'git-gutter:previous-hunk
+  "nn" 'git-gutter:next-hunk
+  "xvs" 'git-gutter:stage-hunk
+  "xvr" 'git-gutter:revert-hunk
   "xvl" 'vc-print-log
   "xvp" 'git-messenger:popup-message
   "xnn" 'narrow-to-region
