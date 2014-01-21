@@ -599,10 +599,6 @@ The full path into relative path insert it as a local file link in org-mode"
     )
   )
 
-;; {{ projectile
-(projectile-global-mode)
-;; }}
-
 ;; {{ save history
 (setq history-length 8000)
 (setq savehist-additional-variables '(search-ring regexp-search-ring kill-ring))

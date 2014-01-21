@@ -264,7 +264,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'string-edit)
 (require-package 'dired-details)
 (require-package 'popwin)
-(require-package 'projectile)
 (require-package 'elnode)
 (require-package 'evil-matchit '(1 2 5) nil)
 (require-package 'quack) ;; for scheme
