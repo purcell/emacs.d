@@ -264,6 +264,8 @@ bm" 'pomodoro-start ;; beat myself
   "xvu" 'git-add-option-update
   "xvg" 'vc-annotate
   "xv=" 'git-gutter:popup-hunk
+  "ps" 'my-goto-previous-section
+  "ns" 'my-goto-next-section
   "pp" 'my-goto-previous-hunk
   "nn" 'my-goto-next-hunk
   "xvs" 'git-gutter:stage-hunk

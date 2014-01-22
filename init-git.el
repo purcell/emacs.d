@@ -135,8 +135,8 @@
 (global-set-key (kbd "C-x v p") 'git-messenger:popup-message)
 ;; }}
 
-;; {{ goto next/previous hunk
-(defun my-goto-next-hunk (arg)
+;; {{ goto next/previous hunk/section
+(defun my-goto-next-section (arg)
   "wrap magit and other diff plugins next/previous command"
   (interactive "p")
   (cond
@@ -152,7 +152,7 @@
    (t (git-gutter:next-hunk arg))
    ))
 
-(defun my-goto-previous-hunk (arg)
+(defun my-goto-previous-section (arg)
   "wrap magit and other diff plugins next/previous command"
   (interactive "p")
   (cond
@@ -165,6 +165,24 @@
         (error
          (magit-goto-previous-section)))
       (setq arg (1- arg))))
+   (t (git-gutter:previous-hunk arg))
+   ))
+
+(defun my-goto-next-hunk (arg)
+  "wrap magit and other diff plugins next/previous command"
+  (interactive "p")
+  (cond
+   ((string= major-mode "magit-commit-mode")
+    (diff-hunk-next arg))
+   (t (git-gutter:next-hunk arg))
+   ))
+
+(defun my-goto-previous-hunk (arg)
+  "wrap magit and other diff plugins next/previous command"
+  (interactive "p")
+  (cond
+   ((string= major-mode "magit-commit-mode")
+    (diff-hunk-prev arg))
    (t (git-gutter:previous-hunk arg))
    ))
 
