@@ -566,7 +566,7 @@ The full path into relative path insert it as a local file link in org-mode"
                       (car (last (split-string file "\\.")))
                       ";base64,"
                       str
-                      ") no-repeat 0 0;}"
+                      ") no-repeat 0 0;"
                       ))
     (kill-new rlt)
     (copy-yank-str rlt)
