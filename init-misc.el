@@ -625,9 +625,21 @@ The full path into relative path insert it as a local file link in org-mode"
   (uniquify-all-lines-region (point-min) (point-max)))
 ;; }}
 
-;; start dictionary lookup
+;; {{start dictionary lookup
+;; use below commands to create dicitonary
+;; mkdir -p ~/.stardict/dic
+;; # wordnet English => English
+;; curl http://abloz.com/huzheng/stardict-dic/dict.org/stardict-dictd_www.dict.org_wn-2.4.2.tar.bz2 | tar jx -C ~/.stardict/dic
+;; # Langdao Chinese => English
+;; curl http://abloz.com/huzheng/stardict-dic/zh_CN/stardict-langdao-ec-gb-2.4.2.tar.bz2 | tar jx -C ~/.stardict/dic
+;;
+(setq sdcv-dictionary-simple-list '("朗道英汉字典5.0"))
+(setq sdcv-dictionary-complete-list '("WordNet"))
 (autoload 'sdcv-search-pointer "sdcv" "show word explanation in buffer" t)
 (autoload 'sdcv-search-input+ "sdcv" "show word explanation in tooltip" t)
+(global-set-key (kbd "C-c ; b") 'sdcv-search-pointer)
+(global-set-key (kbd "C-c ; t") 'sdcv-search-input+)
+;; }}
 
 ;; color theme
 (require 'color-theme)
