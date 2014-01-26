@@ -1,3 +1,16 @@
+
+(server-start)
+
+(setq visible-bell t);; 禁用终端响铃
+(setq ring-bell-function 'ignore)
+
+(autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
+(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on t)
+
+;; (setq exec-path (append exec-path '("~/")))
+
+;; (add-to-list 'auto-mode-alist '("/mutt" . mail-mode))
+
 (defun sanityinc/utf8-locale-p (v)
   "Return whether locale string V relates to a UTF-8 locale."
   (and v (string-match "UTF-8" v)))
