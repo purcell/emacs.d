@@ -13,6 +13,7 @@ To install, Download [[https://github.com/redguardtoo/emacs.d/archive/master.zip
 Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Python/C#/Lua/Javascript ...).
 
 * Features
+- All key binding and plugins are usable in terminal
 - Real time HTML syntax checker enabled (you need install tidy)
 - git or subversion is *NOT* needed. You *DONOT* need run 'git submodule update'.
 - optimized for cross-platform C++ development with CMake and wxWidgets
