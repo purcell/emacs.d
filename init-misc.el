@@ -664,4 +664,10 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 (require 'color-theme)
 (color-theme-molokai)
 
+(setq web-mode-imenu-regexp-list
+  '(;; ("<\\(h[1-9]\\)\\([^>]*\\)>\\([^<]*\\)" 1 3 ">" nil)
+    ("^[ \t]*<\\([@a-z]+\\)[^>]*>? *$" 1 " id=\"\\([a-zA-Z0-9_]+\\)\"" "#" ">")
+    ("^[ \t]*<\\(@[a-z.]+\\)[^>]*>? *$" 1 " contentId=\"\\([a-zA-Z0-9_]+\\)\"" "=" ">")
+    ))
+
 (provide 'init-misc)

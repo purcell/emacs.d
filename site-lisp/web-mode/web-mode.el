@@ -9,6 +9,7 @@
 ;; Created: July 2011
 ;; Keywords: html template php javascript js css web
 ;;           django jsp asp erb twig jinja blade dust closure
+
 ;;           freemarker mustache velocity cheetah smarty
 ;; URL: http://web-mode.org
 ;; Repository: http://github.com/fxbois/web-mode
@@ -477,6 +478,16 @@ Must be used in conjunction with web-mode-enable-block-face."
 (defvar web-mode-whitespaces-regexp
   "^[ \t]\\{2,\\}$\\| \t\\|\t \\|[ \t]+$\\|^[ \n\t]+\\'\\|^[ \t]?[\n]\\{2,\\}"
   "Regular expression for whitespaces.")
+
+(defvar web-mode-imenu-regexp-list
+  '(("<\\(h[1-9]\\)\\([^>]*\\)>\\([^<]*\\)" 1 3 ">" nil)
+    ("^[ \t]*<\\([@a-z]+\\)[^>]*>? *$" 1 "id=\"\\([a-zA-Z0-9_]+\\)\"" "#" ">")
+    )
+  "List of regular expressions to match imenu items. Each element of list is:
+either (regex index-to-extract-type index-to-extract-content concat-string),
+or (regex index-to-extract-type another-regex-extract-content concat-string)
+Please note the second data type of element support multi-line tag.
+")
 
 (defvar web-mode-engine nil
   "Template engine")
@@ -1735,18 +1746,76 @@ Must be used in conjunction with web-mode-enable-block-face."
     ))
 
 (defun web-mode-imenu-index ()
-  "Return a table of contents."
-  (let (toc-index)
+  (interactive)
+  "return imenu items"
+  (let (toc-index
+        line)
     (save-excursion
       (goto-char (point-min))
-      (while (re-search-forward "<h\\([1-9]\\)\\([^>]*\\)>\\([^<]*\\)" nil t)
-	(setq toc-index
-	      (cons (cons (concat (make-string
-				   (* 2 (1- (string-to-number (match-string 1))))
-				   ?\s)
-				  (match-string 3))
-			  (line-beginning-position))
-		    toc-index))))
+      (while (not (eobp))
+        (setq line (buffer-substring-no-properties
+                    (line-beginning-position)
+                    (line-end-position)))
+
+        (let (found
+              (i 0)
+              item
+              regexp
+              type
+              type-idx
+              content
+              content-idx
+              content-regexp
+              close-tag-regexp
+              concat-str
+              jumpto
+              str)
+          (while (and (not found ) (< i (length web-mode-imenu-regexp-list)))
+            (setq item (nth i web-mode-imenu-regexp-list))
+            (setq regexp (nth 0 item))
+            (setq type-idx (nth 1 item))
+            (setq content-idx (nth 2 item))
+            (setq concat-str (nth 3 item))
+            (when (not (numberp content-idx))
+              (setq content-regexp (nth 2 item)
+                    close-tag-regexp (nth 4 item)
+                    content-idx nil))
+
+            (when (string-match regexp line)
+
+              (cond
+               (content-idx
+                (setq type (match-string type-idx line))
+                (setq content (match-string content-idx line))
+                (setq str (concat type concat-str content))
+                (setq jumpto (line-beginning-position)))
+               (t
+                ;; ("^ *<\\([a-z]+\\)[^>]*$" 1 "id=\"\\([a-zA-Z0-9_]+\\)\"" "#" ">")
+                (let (limit )
+                  (setq type (match-string type-idx line))
+                  (goto-char (line-beginning-position))
+                  (save-excursion
+                    (setq limit (re-search-forward close-tag-regexp (point-max) t)))
+
+                  (when limit
+                    (when (re-search-forward content-regexp limit t)
+                      (setq content (match-string 1))
+                      (setq str (concat type concat-str content))
+                      (setq jumpto (line-beginning-position))
+                      )
+                    )))
+               )
+              (when str (setq toc-index
+                              (cons (cons str jumpto)
+                                    toc-index)
+                              )
+                    (setq found t))
+              )
+            (setq i (1+ i))))
+        (forward-line)
+        (goto-char (line-end-position)) ;; make sure we are at eobp
+        ))
+    ;; (message "toc-index=%s" toc-index)
     (nreverse toc-index)))
 
 (defun web-mode-scan-buffer ()
