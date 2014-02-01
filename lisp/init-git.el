@@ -21,7 +21,7 @@
 
 (require-package 'fullframe)
 (after-load 'magit
-  (fullframe magit-status magit-mode-quit-window :magit-fullscreen nil))
+  (fullframe magit-status magit-mode-quit-window))
 
 
 ;;; When we start working on git-backed files, use git-wip if available
