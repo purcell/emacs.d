@@ -17,13 +17,57 @@
            (point))))
     p))
 
+(defun lob/try-complete-ispell (old)
+  "Making hippie-expand a little better for text-mode and stuff.
+I based this code off `try-complete-lisp-symbol` and
+`ispell-complete-word`"
+  (when (lob/is-editing-english)
+    (unless old
+      (he-init-string (he-lisp-symbol-beg) (point))
+      (if (not (he-string-member he-search-string he-tried-table))
+          (setq he-tried-table (cons he-search-string he-tried-table)))
+      (setq he-expand-list
+            (and (not (equal he-search-string ""))
+                 (lookup-words he-search-string ispell-complete-word-dict))))
+
+      (while (and he-expand-list
+                  (he-string-member (car he-expand-list) he-tried-table))
+        (setq he-expand-list (cdr he-expand-list)))
+      (if (null he-expand-list)
+          (progn
+            (if old (he-reset-string))
+            ())
+        (progn
+          (he-substitute-string (car he-expand-list))
+          (setq he-expand-list (cdr he-expand-list))
+          t))))
+
+
 ;; The actual expansion function
 (defun try-expand-tag (old)
   ;; old is true if we have already attempted an expansion
   (cond
    ((memq major-mode '(org-mode
                        message-mode))
-    (ispell-complete-word))
+    (let ((lookup-func (if (fboundp 'ispell-lookup-words)
+                           'ispell-lookup-words
+                         'lookup-words)))
+      (unless old
+        (he-init-string (he-lisp-symbol-beg) (point))
+        (if (not (he-string-member he-search-string he-tried-table))
+            (setq he-tried-table (cons he-search-string he-tried-table)))
+        (setq he-expand-list
+              (and (not (equal he-search-string ""))
+                   (funcall lookup-func (concat (buffer-substring-no-properties (he-lisp-symbol-beg) (point)) "*")))))
+      (if (null he-expand-list)
+          (progn
+            (if old (he-reset-string))
+            ())
+        (progn
+          (he-substitute-string (car he-expand-list))
+          (setq he-expand-list (cdr he-expand-list))
+          t))
+      ))
    ((string= major-mode "minibuffer-inactive-mode") ())
    (t
     (unless old
