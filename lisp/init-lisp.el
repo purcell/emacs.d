@@ -56,7 +56,7 @@
   (make-local-variable 'hippie-expand-try-functions-list)
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol t)
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially t)
-  (add-to-list 'hippie-expand-try-functions-list 'my/try-complete-lisp-symbol-without-namespace))
+  (add-to-list 'hippie-expand-try-functions-list 'my/try-complete-lisp-symbol-without-namespace t))
 
 
 ;; ----------------------------------------------------------------------------
