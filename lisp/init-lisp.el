@@ -42,7 +42,7 @@
   "Hippie expand \"try\" function which expands \"-foo\" to \"modname-foo\" in elisp."
   (unless old
     (he-init-string (he-lisp-symbol-beg) (point))
-    (when (string-match-p "^-" he-search-string)
+    (when (string-prefix-p "-" he-search-string)
       (let ((mod-name (my/emacs-lisp-module-name)))
         (when mod-name
           (setq he-expand-list (list (concat mod-name he-search-string)))))))
