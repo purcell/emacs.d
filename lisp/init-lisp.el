@@ -34,7 +34,7 @@
   "Search the buffer for `provide' declaration."
   (save-excursion
     (goto-char (point-min))
-    (when (search-forward-regexp "^(provide '")
+    (when (search-forward-regexp "^(provide '" nil t)
       (symbol-name (symbol-at-point)))))
 
 ;; Credit to Chris Done for this one.
