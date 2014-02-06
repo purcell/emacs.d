@@ -84,7 +84,6 @@ ARCHIVE is the string name of the package archive.")
      pomodoro
      helm
      helm-ls-git
-     helm-c-yasnippet
      auto-compile
      packed
      gitconfig-mode
@@ -275,7 +274,6 @@ ARCHIVE is the string name of the package archive.")
   (require-package 'helm '(20140205 2333 0) nil)
   (require-package 'helm-ls-git '(20130310 1401 0) nil)
   (require-package 'helm-gtags)
-  (require-package 'helm-c-yasnippet)
   )
 ;; (require-package 'command-frequency)
 
