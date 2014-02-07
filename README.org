@@ -2,13 +2,11 @@
 - I'm using [[http://www.vim.org][Vim]] key binding. Please see "Tips" section if you prefer the Emacs key binding.
 - People in Mainland China may need [[http://code.google.com/p/goagent/][goagent]] to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server (or any proxy server).
 - C++/C developers, you need tell Emacs where to search headers to make auto-complete work. See section `clang` for details.
-- I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] verion Emacs to avoid some overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs.
+- I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid some overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs.
 - I whitelist packages from [[http://melpa.milkbox.net][melpa]] because it is too cutting edge. Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
 
 * General
 My first priority is -stable-. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]].
-
-To install, Download [[https://github.com/redguardtoo/emacs.d/archive/master.zip][this zip file]] and extract its content into ~/.emacs.d. Ensure that the 'init.el' contained in this repo ends up at ~/.emacs.d/init.el and old -~/.emacs *IS REMOVED*.
 
 Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Python/C#/Lua/Javascript ...).
 
@@ -24,6 +22,18 @@ Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Py
 - The configuration work with Emacs version >=24 but still usable with Emacs version 23 (tested with Emacs 23.4.1).
 - evil-mode and its plugins (Vim key binding)
 - yasnippet and my customized snippets (insert code snippet by typing less keys)
+
+* Install
+Download [[https://github.com/redguardtoo/emacs.d/archive/master.zip][this zip file]] and extract its content into ~/.emacs.d. Ensure that the 'init.el' contained in this repo ends up at ~/.emacs.d/init.el and old -~/.emacs *IS REMOVED*.
+
+Make sure you are connected to the internet.
+
+you may need run the below command in the terminal at least once to update the content from package repositories:
+#+BEGIN_SRC elisp
+emacs -nw --batch -l ~/.emacs.d/init.el -f package-refresh-contents
+#+END_SRC
+
+Package repository is like Emacs App stores but all the Apps are FREE.
 
 * Directory structure
 init.el is main file which include all the other *.el files.
