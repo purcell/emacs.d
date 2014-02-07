@@ -1,5 +1,5 @@
 ;; flyspell set up for web-mode
-(defun web-mode-flyspefll-verify ()
+(defun web-mode-flyspell-verify ()
   (let ((f (get-text-property (- (point) 1) 'face))
         rlt)
     (cond
@@ -30,7 +30,7 @@
     rlt
     ))
 
-(put 'web-mode 'flyspell-mode-predicate 'web-mode-flyspefll-verify)
+(put 'web-mode 'flyspell-mode-predicate 'web-mode-flyspell-verify)
 
 (require 'flyspell-lazy)
 (flyspell-lazy-mode 1)
