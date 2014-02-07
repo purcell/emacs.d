@@ -44,6 +44,7 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 ** w3m (web browser in console) 
 - needed by `w3m` (w3m is emacs package name written in elisp)
 - install through OS package manager
+- please note only emacs with GUI can display image
 
 ** lua
 - required by `flymake-lua`
