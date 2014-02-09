@@ -203,6 +203,8 @@ bm" 'pomodoro-start ;; beat myself
   "ur" 'uniquify-all-lines-region
   "ub" 'uniquify-all-lines-buffer
   "ls" 'package-list-packages
+  "lo" 'moz-console-log-var
+  "lj" 'moz-load-js-file-and-send-it
   "ws" 'w3mext-hacker-search
   "hs" 'helm-swoop
   "hb" 'helm-back-to-last-point
