@@ -8,7 +8,7 @@
   (auto-reload-firefox-on-after-save-hook)
   )
 
-(add-hook 'js2-mode-hook 'moz-custom-setup)
+;; (add-hook 'js2-mode-hook 'moz-custom-setup)
 (add-hook 'html-mode-hook 'moz-custom-setup)
 (add-hook 'nxml-mode-hook 'moz-custom-setup)
 (add-hook 'web-mode-hook 'moz-custom-setup)
@@ -19,7 +19,7 @@
                      (lambda ()
                        (interactive)
                        (comint-send-string (inferior-moz-process)
-                                           "BrowserReload();")))
+                                           "setTimeout(function(){content.document.location.reload(true);}, '500');")))
      ))
 
 (defun auto-reload-firefox-on-after-save-hook ()
@@ -27,11 +27,10 @@
             '(lambda ()
                (interactive)
                (comint-send-string (inferior-moz-process)
-                                   "setTimeout(BrowserReload(), '500');"))
+                                   "setTimeout(function(){content.document.location.reload(true);}, '500');"))
             'append 'local)) ;; buffer-local
 
 (defun moz-goto-content-and-run-cmd (cmd)
-  ;; (message "cmd=%s" cmd)
   (comint-send-string (inferior-moz-process)
                       (concat "repl.enter(content);"
                               cmd
@@ -50,6 +49,8 @@
   (let (cmd js-file)
     (setq js-file (read-file-name "js file:" moz-repl-js-dir))
     (when (file-exists-p js-file)
+      ;; flush mozrepl at first
+      (moz-goto-content-and-run-cmd "console.log('hello');")
       ;; read the content of js-file
       (setq cmd (moz--read-file js-file))
       (moz-goto-content-and-run-cmd cmd))
