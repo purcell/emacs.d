@@ -45,7 +45,8 @@
 
 ;;; LESS
 (require-package 'less-css-mode)
-(require-package 'skewer-less)
+(when (featurep 'js2-mode)
+  (require-package 'skewer-less))
 
 
 

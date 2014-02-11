@@ -21,17 +21,42 @@
       (eval-region beg end)
     (pp-eval-last-sexp prefix)))
 
+(global-set-key (kbd "M-:") 'pp-eval-expression)
+
 (after-load 'lisp-mode
   (define-key emacs-lisp-mode-map (kbd "C-x C-e") 'sanityinc/eval-last-sexp-or-region))
 
 ;; ----------------------------------------------------------------------------
 ;; Hippie-expand
 ;; ----------------------------------------------------------------------------
+
+(defun my/emacs-lisp-module-name ()
+  "Search the buffer for `provide' declaration."
+  (save-excursion
+    (goto-char (point-min))
+    (when (search-forward-regexp "^(provide '" nil t)
+      (symbol-name (symbol-at-point)))))
+
+;; Credit to Chris Done for this one.
+(defun my/try-complete-lisp-symbol-without-namespace (old)
+  "Hippie expand \"try\" function which expands \"-foo\" to \"modname-foo\" in elisp."
+  (unless old
+    (he-init-string (he-lisp-symbol-beg) (point))
+    (when (string-prefix-p "-" he-search-string)
+      (let ((mod-name (my/emacs-lisp-module-name)))
+        (when mod-name
+          (setq he-expand-list (list (concat mod-name he-search-string)))))))
+  (when he-expand-list
+    (he-substitute-string (car he-expand-list))
+    (setq he-expand-list nil)
+    t))
+
 (defun set-up-hippie-expand-for-elisp ()
   "Locally set `hippie-expand' completion functions for use with Emacs Lisp."
   (make-local-variable 'hippie-expand-try-functions-list)
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol t)
-  (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially t))
+  (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially t)
+  (add-to-list 'hippie-expand-try-functions-list 'my/try-complete-lisp-symbol-without-namespace t))
 
 
 ;; ----------------------------------------------------------------------------

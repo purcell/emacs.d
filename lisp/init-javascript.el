@@ -1,10 +1,9 @@
 (require-package 'json-mode)
 (when (>= emacs-major-version 24)
   (require-package 'js2-mode)
-  (require-package 'ac-js2))
+  (require-package 'ac-js2)
+  (require-package 'coffee-mode))
 (require-package 'js-comint)
-(require-package 'rainbow-delimiters)
-(require-package 'coffee-mode)
 
 (after-load 'js2-mode
   (define-key js2-mode-map (kbd "TAB") 'indent-for-tab-command))
@@ -47,13 +46,22 @@
 (add-to-list 'interpreter-mode-alist (cons "node" preferred-javascript-mode))
 
 
+;; Javascript nests {} and () a lot, so I find this helpful
+
+(require-package 'rainbow-delimiters)
+(dolist (hook '(js2-mode-hook js-mode-hook json-mode-hook))
+  (add-hook hook 'rainbow-delimiters-mode))
+
+
+
 ;;; Coffeescript
 
 (after-load 'coffee-mode
   (setq coffee-js-mode preferred-javascript-mode
         coffee-tab-width preferred-javascript-indent-level))
 
-(add-to-list 'auto-mode-alist '("\\.coffee\\.erb\\'" . coffee-mode))
+(when (fboundp 'coffee-mode)
+  (add-to-list 'auto-mode-alist '("\\.coffee\\.erb\\'" . coffee-mode)))
 
 ;; ---------------------------------------------------------------------------
 ;; Run and interact with an inferior JS via js-comint.el
@@ -79,7 +87,7 @@
 ;; Alternatively, use skewer-mode
 ;; ---------------------------------------------------------------------------
 
-(when (featurep 'js2-mode)
+(when (and (>= emacs-major-version 24) (featurep 'js2-mode))
   (require-package 'skewer-mode)
   (after-load 'skewer-mode
     (add-hook 'skewer-mode-hook
