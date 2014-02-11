@@ -99,7 +99,6 @@ ARCHIVE is the string name of the package archive.")
      ctags
      fakir
      erlang
-     workgroups2
      )
   "Don't install any Melpa packages except these packages")
 
@@ -244,7 +243,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'evil-nerd-commenter '(1 2 7) nil)
 (require-package 'dropdown-list)
 (require-package 'yasnippet '(0 8 0) nil)
-(require-package 'workgroups2)
 ;; rvm-open-gem to get gem's code
 (require-package 'rvm)
 ;; C-x r l to list bookmarks
