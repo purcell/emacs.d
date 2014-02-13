@@ -664,6 +664,10 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 (require 'color-theme)
 (color-theme-molokai)
 
+;; {{smart-compile: http://www.emacswiki.org/emacs/SmartCompile
+(require 'smart-compile)
+;; }}
+
 (setq web-mode-imenu-regexp-list
   '(;; ("<\\(h[1-9]\\)\\([^>]*\\)>\\([^<]*\\)" 1 3 ">" nil)
     ("^[ \t]*<\\([@a-z]+\\)[^>]*>? *$" 1 " id=\"\\([a-zA-Z0-9_]+\\)\"" "#" ">")
