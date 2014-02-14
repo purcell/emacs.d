@@ -33,9 +33,26 @@
 
 (add-hook 'auto-complete-mode-hook 'set-auto-complete-as-completion-at-point-function)
 
+;;====================yasnippet config======================================
+(defface ac-yasnippet-candidate-face
+         '((t (:background "sandybrown" :foreground "black")))
+         "Face for yasnippet candidate.")
+
+(defface ac-yasnippet-selection-face
+         '((t (:background "coral3" :foreground "white")))
+         "Face for the yasnippet selected candidate.")
+
+(defvar ac-source-yasnippet
+  '((candidates . ac-yasnippet-candidate)
+    (action . yas/expand)
+    (candidate-face . ac-yasnippet-candidate-face)
+    (selection-face . ac-yasnippet-selection-face))
+  "Source for Yasnippet.")
+;;====================yasnippet config end===================================
 
 (set-default 'ac-sources
              '(ac-source-imenu
+               ac-source-yasnippet
                ac-source-dictionary
                ac-source-words-in-buffer
                ac-source-words-in-same-mode-buffers

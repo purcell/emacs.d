@@ -44,6 +44,7 @@
   (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
   (add-hook 'cider-repl-mode-hook 'subword-mode)
   (add-hook 'cider-repl-mode-hook 'paredit-mode)
+  (add-hook 'cider-repl-mode-hook 'evil-paredit-mode)
   (define-key cider-mode-map (kbd "C-c C-d") 'ac-nrepl-popup-doc)
 
   ;; nrepl isn't based on comint
@@ -56,6 +57,7 @@
 
 (after-load 'clojure-mode
   (add-hook 'clojure-mode-hook 'sanityinc/lisp-setup)
+  (add-hook 'clojure-mode-hook 'evil-paredit-mode)
   (add-hook 'clojure-mode-hook 'subword-mode))
 
 
