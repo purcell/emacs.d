@@ -38,6 +38,7 @@
             js2-mode-must-byte-compile nil
             js2-basic-offset preferred-javascript-indent-level
             js2-indent-on-enter-key t
+            js2-skip-preprocessor-directives t
             js2-auto-indent-p t
             js2-bounce-indent-p t)
 
