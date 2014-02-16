@@ -47,16 +47,25 @@
 (require 'init-recentf)
 (require 'init-ido)
 (require 'init-hippie-expand)
+
+(require 'init-yasnippet)
+
 (require 'init-auto-complete)
 (require 'init-windows)
+
+(require 'init-window-numbering)
+
 (require 'init-sessions)
 (require 'init-fonts)
 (require 'init-mmm)
 
 (require 'init-editing-utils)
+(require 'init-autopair)
 
 (require 'init-darcs)
 (require 'init-git)
+
+(require 'init-evil)
 
 (require 'init-crontab)
 (require 'init-textile)
@@ -80,6 +89,9 @@
 (require 'init-slime)
 (require 'init-clojure)
 (require 'init-common-lisp)
+(require 'init-racket)
+
+(require 'init-ess)
 
 (when *spell-check-support-enabled*
   (require 'init-spelling))
