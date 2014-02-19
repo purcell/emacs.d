@@ -207,6 +207,9 @@ bm" 'pomodoro-start ;; beat myself
   "lj" 'moz-load-js-file-and-send-it
   "ws" 'w3mext-hacker-search
   "hs" 'helm-swoop
+  "hd" 'describe-function
+  "hf" 'find-function
+  "hv" 'describe-variable
   "hb" 'helm-back-to-last-point
   "gf" 'gtags-find-tag-from-here
   "gp" 'gtags-pop-stack
