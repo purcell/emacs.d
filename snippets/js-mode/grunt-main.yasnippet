@@ -1,0 +1,26 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: gruntfile.js main
+# key: main
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+module.exports = function(grunt) {
+
+  // Project configuration.
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
+    uglify: {
+      build: {
+        src: '<%= pkg.name %>.js',
+        dest: '<%= pkg.name %>.min.js'
+      }
+    }
+    $0
+  });
+
+  // Load the plugin that provides the "uglify" task.
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+
+  // Default task(s).
+  grunt.registerTask('default', ['uglify']);
+
+};
