@@ -26,8 +26,7 @@
 ;;
 ;;; Code:
 
-(require 'dflet)
-(require 'workgroups-compat)
+(require 'cl-lib)
 (require 'workgroups-utils-basic)
 
 
@@ -86,12 +85,12 @@
   (unless (memq (type-of obj) wg-pickel-pickelable-types)
     (signal 'wg-pickel-unpickelable-type-error
             (format "Can't pickel objects of type: %S" (type-of obj))))
-  (typecase obj
+  (cl-typecase obj
     (cons
      (wg-pickelable-or-error (car obj))
      (wg-pickelable-or-error (cdr obj)))
     (vector
-     (map nil 'wg-pickelable-or-error obj))
+     (cl-map nil 'wg-pickelable-or-error obj))
     (hash-table
      (wg-dohash (key value obj)
        (wg-pickelable-or-error key)
@@ -137,11 +136,11 @@
   "Return a table binding unique subobjects of OBJ to ids."
   (let ((binds (make-hash-table :test 'eq))
         (id -1))
-    (dflet
+    (cl-labels
      ((inner (obj)
            (unless (gethash obj binds)
-              (puthash obj (incf id) binds)
-              (case (type-of obj)
+              (puthash obj (cl-incf id) binds)
+              (cl-case (type-of obj)
                 (cons
                  (inner (car obj))
                  (inner (cdr obj)))
@@ -343,7 +342,7 @@ WORKGROUP after pickeling its parameters. Otherwise return
 WORKGROUP."
     (if (not (wg-workgroup-parameters workgroup)) workgroup
       (let ((copy (wg-copy-workgroup workgroup)))
-        (wg-asetf (wg-workgroup-parameters copy) (wg-pickel copy))
+        (wg-asetf (wg-workgroup-parameters copy) (wg-pickel it))
         copy)))
 
   (defun wg-unpickel-workgroup-parameters (workgroup)
@@ -352,7 +351,7 @@ WORKGROUP after unpickeling its parameters. Otherwise return
 WORKGROUP."
     (if (not (wg-workgroup-parameters workgroup)) workgroup
       (let ((copy (wg-copy-workgroup workgroup)))
-        (wg-asetf (wg-workgroup-parameters copy) (wg-unpickel copy))
+        (wg-asetf (wg-workgroup-parameters copy) (wg-unpickel it))
         copy)))
 
   (defun wg-pickel-all-session-parameters (session)
@@ -360,9 +359,9 @@ WORKGROUP."
 parameters and the parameters of all its workgroups."
     (let ((copy (wg-copy-session session)))
       (when (wg-session-parameters copy)
-        (wg-asetf (wg-session-parameters copy) (wg-pickel copy)))
+        (wg-asetf (wg-session-parameters copy) (wg-pickel it)))
       (wg-asetf (wg-session-workgroup-list copy)
-                (mapcar 'wg-pickel-workgroup-parameters it))
+                (cl-mapcar 'wg-pickel-workgroup-parameters it))
       copy))
 
   (defun wg-unpickel-session-parameters (session)
@@ -370,9 +369,9 @@ parameters and the parameters of all its workgroups."
 parameters and the parameters of all its workgroups."
     (let ((copy (wg-copy-session session)))
       (when (wg-session-parameters copy)
-        (wg-asetf (wg-session-parameters copy) (wg-unpickel copy)))
+        (wg-asetf (wg-session-parameters copy) (wg-unpickel it)))
       (wg-asetf (wg-session-workgroup-list copy)
-                (mapcar 'wg-unpickel-workgroup-parameters it))
+                (cl-mapcar 'wg-unpickel-workgroup-parameters it))
       copy))
 
 (provide 'workgroups-pickel)

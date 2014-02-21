@@ -6,6 +6,7 @@
 ;; Author: Sergey Pashinin <sergey at pashinin dot com>
 ;; Keywords: session management window-configuration persistence
 ;; Homepage: https://github.com/pashinin/workgroups2
+;; Package-Requires: ((cl-lib "0.4"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -83,15 +84,12 @@
 ;;
 ;;; Code:
 
-(require 'dflet)
-(require 'workgroups-compat)
+(require 'cl-lib)
+(eval-when-compile
+  (require 'ido)
+  (require 'iswitchb))
 (require 'workgroups-utils-basic)
 (require 'workgroups-pickel)
-
-(eval-when-compile ;; bytecomp warnings begone!
-  (require 'ido nil t)
-  (require 'iswitchb nil t))
-
 (require 'workgroups-variables)
 (require 'workgroups-functions)
 (require 'workgroups-advice)
@@ -217,8 +215,8 @@ Called when `workgroups-mode' is turned off."
   "Add Workgroups' minor-mode entries.
 Adds entries to `minor-mode-list', `minor-mode-alist' and
 `minor-mode-map-alist'."
-  (pushnew 'workgroups-mode minor-mode-list)
-  (pushnew '(workgroups-mode " wg") minor-mode-alist :test 'equal)
+  (cl-pushnew 'workgroups-mode minor-mode-list)
+  (cl-pushnew '(workgroups-mode " wg") minor-mode-alist :test 'equal)
   (setq minor-mode-map-alist
         (cons (cons 'workgroups-mode (wg-make-workgroups-mode-map))
               (delete (assoc 'workgroups-mode minor-mode-map-alist)

@@ -111,10 +111,10 @@ a wtree."
 (defun wg-restore-window-tree-helper (w)
   "Recursion helper for `wg-restore-window-tree'."
   (if (wg-wtree-p w)
-      (loop with dir = (wg-wtree-dir w)
-            for (win . rest) on (wg-wtree-wlist w)
-            do (when rest (split-window nil (wg-w-size win dir) (not dir)))
-            do (wg-restore-window-tree-helper win))
+      (cl-loop with dir = (wg-wtree-dir w)
+               for (win . rest) on (wg-wtree-wlist w)
+               do (when rest (split-window nil (wg-w-size win dir) (not dir)))
+               do (wg-restore-window-tree-helper win))
     (wg-restore-window w)
     (when (wg-win-selected w)
       (setq wg-window-tree-selected-window (selected-window)))
@@ -229,8 +229,7 @@ Runs each time you're switching workgroups."
     (setq wtree (wg-scale-wconfig-to-frame wconfig))  ; scale wtree to frame size
 
     ;; Restore buffers
-    (wg-restore-window-tree
-     (if (not (wg-morph-p)) wtree (wg-morph wtree)))
+    (wg-restore-window-tree wtree)
 
     ;; Restore frame position
     (when (and wg-restore-frame-position

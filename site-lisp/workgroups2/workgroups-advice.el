@@ -39,7 +39,7 @@ Frame defaults to `selected-frame'.  See `wg-buffer-auto-association'."
 
 ;; `wg-pre-window-configuration-change-hook' implementation advice
 
-(macrolet ((define-p-w-c-c-h-advice
+(cl-macrolet ((define-p-w-c-c-h-advice
              (fn)
              `(defadvice ,fn (before wg-pre-window-configuration-change-hook)
                 "Call `wg-update-working-wconfig-hook' before this

@@ -2,6 +2,11 @@
 ;;; Commentary:
 ;;; Code:
 
+(require 'cl-lib)
+(eval-when-compile
+  (require 'ido)
+  (require 'iswitchb))
+
 (require 'ring)
 (require 'workgroups-variables)
 (require 'workgroups-utils-basic)
@@ -44,7 +49,7 @@ Use `current-prefix-arg' for N if non-nil.  Otherwise N defaults to 1."
     (wg-switch-to-workgroup
      (or (nth index wl) (error "There are only %d workgroups" (length wl))))))
 
-(macrolet
+(cl-macrolet
     ((define-range-of-switch-to-workgroup-at-index (num)
        `(progn
           ,@(wg-docar (i (wg-range 0 num))
@@ -509,7 +514,7 @@ See `wg-workgroup-cycle-bufobj-association-type' for details."
     (force-mode-line-update)
     (wg-fontified-message
       (:cur (buffer-name buffer))
-      (:cmd (case type
+      (:cmd (cl-case type
               (strong " strongly associated with ")
               (weak " weakly associated with ")
               (otherwise " unassociated with ")))
@@ -673,7 +678,7 @@ the session regardless of whether it's been modified."
 
 (defun wg-save-session-on-exit (behavior)
   "Perform session-saving operations based on BEHAVIOR."
-  (case behavior
+  (cl-case behavior
     (ask (wg-query-and-save-if-modified))
     (save
      (if (wg-determine-session-save-file-name)
@@ -740,11 +745,6 @@ the session regardless of whether it's been modified."
   "Toggle `wg-mode-line-display-on'."
   (interactive)
   (wg-toggle-and-message 'wg-mode-line-display-on))
-
-(defun wg-toggle-morph ()
-  "Toggle `wg-morph-on'."
-  (interactive)
-  (wg-toggle-and-message 'wg-morph-on))
 
 
 

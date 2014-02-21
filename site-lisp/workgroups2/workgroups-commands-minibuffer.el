@@ -2,7 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-(require 'workgroups-compat)
+(require 'workgroups-utils-basic)
 
 (defun wg-next-buffer-list-filter ()
   "Trigger a switch to the next buffer-list-filter."
@@ -34,7 +34,7 @@ in which case call `wg-previous-buffer-list-filter'."
   (wg-when-let
       ((mode (wg-read-buffer-mode))
        (buffer (wg-current-match mode))
-       (pos (wg-position buffer (wg-filtered-buffer-list t) :test 'equal)))
+       (pos (cl-position buffer (wg-filtered-buffer-list t) :test 'equal)))
     (wg-workgroup-dissociate-bufobj (wg-current-workgroup) buffer)
     (wg-set-current-matches
      (wg-rotate-list (wg-filtered-buffer-list t) pos) mode)))
@@ -45,7 +45,7 @@ in which case call `wg-previous-buffer-list-filter'."
   (wg-when-let
       ((mode (wg-read-buffer-mode))
        (buffer (wg-current-match mode))
-       (pos (wg-position buffer (wg-filtered-buffer-list t) :test 'equal)))
+       (pos (cl-position buffer (wg-filtered-buffer-list t) :test 'equal)))
     (wg-workgroup-associate-bufobj (wg-current-workgroup) buffer)
     (wg-set-current-matches
      (wg-rotate-list (wg-filtered-buffer-list t) pos) mode)))
@@ -56,8 +56,8 @@ in which case call `wg-previous-buffer-list-filter'."
   (wg-workgroup-dissociate-weakly-associated-buffers (wg-current-workgroup))
   (wg-set-current-matches
    (let ((remaining (wg-filtered-buffer-list t)))
-     (wg-remove-if-not (lambda (match) (member match remaining))
-                    (wg-current-matches)))))
+     (cl-remove-if-not (lambda (match) (member match remaining))
+                       (wg-current-matches)))))
 
 (provide 'workgroups-commands-minibuffer)
 ;;; workgroups-commands-minibuffer.el ends here

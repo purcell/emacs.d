@@ -28,21 +28,20 @@
 ;;
 ;;; Code:
 
-(require 'dflet)
-(require 'workgroups-compat)
-
 ;;; utils used in macros
+
+(require 'cl-lib)
 
 (defmacro wg-with-gensyms (syms &rest body)
   "Bind all symbols in SYMS to `gensym's, and eval BODY."
   (declare (indent 1))
-  `(let (,@(mapcar (lambda (sym) `(,sym (wg-gensym))) syms)) ,@body))
+  `(let (,@(mapcar (lambda (sym) `(,sym (cl-gensym))) syms)) ,@body))
 
 (defmacro wg-dbind (args expr &rest body)
   "Bind the variables in ARGS to the result of EXPR and execute BODY.
 Abbreviation of `destructuring-bind'."
   (declare (indent 2))
-  `(destructuring-bind ,args ,expr ,@body))
+  `(cl-destructuring-bind ,args ,expr ,@body))
 
 (defun wg-partition (list &optional n step)
   "Return list of N-length sublists of LIST, offset by STEP.
@@ -176,15 +175,15 @@ into a var, like so: (a (b c) . rest)
 
 (defmacro wg-eager-or (&rest conditions)
   "Evaluate all CONDITIONS.  Return the first non-nil return value."
-  (let ((syms (mapcar (lambda (x) (wg-gensym)) conditions)))
-    `(let ,(wg-mapcar* 'list syms conditions)
+  (let ((syms (mapcar (lambda (x) (cl-gensym)) conditions)))
+    `(let ,(cl-mapcar 'list syms conditions)
        (or ,@syms))))
 
 (defmacro wg-eager-and (&rest conditions)
   "Evaluate all conditions.  If any return nil, return nil.
 Otherwise return the return value of the last condition."
-  (let ((syms (mapcar (lambda (x) (wg-gensym)) conditions)))
-    `(let ,(wg-mapcar* 'list syms conditions)
+  (let ((syms (mapcar (lambda (x) (cl-gensym)) conditions)))
+    `(let ,(cl-mapcar 'list syms conditions)
        (and ,@syms))))
 
 
@@ -223,11 +222,11 @@ Cribbed from `org-id-b36-to-int-one-digit'."
 (defun wg-int-to-b36 (i &optional length)
   "Return a base 36 string from I."
   (let ((base 36) b36)
-    (dflet ((add-digit () (push (wg-int-to-b36-one-digit (mod i base)) b36)
-                      (setq i (/ i base))))
+    (cl-labels ((add-digit () (push (wg-int-to-b36-one-digit (mod i base)) b36)
+                         (setq i (/ i base))))
       (add-digit)
       (while (> i 0) (add-digit))
-      (setq b36 (map 'string 'identity b36))
+      (setq b36 (cl-map 'string 'identity b36))
       (if (not length) b36
         (concat (make-string (max 0 (- length (length b36))) ?0) b36)))))
 
@@ -249,13 +248,13 @@ Cribbed from `org-id-b36-to-int'."
   "If ITEM is a `member*' of SEQ-PLACE, remove it from SEQ-PLACE and return t.
 Otherwise return nil.  KEYS can be any keywords accepted by `remove*'."
   `(> (length ,seq-place)
-      (length (setf ,seq-place (wg-remove* ,item ,seq-place ,@keys)))))
+      (length (setf ,seq-place (cl-remove ,item ,seq-place ,@keys)))))
 
 (defmacro wg-pushnew-p (item seq-place &rest keys)
   "If ITEM is not a `member' of SEQ-PLACE, push it to SEQ-PLACE and return t.
 Otherwise return nil.  KEYS can be any keyword args accepted by `pushnew'."
   `(< (length ,seq-place)
-      (length (pushnew ,item ,seq-place ,@keys))))
+      (length (cl-pushnew ,item ,seq-place ,@keys))))
 
 (defun wg-last1 (list)
   "Return the last element of LIST."
@@ -300,7 +299,7 @@ length is even, the first elt is left nearer the front."
 
 (defun wg-insert-after (elt list index)
   "Insert ELT into LIST after INDEX."
-  (let ((new-list (wg-copy-list list)))
+  (let ((new-list (cl-copy-list list)))
     (push elt (cdr (nthcdr index new-list)))
     new-list))
 
@@ -312,7 +311,7 @@ length is even, the first elt is left nearer the front."
 (defun wg-move-elt (elt list index &rest keys)
   "Move ELT before INDEX in LIST.
 KEYS is passed to `remove*'."
-  (wg-insert-before elt (apply 'wg-remove* elt list keys) index))
+  (wg-insert-before elt (apply 'cl-remove elt list keys) index))
 
 (defun wg-cyclic-nth (list n)
   "Return the Nth element of LIST, modded by the length of list."
@@ -320,21 +319,21 @@ KEYS is passed to `remove*'."
 
 (defun wg-cyclic-offset-elt (elt list n)
   "Cyclically offset ELT's position in LIST by N."
-  (wg-when-let ((pos (wg-position elt list)))
+  (wg-when-let ((pos (cl-position elt list)))
     (wg-move-elt elt list (mod (+ n pos) (length list)))))
 
 (defun wg-cyclic-nth-from-elt (elt list n &rest keys)
   "Return the elt in LIST N places cyclically from ELT.
 If ELT is not present is LIST, return nil.
 KEYS is passed to `position'."
-  (wg-when-let ((pos (apply 'wg-position elt list keys)))
+  (wg-when-let ((pos (apply 'cl-position elt list keys)))
     (wg-cyclic-nth list (+ pos n))))
 
 (defun wg-util-swap (elt1 elt2 list)
   "Return a copy of LIST with ELT1 and ELT2 swapped.
 Return nil when ELT1 and ELT2 aren't both present."
-  (wg-when-let ((p1 (wg-position elt1 list))
-                (p2 (wg-position elt2 list)))
+  (wg-when-let ((p1 (cl-position elt1 list))
+                (p2 (cl-position elt2 list)))
     (wg-move-elt elt1 (wg-move-elt elt2 list p1) p2)))
 
 (defun wg-dups-p (list &rest keys)
@@ -345,14 +344,14 @@ Keywords supported: :test :key
 \(fn LIST [KEYWORD VALUE]...)"
   (let ((test (or (plist-get keys :test) 'eq))
         (key (or (plist-get keys :key) 'identity)))
-    (loop for (elt . rest) on list
-          for elt = (funcall key elt)
-          when (wg-find elt rest :test test :key key) return elt)))
+    (cl-loop for (elt . rest) on list
+             for elt = (funcall key elt)
+             when (cl-find elt rest :test test :key key) return elt)))
 
 (defun wg-string-list-union (&optional list1 list2)
   "Return the `union' of LIST1 and LIST2, using `string=' as the test.
 This only exists to get rid of duplicate lambdas in a few reductions."
-  (wg-union list1 list2 :test 'string=))
+  (cl-union list1 list2 :test 'string=))
 
 
 
@@ -461,14 +460,14 @@ Note that this won't make VAR buffer-local if it isn't already."
 
 (defun wg-interesting-buffers ()
   "Return a list of only the interesting buffers in `buffer-list'."
-  (wg-remove-if (lambda (bname) (string-match "^ " bname))
-             (buffer-list) :key 'buffer-name))
+  (cl-remove-if (lambda (bname) (string-match "^ " bname))
+                (buffer-list) :key 'buffer-name))
 
 (defun wg-get-first-buffer-matching-regexp (regexp &optional buffer-list)
   "Return the first buffer in BUFFER-LIST with a name matching REGEXP.
 BUFFER-LIST should contain buffer objects and/or buffer names."
-  (wg-find regexp (or buffer-list (buffer-list))
-        :test 'string-match :key 'wg-buffer-name))
+  (cl-find regexp (or buffer-list (buffer-list))
+           :test 'string-match :key 'wg-buffer-name))
 
 
 
@@ -515,17 +514,17 @@ options."
   (declare (indent 2))
   (let* ((name (if (consp name-form) (car name-form) name-form))
          (prefixed-name (wg-symcat prefix "-" name)))
-    (dflet ((rebind (opstr)
-                   (let ((oldfnsym (wg-symcat opstr "-" prefix "-" name)))
-                     `((fset ',(wg-symcat prefix "-" opstr "-" name)
-                             (symbol-function ',oldfnsym))
-                       (fmakunbound ',oldfnsym)))))
+    (cl-labels ((rebind (opstr)
+                      (let ((oldfnsym (wg-symcat opstr "-" prefix "-" name)))
+                        `((fset ',(wg-symcat prefix "-" opstr "-" name)
+                                (symbol-function ',oldfnsym))
+                          (fmakunbound ',oldfnsym)))))
       ;; `eval-and-compile' gets rid of byte-comp warnings ("function `foo' not
       ;; known to be defined").  We can accomplish this with `declare-function'
       ;; too, but it annoyingly requires inclusion of the function's arglist,
       ;; which gets ugly.
       `(eval-and-compile
-         (defstruct ,(if (symbolp name-form) prefixed-name
+         (cl-defstruct ,(if (symbolp name-form) prefixed-name
                        `(,prefixed-name ,@(cdr name-form)))
            ,@slot-defs)
          ,@(rebind "make")
@@ -573,9 +572,9 @@ the cadr as the accessor function."
                               read hist default-value inherit-input-method)
   "PROMPT for an object that satisfies TEST, WARNING if necessary.
 ARGS are `read-from-minibuffer's args, after PROMPT."
-  (dflet ((read () (read-from-minibuffer
-                    prompt initial-contents keymap read hist
-                    default-value inherit-input-method)))
+  (cl-labels ((read () (read-from-minibuffer
+                      prompt initial-contents keymap read hist
+                      default-value inherit-input-method)))
     (let ((obj (read)))
       (when (and (equal obj "") default-value) (setq obj default-value))
       (while (not (funcall test obj))
@@ -600,7 +599,7 @@ ARGS are `read-from-minibuffer's args, after PROMPT."
   "Return a copy of STRING fontified according to FACEKEY.
 FACEKEY must be a key in `wg-face-abbrevs'."
   (let ((face (wg-aget wg-face-abbrevs facekey))
-        (string  (copy-seq string)))
+        (string  (copy-sequence string)))
     (unless face (error "No face with key %s" facekey))
     (if (not wg-use-faces) string
       (put-text-property 0 (length string) 'face face string)
@@ -654,8 +653,8 @@ This needs to be a macro to allow specification of a setf'able place."
 
 (defun wg-b36-to-time (b36)
   "Parse the time from UID."
-  (loop for i from 0 to 8 by 4
-        collect (wg-b36-to-int (wg-subsec b36 i (+ i 4)))))
+  (cl-loop for i from 0 to 8 by 4
+           collect (wg-b36-to-int (cl-subseq b36 i (+ i 4)))))
 
 
 (defalias 'wg-uid-to-time 'wg-b36-to-time)

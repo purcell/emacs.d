@@ -3,20 +3,23 @@
 ;;; Code:
 
 (require 'workgroups-variables)
-(require 'iswitchb)
-(require 'ido)
+
+(require 'cl-lib)
+(eval-when-compile
+  (require 'ido)
+  (require 'iswitchb))
 
 (defun wg-read-buffer-mode ()
   "Return the buffer switching package (ido or iswitchb) to use, or nil."
   (if (eq wg-current-buffer-list-filter-id 'fallback) 'fallback
-    (case (let (workgroups-mode) (command-remapping 'switch-to-buffer))
+    (cl-case (let (workgroups-mode) (command-remapping 'switch-to-buffer))
       (ido-switch-buffer 'ido)
       (iswitchb-buffer 'iswitchb)
       (otherwise 'fallback))))
 
 (defun wg-read-buffer-function (&optional mode)
   "Return MODE's or `wg-read-buffer-mode's `read-buffer' function."
-  (case (or mode (wg-read-buffer-mode))
+  (cl-case (or mode (wg-read-buffer-mode))
     (ido 'ido-read-buffer)
     (iswitchb 'iswitchb-read-buffer)
     (fallback (lambda (prompt &optional default require-match)
@@ -27,7 +30,7 @@
 (defun wg-completing-read
   (prompt choices &optional pred require-match initial-input history default)
   "Do a completing read.  The function called depends on what's on."
-  (ecase (wg-read-buffer-mode)
+  (cl-ecase (wg-read-buffer-mode)
     (ido
      (ido-completing-read prompt choices pred require-match
                           initial-input history default))
@@ -42,7 +45,7 @@
 
 (defun wg-current-matches (&optional read-buffer-mode)
   "Return READ-BUFFER-MODE's current matches."
-  (ecase (or read-buffer-mode (wg-read-buffer-mode))
+  (cl-ecase (or read-buffer-mode (wg-read-buffer-mode))
     (ido (wg-when-boundp (ido-cur-list) ido-cur-list))
     (iswitchb (wg-when-boundp (iswitchb-buflist) iswitchb-buflist))
     (fallback (list minibuffer-default))))
@@ -53,7 +56,7 @@
 
 (defun wg-set-current-matches (match-list &optional read-buffer-mode)
   "Set READ-BUFFER-MODE's current matches, and flag a rescan."
-  (case (or read-buffer-mode (wg-read-buffer-mode))
+  (cl-case (or read-buffer-mode (wg-read-buffer-mode))
     (ido
      (wg-when-boundp (ido-cur-list)
        (setq ido-cur-list match-list ido-rescan t)))
@@ -91,7 +94,7 @@ DEFAULT non-nil specifies the first completion candidate."
       (call-interactively (wg-prior-mapping workgroups-mode command))
     (wg-with-buffer-list-filters command
       (let ((wg-buffer-internal-default-buffer default))
-        (ecase (wg-read-buffer-mode)
+        (cl-ecase (wg-read-buffer-mode)
           (ido
            (ido-buffer-internal
             (wg-aget wg-ido-method-translations command) nil
