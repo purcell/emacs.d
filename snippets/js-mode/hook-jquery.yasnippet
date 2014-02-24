@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: hook $.fn.some-function
+# key: hook
+# group: jquery
+# contributor: chen bin <chenbin.sh@gmail.com>
+# --
+(function ($) {
+  var originalFn = this.originalFn = $.fn.${1:val};
+  $.fn.${1:$(yas/substr text "[^ ]*")} = function(${2:value}) {
+    if (typeof ${1:$(yas/substr text "[^ ]*")} == 'undefined') {
+      //set
+      if ($(this).hasClass('${3:jsStripSpace}')) {
+        var v=originalFn.call(this);
+        v = v.replace(/\s/g, '');
+        return v;
+      }
+      return originalFn.call(this);
+    } else {
+      //get
+      return originalFn.call(this, ${1:$(yas/substr text "[^ ]*")});
+    }
+  };
+})(jQuery);
