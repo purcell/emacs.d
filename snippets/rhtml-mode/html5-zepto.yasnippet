@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# name: <html>...<script src="zepto.js"></script></html>
+# key: html5
+# --
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="" />
+    <title>${1:mytitle}</title>
+    <style type="text/css"></style>
+  </head>
+  <body>
+    $0
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/zepto/1.1.2/zepto.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function (){
+        alert("zepto is working");
+      });
+    </script>
+  </body>
+</html>
