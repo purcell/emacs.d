@@ -679,4 +679,16 @@ when toggle off input method, switch to evil-normal-state if current state is ev
     ("^[ \t]*<\\(@[a-z.]+\\)[^>]*>? *$" 1 " contentId=\"\\([a-zA-Z0-9_]+\\)\"" "=" ">")
     ))
 
+(defun toggle-web-js-offset ()
+  "toggle js2-basic-offset"
+  (interactive)
+  (let ((v (if (= js2-basic-offset 2) 4 2)))
+    (setq web-mode-indent-style v)
+    (setq web-mode-code-indent-offset v)
+    (setq web-mode-css-indent-offset v)
+    (setq web-mode-markup-indent-offset v)
+    (setq js2-basic-offset v)
+    (message "web-mode js2-mode indent=%d" v)
+    ))
+
 (provide 'init-misc)
