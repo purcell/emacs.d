@@ -19,6 +19,11 @@
   :group 'workgroups
   :type 'boolean)
 
+(defcustom wg-first-wg-name "First workgroup"
+  "Title of the first workgroup created."
+  :type 'string
+  :group 'workgroups)
+
 (defcustom wg-load-last-workgroup nil
   "Load last active, not first, workgroup from all your workgroups."
   :group 'workgroups

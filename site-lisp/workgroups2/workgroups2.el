@@ -147,7 +147,7 @@
   (if (and workgroups-mode
            wg-use-default-session-file
            (= (length (wg-workgroup-list)) 0))
-      (wg-create-workgroup "First workgroup")))
+      (wg-create-workgroup wg-first-wg-name)))
 
 (defun wg-reload-session ()
   "Reload current workgroups session."

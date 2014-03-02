@@ -1399,30 +1399,30 @@ for display by `other-buffer' in the current workgroup."
                 ;;(consp (cons :div wg-mode-line-decor-left-brace))
                 ;;(keywordp (car (cons :div wg-mode-line-decor-left-brace)))
                 ;;(:div wg-mode-line-decor-left-brace)
-                wg-mode-line-decor-left-brace
-                (wg-workgroup-name wg)
+                (:brace wg-mode-line-decor-left-brace)
+                (:mode (wg-workgroup-name wg))
                 (if (not wg-mode-line-only-name)
-                    (progn
-                      wg-mode-line-decor-divider
-                      (wg-mode-line-buffer-association-indicator wg)
-                      wg-mode-line-decor-divider
-                      (if (window-dedicated-p)
-                                 wg-mode-line-decor-window-dedicated
-                               wg-mode-line-decor-window-undedicated)
-                      wg-mode-line-decor-divider
-                      (if (wg-session-modified (wg-current-session))
-                                 wg-mode-line-decor-session-modified
-                               wg-mode-line-decor-session-unmodified)
-                      (if (wg-workgroup-modified wg)
-                          wg-mode-line-decor-workgroup-modified
-                        wg-mode-line-decor-workgroup-unmodified)))
-                wg-mode-line-decor-right-brace))
+                    (concat
+                     (wg-add-face :div wg-mode-line-decor-divider)
+                     (wg-mode-line-buffer-association-indicator wg)
+                     (wg-add-face :div wg-mode-line-decor-divider)
+                     (if (window-dedicated-p)
+                         wg-mode-line-decor-window-dedicated
+                       wg-mode-line-decor-window-undedicated)
+                     (wg-add-face :div wg-mode-line-decor-divider)
+                     (if (wg-session-modified (wg-current-session))
+                         wg-mode-line-decor-session-modified
+                       wg-mode-line-decor-session-unmodified)
+                     (if (wg-workgroup-modified wg)
+                         wg-mode-line-decor-workgroup-modified
+                       wg-mode-line-decor-workgroup-unmodified)))
+                (:brace wg-mode-line-decor-right-brace)))
           (t (if wg-display-nowg
                  (progn
                    (wg-fontify " "
-                     wg-mode-line-decor-left-brace
-                     wg-nowg-string
-                     wg-mode-line-decor-right-brace))
+                     (:brace wg-mode-line-decor-left-brace)
+                     (:mode wg-nowg-string)
+                     (:brace wg-mode-line-decor-right-brace)))
                "")))))
 
 (defun wg-add-mode-line-display ()

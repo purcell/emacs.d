@@ -29,6 +29,8 @@
                                   (info))))))
 
 ;; help-mode
+;; Bug: https://github.com/pashinin/workgroups2/issues/29
+(if nil
 (wg-support 'help-mode 'help-mode
             `((save . (help-xref-stack-item help-xref-stack help-xref-forward-stack))
               (deserialize . ,(lambda (buffer vars)
@@ -41,6 +43,7 @@
                                    (wg-when-boundp (help-xref-stack help-xref-forward-stack)
                                      (setq help-xref-stack stack
                                            help-xref-forward-stack forward-stack))))))))
+)
 
 ;; ielm
 (wg-support 'inferior-emacs-lisp-mode 'ielm
