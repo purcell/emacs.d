@@ -281,7 +281,7 @@ to replace the symbol under cursor"
   "xnn" 'narrow-to-region
   "xnw" 'widen
   "xnd" 'narrow-to-defun
-  "xr" 'narrow-to-region
+  "xnr" 'narrow-to-region
   "xw" 'widen
   "xd" 'narrow-to-defun
   "zc" 'wg-create-workgroup
