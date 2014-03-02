@@ -114,6 +114,9 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - conversion will happen automatically when exporting org-mode to odt
 - The conversion command is in variable `org-export-odt-convert-processes`
 - Install through OS package manager
+** js-beautify
+- To beautify javascript code (insert extra space, for example)
+- Install pip through OS package manager, then `pip install jsbeautifier`
 
 * OS package manager recommended
 - [[https://github.com/cfg/apt-cyg][apt-cyg]] at Cygwin
