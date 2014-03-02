@@ -176,9 +176,7 @@ to replace the symbol under cursor"
   "hn" 'highlight-symbol-next
   "hp" 'highlight-symbol-prev
   "hq" 'highlight-symbol-query-replace
-  "
-
-bm" 'pomodoro-start ;; beat myself
+  "bm" 'pomodoro-start ;; beat myself
   "im" 'helm-imenu
   "." 'evil-ex
   ;; toggle overview,  @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
@@ -189,6 +187,7 @@ bm" 'pomodoro-start ;; beat myself
   "gg" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
   "qq" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
   "hr" 'helm-recentf
+  "jb" 'js-beautify
   "se" 'string-edit-at-point
   "s0" 'delete-window
   "s1" 'delete-other-windows

@@ -64,6 +64,24 @@
 ;; standard javascript-mode
 (setq javascript-indent-level preferred-javascript-indent-level)
 
+;; {{ js-beautify
+(defun js-beautify ()
+  "Beautify a region of javascript using the code from jsbeautify.org.
+sudo pip install jsbeautifier"
+  (interactive)
+  (let ((orig-point (point)))
+    (unless (mark)
+      (mark-defun))
+    (shell-command-on-region (point)
+                             (mark)
+                             (concat "js-beautify"
+                                     " --stdin "
+                                     " --jslint-happy --brace-style=end-expand --keep-array-indentation "
+                                     (format " --indent-size=%d " js2-basic-offset))
+                             nil t)
+    (goto-char orig-point)))
+;; }}
+
 (add-hook 'coffee-mode-hook 'flymake-coffee-load)
 
 (provide 'init-javascript)
