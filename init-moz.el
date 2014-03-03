@@ -49,6 +49,8 @@
   (let (cmd js-file)
     (setq js-file (read-file-name "js file:" moz-repl-js-dir))
     (when (file-exists-p js-file)
+      ;; make moz API usable in any major-mode
+      (moz-minor-mode 1)
       ;; flush mozrepl at first
       (moz-goto-content-and-run-cmd "console.log('hello');")
       ;; read the content of js-file
