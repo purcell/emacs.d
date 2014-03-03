@@ -1,12 +1,19 @@
 (autoload 'moz-minor-mode "moz" "Mozilla Minor and Inferior Mozilla Modes" t)
 
+(defun moz-reload-browser ()
+  (interactive)
+  (comint-send-string (inferior-moz-process)
+                      "setTimeout(function(){content.document.location.reload(true);}, '500');"))
+
 (defun moz-custom-setup ()
+  (message "moz-custom-setup called")
   (moz-minor-mode 1)
   ;; @see  http://www.emacswiki.org/emacs/MozRepl
   ;; Example - you may want to add hooks for your own modes.
   ;; I also add this to python-mode when doing django development.
-  (auto-reload-firefox-on-after-save-hook)
-  )
+  (add-hook 'after-save-hook
+            'moz-reload-browser
+            'append 'local))
 
 ;; (add-hook 'js2-mode-hook 'moz-custom-setup)
 (add-hook 'html-mode-hook 'moz-custom-setup)
@@ -15,20 +22,8 @@
 
 (eval-after-load 'moz
   '(progn
-     (global-set-key (kbd "C-x p")
-                     (lambda ()
-                       (interactive)
-                       (comint-send-string (inferior-moz-process)
-                                           "setTimeout(function(){content.document.location.reload(true);}, '500');")))
+     (global-set-key (kbd "C-x p") 'moz-reload-browser)
      ))
-
-(defun auto-reload-firefox-on-after-save-hook ()
-  (add-hook 'after-save-hook
-            '(lambda ()
-               (interactive)
-               (comint-send-string (inferior-moz-process)
-                                   "setTimeout(function(){content.document.location.reload(true);}, '500');"))
-            'append 'local)) ;; buffer-local
 
 (defun moz-goto-content-and-run-cmd (cmd)
   (comint-send-string (inferior-moz-process)
@@ -57,6 +52,12 @@
       (setq cmd (moz--read-file js-file))
       (moz-goto-content-and-run-cmd cmd))
     ))
+
+(defun moz-console-clear ()
+  (interactive)
+  (moz-minor-mode 1)
+  (moz-goto-content-and-run-cmd "console.log('clearing ...');")
+  (moz-goto-content-and-run-cmd "console.clear();"))
 
 (defun moz-console-log-var ()
   "guess variable to console.log, support both html and javascript"
