@@ -38,11 +38,8 @@
     (insert-file-contents js-file)
     (buffer-string)))
 
-(defun moz-load-js-file-and-send-it ()
-  "load js file from specific directory and send it to mozrepl"
-  (interactive)
-  (let (cmd js-file)
-    (setq js-file (read-file-name "js file:" moz-repl-js-dir))
+(defun moz--load-js-file (js-file)
+  (let (cmd )
     (when (file-exists-p js-file)
       ;; make moz API usable in any major-mode
       (moz-minor-mode 1)
@@ -50,7 +47,13 @@
       (moz-goto-content-and-run-cmd "console.log('hello');")
       ;; read the content of js-file
       (setq cmd (moz--read-file js-file))
-      (moz-goto-content-and-run-cmd cmd))
+      (moz-goto-content-and-run-cmd cmd))))
+
+(defun moz-load-js-file-and-send-it ()
+  "load js file from specific directory and send it to mozrepl"
+  (interactive)
+  (let ((js-file (read-file-name "js file:" moz-repl-js-dir)))
+    (moz--load-js-file js-file)
     ))
 
 (defun moz-console-clear ()
