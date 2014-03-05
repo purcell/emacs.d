@@ -1,5 +1,3 @@
-(defvar preferred-javascript-indent-level 2)
-
 ;; ---------------------------------------------------------------------------
 ;; Run and interact with an inferior JS via js-comint.el
 ;; ---------------------------------------------------------------------------
@@ -37,7 +35,6 @@
 
       (setq js2-use-font-lock-faces t
             js2-mode-must-byte-compile nil
-            js2-basic-offset preferred-javascript-indent-level
             js2-indent-on-enter-key t
             js2-skip-preprocessor-directives t
             js2-auto-indent-p t
@@ -47,13 +44,11 @@
 
       (eval-after-load 'coffee-mode
         `(setq coffee-js-mode 'js2-mode
-               coffee-tab-width preferred-javascript-indent-level))
+               coffee-tab-width 4))
       )
   (progn
     ;; js-mode
     (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\)?\\'" . js-mode) auto-mode-alist))
-    (setq js-indent-level preferred-javascript-indent-level)
-
     ;; Need to first remove from list if present, since elpa adds entries too
     (add-hook 'js-mode-hook 'add-inferior-js-keys)
 
@@ -62,9 +57,6 @@
 ;; }}
 
 (add-hook 'coffee-mode-hook 'flymake-coffee-load)
-
-;; standard javascript-mode
-(setq javascript-indent-level preferred-javascript-indent-level)
 
 ;; {{ js-beautify
 (defun js-beautify ()
