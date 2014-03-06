@@ -239,6 +239,7 @@ to replace the symbol under cursor"
   "bj" 'buf-move-down
   "bh" 'buf-move-left
   "bl" 'buf-move-right
+  "so" 'sos
   "0" 'select-window-0
   "1" 'select-window-1
   "2" 'select-window-2

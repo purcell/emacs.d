@@ -697,4 +697,6 @@ when toggle off input method, switch to evil-normal-state if current state is ev
     (message "web-mode js2-mode indent=%d" v)
     ))
 
+(autoload 'sos "sos" "search stackoverflow" t)
+
 (provide 'init-misc)
