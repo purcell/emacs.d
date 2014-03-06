@@ -33,8 +33,8 @@
 
 (require 'init-frame-hooks)
 (require 'init-xterm)
-(require 'init-themes)
-(require 'init-osx-keys)
+;(require 'init-themes) ;Can not understand the settings now
+;(require 'init-osx-keys)
 (require 'init-gui-frames)
 (require 'init-proxies)
 (require 'init-dired)
@@ -88,6 +88,24 @@
 
 (require 'init-dash)
 (require 'init-ledger)
+
+;; Additonal packages exclude with purcell init setting
+;; Most settings are ported by https://github.com/redguardtoo/emacs.d
+(require 'init-color-theme)
+(require 'init-term-mode)
+(require 'init-cc-mode)
+(require 'init-xcscope)
+(require 'init-linum-mode)
+(require 'init-emacs-w3m)
+(require 'init-gtags)
+;(require 'init-ctags) ;Enable if necessary
+(require 'init-buffer-move)
+(require 'init-web-mode)
+(require 'init-sr-speedbar)
+(require 'init-smartparens)
+(require 'init-company)
+;(require 'elnode) ;Untest package
+
 ;; Extra packages which don't require any configuration
 
 (require-package 'gnuplot)

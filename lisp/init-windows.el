@@ -1,7 +1,7 @@
 ;;----------------------------------------------------------------------------
 ;; Navigate window layouts with "C-c <left>" and "C-c <right>"
 ;;----------------------------------------------------------------------------
-(winner-mode 1)
+;(winner-mode 1)
 
 
 
@@ -62,5 +62,14 @@ Call a second time to restore the original window configuration."
                   (interactive)
                   (switch-to-buffer nil)))
 
+;; Move to window with C-x + arrow key (windmove.el)
+(global-set-key (kbd "C-x <up>") 'windmove-up)
+(global-set-key (kbd "C-x <down>") 'windmove-down)
+(global-set-key (kbd "C-x <right>") 'windmove-right)
+(global-set-key (kbd "C-x <left>") 'windmove-left)
+
+;; Switch buffer with C-c + arrow key (window.el)
+(global-set-key (kbd "C-c C-b C-f") 'switch-to-next-buffer)
+(global-set-key (kbd "C-c C-b C-b") 'switch-to-prev-buffer)
 
 (provide 'init-windows)
