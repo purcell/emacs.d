@@ -226,6 +226,12 @@
     )
    1)
   )
+
+(defun my/paste-in-minibuffer ()
+  (local-set-key (kbd "M-y") 'paste-from-x-clipboard)
+  )
+
+(add-hook 'minibuffer-setup-hook 'my/paste-in-minibuffer)
 ;;; }}
 
 (eval-after-load "speedbar" '(if (load "mwheel" t)
