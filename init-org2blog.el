@@ -1,9 +1,17 @@
-; @see http://blog.nethazard.net/post-to-wordpress-blogs-with-emacs-org-mode/
+;;  @see http://blog.nethazard.net/post-to-wordpress-blogs-with-emacs-org-mode/
 (require 'org2blog-autoloads)
-; setup proxy
-;(setq url-proxy-services '(("http" . "127.0.0.1:8580"))) ; fr*egate
-;(setq url-proxy-services '(("http" . "127.0.0.1:8000"))) ; gae
-;(setq url-proxy-services '(("http" . "127.0.0.1:8118"))) ; privoxy');
+;;  setup proxy
+;; (setq url-proxy-services '(("http" . "127.0.0.1:8580"))) ;; fr*egate
+;; (setq url-proxy-services '(("http" . "127.0.0.1:8000"))) ;; gae
+;; (setq url-proxy-services '(("http" . "127.0.0.1:8118"))) ;; privoxy
+
+;; I would rather manage code syntax by myself
+(setq org2blog/wp-sourcecode-langs
+      '("actionscript3" "bash" "coldfusion" "cpp" "csharp" "css" "delphi"
+        "erlang" "fsharp" "diff" "groovy" "javascript" "java" "javafx" "matlab"
+        "objc" "perl" "php" "text" "powershell" "python" "ruby" "scala" "sql"
+        "vb" "xml" "sh" "elisp" "lisp" "lua"))
+
 (setq org2blog/wp-use-sourcecode-shortcode t)
 (setq org2blog/wp-blog-alist
       '(("my"
