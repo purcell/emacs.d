@@ -104,6 +104,7 @@
 (require 'init-sr-speedbar)
 (require 'init-smartparens)
 (require 'init-company)
+(require 'init-yasnippet)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
