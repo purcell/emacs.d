@@ -143,6 +143,7 @@ to replace the symbol under cursor"
   "aa" 'ack-find-same-file
   "af" 'ack-find-file
   "bf" 'beginning-of-defun
+  "up" 'backward-up-list
   "ef" 'end-of-defun
   "db" 'sdcv-search-pointer ;; in another buffer
   "dt" 'sdcv-search-input+ ;; in tip
