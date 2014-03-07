@@ -1,6 +1,10 @@
-;;; Package --- multiple terminal support
-(require-package 'multi-term)
-(require 'multi-term)
+;;; Package --- terminal support
+;; Disable minor mode when term-mode
+(add-hook 'term-mode-hook
+          (lambda ()
+            (yas/minor-mode -1)
+            (company-mode -1)
+            (linum-mode -1)))
 
 ;; @see http://stackoverflow.com/questions/2886184/copy-paste-in-emacs-ansi-term-shell/2886539#2886539
 (defun ash-term-hooks ()
@@ -43,6 +47,9 @@
 ;; }}
 
 ;; {{ multi-term
+(require-package 'multi-term)
+(require 'multi-term)
+
 (defun last-term-buffer (l)
   "Return most recently used term buffer."
   (when l
@@ -61,36 +68,26 @@
 (define-key global-map (kbd "C-x t") 'multi-term)
 (define-key global-map (kbd "C-x ,") 'multi-term-next)
 
-(defun term-send-kill-whole-line ()
-  "Kill whole line in term mode."
-  (interactive)
-  (term-send-raw-string "\C-a")
-  (term-send-raw-string "\C-k"))
-
-(defun term-send-kill-line ()
-  "Kill line in term mode."
-  (interactive)
-  (term-send-raw-string "\C-k"))
-
 (setq multi-term-program "/bin/bash")
 (setq term-unbind-key-list '("C-x" "<ESC>"))
-(setq term-bind-key-alist
-      '(("C-c" . term-interrupt-subjob)
-        ("C-p" . term-send-up)
-        ("C-n" . term-send-down)
-        ("C-s" . isearch-forward)
-        ("C-r" . term-send-reverse-search-history)
-        ("C-m" . term-send-raw)
-        ("C-k" . term-send-kill-whole-line)
-        ("C-y" . yank)
-        ("C-_" . term-send-raw)
-        ("M-f" . term-send-forward-word)
-        ("M-b" . term-send-backward-word)
-        ("M-K" . term-send-kill-line)
-        ("M-p" . previous-line)
-        ("M-n" . next-line)
-        ("M-y" . yank-pop)
-        ("M-." . term-send-raw-meta)))
+(custom-set-variables
+ '(term-bind-key-alist
+   (quote (("C-c C-c" . term-interrupt-subjob)
+           ("C-p" . previous-line)
+           ("C-n" . next-line)
+           ("C-s" . isearch-forward)
+           ("C-r" . isearch-backward)
+           ("C-m" . term-send-raw)
+           ("C-<right>" . term-send-forward-word)
+           ("C-<left>" . term-send-backward-word)
+           ("M-o" . term-send-backspace)
+           ("M-p" . term-send-up)
+           ("M-n" . term-send-down)
+           ("M-d" . term-send-forward-kill-word)
+           ("M-<backspace>" . term-send-backward-kill-word)
+           ("M-r" . term-send-reverse-search-history)
+           ("M-," . term-send-input)
+           ("M-." . comint-dynamic-complete)))))
 
 ;; }}
 
