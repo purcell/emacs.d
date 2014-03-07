@@ -2,8 +2,8 @@
 ;; Disable minor mode when term-mode
 (add-hook 'term-mode-hook
           (lambda ()
-            (yas/minor-mode -1)
-            (company-mode -1)
+            (if (boundp 'yas-minor-mode) (yas-minor-mode -1))
+            (if (boundp 'company-mode) (company-mode -1))
             (linum-mode -1)))
 
 ;; @see http://stackoverflow.com/questions/2886184/copy-paste-in-emacs-ansi-term-shell/2886539#2886539
