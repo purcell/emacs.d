@@ -699,4 +699,10 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 
 (autoload 'sos "sos" "search stackoverflow" t)
 
+;; increase and decrease font size in GUI emacs
+(when (display-graphic-p)
+  (global-set-key (kbd "C-=") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+  )
+
 (provide 'init-misc)
