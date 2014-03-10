@@ -19,6 +19,7 @@
              '("linux" (c-offsets-alist
                         (arglist-cont-nonempty
                          c-lineup-gcc-asm-reg
-                         c-lineup-arglist-tabs-only))))))
+                         c-lineup-arglist-tabs-only))))
+	    (setq indent-tabs-mode t)))
 
 (provide 'init-cc-mode)
