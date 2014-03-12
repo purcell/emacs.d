@@ -4,7 +4,7 @@
 - C++/C developers, you need tell Emacs where to search headers to make auto-complete work. See section `clang` for details.
 - I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid some overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs.
 - I whitelist packages from [[http://melpa.milkbox.net][melpa]] because it is too cutting edge. Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
-- Many users complain that they have issue to fetch packages from elpa/marmalade/melpa
+- Many users complain that they have issue to fetch packages from elpa/marmalade/melpa. Check the section [[lockpackage][Use same packages as mine without elpa/marmalade/melpa]] for solutions.
 
 * General
 My first priority is -stable-. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]].
@@ -124,7 +124,7 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - [[https://github.com/mxcl/homebrew][homebrew]] at Mac
 - any package manager at Linux
 
-* How to use exactly the same packages I'm using without accessing elpa/marmalade/melpa
+* Use same packages as mine without elpa/marmalade/melpa<<lockpackage>>
 ** Solution 1
 Here are the exact steps you need follow:
 - Go to [[https://github.com/redguardtoo/myelpa]].
