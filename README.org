@@ -4,6 +4,7 @@
 - C++/C developers, you need tell Emacs where to search headers to make auto-complete work. See section `clang` for details.
 - I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid some overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs.
 - I whitelist packages from [[http://melpa.milkbox.net][melpa]] because it is too cutting edge. Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
+- Many users complain that they have issue to fetch packages from elpa/marmalade/melpa
 
 * General
 My first priority is -stable-. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]].
@@ -122,6 +123,32 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - [[https://github.com/cfg/apt-cyg][apt-cyg]] at Cygwin
 - [[https://github.com/mxcl/homebrew][homebrew]] at Mac
 - any package manager at Linux
+
+* How to use exactly the same packages I'm using without accessing elpa/marmalade/melpa
+** Solution 1
+Here are the exact steps you need follow:
+- Go to [[https://github.com/redguardtoo/myelpa]].
+- Click "Download ZIP"
+- Extract zip somewhere say "~/myelpa".
+- Double check that there is a file name "archive-contents" in the directory "~/myelpa".
+- insert below code into of ~/.emacs.d/init.el.
+#+BEGIN_SRC bash
+(setq package-archives '(("myelpa" . "~/myelpa/")))
+#+END_SRC
+
+That's it. You will never need internect connection in the future.
+
+Please note that all your packages are locked to the versions I'm using. So there is no way you can upgrade package online.
+
+I don't recommend advanced users locking their package version.
+
+** Solution 2
+If you are too lazy to download ZIP file, you can insert one line into your init.el,
+#+BEGIN_SRC bash
+(setq package-archives '(("myelpa" . "https://raw.github.com/redguardtoo/myelpa/master/")))
+#+END_SRC
+
+Then you are good to go. Obviously you need internet connection to access github.com. So your choice.
 
 * Report bug
 Please file bug report at [[https://github.com/redguardtoo/emacs.d]]. Don't send me email!
