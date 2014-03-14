@@ -18,7 +18,7 @@
         (ido-find-file . nil)
         (ido-edit-input . nil)
         (mml-attach-file . ido)
-        (read-file-name . ni)
+        (read-file-name . nil)
         (yas/compile-directory . ido)
         (execute-extended-command . ido)
         (wg-load . ido)
