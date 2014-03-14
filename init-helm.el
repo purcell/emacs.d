@@ -22,6 +22,7 @@
         (yas/compile-directory . ido)
         (execute-extended-command . ido)
         (wg-load . ido)
+        (rgrep . ido)
         (read-directory-name . ido)
         ))
 
