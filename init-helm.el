@@ -21,10 +21,16 @@
         (read-file-name . nil)
         (yas/compile-directory . ido)
         (execute-extended-command . ido)
+        (help-with-tutorial-spec-language . nil)
+        (help-with-tutorial . nil)
+        (read-language-name . nil)
+        (minibuffer-completion-help . nil)
+        (minibuffer-complete . nil)
         (wg-load . ido)
         (rgrep . ido)
         (read-directory-name . ido)
         ))
+
 
 ;; {{make helm-ls-git-ls more UI friendly
 (require 'helm-ls-git)
