@@ -175,6 +175,9 @@ to replace the symbol under cursor"
   "ub" 'gud-break
   "uu" 'gud-run
   "up" 'gud-print
+  "un" 'gud-next
+  "us" 'gud-step
+  "ui" 'gud-stepi
   "uc" 'gud-continue
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window ;; "k" is preserved to replace "C-g"
@@ -208,8 +211,8 @@ to replace the symbol under cursor"
   "xu" 'winner-undo
   "to" 'toggle-web-js-offset
   "sl" 'sort-lines
-  "unr" 'uniquify-all-lines-region
-  "unb" 'uniquify-all-lines-buffer
+  "ulr" 'uniquify-all-lines-region
+  "ulb" 'uniquify-all-lines-buffer
   "ls" 'package-list-packages
   "lo" 'moz-console-log-var
   "lj" 'moz-load-js-file-and-send-it
