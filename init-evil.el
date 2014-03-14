@@ -143,7 +143,7 @@ to replace the symbol under cursor"
   "aa" 'ack-find-same-file
   "af" 'ack-find-file
   "bf" 'beginning-of-defun
-  "up" 'backward-up-list
+  "bu" 'backward-up-list
   "ef" 'end-of-defun
   "db" 'sdcv-search-pointer ;; in another buffer
   "dt" 'sdcv-search-input+ ;; in tip
@@ -171,6 +171,11 @@ to replace the symbol under cursor"
   "ht" 'helm-etags-select
   "cg" 'helm-ls-git-ls
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
+  "ur" 'gud-remove
+  "ub" 'gud-break
+  "uu" 'gud-run
+  "up" 'gud-print
+  "uc" 'gud-continue
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window ;; "k" is preserved to replace "C-g"
   "it" 'issue-tracker-increment-issue-id-under-cursor
@@ -203,8 +208,8 @@ to replace the symbol under cursor"
   "xu" 'winner-undo
   "to" 'toggle-web-js-offset
   "sl" 'sort-lines
-  "ur" 'uniquify-all-lines-region
-  "ub" 'uniquify-all-lines-buffer
+  "unr" 'uniquify-all-lines-region
+  "unb" 'uniquify-all-lines-buffer
   "ls" 'package-list-packages
   "lo" 'moz-console-log-var
   "lj" 'moz-load-js-file-and-send-it
