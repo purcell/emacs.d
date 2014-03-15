@@ -268,7 +268,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'issue-tracker '(0 0 1) nil)
 
 (when *emacs24*
-  (require-package 'helm '(20140205 2333 0) nil)
+  (require-package 'helm '(20140315 28 0) nil)
   (require-package 'helm-ls-git '(20140104 657 0) nil)
   (require-package 'helm-gtags)
   )
