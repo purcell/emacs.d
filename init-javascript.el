@@ -1,7 +1,18 @@
-;; ---------------------------------------------------------------------------
-;; Run and interact with an inferior JS via js-comint.el
-;; ---------------------------------------------------------------------------
-(setq inferior-js-program-command "js")
+;; looks nodejs is more popular, if you prefer rhino, change to "js"
+(setq inferior-js-program-command "node --interactive")
+
+(require 'js-comint)
+;; if use node.js, we need nice output
+(setq inferior-js-mode-hook
+      (lambda ()
+        ;; We like nice colors
+        (ansi-color-for-comint-mode-on)
+        ;; Deal with some prompt nonsense
+        (add-to-list
+         'comint-preoutput-filter-functions
+         (lambda (output)
+           (replace-regexp-in-string "\033\\[[0-9A-Z][0-9A-Z]" "" output)))))
+
 (defun add-inferior-js-keys ()
   (moz-minor-mode 1)
   (local-set-key "\C-x\C-e" 'js-send-last-sexp)
