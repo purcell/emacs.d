@@ -6,6 +6,11 @@
 (add-to-list 'auto-mode-alist '("\\.[a-zA-Z]+rc$" . conf-mode))
 ;; }}
 
+
+;; midnight mode purges buffers which haven't been displayed in 3 days
+(require 'midnight)
+(setq midnight-mode t)
+
 (add-auto-mode 'tcl-mode "Portfile\\'")
 (fset 'yes-or-no-p 'y-or-n-p)
 
