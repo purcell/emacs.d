@@ -455,6 +455,13 @@ version control automatically"
 ;; input open source license
 (require 'legalese)
 
+;; {{ buf-move
+(autoload 'buf-move-left "buffer-move" "move buffer" t)
+(autoload 'buf-move-right "buffer-move" "move buffer" t)
+(autoload 'buf-move-up "buffer-move" "move buffer" t)
+(autoload 'buf-move-down "buffer-move" "move buffer" t)
+;; }}
+
 ;; edit confluence wiki
 (autoload 'confluence-edit-mode "confluence-edit" "enable confluence-edit-mode" t)
 (add-to-list 'auto-mode-alist '("\\.wiki\\'" . confluence-edit-mode))
