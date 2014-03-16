@@ -113,6 +113,7 @@
 (require 'init-zencoding-mode) ;behind init-better-register to override C-j
 (require 'init-yari)
 (require 'init-cc-mode)
+(require 'init-gud)
 (require 'init-semantic)
 (require 'init-cmake-mode)
 (require 'init-csharp-mode)

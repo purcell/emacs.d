@@ -143,8 +143,6 @@
   (interactive)
   (message (format "%d" (- (region-end) (region-beginning)))))
 
-;; gdb
-(global-set-key "\C-x\C-a\C-g" 'gud-run)
 (defalias 'list-buffers 'ibuffer)
 ;KEYBOARD SECTION
 ;global keyb maps

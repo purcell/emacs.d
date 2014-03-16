@@ -5,26 +5,6 @@
       'c-basic-offset
       (c-lineup-topmost-intro-cont langelem))))
 
-;; {{ hack gud-mode begin
-;; move the cursor to the end of last line if it's gud-mode
-(defun hack-gud-mode ()
-  (when (string= major-mode "gud-mode")
-    (goto-char (point-max))))
-
-(defadvice switch-to-buffer (after switch-to-buffer-after activate)
-  (hack-gud-mode))
-
-(defadvice select-window-by-number (after select-window-by-number-after activate)
-  (hack-gud-mode))
-
-;; from switch-window is from 3rd party plugin switch windows.el
-(defadvice switch-window (after switch-window-after activate)
-  (hack-gud-mode))
-
-;; windmove-do-window-select is from windmove.el
-(defadvice windmove-do-window-select (after windmove-do-window-select-after activate)
-  (hack-gud-mode))
-;; }}
 
 ;C/C++ SECTION
 (defun my-c-mode-hook ()
