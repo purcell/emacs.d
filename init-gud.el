@@ -40,6 +40,21 @@
   (hack-gud-mode))
 ;; }}
 
+(defun gud-cls ()
+  "clear gud screen"
+  (interactive)
+  (let ((old-window (selected-window)))
+    (save-excursion
+      (cond
+       ((buffer-live-p (get-buffer "*gud-main*"))
+        (select-window (get-buffer-window "*gud-main*"))
+        (end-of-buffer)
+        (recenter-top-bottom)
+        (select-window old-window))
+       (t (error "GUD buffer doesn't exist!"))
+       ))
+    ))
+
 (global-set-key "\C-x\C-a\C-g" 'gud-run)
 
 (provide 'init-gud)

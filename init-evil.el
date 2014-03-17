@@ -175,10 +175,11 @@ to replace the symbol under cursor"
   "ub" 'gud-break
   "uu" 'gud-run
   "up" 'gud-print
+  "ue" 'gud-cls
   "un" 'gud-next
   "us" 'gud-step
   "ui" 'gud-stepi
-  "uc" 'gud-continue
+  "uc" 'gud-cont
   "uf" 'gud-finish
   "W" 'save-some-buffers
   "K" 'kill-buffer-and-window ;; "k" is preserved to replace "C-g"
