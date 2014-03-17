@@ -695,6 +695,8 @@ when toggle off input method, switch to evil-normal-state if current state is ev
     ("^[ \t]*<\\(@[a-z.]+\\)[^>]*>? *$" 1 " contentId=\"\\([a-zA-Z0-9_]+\\)\"" "=" ">")
     ))
 
+(setq color-theme-illegal-faces "^\\(w3-\\|dropdown-\\|info-\\|linum\\|yas-\\)")
+
 (defun toggle-web-js-offset ()
   "toggle js2-basic-offset"
   (interactive)
