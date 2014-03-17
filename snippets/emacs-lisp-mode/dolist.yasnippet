@@ -1,0 +1,16 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: (dolist () break)
+# key: dolist
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# --
+(let ((i 0) found item)
+  (while (and (not found)
+              (< i (length ${1:items})))
+    (setq item (nth i ${1:$(yas/substr text "[^ ]*")))
+    (when (${2:t})
+      (setq found t)
+      )
+    (setq i (1+ i))
+    ))
+
+(message "${1:object}=%${2:s}" ${1:$(yas/substr text "[^ ]*")})
