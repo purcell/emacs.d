@@ -147,7 +147,7 @@
 
 (define-key ruby-mode-map (kbd "C-c C-c") 'xmp)
 
-(set-frame-font "monofur-18")
+(set-frame-font "monofur-12")
 
 ;;;
 ;;; Flash the screen
