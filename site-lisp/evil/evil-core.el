@@ -2,7 +2,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0-dev
+;; Version: 1.0.8
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -140,6 +140,11 @@
     (remove-hook 'input-method-activate-hook 'evil-activate-input-method t)
     (remove-hook 'input-method-deactivate-hook 'evil-deactivate-input-method t)
     (evil-change-state nil))))
+
+;; Make the variable permanent local.  This is particular useful in
+;; conjunction with nXhtml/mumamo because mumamo does not touch these
+;; variables.
+(put 'evil-local-mode 'permanent-local t)
 
 (defun turn-on-evil-mode (&optional arg)
   "Turn on Evil in the current buffer."
@@ -306,13 +311,15 @@ This is the state the buffer comes up in."
 (evil-define-command evil-change-to-initial-state
   (&optional buffer message)
   "Change the state of BUFFER to its initial state.
-This is the state the buffer came up in."
+This is the state the buffer came up in. If Evil is not activated
+then this function does nothing."
   :keep-visual t
   :suppress-operator t
   (with-current-buffer (or buffer (current-buffer))
-    (evil-change-state (evil-initial-state-for-buffer
-                        buffer (or evil-default-state 'normal))
-                       message)))
+    (when evil-local-mode
+      (evil-change-state (evil-initial-state-for-buffer
+                          buffer (or evil-default-state 'normal))
+                         message))))
 
 (evil-define-command evil-change-to-previous-state
   (&optional buffer message)

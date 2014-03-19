@@ -2,7 +2,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0-dev
+;; Version: 1.0.8
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -942,6 +942,30 @@ or line COUNT to the top of the window."
   (recenter -1)
   (evil-first-non-blank))
 
+(defun evil-scroll-left ()
+  "Scrolls the window half a screenwidth to the left."
+  (interactive)
+  (evil-with-hproject-point-on-window
+    (scroll-right (/ (window-width) 2))))
+
+(defun evil-scroll-right ()
+  "Scrolls the window half a screenwidth to the right."
+  (interactive)
+  (evil-with-hproject-point-on-window
+    (scroll-left (/ (window-width) 2))))
+
+(defun evil-scroll-column-left ()
+  "Scrolls the window one column to the left."
+  (interactive)
+  (evil-with-hproject-point-on-window
+    (scroll-right 1)))
+
+(defun evil-scroll-column-right ()
+  "Scrolls the window one column to the right."
+  (interactive)
+  (evil-with-hproject-point-on-window
+    (scroll-left 1)))
+
 ;;; Text objects
 
 ;; Text objects are defined with `evil-define-text-object'. In Visual
@@ -1127,6 +1151,36 @@ or line COUNT to the top of the window."
   "Select inner symbol."
   (require 'thingatpt)
   (evil-inner-object-range count beg end type #'forward-symbol))
+
+(evil-define-text-object evil-next-match (count &optional beg end type)
+  "Select next match."
+  (unless (and (boundp 'evil-search-module)
+               (eq evil-search-module 'evil-search))
+    (error "next-match text objects only work with Evil search module."))
+  (let ((pnt (point)))
+    (cond
+     ((eq evil-ex-search-direction 'forward)
+      (unless (eobp) (forward-char))
+      (evil-ex-search-previous 1)
+      (when (and (<= evil-ex-search-match-beg pnt)
+                 (> evil-ex-search-match-end pnt))
+        (setq count (1- count)))
+      (if (> count 0) (evil-ex-search-next count)))
+     (t
+      (unless (eobp) (forward-char))
+      (evil-ex-search-next count))))
+  (list evil-ex-search-match-beg evil-ex-search-match-end))
+
+(evil-define-text-object evil-previous-match (count &optional beg end type)
+  "Select next match."
+  (unless (and (boundp 'evil-search-module)
+               (eq evil-search-module 'evil-search))
+    (error "previous-match text objects only work with Evil search module."))
+  (let ((evil-ex-search-direction
+         (if (eq evil-ex-search-direction 'backward)
+             'forward
+           'backward)))
+    (evil-next-match count beg end type)))
 
 ;;; Operator commands
 
@@ -1374,7 +1428,13 @@ of the block."
       (evil-apply-on-block #'evil-invert-case beg end nil)
     (evil-invert-case beg end)
     (when evil-this-motion
-      (goto-char end))))
+      (goto-char end)
+      (when (and evil-cross-lines
+                 evil-move-cursor-back
+                 (not (evil-visual-state-p))
+                 (not (evil-operator-state-p))
+                 (eolp) (not (eobp)) (not (bolp)))
+        (forward-char)))))
 
 (evil-define-operator evil-rot13 (beg end type)
   "ROT13 encrypt text."
@@ -1601,6 +1661,8 @@ The return value is the yanked text."
                 (push-mark opoint t)
                 (insert-for-yank text))
             ;; no yank-handler, default
+            (when (vectorp text)
+              (setq text (evil-vector-to-string text)))
             (set-text-properties 0 (length text) nil text)
             (push-mark opoint t)
             (dotimes (i (or count 1))
@@ -1644,6 +1706,8 @@ The return value is the yanked text."
                     (this-command #'evil-paste-after))
                 (insert-for-yank text))
             ;; no yank-handler, default
+            (when (vectorp text)
+              (setq text (evil-vector-to-string text)))
             (set-text-properties 0 (length text) nil text)
             (unless (eolp) (forward-char))
             (push-mark (point) t)
@@ -2255,37 +2319,45 @@ for `isearch-forward',\nwhich lists available keys:\n\n%s"
                    (car-safe search-ring))
                  (not isearch-forward) evil-regexp-search)))
 
-(evil-define-motion evil-search-symbol-backward (count)
+(evil-define-motion evil-search-word-backward (count &optional symbol)
   "Search backward for symbol under point."
   :jump t
   :type exclusive
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+                     evil-symbol-word-search))
   (dotimes (var (or count 1))
-    (evil-search-symbol nil)))
+    (evil-search-word nil nil symbol)))
 
-(evil-define-motion evil-search-symbol-forward (count)
+(evil-define-motion evil-search-word-forward (count &optional symbol)
   "Search forward for symbol under point."
   :jump t
   :type exclusive
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+                     evil-symbol-word-search))
   (dotimes (var (or count 1))
-    (evil-search-symbol t)))
+    (evil-search-word t nil symbol)))
 
-(evil-define-motion evil-search-unbounded-symbol-backward (count)
+(evil-define-motion evil-search-unbounded-word-backward (count &optiona symbol)
   "Search backward for symbol under point.
 The search is unbounded, i.e., the pattern is not wrapped in
 \\<...\\>."
   :jump t
   :type exclusive
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+                     evil-symbol-word-search))
   (dotimes (var (or count 1))
-    (evil-search-symbol nil t)))
+    (evil-search-word nil t symbol)))
 
-(evil-define-motion evil-search-unbounded-symbol-forward (count)
+(evil-define-motion evil-search-unbounded-word-forward (count &optiona symbol)
   "Search forward for symbol under point.
 The search is unbounded, i.e., the pattern is not wrapped in
 \\<...\\>."
   :jump t
   :type exclusive
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+                     evil-symbol-word-search))
   (dotimes (var (or count 1))
-    (evil-search-symbol t t)))
+    (evil-search-word t t symbol)))
 
 (evil-define-motion evil-goto-definition ()
   "Go to definition or first occurrence of symbol under point."
@@ -2480,20 +2552,12 @@ If no FILE is specified, reload the current buffer from disk."
         (goto-char (mark))
         (unless (bolp) (insert "\n"))))))
 
-(evil-define-command evil-show-buffers ()
-  "Shows the buffer-list.
-The same as `list-buffers' but selects the buffer window afterwards."
-  :repeat nil
-  (list-buffers)
-  (select-window (get-buffer-window "*Buffer List*")))
-
 (evil-define-command evil-show-files ()
   "Shows the file-list.
-The same as `list-buffers', but shows only buffers visiting files
-and selects the list window afterwards."
+The same as `buffer-menu', but shows only buffers visiting
+files."
   :repeat nil
-  (list-buffers 1)
-  (select-window (get-buffer-window "*Buffer List*")))
+  (buffer-menu 1))
 
 (evil-define-command evil-buffer (buffer)
   "Switches to another buffer."
@@ -2599,29 +2663,48 @@ is closed."
   (evil-quit))
 
 (evil-define-operator evil-shell-command
-  (beg end command &optional previous)
+  (beg end type command &optional previous)
   "Execute a shell command.
-If BEG and END is specified, COMMAND is executed on the region,
+If BEG, END and TYPE is specified, COMMAND is executed on the region,
 which is replaced with the command's output. Otherwise, the
 output is displayed in its own buffer. If PREVIOUS is non-nil,
 the previous shell command is executed instead."
-  :motion nil
-  (interactive "<r><sh><!>")
-  (when command
-    (setq command (evil-ex-replace-special-filenames command)))
-  (if (zerop (length command))
-      (when previous (setq command evil-previous-shell-command))
-    (setq evil-previous-shell-command command))
-  (cond
-   ((zerop (length command))
-    (if previous (error "No previous shell command")
-      (error "No shell command")))
-   ((and beg end)
-    (shell-command-on-region beg end command t)
-    (goto-char beg)
-    (evil-first-non-blank))
-   (t
-    (shell-command command))))
+  (interactive "<R><sh><!>")
+  (if (not (evil-ex-p))
+      (let ((evil-ex-initial-input
+             (if (and beg
+                      (not (evil-visual-state-p))
+                      (not current-prefix-arg))
+                 (let ((range (evil-range beg end type)))
+                   (evil-contract-range range)
+                   ;; TODO: this is not exactly the same as Vim, which
+                   ;; uses .,+count as range. However, this is easier
+                   ;; to achieve with the current implementation and
+                   ;; the very inconvenient range interface.
+                   ;;
+                   ;; TODO: the range interface really needs some
+                   ;; rework!
+                   (format
+                    "%d,%d!"
+                    (line-number-at-pos (evil-range-beginning range))
+                    (line-number-at-pos (evil-range-end range))))
+               "!")))
+        (call-interactively 'evil-ex))
+    (when command
+      (setq command (evil-ex-replace-special-filenames command)))
+    (if (zerop (length command))
+        (when previous (setq command evil-previous-shell-command))
+      (setq evil-previous-shell-command command))
+    (cond
+     ((zerop (length command))
+      (if previous (error "No previous shell command")
+        (error "No shell command")))
+     (evil-ex-range
+      (shell-command-on-region beg end command nil t)
+      (goto-char beg)
+      (evil-first-non-blank))
+     (t
+      (shell-command command)))))
 
 ;; TODO: escape special characters (currently only \n) ... perhaps
 ;; there is some Emacs function doing this?
@@ -2638,6 +2721,49 @@ the previous shell command is executed instead."
                             (replace-regexp-in-string "\n" "^J" (cdr reg))
                           (cdr reg))))
         (newline)))))
+
+(evil-define-command evil-show-marks (mrks)
+  "Shows all marks.
+If MRKS is non-nil it should be a string and only registers
+corresponding to the characters of this string are shown."
+  :repeat nil
+  (interactive "<a>")
+  ;; To get markers and positions, we can't rely on 'global-mark-ring'
+  ;; provided by Emacs (although it will be much simpler and faster),
+  ;; because 'global-mark-ring' does not store mark characters, but
+  ;; only buffer name and position. Instead, 'evil-markers-alist' is
+  ;; used; this is list maintained by Evil for each buffer.
+  (let ((all-markers
+         ;; get global and local marks
+         (append (evil-filter-list #'(lambda (m)
+                                       (or (evil-global-marker-p (car m))
+                                           (not (markerp (cdr m)))))
+                                   evil-markers-alist)
+                 (evil-filter-list #'(lambda (m)
+                                       (or (not (evil-global-marker-p
+                                                 (car m)))
+                                           (not (markerp (cdr m)))))
+                                   (default-value 'evil-markers-alist)))))
+    (when mrks
+      (setq mrks (string-to-list mrks))
+      (setq all-markers (evil-filter-list #'(lambda (m)
+                                              (not (member (car m) mrks)))
+                                          all-markers)))
+    ;; map marks to list of 4-tuples (char row col file)
+    (setq all-markers
+          (mapcar #'(lambda (m)
+                      (with-current-buffer (marker-buffer (cdr m))
+                        (save-excursion
+                          (goto-char (cdr m))
+                          (list (car m)
+                                (1+ (count-lines 1 (line-beginning-position)))
+                                (current-column)
+                                (buffer-name)))))
+                  all-markers))
+    (evil-with-view-list "evil-marks"
+      (setq truncate-lines t)
+      (dolist (m (sort all-markers #'(lambda (a b) (< (car a) (car b)))))
+        (insert (apply 'format " %c %6d %6d %s\n" m))))))
 
 (eval-when-compile (require 'ffap))
 (evil-define-command evil-find-file-at-point-with-line ()
@@ -2726,12 +2852,10 @@ Change to `%s'? "
   (let ((orig (point))
         wrapped)
     (dotimes (i (or count 1))
-      (if (eq evil-ex-search-direction 'backward)
-          (unless (bobp) (backward-char))
+      (when (eq evil-ex-search-direction 'forward)
         (unless (eobp) (forward-char))
         ;; maybe skip end-of-line
-        (when (and evil-move-cursor-back
-                   (eolp) (not (eobp)))
+        (when (and evil-move-cursor-back (eolp) (not (eobp)))
           (forward-char)))
       (let ((res (evil-ex-find-next)))
         (cond
@@ -2787,29 +2911,37 @@ resp.  after executing the command."
   :repeat evil-repeat-ex-search
   (evil-ex-start-search 'backward count))
 
-(evil-define-motion evil-ex-search-symbol-forward (count)
+(evil-define-motion evil-ex-search-word-forward (count &optional symbol)
   "Search for the next occurrence of word under the cursor."
   :jump t
   :type exclusive
-  (evil-ex-start-symbol-search nil 'forward count))
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+                     evil-symbol-word-search))
+  (evil-ex-start-word-search nil 'forward count symbol))
 
-(evil-define-motion evil-ex-search-symbol-backward (count)
+(evil-define-motion evil-ex-search-word-backward (count &optional symbol)
   "Search for the next occurrence of word under the cursor."
   :jump t
   :type exclusive
-  (evil-ex-start-symbol-search nil 'backward count))
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+                     evil-symbol-word-search))
+  (evil-ex-start-word-search nil 'backward count symbol))
 
-(evil-define-motion evil-ex-search-unbounded-symbol-forward (count)
+(evil-define-motion evil-ex-search-unbounded-word-forward (count &optional symbol)
   "Search for the next occurrence of word under the cursor."
   :jump t
   :type exclusive
-  (evil-ex-start-symbol-search t 'forward count))
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+                     evil-symbol-word-search))
+  (evil-ex-start-word-search t 'forward count symbol))
 
-(evil-define-motion evil-ex-search-unbounded-symbol-backward (count)
+(evil-define-motion evil-ex-search-unbounded-word-backward (count &optional symbol)
   "Search for the next occurrence of word under the cursor."
   :jump t
   :type exclusive
-  (evil-ex-start-symbol-search t 'backward count))
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+                     evil-symbol-word-search))
+  (evil-ex-start-word-search t 'backward count symbol))
 
 (evil-define-operator evil-ex-substitute
   (beg end pattern replacement flags)
@@ -3087,13 +3219,15 @@ Default position is the beginning of the buffer."
   "Shows basic file information."
   (let* ((nlines   (count-lines (point-min) (point-max)))
          (curr     (line-number-at-pos (point)))
-         (perc     (* (/ (float curr) (float nlines)) 100.0))
+         (perc     (if (> nlines 0)
+                       (format "%d%%" (* (/ (float curr) (float nlines)) 100.0))
+                     "No lines in buffer"))
          (file     (buffer-file-name (buffer-base-buffer)))
          (writable (and file (file-writable-p file)))
          (readonly (if (and file (not writable)) "[readonly] " "")))
     (if file
-        (message "\"%s\" %d %slines --%d%%--" file nlines readonly perc)
-      (message "%d lines --%d%%--" nlines perc))))
+        (message "\"%s\" %d %slines --%s--" file nlines readonly perc)
+      (message "%d lines --%s--" nlines perc))))
 
 ;;; Window navigation
 
@@ -3141,23 +3275,44 @@ TREE is the tree layout to be restored."
    (t
     (set-window-buffer win tree))))
 
+(evil-define-command evil-window-delete ()
+  "Deletes the current window.
+If `evil-auto-balance-windows' is non-nil then all children of
+the deleted window's parent window are rebalanced."
+  (let ((p (window-parent)))
+    (delete-window)
+    (when evil-auto-balance-windows
+      ;; balance-windows raises an error if the parent does not have
+      ;; any futher childs (then rebalancing is not necessary anywa)
+      (condition-case nil
+          (balance-windows p)
+        (error)))))
+
 (evil-define-command evil-window-split (&optional count file)
   "Splits the current window horizontally, COUNT lines height,
-editing a certain FILE."
+editing a certain FILE. If COUNT and `evil-auto-balance-windows'
+are both non-nil then all children of the parent of the splitted
+window are rebalanced."
   :repeat nil
   (interactive "P<f>")
-  (let ((new-win (split-window (selected-window) count)))
-    (when file
-      (evil-edit file))))
+  (split-window (selected-window) count)
+  (when (and (not count) evil-auto-balance-windows)
+    (balance-windows (window-parent)))
+  (when file
+    (evil-edit file)))
 
 (evil-define-command evil-window-vsplit (&optional count file)
   "Splits the current window vertically, COUNT columns width,
-editing a certain FILE."
+editing a certain FILE. If COUNT and `evil-auto-balance-windows'
+are both non-nil then all children of the parent of the splitted
+window are rebalanced."
   :repeat nil
   (interactive "P<f>")
-  (let ((new-win (split-window (selected-window) count t)))
-    (when file
-      (evil-edit file))))
+  (split-window (selected-window) count t)
+  (when (and (not count) evil-auto-balance-windows)
+    (balance-windows (window-parent)))
+  (when file
+    (evil-edit file)))
 
 (evil-define-command evil-split-buffer (buffer)
   "Splits window and switches to another buffer."
@@ -3283,6 +3438,8 @@ and opens a new buffer or edits a certain FILE."
   :repeat nil
   (interactive "P<f>")
   (split-window (selected-window) count)
+  (when (and (not count) evil-auto-balance-windows)
+    (balance-windows (window-parent)))
   (if file
       (evil-edit file)
     (let ((buffer (generate-new-buffer "*new*")))
@@ -3296,6 +3453,8 @@ and opens a new buffer name or edits a certain FILE."
   :repeat nil
   (interactive "P<f>")
   (split-window (selected-window) count t)
+  (when (and (not count) evil-auto-balance-windows)
+    (balance-windows (window-parent)))
   (if file
       (evil-edit file)
     (let ((buffer (generate-new-buffer "*new*")))
@@ -3709,7 +3868,7 @@ if the previous state was Emacs state."
                             universal-argument-more
                             universal-argument-other-key)))
       `(progn
-         (evil-change-to-previous-state)
+         (evil-change-state ',evil-state)
          (setq evil-move-cursor-back ',evil-move-cursor-back))
     'post-command-hook)
   (setq evil-move-cursor-back nil)

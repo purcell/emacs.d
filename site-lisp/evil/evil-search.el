@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0-dev
+;; Version: 1.0.8
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -38,10 +38,10 @@ search module is used."
   (let ((search-functions
          '(forward
            backward
-           symbol-forward
-           symbol-backward
-           unbounded-symbol-forward
-           unbounded-symbol-backward
+           word-forward
+           word-backward
+           unbounded-word-forward
+           unbounded-word-backward
            next
            previous)))
     (dolist (fun search-functions)
@@ -127,8 +127,8 @@ to display in the echo area."
                   evil-search-forward
                   evil-search-next
                   evil-search-previous
-                  evil-search-symbol-backward
-                  evil-search-symbol-forward))
+                  evil-search-word-backward
+                  evil-search-word-forward))
     (isearch-clean-overlays)))
 (put 'evil-clean-isearch-overlays 'permanent-local-hook t)
 
@@ -143,8 +143,8 @@ Disable anyway if FORCE is t."
                          evil-search-forward
                          evil-search-next
                          evil-search-previous
-                         evil-search-symbol-backward
-                         evil-search-symbol-forward))))
+                         evil-search-word-backward
+                         evil-search-word-forward))))
     (evil-echo-area-restore)
     (isearch-dehighlight)
     (setq isearch-lazy-highlight-last-string nil)
@@ -238,49 +238,66 @@ one more than the current position."
         (setq string (evil-search-message string forward))))
       (evil-flash-search-pattern string t))))
 
-(defun evil-search-symbol (forward &optional unbounded)
-  "Search for symbol near point.
-If FORWARD is nil, search backward, otherwise forward."
+(defun evil-search-word (forward unbounded symbol)
+  "Search for word near point.
+If FORWARD is nil, search backward, otherwise forward. If SYMBOL
+is non-nil then the functions searches for the symbol at point,
+otherwise for the word at point."
   (let ((string (car-safe regexp-search-ring))
         (move (if forward #'forward-char #'backward-char))
         (end (if forward #'eobp #'bobp)))
     (setq isearch-forward forward)
     (cond
      ((and (memq last-command
-                 '(evil-search-symbol-forward
-                   evil-search-symbol-backward))
+                 '(evil-search-word-forward
+                   evil-search-word-backward))
            (stringp string)
            (not (string= string "")))
       (evil-search string forward t))
      (t
-      (setq string (evil-find-symbol forward))
+      (setq string (evil-find-thing forward (if symbol 'symbol 'word)))
       (cond
        ((null string)
-        (error "No symbol under point"))
+        (error "No word under point"))
        (unbounded
         (setq string (regexp-quote string)))
        (t
-        (setq string (format "\\_<%s\\_>" (regexp-quote string)))))
+        (setq string
+              (format (if symbol "\\_<%s\\_>" "\\<%s\\>")
+                      (regexp-quote string)))))
       (evil-search string forward t)))))
 
-(defun evil-find-symbol (forward)
-  "Return symbol near point as a string.
-If FORWARD is nil, search backward, otherwise forward.
-Returns nil if nothing is found."
+(defun evil-find-thing (forward thing)
+  "Return THING near point as a string.
+THING should be a symbol understood by `thing-at-point',
+e.g. 'symbol or 'word.  If FORWARD is nil, search backward,
+otherwise forward.  Returns nil if nothing is found."
   (let ((move (if forward #'forward-char #'backward-char))
         (end (if forward #'eobp #'bobp))
         string)
     (save-excursion
-      (setq string (thing-at-point 'symbol))
+      (setq string (thing-at-point thing))
       ;; if there's nothing under point, go forwards
       ;; (or backwards) to find it
       (while (and (null string) (not (funcall end)))
         (funcall move)
-        (setq string (thing-at-point 'symbol)))
+        (setq string (thing-at-point thing)))
       (when (stringp string)
         (set-text-properties 0 (length string) nil string))
       (when (> (length string) 0)
         string))))
+
+(defun evil-find-word (forward)
+  "Return word near point as a string.
+If FORWARD is nil, search backward, otherwise forward.  Returns
+nil if nothing is found."
+  (evil-find-thing forward 'word))
+
+(defun evil-find-symbol (forward)
+  "Return word near point as a string.
+If FORWARD is nil, search backward, otherwise forward.  Returns
+nil if nothing is found."
+  (evil-find-thing forward 'symbol))
 
 (defun evil-search-prompt (forward)
   "Return the search prompt for the given direction."
@@ -650,7 +667,24 @@ Note that this function ignores the whole-line property of PATTERN."
      ((eq direction 'forward)
       (re-search-forward (evil-ex-pattern-regex pattern) nil t))
      ((eq direction 'backward)
-      (re-search-backward (evil-ex-pattern-regex pattern) nil t))
+      (let* ((pnt (point))
+             (ret (re-search-backward (evil-ex-pattern-regex pattern) nil t))
+             (m (and ret (match-data))))
+        (if ret
+            (forward-char)
+          (goto-char (point-min)))
+        (let ((fwdret
+               (re-search-forward (evil-ex-pattern-regex pattern) nil t)))
+          (cond
+           ((and fwdret (< (match-beginning 0) pnt))
+            (setq ret fwdret)
+            (goto-char (match-beginning 0)))
+           (ret
+            (set-match-data m)
+            (goto-char (match-beginning 0)))
+           (t
+            (goto-char pnt)
+            ret)))))
      (t
       (error "Unknown search direction: %s" direction)))))
 
@@ -1003,19 +1037,23 @@ current search result."
             (evil-ex-delete-hl 'evil-ex-search)
             (signal 'search-failed (list search-string)))))))))
 
-(defun evil-ex-start-symbol-search (unbounded direction count)
+(defun evil-ex-start-word-search (unbounded direction count &optional symbol)
   "Search for the symbol under point.
-The search matches the COUNT-th occurrence of the word.
-If the UNBOUNDED argument is nil, the search matches only
-at symbol boundaries, otherwise it matches anywhere.
-The DIRECTION argument should be either `forward' or
-`backward', determining the search direction."
-  (let ((string (evil-find-symbol (eq direction 'forward))))
+The search matches the COUNT-th occurrence of the word.  If the
+UNBOUNDED argument is nil, the search matches only at symbol
+boundaries, otherwise it matches anywhere.  The DIRECTION
+argument should be either `forward' or `backward', determining
+the search direction. If SYMBOL is non-nil then the functions
+searches for the symbol at point, otherwise for the word at
+point."
+  (let ((string (evil-find-thing (eq direction 'forward)
+                                 (if symbol 'symbol 'word))))
     (if (null string)
-        (error "No symbol under point")
+        (error "No word under point")
       (let ((regex (if unbounded
-                       (regexp-quote (match-string 0))
-                     (format "\\_<%s\\_>" (regexp-quote (match-string 0))))))
+                       (regexp-quote string)
+                     (format (if symbol "\\_<%s\\_>" "\\<%s\\>")
+                             (regexp-quote string)))))
         (setq evil-ex-search-count count
               evil-ex-search-direction direction
               evil-ex-search-pattern

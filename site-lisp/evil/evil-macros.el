@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0-dev
+;; Version: 1.0.8
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -32,6 +32,10 @@
 ;;; Code:
 
 (declare-function evil-ex-p "evil-ex")
+
+;; set some error codes
+(put 'beginning-of-line 'error-conditions '(beginning-of-line error))
+(put 'end-of-line 'error-conditions '(end-of-line error))
 
 (defun evil-motion-range (motion &optional count type)
   "Execute a motion and return the buffer positions.
@@ -64,9 +68,14 @@ The return value is a list (BEG END TYPE)."
                         (funcall repeat-type 'post)))
                 (error (prog1 nil
                          (evil-repeat-abort)
-                         (setq evil-this-type 'exclusive
-                               evil-write-echo-area t)
-                         (message (error-message-string err)))))
+                         ;; some operators depend on succeeding
+                         ;; motions, in particular for
+                         ;; `evil-forward-char' (e.g., used by
+                         ;; `evil-substitute'), therefore we let
+                         ;; end-of-line and end-of-buffer pass
+                         (if (not (memq (car err) '(end-of-line end-of-buffer)))
+                             (signal (car err) (cdr err))
+                           (message (error-message-string err))))))
               (cond
                ;; the motion returned a range
                ((evil-range-p range))
@@ -176,7 +185,7 @@ not be performed.
 
 (defmacro evil-narrow-to-line (&rest body)
   "Narrow BODY to the current line.
-BODY will signal the errors \"Beginning of line\" or \"End of line\"
+BODY will signal the errors 'beginning-of-line or 'end-of-line
 upon reaching the beginning or end of the current line.
 
 \(fn [[KEY VAL]...] BODY...)"
@@ -201,11 +210,11 @@ upon reaching the beginning or end of the current line.
            (beginning-of-buffer
             (if (= beg min)
                 (signal (car err) (cdr err))
-              (error "Beginning of line")))
+              (signal 'beginning-of-line nil)))
            (end-of-buffer
             (if (= end max)
                 (signal (car err) (cdr err))
-              (error "End of line"))))))))
+              (signal 'end-of-line nil))))))))
 
 ;; we don't want line boundaries to trigger the debugger
 ;; when `debug-on-error' is t

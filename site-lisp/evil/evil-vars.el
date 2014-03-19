@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0-dev
+;; Version: 1.0.8
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -166,8 +166,7 @@ of `evil-shift-width'."
   :group 'evil)
 (make-variable-buffer-local 'evil-shift-round)
 
-(defcustom evil-default-cursor
-  (list (or (frame-parameter nil 'cursor-color) "black") t)
+(defcustom evil-default-cursor t
   "The default cursor.
 May be a cursor type as per `cursor-type', a color string as passed
 to `set-cursor-color', a zero-argument function for changing the
@@ -283,6 +282,11 @@ This should be a regexp set without the enclosing []."
   :type  'integer
   :group 'evil)
 
+(defcustom evil-auto-balance-windows t
+  "If non-nil creating/deleting a window causes a rebalance."
+  :type 'boolean
+  :group 'evil)
+
 (defcustom evil-esc-delay 0.01
   "Time in seconds to wait for another key after ESC."
   :type 'number
@@ -340,17 +344,51 @@ before point."
 (defcustom evil-want-C-i-jump t
   "Whether \"C-i\" jumps forward like in Vim."
   :type 'boolean
-  :group 'evil)
+  :group 'evil
+  :set #'(lambda (sym value)
+           (set-default sym value)
+           (when (boundp 'evil-motion-state-map)
+             (cond
+              ((and (not value)
+                    (eq (lookup-key evil-motion-state-map (kbd "C-i"))
+                        'evil-jump-forward))
+               (define-key evil-motion-state-map (kbd "C-i") nil))
+              ((and value
+                    (not (lookup-key evil-motion-state-map (kbd "C-i"))))
+               (define-key evil-motion-state-map (kbd "C-i") 'evil-jump-forward))))))
 
 (defcustom evil-want-C-u-scroll nil
   "Whether \"C-u\" scrolls like in Vim."
   :type 'boolean
-  :group 'evil)
+  :group 'evil
+  :set #'(lambda (sym value)
+           (set-default sym value)
+           (when (boundp 'evil-motion-state-map)
+             (cond
+              ((and (not value)
+                    (eq (lookup-key evil-motion-state-map (kbd "C-u"))
+                        'evil-scroll-up))
+               (define-key evil-motion-state-map (kbd "C-u") nil))
+              ((and value
+                    (not (lookup-key evil-motion-state-map (kbd "C-u"))))
+               (define-key evil-motion-state-map (kbd "C-u") 'evil-scroll-up))))))
 
 (defcustom evil-want-C-w-delete t
   "Whether \"C-w\" deletes a word in Insert state."
   :type 'boolean
-  :group 'evil)
+  :group 'evil
+  :set #'(lambda (sym value)
+           (set-default sym value)
+           (when (boundp 'evil-motion-state-map)
+             (cond
+              ((and (not value)
+                    (eq (lookup-key evil-motion-state-map (kbd "C-w"))
+                        'evil-delete-backward-word))
+               (define-key evil-motion-state-map (kbd "C-w") 'evil-window-map))
+              ((and value
+                    (eq (lookup-key evil-motion-state-map (kbd "C-u"))
+                        'evil-window-map))
+               (define-key evil-motion-state-map (kbd "C-u") 'evil-delete-backward-word))))))
 
 (defcustom evil-want-C-w-in-emacs-state nil
   "Whether \"C-w\" prefixes windows commands in Emacs state."
@@ -529,6 +567,7 @@ If STATE is nil, Evil is disabled in the buffer."
     magit-stash-mode
     magit-status-mode
     magit-wazzup-mode
+    magit-process-mode
     mh-folder-mode
     monky-mode
     mu4e-main-mode
@@ -896,6 +935,12 @@ be extended to contain full lines."
   :type 'boolean)
 
 ;; Searching
+(defcustom evil-symbol-word-search nil
+  "If nil then * and # search for words otherwise for symbols."
+  :group 'evil
+  :type 'boolean)
+(make-variable-buffer-local 'evil-symbol-word-search)
+
 (defcustom evil-magic t
   "Meaning which characters in a pattern are magic.
 The meaning of those values is the same as in Vim. Note that it
@@ -1371,6 +1416,11 @@ Key sequences bound in this map are immediately executed.")
 
 (defvar evil-ex-completion-map (make-sparse-keymap)
   "Completion keymap for Ex.")
+
+(defvar evil-ex-initial-input nil
+  "Additional initial content of the ex command line.
+This content of this variable is appended to the ex command line
+if ex is started interactively.")
 
 (defvar evil-ex-shell-argument-initialized nil
   "This variable is set to t if shell command completion has been initialized.

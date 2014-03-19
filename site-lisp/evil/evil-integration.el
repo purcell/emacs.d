@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0-dev
+;; Version: 1.0.8
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -206,40 +206,59 @@
        "k" 'evil-previous-line
        "RET" 'ibuffer-visit-buffer)))
 
-;;; Undo tree visualizer
+;;; Undo tree
+(when (and (require 'undo-tree nil t)
+           (fboundp 'global-undo-tree-mode))
+  (global-undo-tree-mode 1))
 
-(defadvice undo-tree-visualize (after evil activate)
-  "Initialize Evil in the visualization buffer."
-  (when evil-local-mode
-    (evil-initialize-state)))
+(eval-after-load 'undo-tree
+  '(progn
+     (defun evil-turn-on-undo-tree-mode ()
+       "Enable `undo-tree-mode' if evil is enabled.
+This function enables `undo-tree-mode' when Evil is activated in
+some buffer, but only if `global-undo-tree-mode' is also
+activated."
+       (when global-undo-tree-mode (undo-tree-mode 1)))
 
-(when (boundp 'undo-tree-visualizer-mode-map)
-  (define-key undo-tree-visualizer-mode-map [remap evil-backward-char]
-    'undo-tree-visualize-switch-branch-left)
-  (define-key undo-tree-visualizer-mode-map [remap evil-forward-char]
-    'undo-tree-visualize-switch-branch-right)
-  (define-key undo-tree-visualizer-mode-map [remap evil-next-line]
-    'undo-tree-visualize-redo)
-  (define-key undo-tree-visualizer-mode-map [remap evil-previous-line]
-    'undo-tree-visualize-undo)
-  (define-key undo-tree-visualizer-mode-map [remap evil-ret]
-    'undo-tree-visualizer-set))
+     (add-hook 'evil-local-mode-hook #'evil-turn-on-undo-tree-mode)
 
-(when (boundp 'undo-tree-visualizer-selection-mode-map)
-  (define-key undo-tree-visualizer-selection-mode-map [remap evil-backward-char]
-    'undo-tree-visualizer-select-left)
-  (define-key undo-tree-visualizer-selection-mode-map [remap evil-forward-char]
-    'undo-tree-visualizer-select-right)
-  (define-key undo-tree-visualizer-selection-mode-map [remap evil-next-line]
-    'undo-tree-visualizer-select-next)
-  (define-key undo-tree-visualizer-selection-mode-map [remap evil-previous-line]
-    'undo-tree-visualizer-select-previous)
-  (define-key undo-tree-visualizer-selection-mode-map [remap evil-ret]
-    'undo-tree-visualizer-set))
+     (defadvice undo-tree-visualize (after evil activate)
+       "Initialize Evil in the visualization buffer."
+       (when evil-local-mode
+         (evil-initialize-state)))
+
+     (when (fboundp 'undo-tree-visualize)
+       (evil-ex-define-cmd "undol[ist]" 'undo-tree-visualize)
+       (evil-ex-define-cmd "ul" 'undo-tree-visualize))
+
+     (when (boundp 'undo-tree-visualizer-mode-map)
+       (define-key undo-tree-visualizer-mode-map
+         [remap evil-backward-char] 'undo-tree-visualize-switch-branch-left)
+       (define-key undo-tree-visualizer-mode-map
+         [remap evil-forward-char] 'undo-tree-visualize-switch-branch-right)
+       (define-key undo-tree-visualizer-mode-map
+         [remap evil-next-line] 'undo-tree-visualize-redo)
+       (define-key undo-tree-visualizer-mode-map
+         [remap evil-previous-line] 'undo-tree-visualize-undo)
+       (define-key undo-tree-visualizer-mode-map
+         [remap evil-ret] 'undo-tree-visualizer-set))
+
+     (when (boundp 'undo-tree-visualizer-selection-mode-map)
+       (define-key undo-tree-visualizer-selection-mode-map
+         [remap evil-backward-char] 'undo-tree-visualizer-select-left)
+       (define-key undo-tree-visualizer-selection-mode-map
+         [remap evil-forward-char] 'undo-tree-visualizer-select-right)
+       (define-key undo-tree-visualizer-selection-mode-map
+         [remap evil-next-line] 'undo-tree-visualizer-select-next)
+       (define-key undo-tree-visualizer-selection-mode-map
+         [remap evil-previous-line] 'undo-tree-visualizer-select-previous)
+       (define-key undo-tree-visualizer-selection-mode-map
+         [remap evil-ret] 'undo-tree-visualizer-set))))
 
 ;;; Auto-complete
 (eval-after-load 'auto-complete
   '(progn
+     (evil-add-command-properties 'auto-complete :repeat 'evil-ac-repeat)
      (evil-add-command-properties 'ac-complete :repeat 'evil-ac-repeat)
      (evil-add-command-properties 'ac-expand :repeat 'evil-ac-repeat)
      (evil-add-command-properties 'ac-next :repeat 'ignore)
@@ -292,16 +311,16 @@
 
 ;; Eval last sexp
 (defadvice preceding-sexp (around evil activate)
-  "In normal-state, last sexp ends at point."
-  (if (evil-normal-state-p)
+  "In normal-state or motion-state, last sexp ends at point."
+  (if (or (evil-normal-state-p) (evil-motion-state-p))
       (save-excursion
         (unless (or (eobp) (eolp)) (forward-char))
         ad-do-it)
     ad-do-it))
 
 (defadvice pp-last-sexp (around evil activate)
-  "In normal-state, last sexp ends at point."
-  (if (evil-normal-state-p)
+  "In normal-state or motion-state, last sexp ends at point."
+  (if (or (evil-normal-state-p) (evil-motion-state-p))
       (save-excursion
         (unless (or (eobp) (eolp)) (forward-char))
         ad-do-it)
@@ -419,6 +438,11 @@ the mark and entering `recursive-edit'."
 (define-key evil-motion-state-map [remap ace-jump-char-mode] #'evil-ace-jump-char-mode)
 (define-key evil-motion-state-map [remap ace-jump-line-mode] #'evil-ace-jump-line-mode)
 (define-key evil-motion-state-map [remap ace-jump-word-mode] #'evil-ace-jump-word-mode)
+
+;;; nXhtml/mumamo
+;; ensure that mumamo does not toggle evil through its globalized mode
+(eval-after-load 'mumamo
+  '(push 'evil-mode-cmhh mumamo-change-major-mode-no-nos))
 
 (provide 'evil-integration)
 
