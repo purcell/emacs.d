@@ -21,7 +21,6 @@
         (read-file-name . nil)
         (yas/compile-directory . ido)
         (execute-extended-command . ido)
-        (help-with-tutorial . ido)
         (minibuffer-completion-help . nil)
         (minibuffer-complete . nil)
         (wg-load . ido)
