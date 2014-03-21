@@ -1,3 +1,6 @@
+;; @see https://bitbucket.org/lyro/evil/issue/360/possible-evil-search-symbol-forward
+;; evil 1.0.8 search word instead of symbol
+(setq evil-symbol-word-search t)
 ;; load undo-tree and ert
 (add-to-list 'load-path "~/.emacs.d/site-lisp/evil/lib")
 (require 'evil)
