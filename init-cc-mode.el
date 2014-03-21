@@ -88,7 +88,6 @@
 (add-hook 'c-mode-common-hook
           (lambda ()
             (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
-              (gtags-mode 1)
               (setq gtags-suggested-key-mapping t)
               (ggtags-mode 1))
             (when (derived-mode-p 'c-mode 'c++-mode)

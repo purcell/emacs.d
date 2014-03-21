@@ -36,6 +36,7 @@
 (loop for (mode . state) in
       '(
         (minibuffer-inactive-mode . emacs)
+        (ggtags-global-mode . emacs)
         (Info-mode . emacs)
         (term-mode . emacs)
         (sdcv-mode . emacs)
@@ -51,7 +52,6 @@
         ;;(message-mode . emacs)
         (magit-log-edit-mode . emacs)
         (fundamental-mode . emacs)
-        (gtags-select-mode . emacs)
         (weibo-timeline-mode . emacs)
         (weibo-post-mode . emacs)
         (sr-mode . emacs)
@@ -161,7 +161,7 @@ to replace the symbol under cursor"
   "fp" 'copy-full-path-of-current-buffer
   "dj" 'dired-jump ;; open the dired from current file
   "ff" 'toggle-full-window ;; I use WIN+F in i3
-  "gt" 'get-term
+  "tm" 'get-term
   "px" 'paste-from-x-clipboard
   ;; "ci" 'evilnc-comment-or-uncomment-lines
   ;; "cl" 'evilnc-comment-or-uncomment-to-the-line
@@ -229,15 +229,12 @@ to replace the symbol under cursor"
   "hf" 'find-function
   "hv" 'describe-variable
   "hb" 'helm-back-to-last-point
-  "gf" 'gtags-find-tag-from-here
-  "gp" 'gtags-pop-stack
-  "gr" 'gtags-find-rtag
+  "gt" 'ggtags-find-tag-dwim
+  "gr" 'ggtags-find-reference
   "fb" 'flyspell-buffer
   "fe" 'flyspell-goto-next-error
   "fa" 'flyspell-auto-correct-word
   "fw" 'ispell-word
-  "gy" 'gtags-find-symbol
-  "dg" 'djcb-gtags-create-or-update
   "bc" '(lambda () (interactive) (wxhelp-browse-class-or-api (thing-at-point 'symbol)))
   "ma" 'mc/mark-all-like-this-in-defun
   "mw" 'mc/mark-all-words-like-this-in-defun
