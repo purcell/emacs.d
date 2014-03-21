@@ -75,20 +75,24 @@
   ;1 (was imposed by gnu style by default)
   (setq c-label-minimum-indentation 0)
 
-  (setq gtags-suggested-key-mapping t)
-  (gtags-mode 1)
-
   (require 'fic-mode)
   (add-hook 'c++-mode-hook 'turn-on-fic-mode)
 
   ; @see https://github.com/seanfisk/cmake-flymake
   ; make sure you project use cmake
-  (flymake-mode)
+  (flymake-mode 1)
   (cppcm-reload-all)
-
   )
+
 ;; donot use c-mode-common-hook or cc-mode-hook because many major-modes use this hook
-(add-hook 'c-mode-hook 'my-c-mode-hook)
-(add-hook 'c++-mode-hook 'my-c-mode-hook)
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+              (gtags-mode 1)
+              (setq gtags-suggested-key-mapping t)
+              (ggtags-mode 1))
+            (when (derived-mode-p 'c-mode 'c++-mode)
+              (my-c-mode-hook))
+            ))
 
 (provide 'init-cc-mode)
