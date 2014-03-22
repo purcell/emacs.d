@@ -13,7 +13,8 @@
 (setq ledger-highlight-xact-under-point nil
       ledger-use-iso-dates nil)
 
-(exec-path-from-shell-copy-env "LEDGER_FILE")
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-copy-env "LEDGER_FILE"))
 
 (add-hook 'ledger-mode-hook 'goto-address-prog-mode)
 
