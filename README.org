@@ -5,7 +5,6 @@
 - I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid some overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs.
 - I whitelist packages from [[http://melpa.milkbox.net][melpa]] because it is too cutting edge. Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
 - Many users have issue to fetch packages from elpa/marmalade/melpa. Check the section "Install packages without elpa/marmalade/melpa" for solutions.
-- When running certain commands in minibuffer, you may get "Can't expand minibuffer to full frame" error. That's *[[https://github.com/emacs-helm/helm][helm]] issue*! "C-h v helm-completing-read-handlers-alist" for workaround.
 
 * General
 My first priority is -stable-. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]].
@@ -98,12 +97,15 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - install using firefox
 
 ** [[http://ctags.sourceforge.net][ctags]]
+- it creates tags for code navigation
 - needed by many tags related plugins
 - install through OS package manager
+- See [[http://blog.binchen.org/?p=1057][How to use ctags in Emacs effectively]] for my guide
 
 ** [[http://www.gnu.org/software/global][GNU Global]] 
-- needed by `gtags`
-- You use this tool to navigate the C/C++/Java/Objective-C code.
+- needed by `ggtags.el`
+- it creates index files for code navigation
+- more advanced than ctags, supports references and better performance
 - install through OS package manager
 
 ** pyflakes
