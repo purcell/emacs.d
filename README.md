@@ -68,7 +68,10 @@ You might also want to check out `emacs-starter-kit` and `emacs-prelude`.
 
 ## Support / issues
 
-If you hit any problems, please [file an issue on the github project](https://github.com/purcell/emacs.d)
+If you hit any problems, please first ensure that you are using the latest version
+of this code, and that you have updated your packages to the most recent available
+versions (see "Updates" above). If you still experience problems, go ahead and
+[file an issue on the github project](https://github.com/purcell/emacs.d).
 
 -Steve Purcell
 
