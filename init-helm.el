@@ -24,7 +24,7 @@
         (minibuffer-completion-help . nil)
         (minibuffer-complete . nil)
         (wg-load . ido)
-        (rgrep . ido)
+        (rgrep . nil)
         (read-directory-name . ido)
         ))
 
