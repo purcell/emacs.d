@@ -31,6 +31,9 @@
   (global-magit-wip-save-mode)
   (diminish 'magit-wip-save-mode))
 
+(after-load 'magit
+  (diminish 'magit-auto-revert-mode))
+
 
 (when *is-a-mac*
   (after-load 'magit
