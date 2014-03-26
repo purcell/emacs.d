@@ -1,4 +1,5 @@
 ;; Use C-f during file selection to switch to regular find-file
+(require 'ido)
 (ido-mode t)
 (ido-everywhere t)
 (setq ido-enable-flex-matching t)
