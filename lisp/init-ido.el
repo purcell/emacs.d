@@ -25,7 +25,9 @@
    (interactive)
    (if (and ido-use-virtual-buffers (fboundp 'ido-toggle-virtual-buffers))
        (ido-switch-buffer)
-     (find-file (ido-completing-read "Open file: " recentf-list nil t))))
+     (find-file (ido-completing-read "Open file: "
+                                     (mapcar 'abbreviate-file-name recentf-list)
+                                     nil t))))
 
  (global-set-key [(meta f11)] 'sanityinc/ido-choose-from-recentf))
 
