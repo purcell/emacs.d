@@ -153,6 +153,8 @@ to replace the symbol under cursor"
   "mf" 'mark-defun
   "em" 'erase-message-buffer
   "eb" 'eval-buffer
+  "srt" 'sr-speedbar-toggle
+  "srr" 'sr-speedbar-refresh-toggle
   "ee" 'eval-expression
   "cx" 'copy-to-x-clipboard
   "cy" 'strip-convert-lines-into-one-big-string

@@ -1,3 +1,5 @@
+(require 'company)
+
 (add-hook 'after-init-hook 'global-company-mode)
 
 ;; does not matter, I never use this hotkey
