@@ -99,6 +99,7 @@ ARCHIVE is the string name of the package archive.")
      ctags
      fakir
      erlang
+     fancy-narrow
      )
   "Don't install any Melpa packages except these packages")
 
@@ -252,6 +253,7 @@ ARCHIVE is the string name of the package archive.")
     (require-package 'js2-mode '(20140114 0 0) nil)
   )
 (require-package 'tagedit)
+(require-package 'fancy-narrow)
 (require-package 'sr-speedbar)
 (require-package 'requirejs-mode)
 (require-package 'smartparens)

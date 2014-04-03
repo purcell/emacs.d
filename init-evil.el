@@ -159,8 +159,8 @@ to replace the symbol under cursor"
   "cx" 'copy-to-x-clipboard
   "cy" 'strip-convert-lines-into-one-big-string
   "cff" 'current-font-face
-  "fn" 'copy-filename-of-current-buffer
-  "fp" 'copy-full-path-of-current-buffer
+  "fnb" 'copy-filename-of-current-buffer
+  "fpb" 'copy-full-path-of-current-buffer
   "dj" 'dired-jump ;; open the dired from current file
   "ff" 'toggle-full-window ;; I use WIN+F in i3
   "tm" 'get-term
@@ -295,6 +295,9 @@ to replace the symbol under cursor"
   "xvr" 'git-gutter:revert-hunk
   "xvl" 'vc-print-log
   "xvp" 'git-messenger:popup-message
+  "fnn" 'fancy-narrow-to-region
+  "fnd" 'fancy-narrow-to-defun
+  "fnw" 'fancy-widen
   "xnn" 'narrow-to-region
   "xnw" 'widen
   "xnd" 'narrow-to-defun
