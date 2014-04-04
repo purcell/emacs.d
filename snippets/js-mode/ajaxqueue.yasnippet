@@ -1,0 +1,40 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: var q=new $.AjaxQueue();q.add(req);
+# key: ajaxqueue
+# group: jquery
+# contributor: chen bin <chenbin.sh@gmail.com>
+# --
+// @see https://gist.github.com/guybedford/2470554
+$.AjaxQueue = function() {
+  this.reqs = [];
+  this.requesting = false;
+};
+$.AjaxQueue.prototype = {
+  add: function(req) {
+    this.reqs.push(req);
+    this.next();
+  },
+  next: function() {
+    if (this.reqs.length == 0){
+      if(this.allDone){
+        this.allDone.apply(this);
+      }
+      return;
+    }
+    if (this.requesting == true){
+      return;
+    }
+    var req = this.reqs.splice(0, 1)[0];
+    var complete = req.complete;
+    var self = this;
+    req.complete = function() {
+      if (complete) {
+        complete.apply(this, arguments);
+      }
+      self.requesting = false;
+      self.next();
+    };
+    this.requesting = true;
+    $.ajax(req);
+  }
+};

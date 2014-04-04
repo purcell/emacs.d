@@ -1,0 +1,15 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: $.ajax({options})
+# key: ajax
+# group: jquery
+# contributor: chen bin <chenbin.sh@gmail.com>
+# --
+$.ajax({
+  type:'${1:POST}',
+  url:${2:url},
+  data:${3:data},
+  dataType:'${4:json}',
+  success: function(resp){
+    $0
+  }
+});
