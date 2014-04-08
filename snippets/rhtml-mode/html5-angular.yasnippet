@@ -1,0 +1,54 @@
+# -*- mode: snippet -*-
+# contributor: Chen Bin <chenbin DOT sh AT gmail>
+# name: <html>...<script src="knockout.js"></script></html>
+# key: html5
+# --
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <title>${1:mytitle}</title>
+    <style type="text/css"></style>
+  </head>
+  <body>
+    <p>First name: <input data-bind="value: firstName" /></p>
+    <p>Last name: <input data-bind="value: lastName" /></p>
+
+    <p>Full name: <strong data-bind="text: fullName"></strong></p>
+    <p>First name: <strong data-bind="text: firstName">todo</strong></p>
+    <p>Last name: <strong data-bind="text: lastName">todo</strong></p>
+
+    <button data-bind="click: capitalizeLastName">Go caps</button>
+    $0
+
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/knockout-validation/1.0.2/knockout.validation.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/knockout-sortable/0.8.1/knockout-sortable.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function (){
+      // This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI
+      function AppViewModel() {
+        this.firstName = ko.observable("Bert");
+        this.lastName = ko.observable("Bertington");
+    
+        this.fullName = ko.computed(function() {
+          return this.firstName() + " " + this.lastName();  
+        }, this);
+    
+        this.capitalizeLastName = function() {
+          var currentVal = this.lastName();    // Read the current value
+          this.lastName(currentVal.toUpperCase()); // Write back a modified value
+        };
+      }
+    
+      // Activates knockout.js
+      ko.applyBindings(new AppViewModel());
+    
+      console.log("jquery is working");
+    });
+    </script>
+  </body>
+</html>
