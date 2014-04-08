@@ -722,4 +722,11 @@ when toggle off input method, switch to evil-normal-state if current state is ev
   (global-set-key (kbd "C--") 'text-scale-decrease)
   )
 
+;; {{ which-func
+(autoload 'which-function "which-func")
+(autoload 'popup-tip "popup")
+(defun popup-which-function ()
+  (interactive)
+  (popup-tip (which-function)))
+
 (provide 'init-misc)

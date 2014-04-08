@@ -325,6 +325,7 @@ to replace the symbol under cursor"
   "zwu" 'wg-undo-wconfig-change
   "zwr" 'wg-redo-wconfig-change
   "zws" 'wg-save-wconfig
+  "wf" 'popup-which-function
   )
 ;; }}
 
