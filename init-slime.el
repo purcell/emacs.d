@@ -5,7 +5,7 @@
 (eval-after-load 'slime
   '(progn
      (add-to-list 'load-path (concat (directory-of-library "slime") "/contrib"))
-     (slime-setup '(slime-fancy))
+     (setq slime-contribs '(slime-fancy))
      (setq slime-protocol-version 'ignore)
      (setq slime-net-coding-system 'utf-8-unix)
      (setq slime-complete-symbol*-fancy t)
