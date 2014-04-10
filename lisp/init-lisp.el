@@ -26,6 +26,10 @@
 (after-load 'lisp-mode
   (define-key emacs-lisp-mode-map (kbd "C-x C-e") 'sanityinc/eval-last-sexp-or-region))
 
+(require-package 'ipretty)
+(ipretty-mode 1)
+
+
 ;; ----------------------------------------------------------------------------
 ;; Hippie-expand
 ;; ----------------------------------------------------------------------------
