@@ -37,6 +37,7 @@
       '(
         (minibuffer-inactive-mode . emacs)
         (ggtags-global-mode . emacs)
+        (grep-mode . emacs)
         (Info-mode . emacs)
         (term-mode . emacs)
         (sdcv-mode . emacs)
