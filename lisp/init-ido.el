@@ -12,8 +12,9 @@
  (ido-ubiquitous-mode t))
 
 ;; Use smex to handle M-x
-(require-package 'smex)
-(global-set-key [remap execute-extended-command] 'smex)
+(when (eval-when-compile (>= emacs-major-version 24))
+  (require-package 'smex)
+  (global-set-key [remap execute-extended-command] 'smex))
 
 (require-package 'idomenu)
 
