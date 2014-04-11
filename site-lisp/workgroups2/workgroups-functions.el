@@ -1624,7 +1624,7 @@ current and previous workgroups."
      (or prompt (format "Name (default: %S): " default))
      (lambda (new) (and (stringp new)
                         (not (equal new ""))
-                        (wg-unique-workgroup-name-p new)))
+                        t))
      "Please enter a unique, non-empty name"
      nil nil nil nil default)))
 
