@@ -727,6 +727,10 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 (autoload 'popup-tip "popup")
 (defun popup-which-function ()
   (interactive)
-  (popup-tip (which-function)))
+  (let ((msg (which-function)))
+    (popup-tip msg)
+    (copy-yank-str msg)
+    ))
+;; }}
 
 (provide 'init-misc)
