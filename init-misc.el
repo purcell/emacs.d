@@ -159,10 +159,21 @@
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 ;(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
-;effiective emacs item9
+;; effective emacs item 9
 (defalias 'qrr 'query-replace-regexp)
 
 (setq-default regex-tool-backend 'perl)
+
+;; {{ work around color theme bug
+;; @see https://plus.google.com/106672400078851000780/posts/KhTgscKE8PM
+(defun disable-all-themes ()
+  "disable all active themes."
+  (dolist (i custom-enabled-themes)
+    (disable-theme i)))
+
+(defadvice load-theme (before disable-themes-first activate)
+  (disable-all-themes))
+;; }}
 
 ;;; {{ clipboard stuff
 ;; Use the system clipboard
