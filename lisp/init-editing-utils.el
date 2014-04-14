@@ -20,7 +20,8 @@
  ediff-window-setup-function 'ediff-setup-windows-plain
  grep-highlight-matches t
  grep-scroll-output t
- indent-tabs-mode nil
+ ;; Disable indent tab that the C indent will be effect
+ ;indent-tabs-mode nil
  line-spacing 0.2
  make-backup-files nil
  mouse-yank-at-point t
