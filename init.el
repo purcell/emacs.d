@@ -110,6 +110,7 @@
 ; Pomodoro is time management technique
 (require 'init-pomodoro)
 (require 'init-face)
+(require 'init-evil)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
