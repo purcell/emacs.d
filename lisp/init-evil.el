@@ -152,6 +152,8 @@ to replace the symbol under cursor"
 (require-package 'evil-leader)
 (require 'evil-leader)
 
+(global-evil-leader-mode 1)
+
 (setq evil-leader/leader ",")
 
 (evil-leader/set-key
