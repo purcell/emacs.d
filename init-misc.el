@@ -744,4 +744,39 @@ when toggle off input method, switch to evil-normal-state if current state is ev
     ))
 ;; }}
 
+;; {{
+(setq fiplr-ignored-globs '((directories (".git" ".svn" ".bzr"))
+                            (files ("*.jpg"
+                                    "*.jpeg"
+                                    "*.png"
+                                    "*.gif"
+                                    "*.tiff"
+                                    "*.elc"
+                                    "*.pyc"
+                                    "*.class"
+                                    "*.pdf"
+                                    "*.doc"
+                                    "*.docx"
+                                    "*.odt"
+                                    "*.epub"
+                                    "*.mobi"
+                                    "*.zip"
+                                    "*.tar"
+                                    "*.gz"
+                                    "*.rar"
+                                    "*.xz"
+                                    "*.gz"
+                                    "*.a"
+                                    "*.o"
+                                    "*.obj"
+                                    "*.lib"
+                                    "#*#"
+                                    "*.swp"
+                                    "TAGS"
+                                    "tags"
+                                    "GTAGS"
+                                    "GPATH"
+                                    "*~"))))
+;; }}
+
 (provide 'init-misc)

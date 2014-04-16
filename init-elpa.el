@@ -81,28 +81,27 @@ ARCHIVE is the string name of the package archive.")
 
 (defvar melpa-include-packages
   '(bbdb
-     lua-mode
-     emms
-     pomodoro
-     helm
-     helm-ls-git
-     auto-compile
-     packed
-     gitconfig-mode
-     project-local-variables
-     org-fstree
-     smarty-mode
-     todochiku
-     textile-mode
-     pretty-mode
-     lively
-     auto-complete-clang
-     w3m
-     ctags
-     fakir
-     erlang
-     fancy-narrow
-     )
+    lua-mode
+    emms
+    pomodoro
+    helm
+    auto-compile
+    packed
+    gitconfig-mode
+    project-local-variables
+    org-fstree
+    smarty-mode
+    todochiku
+    textile-mode
+    pretty-mode
+    lively
+    auto-complete-clang
+    w3m
+    ctags
+    fiplr
+    fakir
+    erlang
+    fancy-narrow)
   "Don't install any Melpa packages except these packages")
 
 (defvar melpa-exclude-packages
@@ -272,7 +271,6 @@ ARCHIVE is the string name of the package archive.")
 
 (when *emacs24*
   (require-package 'helm '(20140315 28 0) nil)
-  (require-package 'helm-ls-git '(20140104 657 0) nil)
   (require-package 'helm-gtags)
   )
 ;; (require-package 'command-frequency)
