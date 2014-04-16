@@ -130,7 +130,6 @@
 (require 'init-misc)
 (require 'init-ctags)
 (require 'init-ace-jump-mode)
-(require 'init-sunrise-commander)
 (require 'init-bbdb)
 (require 'init-gnus)
 ;; itune cannot play flac, so I use mplayer+emms instead (updated, use mpd!)
