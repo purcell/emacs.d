@@ -50,9 +50,7 @@
       )
   (error
    (message "setup-cygwin failed, continue anyway")
-   )
-  )
-
+   ))
 
 (require 'init-elpa)
 (require 'init-exec-path) ;; Set up $PATH
@@ -100,9 +98,6 @@
 (when *spell-check-support-enabled*
   (require 'init-spelling))
 
-(require 'init-marmalade)
-
-;; Chinese inut method
 (require 'init-org2blog)
 ;;(require 'init-fill-column-indicator) ;make auto-complete dropdown wierd
 (if (not (boundp 'light-weight-emacs)) (require 'init-yasnippet))

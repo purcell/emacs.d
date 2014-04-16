@@ -181,7 +181,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'mic-paren)
 (require-package 'rainbow-delimiters)
 (require-package 'todochiku)
-(require-package 'marmalade)
 (require-package 'textile-mode)
 (require-package 'pretty-mode)
 
