@@ -74,7 +74,6 @@
 (require 'init-windows)
 (require 'init-sessions)
 (require 'init-fonts)
-;(require 'init-growl)
 (require 'init-git)
 (require 'init-crontab)
 (require 'init-textile)

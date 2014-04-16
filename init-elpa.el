@@ -90,7 +90,6 @@ ARCHIVE is the string name of the package archive.")
     gitconfig-mode
     project-local-variables
     org-fstree
-    todochiku
     textile-mode
     pretty-mode
     lively
@@ -180,7 +179,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'scratch)
 (require-package 'mic-paren)
 (require-package 'rainbow-delimiters)
-(require-package 'todochiku)
 (require-package 'textile-mode)
 (require-package 'pretty-mode)
 
