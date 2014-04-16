@@ -39,10 +39,6 @@
      (define-key paredit-mode-map [remap backward-kill-sentence] nil)))
 
 
-;; Compatibility with other modes
-
-(suspend-mode-during-cua-rect-selection 'paredit-mode)
-
 ;; Use paredit in the minibuffer
 (add-hook 'minibuffer-setup-hook 'conditionally-enable-paredit-mode)
 
