@@ -163,11 +163,6 @@ Some package cannot be downloaded automatically because of network problem.
 
 You need manually `M-x list-packages` and install it or just `M-x package-refresh-content` and restart Emacs.
 
-You can speed up the start up by NOT loading some heavy weight components like evil or yasnippet. All you need to do is add below code into ~/.bashrc:
-#+BEGIN_SRC bash
-alias e=emacs -q --no-splash --eval="(setq light-weight-emacs t)" -l "$HOME/.emacs.d/init.el"
-#+END_SRC
-
 If you use `gnus` for email (Gmail, for example). Check ~/.emacs.d/init-gnus.el which includes my most settings except my private stuff. Here is [[http://blog.binchen.org/?p=403][my Gnus tutorial]].
 
 To toggle Chinese input method (eim, for example), press `C-\` or run command `M-x toggle-input-method`.
