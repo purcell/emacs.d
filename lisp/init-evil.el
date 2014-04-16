@@ -235,11 +235,11 @@ to replace the symbol under cursor"
   "gf" 'gtags-find-tag-from-here
   "gp" 'gtags-pop-stack
   "gr" 'gtags-find-rtag
+  "gy" 'gtags-find-symbol
   "fb" 'flyspell-buffer
   "fe" 'flyspell-goto-next-error
   "fa" 'flyspell-auto-correct-word
   "fw" 'ispell-word
-  "gy" 'gtags-find-symbol
   "dg" 'djcb-gtags-create-or-update
   "bc" '(lambda () (interactive) (wxhelp-browse-class-or-api (thing-at-point 'symbol)))
   "ma" 'mc/mark-all-like-this-in-defun
