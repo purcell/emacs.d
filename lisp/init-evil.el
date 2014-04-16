@@ -100,8 +100,16 @@
 
 
 (define-key evil-insert-state-map (kbd "M-a") 'move-beginning-of-line)
+(define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
+(define-key evil-visual-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "M-e") 'move-end-of-line)
+(define-key evil-normal-state-map (kbd "C-w") 'evil-delete)
+(define-key evil-insert-state-map (kbd "C-w") 'evil-delete)
+(define-key evil-visual-state-map (kbd "C-w") 'evil-delete)
+(define-key evil-normal-state-map (kbd "C-y") 'yank)
+(define-key evil-insert-state-map (kbd "C-y") 'yank)
+(define-key evil-visual-state-map (kbd "C-y") 'yank)
 (define-key evil-insert-state-map (kbd "C-k") 'kill-line)
 (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
 (define-key evil-visual-state-map (kbd "M-k") 'evil-exit-visual-state)
