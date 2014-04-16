@@ -139,7 +139,7 @@ Here are the exact steps you need follow:
 (setq package-archives '(("myelpa" . "~/myelpa/")))
 #+END_SRC
 
-That's it. You will never need internect connection in the future.
+That's it. You will never need internet connection in the future.
 
 Please note that all your packages are locked to the versions I'm using. So there is no way you can upgrade package online.
 
