@@ -90,7 +90,6 @@ ARCHIVE is the string name of the package archive.")
     gitconfig-mode
     project-local-variables
     org-fstree
-    smarty-mode
     todochiku
     textile-mode
     pretty-mode
@@ -178,8 +177,6 @@ ARCHIVE is the string name of the package archive.")
 ;;  (require-package 'org-mac-iCal))
 (require-package 'htmlize)
 (require-package 'diminish)
-(require-package 'php-mode)
-(require-package 'smarty-mode)
 (require-package 'scratch)
 (require-package 'mic-paren)
 (require-package 'rainbow-delimiters)
@@ -198,7 +195,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'flymake-css)
 (require-package 'flymake-haml)
 (require-package 'flymake-jslint)
-(require-package 'flymake-php)
 (require-package 'flymake-python-pyflakes)
 (require-package 'flymake-ruby)
 (require-package 'flymake-sass)
