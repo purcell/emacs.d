@@ -1,9 +1,0 @@
-See the source code and comments and/or the Texinfo documentation for details
-on this Emacs Lisp library.
-
-The "dev" branch of the Git repository[1] should always be usable with the
-current Delicious API.
-
-[1] git://gitorious.org/delicious-el/delicious-el.git
-
-`git branch -a` then check dev branch `git checkout -b dev remotes/origin/dev`
