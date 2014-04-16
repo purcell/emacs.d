@@ -10,6 +10,18 @@ to case differences."
                            str2 0 (length str1) ignore-case))))
 
 
+(unless (fboundp 'plist-to-alist)
+  (defun plist-to-alist (the-plist)
+    (defun get-tuple-from-plist (the-plist)
+      (when the-plist
+        (cons (car the-plist) (cadr the-plist))))
+
+    (let ((alist '()))
+      (while the-plist
+        (add-to-list 'alist (get-tuple-from-plist the-plist))
+        (setq the-plist (cddr the-plist)))
+      alist)))
+
 ;;----------------------------------------------------------------------------
 ;; Allow recent packages to safely pass an arg to 'called-interactively-p
 ;; in older Emacsen, including 23.1.
