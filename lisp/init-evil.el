@@ -236,6 +236,8 @@ to replace the symbol under cursor"
   "gp" 'gtags-pop-stack
   "gr" 'gtags-find-rtag
   "gy" 'gtags-find-symbol
+  "gl" 'magit-log
+  "gst" 'magit-status
   "fb" 'flyspell-buffer
   "fe" 'flyspell-goto-next-error
   "fa" 'flyspell-auto-correct-word
