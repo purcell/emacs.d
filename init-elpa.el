@@ -92,7 +92,6 @@ ARCHIVE is the string name of the package archive.")
     org-fstree
     textile-mode
     pretty-mode
-    lively
     auto-complete-clang
     w3m
     ctags
@@ -199,7 +198,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'hl-sexp)
 (require-package 'ibuffer-vc)
 (require-package 'less-css-mode)
-(require-package 'lively)
 (require-package 'move-text)
 (require-package 'mwe-log-commands)
 (require-package 'page-break-lines)
