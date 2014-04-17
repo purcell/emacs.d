@@ -1,6 +1,10 @@
 ;;----------------------------------------------------------------------------
 ;; Provide a version of Emacs 24's 'string-prefix-p in older emacsen
 ;;----------------------------------------------------------------------------
+ (unless (fboundp 'delete-all-overlays)
+   (defun delete-all-overlays ()
+     (remove-overlays)))
+
 (unless (fboundp 'string-prefix-p)
   (defun string-prefix-p (str1 str2 &optional ignore-case)
     "Return non-nil if STR1 is a prefix of STR2.
