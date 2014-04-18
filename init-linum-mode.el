@@ -20,6 +20,7 @@
                                          gnus-group-mode
                                          inf-ruby-mode
                                          gud-mode
+                                         org-mode
 					 term-mode
                                          w3m-mode
                                          speedbar-mode
