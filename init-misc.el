@@ -151,8 +151,9 @@
 ;; Misc config - yet to be placed in separate files
 ;;----------------------------------------------------------------------------
 ;; {{ shell and conf
-(add-to-list 'auto-mode-alist '("\\.zsh\\'" . sh-mode))
 (add-to-list 'auto-mode-alist '("\\.[a-zA-Z]+rc$" . conf-mode))
+(add-to-list 'auto-mode-alist '("\\.zsh\\'" . sh-mode))
+(add-to-list 'auto-mode-alist '("\\.bashrc\\'" . sh-mode))
 ;; }}
 
 
