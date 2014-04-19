@@ -1,6 +1,6 @@
 ;;; org-mhe.el --- Support for links to MH-E messages from within Org-mode
 
-;; Copyright (C) 2004-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2014 Free Software Foundation, Inc.
 
 ;; Author: Thomas Baumann <thomas dot baumann at ch dot tum dot de>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -30,6 +30,7 @@
 
 ;;; Code:
 
+(require 'org-macs)
 (require 'org)
 
 ;; Customization variables
@@ -99,8 +100,8 @@ supported by MH-E."
 	  (org-add-link-props :date date :date-timestamp date-ts
 			      :date-timestamp-inactive date-ts-ia))
 	(setq desc (org-email-link-description))
-	(setq link (org-make-link "mhe:" (org-mhe-get-message-real-folder) "#"
-				  (org-remove-angle-brackets message-id)))
+	(setq link (concat "mhe:" (org-mhe-get-message-real-folder) "#"
+			   (org-remove-angle-brackets message-id)))
 	(org-add-link-props :link link :description desc)
 	link))))
 
@@ -179,17 +180,17 @@ you have a better idea of how to do this then please let us know."
 	 (num (org-mhe-get-message-num))
 	 (buffer (get-buffer-create (concat "show-" folder)))
 	 (header-field))
-  (with-current-buffer buffer
-    (mh-display-msg num folder)
-    (if (equal major-mode 'mh-folder-mode)
-	(mh-header-display)
-      (mh-show-header-display))
-    (set-buffer buffer)
-    (setq header-field (mh-get-header-field header))
-    (if (equal major-mode 'mh-folder-mode)
-	(mh-show)
-      (mh-show-show))
-    (org-trim header-field))))
+    (with-current-buffer buffer
+      (mh-display-msg num folder)
+      (if (equal major-mode 'mh-folder-mode)
+	  (mh-header-display)
+	(mh-show-header-display))
+      (set-buffer buffer)
+      (setq header-field (mh-get-header-field header))
+      (if (equal major-mode 'mh-folder-mode)
+	  (mh-show)
+	(mh-show-show))
+      (org-trim header-field))))
 
 (defun org-mhe-follow-link (folder article)
   "Follow an MH-E link to FOLDER and ARTICLE.

@@ -1,6 +1,6 @@
 ;;; org-notmuch.el --- Support for links to notmuch messages from within Org-mode
 
-;; Copyright (C) 2010-2012  Matthieu Lemerre
+;; Copyright (C) 2010-2014  Matthieu Lemerre
 
 ;; Author: Matthieu Lemerre <racin@free.fr>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -19,9 +19,7 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to
-;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-;; Boston, MA 02110-1301, USA.
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -58,7 +56,7 @@
       (org-store-link-props :type "notmuch" :from from :to to
        			    :subject subject :message-id message-id)
       (setq desc (org-email-link-description))
-      (setq link (org-make-link "notmuch:"  "id:" message-id))
+      (setq link (concat "notmuch:"  "id:" message-id))
       (org-add-link-props :link link :description desc)
       link)))
 
@@ -82,8 +80,8 @@ Can link to more than one message, if so all matching messages are shown."
 (defun org-notmuch-search-store-link ()
   "Store a link to a notmuch search or message."
   (when (eq major-mode 'notmuch-search-mode)
-    (let ((link (org-make-link "notmuch-search:"
-			       (org-link-escape notmuch-search-query-string)))
+    (let ((link (concat "notmuch-search:"
+			(org-link-escape notmuch-search-query-string)))
 	  (desc (concat "Notmuch search: " notmuch-search-query-string)))
       (org-store-link-props :type "notmuch-search"
 			    :link link

@@ -1,6 +1,6 @@
 ;;; org-datetree.el --- Create date entries in a tree
 
-;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -38,6 +38,15 @@ This is normally one, but if the buffer has an entry with a DATE_TREE
 property (any value), the date tree will become a subtree under that entry,
 so the base level will be properly adjusted.")
 
+(defcustom org-datetree-add-timestamp nil
+  "When non-nil, add a time stamp when create a datetree entry."
+  :group 'org-capture
+  :version "24.3"
+  :type '(choice
+	  (const :tag "Do not add a time stamp" nil)
+	  (const :tag "Add an inactive time stamp" inactive)
+	  (const :tag "Add an active time stamp" active)))
+
 ;;;###autoload
 (defun org-datetree-find-date-create (date &optional keep-restriction)
   "Find or create an entry for DATE.
@@ -63,7 +72,8 @@ tree can be found."
       (goto-char (prog1 (point) (widen))))))
 
 (defun org-datetree-find-year-create (year)
-  (let ((re "^\\*+[ \t]+\\([12][0-9][0-9][0-9]\\)$")
+  "Find the YEAR datetree or create it."
+  (let ((re "^\\*+[ \t]+\\([12][0-9]\\{3\\}\\)\\(\\s-*?\\([ \t]:[[:alnum:]:_@#%]+:\\)?\\s-*$\\)")
 	match)
     (goto-char (point-min))
     (while (and (setq match (re-search-forward re nil t))
@@ -81,6 +91,7 @@ tree can be found."
       (org-datetree-insert-line year)))))
 
 (defun org-datetree-find-month-create (year month)
+  "Find the datetree for YEAR and MONTH or create it."
   (org-narrow-to-subtree)
   (let ((re (format "^\\*+[ \t]+%d-\\([01][0-9]\\) \\w+$" year))
 	match)
@@ -100,6 +111,7 @@ tree can be found."
       (org-datetree-insert-line year month)))))
 
 (defun org-datetree-find-day-create (year month day)
+  "Find the datetree for YEAR, MONTH and DAY or create it."
   (org-narrow-to-subtree)
   (let ((re (format "^\\*+[ \t]+%d-%02d-\\([0123][0-9]\\) \\w+$" year month))
 	match)
@@ -119,7 +131,7 @@ tree can be found."
       (org-datetree-insert-line year month day)))))
 
 (defun org-datetree-insert-line (year &optional month day)
-  (let ((pos (point)))
+  (let ((pos (point)) ts-type)
     (skip-chars-backward " \t\n")
     (delete-region (point) pos)
     (insert "\n" (make-string org-datetree-base-level ?*) " \n")
@@ -136,6 +148,10 @@ tree can be found."
 	(insert (format " %s"
 			(format-time-string
 			 "%B" (encode-time 0 0 0 1 month year))))))
+    (when (and day (setq ts-type org-datetree-add-timestamp))
+      (insert "\n")
+      (org-indent-line)
+      (org-insert-time-stamp (encode-time 0 0 0 day month year) nil ts-type))
     (beginning-of-line 1)))
 
 (defun org-datetree-file-entry-under (txt date)
@@ -155,43 +171,47 @@ before running this command, even though the command tries to be smart."
   (let ((dre (concat "\\<" org-deadline-string "\\>[ \t]*\\'"))
 	(sre (concat "\\<" org-scheduled-string "\\>[ \t]*\\'"))
 	dct ts tmp date year month day pos hdl-pos)
-  (while (re-search-forward org-ts-regexp nil t)
-    (catch 'next
-      (setq ts (match-string 0))
-      (setq tmp (buffer-substring
-		 (max (point-at-bol) (- (match-beginning 0)
-					org-ds-keyword-length))
-		 (match-beginning 0)))
-      (if (or (string-match "-\\'" tmp)
-	      (string-match dre tmp)
-	      (string-match sre tmp))
+    (while (re-search-forward org-ts-regexp nil t)
+      (catch 'next
+	(setq ts (match-string 0))
+	(setq tmp (buffer-substring
+		   (max (point-at-bol) (- (match-beginning 0)
+					  org-ds-keyword-length))
+		   (match-beginning 0)))
+	(if (or (string-match "-\\'" tmp)
+		(string-match dre tmp)
+		(string-match sre tmp))
+	    (throw 'next nil))
+	(setq dct (decode-time (org-time-string-to-time (match-string 0)))
+	      date (list (nth 4 dct) (nth 3 dct) (nth 5 dct))
+	      year (nth 2 date)
+	      month (car date)
+	      day (nth 1 date)
+	      pos (point))
+	(org-back-to-heading t)
+	(setq hdl-pos (point))
+	(unless (org-up-heading-safe)
+	  ;; No parent, we are not in a date tree
+	  (goto-char pos)
 	  (throw 'next nil))
-      (setq dct (decode-time (org-time-string-to-time (match-string 0)))
-	    date (list (nth 4 dct) (nth 3 dct) (nth 5 dct))
-	    year (nth 2 date)
-	    month (car date)
-	    day (nth 1 date)
-	    pos (point))
-      (org-back-to-heading t)
-      (setq hdl-pos (point))
-      (unless (org-up-heading-safe)
-	;; No parent, we are not in a date tree
-	(goto-char pos)
-	(throw 'next nil))
-      (unless (looking-at "\\*+[ \t]+[0-9]+-[0-1][0-9]-[0-3][0-9]")
-	;; Parent looks wrong, we are not in a date tree
-	(goto-char pos)
-	(throw 'next nil))
-      (when (looking-at (format "\\*+[ \t]+%d-%02d-%02d" year month day))
-	;; At correct date already, do nothing
+	(unless (looking-at "\\*+[ \t]+[0-9]+-[0-1][0-9]-[0-3][0-9]")
+	  ;; Parent looks wrong, we are not in a date tree
+	  (goto-char pos)
+	  (throw 'next nil))
+	(when (looking-at (format "\\*+[ \t]+%d-%02d-%02d" year month day))
+	  ;; At correct date already, do nothing
 	  (progn (goto-char pos) (throw 'next nil)))
-      ;; OK, we need to refile this entry
-      (goto-char hdl-pos)
-      (org-cut-subtree)
-      (save-excursion
-	(save-restriction
-	  (org-datetree-file-entry-under (current-kill 0) date)))))))
+	;; OK, we need to refile this entry
+	(goto-char hdl-pos)
+	(org-cut-subtree)
+	(save-excursion
+	  (save-restriction
+	    (org-datetree-file-entry-under (current-kill 0) date)))))))
 
 (provide 'org-datetree)
+
+;; Local variables:
+;; generated-autoload-file: "org-loaddefs.el"
+;; End:
 
 ;;; org-datetree.el ends here

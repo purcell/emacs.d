@@ -1,6 +1,6 @@
 ;;; ob-ocaml.el --- org-babel functions for ocaml evaluation
 
-;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -36,11 +36,11 @@
 
 ;;; Code:
 (require 'ob)
-(require 'ob-comint)
 (require 'comint)
 (eval-when-compile (require 'cl))
 
 (declare-function tuareg-run-caml "ext:tuareg" ())
+(declare-function tuareg-run-ocaml "ext:tuareg" ())
 (declare-function tuareg-interactive-send-input "ext:tuareg" ())
 
 (defvar org-babel-tangle-lang-exts)
@@ -50,6 +50,13 @@
 
 (defvar org-babel-ocaml-eoe-indicator "\"org-babel-ocaml-eoe\";;")
 (defvar org-babel-ocaml-eoe-output "org-babel-ocaml-eoe")
+
+(defcustom org-babel-ocaml-command "ocaml"
+  "Name of the command for executing Ocaml code."
+  :version "24.4"
+  :package-version '(Org . "8.0")
+  :group 'org-babel
+  :type 'string)
 
 (defun org-babel-execute:ocaml (body params)
   "Execute a block of Ocaml code with Babel."
@@ -63,7 +70,7 @@
 		  (session org-babel-ocaml-eoe-output t full-body)
 		(insert
 		 (concat
-		  (org-babel-chomp full-body)"\n"org-babel-ocaml-eoe-indicator))
+		  (org-babel-chomp full-body)";;\n"org-babel-ocaml-eoe-indicator))
 		(tuareg-interactive-send-input)))
 	 (clean
 	  (car (let ((re (regexp-quote org-babel-ocaml-eoe-output)) out)
@@ -72,9 +79,16 @@
 					 (progn (setq out nil) line)
 				       (when (string-match re line)
 					 (progn (setq out t) nil))))
-				 (mapcar #'org-babel-trim (reverse raw))))))))
+				   (mapcar #'org-babel-trim (reverse raw))))))))
     (org-babel-reassemble-table
-     (org-babel-ocaml-parse-output (org-babel-trim clean))
+     (let ((raw (org-babel-trim clean))
+	   (result-params (cdr (assoc :result-params params))))
+       (org-babel-result-cond result-params
+	 ;; strip type information from output unless verbatim is specified
+	 (if (and (not (member "verbatim" result-params))
+		  (string-match "= \\(.+\\)$" raw))
+	     (match-string 1 raw) raw)
+	 (org-babel-ocaml-parse-output raw)))
      (org-babel-pick-name
       (cdr (assoc :colname-names params)) (cdr (assoc :colnames params)))
      (org-babel-pick-name
@@ -89,11 +103,13 @@
                                                  (stringp session))
                                             session
                                           tuareg-interactive-buffer-name)))
-    (save-window-excursion (tuareg-run-caml)
-                           (get-buffer tuareg-interactive-buffer-name))))
+    (save-window-excursion (if (fboundp 'tuareg-run-process-if-needed)
+	 (tuareg-run-process-if-needed org-babel-ocaml-command)
+       (tuareg-run-caml)))
+    (get-buffer tuareg-interactive-buffer-name)))
 
 (defun org-babel-variable-assignments:ocaml (params)
-  "Return list of ocaml statements assigning the block's variables"
+  "Return list of ocaml statements assigning the block's variables."
   (mapcar
    (lambda (pair) (format "let %s = %s;;" (car pair)
 			  (org-babel-ocaml-elisp-to-ocaml (cdr pair))))
@@ -108,7 +124,7 @@
 (defun org-babel-ocaml-parse-output (output)
   "Parse OUTPUT.
 OUTPUT is string output from an ocaml process."
-  (let ((regexp "%s = \\(.+\\)$"))
+  (let ((regexp "[^:]+ : %s = \\(.+\\)$"))
     (cond
      ((string-match (format regexp "string") output)
       (org-babel-read (match-string 1 output)))
@@ -131,11 +147,11 @@ Emacs-lisp table, otherwise return the results as a string."
   "Convert RESULTS into an elisp table or string.
 If the results look like a table, then convert them into an
 Emacs-lisp table, otherwise return the results as a string."
-    (org-babel-script-escape
-     (replace-regexp-in-string
-      "\\[|" "[" (replace-regexp-in-string
-		  "|\\]" "]" (replace-regexp-in-string
-			      "; " "," results)))))
+  (org-babel-script-escape
+   (replace-regexp-in-string
+    "\\[|" "[" (replace-regexp-in-string
+		"|\\]" "]" (replace-regexp-in-string
+			    "; " "," results)))))
 
 (provide 'ob-ocaml)
 

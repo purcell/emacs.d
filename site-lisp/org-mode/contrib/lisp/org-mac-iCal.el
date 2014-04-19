@@ -1,26 +1,25 @@
 ;;; org-mac-iCal.el --- Imports events from iCal.app to the Emacs diary
 
-;; Copyright (C) 2009-2012 Christopher Suckling
+;; Copyright (C) 2009-2014 Christopher Suckling
 
 ;; Author: Christopher Suckling <suckling at gmail dot com>
+;; Version: 0.1057.104
+;; Keywords: outlines, calendar
 
-;; This file is Free Software; you can redistribute it and/or modify
+;; This file is not part of GNU Emacs.
+
+;; This program is Free Software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 
-;; It is distributed in the hope that it will be useful, but WITHOUT
-;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-;; License for more details.
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+;; for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-;; Boston, MA 02110-1301, USA.
-
-;; Version: 0.1057.104
-;; Keywords: outlines, calendar
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;;
@@ -99,7 +98,7 @@ the the Emacs diary"
   ;; for each calendar, concatenate individual events into a single ics file
   (with-temp-buffer
     (shell-command "sw_vers" (current-buffer))
-    (when (re-search-backward "10\\.[567]" nil t)
+    (when (re-search-backward "10\\.[5678]" nil t)
       (omi-concat-leopard-ics all-calendars)))
 
   ;; move all caldav ics files to the same place as local ics files

@@ -1,7 +1,9 @@
 ;;; org-mairix.el - Support for hooking mairix search into Org for different MUAs
 ;;
-;; Copyright (C) 2007-2012 Georg C. F. Greve
+;; Copyright (C) 2007-2014 Georg C. F. Greve
 ;; mutt support by Adam Spiers <orgmode at adamspiers dot org>
+;;
+;; This file is not part of GNU Emacs.
 ;;
 ;; Author: Georg C. F. Greve <greve at fsfeurope dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp, email, mairix
@@ -20,9 +22,7 @@
 ;; License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-;; Boston, MA 02110-1301, USA.
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; USAGE NOTE
 ;;

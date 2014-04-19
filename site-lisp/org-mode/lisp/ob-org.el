@@ -1,6 +1,6 @@
 ;;; ob-org.el --- org-babel functions for org code block evaluation
 
-;; Copyright (C) 2010-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2010-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -29,10 +29,11 @@
 ;;; Code:
 (require 'ob)
 
-(declare-function org-export-string "org-exp" (string fmt &optional dir))
+(declare-function org-export-string-as "ox"
+		  (string backend &optional body-only ext-plist))
 
 (defvar org-babel-default-header-args:org
-  '((:results . "raw silent") (:exports . "results"))
+  '((:results . "raw silent") (:exports . "code"))
   "Default arguments for evaluating a org source block.")
 
 (defvar org-babel-org-default-header
@@ -42,8 +43,9 @@
 (defun org-babel-expand-body:org (body params)
   (dolist (var (mapcar #'cdr (org-babel-get-header params :var)))
     (setq body (replace-regexp-in-string
-		(regexp-quote (format "$%s" (car var)))  (cdr var) body
-		nil 'literal)))
+		(regexp-quote (format "$%s" (car var)))
+		(format "%s" (cdr var))
+		body nil 'literal)))
   body)
 
 (defun org-babel-execute:org (body params)
@@ -53,10 +55,10 @@ This function is called by `org-babel-execute-src-block'."
 	(body (org-babel-expand-body:org
 	       (replace-regexp-in-string "^," "" body) params)))
     (cond
-     ((member "latex" result-params) (org-export-string
-				      (concat "#+Title: \n" body) "latex"))
-     ((member "html" result-params)  (org-export-string body "html"))
-     ((member "ascii" result-params) (org-export-string body "ascii"))
+     ((member "latex" result-params)
+      (org-export-string-as (concat "#+Title: \n" body) 'latex t))
+     ((member "html" result-params) (org-export-string-as  body 'html t))
+     ((member "ascii" result-params) (org-export-string-as body 'ascii t))
      (t body))))
 
 (defun org-babel-prep-session:org (session params)

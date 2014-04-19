@@ -1,6 +1,6 @@
 ;;; ob-awk.el --- org-babel functions for awk evaluation
 
-;; Copyright (C) 2011-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2011-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -32,7 +32,7 @@
 
 ;;; Code:
 (require 'ob)
-(require 'ob-eval)
+(require 'org-compat)
 (eval-when-compile (require 'cl))
 
 (declare-function org-babel-ref-resolve "ob-ref" (ref))
@@ -44,7 +44,7 @@
 (defvar org-babel-awk-command "awk"
   "Name of the awk executable command.")
 
-(defun org-babel-expand-body:awk (body params &optional processed-params)
+(defun org-babel-expand-body:awk (body params)
   "Expand BODY according to PARAMS, return the expanded body."
   (dolist (pair (mapcar #'cdr (org-babel-get-header params :var)))
     (setf body (replace-regexp-in-string
@@ -59,36 +59,33 @@ called by `org-babel-execute-src-block'"
          (cmd-line (cdr (assoc :cmd-line params)))
          (in-file (cdr (assoc :in-file params)))
 	 (full-body (org-babel-expand-body:awk body params))
-	 (code-file ((lambda (file) (with-temp-file file (insert full-body)) file)
-                     (org-babel-temp-file "awk-")))
-	 (stdin ((lambda (stdin)
+	 (code-file (let ((file (org-babel-temp-file "awk-")))
+                      (with-temp-file file (insert full-body)) file))
+	 (stdin (let ((stdin (cdr (assoc :stdin params))))
 		   (when stdin
 		     (let ((tmp (org-babel-temp-file "awk-stdin-"))
 			   (res (org-babel-ref-resolve stdin)))
 		       (with-temp-file tmp
 			 (insert (org-babel-awk-var-to-awk res)))
-		       tmp)))
-		 (cdr (assoc :stdin params))))
+		       tmp))))
          (cmd (mapconcat #'identity (remove nil (list org-babel-awk-command
 						      "-f" code-file
 						      cmd-line
 						      in-file))
 			 " ")))
     (org-babel-reassemble-table
-     ((lambda (results)
-	(when results
-	  (if (or (member "scalar" result-params)
-		  (member "verbatim" result-params)
-		  (member "output" result-params))
-	      results
-	    (let ((tmp (org-babel-temp-file "awk-results-")))
-	      (with-temp-file tmp (insert results))
-	      (org-babel-import-elisp-from-file tmp)))))
-      (cond
-       (stdin (with-temp-buffer
-		(call-process-shell-command cmd stdin (current-buffer))
-		(buffer-string)))
-       (t (org-babel-eval cmd ""))))
+     (let ((results
+            (cond
+             (stdin (with-temp-buffer
+                      (call-process-shell-command cmd stdin (current-buffer))
+                      (buffer-string)))
+             (t (org-babel-eval cmd "")))))
+       (when results
+         (org-babel-result-cond result-params
+	   results
+	   (let ((tmp (org-babel-temp-file "awk-results-")))
+	     (with-temp-file tmp (insert results))
+	     (org-babel-import-elisp-from-file tmp)))))
      (org-babel-pick-name
       (cdr (assoc :colname-names params)) (cdr (assoc :colnames params)))
      (org-babel-pick-name
@@ -96,13 +93,13 @@ called by `org-babel-execute-src-block'"
 
 (defun org-babel-awk-var-to-awk (var &optional sep)
   "Return a printed value of VAR suitable for parsing with awk."
-  (flet ((echo-var (v) (if (stringp v) v (format "%S" v))))
+  (let ((echo-var (lambda (v) (if (stringp v) v (format "%S" v)))))
     (cond
      ((and (listp var) (listp (car var)))
-      (orgtbl-to-generic var  (list :sep (or sep "\t") :fmt #'echo-var)))
+      (orgtbl-to-generic var  (list :sep (or sep "\t") :fmt echo-var)))
      ((listp var)
-      (mapconcat #'echo-var var "\n"))
-     (t (echo-var var)))))
+      (mapconcat echo-var var "\n"))
+     (t (funcall echo-var var)))))
 
 (defun org-babel-awk-table-or-string (results)
   "If the results look like a table, then convert them into an

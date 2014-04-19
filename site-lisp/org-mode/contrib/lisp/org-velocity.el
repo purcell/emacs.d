@@ -1,6 +1,6 @@
 ;;; org-velocity.el --- something like Notational Velocity for Org.
 
-;; Copyright (C) 2010-2012 Paul M. Rodriguez
+;; Copyright (C) 2010-2014 Paul M. Rodriguez
 
 ;; Author: Paul M. Rodriguez <paulmrodriguez@gmail.com>
 ;; Created: 2010-05-05
@@ -17,9 +17,8 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
 
-;; For a copy of the GNU General Public License, search the Internet,
-;; or write to the Free Software Foundation, Inc., 59 Temple Place,
-;; Suite 330, Boston, MA 02111-1307 USA
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;; Org-Velocity.el is an interface for Org inspired by the minimalist

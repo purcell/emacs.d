@@ -1,6 +1,6 @@
 ;;; ob-dot.el --- org-babel functions for dot evaluation
 
-;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -39,7 +39,6 @@
 
 ;;; Code:
 (require 'ob)
-(require 'ob-eval)
 
 (defvar org-babel-default-header-args:dot
   '((:results . "file") (:exports . "results"))
@@ -64,7 +63,8 @@
   "Execute a block of Dot code with org-babel.
 This function is called by `org-babel-execute-src-block'."
   (let* ((result-params (cdr (assoc :result-params params)))
-	 (out-file (cdr (assoc :file params)))
+	 (out-file (cdr (or (assoc :file params)
+			    (error "You need to specify a :file parameter"))))
 	 (cmdline (or (cdr (assoc :cmdline params))
 		      (format "-T%s" (file-name-extension out-file))))
 	 (cmd (or (cdr (assoc :cmd params)) "dot"))

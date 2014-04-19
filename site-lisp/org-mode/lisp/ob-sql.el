@@ -1,6 +1,6 @@
 ;;; ob-sql.el --- org-babel functions for sql evaluation
 
-;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -32,12 +32,24 @@
 ;;
 ;; Also SQL evaluation generally takes place inside of a database.
 ;;
-;; For now lets just allow a generic ':cmdline' header argument.
+;; Header args used:
+;; - engine
+;; - cmdline
+;; - dbhost
+;; - dbuser
+;; - dbpassword
+;; - database
+;; - colnames (default, nil, means "yes")
+;; - result-params
+;; - out-file
+;; The following are used but not really implemented for SQL:
+;; - colname-names
+;; - rownames
+;; - rowname-names
 ;;
 ;; TODO:
 ;;
 ;; - support for sessions
-;; - add more useful header arguments (user, passwd, database, etc...)
 ;; - support for more engines (currently only supports mysql)
 ;; - what's a reasonable way to drop table data into SQL?
 ;;
@@ -47,68 +59,115 @@
 (eval-when-compile (require 'cl))
 
 (declare-function org-table-import "org-table" (file arg))
-(declare-function orgtbl-to-csv "org-table" (TABLE PARAMS))
+(declare-function orgtbl-to-csv "org-table" (table params))
+(declare-function org-table-to-lisp "org-table" (&optional txt))
 
 (defvar org-babel-default-header-args:sql '())
 
-(defvar org-babel-header-arg-names:sql
-  '(engine out-file))
+(defconst org-babel-header-args:sql
+  '((engine	       . :any)
+    (out-file	       . :any)
+    (dbhost	       . :any)
+    (dbuser	       . :any)
+    (dbpassword	       . :any)
+    (database	       . :any))
+  "SQL-specific header arguments.")
 
 (defun org-babel-expand-body:sql (body params)
   "Expand BODY according to the values of PARAMS."
   (org-babel-sql-expand-vars
    body (mapcar #'cdr (org-babel-get-header params :var))))
 
+(defun dbstring-mysql (host user password database)
+  "Make MySQL cmd line args for database connection.  Pass nil to omit that arg."
+  (combine-and-quote-strings
+   (remq nil
+	 (list (when host     (concat "-h" host))
+	       (when user     (concat "-u" user))
+	       (when password (concat "-p" password))
+	       (when database (concat "-D" database))))))
+
 (defun org-babel-execute:sql (body params)
   "Execute a block of Sql code with Babel.
 This function is called by `org-babel-execute-src-block'."
   (let* ((result-params (cdr (assoc :result-params params)))
          (cmdline (cdr (assoc :cmdline params)))
+         (dbhost (cdr (assoc :dbhost params)))
+         (dbuser (cdr (assoc :dbuser params)))
+         (dbpassword (cdr (assoc :dbpassword params)))
+         (database (cdr (assoc :database params)))
          (engine (cdr (assoc :engine params)))
+         (colnames-p (not (equal "no" (cdr (assoc :colnames params)))))
          (in-file (org-babel-temp-file "sql-in-"))
          (out-file (or (cdr (assoc :out-file params))
                        (org-babel-temp-file "sql-out-")))
 	 (header-delim "")
          (command (case (intern engine)
+                    ('dbi (format "dbish --batch %s < %s | sed '%s' > %s"
+				  (or cmdline "")
+				  (org-babel-process-file-name in-file)
+				  "/^+/d;s/^\|//;s/(NULL)/ /g;$d"
+				  (org-babel-process-file-name out-file)))
+                    ('monetdb (format "mclient -f tab %s < %s > %s"
+                                      (or cmdline "")
+                                      (org-babel-process-file-name in-file)
+                                      (org-babel-process-file-name out-file)))
                     ('msosql (format "osql %s -s \"\t\" -i %s -o %s"
                                      (or cmdline "")
                                      (org-babel-process-file-name in-file)
                                      (org-babel-process-file-name out-file)))
-                    ('mysql (format "mysql %s < %s > %s"
+                    ('mysql (format "mysql %s %s %s < %s > %s"
+				    (dbstring-mysql dbhost dbuser dbpassword database)
+				    (if colnames-p "" "-N")
                                     (or cmdline "")
 				    (org-babel-process-file-name in-file)
 				    (org-babel-process-file-name out-file)))
 		    ('postgresql (format
 				  "psql -A -P footer=off -F \"\t\"  -f %s -o %s %s"
-				    (org-babel-process-file-name in-file)
-				    (org-babel-process-file-name out-file)
-				    (or cmdline "")))
-                    (t (error "no support for the %s sql engine" engine)))))
+				  (org-babel-process-file-name in-file)
+				  (org-babel-process-file-name out-file)
+				  (or cmdline "")))
+                    (t (error "No support for the %s SQL engine" engine)))))
     (with-temp-file in-file
-      (insert (org-babel-expand-body:sql body params)))
+      (insert
+       (case (intern engine)
+	 ('dbi "/format partbox\n")
+	 (t ""))
+       (org-babel-expand-body:sql body params)))
     (message command)
-    (shell-command command)
-    (if (or (member "scalar" result-params)
-	    (member "verbatim" result-params)
-	    (member "html" result-params)
-	    (member "code" result-params)
-	    (equal (point-min) (point-max)))
-	(with-temp-buffer
+    (org-babel-eval command "")
+    (org-babel-result-cond result-params
+      (with-temp-buffer
 	  (progn (insert-file-contents-literally out-file) (buffer-string)))
       (with-temp-buffer
-	;; need to figure out what the delimiter is for the header row
-	(with-temp-buffer
-	  (insert-file-contents out-file)
-	  (goto-char (point-min))
-	  (when (re-search-forward "^\\(-+\\)[^-]" nil t)
-	    (setq header-delim (match-string-no-properties 1)))
-	  (goto-char (point-max))
-	  (forward-char -1)
-	  (while (looking-at "\n")
-	    (delete-char 1)
-	    (goto-char (point-max))
-	    (forward-char -1))
-	  (write-file out-file))
+	(cond
+	  ((or (eq (intern engine) 'mysql)
+	       (eq (intern engine) 'dbi)
+	       (eq (intern engine) 'postgresql))
+	   ;; Add header row delimiter after column-names header in first line
+	   (cond
+	    (colnames-p
+	     (with-temp-buffer
+	       (insert-file-contents out-file)
+	       (goto-char (point-min))
+	       (forward-line 1)
+	       (insert "-\n")
+	       (setq header-delim "-")
+	       (write-file out-file)))))
+	  (t
+	   ;; Need to figure out the delimiter for the header row
+	   (with-temp-buffer
+	     (insert-file-contents out-file)
+	     (goto-char (point-min))
+	     (when (re-search-forward "^\\(-+\\)[^-]" nil t)
+	       (setq header-delim (match-string-no-properties 1)))
+	     (goto-char (point-max))
+	     (forward-char -1)
+	     (while (looking-at "\n")
+	       (delete-char 1)
+	       (goto-char (point-max))
+	       (forward-char -1))
+	     (write-file out-file))))
 	(org-table-import out-file '(16))
 	(org-babel-reassemble-table
 	 (mapcar (lambda (x)
@@ -127,26 +186,24 @@ This function is called by `org-babel-execute-src-block'."
    (lambda (pair)
      (setq body
 	   (replace-regexp-in-string
-	    (format "\$%s" (car pair))
-	    ((lambda (val)
-	       (if (listp val)
-		   ((lambda (data-file)
-		      (with-temp-file data-file
-			(insert (orgtbl-to-csv
-				 val '(:fmt (lambda (el) (if (stringp el)
-							el
-						      (format "%S" el)))))))
-		      data-file)
-		    (org-babel-temp-file "sql-data-"))
-		 (if (stringp val) val (format "%S" val))))
-	     (cdr pair))
+	    (format "\$%s" (car pair))  ;FIXME: "\$" == "$"!
+	    (let ((val (cdr pair)))
+              (if (listp val)
+                  (let ((data-file (org-babel-temp-file "sql-data-")))
+                    (with-temp-file data-file
+                      (insert (orgtbl-to-csv
+                               val '(:fmt (lambda (el) (if (stringp el)
+                                                      el
+                                                    (format "%S" el)))))))
+                    data-file)
+                (if (stringp val) val (format "%S" val))))
 	    body)))
    vars)
   body)
 
 (defun org-babel-prep-session:sql (session params)
   "Raise an error because Sql sessions aren't implemented."
-  (error "sql sessions not yet implemented"))
+  (error "SQL sessions not yet implemented"))
 
 (provide 'ob-sql)
 

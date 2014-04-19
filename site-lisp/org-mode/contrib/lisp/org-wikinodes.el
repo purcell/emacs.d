@@ -1,20 +1,20 @@
 ;;; org-wikinodes.el --- Wiki-like CamelCase links to outline nodes
 
-;; Copyright (C) 2010-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2014 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
 ;; Version: 7.01trans
 ;;
-;; This file is part of GNU Emacs.
+;; This file is not part of GNU Emacs.
 ;;
-;; GNU Emacs is free software: you can redistribute it and/or modify
+;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 
-;; GNU Emacs is distributed in the hope that it will be useful,
+;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
@@ -115,13 +115,14 @@ variable `org-wikinodes-scope'.
 
 If a target headline is not found, it may be created according to the
 setting of `org-wikinodes-create-targets'."
-  (if current-prefix-arg (org-wikinodes-clear-direcory-targets-cache))
+  (if current-prefix-arg (org-wikinodes-clear-directory-targets-cache))
   (let ((create org-wikinodes-create-targets)
 	visiting buffer m pos file rpl)
     (setq pos
 	  (or (org-find-exact-headline-in-buffer target (current-buffer))
 	      (and (eq org-wikinodes-scope 'directory)
-		   (setq file (org-wikinodes-which-file target))
+		   (setq file (org-wikinodes-which-file
+			       target (file-name-directory (buffer-file-name))))
 		   (org-find-exact-headline-in-buffer
 		    target (or (get-file-buffer file)
 			       (find-file-noselect file))))))
@@ -184,10 +185,10 @@ setting of `org-wikinodes-create-targets'."
 	     (org-in-regexp (format org-complex-heading-regexp-format
 				    org-wikinodes-camel-regexp))
 	     (org-in-regexp org-wikinodes-camel-regexp))
-    (org-wikinodes-clear-direcory-targets-cache)
+    (org-wikinodes-clear-directory-targets-cache)
     t))
 
-(defun org-wikinodes-clear-direcory-targets-cache ()
+(defun org-wikinodes-clear-directory-targets-cache ()
   "Clear the cache where to find wiki targets."
   (interactive)
   (setq org-wikinodes-directory-targets-cache nil)
@@ -238,12 +239,14 @@ setting of `org-wikinodes-create-targets'."
 (defun org-wikinodes-which-file (target &optional directory)
   "Return the file for wiki headline TARGET DIRECTORY.
 If there is no such wiki target, return nil."
-  (setq directory (expand-file-name (or directory default-directory)))
-  (unless (assoc directory org-wikinodes-directory-targets-cache)
-    (push (cons directory (org-wikinodes-get-links-for-directory directory))
-	  org-wikinodes-directory-targets-cache))
-  (cdr (assoc target (cdr (assoc directory
-				 org-wikinodes-directory-targets-cache)))))
+  (let* ((directory (expand-file-name (or directory default-directory)))
+	 (founddir (assoc directory org-wikinodes-directory-targets-cache))
+	 (foundfile (cdr (assoc target (cdr founddir)))))
+    (or foundfile
+	(and (push (cons directory (org-wikinodes-get-links-for-directory directory))
+		   org-wikinodes-directory-targets-cache)
+	     (cdr (assoc target (cdr (assoc directory
+					    org-wikinodes-directory-targets-cache))))))))
 
 ;;; Exporting Wiki links
 
@@ -278,30 +281,29 @@ with working links."
 	link file)
     (goto-char (point-min))
     (while (re-search-forward re nil t)
-      (org-if-unprotected-at (match-beginning 0)
-	(unless (save-match-data
-		  (or (org-at-heading-p)
-		      (org-in-regexp org-bracket-link-regexp)
-		      (org-in-regexp org-plain-link-re)
-		      (org-in-regexp "<<[^<>]+>>")))
-	  (setq link (match-string 0))
-	  (delete-region (match-beginning 0) (match-end 0))
-	  (save-match-data
-	    (cond
-	     ((org-find-exact-headline-in-buffer link (current-buffer))
-	      ;; Found in current buffer
-	      (insert (format "[[#%s][%s]]" link link)))
-	     ((eq org-wikinodes-scope 'file)
-	      ;; No match in file, and other files are not allowed
-	      (insert (format "%s" link)))
-	     ((setq file
-		    (and (org-string-nw-p org-current-export-file)
-			 (org-wikinodes-which-file
-			  link (file-name-directory org-current-export-file))))
-	      ;; Match in another file in the current directory
-	      (insert (format "[[file:%s::%s][%s]]" file link link)))
-	     (t ;; No match for this link
-	      (insert (format "%s" link))))))))))
+      (unless (save-match-data
+		(or (org-at-heading-p)
+		    (org-in-regexp org-bracket-link-regexp)
+		    (org-in-regexp org-plain-link-re)
+		    (org-in-regexp "<<[^<>]+>>")))
+	(setq link (match-string 0))
+	(delete-region (match-beginning 0) (match-end 0))
+	(save-match-data
+	  (cond
+	   ((org-find-exact-headline-in-buffer link (current-buffer))
+	    ;; Found in current buffer
+	    (insert (format "[[#%s][%s]]" link link)))
+	   ((eq org-wikinodes-scope 'file)
+	    ;; No match in file, and other files are not allowed
+	    (insert (format "%s" link)))
+	   ((setq file
+		  (and (org-string-nw-p org-current-export-file)
+		       (org-wikinodes-which-file
+			link (file-name-directory org-current-export-file))))
+	    ;; Match in another file in the current directory
+	    (insert (format "[[file:%s::%s][%s]]" file link link)))
+	   (t ;; No match for this link
+	    (insert (format "%s" link)))))))))
 
 ;;; Hook the WikiNode mechanism into Org
 

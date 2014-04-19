@@ -1,6 +1,6 @@
 ;;; org-feed.el --- Add RSS feed items to Org files
 ;;
-;; Copyright (C) 2009-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 ;;
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -80,7 +80,7 @@
 ;;  that received the input of the feed.  You should add FEEDSTATUS
 ;;  to your list of drawers in the files that receive feed input:
 ;;
-;;       #+DRAWERS: PROPERTIES LOGBOOK FEEDSTATUS
+;;       #+DRAWERS: PROPERTIES CLOCK LOGBOOK RESULTS FEEDSTATUS
 ;;
 ;;  Acknowledgments
 ;;  ---------------
@@ -99,6 +99,10 @@
 (declare-function xml-get-attribute "xml" (node attribute))
 (declare-function xml-get-attribute-or-nil "xml" (node attribute))
 (declare-function xml-substitute-special "xml" (string))
+
+(declare-function org-capture-escaped-% "org-capture" ())
+(declare-function org-capture-inside-embedded-elisp-p "org-capture" ())
+(declare-function org-capture-expand-embedded-elisp "org-capture" ())
 
 (defgroup org-feed  nil
   "Options concerning RSS feeds as inputs for Org files."
@@ -179,34 +183,34 @@ Here are the keyword-value pair allows in `org-feed-alist'.
   :group 'org-feed
   :type '(repeat
 	  (list :value ("" "http://" "" "")
-	   (string :tag "Name")
-	   (string :tag "Feed URL")
-	   (file :tag "File for inbox")
-	   (string :tag "Headline for inbox")
-	   (repeat :inline t
-		   (choice
-		    (list :inline t :tag "Filter"
-			  (const :filter)
-			  (symbol :tag "Filter Function"))
-		    (list :inline t :tag "Template"
-			  (const :template)
-			  (string :tag "Template"))
-		    (list :inline t :tag "Formatter"
-			  (const :formatter)
-			  (symbol :tag "Formatter Function"))
-		    (list :inline t :tag "New items handler"
-			  (const :new-handler)
-			  (symbol :tag "Handler Function"))
-		    (list :inline t :tag "Changed items"
-			  (const :changed-handler)
-			  (symbol :tag "Handler Function"))
-		    (list :inline t :tag "Parse Feed"
-			  (const :parse-feed)
-			  (symbol :tag "Parse Feed Function"))
-		    (list :inline t :tag "Parse Entry"
-			  (const :parse-entry)
-			  (symbol :tag "Parse Entry Function"))
-		    )))))
+		(string :tag "Name")
+		(string :tag "Feed URL")
+		(file :tag "File for inbox")
+		(string :tag "Headline for inbox")
+		(repeat :inline t
+			(choice
+			 (list :inline t :tag "Filter"
+			       (const :filter)
+			       (symbol :tag "Filter Function"))
+			 (list :inline t :tag "Template"
+			       (const :template)
+			       (string :tag "Template"))
+			 (list :inline t :tag "Formatter"
+			       (const :formatter)
+			       (symbol :tag "Formatter Function"))
+			 (list :inline t :tag "New items handler"
+			       (const :new-handler)
+			       (symbol :tag "Handler Function"))
+			 (list :inline t :tag "Changed items"
+			       (const :changed-handler)
+			       (symbol :tag "Handler Function"))
+			 (list :inline t :tag "Parse Feed"
+			       (const :parse-feed)
+			       (symbol :tag "Parse Feed Function"))
+			 (list :inline t :tag "Parse Entry"
+			       (const :parse-entry)
+			       (symbol :tag "Parse Entry Function"))
+			 )))))
 
 (defcustom org-feed-drawer "FEEDSTATUS"
   "The name of the drawer for feed status information.
@@ -225,12 +229,14 @@ Any fields from the feed item can be interpolated into the template with
 %name, for example %title, %description, %pubDate etc.  In addition, the
 following special escapes are valid as well:
 
-%h      the title, or the first line of the description
-%t      the date as a stamp, either from <pubDate> (if present), or
-        the current date.
-%T      date and time
-%u,%U   like %t,%T, but inactive time stamps
-%a      A link, from <guid> if that is a permalink, else from <link>"
+%h      The title, or the first line of the description
+%t      The date as a stamp, either from <pubDate> (if present), or
+        the current date
+%T      Date and time
+%u,%U   Like %t,%T, but inactive time stamps
+%a      A link, from <guid> if that is a permalink, else from <link>
+%(sexp) Evaluate elisp `(sexp)' and replace with the result, the simple
+        %-escapes above can be used as arguments, e.g. %(capitalize \\\"%h\\\")"
   :group 'org-feed
   :type '(string :tag "Template"))
 
@@ -251,7 +257,7 @@ of the file pointed to by the URL."
 	  (const :tag "Externally with wget" wget)
 	  (function :tag "Function")))
 
- (defcustom org-feed-before-adding-hook nil
+(defcustom org-feed-before-adding-hook nil
   "Hook that is run before adding new feed items to a file.
 You might want to commit the file in its current state to version control,
 for example."
@@ -450,8 +456,8 @@ Switch to that buffer, and return the position of that headline."
        nil t)
       (goto-char (match-beginning 0))
     (goto-char (point-max))
-      (insert "\n\n* " heading "\n\n")
-      (org-back-to-heading t))
+    (insert "\n\n* " heading "\n\n")
+    (org-back-to-heading t))
   (point))
 
 (defun org-feed-read-previous-status (pos drawer)
@@ -506,9 +512,10 @@ This will find DRAWER and extract the alist."
 ENTRY is a property list.  This function adds a `:formatted-for-org' property
 and returns the full property list.
 If that property is already present, nothing changes."
+  (require 'org-capture)
   (if formatter
       (funcall formatter entry)
-    (let (dlines fmt tmp indent time name
+    (let (dlines time escape name tmp
 		 v-h v-t v-T v-u v-U v-a)
       (setq dlines (org-split-string (or (plist-get entry :description) "???")
 				     "\n")
@@ -527,20 +534,35 @@ If that property is already present, nothing changes."
 		  ""))
       (with-temp-buffer
 	(insert template)
+
+	;; Simple %-escapes
+	;; before embedded elisp to support simple %-escapes as
+	;; arguments for embedded elisp
 	(goto-char (point-min))
 	(while (re-search-forward "%\\([a-zA-Z]+\\)" nil t)
-	  (setq name (match-string 1))
-	  (cond
-	   ((member name '("h" "t" "T" "u" "U" "a"))
-	    (replace-match (symbol-value (intern (concat "v-" name))) t t))
-	   ((setq tmp (plist-get entry (intern (concat ":" name))))
-	    (save-excursion
-	      (save-match-data
-		(beginning-of-line 1)
-		(when (looking-at (concat "^\\([ \t]*\\)%" name "[ \t]*$"))
-		  (setq tmp (org-feed-make-indented-block
-			     tmp (org-get-indentation))))))
-	    (replace-match tmp t t))))
+	  (unless (org-capture-escaped-%)
+	    (setq name (match-string 1)
+		  escape (org-capture-inside-embedded-elisp-p))
+	    (cond
+	     ((member name '("h" "t" "T" "u" "U" "a"))
+	      (setq tmp (symbol-value (intern (concat "v-" name)))))
+	     ((setq tmp (plist-get entry (intern (concat ":" name))))
+	      (save-excursion
+		(save-match-data
+		  (beginning-of-line 1)
+		  (when (looking-at
+			 (concat "^\\([ \t]*\\)%" name "[ \t]*$"))
+		    (setq tmp (org-feed-make-indented-block
+			       tmp (org-get-indentation))))))))
+	    (when tmp
+	      ;; escape string delimiters `"' when inside %() embedded lisp
+	      (when escape
+		(setq tmp (replace-regexp-in-string "\"" "\\\\\"" tmp)))
+	      (replace-match tmp t t))))
+
+	;; %() embedded elisp
+	(org-capture-expand-embedded-elisp)
+
 	(decode-coding-string
 	 (buffer-string) (detect-coding-region (point-min) (point-max) t))))))
 
@@ -672,5 +694,9 @@ formatted as a string, not the original XML data."
     entry))
 
 (provide 'org-feed)
+
+;; Local variables:
+;; generated-autoload-file: "org-loaddefs.el"
+;; End:
 
 ;;; org-feed.el ends here

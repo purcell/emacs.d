@@ -1,6 +1,6 @@
 ;;; org-pcomplete.el --- In-buffer completion code
 
-;; Copyright (C) 2004-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2004-2014 Free Software Foundation, Inc.
 ;;
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;;         John Wiegley <johnw at gnu dot org>
@@ -31,12 +31,12 @@
   (require 'cl))
 
 (require 'org-macs)
+(require 'org-compat)
 (require 'pcomplete)
 
 (declare-function org-split-string "org" (string &optional separators))
-(declare-function org-get-current-options "org-exp" ())
 (declare-function org-make-org-heading-search-string "org"
-		  (&optional string heading))
+		  (&optional string))
 (declare-function org-get-buffer-tags "org" ())
 (declare-function org-get-tags "org" ())
 (declare-function org-buffer-property-keys "org"
@@ -50,14 +50,17 @@
   :tag "Org"
   :group 'org)
 
+(defvar org-drawer-regexp)
+(defvar org-property-re)
+
 (defun org-thing-at-point ()
   "Examine the thing at point and let the caller know what it is.
 The return value is a string naming the thing at point."
   (let ((beg1 (save-excursion
-		(skip-chars-backward (org-re "[:alnum:]_@"))
+		(skip-chars-backward (org-re "[:alnum:]-_@"))
 		(point)))
 	(beg (save-excursion
-	       (skip-chars-backward "a-zA-Z0-9_:$")
+	       (skip-chars-backward "a-zA-Z0-9-_:$")
 	       (point)))
 	(line-to-here (buffer-substring (point-at-bol) (point))))
     (cond
@@ -84,8 +87,18 @@ The return value is a string naming the thing at point."
 	   (equal (char-after (point-at-bol)) ?*))
       (cons "tag" nil))
      ((and (equal (char-before beg1) ?:)
-	   (not (equal (char-after (point-at-bol)) ?*)))
+	   (not (equal (char-after (point-at-bol)) ?*))
+	   (save-excursion
+	     (move-beginning-of-line 1)
+	     (skip-chars-backward "[ \t\n]")
+	     ;; org-drawer-regexp matches a whole line but while
+	     ;; looking-back, we just ignore trailing whitespaces
+	     (or (org-looking-back (substring org-drawer-regexp 0 -1))
+		 (org-looking-back org-property-re))))
       (cons "prop" nil))
+     ((and (equal (char-before beg1) ?:)
+	   (not (equal (char-after (point-at-bol)) ?*)))
+      (cons "drawer" nil))
      (t nil))))
 
 (defun org-command-at-point ()
@@ -95,11 +108,11 @@ When completing for #+STARTUP, for example, this function returns
   (let ((thing (org-thing-at-point)))
     (cond
      ((string= "file-option" (car thing))
-      (concat (car thing) "/" (downcase (cdr thing))))
+      (concat (car thing)
+	      (and (cdr thing) (concat "/" (downcase (cdr thing))))))
      ((string= "block-option" (car thing))
       (concat (car thing) "/" (downcase (cdr thing))))
-     (t
-      (car thing)))))
+     (t (car thing)))))
 
 (defun org-parse-arguments ()
   "Parse whitespace separated arguments in the current region."
@@ -119,7 +132,6 @@ When completing for #+STARTUP, for example, this function returns
 			   args)))
 	(cons (reverse args) (reverse begins))))))
 
-
 (defun org-pcomplete-initial ()
   "Calls the right completion function for first argument completions."
   (ignore
@@ -127,25 +139,85 @@ When completing for #+STARTUP, for example, this function returns
 		 (car (org-thing-at-point)))
 		pcomplete-default-completion-function))))
 
-(defvar org-additional-option-like-keywords)
+(defvar org-options-keywords)		 ; From org.el
+(defvar org-element-block-name-alist)	 ; From org-element.el
+(defvar org-element-affiliated-keywords) ; From org-element.el
+(declare-function org-get-export-keywords "org" ())
 (defun pcomplete/org-mode/file-option ()
   "Complete against all valid file options."
-  (require 'org-exp)
+  (require 'org-element)
   (pcomplete-here
    (org-pcomplete-case-double
-    (mapcar (lambda (x)
-	      (if (= ?: (aref x (1- (length x))))
-		  (concat x " ")
-		x))
-	    (delq nil
-		  (pcomplete-uniqify-list
-		   (append
-		    (mapcar (lambda (x)
-			      (if (string-match "^#\\+\\([A-Z_]+:?\\)" x)
-				  (match-string 1 x)))
-			    (org-split-string (org-get-current-options) "\n"))
-		    (copy-sequence org-additional-option-like-keywords))))))
+    (append (mapcar (lambda (keyword) (concat keyword " "))
+		    org-options-keywords)
+	    (mapcar (lambda (keyword) (concat keyword ": "))
+		    org-element-affiliated-keywords)
+	    (let (block-names)
+	      (dolist (block-info org-element-block-name-alist block-names)
+		(let ((name (car block-info)))
+		  (push (format "END_%s" name) block-names)
+		  (push (concat "BEGIN_"
+				name
+				;; Since language is compulsory in
+				;; source blocks, add a space.
+				(and (equal name "SRC") " "))
+			block-names)
+		  (push (format "ATTR_%s: " name) block-names))))
+	    (mapcar (lambda (keyword) (concat keyword ": "))
+		    (org-get-export-keywords))))
    (substring pcomplete-stub 2)))
+
+(defun pcomplete/org-mode/file-option/author ()
+  "Complete arguments for the #+AUTHOR file option."
+  (pcomplete-here (list user-full-name)))
+
+(defvar org-time-stamp-formats)
+(defun pcomplete/org-mode/file-option/date ()
+  "Complete arguments for the #+DATE file option."
+  (pcomplete-here (list (format-time-string (car org-time-stamp-formats)))))
+
+(defun pcomplete/org-mode/file-option/email ()
+  "Complete arguments for the #+EMAIL file option."
+  (pcomplete-here (list user-mail-address)))
+
+(defvar org-export-exclude-tags)
+(defun pcomplete/org-mode/file-option/exclude_tags ()
+  "Complete arguments for the #+EXCLUDE_TAGS file option."
+  (require 'ox)
+  (pcomplete-here
+   (and org-export-exclude-tags
+	(list (mapconcat 'identity org-export-exclude-tags " ")))))
+
+(defvar org-file-tags)
+(defun pcomplete/org-mode/file-option/filetags ()
+  "Complete arguments for the #+FILETAGS file option."
+  (pcomplete-here (and org-file-tags (mapconcat 'identity org-file-tags " "))))
+
+(defvar org-export-default-language)
+(defun pcomplete/org-mode/file-option/language ()
+  "Complete arguments for the #+LANGUAGE file option."
+  (require 'ox)
+  (pcomplete-here
+   (pcomplete-uniqify-list
+    (list org-export-default-language "en"))))
+
+(defvar org-default-priority)
+(defvar org-highest-priority)
+(defvar org-lowest-priority)
+(defun pcomplete/org-mode/file-option/priorities ()
+  "Complete arguments for the #+PRIORITIES file option."
+  (pcomplete-here (list (format "%c %c %c"
+				org-highest-priority
+				org-lowest-priority
+				org-default-priority))))
+
+(defvar org-export-select-tags)
+(defun pcomplete/org-mode/file-option/select_tags ()
+  "Complete arguments for the #+SELECT_TAGS file option."
+  (require 'ox)
+  (pcomplete-here
+   (and org-export-select-tags
+	(list (mapconcat 'identity org-export-select-tags " ")))))
 
 (defvar org-startup-options)
 (defun pcomplete/org-mode/file-option/startup ()
@@ -161,8 +233,60 @@ When completing for #+STARTUP, for example, this function returns
 		(setq opts (delete "showstars" opts)))))
 	    opts))))
 
+(defvar org-tag-alist)
+(defun pcomplete/org-mode/file-option/tags ()
+  "Complete arguments for the #+TAGS file option."
+  (pcomplete-here
+   (list
+    (mapconcat (lambda (x)
+		 (cond
+		  ((eq :startgroup (car x)) "{")
+		  ((eq :endgroup (car x)) "}")
+		  ((eq :grouptags (car x)) ":")
+		  ((eq :newline (car x)) "\\n")
+		  ((cdr x) (format "%s(%c)" (car x) (cdr x)))
+		  (t (car x))))
+	       org-tag-alist " "))))
+
+(defun pcomplete/org-mode/file-option/title ()
+  "Complete arguments for the #+TITLE file option."
+  (pcomplete-here
+   (let ((visited-file (buffer-file-name (buffer-base-buffer))))
+     (list (or (and visited-file
+		    (file-name-sans-extension
+		     (file-name-nondirectory visited-file)))
+	       (buffer-name (buffer-base-buffer)))))))
+
+
+(declare-function org-export-backend-options "org-export" (cl-x))
+(defun pcomplete/org-mode/file-option/options ()
+  "Complete arguments for the #+OPTIONS file option."
+  (while (pcomplete-here
+	  (pcomplete-uniqify-list
+	   (append
+	    ;; Hard-coded OPTION items always available.
+	    '("H:" "\\n:" "num:" "timestamp:" "arch:" "author:" "c:"
+	      "creator:" "date:" "d:" "email:" "*:" "e:" "::" "f:"
+	      "inline:" "tex:" "p:" "pri:" "':" "-:" "stat:" "^:" "toc:"
+	      "|:" "tags:" "tasks:" "<:" "todo:")
+	    ;; OPTION items from registered back-ends.
+	    (let (items)
+	      (dolist (backend (org-bound-and-true-p
+				org-export--registered-backends))
+		(dolist (option (org-export-backend-options backend))
+		  (let ((item (nth 2 option)))
+		    (when item (push (concat item ":") items)))))
+	      items))))))
+
+(defun pcomplete/org-mode/file-option/infojs_opt ()
+  "Complete arguments for the #+INFOJS_OPT file option."
+  (while (pcomplete-here
+	  (pcomplete-uniqify-list
+	   (mapcar (lambda (item) (format "%s:" (car item)))
+		   (org-bound-and-true-p org-html-infojs-opts-table))))))
+
 (defun pcomplete/org-mode/file-option/bind ()
-  "Complete arguments for the #+BIND file option, which are variable names"
+  "Complete arguments for the #+BIND file option, which are variable names."
   (let (vars)
     (mapatoms
      (lambda (a) (if (boundp a) (setq vars (cons (symbol-name a) vars)))))
@@ -196,16 +320,16 @@ When completing for #+STARTUP, for example, this function returns
   "Complete against all headings.
 This needs more work, to handle headings with lots of spaces in them."
   (while
-   (pcomplete-here
-    (save-excursion
-      (goto-char (point-min))
-      (let (tbl)
-	(while (re-search-forward org-todo-line-regexp nil t)
-	  (push (org-make-org-heading-search-string
-		 (match-string-no-properties 3) t)
-		tbl))
-	(pcomplete-uniqify-list tbl)))
-    (substring pcomplete-stub 1))))
+      (pcomplete-here
+       (save-excursion
+	 (goto-char (point-min))
+	 (let (tbl)
+	   (while (re-search-forward org-todo-line-regexp nil t)
+	     (push (org-make-org-heading-search-string
+		    (match-string-no-properties 3))
+		   tbl))
+	   (pcomplete-uniqify-list tbl)))
+       (substring pcomplete-stub 1))))
 
 (defvar org-tag-alist)
 (defun pcomplete/org-mode/tag ()
@@ -239,6 +363,25 @@ This needs more work, to handle headings with lots of spaces in them."
 	     lst))
    (substring pcomplete-stub 1)))
 
+(defvar org-drawers)
+
+(defun pcomplete/org-mode/drawer ()
+  "Complete a drawer name."
+  (let ((spc (save-excursion
+	       (move-beginning-of-line 1)
+	       (looking-at "^\\([ \t]*\\):")
+	       (match-string 1)))
+	(cpllist (mapcar (lambda (x) (concat x ": ")) org-drawers)))
+    (pcomplete-here cpllist
+		    (substring pcomplete-stub 1)
+		    (unless (or (not (delq
+				      nil
+				      (mapcar (lambda(x)
+						(string-match (substring pcomplete-stub 1) x))
+					      cpllist)))
+				(looking-at "[ \t]*\n.*:END:"))
+		      (save-excursion (insert "\n" spc ":END:"))))))
+
 (defun pcomplete/org-mode/block-option/src ()
   "Complete the arguments of a begin_src block.
 Complete a language in the first field, the header arguments and switches."
@@ -253,16 +396,16 @@ Complete a language in the first field, the header arguments and switches."
 	  '("-n" "-r" "-l"
 	    ":cache" ":colnames" ":comments" ":dir" ":eval" ":exports"
 	    ":file" ":hlines" ":no-expand" ":noweb" ":results" ":rownames"
-	    ":session" ":shebang" ":tangle" ":var"))))
+	    ":session" ":shebang" ":tangle" ":tangle-mode" ":var"))))
 
 (defun pcomplete/org-mode/block-option/clocktable ()
-  "Complete keywords in a clocktable line"
-  (while (pcomplete-here '(":maxlevel" ":scope"
+  "Complete keywords in a clocktable line."
+  (while (pcomplete-here '(":maxlevel" ":scope" ":lang"
 			   ":tstart" ":tend" ":block" ":step"
 			   ":stepskip0" ":fileskip0"
 			   ":emphasize" ":link" ":narrow" ":indent"
 			   ":tcolumns" ":level" ":compact" ":timestamp"
-			   ":formula" ":formatter"))))
+			   ":formula" ":formatter" ":wstart" ":mstart"))))
 
 (defun org-pcomplete-case-double (list)
   "Return list with both upcase and downcase version of all strings in LIST."

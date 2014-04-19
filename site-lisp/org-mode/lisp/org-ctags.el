@@ -1,6 +1,6 @@
 ;;; org-ctags.el - Integrate Emacs "tags" facility with org mode.
 ;;
-;; Copyright (C) 2007-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2007-2014 Free Software Foundation, Inc.
 
 ;; Author: Paul Sexton <eeeickythump@gmail.com>
 
@@ -26,18 +26,18 @@
 ;; Synopsis
 ;; ========
 ;;
-;; Allows org-mode to make use of the Emacs `etags' system. Defines tag
+;; Allows org-mode to make use of the Emacs `etags' system.  Defines tag
 ;; destinations in org-mode files as any text between <<double angled
 ;; brackets>>. This allows the tags-generation program `exuberant ctags' to
 ;; parse these files and create tag tables that record where these
-;; destinations are found. Plain [[links]] in org mode files which do not have
+;; destinations are found.  Plain [[links]] in org mode files which do not have
 ;; <<matching destinations>> within the same file will then be interpreted as
 ;; links to these 'tagged' destinations, allowing seamless navigation between
-;; multiple org-mode files. Topics can be created in any org mode file and
-;; will always be found by plain links from other files. Other file types
+;; multiple org-mode files.  Topics can be created in any org mode file and
+;; will always be found by plain links from other files.  Other file types
 ;; recognized by ctags (source code files, latex files, etc) will also be
 ;; available as destinations for plain links, and similarly, org-mode links
-;; will be available as tags from source files. Finally, the function
+;; will be available as tags from source files.  Finally, the function
 ;; `org-ctags-find-tag-interactive' lets you choose any known tag, using
 ;; autocompletion, and quickly jump to it.
 ;;
@@ -82,25 +82,25 @@
 ;; =====
 ;;
 ;; When you click on a link "[[foo]]" and org cannot find a matching "<<foo>>"
-;; in the current buffer, the tags facility will take over. The file TAGS in
+;; in the current buffer, the tags facility will take over.  The file TAGS in
 ;; the active directory is examined to see if the tags facility knows about
-;; "<<foo>>" in any other files. If it does, the matching file will be opened
+;; "<<foo>>" in any other files.  If it does, the matching file will be opened
 ;; and the cursor will jump to the position of "<<foo>>" in that file.
 ;;
 ;; User-visible functions:
 ;; - `org-ctags-find-tag-interactive': type a tag (plain link) name and visit
-;;   it. With autocompletion. Bound to ctrl-O in the above setup.
-;; - All the etags functions should work. These include:
+;;   it.  With autocompletion.  Bound to ctrl-O in the above setup.
+;; - All the etags functions should work.  These include:
 ;;
 ;;      M-.    `find-tag' -- finds the tag at point
 ;;
 ;;      C-M-.  find-tag based on regular expression
 ;;
 ;;      M-x tags-search RET -- like C-M-. but searches through ENTIRE TEXT
-;;             of ALL the files referenced in the TAGS file. A quick way to
+;;             of ALL the files referenced in the TAGS file.  A quick way to
 ;;             search through an entire 'project'.
 ;;
-;;      M-*    "go back" from a tag jump. Like `org-mark-ring-goto'.
+;;      M-*    "go back" from a tag jump.  Like `org-mark-ring-goto'.
 ;;             You may need to bind this key yourself with (eg)
 ;;             (global-set-key (kbd "<M-kp-multiply>") 'pop-tag-mark)
 ;;
@@ -116,8 +116,8 @@
 ;; 1. You re-run (org-ctags-create-tags "directory") to rebuild the file.
 ;; 2. You put the function `org-ctags-ask-rebuild-tags-file-then-find-tag' in
 ;;    your `org-open-link-functions' list, as is done in the setup
-;;    above. This will cause the TAGS file to be rebuilt whenever a link
-;;    cannot be found. This may be slow with large file collections however.
+;;    above.  This will cause the TAGS file to be rebuilt whenever a link
+;;    cannot be found.  This may be slow with large file collections however.
 ;; 3. You run the following from the command line (all 1 line):
 ;;
 ;;      ctags --langdef=orgmode --langmap=orgmode:.org
@@ -126,12 +126,12 @@
 ;;
 ;; If you are paranoid, you might want to run (org-ctags-create-tags
 ;; "/path/to/org/files") at startup, by including the following toplevel form
-;; in .emacs. However this can cause a pause of several seconds if ctags has
+;; in .emacs.  However this can cause a pause of several seconds if ctags has
 ;; to scan lots of files.
 ;;
 ;;     (progn
 ;;       (message "-- rebuilding tags tables...")
-;;       (mapc 'org-create-tags tags-table-list))
+;;       (mapc 'org-ctags-create-tags tags-table-list))
 
 ;;; Code:
 
@@ -156,11 +156,8 @@ Format is: /REGEXP/TAGNAME/FLAGS,TAGTYPE/
 See the ctags documentation for more information.")
 
 (defcustom org-ctags-path-to-ctags
-  (case system-type
-    (windows-nt "ctags.exe")
-    (darwin "ctags-exuberant")
-    (t "ctags-exuberant"))
-  "Full path to the ctags executable file."
+  (if (executable-find "ctags-exuberant") "ctags-exuberant" "ctags")
+  "Name of the ctags executable file."
   :group 'org-ctags
   :version "24.1"
   :type 'file)
@@ -193,6 +190,7 @@ Created as a local variable in each buffer.")
 The following patterns are replaced in the string:
     `%t' - replaced with the capitalized title of the hyperlink"
   :group 'org-ctags
+  :version "24.1"
   :type 'string)
 
 
@@ -247,7 +245,7 @@ buffer position where the tag is found."
              ((re-search-backward "\n\\(.*\\),[0-9]+\n")
               (list (match-string 1) line pos))
              (t              ; can't find a file name preceding the matched
-                             ; tag??
+					; tag??
               (error "Malformed TAGS file: %s" (buffer-name))))))
          (t                               ; tag not found
           nil))))))
@@ -308,7 +306,7 @@ The new topic will be titled NAME (or TITLE if supplied)."
 			    activate compile)
   "Before trying to find a tag, save our current position on org mark ring."
   (save-excursion
-    (if (and (eq major-mode 'org-mode) org-ctags-enabled-p)
+    (if (and (derived-mode-p 'org-mode) org-ctags-enabled-p)
         (org-mark-ring-push))))
 
 
@@ -411,7 +409,7 @@ asked before creating a new file."
 
 (defun org-ctags-append-topic (name &optional narrowp)
   "This function is intended to be used in ORG-OPEN-LINK-FUNCTIONS.
-Append a new toplevel heading to the end of the current buffer. The
+Append a new toplevel heading to the end of the current buffer.  The
 heading contains NAME surrounded by <<angular brackets>>, thus making
 the heading a destination for the tag `NAME'."
   (interactive "sTopic: ")
@@ -456,12 +454,12 @@ to rebuild (update) the TAGS file."
   "This function is intended to be used in ORG-OPEN-LINK-FUNCTIONS.
 Wrapper for org-ctags-rebuild-tags-file-then-find-tag."
   (if (and (buffer-file-name)
-             (y-or-n-p
-              (format
-               "Tag `%s' not found.  Rebuild table `%s/TAGS' and look again?"
-               name
-               (file-name-directory (buffer-file-name)))))
-    (org-ctags-rebuild-tags-file-then-find-tag name)
+	   (y-or-n-p
+	    (format
+	     "Tag `%s' not found.  Rebuild table `%s/TAGS' and look again?"
+	     name
+	     (file-name-directory (buffer-file-name)))))
+      (org-ctags-rebuild-tags-file-then-find-tag name)
     nil))
 
 
@@ -533,7 +531,7 @@ a new topic."
        (t
         ;; New tag
         (run-hook-with-args-until-success
-		'org-open-link-functions tag))))))
+	 'org-open-link-functions tag))))))
 
 
 (org-ctags-enable)

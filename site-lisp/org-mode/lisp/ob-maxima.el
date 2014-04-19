@@ -1,6 +1,6 @@
 ;;; ob-maxima.el --- org-babel functions for maxima evaluation
 
-;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric S Fraga
 ;;	Eric Schulte
@@ -43,56 +43,56 @@
 (defcustom org-babel-maxima-command
   (if (boundp 'maxima-command) maxima-command "maxima")
   "Command used to call maxima on the shell."
-  :group 'org-babel)
+  :group 'org-babel
+  :type 'string)
 
 (defun org-babel-maxima-expand (body params)
   "Expand a block of Maxima code according to its header arguments."
   (let ((vars (mapcar #'cdr (org-babel-get-header params :var))))
-     (mapconcat 'identity
-		(list
-		 ;; graphic output
-		 (let ((graphic-file (org-babel-maxima-graphical-output-file params)))
-		   (if graphic-file
-		       (format
-			"set_plot_option ([gnuplot_term, png]); set_plot_option ([gnuplot_out_file, %S]);"
-			graphic-file)
-		     ""))
-		 ;; variables
-		 (mapconcat 'org-babel-maxima-var-to-maxima vars "\n")
-		 ;; body
-		 body
-		 "gnuplot_close ()$")
-		"\n")))
+    (mapconcat 'identity
+	       (list
+		;; graphic output
+		(let ((graphic-file (org-babel-maxima-graphical-output-file params)))
+		  (if graphic-file
+		      (format
+		       "set_plot_option ([gnuplot_term, png]); set_plot_option ([gnuplot_out_file, %S]);"
+		       graphic-file)
+		    ""))
+		;; variables
+		(mapconcat 'org-babel-maxima-var-to-maxima vars "\n")
+		;; body
+		body
+		"gnuplot_close ()$")
+	       "\n")))
 
 (defun org-babel-execute:maxima (body params)
-  "Execute a block of Maxima entries with org-babel.  This function is
-called by `org-babel-execute-src-block'."
+  "Execute a block of Maxima entries with org-babel.
+This function is called by `org-babel-execute-src-block'."
   (message "executing Maxima source code block")
   (let ((result-params (split-string (or (cdr (assoc :results params)) "")))
 	(result
-	 (let* ((cmdline (cdr (assoc :cmdline params)))
+	 (let* ((cmdline (or (cdr (assoc :cmdline params)) ""))
 		(in-file (org-babel-temp-file "maxima-" ".max"))
 		(cmd (format "%s --very-quiet -r 'batchload(%S)$' %s"
 			     org-babel-maxima-command in-file cmdline)))
 	   (with-temp-file in-file (insert (org-babel-maxima-expand body params)))
 	   (message cmd)
-	   ((lambda (raw) ;; " | grep -v batch | grep -v 'replaced' | sed '/^$/d' "
-	      (mapconcat
-	       #'identity
-	       (delq nil
-		     (mapcar (lambda (line)
-			       (unless (or (string-match "batch" line)
-					   (string-match "^rat: replaced .*$" line)
-					   (= 0 (length line)))
-				 line))
-			     (split-string raw "[\r\n]"))) "\n"))
-	    (org-babel-eval cmd "")))))
+           ;; " | grep -v batch | grep -v 'replaced' | sed '/^$/d' "
+	   (let ((raw (org-babel-eval cmd "")))
+             (mapconcat
+              #'identity
+              (delq nil
+                    (mapcar (lambda (line)
+                              (unless (or (string-match "batch" line)
+                                          (string-match "^rat: replaced .*$" line)
+                                          (string-match "^;;; Loading #P" line)
+                                          (= 0 (length line)))
+                                line))
+                            (split-string raw "[\r\n]"))) "\n")))))
     (if (org-babel-maxima-graphical-output-file params)
 	nil
-      (if (or (member "scalar" result-params)
-	      (member "verbatim" result-params)
-	      (member "output" result-params))
-	  result
+      (org-babel-result-cond result-params
+	result
 	(let ((tmp-file (org-babel-temp-file "maxima-res-")))
 	  (with-temp-file tmp-file (insert result))
 	  (org-babel-import-elisp-from-file tmp-file))))))
@@ -110,8 +110,8 @@ of the same value."
       (setq val (symbol-name val))
       (when (= (length val) 1)
         (setq val (string-to-char val))))
-      (format "%S: %s$" var
-	      (org-babel-maxima-elisp-to-maxima val))))
+    (format "%S: %s$" var
+	    (org-babel-maxima-elisp-to-maxima val))))
 
 (defun org-babel-maxima-graphical-output-file (params)
   "Name of file to which maxima should send graphical output."

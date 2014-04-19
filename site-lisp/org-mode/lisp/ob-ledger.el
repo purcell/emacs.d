@@ -1,6 +1,6 @@
 ;;; ob-ledger.el --- org-babel functions for ledger evaluation
 
-;; Copyright (C) 2010-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2010-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric S Fraga
 ;; Keywords: literate programming, reproducible research, accounting
@@ -52,8 +52,8 @@ called by `org-babel-execute-src-block'."
 	(out-file (org-babel-temp-file "ledger-output-")))
     (with-temp-file in-file (insert body))
     (message "%s" (concat "ledger"
-		     " -f " (org-babel-process-file-name in-file)
-		     " " cmdline))
+			  " -f " (org-babel-process-file-name in-file)
+			  " " cmdline))
     (with-output-to-string
       (shell-command (concat "ledger"
 			     " -f " (org-babel-process-file-name in-file)

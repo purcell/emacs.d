@@ -25,6 +25,8 @@
 
 (defun my-org2blog-post-subtree ()
   (interactive)
+
+  (require 'xml-rpc-autoloads)
   ;; go to the top node which is a blog item
   ;;(outline-up-heading)
 

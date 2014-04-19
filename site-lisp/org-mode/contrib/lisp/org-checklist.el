@@ -1,10 +1,12 @@
 ;;; org-checklist.el --- org functions for checklist handling
 
-;; Copyright (C) 2008-2012 James TD Smith
+;; Copyright (C) 2008-2014 James TD Smith
 
 ;; Author: James TD Smith (@ ahktenzero (. mohorovi cc))
 ;; Version: 1.0
 ;; Keywords: org, checklists
+;;
+;; This file is not part of GNU Emacs.
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -17,8 +19,7 @@
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, write to the Free Software
-;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 

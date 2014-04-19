@@ -1,0 +1,156 @@
+#+TITLE:    Notes on documenting Org
+#+AUTHOR:   Phil Rooke
+#+EMAIL:    phil@yax.org.uk
+#+LANGUAGE: en
+#+STARTUP:  showall
+#+TEXT:     Notes to myself justifying the conventions and standards in my
+#+TEXT:     set of recent doc patches.
+#+OPTIONS:  H:3 num:t toc:t \n:nil @:t ::t |:t ^:t *:t TeX:t
+
+* Background
+
+I think it is an express objective of Carsten's that Org should be
+readily accessible to all users of Emacs and not just those who might
+happen to read or hack on the code of this particular package.  To that
+end significant effort has been made and continues to be made by the Org
+community to ensure that high quality, user focused, documentation is
+readily available to everyone.
+
+Org itself contains a comprehensive guide to using all aspects of the
+system, how to extend it yourself, and highlights some of the many
+burgeoning number of add-on packages that others are contributing.  This
+guide, [[info:org:Top][The Org Manual]], concentrates on the facts of working with the
+system. Supplementing this, the [[Org web pages]] contain pointers to many
+tutorials and how-to's which capture much of spirit and imagination
+people show when using Org as a basis for building broader
+organizational systems that help them help themselves.
+
+I use Org, but it is a big system, and so I happen to think that
+improving the consistency, clarity and accuracy of Org documents helps
+both me and all other users of the system.  In support of this and by
+way of justification and clarification, this short note attempts to
+capture some of the existing guidelines and standards that have been
+used in the patches I am submitting and, which I hope, may be adopted by
+others when making their own contributions.
+
+* Org - Referencing systems, packages, modes and much else
+ 
+Originally Org was a single mode and there was no ambiguity about what
+Org mode could refer to.  Things have changed rapidly though and it
+seems that Carsten now thinks of Org as the system encompassing the
+major mode, some minor modes, and an increasing number of additional
+packages and plug-ins that build on the core Org functionality. It is
+really hard to find a consistent way to refer to all these things, but
+what I am trying to do is follow these guidelines (which are not
+perfect, merely a start):
+
+ - In general write "Org" as much as possible and, in particular, when
+   discussing concepts, features and functions that are generally
+   applicable to Org as a whole.
+
+ - Be more specific and write, for example, "the Orgtbl minor mode" when
+   referring to something unique to that feature.  It maybe, for example,
+   a command is only available when you are actually editing a file using
+   just that mode, add-on package or plug-in.
+
+ - Prefer "Org mode" to "Org-mode" or "org-mode". This is simply because
+   it reflects an existing convention in [[info:emacs:Top][The Emacs Manual]] which
+   consistently documents mode names in this form - "Text mode", "Outline
+   mode", "Mail mode" etc.
+
+ - Likewise refer, if at all possible, to "Org file or "Org buffer"
+   meaning with, great generality, any file or buffer which requires use
+   of some part of Org to edit it properly.
+
+ - Org uses "org-..." to ring fence a name space for itself in the Emacs
+   code base.  This is obviously retained in code snippets.
+
+* Other Org specific conventions
+
+Unless there is a good reason to do otherwise then try and adopt the
+following conventions.  (I think all can be justified by reference to
+Carsten or precedent in other significant Emacs documentation...unless I
+have made them up of course).
+
+ - Org has *lots* of commands and a /lot/ of them take prefix arguments
+   of one sort or another.  Write in full "prefix argument", "numeric
+   prefix argument" or, maybe, "a numeric prefix argument N" when you
+   want to refer to the argument again.
+
+ - Org lives in various states of harmony and discord with other Emacs
+   packages.  Try and write the names of those packages as their authors
+   and maintainers write them.  So it should be (I think) BBDB, MH-E,
+   Rmail, VM, Gnus, CDLaTeX etc.
+
+ - TODO keywords, whether Org or user defined, are written in capitals.
+
+ - Built-in tags with a special meaning (eg ARCHIVE) are written in
+   uppercase.  User defined tags (eg boss, home) are written in
+   lowercase.
+
+ - Built-in properties (eg PRIORITY) are written in uppercase.  User defined
+   properties (eg Release) are written in lowercase.
+
+ - [[info:org:Top][The Org Manual]] uses the @chapter, @section and @subsection Texinfo
+   commands for sectioning.  I have tried to capitalize significant words
+   in @chapter headings.  In @section and @subsection headings, just the
+   first word is capitalized and all other words are lowercase (with
+   exceptions of course...).  Thus, use:
+
+   @chapter Properties and Columns
+
+   @section Visibility cycling
+
+   *but*
+
+   @section Fast access to TODO states
+
+* Miscellaneous
+
+ - Only two of the standard Texinfo indexes are used; those for concepts
+   and keys.  This has some implications:
+
+   + The preference is to document commands by key rather than by name
+
+   + Texinfo commands such as @var and @defoption are not used.  The
+     preference for this type of thing is that the user browses the
+     customize groups.  If you want or need to refer to, say, a variable
+     then document it as "the variable @code{org-startup-folded}"
+ 
+   + Entries in the concept index are normally all lower case unless
+     some other rule dictates otherwise.
+
+ - Org documentation is written in American English, which is somewhat
+   foreign as far as I am concerned, but live with it anyway.
+
+ - Org uses a number of compound words, words that I wouldn't necessarily
+   run together.  Instead of worrying about whether these should be
+   separate, hyphenated or compound I have simply gone with the majority
+   case as originally written and then tried to make sure the spell
+   checker knows what this chosen standard should be so that I do not
+   worry about it anymore.
+
+ - I have run a spell checker periodically. Aspell works well and has a
+   useful Texinfo filter (although, annoyingly, I cannot make this work
+   with ispell.el and so I run it from the command line).  I have an Org
+   specific Aspell configuration file (which sets an American dictionary,
+   rules for compound words etc) and which, along with the associated
+   word and replacement files, captures some of the more detailed and
+   somewhat arbitrary rules I have used.
+
+ - Org has really low entry barriers.  The requirements seem simply
+   to be:
+
+   + You can use Text mode or, pretty much, any derivative of it
+
+   + You have some motivation to become slightly better organized.
+
+   Therefore, try and write the documentation so that it is relevant to,
+   and can be read by such a diverse audience.
+
+# Local variables:
+# mode: org
+# fill-column: 72
+# ispell-local-dictionary: "en_US-w_accents"
+# ispell-local-pdict: "./.aspell.org.pws"
+# End:

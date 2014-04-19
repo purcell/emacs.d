@@ -2,6 +2,22 @@
 ;;
 ;; Author: Jan Böker <jan dot boecker at jboecker dot de>
 
+;; This file is part of GNU Emacs.
+
+;; GNU Emacs is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; GNU Emacs is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
 ;; This elisp code integrates Static MathJax into the
 ;; HTML export process of Org-mode.
 ;;
@@ -39,7 +55,7 @@
 ;; of your math, add the following line at the top of your Org file:
 ;; -*- coding: utf-8; -*-
 ;;
-;; License: GPL v2 or later
+;;; Code:
 
 (defcustom org-static-mathjax-app-ini-path
   (or (expand-file-name

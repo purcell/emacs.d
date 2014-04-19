@@ -1,6 +1,6 @@
 ;;; org-entities.el --- Support for special entities in Org-mode
 
-;; Copyright (C) 2010-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2014 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten at orgmode dot org>,
 ;;         Ulf Stegemann <ulf at zeitform dot de>
@@ -66,8 +66,8 @@ ASCII replacement    Plain ASCII, no extensions.  Symbols that cannot be
 Latin1 replacement   Use the special characters available in latin1.
 utf-8 replacement    Use the special characters available in utf-8.
 
-If you define new entities here that require specific LaTeX packages to be
-loaded, add these packages to `org-export-latex-packages-alist'."
+If you define new entities here that require specific LaTeX
+packages to be loaded, add these packages to `org-latex-packages-alist'."
   :group 'org-entities
   :version "24.1"
   :type '(repeat
@@ -154,6 +154,9 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("real" "\\Re" t "&real;" "R" "R" "ℜ")
     ("image" "\\Im" t "&image;" "I" "I" "ℑ")
     ("weierp" "\\wp" t "&weierp;" "P" "P" "℘")
+    ("ell" "\\ell" t "&ell;" "ell" "ell" "ℓ")
+    ("imath" "\\imath" t "&imath;" "[dotless i]" "dotless i" "ı")
+    ("jmath" "\\jmath" t "&jmath;" "[dotless j]" "dotless j" "ȷ")
 
     "** Greek"
     ("Alpha" "A" nil "&Alpha;" "Alpha" "Alpha" "Α")
@@ -203,6 +206,7 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("upsilon" "\\upsilon" t "&upsilon;" "upsilon" "upsilon" "υ")
     ("Phi" "\\Phi" t "&Phi;" "Phi" "Phi" "Φ")
     ("phi" "\\phi" t "&phi;" "phi" "phi" "φ")
+    ("varphi" "\\varphi" t "&varphi;" "varphi" "varphi" "ɸ")
     ("Chi" "X" nil "&Chi;" "Chi" "Chi" "Χ")
     ("chi" "\\chi" t "&chi;" "chi" "chi" "χ")
     ("acutex" "\\acute x" t "&acute;x" "'x" "'x" "𝑥́")
@@ -212,10 +216,15 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("Omega" "\\Omega" t "&Omega;" "Omega" "Omega" "Ω")
     ("omega" "\\omega" t "&omega;" "omega" "omega" "ω")
     ("piv" "\\varpi" t "&piv;" "omega-pi" "omega-pi" "ϖ")
+    ("varpi" "\\varpi" t "&piv;" "omega-pi" "omega-pi" "ϖ")
     ("partial" "\\partial" t "&part;" "[partial differential]" "[partial differential]" "∂")
 
     "** Hebrew"
     ("alefsym" "\\aleph" t "&alefsym;" "aleph" "aleph" "ℵ")
+    ("aleph" "\\aleph" t "&aleph;" "aleph" "aleph" "ℵ")
+    ("gimel" "\\gimel" t "&gimel;" "gimel" "gimel" "ℷ")
+    ("beth" "\\beth" t "&beth;" "beth" "beth" "ב")
+    ("dalet" "\\daleth" t "&daleth;" "dalet" "dalet" "ד")
 
     "** Dead languages"
     ("ETH" "\\DH{}" nil "&ETH;" "D" "Ð" "Ð")
@@ -226,6 +235,7 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     "* Punctuation"
     "** Dots and Marks"
     ("dots" "\\dots{}" nil "&hellip;" "..." "..." "…")
+    ("cdots" "\\cdots{}" t "&ctdot;" "..." "..." "⋯")
     ("hellip" "\\dots{}" nil "&hellip;" "..." "..." "…")
     ("middot" "\\textperiodcentered{}" nil "&middot;" "." "·" "·")
     ("iexcl" "!`" nil "&iexcl;" "!" "¡" "¡")
@@ -252,16 +262,24 @@ loaded, add these packages to `org-export-latex-packages-alist'."
 
     "* Other"
     "** Misc. (often used)"
-    ("circ" "\\circ" t "&circ;" "^" "^" "ˆ")
-    ("vert" "\\vert{}" t "&#124;" "|" "|" "|")
+    ("circ" "\\^{}" nil "&circ;" "^" "^" "ˆ")
+    ("vert" "\\vert{}" t "&vert;" "|" "|" "|")
     ("brvbar" "\\textbrokenbar{}" nil "&brvbar;" "|" "¦" "¦")
+    ("S" "\\S" nil "&sect;" "paragraph" "§" "§")
     ("sect" "\\S" nil "&sect;" "paragraph" "§" "§")
     ("amp" "\\&" nil "&amp;" "&" "&" "&")
     ("lt" "\\textless{}" nil "&lt;" "<" "<" "<")
     ("gt" "\\textgreater{}" nil "&gt;" ">" ">" ">")
-    ("tilde" "\\~{}" nil "&tilde;" "~" "~" "~")
+    ("tilde" "\\textasciitilde{}" nil "~" "~" "~" "~")
+    ("slash" "/" nil "/" "/" "/" "/")
+    ("plus" "+" nil "+" "+" "+" "+")
+    ("under" "\\_" nil "_" "_" "_" "_")
+    ("equal" "=" nil "=" "=" "=" "=")
+    ("asciicirc" "\\textasciicircum{}" nil "^" "^" "^" "^")
     ("dagger" "\\textdagger{}" nil "&dagger;" "[dagger]" "[dagger]" "†")
+    ("dag" "\\dag{}" nil "&dagger;" "[dagger]" "[dagger]" "†")
     ("Dagger" "\\textdaggerdbl{}" nil "&Dagger;" "[doubledagger]" "[doubledagger]" "‡")
+    ("ddag" "\\ddag{}" nil "&Dagger;" "[doubledagger]" "[doubledagger]" "‡")
 
     "** Whitespace"
     ("nbsp" "~" nil "&nbsp;" " " " " " ")
@@ -292,6 +310,7 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("plusmn" "\\textpm{}" nil "&plusmn;" "+-" "±" "±")
     ("times" "\\texttimes{}" nil "&times;" "*" "×" "×")
     ("frasl" "/" nil "&frasl;" "/" "/" "⁄")
+    ("colon" "\\colon" t ":" ":" ":" ":")
     ("div" "\\textdiv{}" nil "&divide;" "/" "÷" "÷")
     ("frac12" "\\textonehalf{}" nil "&frac12;" "1/2" "½" "½")
     ("frac14" "\\textonequarter{}" nil "&frac14;" "1/4" "¼" "¼")
@@ -311,8 +330,9 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("infin" "\\propto" t "&infin;" "[infinity]" "[infinity]" "∞")
     ("infty" "\\infty" t "&infin;" "[infinity]" "[infinity]" "∞")
     ("prop" "\\propto" t "&prop;" "[proportional to]" "[proportional to]" "∝")
-    ("proptp" "\\propto" t "&prop;" "[proportional to]" "[proportional to]" "∝")
+    ("propto" "\\propto" t "&prop;" "[proportional to]" "[proportional to]" "∝")
     ("not" "\\textlnot{}" nil "&not;" "[angled dash]" "¬" "¬")
+    ("neg" "\\neg{}" t "&not;" "[angled dash]" "¬" "¬")
     ("land" "\\land" t "&and;" "[logical and]" "[logical and]" "∧")
     ("wedge" "\\wedge" t "&and;" "[logical and]" "[logical and]" "∧")
     ("lor" "\\lor" t "&or;" "[logical or]" "[logical or]" "∨")
@@ -320,7 +340,9 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("cap" "\\cap" t "&cap;" "[intersection]" "[intersection]" "∩")
     ("cup" "\\cup" t "&cup;" "[union]" "[union]" "∪")
     ("int" "\\int" t "&int;" "[integral]" "[integral]" "∫")
+    ("therefore" "\\therefore" t "&there4;" "[therefore]" "[therefore]" "∴")
     ("there4" "\\therefore" t "&there4;" "[therefore]" "[therefore]" "∴")
+    ("because" "\\because" t "&because;" "[because]" "[because]" "∵")
     ("sim" "\\sim" t "&sim;" "~" "~" "∼")
     ("cong" "\\cong" t "&cong;" "[approx. equal to]" "[approx. equal to]" "≅")
     ("simeq" "\\simeq" t "&cong;"  "[approx. equal to]" "[approx. equal to]" "≅")
@@ -329,8 +351,26 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("ne" "\\ne" t "&ne;" "[not equal to]" "[not equal to]" "≠")
     ("neq" "\\neq" t "&ne;" "[not equal to]" "[not equal to]" "≠")
     ("equiv" "\\equiv" t "&equiv;" "[identical to]" "[identical to]" "≡")
+
+    ("triangleq" "\\triangleq" t "&triangleq;" "[defined to]" "[defined to]" "≜")
     ("le" "\\le" t "&le;" "<=" "<=" "≤")
+    ("leq" "\\le" t "&le;" "<=" "<=" "≤")
     ("ge" "\\ge" t "&ge;" ">=" ">=" "≥")
+    ("geq" "\\ge" t "&ge;" ">=" ">=" "≥")
+    ("lessgtr" "\\lessgtr" t "&lessgtr;" "[less than or greater than]" "[less than or greater than]" "≶")
+    ("lesseqgtr" "\\lesseqgtr" t "&lesseqgtr;" "[less than or equal or greater than or equal]" "[less than or equal or greater than or equal]" "⋚")
+    ("ll" "\\ll" t  "&Lt;" "<<" "<<" "≪")
+    ("Ll" "\lll" t "&Ll;" "<<<" "<<<" "⋘")
+    ("lll" "\lll" t "&Ll;" "<<<" "<<<" "⋘")
+    ("gg" "\\gg" t  "&Gt;" ">>" ">>" "≫")
+    ("Gg" "\\ggg" t "&Gg;" ">>>" ">>>" "⋙")
+    ("ggg" "\\ggg" t "&Gg;" ">>>" ">>>" "⋙")
+    ("prec" "\\prec" t "&pr;" "[precedes]" "[precedes]" "≺")
+    ("preceq" "\\preceq" t "&prcue;" "[precedes or equal]" "[precedes or equal]" "≼")
+    ("preccurlyeq" "\\preccurlyeq" t "&prcue;" "[precedes or equal]" "[precedes or equal]" "≼")
+    ("succ" "\\succ" t "&sc;" "[succeeds]" "[succeeds]" "≻")
+    ("succeq" "\\succeq" t "&sccue;" "[succeeds or equal]" "[succeeds or equal]" "≽")
+    ("succcurlyeq" "\\succcurlyeq" t "&sccue;" "[succeeds or equal]" "[succeeds or equal]" "≽")
     ("sub" "\\subset" t "&sub;" "[subset of]" "[subset of]" "⊂")
     ("subset" "\\subset" t "&sub;" "[subset of]" "[subset of]" "⊂")
     ("sup" "\\supset" t "&sup;" "[superset of]" "[superset of]" "⊃")
@@ -339,9 +379,12 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("sube" "\\subseteq" t "&sube;" "[subset of or equal to]" "[subset of or equal to]" "⊆")
     ("nsup" "\\not\\supset" t "&nsup;" "[not a superset of]" "[not a superset of]" "⊅")
     ("supe" "\\supseteq" t "&supe;" "[superset of or equal to]" "[superset of or equal to]" "⊇")
+    ("setminus" "\\setminus" t "&setminus;" "\" "\" "⧵")
     ("forall" "\\forall" t "&forall;" "[for all]" "[for all]" "∀")
     ("exist" "\\exists" t "&exist;" "[there exists]" "[there exists]" "∃")
     ("exists" "\\exists" t "&exist;" "[there exists]" "[there exists]" "∃")
+    ("nexist" "\\nexists" t "&exist;" "[there does not exists]" "[there does not  exists]" "∄")
+    ("nexists" "\\nexists" t "&exist;" "[there does not exists]" "[there does not  exists]" "∄")
     ("empty" "\\empty" t "&empty;" "[empty set]" "[empty set]" "∅")
     ("emptyset" "\\emptyset" t "&empty;" "[empty set]" "[empty set]" "∅")
     ("isin" "\\in" t "&isin;" "[element of]" "[element of]" "∈")
@@ -360,6 +403,8 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("rfloor" "\\rfloor" t "&rfloor;" "[right floor]" "[right floor]" "⌋")
     ("lang" "\\langle" t "&lang;" "<" "<" "⟨")
     ("rang" "\\rangle" t "&rang;" ">" ">" "⟩")
+    ("hbar" "\\hbar" t "&hbar;" "hbar" "hbar" "ℏ")
+    ("mho" "\\mho" t "&mho;" "mho" "mho" "℧")
 
     "** Arrows"
     ("larr" "\\leftarrow" t "&larr;" "<-" "<-" "←")
@@ -430,7 +475,8 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("odot" "\\odot" t "o" "[circled dot]" "[circled dot]" "ʘ")
     ("oplus" "\\oplus" t "&oplus;" "[circled plus]" "[circled plus]" "⊕")
     ("otimes" "\\otimes" t "&otimes;" "[circled times]" "[circled times]" "⊗")
-    ("checkmark" "\\checkmark" t "&#10003;" "[checkmark]" "[checkmark]" "✓")
+    ("check" "\\checkmark" t "&checkmark;" "[checkmark]" "[checkmark]" "✓")
+    ("checkmark" "\\checkmark" t "&check;" "[checkmark]" "[checkmark]" "✓")
 
     "** Miscellaneous (seldom used)"
     ("para" "\\P{}" nil "&para;" "[pilcrow]" "¶" "¶")
@@ -445,7 +491,8 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("rlm" "" nil "&rlm;" "" "" "‏")
 
     "** Smilies"
-    ("smile" "\\smile" t "&#9786;" ":-)" ":-)" "⌣")
+    ("smile" "\\smile" t "&smile;" ":-)" ":-)" "⌣")
+    ("frown" "\\frown" t "&frown;" ":-(" ":-(" "⌢")
     ("smiley" "\\smiley{}" nil "&#9786;" ":-)" ":-)" "☺")
     ("blacksmile" "\\blacksmiley{}" nil "&#9787;" ":-)" ":-)" "☻")
     ("sad" "\\frownie{}" nil "&#9785;" ":-(" ":-(" "☹")
@@ -457,10 +504,11 @@ loaded, add these packages to `org-export-latex-packages-alist'."
     ("spadesuit" "\\spadesuit" t "&spades;" "[spades]" "[spades]" "♠")
     ("hearts" "\\heartsuit" t "&hearts;" "[hearts]" "[hearts]" "♥")
     ("heartsuit" "\\heartsuit" t "&heartsuit;" "[hearts]" "[hearts]" "♥")
-    ("diams" "\\diamondsuit" t "&diams;" "[diamonds]" "[diamonds]" "♦")
-    ("diamondsuit" "\\diamondsuit" t "&diams;" "[diamonds]" "[diamonds]" "♦")
-    ("Diamond" "\\diamond" t "&diamond;" "[diamond]" "[diamond]" "⋄")
-    ("loz" "\\diamond" t "&loz;" "[lozenge]" "[lozenge]" "◊")
+    ("diams" "\\diamondsuit" t "&diams;" "[diamonds]" "[diamonds]" "◆")
+    ("diamondsuit" "\\diamondsuit" t "&diams;" "[diamonds]" "[diamonds]" "◆")
+    ("diamond" "\\diamondsuit" t "&diamond;" "[diamond]" "[diamond]" "◆")
+    ("Diamond" "\\diamondsuit" t "&diamond;" "[diamond]" "[diamond]" "◆")
+    ("loz" "\\lozenge" t "&loz;" "[lozenge]" "[lozenge]" "⧫")
     )
   "Default entities used in Org-mode to produce special characters.
 For details see `org-entities-user'.")
@@ -492,34 +540,31 @@ Kind can be any of `latex', `html', `ascii', `latin1', or `utf8'."
 ;; Helpfunctions to create a table for orgmode.org/worg/org-symbols.org
 
 (defun org-entities-create-table ()
-  "Create an org-mode table with all entities."
+  "Create an Org mode table with all entities."
   (interactive)
-  (let ((ll org-entities)
-	(pos (point))
-	e latex mathp html latin utf8 name ascii)
+  (let ((pos (point)) e latex mathp html latin utf8 name ascii)
     (insert "|Name|LaTeX code|LaTeX|HTML code |HTML|ASCII|Latin1|UTF-8\n|-\n")
-    (while ll
-      (when (listp e)
-	(setq e (pop ll))
-	(setq name (car e)
-	      latex (nth 1 e)
-	      mathp (nth 2 e)
-	      html (nth 3 e)
-	      ascii (nth 4 e)
-	      latin (nth 5 e)
-	      utf8 (nth 6 e))
-	(if (equal ascii "|") (setq ascii "\\vert"))
-	(if (equal latin "|") (setq latin "\\vert"))
-	(if (equal utf8  "|") (setq utf8  "\\vert"))
-	(if (equal ascii "=>") (setq ascii "= >"))
-	(if (equal latin "=>") (setq latin "= >"))
-	(insert "|" name
-		"|" (format "=%s=" latex)
-		"|" (format (if mathp "$%s$" "$\\mbox{%s}$")
-			    latex)
-		"|" (format "=%s=" html) "|" html
-		"|" ascii "|" latin "|" utf8
-		"|\n")))
+    (mapc (lambda (e) (when (listp e)
+			(setq name (car e)
+			      latex (nth 1 e)
+			      mathp (nth 2 e)
+			      html (nth 3 e)
+			      ascii (nth 4 e)
+			      latin (nth 5 e)
+			      utf8 (nth 6 e))
+			(if (equal ascii "|") (setq ascii "\\vert"))
+			(if (equal latin "|") (setq latin "\\vert"))
+			(if (equal utf8  "|") (setq utf8  "\\vert"))
+			(if (equal ascii "=>") (setq ascii "= >"))
+			(if (equal latin "=>") (setq latin "= >"))
+			(insert "|" name
+				"|" (format "=%s=" latex)
+				"|" (format (if mathp "$%s$" "$\\mbox{%s}$")
+					    latex)
+				"|" (format "=%s=" html) "|" html
+				"|" ascii "|" latin "|" utf8
+				"|\n")))
+	  org-entities)
     (goto-char pos)
     (org-table-align)))
 
@@ -553,7 +598,9 @@ Kind can be any of `latex', `html', `ascii', `latin1', or `utf8'."
 	  (princ (format "   %-8s \\%-16s %-22s %-13s\n"
 			 utf8 name latex html))))))
   (with-current-buffer "*Org Entity Help*"
-    (org-mode))
+    (org-mode)
+    (when org-pretty-entities
+      (org-toggle-pretty-entities)))
   (select-window (get-buffer-window "*Org Entity Help*")))
 
 

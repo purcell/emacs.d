@@ -1,6 +1,6 @@
 ;;; org-archive.el --- Archiving for Org-mode
 
-;; Copyright (C) 2004-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2014 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -31,6 +31,7 @@
 (require 'org)
 
 (declare-function org-inlinetask-remove-END-maybe "org-inlinetask" ())
+(declare-function org-datetree-find-date-create "org-datetree" (date &optional keep-restriction))
 
 (defcustom org-archive-default-command 'org-archive-subtree
   "The default archiving command."
@@ -70,6 +71,15 @@ This variable is obsolete and has no effect anymore, instead add or remove
   :group 'org-archive
   :type 'boolean)
 
+(defcustom org-archive-file-header-format "\nArchived entries from file %s\n\n"
+  "The header format string for newly created archive files.
+When nil, no header will be inserted.
+When a string, a %s formatter will be replaced by the file name."
+  :group 'org-archive
+  :version "24.4"
+  :package-version '(Org . "8.0")
+  :type 'string)
+
 (defcustom org-archive-subtree-add-inherited-tags 'infile
   "Non-nil means append inherited tags when archiving a subtree."
   :group 'org-archive
@@ -100,14 +110,14 @@ the archived entry, with a prefix \"ARCHIVE_\", to remember this
 information."
   :group 'org-archive
   :type '(set :greedy t
-	  (const :tag "Time" time)
-	  (const :tag "File" file)
-	  (const :tag "Category" category)
-	  (const :tag "TODO state" todo)
-	  (const :tag "Priority" priority)
-	  (const :tag "Inherited tags" itags)
-	  (const :tag "Outline path" olpath)
-	  (const :tag "Local tags" ltags)))
+	      (const :tag "Time" time)
+	      (const :tag "File" file)
+	      (const :tag "Category" category)
+	      (const :tag "TODO state" todo)
+	      (const :tag "Priority" priority)
+	      (const :tag "Inherited tags" itags)
+	      (const :tag "Outline path" olpath)
+	      (const :tag "Local tags" ltags)))
 
 (defun org-get-local-archive-location ()
   "Get the archive location applicable at point."
@@ -125,6 +135,7 @@ information."
 	  (match-string 1))
 	 (t org-archive-location))))))
 
+;;;###autoload
 (defun org-add-archive-files (files)
   "Splice the archive files into the list of files.
 This implies visiting all these files and finding out what the
@@ -180,6 +191,7 @@ if LOCATION is not given, the value of `org-archive-location' is used."
 	      (file-name-nondirectory
 	       (buffer-file-name (buffer-base-buffer))))))
 
+;;;###autoload
 (defun org-archive-subtree (&optional find-done)
   "Move the current subtree to the archive.
 The archive can be a certain top-level heading in the current file, or in
@@ -223,13 +235,14 @@ this heading."
 		   (current-time)))
 	    category todo priority ltags itags atags
 	    ;; end of variables that will be used for saving context
-	    location afile heading buffer level newfile-p infile-p visiting)
+	    location afile heading buffer level newfile-p infile-p visiting
+	    datetree-date datetree-subheading-p)
 
 	;; Find the local archive location
 	(setq location (org-get-local-archive-location)
 	      afile (org-extract-archive-file location)
 	      heading (org-extract-archive-heading location)
-	      infile-p (equal file (abbreviate-file-name afile)))
+	      infile-p (equal file (abbreviate-file-name (or afile ""))))
 	(unless afile
 	  (error "Invalid `org-archive-location'"))
 
@@ -240,6 +253,13 @@ this heading."
 	  (setq buffer (current-buffer)))
 	(unless buffer
 	  (error "Cannot access file \"%s\"" afile))
+	(when (string-match "\\`datetree/" heading)
+	  ;; Replace with ***, to represent the 3 levels of headings the
+	  ;; datetree has.
+	  (setq heading (replace-regexp-in-string "\\`datetree/" "***" heading))
+	  (setq datetree-subheading-p (> (length heading) 3))
+	  (setq datetree-date (org-date-to-gregorian
+			       (or (org-entry-get nil "CLOSED" t) time))))
 	(if (and (> (length heading) 0)
 		 (string-match "^\\*+" heading))
 	    (setq level (match-end 0))
@@ -263,15 +283,19 @@ this heading."
 	  (let (this-command) (org-copy-subtree 1 nil t))
 	  (set-buffer buffer)
 	  ;; Enforce org-mode for the archive buffer
-	  (if (not (eq major-mode 'org-mode))
+	  (if (not (derived-mode-p 'org-mode))
 	      ;; Force the mode for future visits.
 	      (let ((org-insert-mode-line-in-empty-file t)
 		    (org-inhibit-startup t))
 		(call-interactively 'org-mode)))
-	  (when newfile-p
+	  (when (and newfile-p org-archive-file-header-format)
 	    (goto-char (point-max))
-	    (insert (format "\nArchived entries from file %s\n\n"
+	    (insert (format org-archive-file-header-format
 			    (buffer-file-name this-buffer))))
+	  (when datetree-date
+	    (require 'org-datetree)
+	    (org-datetree-find-date-create datetree-date)
+	    (org-narrow-to-subtree))
 	  ;; Force the TODO keywords of the original buffer
 	  (let ((org-todo-line-regexp tr-org-todo-line-regexp)
 		(org-todo-keywords-1 tr-org-todo-keywords-1)
@@ -285,7 +309,7 @@ this heading."
 		   tr-org-odd-levels-only)))
 	    (goto-char (point-min))
 	    (show-all)
-	    (if heading
+	    (if (and heading (not (and datetree-date (not datetree-subheading-p))))
 		(progn
 		  (if (re-search-forward
 		       (concat "^" (regexp-quote heading)
@@ -295,7 +319,8 @@ this heading."
 		    ;; Heading not found, just insert it at the end
 		    (goto-char (point-max))
 		    (or (bolp) (insert "\n"))
-		    (insert "\n" heading "\n")
+		    ;; datetrees don't need too much spacing
+		    (insert (if datetree-date "" "\n") heading "\n")
 		    (end-of-line 0))
 		  ;; Make the subtree visible
 		  (show-subtree)
@@ -306,9 +331,10 @@ this heading."
 		    (org-end-of-subtree t))
 		  (skip-chars-backward " \t\r\n")
 		  (and (looking-at "[ \t\r\n]*")
-		       (replace-match "\n\n")))
+		       ;; datetree archives don't need so much spacing.
+		       (replace-match (if datetree-date "\n" "\n\n"))))
 	      ;; No specific heading, just go to end of file.
-	      (goto-char (point-max)) (insert "\n"))
+	      (goto-char (point-max)) (unless datetree-date (insert "\n")))
 	    ;; Paste
 	    (org-paste-subtree (org-get-valid-level level (and heading 1)))
 	    ;; Shall we append inherited tags?
@@ -336,6 +362,7 @@ this heading."
 		    (setq n (concat "ARCHIVE_" (upcase (symbol-name e))))
 		    (org-entry-put (point) n v)))))
 
+	    (widen)
 	    ;; Save and kill the buffer, if it is not the same buffer.
 	    (when (not (eq this-buffer buffer))
 	      (save-buffer))))
@@ -353,6 +380,7 @@ this heading."
     (if (looking-at "^[ \t]*$")
 	(outline-next-visible-heading 1))))
 
+;;;###autoload
 (defun org-archive-to-archive-sibling ()
   "Archive the current heading by moving it under the archive sibling.
 The archive sibling is a sibling of the heading with the heading name
@@ -467,6 +495,7 @@ When TAG is non-nil, don't move trees, but mark them with the ARCHIVE tag."
 	    (goto-char end)))))
     (message "%d trees archived" cntarch)))
 
+;;;###autoload
 (defun org-toggle-archive-tag (&optional find-done)
   "Toggle the archive tag for the current headline.
 With prefix ARG, check all children of current headline and offer tagging
@@ -520,5 +549,9 @@ This command is set with the variable `org-archive-default-command'."
     (error "Abort")))
 
 (provide 'org-archive)
+
+;; Local variables:
+;; generated-autoload-file: "org-loaddefs.el"
+;; End:
 
 ;;; org-archive.el ends here

@@ -1,6 +1,6 @@
 ;;; org-eshell.el - Support for links to working directories in eshell
 
-;; Copyright (C) 2011-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2011-2014 Free Software Foundation, Inc.
 
 ;; Author: Konrad Hinsen <konrad.hinsen AT fastmail.net>
 
@@ -37,18 +37,18 @@
    followed by a colon."
   (let* ((buffer-and-command
           (if (string-match "\\([A-Za-z0-9-+*]+\\):\\(.*\\)" link)
-            (list (match-string 1 link)
-                  (match-string 2 link))
+	      (list (match-string 1 link)
+		    (match-string 2 link))
             (list eshell-buffer-name link)))
          (eshell-buffer-name (car buffer-and-command))
          (command (cadr buffer-and-command)))
-     (if (get-buffer eshell-buffer-name)
-       (org-pop-to-buffer-same-window eshell-buffer-name)
-       (eshell))
-     (goto-char (point-max))
-     (eshell-kill-input)
-     (insert command)
-     (eshell-send-input)))
+    (if (get-buffer eshell-buffer-name)
+	(org-pop-to-buffer-same-window eshell-buffer-name)
+      (eshell))
+    (goto-char (point-max))
+    (eshell-kill-input)
+    (insert command)
+    (eshell-send-input)))
 
 (defun org-eshell-store-link ()
   "Store a link that, when opened, switches back to the current eshell buffer
@@ -57,7 +57,7 @@
     (let* ((command (concat "cd " dired-directory))
            (link  (concat (buffer-name) ":" command)))
       (org-store-link-props
-       :link (org-make-link "eshell:" link)
+       :link (concat "eshell:" link)
        :description command))))
 
 (provide 'org-eshell)

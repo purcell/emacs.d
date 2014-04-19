@@ -1,6 +1,6 @@
 ;;; org-docview.el --- support for links to doc-view-mode buffers
 
-;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 ;; Author: Jan Böcker <jan.boecker at jboecker dot de>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -44,15 +44,26 @@
 
 
 (require 'org)
+(require 'doc-view)
 
-(declare-function doc-view-goto-page "ext:doc-view" (page))
-(declare-function image-mode-window-get "ext:image-mode"
-		  (prop &optional winprops))
+(declare-function doc-view-goto-page "doc-view" (page))
+(declare-function image-mode-window-get "image-mode" (prop &optional winprops))
 
-(autoload 'doc-view-goto-page "doc-view")
-
-(org-add-link-type "docview" 'org-docview-open)
+(org-add-link-type "docview" 'org-docview-open 'org-docview-export)
 (add-hook 'org-store-link-functions 'org-docview-store-link)
+
+(defun org-docview-export (link description format)
+  "Export a docview link from Org files."
+  (let* ((path (when (string-match "\\(.+\\)::.+" link)
+		 (match-string 1 link)))
+         (desc (or description link)))
+    (when (stringp path)
+      (setq path (org-link-escape (expand-file-name path)))
+      (cond
+       ((eq format 'html) (format "<a href=\"%s\">%s</a>" path desc))
+       ((eq format 'latex) (format "\href{%s}{%s}" path desc))
+       ((eq format 'ascii) (format "%s (%s)" desc path))
+       (t path)))))
 
 (defun org-docview-open (link)
   (when (string-match "\\(.*\\)::\\([0-9]+\\)$"  link)

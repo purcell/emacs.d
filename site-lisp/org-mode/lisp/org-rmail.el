@@ -1,6 +1,6 @@
 ;;; org-rmail.el --- Support for links to Rmail messages from within Org-mode
 
-;; Copyright (C) 2004-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2014 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -33,9 +33,12 @@
 (require 'org)
 
 ;; Declare external functions and variables
-(declare-function rmail-show-message "rmail" (&optional n no-summary))
-(declare-function rmail-what-message "rmail" ())
-(defvar rmail-current-message)
+(declare-function rmail-show-message  "rmail" (&optional n no-summary))
+(declare-function rmail-what-message  "rmail" (&optional pos))
+(declare-function rmail-toggle-header "rmail" (&optional arg))
+(declare-function rmail-widen         "rmail" ())
+(defvar rmail-current-message)  ; From rmail.el
+(defvar rmail-header-style)     ; From rmail.el
 
 ;; Install the link type
 (org-add-link-type "rmail" 'org-rmail-open)
@@ -52,6 +55,8 @@
 	  (rmail-show-message rmail-current-message))
 	(when (fboundp 'rmail-narrow-to-non-pruned-header)
 	  (rmail-narrow-to-non-pruned-header))
+	(when (eq rmail-header-style 'normal)
+	  (rmail-toggle-header -1))
 	(let* ((folder buffer-file-name)
 	       (message-id (mail-fetch-field "message-id"))
 	       (from (mail-fetch-field "from"))
@@ -73,7 +78,7 @@
 				:date-timestamp-inactive date-ts-ia))
 	  (setq message-id (org-remove-angle-brackets message-id))
 	  (setq desc (org-email-link-description))
-	  (setq link (org-make-link "rmail:" folder "#" message-id))
+	  (setq link (concat "rmail:" folder "#" message-id))
 	  (org-add-link-props :link link :description desc)
 	  (rmail-show-message rmail-current-message)
 	  link)))))
@@ -90,18 +95,20 @@
 (defun org-rmail-follow-link (folder article)
   "Follow an Rmail link to FOLDER and ARTICLE."
   (require 'rmail)
-  (setq article (org-add-angle-brackets article))
+  (cond ((null article) (setq article ""))
+	((stringp article)
+	 (setq article (org-add-angle-brackets article)))
+	(t (user-error "Wrong RMAIL link format")))
   (let (message-number)
     (save-excursion
       (save-window-excursion
 	(rmail (if (string= folder "RMAIL") rmail-file-name folder))
 	(setq message-number
 	      (save-restriction
-		(widen)
+		(rmail-widen)
 		(goto-char (point-max))
 		(if (re-search-backward
-		     (concat "^Message-ID:\\s-+" (regexp-quote
-						  (or article "")))
+		     (concat "^Message-ID:\\s-+" (regexp-quote article))
 		     nil t)
 		    (rmail-what-message))))))
     (if message-number

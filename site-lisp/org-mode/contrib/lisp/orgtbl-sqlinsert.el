@@ -1,9 +1,11 @@
 ;;; orgtbl-sqlinsert.el --- orgtbl to SQL insert statements.
 
-;; Copyright (C) 2008-2012  Free Software Foundation
+;; Copyright (C) 2008-2014  Free Software Foundation
 
 ;; Author: Jason Riedy <jason@acm.org>
 ;; Keywords: org, tables, sql
+
+;; This file is not part of GNU Emacs.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -68,14 +70,14 @@ this function is called."
          (*orgtbl-default-fmt* 'orgtbl-sql-strip-and-quote)
 	 (params2
 	  (list
-	   :sqlname name
+	   :sqlname (plist-get params :sqlname)
 	   :tstart (lambda () (concat (if nowebname
 					  (format "<<%s>>= \n" nowebname)
 					"")
 				      "BEGIN TRANSACTION;"))
 	   :tend (lambda () (concat "COMMIT;" (if nowebname "\n@ " "")))
-	   :hfmt (lambda (f) (progn (if firstheader (push f hdrlist)) ""))
-	   :hlfmt (lambda (lst) (setq firstheader nil))
+	   :hfmt (lambda (f) (progn (if firstheader (push f hdrlist) "")))
+	   :hlfmt (lambda (&rest cells) (setq firstheader nil))
 	   :lstart (lambda () (concat "INSERT INTO "
 				      sqlname "( "
 				      (mapconcat 'identity (reverse hdrlist)

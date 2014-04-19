@@ -1,6 +1,6 @@
 ;;; ob-ruby.el --- org-babel functions for ruby evaluation
 
-;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -37,9 +37,6 @@
 
 ;;; Code:
 (require 'ob)
-(require 'ob-ref)
-(require 'ob-comint)
-(require 'ob-eval)
 (eval-when-compile (require 'cl))
 
 (declare-function run-ruby "ext:inf-ruby" (&optional command name))
@@ -53,6 +50,20 @@
 (defvar org-babel-ruby-command "ruby"
   "Name of command to use for executing ruby code.")
 
+(defcustom org-babel-ruby-hline-to "nil"
+  "Replace hlines in incoming tables with this when translating to ruby."
+  :group 'org-babel
+  :version "24.4"
+  :package-version '(Org . "8.0")
+  :type 'string)
+
+(defcustom org-babel-ruby-nil-to 'hline
+  "Replace 'nil' in ruby tables with this before returning."
+  :group 'org-babel
+  :version "24.4"
+  :package-version '(Org . "8.0")
+  :type 'symbol)
+
 (defun org-babel-execute:ruby (body params)
   "Execute a block of Ruby code with Babel.
 This function is called by `org-babel-execute-src-block'."
@@ -64,14 +75,16 @@ This function is called by `org-babel-execute-src-block'."
 		     body params (org-babel-variable-assignments:ruby params)))
          (result (if (member "xmp" result-params)
 		     (with-temp-buffer
-		     (require 'rcodetools)
-		     (insert full-body)
-		     (xmp (cdr (assoc :xmp-option params)))
-		     (buffer-string))
+		       (require 'rcodetools)
+		       (insert full-body)
+		       (xmp (cdr (assoc :xmp-option params)))
+		       (buffer-string))
 		   (org-babel-ruby-evaluate
-		      session full-body result-type result-params))))
+		    session full-body result-type result-params))))
     (org-babel-reassemble-table
-     result
+     (org-babel-result-cond result-params
+       result
+       (org-babel-ruby-table-or-string result))
      (org-babel-pick-name (cdr (assoc :colname-names params))
 			  (cdr (assoc :colnames params)))
      (org-babel-pick-name (cdr (assoc :rowname-names params))
@@ -102,7 +115,7 @@ This function is called by `org-babel-execute-src-block'."
 ;; helper functions
 
 (defun org-babel-variable-assignments:ruby (params)
-  "Return list of ruby statements assigning the block's variables"
+  "Return list of ruby statements assigning the block's variables."
   (mapcar
    (lambda (pair)
      (format "%s=%s"
@@ -116,13 +129,20 @@ Convert an elisp value into a string of ruby source code
 specifying a variable of the same value."
   (if (listp var)
       (concat "[" (mapconcat #'org-babel-ruby-var-to-ruby var ", ") "]")
-    (format "%S" var)))
+    (if (equal var 'hline)
+	org-babel-ruby-hline-to
+      (format "%S" var))))
 
 (defun org-babel-ruby-table-or-string (results)
   "Convert RESULTS into an appropriate elisp value.
 If RESULTS look like a table, then convert them into an
 Emacs-lisp table, otherwise return the results as a string."
-  (org-babel-script-escape results))
+  (let ((res (org-babel-script-escape results)))
+    (if (listp res)
+        (mapcar (lambda (el) (if (equal el 'nil)
+                            org-babel-ruby-nil-to el))
+                res)
+      res)))
 
 (defun org-babel-ruby-initiate-session (&optional session params)
   "Initiate a ruby session.
@@ -181,12 +201,11 @@ return the value of the last statement in BODY, as elisp."
 			      org-babel-ruby-pp-wrapper-method
 			    org-babel-ruby-wrapper-method)
 			  body (org-babel-process-file-name tmp-file 'noquote)))
-		 ((lambda (raw)
-		    (if (or (member "code" result-params)
-			    (member "pp" result-params))
-			raw
-		      (org-babel-ruby-table-or-string raw)))
-		  (org-babel-eval-read-file tmp-file)))))
+		 (let ((raw (org-babel-eval-read-file tmp-file)))
+                   (if (or (member "code" result-params)
+                           (member "pp" result-params))
+                       raw
+                     (org-babel-ruby-table-or-string raw))))))
     ;; comint session evaluation
     (case result-type
       (output
@@ -206,31 +225,27 @@ return the value of the last statement in BODY, as elisp."
 	      (comint-send-input nil t)) 2)
 	   "\n") "[\r\n]")) "\n"))
       (value
-       ((lambda (results)
-	  (if (or (member "code" result-params) (member "pp" result-params))
-	      results
-	    (org-babel-ruby-table-or-string results)))
-	(let* ((tmp-file (org-babel-temp-file "ruby-"))
-	       (ppp (or (member "code" result-params)
-			(member "pp" result-params))))
-	  (org-babel-comint-with-output
-	      (buffer org-babel-ruby-eoe-indicator t body)
-	    (when ppp (insert "require 'pp';") (comint-send-input nil t))
-	    (mapc
-	     (lambda (line)
-	       (insert (org-babel-chomp line)) (comint-send-input nil t))
-	     (append
-	      (list body)
-	      (if (not ppp)
-		  (list (format org-babel-ruby-f-write
-				(org-babel-process-file-name tmp-file 'noquote)))
-		(list
-		 "results=_" "require 'pp'" "orig_out = $stdout"
-		 (format org-babel-ruby-pp-f-write
-			 (org-babel-process-file-name tmp-file 'noquote))))
-	      (list org-babel-ruby-eoe-indicator)))
-	    (comint-send-input nil t))
-	  (org-babel-eval-read-file tmp-file)))))))
+       (let* ((tmp-file (org-babel-temp-file "ruby-"))
+	      (ppp (or (member "code" result-params)
+		       (member "pp" result-params))))
+	 (org-babel-comint-with-output
+	     (buffer org-babel-ruby-eoe-indicator t body)
+	   (when ppp (insert "require 'pp';") (comint-send-input nil t))
+	   (mapc
+	    (lambda (line)
+	      (insert (org-babel-chomp line)) (comint-send-input nil t))
+	    (append
+	     (list body)
+	     (if (not ppp)
+		 (list (format org-babel-ruby-f-write
+			       (org-babel-process-file-name tmp-file 'noquote)))
+	       (list
+		"results=_" "require 'pp'" "orig_out = $stdout"
+		(format org-babel-ruby-pp-f-write
+			(org-babel-process-file-name tmp-file 'noquote))))
+	     (list org-babel-ruby-eoe-indicator)))
+	   (comint-send-input nil t))
+	 (org-babel-eval-read-file tmp-file))))))
 
 (defun org-babel-ruby-read-string (string)
   "Strip \\\"s from around a ruby string."

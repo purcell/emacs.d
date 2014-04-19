@@ -1,6 +1,6 @@
 ;;; org-collector --- collect properties into tables
 
-;; Copyright (C) 2008-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2008-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte <schulte dot eric at gmail dot com>
 ;; Keywords: outlines, hypermedia, calendar, wp, experimentation,
@@ -10,12 +10,12 @@
 
 ;; This file is not yet part of GNU Emacs.
 
-;; GNU Emacs is free software; you can redistribute it and/or modify
+;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 
-;; GNU Emacs is distributed in the hope that it will be useful,
+;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
@@ -131,7 +131,7 @@ preceeding the dblock, then update the contents of the dblock."
 		  ((setq idpos (org-find-entry-with-id id))
 		   (goto-char idpos))
 		  (t (error "Cannot find entry with :ID: %s" id))))
-	  (org-narrow-to-subtree)
+	  (unless (eq id 'global) (org-narrow-to-subtree))
 	  (setq stringformat (if noquote "%s" "%S"))
 	  (setq table (org-propview-to-table
 		       (org-propview-collect cols stringformat conds match scope inherit

@@ -1,6 +1,6 @@
 ;;; org-mime.el --- org html export for text/html MIME emails
 
-;; Copyright (C) 2010-2012 Eric Schulte
+;; Copyright (C) 2010-2014 Eric Schulte
 
 ;; Author: Eric Schulte
 ;; Keywords: mime, mail, email, html
@@ -22,9 +22,7 @@
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-;; Boston, MA 02110-1301, USA.
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -56,6 +54,9 @@
 
 ;;; Code:
 (require 'cl)
+
+(declare-function org-export-string-as "ox"
+		  (string backend &optional body-only ext-plist))
 
 (defcustom org-mime-use-property-inheritance nil
   "Non-nil means al MAIL_ properties apply also for sublevels."
@@ -132,13 +133,13 @@ exported html."
 (defun org-mime-file (ext path id)
   "Markup a file for attachment."
   (case org-mime-library
-    ('mml (format
-           "<#part type=\"%s\" filename=\"%s\" id=\"<%s>\">\n<#/part>\n"
-           ext path id))
+    ('mml (format (concat "<#part type=\"%s\" filename=\"%s\" "
+			  "disposition=inline id=\"<%s>\">\n<#/part>\n")
+		  ext path id))
     ('semi (concat
-            (format
-             "--[[%s\nContent-Disposition: inline;\nContent-ID: <%s>][base64]]\n"
-             ext id)
+            (format (concat "--[[%s\nContent-Disposition: "
+			    "inline;\nContent-ID: <%s>][base64]]\n")
+		    ext id)
             (base64-encode-string
              (with-temp-buffer
                (set-buffer-multibyte nil)
@@ -146,17 +147,26 @@ exported html."
                (buffer-string)))))
     ('vm "?")))
 
-(defun org-mime-multipart (plain html)
-  "Markup a multipart/alternative with text/plain and text/html
-  alternatives."
+(defun org-mime-multipart (plain html &optional images)
+  "Markup a multipart/alternative with text/plain and text/html alternatives.
+If the html portion of the message includes images wrap the html
+and images in a multipart/related part."
   (case org-mime-library
-    ('mml (format (concat "<#multipart type=alternative><#part type=text/plain>"
-                          "%s<#part type=text/html>%s<#/multipart>\n")
-                  plain html))
+    ('mml (concat "<#multipart type=alternative><#part type=text/plain>"
+		  plain
+		  (when images "<#multipart type=related>")
+		  "<#part type=text/html>"
+		  html
+		  images
+		  (when images "<#/multipart>\n")
+		  "<#/multipart>\n"))
     ('semi (concat
             "--" "<<alternative>>-{\n"
             "--" "[[text/plain]]\n" plain
+	    (when images (concat "--" "<<alternative>>-{\n"))
             "--" "[[text/html]]\n"  html
+	    images
+	    (when images (concat "--" "}-<<alternative>>\n"))
             "--" "}-<<alternative>>\n"))
     ('vm "?")))
 
@@ -186,6 +196,8 @@ exported html."
 html using `org-mode'.  If called with an active region only
 export that region, otherwise export the entire body."
   (interactive "P")
+  (require 'ox-org)
+  (require 'ox-html)
   (let* ((region-p (org-region-active-p))
          (html-start (or (and region-p (region-beginning))
                          (save-excursion
@@ -195,23 +207,21 @@ export that region, otherwise export the entire body."
          (html-end (or (and region-p (region-end))
                        ;; TODO: should catch signature...
                        (point-max)))
-         (raw-body (buffer-substring html-start html-end))
+         (raw-body (concat org-mime-default-header
+			   (buffer-substring html-start html-end)))
          (tmp-file (make-temp-name (expand-file-name
 				    "mail" temporary-file-directory)))
-         (body (org-export-string raw-body 'org (file-name-directory tmp-file)))
-         ;; because we probably don't want to skip part of our mail
-         (org-export-skip-text-before-1st-heading nil)
+         (body (org-export-string-as raw-body 'org t))
          ;; because we probably don't want to export a huge style file
          (org-export-htmlize-output-type 'inline-css)
          ;; makes the replies with ">"s look nicer
          (org-export-preserve-breaks org-mime-preserve-breaks)
 	 ;; dvipng for inline latex because MathJax doesn't work in mail
-	 (org-export-with-LaTeX-fragments 'dvipng)
+	 (org-html-with-latex 'dvipng)
          ;; to hold attachments for inline html images
          (html-and-images
           (org-mime-replace-images
-           (org-export-string raw-body 'html (file-name-directory tmp-file))
-           tmp-file))
+	   (org-export-string-as raw-body 'html t) tmp-file))
          (html-images (unless arg (cdr html-and-images)))
          (html (org-mime-apply-html-hook
                 (if arg
@@ -220,8 +230,8 @@ export that region, otherwise export the entire body."
     (delete-region html-start html-end)
     (save-excursion
       (goto-char html-start)
-      (insert (org-mime-multipart body html)
-              (mapconcat 'identity html-images "\n")))))
+      (insert (org-mime-multipart
+	       body html (mapconcat 'identity html-images "\n"))))))
 
 (defun org-mime-apply-html-hook (html)
   (if org-mime-html-hook
@@ -286,26 +296,29 @@ export that region, otherwise export the entire body."
     (let ((fmt (if (symbolp fmt) fmt (intern fmt))))
       (cond
        ((eq fmt 'org)
-	(insert (org-export-string (org-babel-trim (bhook body 'org)) 'org)))
+	(require 'ox-org)
+	(insert (org-export-string-as
+		 (org-babel-trim (bhook body 'org)) 'org t)))
        ((eq fmt 'ascii)
-	(insert (org-export-string
-		 (concat "#+Title:\n" (bhook body 'ascii)) 'ascii)))
+	(require 'ox-ascii)
+	(insert (org-export-string-as
+		 (concat "#+Title:\n" (bhook body 'ascii)) 'ascii t)))
        ((or (eq fmt 'html) (eq fmt 'html-ascii))
+	(require 'ox-ascii)
+	(require 'ox-org)
 	(let* ((org-link-file-path-type 'absolute)
 	       ;; we probably don't want to export a huge style file
 	       (org-export-htmlize-output-type 'inline-css)
-	       (html-and-images (org-mime-replace-images
-				 (org-export-string
-				  (bhook body 'html)
-				  'html (file-name-nondirectory file))
-				 file))
+	       (html-and-images
+		(org-mime-replace-images
+		 (org-export-string-as (bhook body 'html) 'html t) file))
 	       (images (cdr html-and-images))
 	       (html (org-mime-apply-html-hook (car html-and-images))))
 	  (insert (org-mime-multipart
-		   (org-export-string
+		   (org-export-string-as
 		    (org-babel-trim
 		     (bhook body (if (eq fmt 'html) 'org 'ascii)))
-		    (if (eq fmt 'html) 'org 'ascii))
+		    (if (eq fmt 'html) 'org 'ascii) t)
 		   html)
 		  (mapconcat 'identity images "\n"))))))))
 

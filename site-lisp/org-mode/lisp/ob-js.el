@@ -1,6 +1,6 @@
 ;;; ob-js.el --- org-babel functions for Javascript
 
-;; Copyright (C) 2010-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2010-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research, js
@@ -39,9 +39,6 @@
 
 ;;; Code:
 (require 'ob)
-(require 'ob-ref)
-(require 'ob-comint)
-(require 'ob-eval)
 (eval-when-compile (require 'cl))
 
 (declare-function run-mozilla "ext:moz" (arg))
@@ -68,30 +65,32 @@ This function is called by `org-babel-execute-src-block'"
   (let* ((org-babel-js-cmd (or (cdr (assoc :cmd params)) org-babel-js-cmd))
          (result-type (cdr (assoc :result-type params)))
          (full-body (org-babel-expand-body:generic
-		     body params (org-babel-variable-assignments:js params))))
-    (org-babel-js-read
-     (if (not (string= (cdr (assoc :session params)) "none"))
-	 ;; session evaluation
-         (let ((session (org-babel-prep-session:js
-			 (cdr (assoc :session params)) params)))
-	   (nth 1
-		(org-babel-comint-with-output
-		    (session (format "%S" org-babel-js-eoe) t body)
-		  (mapc
-		   (lambda (line)
-		     (insert (org-babel-chomp line)) (comint-send-input nil t))
-		   (list body (format "%S" org-babel-js-eoe))))))
-       ;; external evaluation
-       (let ((script-file (org-babel-temp-file "js-script-")))
-         (with-temp-file script-file
-           (insert
-            ;; return the value or the output
-            (if (string= result-type "value")
-                (format org-babel-js-function-wrapper full-body)
-              full-body)))
-         (org-babel-eval
-	  (format "%s %s" org-babel-js-cmd
-		  (org-babel-process-file-name script-file)) ""))))))
+		     body params (org-babel-variable-assignments:js params)))
+	 (result (if (not (string= (cdr (assoc :session params)) "none"))
+		     ;; session evaluation
+		     (let ((session (org-babel-prep-session:js
+				     (cdr (assoc :session params)) params)))
+		       (nth 1
+			    (org-babel-comint-with-output
+				(session (format "%S" org-babel-js-eoe) t body)
+			      (mapc
+			       (lambda (line)
+				 (insert (org-babel-chomp line))
+				 (comint-send-input nil t))
+			       (list body (format "%S" org-babel-js-eoe))))))
+		   ;; external evaluation
+		   (let ((script-file (org-babel-temp-file "js-script-")))
+		     (with-temp-file script-file
+		       (insert
+			;; return the value or the output
+			(if (string= result-type "value")
+			    (format org-babel-js-function-wrapper full-body)
+			  full-body)))
+		     (org-babel-eval
+		      (format "%s %s" org-babel-js-cmd
+			      (org-babel-process-file-name script-file)) "")))))
+    (org-babel-result-cond (cdr (assoc :result-params params))
+      result (org-babel-js-read result))))
 
 (defun org-babel-js-read (results)
   "Convert RESULTS into an appropriate elisp value.
@@ -130,7 +129,7 @@ specifying a variable of the same value."
     session))
 
 (defun org-babel-variable-assignments:js (params)
-  "Return list of Javascript statements assigning the block's variables"
+  "Return list of Javascript statements assigning the block's variables."
   (mapcar
    (lambda (pair) (format "var %s=%s;"
 			  (car pair) (org-babel-js-var-to-js (cdr pair))))
@@ -152,9 +151,9 @@ then create.  Return the initialized session."
 	  (sit-for .5)
 	  (org-babel-js-initiate-session session))))
      ((string= "node" org-babel-js-cmd )
-      (error "session evaluation with node.js is not supported"))
+      (error "Session evaluation with node.js is not supported"))
      (t
-      (error "sessions are only supported with mozrepl add \":cmd mozrepl\"")))))
+      (error "Sessions are only supported with mozrepl add \":cmd mozrepl\"")))))
 
 (provide 'ob-js)
 

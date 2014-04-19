@@ -1,6 +1,6 @@
 ;;; org-w3m.el --- Support from copy and paste from w3m to Org-mode
 
-;; Copyright (C) 2008-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2008-2014 Free Software Foundation, Inc.
 
 ;; Author: Andy Stewart <lazycat dot manatee at gmail dot com>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -8,12 +8,12 @@
 ;;
 ;; This file is part of GNU Emacs.
 ;;
-;; GNU Emacs is free software: you can redistribute it and/or modify
+;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 
-;; GNU Emacs is distributed in the hope that it will be useful,
+;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
@@ -42,6 +42,19 @@
 ;;; Code:
 
 (require 'org)
+
+(defvar w3m-current-url)
+(defvar w3m-current-title)
+
+(add-hook 'org-store-link-functions 'org-w3m-store-link)
+(defun org-w3m-store-link ()
+  "Store a link to a w3m buffer."
+  (when (eq major-mode 'w3m-mode)
+    (org-store-link-props
+     :type "w3m"
+     :link w3m-current-url
+     :url (url-view-url t)
+     :description (or w3m-current-title w3m-current-url))))
 
 (defun org-w3m-copy-for-org-mode ()
   "Copy current buffer content or active region with `org-mode' style links.

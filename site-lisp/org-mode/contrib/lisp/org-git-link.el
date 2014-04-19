@@ -1,9 +1,11 @@
 ;;; org-git-link.el --- Provide org links to specific file version
 
-;; Copyright (C) 2009-2012  Reimar Finken
+;; Copyright (C) 2009-2014  Reimar Finken
 
 ;; Author: Reimar Finken <reimar.finken@gmx.de>
 ;; Keywords: files, calendar, hypermedia
+
+;; This file is not part of GNU Emacs.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -130,10 +132,11 @@
       (list (expand-file-name ".git" dir) relpath))))
 
 
-(if (featurep 'xemacs)
-    (defalias 'org-git-gitrepos-p 'org-git-find-gitdir)
-  (defalias 'org-git-gitrepos-p 'org-git-find-gitdir
-  "Return non-nil if path is in git repository"))
+(eval-and-compile
+  (if (featurep 'xemacs)
+      (defalias 'org-git-gitrepos-p 'org-git-find-gitdir)
+    (defalias 'org-git-gitrepos-p 'org-git-find-gitdir
+      "Return non-nil if path is in git repository")))
 
 ;; splitting the link string
 
@@ -171,7 +174,7 @@
   (let* ((gitdir (first (org-git-find-gitdir (file-truename file))))
          (branchname (org-git-get-current-branch gitdir))
          (timestring (format-time-string "%Y-%m-%d" (current-time))))
-    (org-make-link "git:" file "::" (org-git-create-searchstring branchname timestring))))
+    (concat "git:" file "::" (org-git-create-searchstring branchname timestring))))
 
 (defun org-git-store-link ()
   "Store git link to current file."
@@ -186,7 +189,7 @@
 
 (defun org-git-insert-link-interactively (file searchstring &optional description)
   (interactive "FFile: \nsSearch string: \nsDescription: ")
-  (insert (org-make-link-string (org-make-link "git:" file "::" searchstring) description)))
+  (insert (org-make-link-string (concat "git:" file "::" searchstring) description)))
 
 ;; Calling git
 (defun org-git-show (gitdir object buffer)
@@ -194,8 +197,7 @@
   (unless
       (zerop (call-process org-git-program nil buffer nil
                            "--no-pager" (concat "--git-dir=" gitdir) "show" object))
-    (error "git error: %s " (save-excursion (set-buffer buffer)
-                                            (buffer-string)))))
+    (error "git error: %s " (with-current-buffer buffer (buffer-string)))))
 
 (defun org-git-blob-sha (gitdir object)
   "Return sha of the referenced object"

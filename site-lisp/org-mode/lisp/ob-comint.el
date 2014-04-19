@@ -1,6 +1,6 @@
 ;;; ob-comint.el --- org-babel functions for interaction with comint buffers
 
-;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research, comint
@@ -30,7 +30,8 @@
 ;; org-babel at large.
 
 ;;; Code:
-(require 'ob)
+(require 'ob-core)
+(require 'org-compat)
 (require 'comint)
 (eval-when-compile (require 'cl))
 (declare-function with-parsed-tramp-file-name "tramp" (filename var &rest body))
@@ -50,7 +51,7 @@ executed inside the protection of `save-excursion' and
   `(save-excursion
      (save-match-data
        (unless (org-babel-comint-buffer-livep ,buffer)
-         (error "buffer %s doesn't exist or has no process" ,buffer))
+         (error "Buffer %s does not exist or has no process" ,buffer))
        (set-buffer ,buffer)
        ,@body)))
 (def-edebug-spec org-babel-comint-in-buffer (form body))
@@ -74,39 +75,40 @@ or user `keyboard-quit' during execution of body."
 	(full-body (cadr (cdr (cdr meta)))))
     `(org-babel-comint-in-buffer ,buffer
        (let ((string-buffer "") dangling-text raw)
-	 (flet ((my-filt (text)
-			 (setq string-buffer (concat string-buffer text))))
-	   ;; setup filter
-	   (add-hook 'comint-output-filter-functions 'my-filt)
-	   (unwind-protect
-	       (progn
-		 ;; got located, and save dangling text
-		 (goto-char (process-mark (get-buffer-process (current-buffer))))
-		 (let ((start (point))
-		       (end (point-max)))
-		   (setq dangling-text (buffer-substring start end))
-		   (delete-region start end))
-		 ;; pass FULL-BODY to process
-		 ,@body
-		 ;; wait for end-of-evaluation indicator
-		 (while (progn
-			  (goto-char comint-last-input-end)
-			  (not (save-excursion
-				 (and (re-search-forward
-				       (regexp-quote ,eoe-indicator) nil t)
-				      (re-search-forward
-				       comint-prompt-regexp nil t)))))
-		   (accept-process-output (get-buffer-process (current-buffer)))
-		   ;; thought the following this would allow async
-		   ;; background running, but I was wrong...
-		   ;; (run-with-timer .5 .5 'accept-process-output
-		   ;; 		 (get-buffer-process (current-buffer)))
-		   )
-		 ;; replace cut dangling text
-		 (goto-char (process-mark (get-buffer-process (current-buffer))))
-		 (insert dangling-text))
-	     ;; remove filter
-	     (remove-hook 'comint-output-filter-functions 'my-filt)))
+	 ;; setup filter
+	 (setq comint-output-filter-functions
+	       (cons (lambda (text) (setq string-buffer (concat string-buffer text)))
+		     comint-output-filter-functions))
+	 (unwind-protect
+	     (progn
+	       ;; got located, and save dangling text
+	       (goto-char (process-mark (get-buffer-process (current-buffer))))
+	       (let ((start (point))
+		     (end (point-max)))
+		 (setq dangling-text (buffer-substring start end))
+		 (delete-region start end))
+	       ;; pass FULL-BODY to process
+	       ,@body
+	       ;; wait for end-of-evaluation indicator
+	       (while (progn
+			(goto-char comint-last-input-end)
+			(not (save-excursion
+			       (and (re-search-forward
+				     (regexp-quote ,eoe-indicator) nil t)
+				    (re-search-forward
+				     comint-prompt-regexp nil t)))))
+		 (accept-process-output (get-buffer-process (current-buffer)))
+		 ;; thought the following this would allow async
+		 ;; background running, but I was wrong...
+		 ;; (run-with-timer .5 .5 'accept-process-output
+		 ;; 		 (get-buffer-process (current-buffer)))
+		 )
+	       ;; replace cut dangling text
+	       (goto-char (process-mark (get-buffer-process (current-buffer))))
+	       (insert dangling-text))
+	   ;; remove filter
+	   (setq comint-output-filter-functions
+		 (cdr comint-output-filter-functions)))
 	 ;; remove echo'd FULL-BODY from input
 	 (if (and ,remove-echo ,full-body
 		  (string-match
@@ -115,7 +117,7 @@ or user `keyboard-quit' during execution of body."
 		   string-buffer))
 	     (setq raw (substring string-buffer (match-end 0))))
 	 (split-string string-buffer comint-prompt-regexp)))))
-(def-edebug-spec org-babel-comint-with-output (form body))
+(def-edebug-spec org-babel-comint-with-output (sexp body))
 
 (defun org-babel-comint-input-command (buffer cmd)
   "Pass CMD to BUFFER.
@@ -142,10 +144,10 @@ statement (not large blocks of code)."
 (defun org-babel-comint-eval-invisibly-and-wait-for-file
   (buffer file string &optional period)
   "Evaluate STRING in BUFFER invisibly.
-Don't return until FILE exists. Code in STRING must ensure that
+Don't return until FILE exists.  Code in STRING must ensure that
 FILE exists at end of evaluation."
   (unless (org-babel-comint-buffer-livep buffer)
-    (error "buffer %s doesn't exist or has no process" buffer))
+    (error "Buffer %s does not exist or has no process" buffer))
   (if (file-exists-p file) (delete-file file))
   (process-send-string
    (get-buffer-process buffer)
@@ -154,7 +156,7 @@ FILE exists at end of evaluation."
   (if (file-remote-p default-directory)
       (let (v)
 	(with-parsed-tramp-file-name default-directory nil
-	  (tramp-flush-directory-property v ""))))
+				     (tramp-flush-directory-property v ""))))
   (while (not (file-exists-p file)) (sit-for (or period 0.25))))
 
 (provide 'ob-comint)

@@ -1,6 +1,6 @@
 ;;; ob-keys.el --- key bindings for org-babel
 
-;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -29,7 +29,7 @@
 ;; functions and their associated keys.
 
 ;;; Code:
-(require 'ob)
+(require 'ob-core)
 
 (defvar org-babel-key-prefix "\C-c\C-v"
   "The key prefix for Babel interactive key-bindings.
@@ -98,6 +98,8 @@ a-list placed behind the generic `org-babel-key-prefix'.")
 
 (provide 'ob-keys)
 
-
+;; Local variables:
+;; generated-autoload-file: "org-loaddefs.el"
+;; End:
 
 ;;; ob-keys.el ends here

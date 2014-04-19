@@ -1,5 +1,5 @@
 ;;; org-secretary.el --- Team management with org-mode
-;; Copyright (C) 2010-2012 Juan Reyero
+;; Copyright (C) 2010-2014 Juan Reyero
 ;;
 ;; Author: Juan Reyero <juan _at_ juanreyero _dot_ com>
 ;; Keywords: outlines, tasks, team, management
@@ -19,9 +19,7 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-;; Boston, MA 02110-1301, USA.
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; Commentary:

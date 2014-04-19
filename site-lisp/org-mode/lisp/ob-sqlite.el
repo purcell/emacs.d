@@ -1,6 +1,6 @@
 ;;; ob-sqlite.el --- org-babel functions for sqlite database interaction
 
-;; Copyright (C) 2010-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2010-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -27,18 +27,27 @@
 
 ;;; Code:
 (require 'ob)
-(require 'ob-eval)
-(require 'ob-ref)
 
 (declare-function org-fill-template "org" (template alist))
 (declare-function org-table-convert-region "org-table"
 		  (beg0 end0 &optional separator))
-(declare-function orgtbl-to-csv "org-table" (TABLE PARAMS))
+(declare-function orgtbl-to-csv "org-table" (table params))
+(declare-function org-table-to-lisp "org-table" (&optional txt))
 
 (defvar org-babel-default-header-args:sqlite '())
 
-(defvar org-babel-header-arg-names:sqlite
-  '(db header echo bail csv column html line list separator nullvalue)
+(defvar org-babel-header-args:sqlite
+  '((db        . :any)
+    (header    . :any)
+    (echo      . :any)
+    (bail      . :any)
+    (csv       . :any)
+    (column    . :any)
+    (html      . :any)
+    (line      . :any)
+    (list      . :any)
+    (separator . :any)
+    (nullvalue . :any))
   "Sqlite specific header args.")
 
 (defun org-babel-expand-body:sqlite (body params)
@@ -61,7 +70,7 @@ This function is called by `org-babel-execute-src-block'."
 			   (list :header :echo :bail :column
 				 :csv :html :line :list))))
 	exit-code)
-    (unless db (error "ob-sqlite: can't evaluate without a database."))
+    (unless db (error "ob-sqlite: can't evaluate without a database"))
     (with-temp-buffer
       (insert
        (org-babel-eval
@@ -87,43 +96,40 @@ This function is called by `org-babel-execute-src-block'."
 	  (cons "db " db)))
 	;; body of the code block
 	(org-babel-expand-body:sqlite body params)))
-      (if (or (member "scalar" result-params)
-	      (member "verbatim" result-params)
-	      (member "html" result-params)
-	      (member "code" result-params)
-	      (equal (point-min) (point-max)))
-	  (buffer-string)
-	(org-table-convert-region (point-min) (point-max)
-				  (if (or (member :csv others)
-					  (member :column others)
-					  (member :line others)
-					  (member :list others)
-					  (member :html others) separator)
-				      nil
-				    '(4)))
-	(org-babel-sqlite-table-or-scalar
-	 (org-babel-sqlite-offset-colnames
-	  (org-table-to-lisp) headers-p))))))
+      (org-babel-result-cond result-params
+	(buffer-string)
+	(if (equal (point-min) (point-max))
+	    ""
+	  (org-table-convert-region (point-min) (point-max)
+				    (if (or (member :csv others)
+					    (member :column others)
+					    (member :line others)
+					    (member :list others)
+					    (member :html others) separator)
+					nil
+				      '(4)))
+	  (org-babel-sqlite-table-or-scalar
+	   (org-babel-sqlite-offset-colnames
+	    (org-table-to-lisp) headers-p)))))))
 
 (defun org-babel-sqlite-expand-vars (body vars)
   "Expand the variables held in VARS in BODY."
+  ;; FIXME: Redundancy with org-babel-sql-expand-vars!
   (mapc
    (lambda (pair)
      (setq body
 	   (replace-regexp-in-string
-	    (format "\$%s" (car pair))
-	    ((lambda (val)
-	       (if (listp val)
-		   ((lambda (data-file)
-		      (with-temp-file data-file
-			(insert (orgtbl-to-csv
-				 val '(:fmt (lambda (el) (if (stringp el)
-							el
-						      (format "%S" el)))))))
-		      data-file)
-		    (org-babel-temp-file "sqlite-data-"))
-		 (if (stringp val) val (format "%S" val))))
-	     (cdr pair))
+	    (format "\$%s" (car pair))  ;FIXME: "\$" == "$"!
+	    (let ((val (cdr pair)))
+              (if (listp val)
+                  (let ((data-file (org-babel-temp-file "sqlite-data-")))
+                    (with-temp-file data-file
+                      (insert (orgtbl-to-csv
+                               val '(:fmt (lambda (el) (if (stringp el)
+                                                      el
+                                                    (format "%S" el)))))))
+                    data-file)
+                (if (stringp val) val (format "%S" val))))
 	    body)))
    vars)
   body)
@@ -136,7 +142,7 @@ This function is called by `org-babel-execute-src-block'."
     (mapcar (lambda (row)
 	      (if (equal 'hline row)
 		  'hline
-		(mapcar #'org-babel-read row))) result)))
+		(mapcar #'org-babel-string-read row))) result)))
 
 (defun org-babel-sqlite-offset-colnames (table headers-p)
   "If HEADERS-P is non-nil then offset the first row as column names."
@@ -145,9 +151,9 @@ This function is called by `org-babel-execute-src-block'."
     table))
 
 (defun org-babel-prep-session:sqlite (session params)
-  "Raise an error because support for sqlite sessions isn't implemented.
+  "Raise an error because support for SQLite sessions isn't implemented.
 Prepare SESSION according to the header arguments specified in PARAMS."
-  (error "sqlite sessions not yet implemented"))
+  (error "SQLite sessions not yet implemented"))
 
 (provide 'ob-sqlite)
 

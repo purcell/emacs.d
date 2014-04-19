@@ -93,7 +93,7 @@
 (require 'init-lisp)
 (require 'init-elisp)
 (require 'init-spelling)
-(require 'init-org2blog)
+(if *emacs24* (require 'init-org2blog))
 ;;(require 'init-fill-column-indicator) ;make auto-complete dropdown wierd
 (require 'init-yasnippet)
 ;; Use bookmark instead

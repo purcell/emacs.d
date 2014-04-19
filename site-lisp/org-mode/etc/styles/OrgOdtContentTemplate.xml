@@ -46,7 +46,19 @@
 
   <!-- automatic styles -->
   <office:automatic-styles>
+
     <!-- Section styles -->
+
+    <!-- Section styles for Table Of Contents and Other Indices -->
+    <style:style style:name="OrgIndexSection" style:family="section">
+      <style:section-properties fo:background-color="#c0c0c0" style:editable="false">
+	<style:columns fo:column-count="1" fo:column-gap="0cm"/>
+	<style:background-image/>
+      </style:section-properties>
+    </style:style>
+
+    <!-- Indented sections, used as container for tables that occur
+         within list items -->
     <style:style style:name="OrgIndentedSection-Level-1" style:family="section">
       <style:section-properties text:dont-balance-text-columns="false" fo:margin-left="1.281cm" fo:margin-right="0cm" style:editable="false">
 	<style:columns fo:column-count="1" fo:column-gap="0cm"/>
@@ -256,6 +268,7 @@
 	<text:sequence-decl text:display-outline-level="0" text:name="Drawing"/>
 	<text:sequence-decl text:display-outline-level="0" text:name="Equation"/>
 	<text:sequence-decl text:display-outline-level="0" text:name="Figure"/>
+	<text:sequence-decl text:display-outline-level="0" text:name="Listing"/>
       </text:sequence-decls>
     </office:text>
   </office:body>

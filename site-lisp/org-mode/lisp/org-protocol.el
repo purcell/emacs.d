@@ -1,8 +1,8 @@
 ;;; org-protocol.el --- Intercept calls from emacsclient to trigger custom actions.
 ;;
-;; Copyright (C) 2008-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2008-2014 Free Software Foundation, Inc.
 ;;
-;; Authors: Bastien Guerry <bzg AT gnu DOT org>
+;; Authors: Bastien Guerry <bzg@gnu.org>
 ;;       Daniel M German <dmg AT uvic DOT org>
 ;;       Sebastian Rose <sebastian_rose AT gmx DOT de>
 ;;       Ross Patterson <me AT rpatterson DOT net>
@@ -91,11 +91,6 @@
 ;;     Org-link of which the page title will be the description part.  If text
 ;;     was select in the browser, that text will be the body of the entry.
 ;;
-;;   * Call `org-protocol-remember' by using the sub-protocol \"remember\".
-;;     This is provided for backward compatibility.
-;;     You may read `org-capture' as `org-remember' throughout this file if
-;;     you still use `org-remember'.
-;;
 ;; You may use the same bookmark URL for all those standard handlers and just
 ;; adjust the sub-protocol used:
 ;;
@@ -155,8 +150,7 @@ for `org-protocol-the-protocol' and sub-protocols defined in
 ;;; Variables:
 
 (defconst org-protocol-protocol-alist-default
-  '(("org-remember"    :protocol "remember"    :function org-protocol-remember :kill-client t)
-    ("org-capture"     :protocol "capture"     :function org-protocol-capture  :kill-client t)
+  '(("org-capture"     :protocol "capture"     :function org-protocol-capture  :kill-client t)
     ("org-store-link"  :protocol "store-link"  :function org-protocol-store-link)
     ("org-open-source" :protocol "open-source" :function org-protocol-open-source))
   "Default protocols to use.
@@ -187,7 +181,7 @@ Each element of this list must be of the form:
 
   (module-name :property value property: value ...)
 
-where module-name is an arbitrary name. All the values are strings.
+where module-name is an arbitrary name.  All the values are strings.
 
 Possible properties are:
 
@@ -195,7 +189,7 @@ Possible properties are:
   :working-suffix    - the replacement for online-suffix
   :base-url          - the base URL, e.g. http://www.example.com/project/
                        Last slash required.
-  :working-directory - the local working directory. This is, what base-url will
+  :working-directory - the local working directory.  This is, what base-url will
                        be replaced with.
   :redirects         - A list of cons cells, each of which maps a regular
                        expression to match to a path relative to :working-directory.
@@ -236,21 +230,21 @@ protocol - protocol to detect in a filename without trailing colon and slashes.
            If you define a protocol \"my-protocol\", `org-protocol-check-filename-for-protocol'
            will search filenames for \"org-protocol:/my-protocol:/\"
            and trigger your action for every match. `org-protocol' is defined in
-           `org-protocol-the-protocol'. Double and triple slashes are compressed
+           `org-protocol-the-protocol'.  Double and triple slashes are compressed
            to one by emacsclient.
 
 function - function that handles requests with protocol and takes exactly one
-           argument: the filename with all protocols stripped. If the function
-           returns nil, emacsclient and -server do nothing. Any non-nil return
+           argument: the filename with all protocols stripped.  If the function
+           returns nil, emacsclient and -server do nothing.  Any non-nil return
            value is considered a valid filename and thus passed to the server.
 
            `org-protocol.el provides some support for handling those filenames,
            if you stay with the conventions used for the standard handlers in
-           `org-protocol-protocol-alist-default'. See `org-protocol-split-data'.
+           `org-protocol-protocol-alist-default'.  See `org-protocol-split-data'.
 
 kill-client - If t, kill the client immediately, once the sub-protocol is
-           detected. This is necessary for actions that can be interrupted by
-           `C-g' to avoid dangling emacsclients. Note, that all other command
+           detected.  This is necessary for actions that can be interrupted by
+           `C-g' to avoid dangling emacsclients.  Note, that all other command
            line arguments but the this one will be discarded, greedy handlers
            still receive the whole list of arguments though.
 
@@ -271,6 +265,14 @@ Here is an example:
 This is usually a single character string but can also be a
 string with two characters."
   :group 'org-protocol
+  :type '(choice (const nil) (string)))
+
+(defcustom org-protocol-data-separator "/+\\|\\?"
+  "The default data separator to use.
+   This should be a single regexp string."
+  :group 'org-protocol
+  :version "24.4"
+  :package-version '(Org . "8.0")
   :type 'string)
 
 ;;; Helper functions:
@@ -291,7 +293,7 @@ nil, assume \"/+\".  The results of that splitting are returned
 as a list.  If UNHEXIFY is non-nil, hex-decode each split part.
 If UNHEXIFY is a function, use that function to decode each split
 part."
-  (let* ((sep (or separator "/+"))
+  (let* ((sep (or separator "/+\\|\\?"))
          (split-parts (split-string data sep)))
     (if unhexify
 	(if (fboundp unhexify)
@@ -316,32 +318,32 @@ Everything up to the end of the protocols is stripped.
 
 Note, that this function will always behave as if
 `org-protocol-reverse-list-of-files' was set to t and the returned list will
-reflect that. I.e. emacsclients first parameter will be the first one in the
+reflect that.  I.e. emacsclients first parameter will be the first one in the
 returned list."
-(let* ((l (org-protocol-flatten (if org-protocol-reverse-list-of-files
-				    param-list
-				  (reverse param-list))))
-      (trigger (car l))
-      (len 0)
-      dir
-      ret)
-  (when (string-match "^\\(.*\\)\\(org-protocol:/+[a-zA-z0-9][-_a-zA-z0-9]*:/+\\)\\(.*\\)" trigger)
-    (setq dir (match-string 1 trigger))
-    (setq len (length dir))
-    (setcar l (concat dir (match-string 3 trigger))))
-  (if strip-path
-      (progn
-       (dolist (e l ret)
-         (setq ret
-               (append ret
-                       (list
-                        (if (stringp e)
-                            (if (stringp replacement)
-                                (setq e (concat replacement (substring e len)))
-                              (setq e (substring e len)))
-                          e)))))
-       ret)
-    l)))
+  (let* ((l (org-protocol-flatten (if org-protocol-reverse-list-of-files
+				      param-list
+				    (reverse param-list))))
+	 (trigger (car l))
+	 (len 0)
+	 dir
+	 ret)
+    (when (string-match "^\\(.*\\)\\(org-protocol:/+[a-zA-z0-9][-_a-zA-z0-9]*:/+\\)\\(.*\\)" trigger)
+      (setq dir (match-string 1 trigger))
+      (setq len (length dir))
+      (setcar l (concat dir (match-string 3 trigger))))
+    (if strip-path
+	(progn
+	  (dolist (e l ret)
+	    (setq ret
+		  (append ret
+			  (list
+			   (if (stringp e)
+			       (if (stringp replacement)
+				   (setq e (concat replacement (substring e len)))
+				 (setq e (substring e len)))
+			     e)))))
+	  ret)
+      l)))
 
 (defun org-protocol-flatten (l)
   "Greedy handlers might receive a list like this from emacsclient:
@@ -350,7 +352,7 @@ where \"/dir/\" is the absolute path to emacsclients working directory.
 This function transforms it into a flat list."
   (if (null l) ()
     (if (listp l)
-       (append (org-protocol-flatten (car l)) (org-protocol-flatten (cdr l)))
+	(append (org-protocol-flatten (car l)) (org-protocol-flatten (cdr l)))
       (list l))))
 
 
@@ -358,7 +360,7 @@ This function transforms it into a flat list."
 
 (defun org-protocol-store-link (fname)
   "Process an org-protocol://store-link:// style url.
-Additionally store a browser URL as an org link. Also pushes the
+Additionally store a browser URL as an org link.  Also pushes the
 link's URL to the `kill-ring'.
 
 The location for a browser's bookmark has to look like this:
@@ -367,40 +369,22 @@ The location for a browser's bookmark has to look like this:
         encodeURIComponent(location.href)
         encodeURIComponent(document.title)+'/'+ \\
 
-Don't use `escape()'! Use `encodeURIComponent()' instead. The title of the page
+Don't use `escape()'! Use `encodeURIComponent()' instead.  The title of the page
 could contain slashes and the location definitely will.
 
 The sub-protocol used to reach this function is set in
 `org-protocol-protocol-alist'."
-  (let* ((splitparts (org-protocol-split-data fname t))
+  (let* ((splitparts (org-protocol-split-data fname t org-protocol-data-separator))
          (uri (org-protocol-sanitize-uri (car splitparts)))
          (title (cadr splitparts))
          orglink)
     (if (boundp 'org-stored-links)
-      (setq org-stored-links (cons (list uri title) org-stored-links)))
+	(setq org-stored-links (cons (list uri title) org-stored-links)))
     (kill-new uri)
     (message "`%s' to insert new org-link, `%s' to insert `%s'"
              (substitute-command-keys"\\[org-insert-link]")
              (substitute-command-keys"\\[yank]")
              uri))
-  nil)
-
-(defun org-protocol-remember (info)
-  "Process an org-protocol://remember:// style url.
-
-The location for a browser's bookmark has to look like this:
-
-  javascript:location.href='org-protocol://remember://'+ \\
-        encodeURIComponent(location.href)+'/' \\
-        encodeURIComponent(document.title)+'/'+ \\
-        encodeURIComponent(window.getSelection())
-
-See the docs for `org-protocol-capture' for more information."
-
-  (if (and (boundp 'org-stored-links)
-           (fboundp 'org-capture)
-	   (org-protocol-do-capture info 'org-remember))
-      (message "Item remembered."))
   nil)
 
 (defun org-protocol-capture (info)
@@ -409,8 +393,8 @@ See the docs for `org-protocol-capture' for more information."
 The sub-protocol used to reach this function is set in
 `org-protocol-protocol-alist'.
 
-This function detects an URL, title and optional text, separated by '/'
-The location for a browser's bookmark has to look like this:
+This function detects an URL, title and optional text, separated
+by '/'.  The location for a browser's bookmark looks like this:
 
   javascript:location.href='org-protocol://capture://'+ \\
         encodeURIComponent(location.href)+'/' \\
@@ -425,15 +409,21 @@ But you may prepend the encoded URL with a character and a slash like so:
 
 Now template ?b will be used."
   (if (and (boundp 'org-stored-links)
-           (fboundp 'org-capture)
-	   (org-protocol-do-capture info 'org-capture))
+	   (org-protocol-do-capture info))
       (message "Item captured."))
   nil)
 
-(defun org-protocol-do-capture (info capture-func)
-  "Support `org-capture' and `org-remember' alike.
-CAPTURE-FUNC is either the symbol `org-remember' or `org-capture'."
-  (let* ((parts (org-protocol-split-data info t))
+(defun org-protocol-convert-query-to-plist (query)
+  "Convert query string that is part of url to property list."
+  (if query
+      (apply 'append (mapcar (lambda (x)
+			       (let ((c (split-string x "=")))
+				 (list (intern (concat ":" (car c))) (cadr c))))
+			     (split-string query "&")))))
+
+(defun org-protocol-do-capture (info)
+  "Support `org-capture'."
+  (let* ((parts (org-protocol-split-data info t org-protocol-data-separator))
 	 (template (or (and (>= 2 (length (car parts))) (pop parts))
 		       org-protocol-default-template-key))
 	 (url (org-protocol-sanitize-uri (car parts)))
@@ -443,8 +433,8 @@ CAPTURE-FUNC is either the symbol `org-remember' or `org-capture'."
 	 (region (or (caddr parts) ""))
 	 (orglink (org-make-link-string
 		   url (if (string-match "[^[:space:]]" title) title url)))
-	 (org-capture-link-is-already-stored t) ;; avoid call to org-store-link
-	 remember-annotation-functions)
+	 (query (or (org-protocol-convert-query-to-plist (cadddr parts)) ""))
+	 (org-capture-link-is-already-stored t)) ;; avoid call to org-store-link
     (setq org-stored-links
 	  (cons (list url title) org-stored-links))
     (kill-new orglink)
@@ -452,9 +442,10 @@ CAPTURE-FUNC is either the symbol `org-remember' or `org-capture'."
 			  :link url
 			  :description title
 			  :annotation orglink
-			  :initial region)
+			  :initial region
+			  :query query)
     (raise-frame)
-    (funcall capture-func nil template)))
+    (funcall 'org-capture nil template)))
 
 (defun org-protocol-open-source (fname)
   "Process an org-protocol://open-source:// style url.
@@ -529,7 +520,7 @@ This is, how the matching is done:
 protocol and sub-protocol are regexp-quoted.
 
 If a matching protocol is found, the protocol is stripped from fname and the
-result is passed to the protocols function as the only parameter. If the
+result is passed to the protocols function as the only parameter.  If the
 function returns nil, the filename is removed from the list of filenames
 passed from emacsclient to the server.
 If the function returns a non nil value, that value is passed to the server
@@ -548,7 +539,7 @@ as filename."
                        (split (split-string fname proto))
                        (result (if greedy restoffiles (cadr split))))
                   (when (plist-get (cdr prolist) :kill-client)
-		    (message "Greedy org-protocol handler. Killing client.")
+		    (message "Greedy org-protocol handler.  Killing client.")
 		    (server-edit))
                   (when (fboundp func)
                     (unless greedy
@@ -566,7 +557,7 @@ as filename."
         (client (ad-get-arg 1)))
     (catch 'greedy
       (dolist (var flist)
-	;; `\' to `/' on windows. FIXME: could this be done any better?
+	;; `\' to `/' on windows.  FIXME: could this be done any better?
         (let ((fname  (expand-file-name (car var))))
           (setq fname (org-protocol-check-filename-for-protocol
 		       fname (member var flist)  client))
@@ -582,22 +573,23 @@ as filename."
 
 (defun org-protocol-create-for-org ()
   "Create a org-protocol project for the current file's Org-mode project.
-This works, if the file visited is part of a publishing project in
-`org-publish-project-alist'.  This function calls `org-protocol-create' to do
-most of the work."
+The visited file needs to be part of a publishing project in
+`org-publish-project-alist' for this to work.  The function
+delegates most of the work to `org-protocol-create'."
   (interactive)
   (require 'org-publish)
   (let ((all (or (org-publish-get-project-from-filename buffer-file-name))))
     (if all (org-protocol-create (cdr all))
-      (message "Not in an org-project. Did mean %s?"
+      (message "Not in an org-project.  Did mean %s?"
                (substitute-command-keys"\\[org-protocol-create]")))))
 
 (defun org-protocol-create (&optional project-plist)
   "Create a new org-protocol project interactively.
-An org-protocol project is an entry in `org-protocol-project-alist'
-which is used by `org-protocol-open-source'.
-Optionally use project-plist to initialize the defaults for this project. If
-project-plist is the CDR of an element in `org-publish-project-alist', reuse
+An org-protocol project is an entry in
+`org-protocol-project-alist' which is used by
+`org-protocol-open-source'.  Optionally use PROJECT-PLIST to
+initialize the defaults for this project.  If PROJECT-PLIST is
+the cdr of an element in `org-publish-project-alist', reuse
 :base-directory, :html-extension and :base-extension."
   (interactive)
   (let ((working-dir (expand-file-name
@@ -625,19 +617,19 @@ project-plist is the CDR of an element in `org-publish-project-alist', reuse
     (setq strip-suffix
           (read-string
            (concat "Extension to strip from published URLs (" strip-suffix "): ")
-                   strip-suffix nil strip-suffix t))
+	   strip-suffix nil strip-suffix t))
 
     (setq working-suffix
           (read-string
            (concat "Extension of editable files (" working-suffix "): ")
-                   working-suffix nil working-suffix t))
+	   working-suffix nil working-suffix t))
 
     (when (yes-or-no-p "Save the new org-protocol-project to your init file? ")
       (setq org-protocol-project-alist
             (cons `(,base-url . (:base-url ,base-url
-                                 :working-directory ,working-dir
-                                 :online-suffix ,strip-suffix
-                                 :working-suffix ,working-suffix))
+					   :working-directory ,working-dir
+					   :online-suffix ,strip-suffix
+					   :working-suffix ,working-suffix))
                   org-protocol-project-alist))
       (customize-save-variable 'org-protocol-project-alist org-protocol-project-alist))))
 

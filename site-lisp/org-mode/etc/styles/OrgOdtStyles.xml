@@ -86,7 +86,11 @@
 
   <style:style style:name="Standard" style:family="paragraph" style:class="text"/>
   <style:style style:name="Heading" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="text">
-   <style:paragraph-properties fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:keep-with-next="always"/>
+   <style:paragraph-properties fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:keep-with-next="always">
+     <style:tab-stops>
+       <style:tab-stop style:position="17cm" style:type="right"/>
+     </style:tab-stops>
+   </style:paragraph-properties>
    <style:text-properties style:font-name="Arial" fo:font-size="14pt" style:font-name-asian="SimSun" style:font-size-asian="14pt" style:font-name-complex="Tahoma" style:font-size-complex="14pt"/>
   </style:style>
   <style:style style:name="Text_20_body" style:display-name="Text body" style:family="paragraph" style:parent-style-name="Standard" style:class="text">
@@ -252,24 +256,42 @@
   <style:style style:name="Quotations" style:family="paragraph" style:parent-style-name="Standard" style:class="html">
    <style:paragraph-properties fo:margin-left="1cm" fo:margin-right="1cm" fo:margin-top="0cm" fo:margin-bottom="0.499cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
+  <style:style style:name="OrgFootnoteQuotations" style:family="paragraph" style:parent-style-name="Footnote" style:class="html">
+   <style:paragraph-properties fo:margin-left="1cm" fo:margin-right="1cm" fo:margin-top="0cm" fo:margin-bottom="0.499cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+  </style:style>
   <style:style style:name="Preformatted_20_Text" style:display-name="Preformatted Text" style:family="paragraph" style:parent-style-name="Standard" style:class="html">
    <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0cm"/>
    <style:text-properties style:font-name="Courier New" fo:font-size="10pt" style:font-name-asian="NSimSun" style:font-size-asian="10pt" style:font-name-complex="Courier New" style:font-size-complex="10pt"/>
   </style:style>
+
   <style:style style:name="OrgVerse" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
-   <style:paragraph-properties fo:background-color="#c0c0c0" fo:padding="0.049cm" fo:border="0.018cm solid #000000" style:shadow="none">
+   <style:paragraph-properties fo:background-color="transparent" fo:padding="0cm" fo:border="none" style:shadow="none">
     <style:background-image/>
    </style:paragraph-properties>
   </style:style>
 
+  <style:style style:name="OrgClock" style:family="paragraph" style:parent-style-name="Text_20_body">
+   <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0cm"/>
+  </style:style>
+  <style:style style:name="OrgClockLastLine" style:family="paragraph" style:parent-style-name="OrgClock"/>
+  <style:style style:name="OrgPlanning" style:family="paragraph" style:parent-style-name="Text_20_body"/>
+
+  <!-- Fixed width block -->
   <style:style style:name="OrgFixedWidthBlock" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
-   <style:paragraph-properties fo:background-color="#c0c0c0" fo:padding="0.049cm" fo:border="0.018cm solid #000000" style:shadow="none">
+   <style:paragraph-properties fo:background-color="#c0c0c0" fo:padding="0.049cm" fo:border="0.06pt solid #000000" style:shadow="none">
     <style:background-image/>
    </style:paragraph-properties>
   </style:style>
-
   <style:style style:name="OrgFixedWidthBlockLastLine" style:family="paragraph" style:parent-style-name="OrgFixedWidthBlock">
    <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.21cm"/>
+  </style:style>
+
+  <style:style style:name="OrgFormula" style:family="paragraph" style:parent-style-name="Text_20_body">
+   <style:paragraph-properties>
+    <style:tab-stops>
+     <style:tab-stop style:position="17cm" style:type="right"/>
+    </style:tab-stops>
+   </style:paragraph-properties>
   </style:style>
 
   <style:style style:name="OrgSrcBlockLastLine" style:family="paragraph" style:parent-style-name="OrgSrcBlock">
@@ -277,6 +299,9 @@
   </style:style>
 
   <style:style style:name="OrgCenter" style:family="paragraph" style:parent-style-name="Text_20_body">
+   <style:paragraph-properties fo:text-align="center" style:justify-single-word="false"/>
+  </style:style>
+  <style:style style:name="OrgFootnoteCenter" style:family="paragraph" style:parent-style-name="Footnote">
    <style:paragraph-properties fo:text-align="center" style:justify-single-word="false"/>
   </style:style>
   <style:style style:name="OrgTableContents" style:family="paragraph" style:parent-style-name="Text_20_body"/>
@@ -319,10 +344,16 @@
   <style:style style:name="Table" style:family="paragraph" style:parent-style-name="Caption" style:class="extra">
    <style:paragraph-properties fo:text-align="center" style:justify-single-word="false"/>
   </style:style>
+  <style:style style:name="Listing" style:family="paragraph" style:parent-style-name="Caption" style:class="extra">
+   <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:text-indent="0cm" style:auto-text-indent="false" fo:keep-with-next="always">
+    <style:tab-stops/>
+   </style:paragraph-properties>
+  </style:style>
   <style:style style:name="Horizontal_20_Line" style:display-name="Horizontal Line" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="html">
-   <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.499cm" style:border-line-width-bottom="0.002cm 0.035cm 0.002cm" fo:padding="0cm" fo:border-left="none" fo:border-right="none" fo:border-top="none" fo:border-bottom="0.039cm double #808080" text:number-lines="false" text:line-number="0" style:join-border="false"/>
+   <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.21cm" style:page-number="auto" fo:padding="0cm" fo:border-left="none" fo:border-right="none" fo:border-top="none" fo:border-bottom="0.06pt solid #000000" style:shadow="none" text:number-lines="false" text:line-number="0" style:join-border="false"/>
    <style:text-properties fo:font-size="6pt" style:font-size-asian="6pt" style:font-size-complex="6pt"/>
   </style:style>
+
   <style:style style:name="Emphasis" style:family="text">
    <style:text-properties fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic"/>
   </style:style>
@@ -344,23 +375,41 @@
   <style:style style:name="OrgCode" style:family="text" style:parent-style-name="Source_20_Text"/>
 
   <!-- BEGIN: Org Agenda Styles -->
-  <style:style style:name="OrgTodo" style:family="text">
-   <style:text-properties fo:color="#ff0000"/>
-  </style:style>
-  <style:style style:name="OrgDone" style:family="text">
-   <style:text-properties fo:color="#008000"/>
-  </style:style>
+  <style:style style:name="OrgTodo" style:family="text"/>
+  <style:style style:name="OrgDone" style:family="text"/>
+
   <style:style style:name="OrgTag" style:family="text">
-   <style:text-properties fo:background-color="#add8e6"/>
+   <style:text-properties fo:font-variant="small-caps" fo:background-color="transparent"/>
   </style:style>
-  <style:style style:name="OrgTimestamp" style:family="text">
-   <style:text-properties fo:color="#bebebe"/>
+  <style:style style:name="OrgTags" style:family="text"/>
+
+  <style:style style:name="OrgPriority" style:family="text"/>
+  <style:style style:name="OrgPriority-A" style:family="text" style:parent-style-name="OrgPriority"/>
+  <style:style style:name="OrgPriority-B" style:family="text" style:parent-style-name="OrgPriority"/>
+  <style:style style:name="OrgPriority-C" style:family="text" style:parent-style-name="OrgPriority"/>
+
+  <style:style style:name="OrgTimestamp" style:display-name="OrgTimestamp" style:family="text">
+    <style:text-properties style:font-name="Courier New" fo:background-color="transparent" style:font-name-asian="NSimSun" style:font-name-complex="Courier New"/>
   </style:style>
+  <style:style style:name="OrgActiveTimestamp" style:family="text" style:parent-style-name="OrgTimestamp"/>
+  <style:style style:name="OrgInactiveTimestamp" style:family="text" style:parent-style-name="OrgTimestamp"/>
   <style:style style:name="OrgTimestampKeyword" style:family="text">
-   <style:text-properties fo:color="#5f9ea0"/>
+   <style:text-properties style:use-window-font-color="true" fo:font-weight="bold"/>
   </style:style>
+  <style:style style:name="OrgScheduledKeyword" style:family="text" style:parent-style-name="OrgTimestampKeyword"/>
+  <style:style style:name="OrgDeadlineKeyword" style:family="text" style:parent-style-name="OrgTimestampKeyword"/>
+  <style:style style:name="OrgClockKeyword" style:family="text" style:parent-style-name="OrgTimestampKeyword"/>
+  <style:style style:name="OrgClosedKeyword" style:family="text" style:parent-style-name="OrgTimestampKeyword"/>
   <style:style style:name="OrgTimestampWrapper" style:family="text"/>
   <style:style style:name="OrgTarget" style:family="text"/>
+
+  <number:date-style style:name="OrgDate" number:automatic-order="true">
+   <number:day number:style="long"/>
+   <number:text>/</number:text>
+   <number:month number:style="long"/>
+   <number:text>/</number:text>
+   <number:year number:style="long"/>
+  </number:date-style>
   <!-- END: Org Agenda Styles -->
 
   <style:style style:name="Bold" style:family="text">
@@ -436,7 +485,7 @@
   </style:style>
 
   <style:style style:name="OrgFormulaCaptionFrame" style:family="graphic" style:parent-style-name="Frame">
-    <style:graphic-properties fo:margin-top="0cm" fo:margin-bottom="0cm" style:vertical-pos="middle" style:vertical-rel="text" style:horizontal-pos="from-left" style:horizontal-rel="paragraph-content" fo:padding="0cm" fo:border="none"/>
+   <style:graphic-properties text:anchor-type="paragraph" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" style:wrap="right" style:number-wrapped-paragraphs="1" style:wrap-contour="false" style:vertical-pos="top" style:vertical-rel="paragraph" style:horizontal-pos="center" style:horizontal-rel="paragraph" fo:padding="0cm" fo:border="none"/>
   </style:style>
 
   <style:style style:name="OrgCaptionedFormula" style:family="graphic" style:parent-style-name="OrgFormula">

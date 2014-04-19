@@ -1,8 +1,8 @@
 ;;; org-elisp-symbol.el --- Org links to emacs-lisp symbols
 ;;
-;; Copyright 2007-2012 Free Software Foundation, Inc.
+;; Copyright 2007-2014 Free Software Foundation, Inc.
 ;;
-;; Author: bzg AT gnu DOT org
+;; Author: Bastien Guerry
 ;; Version: 0.2
 ;; Keywords: org, remember, lisp
 ;; URL: http://www.cognition.ens.fr/~guerry/u/org-elisp-symbol.el
@@ -20,8 +20,7 @@
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, write to the Free Software
-;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 ;;
 ;;; Commentary:
 ;;

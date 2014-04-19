@@ -1,6 +1,6 @@
 ;;; org-crypt.el --- Public key encryption for org-mode entries
 
-;; Copyright (C) 2007, 2009-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2007-2014 Free Software Foundation, Inc.
 
 ;; Emacs Lisp Archive Entry
 ;; Filename: org-crypt.el
@@ -73,9 +73,11 @@
 			     compress-algorithm))
 (declare-function epg-encrypt-string "epg"
 		  (context plain recipients &optional sign always-trust))
+(defvar epg-context)
+
 
 (defgroup org-crypt nil
-  "Org Crypt"
+  "Org Crypt."
   :tag "Org Crypt"
   :group 'org)
 
@@ -111,6 +113,7 @@ nil      : Leave auto-save-mode enabled.
            NOTE: This only works for entries which have a tag
            that matches `org-crypt-tag-matcher'."
   :group 'org-crypt
+  :version "24.1"
   :type '(choice (const :tag "Always"  t)
                  (const :tag "Never"   nil)
                  (const :tag "Ask"     ask)
@@ -129,20 +132,20 @@ See `org-crypt-disable-auto-save'."
        (eq org-crypt-disable-auto-save t)
        (and
 	(eq org-crypt-disable-auto-save 'ask)
-	(y-or-n-p "org-decrypt: auto-save-mode may cause leakage. Disable it for current buffer? ")))
+	(y-or-n-p "org-decrypt: auto-save-mode may cause leakage.  Disable it for current buffer? ")))
       (message (concat "org-decrypt: Disabling auto-save-mode for " (or (buffer-file-name) (current-buffer))))
-      ; The argument to auto-save-mode has to be "-1", since
-      ; giving a "nil" argument toggles instead of disabling.
+					; The argument to auto-save-mode has to be "-1", since
+					; giving a "nil" argument toggles instead of disabling.
       (auto-save-mode -1))
      ((eq org-crypt-disable-auto-save nil)
-      (message "org-decrypt: Decrypting entry with auto-save-mode enabled. This may cause leakage."))
+      (message "org-decrypt: Decrypting entry with auto-save-mode enabled.  This may cause leakage."))
      ((eq org-crypt-disable-auto-save 'encrypt)
       (message "org-decrypt: Enabling re-encryption on auto-save.")
-      (add-hook 'auto-save-hook
-		(lambda ()
-		  (message "org-crypt: Re-encrypting all decrypted entries due to auto-save.")
-		  (org-encrypt-entries))
-		nil t))
+      (org-add-hook 'auto-save-hook
+		    (lambda ()
+		      (message "org-crypt: Re-encrypting all decrypted entries due to auto-save.")
+		      (org-encrypt-entries))
+		    nil t))
      (t nil))))
 
 (defun org-crypt-key-for-heading ()
@@ -160,8 +163,8 @@ See `org-crypt-disable-auto-save'."
   (if (and (string= crypt-key (get-text-property 0 'org-crypt-key str))
 	   (string= (sha1 str) (get-text-property 0 'org-crypt-checksum str)))
       (get-text-property 0 'org-crypt-text str)
-    (let ((epg-context (epg-make-context nil t t)))
-      (epg-encrypt-string epg-context str (epg-list-keys epg-context crypt-key)))))
+    (set (make-local-variable 'epg-context) (epg-make-context nil t t))
+    (epg-encrypt-string epg-context str (epg-list-keys epg-context crypt-key))))
 
 (defun org-encrypt-entry ()
   "Encrypt the content of the current headline."
@@ -169,11 +172,11 @@ See `org-crypt-disable-auto-save'."
   (require 'epg)
   (save-excursion
     (org-back-to-heading t)
+    (set (make-local-variable 'epg-context) (epg-make-context nil t t))
     (let ((start-heading (point)))
       (forward-line)
       (when (not (looking-at "-----BEGIN PGP MESSAGE-----"))
         (let ((folded (outline-invisible-p))
-              (epg-context (epg-make-context nil t t))
               (crypt-key (org-crypt-key-for-heading))
               (beg (point))
               end encrypted-text)
@@ -205,11 +208,11 @@ See `org-crypt-disable-auto-save'."
 	(forward-line)
 	(when (looking-at "-----BEGIN PGP MESSAGE-----")
 	  (org-crypt-check-auto-save)
+          (set (make-local-variable 'epg-context) (epg-make-context nil t t))
 	  (let* ((end (save-excursion
 			(search-forward "-----END PGP MESSAGE-----")
 			(forward-line)
 			(point)))
-		 (epg-context (epg-make-context nil t t))
 		 (encrypted-text (buffer-substring-no-properties (point) end))
 		 (decrypted-text
 		  (decode-coding-string
@@ -221,7 +224,7 @@ See `org-crypt-disable-auto-save'."
 	    ;; outline property starts at the \n of the heading.
 	    (delete-region (1- (point)) end)
 	    ;; Store a checksum of the decrypted and the encrypted
-	    ;; text value. This allow to reuse the same encrypted text
+	    ;; text value.  This allow to reuse the same encrypted text
 	    ;; if the text does not change, and therefore avoid a
 	    ;; re-encryption process.
 	    (insert "\n" (propertize decrypted-text
@@ -251,11 +254,19 @@ See `org-crypt-disable-auto-save'."
      (cdr (org-make-tags-matcher org-crypt-tag-matcher))
      todo-only)))
 
+(defun org-at-encrypted-entry-p ()
+  "Is the current entry encrypted?"
+  (unless (org-before-first-heading-p)
+    (save-excursion
+      (org-back-to-heading t)
+      (search-forward "-----BEGIN PGP MESSAGE-----"
+		      (save-excursion (outline-next-heading)) t))))
+
 (defun org-crypt-use-before-save-magic ()
   "Add a hook to automatically encrypt entries before a file is saved to disk."
   (add-hook
    'org-mode-hook
-   (lambda () (add-hook 'before-save-hook 'org-encrypt-entries nil t))))
+   (lambda () (org-add-hook 'before-save-hook 'org-encrypt-entries nil t))))
 
 (add-hook 'org-reveal-start-hook 'org-decrypt-entry)
 

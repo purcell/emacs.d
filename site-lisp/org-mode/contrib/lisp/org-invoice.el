@@ -1,6 +1,6 @@
 ;;; org-invoice.el --- Help manage client invoices in OrgMode
 ;;
-;; Copyright (C) 2008-2012 pmade inc. (Peter Jones pjones@pmade.com)
+;; Copyright (C) 2008-2014 pmade inc. (Peter Jones pjones@pmade.com)
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -23,7 +23,7 @@
 ;; OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 ;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ;;
-;; Commentary:
+;;; Commentary:
 ;;
 ;; Building on top of the terrific OrgMode, org-invoice tries to
 ;; provide functionality for managing invoices.  Currently, it does
@@ -226,8 +226,8 @@ looks like tree2, where the level is 2."
       (setq
        org-invoice-total-time (+ org-invoice-total-time work)
        org-invoice-total-price (+ org-invoice-total-price price)))
-    (setq total (and total (org-minutes-to-hh:mm-string total)))
-    (setq work  (and work  (org-minutes-to-hh:mm-string work)))
+    (setq total (and total (org-minutes-to-clocksum-string total)))
+    (setq work  (and work  (org-minutes-to-clocksum-string work)))
     (insert-before-markers
      (concat "|" title
              (cond
@@ -251,7 +251,7 @@ looks like tree2, where the level is 2."
     (when with-summary
       (insert-before-markers
        (concat "|-\n|Total:|"
-               (org-minutes-to-hh:mm-string org-invoice-total-time)
+               (org-minutes-to-clocksum-string org-invoice-total-time)
                (and with-price (concat "|" (format "%.2f" org-invoice-total-price)))
                "|\n")))))
 
@@ -290,7 +290,7 @@ information about dblock parameters, please see the Org manual):
 :summary Set to nil to turn off the final summary line."
   (let ((scope (plist-get params :scope))
         (org-invoice-table-params params)
-        (zone (move-marker (make-marker) (point)))
+        (zone (point-marker))
         table)
     (unless scope (setq scope 'default))
     (unless (plist-member params :price) (plist-put params :price t))

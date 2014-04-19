@@ -1,6 +1,6 @@
 ;;; org-habit.el --- The habit tracking code for Org-mode
 
-;; Copyright (C) 2009-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 ;; Author: John Wiegley <johnw at gnu dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -67,6 +67,12 @@ relative to the current effective date."
   :group 'org-habit
   :type 'boolean)
 
+(defcustom org-habit-show-all-today nil
+  "If non-nil, will show the consistency graph of all habits on
+today's agenda, even if they are not scheduled."
+  :group 'org-habit
+  :type 'boolean)
+
 (defcustom org-habit-today-glyph ?!
   "Glyph character used to identify today."
   :group 'org-habit
@@ -78,6 +84,12 @@ relative to the current effective date."
   :group 'org-habit
   :version "24.1"
   :type 'character)
+
+(defcustom org-habit-show-done-always-green nil
+  "Non-nil means DONE days will always be green in the consistency graph.
+It will be green even if it was done after the deadline."
+  :group 'org-habit
+  :type 'boolean)
 
 (defface org-habit-clear-face
   '((((background light)) (:background "#8270f9"))
@@ -188,7 +200,9 @@ This list represents a \"habit\" for the rest of this module."
 	     (count 0))
 	(unless reversed (goto-char end))
 	(while (and (< count maxdays)
-		    (funcall search "- State \"DONE\".*\\[\\([^]]+\\)\\]" limit t))
+		    (funcall search (format "- State \"%s\".*\\[\\([^]]+\\)\\]"
+					    (regexp-opt org-done-keywords))
+			     limit t))
 	  (push (time-to-days
 		 (org-time-string-to-time (match-string-no-properties 1)))
 		closed-dates)
@@ -266,8 +280,9 @@ Habits are assigned colors on the following basis:
       (if donep
 	  '(org-habit-ready-face . org-habit-ready-future-face)
 	'(org-habit-alert-face . org-habit-alert-future-face)))
-     (t
-      '(org-habit-overdue-face . org-habit-overdue-future-face)))))
+     ((and org-habit-show-done-always-green donep)
+      '(org-habit-ready-face . org-habit-ready-future-face))
+     (t '(org-habit-overdue-face . org-habit-overdue-future-face)))))
 
 (defun org-habit-build-graph (habit starting current ending)
   "Build a graph for the given HABIT, from STARTING to ENDING.

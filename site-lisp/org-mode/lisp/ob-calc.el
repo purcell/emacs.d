@@ -1,6 +1,6 @@
 ;;; ob-calc.el --- org-babel functions for calc code evaluation
 
-;; Copyright (C) 2010-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2010-2014 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -31,7 +31,6 @@
 (unless (featurep 'xemacs)
   (require 'calc-trail)
   (require 'calc-store))
-(eval-when-compile (require 'ob-comint))
 
 (declare-function calc-store-into    "calc-store" (&optional var))
 (declare-function calc-recall        "calc-store" (&optional var))
@@ -43,13 +42,15 @@
 (defun org-babel-expand-body:calc (body params)
   "Expand BODY according to PARAMS, return the expanded body." body)
 
+(defvar org--var-syms) ; Dynamically scoped from org-babel-execute:calc
+
 (defun org-babel-execute:calc (body params)
   "Execute a block of calc code with Babel."
   (unless (get-buffer "*Calculator*")
     (save-window-excursion (calc) (calc-quit)))
   (let* ((vars (mapcar #'cdr (org-babel-get-header params :var)))
-	 (var-syms (mapcar #'car vars))
-	 (var-names (mapcar #'symbol-name var-syms)))
+	 (org--var-syms (mapcar #'car vars))
+	 (var-names (mapcar #'symbol-name org--var-syms)))
     (mapc
      (lambda (pair)
        (calc-push-list (list (cdr pair)))
@@ -67,38 +68,37 @@
 	  ;; complex expression
 	  (t
 	   (calc-push-list
-	    (list ((lambda (res)
-		     (cond
-		      ((numberp res) res)
-		      ((math-read-number res) (math-read-number res))
-		      ((listp res) (error "calc error \"%s\" on input \"%s\""
-					  (cadr res) line))
-		      (t (replace-regexp-in-string
-			  "'\\[" "["
-			  (calc-eval
-			   (math-evaluate-expr
-			    ;; resolve user variables, calc built in
-			    ;; variables are handled automatically
-			    ;; upstream by calc
-			    (mapcar #'ob-calc-maybe-resolve-var
-				    ;; parse line into calc objects
-				    (car (math-read-exprs line)))))))))
-		   (calc-eval line))))))))
+	    (list (let ((res (calc-eval line)))
+                    (cond
+                     ((numberp res) res)
+                     ((math-read-number res) (math-read-number res))
+                     ((listp res) (error "Calc error \"%s\" on input \"%s\""
+                                         (cadr res) line))
+                     (t (replace-regexp-in-string
+                         "'" ""
+                         (calc-eval
+                          (math-evaluate-expr
+                           ;; resolve user variables, calc built in
+                           ;; variables are handled automatically
+                           ;; upstream by calc
+                           (mapcar #'org-babel-calc-maybe-resolve-var
+                                   ;; parse line into calc objects
+                                   (car (math-read-exprs line)))))))))
+                  ))))))
      (mapcar #'org-babel-trim
 	     (split-string (org-babel-expand-body:calc body params) "[\n\r]"))))
   (save-excursion
     (with-current-buffer (get-buffer "*Calculator*")
       (calc-eval (calc-top 1)))))
 
-(defvar var-syms) ; Dynamically scoped from org-babel-execute:calc
-(defun ob-calc-maybe-resolve-var (el)
+(defun org-babel-calc-maybe-resolve-var (el)
   (if (consp el)
-      (if (and (equal 'var (car el)) (member (cadr el) var-syms))
+      (if (and (equal 'var (car el)) (member (cadr el) org--var-syms))
 	  (progn
 	    (calc-recall (cadr el))
 	    (prog1 (calc-top 1)
 	      (calc-pop 1)))
-	(mapcar #'ob-calc-maybe-resolve-var el))
+	(mapcar #'org-babel-calc-maybe-resolve-var el))
     el))
 
 (provide 'ob-calc)
