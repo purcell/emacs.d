@@ -5,9 +5,10 @@
 - I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid some overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs.
 - I whitelist packages from [[http://melpa.milkbox.net][melpa]] because it is too cutting edge. Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
 - Many users have issue to fetch packages from elpa/marmalade/melpa. Check the section "Install packages without elpa/marmalade/melpa" for solutions.
+- In your bug report, please include details of environment (OS, Emacs version ...) and the full output of `emacs --debug-init`.
 
 * General
-My first priority is -stable-. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]].
+My first priority is *stable*. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]].
 
 Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Python/C#/Lua/Javascript ...).
 
@@ -61,7 +62,7 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - required by `flymake-lua`
 - install through OS package manager
 
-** aspell or hunspell (RECOMMENDED), and corresponding dictionary (aspell-en, for example)
+** aspell (RECOMMENDED) or hunspell, and corresponding dictionary (aspell-en, for example)
 - needed by `flyspell`
 - hunspell is the alternative of `aspell`. So you need only install either aspell or hunspell.
 - install through OS package manager
