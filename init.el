@@ -54,6 +54,9 @@
 (require 'init-elpa)
 (require 'init-exec-path) ;; Set up $PATH
 (require 'init-frame-hooks)
+;; any file use flyspell should be initialized after init-spelling.el
+;; actually, I don't know which major-mode use flyspell.
+(require 'init-spelling)
 (require 'init-xterm)
 (require 'init-osx-keys)
 (require 'init-gui-frames)
@@ -88,11 +91,11 @@
 (require 'init-python-mode)
 (require 'init-haskell)
 (require 'init-ruby-mode)
-;(require 'init-rcirc)
 
 (require 'init-lisp)
 (require 'init-elisp)
-(require 'init-spelling)
+
+;; (require 'init-rcirc)
 (if *emacs24* (require 'init-org2blog))
 ;;(require 'init-fill-column-indicator) ;make auto-complete dropdown wierd
 (require 'init-yasnippet)

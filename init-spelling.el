@@ -54,7 +54,7 @@
       (if RUN-TOGETHER
           (setq args (append args '("--run-together" "--run-together-limit=5" "--run-together-min=2")))))
      ((string= ispell-program-name "hunspell")
-      (setq args (list "-d en_US"))))
+      (setq args nil)))
     args
     ))
 
@@ -62,8 +62,14 @@
  ((executable-find "aspell")
   (setq ispell-program-name "aspell"))
  ((executable-find "hunspell")
-  (setq ispell-program-name "hunspell"))
- )
+  (setq ispell-program-name "hunspell")
+  ;; just reset dictionary to the safe one "en_US" for hunspell.
+  ;; if we need use different dictionary, we specify it in command line arguments
+  (setq ispell-local-dictionary "en_US")
+  (setq ispell-local-dictionary-alist
+        '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil nil nil utf-8)))
+  ))
+
 ;; ispell-cmd-args is useless, it's the list of *extra* command line arguments we will append to the ispell process when ispell-send-string()
 ;; ispell-extra-args is the command arguments which will *always* be used when start ispell process
 (setq ispell-extra-args (flyspell-detect-ispell-args t))
