@@ -67,8 +67,8 @@
   ;; if we need use different dictionary, we specify it in command line arguments
   (setq ispell-local-dictionary "en_US")
   (setq ispell-local-dictionary-alist
-        '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil nil nil utf-8)))
-  ))
+        '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil nil nil utf-8))))
+ (t (setq ispell-program-name nil)))
 
 ;; ispell-cmd-args is useless, it's the list of *extra* command line arguments we will append to the ispell process when ispell-send-string()
 ;; ispell-extra-args is the command arguments which will *always* be used when start ispell process
