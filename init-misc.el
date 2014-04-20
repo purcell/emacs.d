@@ -34,6 +34,10 @@
 
 (define-key global-map (kbd "RET") 'newline-and-indent)
 
+
+(add-to-list 'auto-mode-alist '("\\.[Cc][Ss][Vv]\\'" . csv-mode))
+(autoload 'csv-mode "csv-mode" "Major mode for comma-separated value files." t)
+'
 ;;----------------------------------------------------------------------------
 ;; Zap *up* to char is a more sensible default
 ;;----------------------------------------------------------------------------
