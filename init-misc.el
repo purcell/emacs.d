@@ -26,6 +26,11 @@
 (setq global-auto-revert-non-file-buffers t
       auto-revert-verbose nil)
 
+;; @see http://www.quora.com/Whats-the-best-way-to-edit-remote-files-from-Emacs
+(setq tramp-default-method "ssh")
+(setq tramp-auto-save-directory "~/.backups/tramp/")
+(setq tramp-chunksize 8192)
+
 ;; But don't show trailing whitespace in SQLi, inf-ruby etc.
 (add-hook 'comint-mode-hook
           (lambda () (setq show-trailing-whitespace nil)))
