@@ -12,6 +12,13 @@
 (global-surround-mode 1)
 ;; }}
 
+;; {{@see http://dnquark.com/blog/2012/02/emacs-evil-ecumenicalism/
+;; Make insert mode with unadulterated Emacs behavior
+(setcdr evil-insert-state-map nil)
+(define-key evil-insert-state-map
+  (read-kbd-macro evil-toggle-key) 'evil-emacs-state)
+;; }}
+
 (defun toggle-org-or-message-mode ()
   (interactive)
   (if (eq major-mode 'message-mode)
@@ -101,22 +108,22 @@
 
 (define-key evil-insert-state-map (kbd "M-a") 'move-beginning-of-line)
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
-(define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-visual-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "M-e") 'move-end-of-line)
 (define-key evil-normal-state-map (kbd "C-w") 'evil-delete)
-(define-key evil-insert-state-map (kbd "C-w") 'evil-delete)
 (define-key evil-visual-state-map (kbd "C-w") 'evil-delete)
 (define-key evil-normal-state-map (kbd "C-y") 'yank)
-(define-key evil-insert-state-map (kbd "C-y") 'yank)
 (define-key evil-visual-state-map (kbd "C-y") 'yank)
 (define-key evil-insert-state-map (kbd "C-k") 'kill-line)
+(define-key evil-normal-state-map (kbd "C-d") 'evil-delete-char)
+(define-key evil-visual-state-map (kbd "C-d") 'evil-delete-char)
 (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
 (define-key evil-visual-state-map (kbd "M-k") 'evil-exit-visual-state)
 (define-key minibuffer-local-map (kbd "M-k") 'abort-recursive-edit)
 (define-key evil-insert-state-map (kbd "M-j") 'my-yas-expand)
 (global-set-key (kbd "M-k") 'keyboard-quit)
 
+(define-key evil-insert-state-map [escape] 'evil-normal-state)
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
 (define-key evil-visual-state-map [escape] 'keyboard-quit)
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
