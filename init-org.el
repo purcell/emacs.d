@@ -106,4 +106,10 @@
                   (w3m-browse-url url t))))))
     ad-do-it))
 
+(setq org2nikola-sourcecode-unsupported-language
+      '(elisp "clojure"
+              emacs-lisp "clojure"
+              lisp "clojure"
+              c++ "cpp"))
+
 (provide 'init-org)
