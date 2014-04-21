@@ -68,8 +68,18 @@
         (speedbar-mode . emacs)
         (magit-commit-mode . normal)
         (js2-error-buffer-mode . emacs)
+	(cscope-list-entry-mode . normal)
         )
       do (evil-set-initial-state mode state))
+
+;; When Evil initiailizing (evil-initialize-state), 'evil-change-to-initial-state'
+;; will be called. But some modes still need to call 'evil-change-to-initial-state'
+;; when hooking to mode
+(loop for (hook) in
+      '(
+	(cscope-list-entry-hook)
+	)
+      do (add-hook hook 'evil-change-to-initial-state))
 
 (define-key evil-ex-completion-map (kbd "M-p") 'previous-complete-history-element)
 (define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
