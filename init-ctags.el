@@ -5,8 +5,6 @@
 ;; Don't warn when TAGS files are large
 (setq large-file-warning-threshold nil)
 
-(require 'ctags)
-(global-set-key (kbd "M-.")  'ctags-search)
 (when *is-a-mac*
   ; Mac's default ctags does not support -e option
   ; If you install Emacs by homebrew, another version of etags is already installed which does not need -e too

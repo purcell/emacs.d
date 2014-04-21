@@ -216,7 +216,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'etags-select '(1 13 0) nil) ;; evil may need it
 (require-package 'w3m)
 (require-package 'idomenu)
-(require-package 'ctags)
 (require-package 'ggtags)
 (require-package 'buffer-move)
 (require-package 'go-mode)
