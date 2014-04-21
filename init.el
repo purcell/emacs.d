@@ -107,6 +107,8 @@
 (require 'init-yasnippet)
 ; Edit server is a chrome plugin let you to edit text areas with emacs
 (require 'init-edit-server)
+; Pomodoro is time management technique
+(require 'init-pomodoro)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
