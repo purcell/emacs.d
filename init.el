@@ -105,6 +105,8 @@
 (require 'init-smartparens)
 (require 'init-company)
 (require 'init-yasnippet)
+; Edit server is a chrome plugin let you to edit text areas with emacs
+(require 'init-edit-server)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
