@@ -159,6 +159,14 @@
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 
+;; {{ evil-leader config
+(require-package 'evil-leader)
+(require 'evil-leader)
+
+(global-evil-leader-mode 1)
+
+(setq evil-leader/leader ",")
+
 (defun evilcvn--change-symbol(fn)
   (let ((old (thing-at-point 'symbol)))
     (funcall fn)
@@ -181,14 +189,6 @@ to replace the symbol under cursor"
   (interactive)
   (evilcvn--change-symbol 'mark-defun)
   )
-
-;; {{ evil-leader config
-(require-package 'evil-leader)
-(require 'evil-leader)
-
-(global-evil-leader-mode 1)
-
-(setq evil-leader/leader ",")
 
 (evil-leader/set-key
   "as" 'ack-same
