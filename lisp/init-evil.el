@@ -115,6 +115,23 @@
        (t (setq unread-command-events (append unread-command-events
                           (list evt))))))))
 
+;; Window commands
+(define-key evil-window-map [left]  'evil-window-left)
+(define-key evil-window-map [down]  'evil-window-down)
+(define-key evil-window-map [up]    'evil-window-up)
+(define-key evil-window-map [right] 'evil-window-right)
+
+;; If evil-want-C-w-delete is t, C-w as delete at normal/visual mode
+(defun evil-want-C-w-delete-in-state (keymap)
+  "If evil-want-C-w-delete is t, C-w as delete in state-map"
+  (when evil-want-C-w-delete
+    (define-key keymap (kbd "C-w") 'evil-delete)))
+
+(add-hook 'after-init-hook
+	  (lambda ()
+	    (evil-want-C-w-delete-in-state evil-normal-state-map)
+	    (evil-want-C-w-delete-in-state evil-visual-state-map)))
+
 ;; Leave return (ENTER) key for local key-map
 ;; It is used for magit-log, cscope, etc. mode.
 (define-key evil-motion-state-map (kbd "RET") nil)
@@ -122,8 +139,6 @@
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-visual-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "M-e") 'move-end-of-line)
-(define-key evil-normal-state-map (kbd "C-w") 'evil-delete)
-(define-key evil-visual-state-map (kbd "C-w") 'evil-delete)
 (define-key evil-normal-state-map (kbd "C-y") 'yank)
 (define-key evil-visual-state-map (kbd "C-y") 'yank)
 (define-key evil-insert-state-map (kbd "C-k") 'kill-line)
