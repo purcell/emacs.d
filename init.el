@@ -34,7 +34,9 @@
 (require 'init-frame-hooks)
 (require 'init-xterm)
 ;(require 'init-themes) ;Can not understand the settings now
-;(require 'init-osx-keys)
+(when *is-a-mac*
+  (require 'init-osx-keys))
+
 (require 'init-gui-frames)
 (require 'init-proxies)
 (require 'init-dired)
