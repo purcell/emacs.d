@@ -74,7 +74,9 @@
 (require 'init-rails)
 (require 'init-sql)
 
-(require 'init-paredit)
+;; (when window-system
+;;   (require 'init-paredit))
+
 (require 'init-lisp)
 (require 'init-slime)
 (require 'init-clojure)
@@ -95,7 +97,10 @@
 (require 'init-term-mode)
 (require 'init-cc-mode)
 (require 'init-xcscope)
-(require 'init-linum-mode)
+
+(when window-system
+  (require 'init-linum-mode))
+
 (require 'init-emacs-w3m)
 (require 'init-gtags)
 ;(require 'init-ctags) ;Enable if necessary
