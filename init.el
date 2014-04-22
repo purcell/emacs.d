@@ -74,8 +74,8 @@
 (require 'init-rails)
 (require 'init-sql)
 
-;; (when window-system
-;;   (require 'init-paredit))
+(when window-system
+  (require 'init-paredit))
 
 (require 'init-lisp)
 (require 'init-slime)
