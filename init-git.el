@@ -106,6 +106,15 @@
       (message "DONE! git add %s" filename)
       )))
 
+(defun git-push-remote-origin ()
+  "run `git push'"
+  (interactive)
+  (when buffer-file-name
+    (message "(pwd)=%s" default-directory)
+    (shell-command (concat "cd " (pwd) ";git push"))
+    (message "DONE! git push at %s" default-directory)
+    ))
+
 (defun git-add-option-update ()
   "git add only tracked files of default directory"
   (interactive)

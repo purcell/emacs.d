@@ -284,6 +284,7 @@ to replace the symbol under cursor"
   "xz" 'suspend-frame
   "xvv" 'vc-next-action
   "xva" 'git-add-current-file
+  "xvp" 'git-push-remote-origin
   "xrf" 'git-reset-current-file
   "xvu" 'git-add-option-update
   "xvg" 'vc-annotate
@@ -295,7 +296,7 @@ to replace the symbol under cursor"
   "xvs" 'git-gutter:stage-hunk
   "xvr" 'git-gutter:revert-hunk
   "xvl" 'vc-print-log
-  "xvp" 'git-messenger:popup-message
+  "xvb" 'git-messenger:popup-message
   "fnn" 'fancy-narrow-to-region
   "fnd" 'fancy-narrow-to-defun
   "fnw" 'fancy-widen
