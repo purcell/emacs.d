@@ -32,4 +32,17 @@
    (set-selection-coding-system 'utf-8))
   (prefer-coding-system 'utf-8))
 
+;定义这个函数
+(defun anti-operation ()
+  (interactive)
+  (goto-char 1)
+  (replace-regexp "\n+" "\n");
+  (goto-char 1)
+  (replace-regexp "\n[ 　]" "dkfjaojifwenfiewonfawo");
+  (goto-char 1)
+  (replace-regexp "\n" "")
+  (goto-char 1)
+  (replace-regexp "dkfjaojifwenfiewonfawo" "\n　"));
+(global-set-key (kbd "<C-f12>") 'anti-operation)
+
 (provide 'init-locales)
