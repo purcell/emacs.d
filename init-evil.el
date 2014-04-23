@@ -154,6 +154,7 @@ to replace the symbol under cursor"
   "mf" 'mark-defun
   "em" 'erase-message-buffer
   "eb" 'eval-buffer
+  "sc" 'shell-command
   "srt" 'sr-speedbar-toggle
   "srr" 'sr-speedbar-refresh-toggle
   "ee" 'eval-expression
