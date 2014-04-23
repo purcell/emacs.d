@@ -7,14 +7,30 @@
 (require 'color-theme)
 (color-theme-molokai)
 
-;; {{@see http://stackoverflow.com/questions/19054228/emacs-disable-theme-background-color-in-terminal
-;; Set background color to black (color-16) when no window system
-(defun set-no-window-frame-bg ()
-    (unless (display-graphic-p (selected-frame))
-	  (set-face-background 'default "color-16" (selected-frame))))
+;; {{ Set background color
+(defun init-color-theme-set-bg-color (color)
+  "Set background COLOR."
+  (when (not(eq color "nil"))
+    (set-face-background 'default color nil)
+    (set-background-color color)))
 
-(unless window-system
-  (add-hook 'window-setup-hook 'set-no-window-frame-bg))
+(defcustom init-color-theme-window-system-bg-color "nil"
+  "Set background color when \"window-system\". If nil uses default background."
+  :type '(string)
+  :group 'init-color-theme
+  )
+
+(defcustom init-color-theme-no-window-system-bg-color "nil"
+  "Set background color when not a \"window-system\". If nil uses default background."
+  :type '(string)
+  :group 'init-color-theme
+  )
+
+(init-color-theme-set-bg-color
+ (if window-system
+     init-color-theme-window-system-bg-color
+   init-color-theme-no-window-system-bg-color))
+
 ;; }}
 
 (provide 'init-color-theme)
