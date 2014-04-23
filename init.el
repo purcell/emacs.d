@@ -114,7 +114,9 @@
 (when window-system
   (require 'init-linum-mode))
 
-(require 'init-emacs-w3m)
+(when (executable-find "w3m")
+  (require 'init-emacs-w3m))
+
 (require 'init-gtags)
 ;(require 'init-ctags) ;Enable if necessary
 (require 'init-buffer-move)
