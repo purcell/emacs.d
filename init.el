@@ -94,7 +94,6 @@
 (require 'init-ruby-mode)
 (require 'init-lisp)
 (require 'init-elisp)
-;;(require 'init-fill-column-indicator) ;make auto-complete dropdown wierd
 (require 'init-yasnippet)
 ;; Use bookmark instead
 (require 'init-zencoding-mode)
