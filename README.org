@@ -170,3 +170,9 @@ To toggle Chinese input method (eim, for example), press `C-\` or run command `M
 
 * My personal custom.el (OPTIONAL)
 It's publicized at [[http://blog.binchen.org/?p=430]]. It contains my personal stuff like color-theme and time locale.
+* About Emacs23
+Emacs23 support will *be dropped* in one year <2015-04-24 Thu>.
+Currently Emacs 23 will not support below packages:
+- helm
+- org-mode and its third party packages
+- company-mode
