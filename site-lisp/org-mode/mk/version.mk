@@ -1,2 +1,2 @@
-ORGVERSION	?= 8.2.5h
-GITVERSION	?= 8.2.5h-dist
+ORGVERSION	?= 8.2.6
+GITVERSION	?= 8.2.6-dist

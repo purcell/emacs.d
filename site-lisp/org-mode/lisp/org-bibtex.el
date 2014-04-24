@@ -279,7 +279,7 @@ not be exported."
 
 (defcustom org-bibtex-no-export-tags nil
   "List of tag(s) that should not be converted to keywords.
-This variable is relevant only if `org-bibtex-export-tags-as-keywords' is t."
+This variable is relevant only if `org-bibtex-tags-are-keywords' is t."
   :group 'org-bibtex
   :version "24.1"
   :type '(repeat :tag "Tag" (string)))
@@ -371,7 +371,9 @@ This variable is relevant only if `org-bibtex-export-tags-as-keywords' is t."
 	    (bibtex-beginning-of-entry)
 	    (if (re-search-forward "keywords.*=.*{\\(.*\\)}" nil t)
 		(progn (goto-char (match-end 1)) (insert ", "))
-	      (bibtex-make-field "keywords" t t))
+	      (search-forward ",\n" nil t)
+	      (insert "  keywords={},\n")
+	      (search-backward "}," nil t))
 	    (insert (mapconcat #'identity tags ", ")))
 	  (buffer-string))))))
 
@@ -534,7 +536,7 @@ With optional argument OPTIONAL, also prompt for optional fields."
 ;;; Bibtex <-> Org-mode headline translation functions
 (defun org-bibtex (&optional filename)
   "Export each headline in the current file to a bibtex entry.
-Headlines are exported using `org-bibtex-export-headline'."
+Headlines are exported using `org-bibtex-headline'."
   (interactive
    (list (read-file-name
 	  "Bibtex file: " nil nil nil
@@ -613,7 +615,8 @@ This uses `bibtex-parse-entry'."
 	(strip-delim
 	 (lambda (str)	     ; strip enclosing "..." and {...}
 	   (dolist (pair '((34 . 34) (123 . 125) (123 . 125)))
-	     (when (and (= (aref str 0) (car pair))
+	     (when (and (> (length str) 1)
+			(= (aref str 0) (car pair))
 			(= (aref str (1- (length str))) (cdr pair)))
 	       (setf str (substring str 1 (1- (length str)))))) str)))
     (push (mapcar

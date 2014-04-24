@@ -795,7 +795,8 @@ HTML code while every other back-end will ignore it."
   :type 'coding-system)
 
 (defcustom org-export-copy-to-kill-ring 'if-interactive
-  "Should we push exported content to the kill ring?"
+  "Non-nil means pushing export output to the kill ring.
+This variable is ignored during asynchronous export."
   :group 'org-export-general
   :version "24.3"
   :type '(choice

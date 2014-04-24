@@ -998,7 +998,9 @@ See `org-latex-text-markup-alist' for details."
      ;; and use "\\verb" command.
      ((eq 'verb fmt)
       (let ((separator (org-latex--find-verb-separator text)))
-	(concat "\\verb" separator text separator)))
+	(concat "\\verb" separator
+		(replace-regexp-in-string "\n" " " text)
+		separator)))
      ;; Handle the `protectedtexttt' special case: Protect some
      ;; special chars and use "\texttt{%s}" format string.
      ((eq 'protectedtexttt fmt)
@@ -1342,7 +1344,16 @@ holding contextual information."
 	       ((= (length sec) 4)
 		(if numberedp (concat (car sec) "\n%s" (nth 1 sec))
 		  (concat (nth 2 sec) "\n%s" (nth 3 sec)))))))
-	   (text (org-export-data (org-element-property :title headline) info))
+	   ;; Create a temporary export back-end that hard-codes
+	   ;; "\underline" within "\section" and alike.
+	   (section-back-end
+	    (org-export-create-backend
+	     :parent 'latex
+	     :transcoders
+	     '((underline . (lambda (o c i) (format "\\underline{%s}" c))))))
+	   (text
+	    (org-export-data-with-backend
+	     (org-element-property :title headline) section-back-end info))
 	   (todo
 	    (and (plist-get info :with-todo-keywords)
 		 (let ((todo (org-element-property :todo-keyword headline)))
@@ -1395,8 +1406,9 @@ holding contextual information."
 	(let ((opt-title
 	       (funcall org-latex-format-headline-function
 			todo todo-type priority
-			(org-export-data
-			 (org-export-get-alt-title headline info) info)
+			(org-export-data-with-backend
+			 (org-export-get-alt-title headline info)
+			 section-back-end info)
 			(and (eq (plist-get info :with-tags) t) tags))))
 	  (if (and numberedp opt-title
 		   (not (equal opt-title full-text))
@@ -1464,7 +1476,7 @@ contextual information."
       (let* ((org-lang (org-element-property :language inline-src-block))
 	     (mint-lang (or (cadr (assq (intern org-lang)
 					org-latex-minted-langs))
-			    org-lang))
+			    (downcase org-lang)))
 	     (options (org-latex--make-option-string
 		       org-latex-minted-options)))
 	(concat (format "\\mint%s{%s}"
@@ -1778,7 +1790,8 @@ DESC is the description part of the link, or the empty string.
 INFO is a plist holding contextual information.  See
 `org-export-data'."
   (let* ((type (org-element-property :type link))
-	 (raw-path (org-element-property :path link))
+	 (raw-path (replace-regexp-in-string
+		    "%" "\\%" (org-element-property :path link) nil t))
 	 ;; Ensure DESC really exists, or set it to nil.
 	 (desc (and (not (string= desc "")) desc))
 	 (imagep (org-export-inline-image-p
@@ -1786,9 +1799,8 @@ INFO is a plist holding contextual information.  See
 	 (path (cond
 		((member type '("http" "https" "ftp" "mailto"))
 		 (concat type ":" raw-path))
-		((string= type "file")
-		 (if (not (file-name-absolute-p raw-path)) raw-path
-		   (concat "file://" (expand-file-name raw-path))))
+		((and (string= type "file") (file-name-absolute-p raw-path))
+		 (concat "file:" raw-path))
 		(t raw-path)))
 	 protocol)
     (cond
@@ -1800,8 +1812,9 @@ INFO is a plist holding contextual information.  See
       (let ((destination (org-export-resolve-radio-link link info)))
 	(when destination
 	  (format "\\hyperref[%s]{%s}"
-		  (org-export-solidify-link-text path)
-		  (org-export-data (org-element-contents destination) info)))))
+		  (org-export-solidify-link-text
+		   (org-element-property :value destination))
+		  desc))))
      ;; Links pointing to a headline: Find destination and build
      ;; appropriate referencing command.
      ((member type '("custom-id" "fuzzy" "id"))
@@ -2102,7 +2115,8 @@ contextual information."
 		       ("firstnumber" ,(number-to-string (1+ num-start))))
 		     org-latex-minted-options)))
 		 ;; Language.
-		 (or (cadr (assq (intern lang) org-latex-minted-langs)) lang)
+		 (or (cadr (assq (intern lang) org-latex-minted-langs))
+		     (downcase lang))
 		 ;; Source code.
 		 (let* ((code-info (org-export-unravel-code src-block))
 			(max-width
@@ -2151,8 +2165,8 @@ contextual information."
 	       ((and float (not (assoc "float" org-latex-listings-options)))
 		`(("float" ,org-latex-default-figure-position))))
 	      `(("language" ,lst-lang))
-	      (when label `(("label" ,label)))
-	      (when caption-str `(("caption" ,caption-str)))
+	      (if label `(("label" ,label)) '(("label" " ")))
+	      (if caption-str `(("caption" ,caption-str)) '(("caption" " ")))
 	      (cond ((assoc "numbers" org-latex-listings-options) nil)
 		    ((not num-start) '(("numbers" "none")))
 		    ((zerop num-start) '(("numbers" "left")))
@@ -2922,7 +2936,9 @@ Return output file name."
   ;; in working directory and then moved to publishing directory.
   (org-publish-attachment
    plist
-   (org-latex-compile (org-publish-org-to 'latex filename ".tex" plist))
+   (org-latex-compile
+    (org-publish-org-to
+     'latex filename ".tex" plist (file-name-directory filename)))
    pub-dir))
 
 

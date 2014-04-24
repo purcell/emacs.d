@@ -1838,9 +1838,9 @@ Use \\[org-clock-remove-overlays] to remove the subtree times."
 	(when org-remove-highlights-with-change
 	  (org-add-hook 'before-change-functions 'org-clock-remove-overlays
 			nil 'local))))
-      (message (concat "Total file time: "
-		       (org-minutes-to-clocksum-string org-clock-file-total-minutes)
-		       " (%d hours and %d minutes)") h m)))
+    (message (concat "Total file time: "
+		     (org-minutes-to-clocksum-string org-clock-file-total-minutes)
+		     " (%d hours and %d minutes)") h m)))
 
 (defvar org-clock-overlays nil)
 (make-variable-buffer-local 'org-clock-overlays)
@@ -1850,16 +1850,17 @@ Use \\[org-clock-remove-overlays] to remove the subtree times."
 If LEVEL is given, prefix time with a corresponding number of stars.
 This creates a new overlay and stores it in `org-clock-overlays', so that it
 will be easy to remove."
-  (let* ((c 60) (h (floor (/ time 60))) (m (- time (* 60 h)))
-	 (l (if level (org-get-valid-level level 0) 0))
-	 (off 0)
+  (let* ((l (if level (org-get-valid-level level 0) 0))
 	 ov tx)
-    (org-move-to-column c)
-    (unless (eolp) (skip-chars-backward "^ \t"))
-    (skip-chars-backward " \t")
-    (setq ov (make-overlay (point-at-bol) (point-at-eol))
-    	  tx (concat (buffer-substring (point-at-bol) (point))
-		     (make-string (+ off (max 0 (- c (current-column)))) ?.)
+    (beginning-of-line)
+    (when (looking-at org-complex-heading-regexp)
+      (goto-char (match-beginning 4)))
+    (setq ov (make-overlay (point) (point-at-eol))
+    	  tx (concat (buffer-substring-no-properties (point) (match-end 4))
+		     (make-string
+		      (max 0 (- (- 60 (current-column))
+				(- (match-end 4) (match-beginning 4))
+				(length (org-get-at-bol 'line-prefix)))) ?.)
 		     (org-add-props (concat (make-string l ?*) " "
 					    (org-minutes-to-clocksum-string time)
 					    (make-string (- 16 l) ?\ ))
@@ -2705,9 +2706,13 @@ TIME:      The sum of all time spend in this tree, in minutes.  This time
 			   (format "file:%s::%s"
 				   (buffer-file-name)
 				   (save-match-data
-				     (org-make-org-heading-search-string
-				      (match-string 2))))
-			   (match-string 2)))
+				     (match-string 2)))
+			   (org-make-org-heading-search-string
+			    (replace-regexp-in-string
+			     org-bracket-link-regexp
+			     (lambda (m) (or (match-string 3 m)
+					     (match-string 1 m)))
+			     (match-string 2)))))
 		    tsp (when timestamp
 			  (setq props (org-entry-properties (point)))
 			  (or (cdr (assoc "SCHEDULED" props))

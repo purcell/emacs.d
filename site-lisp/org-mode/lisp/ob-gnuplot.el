@@ -85,10 +85,15 @@ code."
      (lambda (pair)
        (cons
 	(car pair) ;; variable name
-	(if (listp (cdr pair)) ;; variable value
-	    (org-babel-gnuplot-table-to-data
-	     (cdr pair) (org-babel-temp-file "gnuplot-") params)
-	  (cdr pair))))
+	(let* ((val (cdr pair)) ;; variable value
+	       (lp  (listp val)))
+	  (if lp
+	      (org-babel-gnuplot-table-to-data
+	       (let* ((first  (car val))
+		      (tablep (or (listp first) (symbolp first))))
+		 (if tablep val (mapcar 'list val)))
+	       (org-babel-temp-file "gnuplot-") params)
+	  val))))
      (mapcar #'cdr (org-babel-get-header params :var)))))
 
 (defun org-babel-expand-body:gnuplot (body params)

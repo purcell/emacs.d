@@ -240,7 +240,11 @@ communication channel."
 	       (org-time-string-to-time
 		(or (org-element-property :PUBDATE headline)
 		    (error "Missing PUBDATE property"))))))
-	   (title (org-element-property :raw-value headline))
+	   (title (replace-regexp-in-string
+		   org-bracket-link-regexp
+		   (lambda (m) (or (match-string 3 m)
+				   (match-string 1 m)))
+		   (org-element-property :raw-value headline)))
 	   (publink
 	    (or (and hl-perm (concat (or hl-home hl-pdir) hl-perm))
 		(concat
@@ -319,8 +323,8 @@ as a communication channel."
 	 (ifile (plist-get info :input-file))
 	 (publink
 	  (concat (file-name-as-directory blogurl)
-		   (file-name-nondirectory
-		    (file-name-sans-extension ifile))
+		  (file-name-nondirectory
+		   (file-name-sans-extension ifile))
 		  "." rssext)))
     (format
      "\n<title>%s</title>

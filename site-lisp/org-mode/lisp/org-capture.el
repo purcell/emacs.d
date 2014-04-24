@@ -741,7 +741,8 @@ captured item after finalizing."
 	      (pos (org-capture-get :initial-target-position))
 	      (ipt (org-capture-get :insertion-point))
 	      (size (org-capture-get :captured-entry-size)))
-	  (when reg
+	  (if (not reg)
+	      (widen)
 	    (cond ((< ipt (car reg))
 		   ;; insertion point is before the narrowed region
 		   (narrow-to-region (+ size (car reg)) (+ size (cdr reg))))

@@ -157,7 +157,7 @@ channel."
   (replace-regexp-in-string
    "^" "    "
    (org-remove-indentation
-    (org-element-property :value example-block))))
+    (org-export-format-code-default example-block info))))
 
 
 ;;;; Headline
@@ -271,24 +271,18 @@ channel."
   "Transcode LINE-BREAK object into Markdown format.
 CONTENTS is the link's description.  INFO is a plist used as
 a communication channel."
-  (let ((--link-org-files-as-html-maybe
+  (let ((link-org-files-as-md
 	 (function
-	  (lambda (raw-path info)
-	    ;; Treat links to `file.org' as links to `file.html', if
-            ;; needed.  See `org-html-link-org-files-as-html'.
-	    (cond
-	     ((and org-html-link-org-files-as-html
-		   (string= ".org"
-			    (downcase (file-name-extension raw-path "."))))
-	      (concat (file-name-sans-extension raw-path) "."
-		      (plist-get info :html-extension)))
-	     (t raw-path)))))
+	  (lambda (raw-path)
+	    ;; Treat links to `file.org' as links to `file.md'.
+	    (if (string= ".org" (downcase (file-name-extension raw-path ".")))
+		(concat (file-name-sans-extension raw-path) ".md")
+	      raw-path))))
 	(type (org-element-property :type link)))
     (cond ((member type '("custom-id" "id"))
 	   (let ((destination (org-export-resolve-id-link link info)))
 	     (if (stringp destination)	; External file.
-		 (let ((path (funcall --link-org-files-as-html-maybe
-				      destination info)))
+		 (let ((path (funcall link-org-files-as-md destination)))
 		   (if (not contents) (format "<%s>" path)
 		     (format "[%s](%s)" contents path)))
 	       (concat
@@ -302,19 +296,18 @@ a communication channel."
 	  ((org-export-inline-image-p link org-html-inline-image-rules)
 	   (let ((path (let ((raw-path (org-element-property :path link)))
 			 (if (not (file-name-absolute-p raw-path)) raw-path
-			   (expand-file-name raw-path)))))
-	     (format "![%s](%s)"
-		     (let ((caption (org-export-get-caption
-				     (org-export-get-parent-element link))))
-		       (when caption (org-export-data caption info)))
-		     path)))
+			   (expand-file-name raw-path))))
+		 (caption (org-export-data
+			   (org-export-get-caption
+			    (org-export-get-parent-element link)) info)))
+	     (format "![img](%s)"
+		     (if (not (org-string-nw-p caption)) path
+		       (format "%s \"%s\"" path caption)))))
 	  ((string= type "coderef")
 	   (let ((ref (org-element-property :path link)))
 	     (format (org-export-get-coderef-format ref contents)
 		     (org-export-resolve-coderef ref info))))
-	  ((equal type "radio")
-	   (let ((destination (org-export-resolve-radio-link link info)))
-	     (org-export-data (org-element-contents destination) info)))
+	  ((equal type "radio") contents)
 	  ((equal type "fuzzy")
 	   (let ((destination (org-export-resolve-fuzzy-link link info)))
 	     (if (org-string-nw-p contents) contents
@@ -324,20 +317,17 @@ a communication channel."
 		     (if (atom number) (number-to-string number)
 		       (mapconcat 'number-to-string number "."))))))))
 	  (t (let* ((raw-path (org-element-property :path link))
-		    (path (cond
-			   ((member type '("http" "https" "ftp"))
-			    (concat type ":" raw-path))
-			   ((equal type "file")
-			    ;; Treat links to ".org" files as ".html",
-			    ;; if needed.
-			    (setq raw-path
-				  (funcall --link-org-files-as-html-maybe
-					   raw-path info))
-			    ;; If file path is absolute, prepend it
-			    ;; with protocol component - "file://".
-			    (if (not (file-name-absolute-p raw-path)) raw-path
-			      (concat "file://" (expand-file-name raw-path))))
-			   (t raw-path))))
+		    (path
+		     (cond
+		      ((member type '("http" "https" "ftp"))
+		       (concat type ":" raw-path))
+		      ((string= type "file")
+		       (let ((path (funcall link-org-files-as-md raw-path)))
+			 (if (not (file-name-absolute-p path)) path
+			   ;; If file path is absolute, prepend it
+			   ;; with "file:" component.
+			   (concat "file:" path))))
+		      (t raw-path))))
 	       (if (not contents) (format "<%s>" path)
 		 (format "[%s](%s)" contents path)))))))
 

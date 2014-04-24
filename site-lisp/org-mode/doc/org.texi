@@ -5,11 +5,6 @@
 
 @include org-version.inc
 
-@c Use proper quote and backtick for code sections in PDF output
-@c Cf. Texinfo manual 14.2
-@set txicodequoteundirected
-@set txicodequotebacktick
-
 @c Version and Contact Info
 @set MAINTAINERSITE @uref{http://orgmode.org,maintainers web page}
 @set AUTHOR Carsten Dominik
@@ -883,7 +878,11 @@ We @b{strongly recommend} to stick to a single installation method.
 
 Recent Emacs distributions include a packaging system which lets you install
 Elisp libraries.  You can install Org with @kbd{M-x package-install RET org}.
-You need to do this in a session where no @code{.org} file has been visited.
+
+@noindent @b{Important}: you need to do this in a session where no @code{.org} file has
+been visited, i.e. where no Org built-in function have been loaded.
+Otherwise autoload Org functions will mess up the installation.
+
 Then, to make sure your Org configuration is taken into account, initialize
 the package system with @code{(package-initialize)} in your @file{.emacs}
 before setting any Org option.  If you want to use Org's package repository,
@@ -1345,7 +1344,7 @@ When Emacs first visits an Org file, the global state is set to OVERVIEW,
 i.e., only the top level headlines are visible@footnote{When
 @code{org-agenda-inhibit-startup} is non-@code{nil}, Org will not honor the default
 visibility state when first opening a file for the agenda (@pxref{Speeding up
-your agendas}).}  This can be configured through the variable
+your agendas}).}.  This can be configured through the variable
 @code{org-startup-folded}, or on a per-file basis by adding one of the
 following lines anywhere in the buffer:
 
@@ -5530,6 +5529,9 @@ estimated at 0.5 to 2 days of work.  Straight addition produces an estimate
 of 5 to 20 days, representing what to expect if everything goes either
 extremely well or extremely poorly.  In contrast, @code{est+} estimates the
 full job more realistically, at 10--15 days.
+
+Numbers are right-aligned when a format specifier with an explicit width like
+@code{%5d} or @code{%5.1f} is used.
 
 Here is an example for a complete columns definition, along with allowed
 values.
@@ -9735,8 +9737,8 @@ multiple footnotes side by side.
 @vindex org-fontify-emphasized-text
 @vindex org-emphasis-regexp-components
 @vindex org-emphasis-alist
-You can make words @b{*bold*}, @i{/italic/}, _underlined_, @code{=code=}
-and @code{~verbatim~}, and, if you must, @samp{+strike-through+}.  Text
+You can make words @b{*bold*}, @i{/italic/}, _underlined_, @code{=verbatim=}
+and @code{~code~}, and, if you must, @samp{+strike-through+}.  Text
 in the code and verbatim string is not processed for Org mode specific
 syntax, it is exported verbatim.
 
@@ -10406,10 +10408,10 @@ export dispatcher with the following key combinations:
 Toggle asynchronous export.  Asynchronous export uses an external Emacs
 process that is configured with a specified initialization file.
 
-While exporting asynchronously, the output is not displayed.  It is stored in
-a list called ``the export stack'', and can be viewed from there.  The stack
-can be reached by calling the dispatcher with a double @kbd{C-u} prefix
-argument, or with @kbd{&} key from the dispatcher.
+While exporting asynchronously, the output is not displayed, but stored in
+a place called ``the export stack''.  This stack can be displayed by calling
+the dispatcher with a double @kbd{C-u} prefix argument, or with @kbd{&} key
+from the dispatcher menu.
 
 @vindex org-export-in-background
 To make this behavior the default, customize the variable
@@ -13778,8 +13780,13 @@ can be used to map arbitrary language names to existing major modes.
 @item org-src-window-setup
 Controls the way Emacs windows are rearranged when the edit buffer is created.
 @item org-src-preserve-indentation
-This variable is especially useful for tangling languages such as
-Python, in which whitespace indentation in the output is critical.
+By default, the value is @code{nil}, which means that when code blocks are
+evaluated during export or tangled, they are re-inserted into the code block,
+which may replace sequences of spaces with tab characters.  When non-nil,
+whitespace in code blocks will be preserved during export or tangling,
+exactly as it appears.  This variable is especially useful for tangling
+languages such as Python, in which whitespace indentation in the output is
+critical.
 @item org-src-ask-before-returning-to-edit-buffer
 By default, Org will ask before returning to an open edit buffer.  Set this
 variable to @code{nil} to switch without asking.
@@ -15832,7 +15839,7 @@ The corresponding variable is @code{org-archive-location}.
 This line sets the category for the agenda file.  The category applies
 for all subsequent lines until the next @samp{#+CATEGORY} line, or the
 end of the file.  The first such line also applies to any entries before it.
-@item #+COLUMNS: %25ITEM .....
+@item #+COLUMNS: %25ITEM ...
 @cindex property, COLUMNS
 Set the default format for columns view.  This format applies when
 columns view is invoked in locations where no @code{COLUMNS} property
@@ -15847,11 +15854,11 @@ The global version of this variable is
 @item #+FILETAGS: :tag1:tag2:tag3:
 Set tags that can be inherited by any entry in the file, including the
 top-level entries.
-@item #+DRAWERS: NAME1 .....
+@item #+DRAWERS: NAME1 ...
 @vindex org-drawers
 Set the file-local set of additional drawers.  The corresponding global
 variable is @code{org-drawers}.
-@item #+LINK:  linkword replace
+@item #+LINK: linkword replace
 @vindex org-link-abbrev-alist
 These lines (several are allowed) specify link abbreviations.
 @xref{Link abbreviations}.  The corresponding variable is
@@ -16867,7 +16874,7 @@ Orgtbl mode how to translate this table and where to install it.  For
 example:
 @cindex #+ORGTBL
 @example
-#+ORGTBL: SEND table_name translation_function arguments....
+#+ORGTBL: SEND table_name translation_function arguments...
 @end example
 
 @noindent

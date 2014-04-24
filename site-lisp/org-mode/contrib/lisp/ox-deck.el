@@ -378,7 +378,7 @@ the \"slide\" class will be added to the to the list element,
 
 (defun org-deck-link (link desc info)
   (replace-regexp-in-string "href=\"#" "href=\"#outline-container-"
-			    (org-html-link link desc info)))
+			    (org-export-with-backend 'html link desc info)))
 
 (defun org-deck-template (contents info)
   "Return complete document string after HTML conversion.

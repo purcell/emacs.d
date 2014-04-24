@@ -8,7 +8,7 @@ REQUEST: SEND FORM FOR PAST AND FUTURE CHANGES
 
 [What is the name of the program or package you're contributing to?]
 
-  Org-mode, which is part of Emacs
+  Emacs
 
 [Did you copy any files or text written by someone else in these changes?
 Even if that material is free software, we need to know about it.]

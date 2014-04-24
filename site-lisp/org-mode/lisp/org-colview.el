@@ -174,7 +174,7 @@ This is the compiled version of the format.")
 	 (face (list color font 'org-column ref-face))
 	 (face1 (list color font 'org-agenda-column-dateline ref-face))
 	 (cphr (get-text-property (point-at-bol) 'org-complex-heading-regexp))
-	 pom property ass width f string ov column val modval s2 title calc)
+	 pom property ass width f fc string fm ov column val modval s2 title calc)
     ;; Check if the entry is in another buffer.
     (unless props
       (if (eq major-mode 'org-agenda-mode)
@@ -204,6 +204,8 @@ This is the compiled version of the format.")
 		      (nth 2 column)
 		      (length property))
 	    f (format "%%-%d.%ds | " width width)
+	    fm (nth 4 column)
+	    fc (nth 5 column)
 	    calc (nth 7 column)
 	    val (or (cdr ass) "")
 	    modval (cond ((and org-columns-modify-value-for-display-function
@@ -215,13 +217,14 @@ This is the compiled version of the format.")
 			  (org-columns-cleanup-item
 			   val org-columns-current-fmt-compiled
 			   (or org-complex-heading-regexp cphr)))
+			 (fc (org-columns-number-to-string
+			      (org-columns-string-to-number val fm) fm fc))
 			 ((and calc (functionp calc)
 			       (not (string= val ""))
 			       (not (get-text-property 0 'org-computed val)))
 			  (org-columns-number-to-string
 			   (funcall calc (org-columns-string-to-number
-					  val (nth 4 column)))
-			   (nth 4 column)))))
+					  val fm)) fm))))
       (setq s2 (org-columns-add-ellipses (or modval val) width))
       (setq string (format f s2))
       ;; Create the overlay

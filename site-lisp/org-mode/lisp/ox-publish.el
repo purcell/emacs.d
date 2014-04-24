@@ -808,7 +808,8 @@ Default for SITEMAP-FILENAME is 'sitemap.org'."
        (org-mode)
        (let ((title
 	      (let ((property (plist-get (org-export-get-environment) :title)))
-		(if property (org-element-interpret-data property)
+		(if property
+		    (org-no-properties (org-element-interpret-data property))
 		  (file-name-nondirectory (file-name-sans-extension file))))))
 	 (unless visiting (kill-buffer buffer))
 	 (org-publish-cache-set-file-property file :title title)
