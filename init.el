@@ -84,19 +84,16 @@
 (require 'init-erlang)
 (require 'init-javascript)
 (require 'init-sh)
-(require 'init-org)
-(require 'init-org-mime)
+(when *emacs24*
+  (require 'init-org)
+  (require 'init-org-mime))
 (require 'init-css)
 (require 'init-haml)
 (require 'init-python-mode)
 (require 'init-haskell)
 (require 'init-ruby-mode)
-
 (require 'init-lisp)
 (require 'init-elisp)
-
-;; (require 'init-rcirc)
-(if *emacs24* (require 'init-org2blog))
 ;;(require 'init-fill-column-indicator) ;make auto-complete dropdown wierd
 (require 'init-yasnippet)
 ;; Use bookmark instead
@@ -136,11 +133,7 @@
 (require 'init-sr-speedbar)
 (require 'init-smartparens)
 (require 'init-slime)
-(when *emacs24*
-    (require 'init-company)
-  ;; Choose either auto-complete or company-mode by commenting one of below two lines!
-  ;; (require 'init-auto-complete) ; after init-yasnippeta to override TAB
-  )
+(when *emacs24* (require 'init-company))
 (require 'init-stripe-buffer)
 (require 'init-elnode)
 

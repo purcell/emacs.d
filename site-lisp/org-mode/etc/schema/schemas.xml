@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
-  <documentElement prefix="office" typeId="OpenDocument"/>
-  <documentElement prefix="manifest" localName="manifest" typeId="OpenDocument Manifest"/>
-  <typeId id="OpenDocument" uri="od-schema-v1.2-os.rnc"/>
-  <typeId id="OpenDocument Manifest" uri="od-manifest-schema-v1.2-os.rnc"/>
-</locatingRules>
