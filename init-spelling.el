@@ -48,12 +48,12 @@
   "if RUN-TOGETHER is true, spell check the CamelCase words"
   (let (args)
     (cond
-     ((string= ispell-program-name "aspell")
+     ((string-match "aspell$" ispell-program-name)
       ;; force the English dictionary, support Camel Case spelling check (tested with aspell 0.6)
       (setq args (list "--sug-mode=ultra" "--lang=en_US"))
       (if RUN-TOGETHER
           (setq args (append args '("--run-together" "--run-together-limit=5" "--run-together-min=2")))))
-     ((string= ispell-program-name "hunspell")
+     ((string-match "hunspell$" ispell-program-name)
       (setq args nil)))
     args
     ))
