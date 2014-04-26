@@ -106,10 +106,12 @@
                   (w3m-browse-url url t))))))
     ad-do-it))
 
-(setq org2nikola-sourcecode-unsupported-language
-      '(elisp "clojure"
-              emacs-lisp "clojure"
-              lisp "clojure"
-              c++ "cpp"))
+;; {{ org2nikola set up
+(setq org2nikola-output-root-directory "~/projs/blog.binchen.org")
+(setq org2nikola-use-google-code-prettify t)
+(setq org2nikola-prettify-unsupported-language
+      '(elisp "lisp"
+              emacs-lisp "lisp"))
+;; }}
 
 (provide 'init-org)
