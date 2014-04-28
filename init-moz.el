@@ -12,7 +12,10 @@
   ;; Example - you may want to add hooks for your own modes.
   ;; I also add this to python-mode when doing django development.
   (add-hook 'after-save-hook
-            'moz-reload-browser
+            '(lambda () (interactive)
+               (when (memq major-mode '("web-mode" "html-mode" "nxml-mode"))
+                 (moz-reload-browser)
+                 ))
             'append 'local))
 
 ;; (add-hook 'js2-mode-hook 'moz-custom-setup)
