@@ -905,6 +905,8 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 ;; }}
 
 ;; {{
+;; old version subversion just place ".svn" anywhere
+(setq fiplr-root-markers '(".git" ".hg"))
 (setq fiplr-ignored-globs '((directories (".git"
                                           ".svn"
                                           ".bzr"
@@ -934,6 +936,7 @@ when toggle off input method, switch to evil-normal-state if current state is ev
                                           "bt"
                                           "Mail"
                                           "News"
+                                          "node_modules"
                                           "Downloads"
                                           "Desktop"))
                             (files ("*.jpg"
@@ -975,6 +978,7 @@ when toggle off input method, switch to evil-normal-state if current state is ev
                                     "*.avi"
                                     "*.ogv"
                                     "*.rm"
+                                    "*min.js"
                                     "*.rmvb"
                                     "*.mp4"
                                     "*.mkv"
