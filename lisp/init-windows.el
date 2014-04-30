@@ -68,8 +68,8 @@ Call a second time to restore the original window configuration."
 (global-set-key (kbd "C-x <right>") 'windmove-right)
 (global-set-key (kbd "C-x <left>") 'windmove-left)
 
-;; Switch buffer with C-c + arrow key (window.el)
-(global-set-key (kbd "C-c <left>") 'switch-to-prev-buffer)
-(global-set-key (kbd "C-c <right>") 'switch-to-next-buffer)
+;; Switch buffer with C-c + C-arrow key (window.el)
+(global-set-key (kbd "C-c C-<left>") 'previous-buffer)
+(global-set-key (kbd "C-c C-<right>") 'next-buffer)
 
 (provide 'init-windows)
