@@ -31,4 +31,29 @@
         (not gnus-article-sort-by-number)
         ))
 
+(defun message-select-forwarded-email-tags ()
+  "select the <#mml-or-what-ever> tags in message-mode"
+  (interactive)
+  (let (start rlt)
+    (when (search-forward "<#")
+      (setq start (point))
+      (push-mark (point) t t)
+      (goto-char (point-max))
+      (search-backward ">")
+      (forward-char)
+      (setq rlt t))
+    rlt))
+
+(defun message-copy-select-forwarded-email-tags ()
+  "copy the <#mml-or-what-ever> tags in message-mode"
+  (interactive)
+  (save-excursion
+    (cond
+     ((message-select-forwarded-email-tags)
+      (copy-region-as-kill (region-beginning) (region-end))
+      (message "forwarded email tags copied!"))
+     (t (message "NO forwarded email tags found!"))
+     )
+    ))
+
 (provide 'init-gnus)
