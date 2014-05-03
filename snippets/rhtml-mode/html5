@@ -11,6 +11,13 @@
     <meta name="description" content="" />
     <title>${1:mytitle}</title>
     <style type="text/css"></style>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.7.1/modernizr.min.js"></script>
+    <script type="text/javascript">
+      Modernizr.load([{
+        test: Modernizr.mq('only all'),
+        nope: '//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.js'
+      }]);
+    </script>
   </head>
   <body>
     $0
