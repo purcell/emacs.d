@@ -274,6 +274,9 @@ to replace the symbol under cursor"
   "xc" 'save-buffers-kill-terminal
   "xo" 'helm-find-files
   "vd" 'scroll-other-window
+  "vr" 'vr/replace
+  "vq" 'vr/query-replace
+  "vm" 'vr/mc-mark
   "vu" '(lambda () (interactive) (scroll-other-window-down nil))
   "js" 'w3mext-search-js-api-mdn
   "je" 'js2-display-error-list

@@ -993,4 +993,9 @@ when toggle off input method, switch to evil-normal-state if current state is ev
                                     "*~"))))
 ;; }}
 
+(autoload 'vr/replace "visual-regexp")
+(autoload 'vr/query-replace "visual-regexp")
+;; if you use multiple-cursors, this is for you:
+(autoload 'vr/mc-mark "visual-regexp")
+
 (provide 'init-misc)
