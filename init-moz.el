@@ -13,7 +13,7 @@
   ;; I also add this to python-mode when doing django development.
   (add-hook 'after-save-hook
             '(lambda () (interactive)
-               (when (memq major-mode '("web-mode" "html-mode" "nxml-mode"))
+               (when (memq major-mode '(web-mode html-mode nxml-mode nxhml-mode php-mode))
                  (moz-reload-browser)
                  ))
             'append 'local))
