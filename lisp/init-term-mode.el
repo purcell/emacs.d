@@ -71,6 +71,7 @@
 (setq multi-term-program "/bin/bash")
 (setq term-unbind-key-list '("C-x" "<ESC>"))
 (custom-set-variables
+ '(term-buffer-maximum-size 10240)
  '(term-bind-key-alist
    (quote (("C-c C-c" . term-interrupt-subjob)
            ("C-p" . previous-line)
