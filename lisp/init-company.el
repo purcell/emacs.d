@@ -26,4 +26,20 @@
      (setq company-idle-delay 0.2)
      ))
 
+;; Yasnippet integration
+;; Company interferes with Yasnippet’s native behaviour
+;; @Here’s a quick fix: http://gist.github.com/265010
+(defun company-yasnippet-or-completion ()
+  (interactive)
+  (if (yas/expansion-at-point)
+      (progn (company-abort)
+             (yas/expand))
+    (company-complete-common)))
+
+(defun yas/expansion-at-point ()
+  "Tested with v0.6.1. Extracted from `yas/expand-1'"
+  (first (yas/current-key)))
+
+(define-key company-active-map "\t" 'company-yasnippet-or-completion)
+
 (provide 'init-company)
