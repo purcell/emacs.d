@@ -61,7 +61,8 @@
 (require 'init-hippie-expand)
 (require 'init-auto-complete)
 (require 'init-windows)
-(require 'init-sessions)
+;; Load too much settings to initialize too slow
+;(require 'init-sessions)
 (require 'init-fonts)
 (require 'init-mmm)
 
@@ -149,7 +150,6 @@
 (require 'server)
 (unless (server-running-p)
   (server-start))
-
 
 ;;----------------------------------------------------------------------------
 ;; Allow users to provide an optional "init-local" containing personal settings
