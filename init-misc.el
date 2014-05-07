@@ -998,4 +998,13 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 ;; if you use multiple-cursors, this is for you:
 (autoload 'vr/mc-mark "visual-regexp")
 
+;; @see http://www.emacswiki.org/emacs/EasyPG#toc4
+;; besides, use gnupg 1.4.9 instead of 2.0
+(defadvice epg--start (around advice-epg-disable-agent disable)
+  "Make epg--start not able to find a gpg-agent"
+  (let ((agent (getenv "GPG_AGENT_INFO")))
+    (setenv "GPG_AGENT_INFO" nil)
+    ad-do-it
+    (setenv "GPG_AGENT_INFO" agent)))
+
 (provide 'init-misc)
