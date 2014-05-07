@@ -132,6 +132,7 @@
 (require 'init-pomodoro)
 (require 'init-face)
 (require 'init-evil)
+(require 'init-syntax-table)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
