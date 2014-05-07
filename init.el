@@ -150,15 +150,6 @@
 (unless (server-running-p)
   (server-start))
 
-;;----------------------------------------------------------------------------
-;; Theme configured via the interactive 'customize' interface
-;;----------------------------------------------------------------------------
-;; Because the customized variables is referred by packages, load custom.el at
-;; beginning of init.el.
-;; and the customized face should overwrite color-theme so load custom.el again
-;; at end of init.el
-(when (file-exists-p custom-file)
-  (load custom-file))
 
 ;;----------------------------------------------------------------------------
 ;; Allow users to provide an optional "init-local" containing personal settings
