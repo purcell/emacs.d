@@ -1,0 +1,15 @@
+# name: #include <stdlib.h>
+#       #include <stdio.h>
+#       int main(argc, argv) { ... }
+#
+# key: test
+# --
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+int main(int argc, char *argv[])
+{
+    $0
+    return 0;
+}

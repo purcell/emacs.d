@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: fprintf
+# contributor: sherman
+# key: fprintf
+# --
+fprintf(stderr, "${1:format string}"${2:, arg});
