@@ -67,6 +67,7 @@
         (compilation-mode . emacs)
         (speedbar-mode . emacs)
         (magit-commit-mode . normal)
+	(git-commit-mode . insert)
         (js2-error-buffer-mode . emacs)
 	(cscope-list-entry-mode . normal)
         )
