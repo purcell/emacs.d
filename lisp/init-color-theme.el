@@ -18,20 +18,19 @@
   "Set background color when \"window-system\". If nil uses default background."
   :type '(string)
   :group 'init-color-theme
+  :set #'(lambda (sym value)
+	   (when window-system
+	     (init-color-theme-set-bg-color value)))
   )
 
 (defcustom init-color-theme-no-window-system-bg-color "nil"
   "Set background color when not a \"window-system\". If nil uses default background."
   :type '(string)
   :group 'init-color-theme
+  :set #'(lambda (sym value)
+	   (unless window-system
+	     (init-color-theme-set-bg-color value)))
   )
-
-(init-color-theme-set-bg-color
- (if window-system
-     init-color-theme-window-system-bg-color
-   init-color-theme-no-window-system-bg-color))
-
-;; }}
 
 (provide 'init-color-theme)
 ;;; init-color-theme.el ends here
