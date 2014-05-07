@@ -8,6 +8,6 @@
 ;(setq cscope-program “gtags-cscope”)
 
 ;; emacs will call C-c s I update Index will mismatch cscope -q
-(setq cscope-option-do-not-update-database "t")
+;(setq cscope-option-do-not-update-database "t")
 
 (provide 'init-xcscope)
