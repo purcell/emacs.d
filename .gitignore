@@ -28,3 +28,5 @@ site-lisp/package/
 /.bookmarks.el
 /history
 /helm-adaptive-history
+/thumbs/
+/emms/
