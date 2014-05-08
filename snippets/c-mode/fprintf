@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: fprintf
 # contributor: sherman
-# key: fprintf
+# key: fpr
 # --
-fprintf(stderr, "${1:format string}"${2:, arg});
+fprintf (stderr, "${1:string}", ${2:arg});

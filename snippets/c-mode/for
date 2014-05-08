@@ -2,6 +2,6 @@
 # name: for
 # key: for
 # --
-for ${1:var} = ${2:expr}
+for (${1:var} = ${2:0}; $1 < ${3:end}; $1++) {
     $0
-endfor
+}

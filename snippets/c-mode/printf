@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: printf
+# contributor: sherman
+# key: pr
+# --
+printf ("${1:string}", ${2:arg});
