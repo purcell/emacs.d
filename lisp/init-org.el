@@ -3,6 +3,7 @@
 (require-package 'org-fstree)
 (when *is-a-mac*
   (require-package 'org-mac-link)
+  (autoload 'org-mac-grab-link "org-mac-link")
   (require-package 'org-mac-iCal))
 
 
