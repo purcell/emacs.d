@@ -136,6 +136,8 @@
 ;; Leave return (ENTER) key for local key-map
 ;; It is used for magit-log, cscope, etc. mode.
 (define-key evil-motion-state-map (kbd "RET") nil)
+(define-key evil-normal-state-map (kbd "TAB") 'c-indent-line-or-region)
+(define-key evil-visual-state-map (kbd "TAB") 'c-indent-line-or-region)
 (define-key evil-insert-state-map (kbd "M-a") 'move-beginning-of-line)
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-visual-state-map (kbd "C-e") 'move-end-of-line)
