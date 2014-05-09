@@ -195,176 +195,55 @@ to replace the symbol under cursor"
   )
 
 (evil-leader/set-key
-  "as" 'ack-same
-  "ac" 'ack
-  "aa" 'ack-find-same-file
-  "af" 'ack-find-file
-  "bf" 'beginning-of-defun
-  "ef" 'end-of-defun
-  "db" 'sdcv-search-pointer ;; in another buffer
-  "dt" 'sdcv-search-input+ ;; in tip
-  "mf" 'mark-defun
-  "em" 'erase-message-buffer
+  "al" 'align-regexp
+  "cb" 'evilcvn-change-symbol-in-whole-buffer
+  "cd" 'evilcvn-change-symbol-in-defun
+  "cfn" 'copy-filename-of-current-buffer
+  "cfp" 'copy-full-path-of-current-buffer
+  "dj" 'dired-jump ;; open the dired from current file
   "eb" 'eval-buffer
   "ee" 'eval-expression
-  "cx" 'copy-to-x-clipboard
-  "cy" 'strip-convert-lines-into-one-big-string
-  "cff" 'current-font-face
-  "fn" 'copy-filename-of-current-buffer
-  "fp" 'copy-full-path-of-current-buffer
-  "dj" 'dired-jump ;; open the dired from current file
-  "ff" 'toggle-full-window ;; I use WIN+F in i3
-  "gt" 'get-term
-  "px" 'paste-from-x-clipboard
-  ;; "ci" 'evilnc-comment-or-uncomment-lines
-  ;; "cl" 'evilnc-comment-or-uncomment-to-the-line
-  ;; "cc" 'evilnc-copy-and-comment-lines
-  ;; "cp" 'evilnc-comment-or-uncomment-paragraphs
-  "ct" 'ctags-create-or-update-tags-table
-  "cd" 'evilcvn-change-symbol-in-defun
-  "cb" 'evilcvn-change-symbol-in-whole-buffer
-  "tt" 'ido-goto-symbol ;; same as my vim hotkey
-  "cg" 'helm-ls-git-ls
-  "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
-  "W" 'save-some-buffers
-  "K" 'kill-buffer-and-window ;; "k" is preserved to replace "C-g"
-  "it" 'issue-tracker-increment-issue-id-under-cursor
+  "fa" 'beginning-of-defun
+  "fe" 'end-of-defun
+  "fm" 'mark-defun
+  "gdbf" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
+  "gl" 'magit-log
+  "gst" 'magit-status
+  "hdf" 'describe-function
+  "hdv" 'describe-variable
+  "hf" 'find-function
   "hh" 'highlight-symbol-at-point
   "hn" 'highlight-symbol-next
   "hp" 'highlight-symbol-prev
   "hq" 'highlight-symbol-query-replace
-  "bm" 'pomodoro-start ;; beat myself
-  "im" 'helm-imenu
-  "." 'evil-ex
-  ;; toggle overview,  @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
-  "oo" 'switch-window
-  "ov" '(lambda () (interactive) (set-selective-display (if selective-display nil 1)))
-  "or" 'open-readme-in-git-root-directory
-  "mq" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
-  "gg" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
-  "qq" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
-  "hr" 'helm-recentf
-  "jb" 'js-beautify
-  "se" 'string-edit-at-point
-  "s0" 'delete-window
-  "s1" 'delete-other-windows
-  "s2" '(lambda () (interactive) (if *emacs23* (split-window-vertically) (split-window-right)))
-  "s3" '(lambda () (interactive) (if *emacs23* (split-window-horizontally) (split-window-below)))
-  "su" 'winner-undo
-  "x0" 'delete-window
-  "x1" 'delete-other-windows
-  "x2" '(lambda () (interactive) (if *emacs23* (split-window-vertically) (split-window-right)))
-  "x3" '(lambda () (interactive) (if *emacs23* (split-window-horizontally) (split-window-below)))
-  "xu" 'winner-undo
-  "to" 'toggle-web-js-offset
-  "sl" 'sort-lines
-  "ur" 'uniquify-all-lines-region
-  "ub" 'uniquify-all-lines-buffer
-  "ls" 'package-list-packages
-  "lo" 'moz-console-log-var
-  "lj" 'moz-load-js-file-and-send-it
-  "rr" 'moz-console-clear
-  "ws" 'w3mext-hacker-search
-  "hs" 'helm-swoop
-  "hd" 'describe-function
-  "hf" 'find-function
-  "hv" 'describe-variable
-  "hb" 'helm-back-to-last-point
-  "gf" 'gtags-find-tag-from-here
-  "gp" 'gtags-pop-stack
-  "gr" 'gtags-find-rtag
-  "gy" 'gtags-find-symbol
-  "gl" 'magit-log
-  "gst" 'magit-status
-  "fb" 'flyspell-buffer
-  "fe" 'flyspell-goto-next-error
-  "fa" 'flyspell-auto-correct-word
-  "fw" 'ispell-word
-  "dg" 'djcb-gtags-create-or-update
-  "bc" '(lambda () (interactive) (wxhelp-browse-class-or-api (thing-at-point 'symbol)))
   "ma" 'mc/mark-all-like-this-in-defun
-  "mw" 'mc/mark-all-words-like-this-in-defun
-  "ms" 'mc/mark-all-symbols-like-this-in-defun
-  ;; recommended in html
   "md" 'mc/mark-all-like-this-dwim
-  "rw" 'rotate-windows
+  "mq" '(lambda () (interactive) (man (concat "-k " (thing-at-point 'symbol))))
+  "ms" 'mc/mark-all-symbols-like-this-in-defun
+  "mw" 'mc/mark-all-words-like-this-in-defun
+  "mx" 'smex
   "oc" 'occur
   "om" 'toggle-org-or-message-mode
-  "ops" 'my-org2blog-post-subtree
+  "ov" '(lambda () (interactive) (set-selective-display (if selective-display nil 1)))
+  "plp" 'list-packages
+  "pplp" 'package-list-packages
+  "poa" 'pomodoro-start
+  "poe" 'pomodoro-stop
+  "sf" 'sort-fields
+  "sw" 'ispell-word
   "ut" 'undo-tree-visualize
-  "al" 'align-regexp
-  "ww" 'save-buffer
-  "bk" 'buf-move-up
-  "bj" 'buf-move-down
-  "bh" 'buf-move-left
-  "bl" 'buf-move-right
-  "0" 'select-window-0
-  "1" 'select-window-1
-  "2" 'select-window-2
-  "3" 'select-window-3
-  "4" 'select-window-4
-  "5" 'select-window-5
-  "6" 'select-window-6
-  "7" 'select-window-7
-  "8" 'select-window-8
-  "9" 'select-window-9
-  "xm" 'smex
-  "xx" 'er/expand-region
-  "xf" 'ido-find-file
+  "w3g" '(lambda () (interactive) (w3m-search "g" (thing-at-point 'symbol)))
+  "w3js" 'w3mext-search-js-api-mdn
+  "w3q" '(lambda () (interactive) (w3m-search "q" (thing-at-point 'symbol)))
+  "w3s" 'w3mext-hacker-search
   "xb" 'ido-switch-buffer
   "xc" 'save-buffers-kill-terminal
-  "xo" 'helm-find-files
-  "vd" 'scroll-other-window
-  "vu" '(lambda () (interactive) (scroll-other-window-down nil))
-  "js" 'w3mext-search-js-api-mdn
-  "je" 'js2-display-error-list
-  "te" 'js2-mode-toggle-element
-  "tf" 'js2-mode-toggle-hide-functions
-  "xh" 'mark-whole-buffer
-  "xk" 'ido-kill-buffer
-  "xs" 'save-buffer
-  "xz" 'suspend-frame
-  "xvv" 'vc-next-action
-  "xva" 'git-add-current-file
-  "xrf" 'git-reset-current-file
-  "xvu" 'git-add-option-update
-  "xvg" 'vc-annotate
-  "xv=" 'git-gutter:popup-hunk
-  "ps" 'my-goto-previous-section
-  "ns" 'my-goto-next-section
-  "pp" 'my-goto-previous-hunk
-  "nn" 'my-goto-next-hunk
-  "xvs" 'git-gutter:stage-hunk
-  "xvr" 'git-gutter:revert-hunk
-  "xvl" 'vc-print-log
-  "xvp" 'git-messenger:popup-message
-  "xnn" 'narrow-to-region
-  "xnw" 'widen
+  "xk" 'kill-buffer-and-window ;; "k" is preserved to replace "C-g"
   "xnd" 'narrow-to-defun
-  "xnr" 'narrow-to-region
-  "xw" 'widen
-  "xd" 'narrow-to-defun
-  "zc" 'wg-create-workgroup
-  "zk" 'wg-kill-workgroup
-  "zv" 'wg-switch-to-workgroup
-  "zj" 'wg-switch-to-workgroup-at-index
-  "z0" 'wg-switch-to-workgroup-at-index-0
-  "z1" 'wg-switch-to-workgroup-at-index-1
-  "z2" 'wg-switch-to-workgroup-at-index-2
-  "z3" 'wg-switch-to-workgroup-at-index-3
-  "z4" 'wg-switch-to-workgroup-at-index-4
-  "z5" 'wg-switch-to-workgroup-at-index-5
-  "z6" 'wg-switch-to-workgroup-at-index-6
-  "z7" 'wg-switch-to-workgroup-at-index-7
-  "z8" 'wg-switch-to-workgroup-at-index-8
-  "z9" 'wg-switch-to-workgroup-at-index-9
-  "zs" 'wg-save-session
-  "zb" 'wg-switch-to-buffer
-  "zp" 'wg-switch-to-workgroup-left
-  "zn" 'wg-switch-to-workgroup-right
-  "zwu" 'wg-undo-wconfig-change
-  "zwr" 'wg-redo-wconfig-change
-  "zws" 'wg-save-wconfig
+  "xnw" 'widen
+  "xs" 'save-buffer
+  "xw" 'save-buffer
+  "xz" 'suspend-framee
   )
 ;; }}
 
