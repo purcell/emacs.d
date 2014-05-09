@@ -21,9 +21,20 @@
       (funcall s-f)
       (set-window-buffer (next-window) (other-buffer)))))
 
+(defun split-window-func-with-new-buffer (split-function)
+    (lexical-let ((s-f split-function))
+    (lambda ()
+      (interactive)
+      (funcall s-f)
+      (let ((buffer (generate-new-buffer "*new*")))
+	(set-window-buffer (next-window) buffer)
+	(with-current-buffer buffer
+	  (funcall (default-value 'major-mode)))))))
+
 (global-set-key "\C-x2" (split-window-func-with-other-buffer 'split-window-vertically))
 (global-set-key "\C-x3" (split-window-func-with-other-buffer 'split-window-horizontally))
-
+(global-set-key "\C-xn2" (split-window-func-with-new-buffer 'split-window-below))
+(global-set-key "\C-xn3" (split-window-func-with-new-buffer 'split-window-right))
 
 ;;----------------------------------------------------------------------------
 ;; Rearrange split windows
