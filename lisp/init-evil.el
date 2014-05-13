@@ -163,6 +163,8 @@
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 
+(evil-ex-define-cmd "tlist" 'taglist)
+
 ;; {{ evil-leader config
 (require-package 'evil-leader)
 (require 'evil-leader)

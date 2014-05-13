@@ -133,6 +133,7 @@
 (require 'init-face)
 (require 'init-evil)
 (require 'init-syntax-table)
+(require 'init-taglist)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
