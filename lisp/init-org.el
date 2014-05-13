@@ -95,7 +95,6 @@
     (define-key org-mode-map (kbd "M-h") nil))
   (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
   (when *is-a-mac*
-    (autoload 'omlg-grab-link "org-mac-link")
-    (define-key org-mode-map (kbd "C-c g") 'omlg-grab-link)))
+    (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link)))
 
 (provide 'init-org)
