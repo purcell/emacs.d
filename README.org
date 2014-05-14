@@ -1,11 +1,12 @@
 * Warning
-- I'm using [[http://www.vim.org][Vim]] key binding. Please see "Tips" section if you prefer the Emacs key binding.
+- I'm using [[http://www.vim.org][Vim]] key binding. Please see section [[Tips]] if you prefer the Emacs key binding.
 - People in Mainland China may need [[http://code.google.com/p/goagent/][goagent]] to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server (or any proxy server).
 - C++/C developers, you need tell Emacs where to search headers to make auto-complete work. See section `clang` for details.
 - I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid some overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs if you set up environment variable HOME.
 - I whitelist packages from [[http://melpa.milkbox.net][melpa]] because it is too cutting edge. Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
-- Many users have issue to fetch packages from elpa/marmalade/melpa. Check the section "Install packages without elpa/marmalade/melpa" for solutions.
+- Many users have issue to fetch packages from remote repositories. Check the section [[Install packages without elpa/marmalade/melpa]] for solutions.
 - In your bug report, please include details of environment (OS, Emacs version ...) and the full output of `emacs --debug-init`.
+- Remove bundled emacs 22 at first if you are using OS X
 
 * General
 My first priority is *stable*. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]].
@@ -128,7 +129,7 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - [[https://github.com/mxcl/homebrew][homebrew]] at Mac
 - any package manager at Linux
 
-* Install packages without elpa/marmalade/melpa
+* <<Install packages without elpa/marmalade/melpa>>
 ** Solution 1
 Here are the exact steps you need follow:
 - Go to [[https://github.com/redguardtoo/myelpa]].
@@ -157,7 +158,7 @@ Then you are good to go. Obviously you need internet connection to access github
 * Report bug
 Please file bug report at [[https://github.com/redguardtoo/emacs.d]]. Don't send me email!
 
-* Tips
+* <<Tips>>
 By default EVIL (Vim emulation in Emacs) is used. You can comment out line containing "(require 'init-evil)" in init.el to unload it.
 
 Some package cannot be downloaded automatically because of network problem.
