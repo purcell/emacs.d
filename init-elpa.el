@@ -102,7 +102,14 @@ ARCHIVE is the string name of the package archive.")
 
 (defvar melpa-exclude-packages
   ;; I'm happy my packages included in melpa. But need time to switch to melpa finally
-  '(slime evil-nerd-commenter company evil auto-complete dash)
+  '(slime
+    evil-nerd-commenter
+    evil-matchit
+    cpputils-cmake
+    company
+    evil
+    auto-complete
+    dash)
   "Don't install Melpa versions of these packages.")
 
 ;; Don't take Melpa versions of certain packages
