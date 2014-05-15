@@ -21,7 +21,8 @@
                                          inf-ruby-mode
                                          gud-mode
                                          org-mode
-					 term-mode
+                                         vc-git-log-edit-mode
+                                         term-mode
                                          w3m-mode
                                          speedbar-mode
                                          gnus-summary-mode
