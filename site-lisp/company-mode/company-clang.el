@@ -60,6 +60,9 @@ or automatically through a custom `company-clang-prefix-guesser'."
 (defvar company-clang-modes '(c-mode c++-mode objc-mode)
   "Major modes which clang may complete.")
 
+(defcustom company-clang-insert-arguments t
+  "When non-nil, insert function arguments as a template after completion.")
+
 ;; prefix ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar company-clang--prefix nil)
@@ -305,7 +308,7 @@ passed via standard input."
     (meta       (company-clang--meta arg))
     (annotation (company-clang--annotation arg))
     (post-completion (let ((anno (company-clang--annotation arg)))
-                       (when anno
+                       (when (and company-clang-insert-arguments anno)
                          (insert anno)
                          (if (string-match ":" anno)
                              (company-clang-objc-templatify anno)
