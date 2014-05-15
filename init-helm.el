@@ -23,6 +23,7 @@
         (execute-extended-command . ido)
         (minibuffer-completion-help . nil)
         (minibuffer-complete . nil)
+        (c-set-offset . nil)
         (wg-load . ido)
         (rgrep . nil)
         (read-directory-name . ido)
