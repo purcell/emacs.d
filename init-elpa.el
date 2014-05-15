@@ -128,7 +128,6 @@ ARCHIVE is the string name of the package archive.")
 
 (package-initialize)
 
-(require-package 'all)
 (require-package 'xml-rpc)
 (require-package 'kv '(0 0 19) nil)
 (require-package 'dash '(2 5 0) nil)
