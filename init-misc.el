@@ -127,8 +127,15 @@
 ;need install browse-kill-ring
 (browse-kill-ring-default-keybindings)
 
-;; show trailing spaces in a programming mod
-(add-hook 'prog-mode-hook (lambda () (setq show-trailing-whitespace t)))
+(add-hook 'prog-mode-hook
+          '(lambda ()
+             ;; enable for all programming modes
+             ;; http://emacsredux.com/blog/2013/04/21/camelcase-aware-editing/
+             (subword-mode)
+             ;; eldoc, show API doc in minibuffer echo area
+             (turn-on-eldoc-mode)
+             ;; show trailing spaces in a programming mod
+             (setq show-trailing-whitespace t)))
 
 ;; turns on auto-fill-mode, don't use text-mode-hook because for some
 ;; mode (org-mode for example), this will make the exported document
@@ -498,10 +505,6 @@ Current position is preserved."
     (kill-new str)
     (goto-char orig-pos)))
   )
-
-;; enable for all programming modes
-;; http://emacsredux.com/blog/2013/04/21/camelcase-aware-editing/
-(add-hook 'prog-mode-hook 'subword-mode)
 
 ;; { smarter navigation to the beginning of a line
 ;; http://emacsredux.com/blog/2013/05/22/smarter-navigation-to-the-beginning-of-a-line/
