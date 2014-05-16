@@ -249,6 +249,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'sr-speedbar)
 (require-package 'requirejs-mode)
 (require-package 'smartparens)
+;; company-mode drop emacs 23 support
+(if (and (>= emacs-major-version 24)) (require-package 'company '(0 8 0) nil))
 (require-package 'legalese)
 (require-package 'string-edit)
 (require-package 'dired-details)
