@@ -72,6 +72,11 @@
   (define-key org-clock-mode-line-map [header-line mouse-1] 'org-clock-menu))
 
 
+(require-package 'org-pomodoro)
+(after-load 'org-agenda
+  (define-key org-agenda-mode-map (kbd "P") 'org-pomodoro))
+
+
 ;; ;; Show iCal calendars in the org agenda
 ;; (when (and *is-a-mac* (require 'org-mac-iCal nil t))
 ;;   (setq org-agenda-include-diary t
