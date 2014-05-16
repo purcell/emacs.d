@@ -81,6 +81,7 @@ ARCHIVE is the string name of the package archive.")
 (defvar melpa-include-packages
   '(bbdb
     lua-mode
+    anaconda-mode
     emms
     pomodoro
     helm
@@ -260,6 +261,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'evil-matchit '(1 2 9) nil)
 (require-package 'fiplr)
 (require-package 'elpa-mirror '(1 1 2) nil)
+(if *emacs24* (require-package 'anaconda-mode))
 (require-package 'quack) ;; for scheme
 ;;(require-package 'git-messenger '(20130613 1222 0) nil)
 (require-package 'issue-tracker '(0 0 1) nil)

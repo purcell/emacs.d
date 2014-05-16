@@ -15,7 +15,11 @@
 (eval-after-load 'python
   '(require 'flymake-python-pyflakes))
 
-(add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
+(add-hook 'python-mode-hook '(lambda ()
+                               (when *emacs24*
+                                 (anaconda-eldoc)
+                                 (add-to-list 'company-backends 'company-anaconda))
+                               (flymake-python-pyflakes-load)))
 
 
 
