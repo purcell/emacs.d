@@ -27,7 +27,7 @@ Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Py
 - yasnippet and my customized snippets (insert code snippet by typing less keys)
 
 * Install
-Download [[https://github.com/redguardtoo/emacs.d/archive/master.zip][this zip file]] and extract its content into ~/.emacs.d. Ensure that the 'init.el' contained in this repo ends up at ~/.emacs.d/init.el and old -~/.emacs *IS REMOVED*.
+Download [[https://github.com/redguardtoo/emacs.d/archive/master.zip][this zip file]] and extract its content into ~/.emacs.d. Ensure that the 'init.el' contained in this repo ends up at ~/.emacs.d/init.el and old ~/.emacs *IS REMOVED*.
 
 Make sure you are connected to the internet.
 
@@ -36,7 +36,11 @@ you may need run the below command in the terminal at least once to update the c
 emacs -nw --batch -l ~/.emacs.d/init.el -f package-refresh-contents
 #+END_SRC
 
-Package repository is like Emacs App stores but all the Apps are FREE.
+*If you cannot download packages from remote repository (for example, you are behind company firewall), don't panic!*
+
+You do have USB stick, right?
+
+Check the section *Install packages without elpa/marmalade/melpa* for solutions.
 
 * Directory structure
 init.el is main file which include all the other *.el files.
@@ -136,24 +140,24 @@ Here are the exact steps you need follow:
 - Click "Download ZIP"
 - Extract zip somewhere say "~/myelpa".
 - Double check that there is a file name "archive-contents" in the directory "~/myelpa".
-- insert below code into of ~/.emacs.d/init.el.
+- uncomment below code in ~/.emacs.d/init-elpa.el.
 #+BEGIN_SRC bash
 (setq package-archives '(("myelpa" . "~/myelpa/")))
 #+END_SRC
 
 That's it. You will never need internet connection in the future.
 
-Please note that all your packages are locked to the versions I'm using. So there is no way you can upgrade package online.
+Please note that all your packages are locked to the versions I'm using. So you *can't* upgrade package online in the future.
 
 I don't recommend advanced users locking their package version.
 
 ** Solution 2
-If you are too lazy to download ZIP file, you can insert one line into your init.el,
+If you are too lazy to download ZIP file, you can uncomment below code in ~/.emacs.d/init-elpa.el,
 #+BEGIN_SRC bash
 (setq package-archives '(("myelpa" . "https://raw.github.com/redguardtoo/myelpa/master/")))
 #+END_SRC
 
-Then you are good to go. Obviously you need internet connection to access github.com. So your choice.
+Then you are good to go. Obviously you need internet connection to access github.com.
 
 * Report bug
 Please file bug report at [[https://github.com/redguardtoo/emacs.d]]. Don't send me email!
