@@ -15,7 +15,7 @@ Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Py
 
 * Features
 - All key binding and plugins are usable in terminal
-- Real time HTML syntax checker enabled (you need install tidy)
+- Real time HTML syntax checker enabled (you need install tidy or tidy-html5)
 - git or subversion is *NOT* needed. You *DONOT* need run 'git submodule update'.
 - optimized for cross-platform C++ development with CMake and wxWidgets
 - emacs-w3m (console browser)
@@ -77,9 +77,10 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - needed by lisp `slime`
 - install through OS package manager
 
-** tidy (html tidy program)
+** tidy (html tidy program) or html5-tidy (RECOMMENDED)
 - needed by `web-mode` for real time HTML syntax check
 - install through OS package manager
+- For html5-tidy, you need [[https://github.com/w3c/tidy-html5/archive/master.zip][download its source code]] and build it manually
 
 ** csslint
 - install `node.js` through OS package manager, then `sudo npm install -g csslint`
