@@ -49,6 +49,7 @@ ARCHIVE is the string name of the package archive.")
 
 ;;; Also use Melpa for most packages
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/"))
 
 ;; But don't take Melpa versions of certain packages
 (setq package-filter-function
