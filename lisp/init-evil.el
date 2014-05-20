@@ -219,8 +219,6 @@ to replace the symbol under cursor"
   "gdbf" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "gl" 'magit-log
   "gst" 'magit-status
-  "hdf" 'describe-function
-  "hdv" 'describe-variable
   "hf" 'find-function
   "hh" 'highlight-symbol-at-point
   "hn" 'highlight-symbol-next
