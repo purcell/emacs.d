@@ -34,5 +34,10 @@
  (global-set-key [(meta f11)] 'sanityinc/ido-choose-from-recentf))
 
 
+;; http://www.reddit.com/r/emacs/comments/21a4p9/use_recentf_and_ido_together/cgbprem
+(add-hook 'ido-setup-hook (lambda () (define-key ido-completion-map [up] 'previous-history-element)))
+
+
+
 
 (provide 'init-ido)
