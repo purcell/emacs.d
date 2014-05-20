@@ -152,7 +152,6 @@
 (define-key evil-visual-state-map (kbd "M-k") 'evil-exit-visual-state)
 (define-key minibuffer-local-map (kbd "M-k") 'abort-recursive-edit)
 (define-key evil-insert-state-map (kbd "M-j") 'my-yas-expand)
-(global-set-key (kbd "M-k") 'keyboard-quit)
 
 (define-key evil-insert-state-map [escape] 'evil-normal-state)
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
@@ -163,6 +162,7 @@
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 
+(global-set-key (kbd "M-k") 'keyboard-quit)
 (global-set-key (kbd "C-o") 'evil-execute-in-normal-state)
 
 (evil-ex-define-cmd "tlist" 'taglist)
