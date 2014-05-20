@@ -72,7 +72,7 @@
 
 (custom-set-variables
  '(term-buffer-maximum-size 10240)
- '(term-unbind-key-list (quote ("C-x")))
+ '(term-unbind-key-list (quote ("C-x" "C-o")))
  '(term-bind-key-alist
    (quote (("C-c C-c" . term-interrupt-subjob)
            ("C-p" . previous-line)
