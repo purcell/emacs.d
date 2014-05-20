@@ -17,6 +17,8 @@
 
 (add-hook 'haskell-mode-hook (lambda () (subword-mode +1)))
 
+(setq-default haskell-stylish-on-save t)
+
 (after-load 'haskell-mode
   (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
   (define-key haskell-mode-map (kbd "C-o") 'open-line))
