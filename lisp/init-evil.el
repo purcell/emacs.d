@@ -69,7 +69,6 @@
         (magit-commit-mode . normal)
 	(git-commit-mode . insert)
         (js2-error-buffer-mode . emacs)
-	(cscope-list-entry-mode . normal)
 	(help-mode . normal)
         )
       do (evil-set-initial-state mode state))
@@ -79,7 +78,7 @@
 ;; when hooking to mode
 (loop for (hook) in
       '(
-	(cscope-list-entry-hook)
+;;	(cscope-list-entry-hook)
 	)
       do (add-hook hook 'evil-change-to-initial-state))
 
