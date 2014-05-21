@@ -384,29 +384,33 @@
 (defun copy-to-x-clipboard ()
   (interactive)
   (if (region-active-p)
-    (progn
-     ; my clipboard manager only intercept CLIPBOARD
-      (shell-command-on-region (region-beginning) (region-end)
+      (progn
         (cond
-         (*cygwin* "putclip")
-         (*is-a-mac* "pbcopy")
-         (t "xsel -ib")
-         )
-        )
-      (message "Yanked region to clipboard!")
-      (deactivate-mark))
-    (message "No region active; can't yank to clipboard!")))
+         ((and (display-graphic-p) x-select-enable-clipboard)
+          (x-set-selection 'CLIPBOARD (buffer-substring (region-beginning) (region-end)))
+          )
+         (t (shell-command-on-region (region-beginning) (region-end)
+                                     (cond
+                                      (*cygwin* "putclip")
+                                      (*is-a-mac* "pbcopy")
+                                      (*linux* "xsel -ib")))
+            ))
+        (message "Yanked region to clipboard!")
+        (deactivate-mark))
+        (message "No region active; can't yank to clipboard!")))
 
 (defun paste-from-x-clipboard()
   (interactive)
-  (shell-command
-   (cond
-    (*cygwin* "getclip")
-    (*is-a-mac* "pbpaste")
-    (t "xsel -ob")
-    )
-   1)
-  )
+  (cond
+   ((and (display-graphic-p) x-select-enable-clipboard)
+    (insert (x-selection 'CLIPBOARD)))
+   (t (shell-command
+       (cond
+        (*cygwin* "getclip")
+        (*is-a-mac* "pbpaste")
+        (t "xsel -ob"))
+       1))
+   ))
 
 (defun my/paste-in-minibuffer ()
   (local-set-key (kbd "M-y") 'paste-from-x-clipboard)
