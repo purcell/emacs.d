@@ -350,36 +350,52 @@
 ;; xclip has some problem when copying under Linux
 (defun copy-yank-str (msg)
   (kill-new msg)
-  (with-temp-buffer
-    (insert msg)
-    (shell-command-on-region (point-min) (point-max)
-                             (cond
-                              ((eq system-type 'cygwin) "putclip")
-                              ((eq system-type 'darwin) "pbcopy")
-                              (t "xsel -ib")
-                              ))))
+  (cond
+   ;; display-graphic-p need windows 23.3.1
+   ((and (display-graphic-p) x-select-enable-clipboard)
+    (x-set-selection 'CLIPBOARD msg))
+   (t (with-temp-buffer
+        (insert msg)
+        (shell-command-on-region (point-min) (point-max)
+                                 (cond
+                                  ((eq system-type 'cygwin) "putclip")
+                                  ((eq system-type 'darwin) "pbcopy")
+                                  (t "xsel -ib")
+                                  )))
+    )))
 
-(defun copy-filename-of-current-buffer ()
+(defun cp-filename-of-current-buffer ()
   "copy file name (NOT full path) into the yank ring and OS clipboard"
   (interactive)
   (let ((filename))
     (when buffer-file-name
       (setq filename (file-name-nondirectory buffer-file-name))
-      (kill-new filename)
       (copy-yank-str filename)
       (message "filename %s => clipboard & yank ring" filename)
       )))
 
-(defun copy-full-path-of-current-buffer ()
+(defun cp-fullpath-of-current-buffer ()
   "copy full path into the yank ring and OS clipboard"
   (interactive)
   (when buffer-file-name
-    (kill-new (file-truename buffer-file-name))
     (copy-yank-str (file-truename buffer-file-name))
     (message "full path of current buffer => clipboard & yank ring")
     ))
 
 (global-set-key (kbd "C-x v f") 'copy-full-path-of-current-buffer)
+
+;; {{ git-messenger
+(require 'git-messenger)
+;; show details to play `git blame' game
+(setq git-messenger:show-detail t)
+(add-hook 'git-messenger:after-popup-hook (lambda (msg)
+                                            ;; extract commit id and put into the kill ring
+                                            (when (string-match "\\(commit *: *\\)\\([0-9a-z]+\\)" msg)
+                                              (kill-new (match-string 2 msg)))
+                                            (copy-yank-str msg)
+                                            (message "commit details > clipboard & kill-ring")))
+(global-set-key (kbd "C-x v p") 'git-messenger:popup-message)
+;; }}
 
 (defun copy-to-x-clipboard ()
   (interactive)
@@ -387,8 +403,7 @@
       (progn
         (cond
          ((and (display-graphic-p) x-select-enable-clipboard)
-          (x-set-selection 'CLIPBOARD (buffer-substring (region-beginning) (region-end)))
-          )
+          (x-set-selection 'CLIPBOARD (buffer-substring (region-beginning) (region-end))))
          (t (shell-command-on-region (region-beginning) (region-end)
                                      (cond
                                       (*cygwin* "putclip")

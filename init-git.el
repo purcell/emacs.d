@@ -123,26 +123,6 @@
     (message "DONE! git add -u %s" default-directory)
     ))
 
-;; {{ git-messenger
-(require 'git-messenger)
-;; show to details to play `git blame' game
-(setq git-messenger:show-detail t)
-(add-hook 'git-messenger:after-popup-hook (lambda (msg)
-                                            ;; extract commit id and put into the kill ring
-                                            (when (string-match "\\(commit *: *\\)\\([0-9a-z]+\\)" msg)
-                                              (kill-new (match-string 2 msg)))
-                                            (kill-new msg)
-                                            (with-temp-buffer
-                                              (insert msg)
-                                              (shell-command-on-region (point-min) (point-max)
-                                                                       (cond
-                                                                        ((eq system-type 'cygwin) "putclip")
-                                                                        ((eq system-type 'darwin) "pbcopy")
-                                                                        (t "xsel -ib")
-                                                                        )))
-                                            (message "commit details > clipboard & kill-ring")))
-(global-set-key (kbd "C-x v p") 'git-messenger:popup-message)
-;; }}
 
 ;; {{ goto next/previous hunk/section
 (defun my-goto-next-section (arg)
