@@ -574,7 +574,7 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key (kbd "C-c C-q") 'open-readme-in-git-root-directory)
 
 ;; from http://emacsredux.com/blog/2013/05/04/rename-file-and-buffer/
-(defun rename-file-and-buffer ()
+(defun vc-rename-file-and-buffer ()
   "Rename the current buffer and file it is visiting."
   (interactive)
   (let ((filename (buffer-file-name)))
@@ -588,9 +588,8 @@ point reaches the beginning or end of the buffer, stop there."
           (rename-buffer new-name)
           (set-visited-file-name new-name)
           (set-buffer-modified-p nil)))))))
-(global-set-key (kbd "C-c C-r")  'rename-file-and-buffer)
 
-(defun copy-file-and-rename-buffer ()
+(defun vc-copy-file-and-rename-buffer ()
 "copy the current buffer and file it is visiting.
 if the old file is under version control, the new file is added into
 version control automatically"
@@ -606,7 +605,6 @@ version control automatically"
         (when (vc-backend filename)
           (vc-register)
          )))))
-(global-set-key (kbd "C-c c")  'copy-file-and-rename-buffer)
 
 ;; @see http://wenshanren.org/?p=298
 (defun wenshan-edit-current-file-as-root ()
