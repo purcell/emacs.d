@@ -14,6 +14,8 @@
 ;; Use smex to handle M-x
 (when (eval-when-compile (>= emacs-major-version 24))
   (require-package 'smex)
+  ;; Change path for ~/.smex-items
+  (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
   (global-set-key [remap execute-extended-command] 'smex))
 
 (require-package 'idomenu)
