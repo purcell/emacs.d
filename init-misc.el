@@ -742,15 +742,8 @@ The full path into relative path insert it as a local file link in org-mode"
   (interactive)
   (let (str)
     (with-temp-buffer
-      (shell-command
-       (cond
-        (*cygwin* "getclip")
-        (*is-a-mac* "pbpaste")
-        (t "xsel -ob")
-        )
-       1)
-      (setq str (buffer-string))
-      )
+      (paste-from-x-clipboard)
+      (setq str (buffer-string)))
 
     ;; convert to relative path (relative to current buffer) if possible
     (let ((m (string-match (file-name-directory (buffer-file-name)) str) ))
