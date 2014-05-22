@@ -271,6 +271,9 @@ to replace the symbol under cursor"
 (require-package 'evil-nerd-commenter)
 (require 'evil-nerd-commenter)
 
-(evilnc-default-hotkeys)
+;(evilnc-default-hotkeys)
+(global-set-key (kbd "C-c l") 'evilnc-comment-or-uncomment-lines)
+(global-set-key (kbd "C-c c") 'evilnc-copy-and-comment-lines)
+(global-set-key (kbd "C-c p") 'evilnc-comment-or-uncomment-paragraphs)
 
 (provide 'init-evil)
