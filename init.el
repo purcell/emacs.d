@@ -134,6 +134,7 @@
 (require 'init-evil)
 (require 'init-syntax-table)
 (require 'init-tag-list)
+(require 'init-math-utils)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
