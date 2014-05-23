@@ -209,6 +209,7 @@ to replace the symbol under cursor"
   "cd" 'evilcvn-change-symbol-in-defun
   "cfn" 'copy-filename-of-current-buffer
   "cfp" 'copy-full-path-of-current-buffer
+  "d2h" 'math-utils-dec2hex
   "dj" 'dired-jump ;; open the dired from current file
   "eb" 'eval-buffer
   "ee" 'eval-expression
@@ -218,6 +219,7 @@ to replace the symbol under cursor"
   "gdbf" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer))))
   "gl" 'magit-log
   "gst" 'magit-status
+  "h2d" 'math-utils-hex2dec
   "hf" 'find-function
   "hh" 'highlight-symbol-at-point
   "hn" 'highlight-symbol-next
@@ -272,7 +274,8 @@ to replace the symbol under cursor"
 (require 'evil-nerd-commenter)
 
 ;(evilnc-default-hotkeys)
-(global-set-key (kbd "C-c l") 'evilnc-comment-or-uncomment-lines)
+(define-key evil-normal-state-map (kbd "M-;") 'evilnc-comment-or-uncomment-lines)
+(define-key evil-visual-state-map (kbd "M-;") 'comment-dwim)
 (global-set-key (kbd "C-c c") 'evilnc-copy-and-comment-lines)
 (global-set-key (kbd "C-c p") 'evilnc-comment-or-uncomment-paragraphs)
 
