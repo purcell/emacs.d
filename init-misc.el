@@ -1020,4 +1020,8 @@ when toggle off input method, switch to evil-normal-state if current state is ev
     ad-do-it
     (setenv "GPG_AGENT_INFO" agent)))
 
+;; {{go-mode
+(require 'go-mode-load)
+;; }}
+
 (provide 'init-misc)
