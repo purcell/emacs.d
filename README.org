@@ -1,12 +1,12 @@
 * Warning
 - I'm using [[http://www.vim.org][Vim]] key binding. Please see section *Tips* if you prefer the Emacs key binding.
 - People in Mainland China may need [[http://code.google.com/p/goagent/][goagent]] to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server (or any proxy server).
-- C++/C developers, you need tell Emacs where to search headers to make auto-complete work. See section `clang` for details.
-- I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid some overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs if you set up environment variable HOME.
+- C++/C developers, you need tell Emacs location of header files. You *MUST* see section `clang` now!
+- I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs if you set up environment variable HOME.
 - I whitelist packages from [[http://melpa.milkbox.net][melpa]] because it is too cutting edge. Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
-- Many users have issue to fetch packages from remote repositories. Check the section *Install packages without elpa/marmalade/melpa* for solutions.
+- If you not willing to fetch packages from remote repositories, see the section *Install packages without elpa/marmalade/melpa* for easier way.
 - In your bug report, please include details of environment (OS, Emacs version ...) and the full output of `emacs --debug-init`.
-- Remove bundled emacs 22 at first if you are using OS X
+- Remove bundled emacs 22 at first *if you are using OS X*!
 
 * General
 My first priority is *stable*. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]].
@@ -15,7 +15,7 @@ Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Py
 
 * Features
 - All key binding and plugins are usable in terminal
-- Real time HTML syntax checker enabled (you need install tidy or tidy-html5)
+- Real time HTML syntax checker enabled (you need install tidy or tidy-html5). I recommend tidy-html5.
 - git or subversion is *NOT* needed. You *DONOT* need run 'git submodule update'.
 - optimized for cross-platform C++ development with CMake and wxWidgets
 - emacs-w3m (console browser)
@@ -96,8 +96,8 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 ** [[http://clang.llvm.org][Clang]]
 - needed by `cpputils-cmake`, `flymake`, `company-clang`
 - install through OS package manager
-- If you use `company-clang` (default), add `(setq company-clang-arguments '("-I/example1/dir" "-I/example2/dir"))` into ~/.emacs.d/init.el
-- If you use `cpputils-cmake` and `cmake`, `cpputils-cmake` will do all the set up for you.
+- If you use `cpputils-cmake` and `cmake`, `cpputils-cmake` will do all the set up for you. You don't need read next item!
+- If you use `company-clang`, add `(setq company-clang-arguments '("-I/example1/dir" "-I/example2/dir"))` into ~/.emacs.d/init.el
 
 ** [[https://addons.mozilla.org/en-us/firefox/addon/mozrepl/][MozRepl firefox addon]]
 - needed by [[http://www.emacswiki.org/emacs/MozRepl][MozRepl]]
