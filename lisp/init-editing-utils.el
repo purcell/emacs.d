@@ -351,4 +351,8 @@ With arg N, insert N newlines."
   (setq buffer-display-table (make-display-table))
   (aset buffer-display-table ?\^M []))
 
+
+;; Bind M-RET to c-indent-new-comment-line
+(global-set-key (kbd "M-RET") 'c-indent-new-comment-line)
+
 (provide 'init-editing-utils)
