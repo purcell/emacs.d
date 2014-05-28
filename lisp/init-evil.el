@@ -68,6 +68,8 @@
         (speedbar-mode . emacs)
         (magit-commit-mode . normal)
 	(git-commit-mode . insert)
+	(git-rebase-mode . insert)
+	(magit-cherry-mode . insert)
         (js2-error-buffer-mode . emacs)
 	(help-mode . normal)
         )
