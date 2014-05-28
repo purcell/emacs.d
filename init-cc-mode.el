@@ -81,7 +81,9 @@
   ; @see https://github.com/seanfisk/cmake-flymake
   ; make sure you project use cmake
   (flymake-mode 1)
-  (cppcm-reload-all)
+  (if  (not (or (string-match "^/usr/local/include/.*" buffer-file-name)
+                (string-match "^/usr/src/linux/include/.*" buffer-file-name)))
+      (cppcm-reload-all))
   )
 
 (defun fix-c-indent-offset-according-to-syntax-context (key val)
