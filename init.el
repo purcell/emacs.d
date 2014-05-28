@@ -136,6 +136,7 @@
 (require 'init-tag-list)
 (require 'init-math-utils)
 (require 'init-ace-jump)
+(require 'init-key-chord)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
