@@ -7,7 +7,7 @@
 
 (key-chord-mode 1)
 
-(key-chord-define-global "jj" 'ace-jump-mode)
+(key-chord-define-global "jj" 'ace-jump-char-mode)
 (key-chord-define-global "j'" 'ace-jump-mode-pop-mark)
 
 (when (boundp 'evil-insert-state-map)
