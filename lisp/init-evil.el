@@ -58,7 +58,7 @@
         (shell-mode . emacs)
         ;;(message-mode . emacs)
         (magit-log-edit-mode . emacs)
-        (fundamental-mode . emacs)
+        (fundamental-mode . normal)
         (gtags-select-mode . emacs)
         (weibo-timeline-mode . emacs)
         (weibo-post-mode . emacs)
