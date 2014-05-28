@@ -101,6 +101,8 @@
 ;;----------------------------------------------------------------------------
 (require-package 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
+;; No window system can not pass C-= from terminal
+(global-set-key (kbd "M-SPC") 'er/expand-region)
 
 
 ;;----------------------------------------------------------------------------
