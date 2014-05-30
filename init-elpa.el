@@ -79,7 +79,7 @@ ARCHIVE is the string name of the package archive.")
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 
 ;; Un-comment below line if you download zip file from https://github.com/redguardtoo/myelpa/archive/master.zip and extract its content into ~/myelpa/
-;; (setq package-archives '(("myelpa" . "~/myelpa/")))
+(setq package-archives '(("myelpa" . "~/myelpa/")))
 
 ;; Or Un-comment below line if you prefer installing package from https://github.com/redguardtoo/myelpa/ directly
 ;; (setq package-archives '(("myelpa" . "https://raw.github.com/redguardtoo/myelpa/master/")))
@@ -166,7 +166,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'erlang '(20120612 0 0) nil)
 (require-package 'browse-kill-ring)
 (require-package 'findr)
-(require-package 'jump '(2 3 0) nil)
+(if *emacs24* (require-package 'jump '(2 3 0) nil))
 (require-package 'anything)
 (require-package 'haml-mode)
 (require-package 'sass-mode)
@@ -226,7 +226,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'etags-select '(1 13 0) nil) ;; evil may need it
 (require-package 'w3m)
 (require-package 'idomenu)
-(require-package 'ggtags)
+(if *emacs24* (require-package 'ggtags))
 (require-package 'buffer-move)
 (require-package 'switch-window)
 (require-package 'maxframe)

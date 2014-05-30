@@ -788,12 +788,6 @@ The full path into relative path insert it as a local file link in org-mode"
     (message "%s => clipboard & yank ring" rlt)
       ))
 
-(when (< emacs-major-version 24)
-  (require 'color-theme)
-  (setq color-theme-is-global t)
-  (color-theme-lethe)
-  )
-
 (defun add-pwd-into-load-path ()
   "add current directory into load-path, useful for elisp developers"
   (interactive)
