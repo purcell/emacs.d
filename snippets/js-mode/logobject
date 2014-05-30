@@ -3,4 +3,4 @@
 # key: lo
 # contributor: Chen Bin <chenbin DOT sh AT gmail>
 # --
-console.log("${1:object}="+JSON.stringify(${1:$(yas/substr text "[^ ]*")}, null, 2));
+console.log('${1:object}='+JSON.stringify(${1:$(yas/substr text "[^ ]*")}, null, 2));
