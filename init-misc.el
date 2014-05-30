@@ -168,6 +168,7 @@
 ;;----------------------------------------------------------------------------
 ;; {{ shell and conf
 (add-to-list 'auto-mode-alist '("\\.[a-zA-Z]+rc$" . conf-mode))
+(add-to-list 'auto-mode-alist '("\\.aspell\\.en\\.pws\\'" . conf-mode))
 (add-to-list 'auto-mode-alist '("\\.meta\\'" . conf-mode))
 (add-to-list 'auto-mode-alist '("\\.zsh\\'" . sh-mode))
 (add-to-list 'auto-mode-alist '("\\.bashrc\\'" . sh-mode))
