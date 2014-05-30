@@ -4,23 +4,6 @@
 (require 'js-comint)
 ;; if use node.js, we need nice output
 (setenv "NODE_NO_READLINE" "1")
-;; (setq inferior-js-mode-hook
-;;       (lambda ()
-;;         ;; We like nice colors
-;;         (ansi-color-for-comint-mode-on)
-;;         ;; Deal with some prompt nonsense
-;;         (add-to-list
-;;          'comint-preoutput-filter-functions
-;;          (lambda (output)
-;;            (replace-regexp-in-string "\033\\[[0-9A-Z][0-9A-Z]" "" output)))))
-
-(defun add-inferior-js-keys ()
-  (moz-minor-mode 1)
-  (local-set-key "\C-x\C-e" 'js-send-last-sexp)
-  (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
-  (local-set-key "\C-cb" 'js-send-buffer)
-  (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
-  (local-set-key "\C-cl" 'js-load-file-and-go))
 
 ;; may be in an arbitrary order
 (eval-when-compile (require 'cl))
@@ -29,7 +12,7 @@
 (setq auto-mode-alist (cons '("\\.json$" . json-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.jason$" . json-mode) auto-mode-alist))
 
-;; {{ js2-mode or js-mode
+;; {{ js2-mode or javascript-mode
 (if (and (>= emacs-major-version 24) (>= emacs-minor-version 1))
     (progn
       (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\)?\\'" . js2-mode) auto-mode-alist))
@@ -37,12 +20,9 @@
       (add-hook 'js2-mode-hook '(lambda ()
                                   (js2-imenu-extras-mode)
                                   (setq mode-name "JS2")
-                                  (require 'requirejs-mode)
-                                  (requirejs-mode)
                                   (require 'js-doc)
                                   (define-key js2-mode-map "\C-cd" 'js-doc-insert-function-doc)
                                   (define-key js2-mode-map "@" 'js-doc-insert-tag)
-                                  (add-inferior-js-keys)
                                   ))
 
       (setq js2-use-font-lock-faces t
@@ -53,20 +33,8 @@
             js2-auto-indent-p t
             js2-bounce-indent-p t)
 
-      (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode))
-
-      (eval-after-load 'coffee-mode
-        `(setq coffee-js-mode 'js2-mode
-               coffee-tab-width 4))
-      )
-  (progn
-    ;; js-mode
-    (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\)?\\'" . js-mode) auto-mode-alist))
-    ;; Need to first remove from list if present, since elpa adds entries too
-    (add-hook 'js-mode-hook 'add-inferior-js-keys)
-
-    )
-  )
+      (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode)))
+    (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\)?\\'" . javascript-mode) auto-mode-alist)))
 ;; }}
 
 (add-hook 'coffee-mode-hook 'flymake-coffee-load)
