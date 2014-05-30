@@ -137,6 +137,7 @@
 (require 'init-math-utils)
 (require 'init-ace-jump)
 (require 'init-key-chord)
+(require 'init-hideshow-org)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
