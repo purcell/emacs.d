@@ -37,7 +37,7 @@
   (js2-imenu-extras-setup))
 
 ;; js-mode
-(setq js-indent-level preferred-javascript-indent-level)
+(setq-default js-indent-level preferred-javascript-indent-level)
 
 
 (add-to-list 'interpreter-mode-alist (cons "node" preferred-javascript-mode))
