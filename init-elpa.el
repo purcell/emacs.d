@@ -86,6 +86,11 @@ ARCHIVE is the string name of the package archive.")
 
 (defvar melpa-include-packages
   '(bbdb
+    bookmark+
+    dired+
+    whole-line-or-region
+    inflections
+    dropdown-list
     lua-mode
     anaconda-mode
     emms
