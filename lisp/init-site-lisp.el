@@ -27,7 +27,7 @@
   (let ((dir (site-lisp-dir-for name)))
     (message "Downloading %s from %s" name url)
     (unless (file-directory-p dir)
-      (make-directory dir))
+      (make-directory dir t))
     (add-to-list 'load-path dir)
     (let ((el-file (site-lisp-library-el-path name)))
       (url-copy-file url el-file t nil)
