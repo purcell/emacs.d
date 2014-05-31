@@ -5,9 +5,6 @@
   (require-package 'coffee-mode))
 (require-package 'js-comint)
 
-(after-load 'js2-mode
-  (define-key js2-mode-map (kbd "TAB") 'indent-for-tab-command))
-
 (defcustom preferred-javascript-mode
   (first (remove-if-not #'fboundp '(js2-mode js-mode)))
   "Javascript mode to use for .js files."
