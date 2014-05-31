@@ -324,7 +324,7 @@ Valid values are symbol 'abs (default) or 'relative."
                                               (default-directory
                                                (file-name-directory (car marked))))
                                          (vc-checkin marked 'Git))))
-                                 '("Revert file" . (lambda (candidate)
+                                 '("Revert file(s)" . (lambda (candidate)
                                                      (let ((marked (helm-marked-candidates)))
                                                        (cl-loop for f in marked do
                                                              (progn
@@ -339,6 +339,9 @@ Valid values are symbol 'abs (default) or 'relative."
 (defun helm-ls-git-diff (candidate)
   (let (helm-persistent-action-use-special-display)
     (with-current-buffer (find-file-noselect candidate)
+      (when (buffer-live-p (get-buffer "*vc-diff*"))
+        (kill-buffer "*vc-diff*")
+        (balance-windows))
       (call-interactively #'vc-diff))))
 
 
