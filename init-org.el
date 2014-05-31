@@ -79,10 +79,7 @@
       (require 'org-clock)
       ; @see http://irreal.org/blog/?p=671
       (setq org-src-fontify-natively t)
-      ;;(require 'org-checklist)
       (require 'org-fstree)
-      (setq org-ditaa-jar-path (format "%s%s" (if *cygwin* "c:/cygwin" "")
-                                       (expand-file-name "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")) )
       (defun soft-wrap-lines ()
         "Make lines wrap at window edge and on word boundary,
         in current buffer."
