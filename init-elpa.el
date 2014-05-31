@@ -177,10 +177,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'maxframe)
 (require-package 'org-mime)
 (require-package 'org-fstree)
-;; I don't care mac
-;;(when *is-a-mac*
-;;  (require-package 'org-mac-link-grabber)
-;;  (require-package 'org-mac-iCal))
 (require-package 'htmlize)
 (require-package 'diminish)
 (require-package 'scratch)
@@ -188,8 +184,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'rainbow-delimiters)
 (require-package 'textile-mode)
 (require-package 'pretty-mode)
-
-;; I maintain this chunk:
 (require-package 'coffee-mode)
 (require-package 'crontab-mode)
 (require-package 'dsvn)
