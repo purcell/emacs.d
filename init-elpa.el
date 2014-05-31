@@ -103,7 +103,6 @@ ARCHIVE is the string name of the package archive.")
     pretty-mode
     auto-complete-clang
     w3m
-    ctags
     fiplr
     fakir
     erlang
