@@ -31,10 +31,6 @@ indentation rules."
 ;;----------------------------------------------------------------------------
 (require-package 'tidy)
 (add-hook 'nxml-mode-hook (lambda () (tidy-build-menu nxml-mode-map)))
-(add-hook 'html-mode-hook (lambda () (tidy-build-menu html-mode-map)))
-
-
-(add-auto-mode 'html-mode "\\.(jsp|tmpl)\\'")
 
 
 (provide 'init-nxml)
