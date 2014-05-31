@@ -30,11 +30,7 @@
   (add-hook 'js2-mode-hook '(lambda () (setq mode-name "JS2"))))
 
 (setq-default
- js2-use-font-lock-faces t
- js2-mode-must-byte-compile nil
  js2-basic-offset preferred-javascript-indent-level
- js2-indent-on-enter-key t
- js2-auto-indent-p t
  js2-bounce-indent-p nil)
 
 (after-load 'js2-mode
