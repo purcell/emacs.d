@@ -93,7 +93,6 @@ ARCHIVE is the string name of the package archive.")
     dropdown-list
     lua-mode
     anaconda-mode
-    emms
     pomodoro
     helm
     auto-compile
@@ -151,7 +150,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'ace-jump-mode)
 (require-package 'expand-region '(0 8 0) nil)
 (require-package 'fringe-helper)
-(require-package 'gnuplot)
 (require-package 'haskell-mode '(13 7 0) nil)
 (require-package 'magit '(1 2 0) nil)
 (require-package 'git-commit-mode)
@@ -172,7 +170,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'browse-kill-ring)
 (require-package 'findr)
 (if *emacs24* (require-package 'jump '(2 3 0) nil))
-(require-package 'anything)
 (require-package 'haml-mode)
 (require-package 'sass-mode)
 (require-package 'scss-mode)
@@ -197,7 +194,6 @@ ARCHIVE is the string name of the package archive.")
 
 ;; I maintain this chunk:
 (require-package 'coffee-mode)
-(if *emacs24* (require-package 'zenburn-theme))
 (require-package 'crontab-mode)
 (require-package 'dsvn)
 (require-package 'exec-path-from-shell)
@@ -240,7 +236,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'bbdb '(20130421 1145 0) nil)
 (require-package 'iedit)
 (require-package 'wxwidgets-help '(0 0 3) nil)
-(require-package 'emms)
 (require-package 'pomodoro '(20130114 1543 0) nil)
 (require-package 'flymake-lua)
 (require-package 'evil-nerd-commenter '(1 3 1) nil)
