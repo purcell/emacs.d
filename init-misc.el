@@ -842,6 +842,7 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 
 ;; color theme
 (require 'color-theme)
+(require 'color-theme-molokai)
 (color-theme-molokai)
 
 ;; {{smart-compile: http://www.emacswiki.org/emacs/SmartCompile
