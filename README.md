@@ -42,6 +42,15 @@ git clone https://github.com/purcell/emacs.d.git ~/.emacs.d
 Upon starting up Emacs for the first time, further third-party
 packages will be automatically downloaded and installed.
 
+## Important note about `ido`
+
+This config enables `ido-mode` completion in the minibuffer wherever
+possible, which might confuse you when trying to open files using
+<kbd>C-x C-f</kbd>, e.g. if you want to open a directory to use
+`dired` -- if you get stuck, use <kbd>C-f</kbd> to drop into the
+regular `find-file` prompt. (You might want to customize the
+`ido-show-dot-for-dired` variable if this is an issue for you.)
+
 ## Updates
 
 Update the config with `git pull`. You'll probably also want/need to update
@@ -68,7 +77,10 @@ You might also want to check out `emacs-starter-kit` and `emacs-prelude`.
 
 ## Support / issues
 
-If you hit any problems, please [file an issue on the github project](https://github.com/purcell/emacs.d)
+If you hit any problems, please first ensure that you are using the latest version
+of this code, and that you have updated your packages to the most recent available
+versions (see "Updates" above). If you still experience problems, go ahead and
+[file an issue on the github project](https://github.com/purcell/emacs.d).
 
 -Steve Purcell
 

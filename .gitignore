@@ -27,3 +27,8 @@ site-lisp/package/
 /.achievements
 /.bookmarks.el
 /history
+/helm-adaptive-history
+/thumbs/
+/emms/
+/.smex-items
+/image-dired/

@@ -4,9 +4,6 @@
 
 (require-package 'lively)
 
-(require-package 'pretty-mode)
-(autoload 'turn-on-pretty-mode "pretty-mode")
-
 (setq-default initial-scratch-message
               (concat ";; Happy hacking " (or user-login-name "") "!\n\n"))
 
@@ -25,6 +22,10 @@
 
 (after-load 'lisp-mode
   (define-key emacs-lisp-mode-map (kbd "C-x C-e") 'sanityinc/eval-last-sexp-or-region))
+
+(require-package 'ipretty)
+(ipretty-mode 1)
+
 
 ;; ----------------------------------------------------------------------------
 ;; Hippie-expand
@@ -149,9 +150,6 @@
 
 (add-to-list 'auto-mode-alist '("\\.emacs-project\\'" . emacs-lisp-mode))
 (add-to-list 'auto-mode-alist '("archive-contents\\'" . emacs-lisp-mode))
-
-(after-load 'lisp-mode
-  (define-key emacs-lisp-mode-map (kbd "C-x C-a") 'pp-macroexpand-last-sexp))
 
 (require-package 'cl-lib-highlight)
 (after-load 'lisp-mode
