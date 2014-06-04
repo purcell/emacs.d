@@ -32,7 +32,7 @@
 (when (fboundp 'set-scroll-bar-mode)
   (set-scroll-bar-mode nil))
 
-(defun adjust-opacity (frame incr)
+(defun sanityinc/adjust-opacity (frame incr)
   (let* ((oldalpha (or (frame-parameter frame 'alpha) 100))
          (newalpha (+ incr oldalpha)))
     (when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
@@ -43,8 +43,8 @@
   ;; Hint: Customize `ns-use-native-fullscreen'
   (global-set-key (kbd "M-ƒ") 'toggle-frame-fullscreen))
 
-(global-set-key (kbd "M-C-8") '(lambda () (interactive) (adjust-opacity nil -5)))
-(global-set-key (kbd "M-C-9") '(lambda () (interactive) (adjust-opacity nil 5)))
+(global-set-key (kbd "M-C-8") '(lambda () (interactive) (sanityinc/adjust-opacity nil -5)))
+(global-set-key (kbd "M-C-9") '(lambda () (interactive) (sanityinc/adjust-opacity nil 5)))
 (global-set-key (kbd "M-C-0") '(lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
 
 (add-hook 'after-make-frame-functions
