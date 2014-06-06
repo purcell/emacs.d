@@ -12,6 +12,9 @@
   t)
 (eval-after-load "ace-jump-mode"
   '(ace-jump-mode-enable-mark-sync))
+;; }}
+
+(setq ace-jump-mode-scope 'frame)
 
 (provide 'init-ace-jump)
 ;;; init-ace-jump.el ends here
