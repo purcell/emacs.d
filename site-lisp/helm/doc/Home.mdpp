@@ -1,0 +1,1025 @@
+Welcome to the Emacs-helm wiki!
+
+------
+
+This wiki hosts helm documentation but is not User editable.  Changes are
+welcomed by submitting a Pull Request for [Home.mdpp][1].
+
+------
+
+!TOC
+
+# Wiki maintainer instructions
+
+1. Checkout wiki repo at `git@github.com:emacs-helm/helm.wiki.git`
+2. Get markdown-pp at https://github.com/jreese/markdown-pp
+3. Install markdown-pp
+
+   For help on setup.py:
+
+   `$ sudo python setup.py help`
+
+   For installing:
+
+   `$ sudo python setup.py install`
+
+4. Edit on helm repo `Home.mdpp`.
+5. Run markdown.pp.py: (This will create the table of contents)
+
+   `$ path/to/markdown-pp.py Home.mdpp Home.md`
+
+   See the [Readme][2] for more details.
+6. Merge the resulting file `Home.md` with the one on the helm wiki repo you checked out in 1.
+
+# Install
+
+First get the files from the git repo:
+
+The Helm git repo is at:
+ <https://github.com/emacs-helm/helm>
+ There, you will find tarballs of differents versions in the `Tags` section.
+
+To get it with git:
+
+    git clone https://github.com/emacs-helm/helm
+
+Once you have the helm directory, `cd` into it and run `make`.
+Edit your `init.el` file and add:
+
+    (add-to-list 'load-path "/path/to/helm/directory")
+    (require 'helm-config)
+
+For a quick try, you can also run the shell script provided with helm if your system support it:
+
+    ./emacs-helm.sh
+
+NOTE: If you install Helm in a different way using your own autoloads and personal configuration,
+      be sure to know and understand what you are doing, otherwise expect diverse bugs and failures.
+      You are warned!
+
+# Emacs completion vs Helm
+
+Emacs' default minibuffer completion is subtly different to Helm, and many
+([1][mental1], [2][mental2], [3][mental3]) new comers struggle with the difference.
+
+## Emacs default completion is **minibuffer centric**
+
+Emacs helps you narrow down your selection by transforming your minibuffer
+input when you hit `<tab>`.  And then your give it some more detail and hit
+`<tab>` again, until finally,the **minibuffer** contains the desired input and
+you hit `<enter>` to select it.
+
+## Helm is **completion window centric**
+
+In Helm, you don't pay attention to the minibuffer.  Instead, you look at the
+completion window *and* the currently highlighted item.
+
+You narrow the list shown in the **completion window** by providing more input.
+
+When the item is close enough to the current highlight, you navigate to it
+with `<C-n>` and hit `<enter>` to select it.
+
+## The key implications of the helm "mental model"
+
+1. `<tab>` is not needed to expand the minibuffer input.
+
+    - The minibuffer need not *ever* contain the selection you want, so
+      there is no point in transforming it.
+
+2. Therefore `<tab>` is used to select a different action in Helm.
+
+    - In Emacs completion, there is only one action available, but Helm
+      offers many actions.
+    - This is a feature.  Please don't ask how to make `<tab>` do expansion.
+
+# Debugging
+
+If you experiment problems with helm, be sure to reproduce the problem starting with `emacs -Q`
+and then installing Helm as described in the Install section.
+You can also run `emacs-helm.sh` directly if supported by your system.
+
+
+# General helm commands
+
+ Helm needs you to remember only a few binding unlike all other Emacs
+applications. Thus, all bindings are auto documented.
+
+By default, Helm shows you the most useful bindings in the mode-line.
+You will see some more specific commands in the header of the helm
+buffer.
+
+So when helm starts, you have to remember:
+
+-   Access to action menu with
+
+        TAB
+
+-   Use persistent actions with
+
+        C-z
+
+-   Mark candidate with
+
+        M-<SPACE>
+
+So there are three bindings to remember and they are also documented
+in mode-line. For more, hitting
+
+        C-h m
+
+while in helm session will show you all other bindings.
+ NOTE: Some helm commands have a special keymap, you can access infos on
+these keymap with `C-c ?`, it should be documented in the mode-line.
+
+## Yanking text
+
+To yank the symbol at point from `helm-current-buffer` (i.e. buffer where a
+helm command originated):
+
+        M-n
+
+Alternatively, customize `helm-yank-symbol-first` to enable
+
+        C-w
+
+to always yank the whole symbol on first invocation.
+
+# Overview of preconfigured helm commands
+
+ To start with helm, a set of commands have
+been set for you in the helm menu. The bindings of all these commands are
+prefixed with `helm-command-prefix-key` (default to `C-x c`).
+
+To discover more helm commands run `helm all commands`
+(helm-execute-helm-command) from the menu. Or run helm-M-x (`helm-command-prefix-key` `M-x`) and type helm.
+
+Typing `helm-command-prefix-key` before a normal command like `M-x`
+will run the helm version of that command: `helm-M-x`. If you prefer
+the helm version of a command, you should bind it to something more
+convenient like `M-x`. To replace the Emacs original keybinding, paste
+this in your init.el:
+
+    (global-set-key (kbd "M-x") 'helm-M-x)
+
+# Helm Find Files
+
+ `helm-find-files` provides you with a way to navigate in your file
+hierarchy easily. All the actions you can apply to files from here are
+described in this section.
+
+You can find it in the menu under `helm-command-prefix-key` or
+ as the keychain `C-x C-f`.
+
+If you prefer the helm version of the file finder, you can bind it to
+C-x C-f to replace the standard find-file:
+
+    (global-set-key (kbd "C-x C-f") 'helm-find-files)
+
+It also works well with tramp. Try it!
+
+NOTE: Starting helm-find-files with C-u will show you a little history
+of the last visited directories.
+
+## Navigation
+
+ Helm-find-files does not start your working directory at / but on
+default-directory or thing-at-point which it gets from ffap. If you
+are on a url, a mail address, etc... it will do the right thing.
+
+`helm-find-files` works like find-file (C-x C-f), but if you use it with
+helm-match-plugin.el, you have to add a space and then the next part of
+pattern you want to match:
+
+Example:
+
+    Find Files or url: ~/
+    That show all ~/ directory.
+
+    Find Files or url: ~/des
+    will show all what begin with "des"
+
+    Find Files or url: ~/ esk
+    (Notice the space after ~/) will show all what contain esk.
+
+    Find Files or url: ~/ el$
+    Will show all what finish with el
+
+
+Inside the `helm-find-files` buffer, you can move your selected row up
+or down with C-n C-p or arrow keys. When a row is selected, `C-z` performs the
+default action, which is different depending on the context.
+
+When you are on a file, `C-z` will show only this file-name in the
+helm buffer. On a directory, `C-z` will step down into this directory
+to continue searching in it. On a symlink, `C-z` will expand to the
+true name of symlink (moving your mouse cursor over a symlink will
+also show the true name).
+
+So it is quite easy to navigate in your files with helm-find-files.
+
+C-. will navigate to the root of current dir or to precedent level of
+dir. A common operation is to hit C-z and then return immediately where
+you were with C-. instead of erasing minibuffer input with DEL. On
+non-graphic displays, it is bound to C-l. If `helm-ff-lynx-style-map`
+is non–nil, you will be able to use `left` instead of C-l and `right`
+instead of C-z.
+
+## Jump with nth commands
+
+ Take advantage of the second, third and 4th actions
+in helm. Instead of opening action menu with TAB, just hit:
+
+`C-e` for 2th action
+`C-j` for 3th action
+
+You can bind 4th action to some key like this:
+
+    (define-key helm-map (kbd "<C-tab>") 'helm-select-4th-action)
+
+## Helm find files action shortcuts
+
+ Instead of having to open action pannel with
+TAB, you have some convenients shortcuts to quickly run actions. Use C-c
+? from an helm-find-files session to have a description.
+
+## Turn in image viewer
+
+ You can turn helm-find-files in a nice
+image-viewer.
+
+Navigate to your image directory, then type C-u C-z on first image. Now
+turn on `follow-mode` with C-c C-f. You can now navigate in your image
+directory with arrow up and down or C-n C-p. Don`t forget also to use
+C-t to split you windows vertically if needed.
+
+You will find also two actions to rotate image in action menu. To use
+these actions whitout quitting, use M-l (rotate left) and M-r (rotate
+right). Of course M-l and M-r have no effect if candidate is not an
+image file.
+
+Don`t forget to use C-t to split windows vertically, and then
+
+    `C-}' and `C-{'
+
+to narrow/enlarge helm window.
+
+NOTE: It use image-dired in background, so if image-dired doesn't work for
+some reason, this will not work too. Be sure to have Imagemagick package
+installed.
+
+## Serial rename
+
+ You can rename files with a new prefix name and by
+incremental number. The marked files will be renamed with a new prefix
+name and starting at the start-number you have chosen.
+ Note that the marked files are in the order of the selection you did,
+this allows you to reorder files.
+ If you mark files in other directories than the current one, these
+files will be moved or symlinked to current one.
+
+TIP: If you have more than 100 files to serial rename, start at 100
+instead of 1 to have your directory sorted correctly.
+
+You have three ways to serial rename:
+
+-   By renaming: All the file of others directories are moved to the target
+    directory.
+
+-   By symlinking: All the files that are not files of the target
+    directory will be symlinked, others will be renamed.
+
+-   By copying: All the file of others directories are copied to
+    target directory.
+
+Example of Use:
+ I want to create a directory with many symlinked images coming from
+various directories.
+
+1) C-x C-f (launch helm-find-files)
+
+2) Navigate to the place of your choice and write new directory name
+    ending with `/` and press RET.
+
+3) Navigate and browse images, when you want an image mark it, you can
+    mark all in a directory with M-a.
+
+4) When you have marked all files, choose `serial rename by symlinking`
+    in action menu.
+
+5) Choose new name and start number.
+
+6) Navigate to initial directory (where files will be
+    renamed/symlinked) and RET.
+
+7) Say yes to confirm, that`s done.
+
+8) Start viewing your pictures.
+
+## Open Files Externally
+
+ In action menu of helm-find-files, you will find an action to open
+a file with an external program. If you have no entry in .mailcap or
+/etc/mailcap, you will enter an helm session to choose a program to
+use with this kind of file. It will offer to you to save settings to
+always open this kind of files with this program. Once configured, you
+can however open the files of same extension with some other program
+by forcing helm to choose program with C-u.
+
+NOTE: You can open files externally with `C-c C-x` from
+helm-find-files.
+
+## Eshell command on files
+
+ You can run eshell-command on files or marked files, the command you
+use has to accept one file as argument. The completion is made on
+your eshell aliases. This allow you creating personal actions for
+`helm-find-files`.
+
+## Why Eshell
+
+-   Because eshell allow you to create aliases.
+
+-   Because eshell accept shell commands but also elisp functions.
+
+All these command should end with `https://github.com/emacs-helm/helm/issues/495`.
+
+You will have completion against all these aliases once eshell is loaded (start it once before using
+helm-find-files).
+
+## Setup Aliases
+
+ Go in eshell, an enter at prompt:
+
+    alias my_alias command https://github.com/emacs-helm/helm/issues/495
+
+NOTE: don`t forget to escape the $.
+
+See the documentation of Eshell for more info.
+
+## Problem starting Eshell
+
+ Eshell code is available (autoloaded) only when you have started once
+eshell. That`s annoying like many autoloaded stuff in Emacs.
+
+Here how to start Eshell at Emacs startup:
+
+Add this to your `init.el`:
+
+    (add-hook 'emacs-startup-hook #'(lambda ()
+                                      (let ((default-directory (getenv "HOME")))
+                                        (command-execute 'eshell)
+                                        (bury-buffer))))
+
+## Copy Files
+
+ It is a powerful feature of helm-find-files as you can
+mark files in very different places in your file system and copy them in
+one place.
+
+Dired is not able to do that, you can mark files only in current dired
+display and copy them somewhere.
+
+So, easy to use, just mark some files, and hit copy files in the action
+menu. That will open a new helm-find-files where you can choose
+destination.
+
+## Rename Files
+
+Just mark some files, and
+hit rename files in the action menu. That will open a new
+helm-find-files where you can choose destination.
+
+## Symlink Files
+
+Just mark some files, and hit symlink or relsymlink
+files in the action menu. That will open a new helm-find-files where you
+can choose destination.
+
+## Hardlink
+
+Just mark some files,
+and hit hardlink files in the action menu. That will open a new
+helm-find-files where you can choose destination.
+
+## Follow file after action
+
+ A prefix arg on any of the action above, copy,
+rename, symlink, hardlink, will allow you to follow the file. For
+example, when you want to copy an elisp file somewhere and you want to
+compile it in this place, hitting C-u RET will bring you in this place
+with the file already marked, you have just to go in action menu to
+compile it.
+
+## In Buffer File Completion
+
+ In any buffer and even in minibuffer if you have
+enabled recursive-minibuffer
+
+    (setq enable-recursive-minibuffers t)
+
+You can have completion with C-x C-f and then hit tab to choose action
+`Complete at point`
+ once you have found the filename you want. `Create File`
+ Navigate to the directory where you want to create
+your new file, then
+ continue typing the name of your file and type enter.
+ NOTE: If your filename ends with a / you will be prompt to create a new
+directory.
+
+## Create Directory
+
+ Navigate to the directory where you want to
+create your new directory,
+ then continue typing the name of new directory - parents accepted -
+ and end it with / type enter, you will be prompt to create your new
+directory (possibly with parents).
+
+## Ediff files
+
+ Well, that is easy to use, move cursor to a file, hit
+ediff in action menu, you will jump in another helm-find-files to choose
+second file.
+
+## Ediff merge files
+move cursor to a file, hit ediff merge in action menu, you will jump in another
+helm-find-files to choose second file.
+
+## Browse archive with avfs
+
+If you have installed avfs (See: http://sourceforge.net/projects/avf)
+you can browse archives in your directory .avfs once it is mounted with
+`mountavfs`.
+
+Just move on the archive filename and press C-z (persistent action) and
+you will see in helm buffer the subdirectories of archive, just navigate
+inside as usual.
+
+## Helm write buffer
+
+ That is a replacement of standard `write-buffer`
+Emacs command with helm completion.
+
+## Helm insert file
+
+ That is a replacement of standard `insert-file`
+Emacs command with helm completion.
+
+# Grep
+
+ We describe here helm-do-grep, an incremental grep. It is
+really convenient as you can start a search just after finding the directories
+or files you want to search in. By the nature of incremental stuff, it
+is faster than original Emacs grep for searching.
+
+As you type the display changes (like in all other helm commands). This
+grep is also recursive unlike the Emacs implementation that use
+find/xargs.
+
+It supports wildcards and respects the variables `grep-find-ignored-files`
+and `grep-find-ignored-directories`.
+
+It has full tramp integration. (you can grep file on a remote host or
+in su/sudo methods).
+
+-   NOTE: When using it recursively, `grep-find-ignored-files` is not
+    used unless you don`t specify the only extensions of files where you
+    want to search (you will have a prompt). You can now specify more
+    than one extension to search.
+     e.g \*.el \*.py \*.tex
+     will search only in files with these extensions.
+
+-   NOTE: Windows users need grep version `2.5.4` of Gnuwin32 on windoze.
+This version should accept the `--exclude-dir` option.
+
+-   NOTE: Apple OS X users also need a version of grep that accepts `--exclude-dir`
+
+    Install it from homebrew with:
+
+         brew install grep
+
+## Helm do grep
+
+ Start with M-x helm-do-grep bound to `helm-command-prefix-key` `M-g s` (A prefix arg will launch recursive grep).
+
+## Grep from helm-find-files
+
+ From helm-find-files (`helm-command-prefix-key` `C-x C-f`) Open the action
+menu with tab and choose grep. A prefix arg will launch recursive grep.
+
+-   NOTE:You can now launch grep with (C-u) M-g s without switching to
+    the action pannel.
+
+## Grep One file
+
+ Just launch grep, it will search in file at point.
+if file is a directory, it will search in ALL files of this directory
+like:
+
+    grep -nH -e pattern *
+
+## Grep Marked files
+
+ Just mark some files with
+
+    C-<SPACE>
+
+and launch grep.
+
+## Grep marked files from differents directories
+
+This is a very nice feature of helm grep implementation that allows to search
+in specific files located not only in current directory but anywhere in your file system.
+
+To use navigate in your file system and mark files with
+
+    C-<SPACE>
+
+When you have marked all files, just launch grep in action menu.
+
+NOTE: Using prefix-arg (C-u) will start a recursive search with the
+extensions of the marked files except if those are one of
+`grep-find-ignored-files`.
+
+## Grep Directory recursively
+
+ From `helm-find-files`, go to the root of the
+directory where you want to search in, then hit TAB to open the action
+menu and choose grep with a prefix arg (i.e C-u RET).
+
+If you want to launch helm-do-grep recursively without starting `helm-find-files`, do:
+
+    C-u helm-command-prefix-key M-g s
+
+NOTE: If you forget to hit `C-u` before `M-g s` you can do it after file selection.
+
+You will be prompted for selecting in which category of files to search:
+Use the wilcard syntax like \*.el for example (search in only `.el`
+files).
+
+By default, the extension of the file at point is used when the cursor
+is on a filename. If the cursor is at root of a directory, all the
+filename extensions found in the directory and not matching
+`grep-find-ignored-files` are inserted into the prompt.
+
+## Grep Using Wildcard
+
++ You can use wildcards: If you want for example to search files with
++.el extension: add \*.el to prompt.
+
+## Grep thing at point
+
+ Before lauching helm, put your cursor on the start
+of symbol or sexp you will want to grep. Then launch helm-do-grep or
+helm-find-files, and when in the grep prompt hit C-w as many time as
+needed.
+
+## Grep persistent action
+
+ As always, C-z will bring you in the buffer corresponding to the file
+you are grepping. Well nothing new, but using C-u C-z will record this
+place in the mark-ring. So if you want to come back later to these
+places, there is no need to grep again, you will find all these places
+in the mark-ring. Accessing the mark-ring in Emacs is really
+inconvenient, fortunately, you will find in helm-config
+`helm-all-mark-ring` which is a mark-ring browser
+(helm-command-prefix-key C-c SPACE). `helm-all-mark-ring` is in helm
+menu also, in the tool section.
+
+-   TIP: Bind `helm-all-mark-ring` to C-c SPACE.
+
+        (global-set-key (kbd "C-c <SPC>") 'helm-all-mark-rings)
+
+-   NOTE: `helm-all-mark-ring` handle global-mark-ring also.
+
+## Save grep session
+
+ If you want to save the results of your grep
+session, doing `C-x C-s` will save your grep results in a `helm-grep-mode` buffer.
+
+_NOTE:_ You can save differents named helm grep buffers.
+      If you haven't saved your grep session in a named buffer, you can anyway retrieve
+      the last session with `helm-resume`.
+
+Editing the `helm-grep-mode` buffer is possible with [Emacs-wgrep](https://github.com/mhayashi1120/Emacs-wgrep).
+Saving this buffer will apply changes to corresponding files.
+
+# Helm M-x
+
+ It is bound to `helm-command-prefix-key` `M-x`, you should bind it to `M-x`.
+
+Features:
+
+-   You can use prefix arguments during M-x session and they are shown in `mode-line`.
+
+-   C-z is a toggle documentation for this command
+
+-   The key binding of command are shown.
+
+-   Smart sorting.
+
+_NOTE:_Prefix args passed before calling `helm-M-x` have no effects.
+Passing the prefix args AFTER calling `helm-M-x` allow you to read the documentation
+of the command you want to run and know exactly what effect they have.
+
+# Helm regexp
+
+ This is a replacement of regexp-builder. The groups
+are shown in a convenient way.
+
+# Query replace regexp
+
+ Write your regexp in helm-regexp, when it
+match what you want, you can run query-replace from action menu. NOTE:
+Before running helm-regexp, you can select a region to work in, that
+will narrow this region automatically. {Save regexp as sexp}
+ When you use this, it will save your regexp for
+further use in lisp code, with backslash duplicated.
+
+## Save regexp as string
+
+ Save the regexp as you write it.
+
+# Helm locate
+
+ First be sure you have `locate` installed on
+your system. Most GNU/Linux distros come with locate included, you update
+or create the database with `updatedb` command.
+
+## Search files
+
+To use, just launch
+
+    M-x helm-locate
+
+Then enter filename at prompt. It will search this pattern entered
+also in directory and subdirectory names. To limit your search to
+basename, add `-b` after the pattern. The search is performed on all
+files known to the database. They maybe not exist anymore, so to
+limit to really existing files add `-e` after the pattern. To limit your
+search to specific number of results, use `-n` after your pattern with
+the number of results you want.
+
+Example:
+
+    Pattern: emacs -b -e -n 12
+
+You can also launch `helm-locate` from `helm-find-files`, just do `C-x C-f`.
+(With a prefix arg it will let you choose a local DB file)
+
+## Launch grep
+
+When the search is done, you can search in a specific file or directory with
+grep that you will find in action menu (TAB).
+
+-   NOTE:You can now launch grep with (C-u) M-g s without switching to
+    the action pannel.
+
+## Use a local locate DB
+
+You can specify a `locate` database with prefix argument ARG (C-u). Many
+databases can be used: navigate and mark them. See also
+`helm-locate-with-db`.
+
+To create a user specific db, use:
+
+    updatedb -l 0 -o dbpath -U directory
+
+Where `dbpath` is a filename matched by `helm-locate-db-file-regexp`
+
+## Windows specificity
+
+On Windows you should use Everything program that mimics locate, it is very
+fast and you don't need to update database manually. To use with
+helm-locate, you will need his command line named `es`. Be sure to
+modify the PATH environment variable, to include path to the directory
+that contain `es`.
+
+# Helm Etags
+
+## Create the tag file
+
+To use etags in Emacs you have first to create a TAGS file for your
+project with the etags shell command. If your directory contains
+subdirectories use someting like:(e.g .el files)
+
+    find . -iregex .*\.el$ | xargs etags
+
+Otherwise
+
+    etags *.el
+
+is enough.
+
+For more infos see the man page of etags.
+
+## Start helm etags
+
+Now just using `helm-command-prefix-key` `e` will show you all
+entries. If the project is big, It take some time to load tag file.
+But when it is done, the next search will be very fast. If you modify
+the TAGS file, use
+
+    C-u C-u helm-command-prefix-key e
+
+to refresh the tag cache.
+
+To search the definition at point use just
+
+    C-u helm-command-prefix-key e
+
+# Firefox bookmarks
+
+You will have to set firefox to import bookmarks in his html file
+book-marks.html.
+
+    (only for firefox versions >=3)
+
+To achieve that, open `about:config` in firefox and double click on this
+line to enable value to true :
+
+    user_pref("browser.bookmarks.autoExportHTML", false);
+
+You should have now :
+
+    user_pref("browser.bookmarks.autoExportHTML", true);
+
+Now you can use
+
+    M-x helm-firefox-bookmarks
+
+To see your firefox bookmarks from Emacs. When you are in firefox, things
+are a little more complicated. You will need wmctrl program and a script
+named ffbookmarks :
+
+    #!/bin/bash
+
+    wmctrl -xa emacs
+    emacsclient -e "(progn (helm-firefox-bookmarks) nil)" > /dev/null
+    wmctrl -xa firefox
+    exit 0
+
+Put this script somewhere in PATH and make it executable :
+
+    chmod +x ffbookmarks
+
+Firefox is not aware about this new protocol, you will have to instruct
+it. See Firefox documentation or use firefox-protocol.el package you can
+get here:
+ <https://github.com/thierryvolpiatto/emacs-bmk-ext>
+ Install ffbookmarks:
+
+    M-x firefox-protocol-installer-install
+
+Then install a bookmarklet in firefox: Right click on the bookmark
+toolbar in firefox and add a new bookmark called ffbookmarks. Add this
+instead of url:
+
+    javascript:location.href='ffbookmarks://localhost'
+
+Now when you click on ffbookmarks it will bring you in Emacs and allow
+you to browse your bookmarks with helm.
+ NOTE : Emacs server needs to be started in the running Emacs, see Emacs
+documentation.
+
+# Helm for buffers
+
+    M-x helm-buffers-list
+
+## Boring buffers
+
+This will show you your buffer list without boring buffers, which are
+defined in `helm-c-boring-buffer-regexp`. Use customize as usual.
+
+## Search buffers by major-mode
+
+Once in the helm session, you can narrow your buffer list by
+`major-mode`, regexp as usual or both:
+
+Example:
+
+I want to show all my buffer that are in emacs-lisp mode:
+
+    Pattern: *lisp
+
+will show all emacs-lisp and lisp related buffers.
+
+Now I want to limit these buffers to the one that start with `helm`
+
+    Pattern: *lisp ^helm
+
+Now I want to limit these buffers to the one that match `helm` but end with `foo`:
+
+    Pattern: *lisp helm foo
+
+Note the space between `helm` and `foo`.
+
+Now match buffers that are in `emacs-lisp-mode` and `sh-mode` or `shell-mode`:
+
+    Pattern: *lisp,sh
+
+You can use also negation to match all but `lisp` and `info` buffers:
+
+    Pattern: *!lisp,!info
+
+I want to match buffers that match `helm` but not limited to lisp
+buffers:
+
+    Pattern: helm
+
+## Different colors for buffers
+
+-   If a buffer is modified, it will show up in orange.
+
+-   If a buffer have been modified by some external program (e.g sed) in
+    the back of Emacs, it will show up in red.
+
+-   Non–buffer file, Directory and files have differents face.
+
+# Special commands
+
+ Not complete.
+
+`C-c ?` will show you all commands available.
+
+# Helm Resume
+
+You can resume an helm session at any moment.
+
+When called with a prefix arg allow choosing among different sessions.
+
+# Other tools
+
+In addition to the above, you will find a bunch of powerful tools that
+come with helm-config.el. Just browse the available helm commands with
+`M-x` `helm-`.
+
+Not complete.
+
+# Helm mode
+
+ `helm-mode` will enable
+helm completion in all Emacs commands using `completing-read` or `read-file-name`.
+
+Starting with emacs-24.4 `helm-mode` provide also completion with `completion-at-point`
+and `completing-read-multiple`.
+
+ To use it:
+
+    M-x helm-mode
+
+Turn it on in `init.el` with:
+
+    (helm-mode 1)
+
+## Customize how helm-mode behave
+
+You can disable or change the completion interface you want to use for a specific command by
+customizing `helm-completing-read-handlers-alist`.
+
+See C-h v `helm-completing-read-handlers-alist` for more infos.
+
+### Use helm-mode and ido-mode
+
+If you like ido for some commands and helm for other commands, you should not enable `ido-mode`,
+instead customize `helm-completing-read-handlers-alist`; For example, you want `ido-mode`
+for `find-file-read-only` and `helm-mode` for `find-file`:
+1) In your config you turn on `helm-mode`.
+2) In customize-group `helm-mode` add to `helm-completing-read-handlers-alist`
+`find-file-read-only` as key and `ido` as value.
+In elisp it looks like this:
+     (find-file-read-only . ido)
+
+That's it, now `find-file-read-only` is now using ido an `find-file` (because you did nothing)
+is using `helm-mode`.
+
+Now you want `find-alternate-file` to not use ido and to not use helm, only the vanilla emacs
+completion:
+Add an entry to `helm-completing-read-handlers-alist` like this:
+     (find-alternate-file . nil)
+
+_NOTE:_
+Even if `helm-mode` is enabling helm completion for most emacs commands, you have better time
+to use a native helm command which will be more featured, if this one is provided.
+(e.g use `helm-M-x` for `M-x` even if enabling `helm-mode` provide helm completion in regular emacs `M-x`.)
+
+Not complete.
+
+# Helm Eshell completion
+
+## Enable helm pcomplete
+
+Of course pcomplete is already enabled in Eshell, but what we want here
+is to enable it with helm support.
+ Enabling is easy, just add to `init.el`:
+
+>     (add-hook 'eshell-mode-hook
+>               #'(lambda ()
+>                   (define-key eshell-mode-map
+>                     [remap eshell-pcomplete]
+>                     'helm-esh-pcomplete)))
+
+Now when hitting `TAB`, you should have helm pcompletion.
+
+## Fix completion after SUDO.
+
+In eshell when you use sudo, there is no completion on the command you enter
+after sudo, this is true in shell also with or without helm.
+To fix this problem, you can define a `pcomplete/sudo`  function and put it in your configuration.
+
+    (defun pcomplete/sudo ()
+      (let ((prec (pcomplete-arg 'last -1)))
+        (cond ((string= "sudo" prec)
+               (while (pcomplete-here*
+                        (funcall pcomplete-command-completion-function)
+                        (pcomplete-arg 'last) t))))))
+
+
+However this an incomplete definition of `pcomplete/sudo` which will not work in some case
+without modifications to some emacs functions due to bugs unresolved in emacs, to fix this
+you can use my [pcomplete-extension](https://github.com/thierryvolpiatto/pcomplete-extension)
+which will provide more completions working well with helm like `apt-get` or `find`.
+
+## Write your own pcomplete functions
+
+You can enhance Emacs pcomplete by writing your own pcomplete
+functions.
+
+See [pcomplete-extension](https://github.com/thierryvolpiatto/pcomplete-extension)
+For more enhanced completions.
+
+ Here an example with `find` command:
+
+    (defun pcomplete/find ()
+      (let ((prec (pcomplete-arg 'last -1)))
+        (cond ((and (pcomplete-match "^-" 'last)
+                    (string= "find" prec))
+               (pcomplete-opt "HLPDO"))
+              ((pcomplete-match "^-" 'last)
+               (while (pcomplete-here
+                       '("-amin" "-anewer" "-atime" "-cmin" "-cnewer" "-context"
+                         "-ctime" "-daystart" "-delete" "-depth" "-empty" "-exec"
+                         "-execdir" "-executable" "-false" "-fls" "-follow" "-fprint"
+                         "-fprint0" "-fprintf" "-fstype" "-gid" "-group"
+                         "-help" "-ignore_readdir_race" "-ilname" "-iname"
+                         "-inum" "-ipath" "-iregex" "-iwholename"
+                         "-links" "-lname" "-ls" "-maxdepth"
+                         "-mindepth" "-mmin" "-mount" "-mtime"
+                         "-name" "-newer" "-nogroup" "-noignore_readdir_race"
+                         "-noleaf" "-nouser" "-nowarn" "-ok"
+                         "-okdir" "-path" "-perm" "-print"
+                         "-print0" "-printf" "-prune" "-quit"
+                         "-readable" "-regex" "-regextype" "-samefile"
+                         "-size" "-true" "-type" "-uid"
+                         "-used" "-user" "-version" "-warn"
+                         "-wholename" "-writable" "-xdev" "-xtype"))))
+              ((string= "-type" prec)
+               (while (pcomplete-here (list "b" "c" "d" "p" "f" "l" "s" "D"))))
+              ((string= "-xtype" prec)
+               (while (pcomplete-here (list "b" "c" "d" "p" "f" "l" "s"))))
+              ((or (string= prec "-exec")
+                   (string= prec "-execdir"))
+               (while (pcomplete-here* (funcall pcomplete-command-completion-function)
+                                       (pcomplete-arg 'last) t))))
+        (while (pcomplete-here (pcomplete-entries) nil 'identity))))
+
+## Enable helm Eshell history
+
+Add this to `init.el`
+
+     (add-hook 'eshell-mode-hook
+               #'(lambda ()
+                   (define-key eshell-mode-map
+                     (kbd "M-p")
+                     'helm-eshell-history)))
+
+# Completion in emacs shell
+
+Completion in emacs `shell` is using `completion-at-point`, `helm-mode` provide completion for this
+starting from emacs-24.4 and is not available in emacs-24.3.
+Same as above, you should use [pcomplete-extension](https://github.com/thierryvolpiatto/pcomplete-extension)
+to have a better experience.
+
+# Usefuls extensions
+
+If you are using git, I suggest you use [helm-ls-git](https://github.com/emacs-helm/helm-ls-git)
+
+Not complete.
+
+# Usefuls links
+
+You can have infos about helm on Github.
+ <https://github.com/emacs-helm/helm>
+
+You can ask on the helm mailing-list by subscribing at:
+ <https://groups.google.com/group/emacs-helm?hl=en>
+
+Or at gmane: [gmane.emacs.helm.user](http://dir.gmane.org/gmane.emacs.helm.user)
+
+!REF
+
+[1]: https://github.com/emacs-helm/helm/blob/master/doc/Home.mdpp
+[2]: https://github.com/thierryvolpiatto/markdown-pp#readme
+[mental1]: https://github.com/emacs-helm/helm/issues/495
+[mental2]: https://github.com/emacs-helm/helm/issues/222
+[mental3]: https://groups.google.com/forum/#!topic/emacs-helm/zaBbg2tFAuM
+
