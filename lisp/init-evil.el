@@ -99,25 +99,6 @@
 
 (eval-after-load "evil" '(setq expand-region-contract-fast-key "z"))
 
-;; @see http://stackoverflow.com/questions/10569165/how-to-map-jj-to-esc-in-emacs-evil-mode
-;; @see http://zuttobenkyou.wordpress.com/2011/02/15/some-thoughts-on-emacs-and-vim/
-(define-key evil-insert-state-map "k" #'cofi/maybe-exit)
-(evil-define-command cofi/maybe-exit ()
-  :repeat change
-  (interactive)
-  (let ((modified (buffer-modified-p)))
-    (insert "k")
-    (let ((evt (read-event (format "Insert %c to exit insert state" ?j)
-               nil 0.5)))
-      (cond
-       ((null evt) (message ""))
-       ((and (integerp evt) (char-equal evt ?j))
-    (delete-char -1)
-    (set-buffer-modified-p modified)
-    (push 'escape unread-command-events))
-       (t (setq unread-command-events (append unread-command-events
-                          (list evt))))))))
-
 ;; Window commands
 (define-key evil-window-map [left]  'evil-window-left)
 (define-key evil-window-map [down]  'evil-window-down)
