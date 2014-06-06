@@ -92,11 +92,6 @@
 (define-key evil-normal-state-map "-" 'evil-numbers/dec-at-pt)
 (define-key evil-normal-state-map "go" 'goto-char)
 
-(require-package 'evil-matchit)
-(require 'evil-matchit)
-
-(global-evil-matchit-mode 1)
-
 (eval-after-load "evil" '(setq expand-region-contract-fast-key "z"))
 
 ;; Window commands
