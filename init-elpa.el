@@ -255,13 +255,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'elpa-mirror '(1 1 2) nil)
 (if *emacs24* (require-package 'anaconda-mode))
 (require-package 'quack) ;; for scheme
-;;(require-package 'git-messenger '(20130613 1222 0) nil)
 (require-package 'issue-tracker '(0 0 1) nil)
 
-(when *emacs24*
-  (require-package 'helm '(20140315 28 0) nil)
-  (require-package 'helm-gtags)
-  )
 ;; (require-package 'command-frequency)
 
 (provide 'init-elpa)

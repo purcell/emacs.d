@@ -13,7 +13,14 @@
 (setq auto-mode-alist (cons '("\\.jason$" . json-mode) auto-mode-alist))
 
 ;; {{ js2-mode or javascript-mode
-(if (and (>= emacs-major-version 24) (>= emacs-minor-version 1))
+(setq js2-use-font-lock-faces t
+      js2-mode-must-byte-compile nil
+      js2-idle-timer-delay 0.5 ;; could not be too big for real time syntax check
+      js2-indent-on-enter-key t
+      js2-skip-preprocessor-directives t
+      js2-auto-indent-p t
+      js2-bounce-indent-p t)
+(if (and (>= emacs-major-version 24) (>= emacs-minor-version 1) (not *no-memory*))
     (progn
       (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\)?\\'" . js2-mode) auto-mode-alist))
       (autoload 'js2-mode "js2-mode" nil t)
@@ -24,15 +31,6 @@
                                   (define-key js2-mode-map "\C-cd" 'js-doc-insert-function-doc)
                                   (define-key js2-mode-map "@" 'js-doc-insert-tag)
                                   ))
-
-      (setq js2-use-font-lock-faces t
-            js2-mode-must-byte-compile nil
-            js2-idle-timer-delay 0.5 ;; could not be too big for real time syntax check
-            js2-indent-on-enter-key t
-            js2-skip-preprocessor-directives t
-            js2-auto-indent-p t
-            js2-bounce-indent-p t)
-
       (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode)))
     (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\)?\\'" . javascript-mode) auto-mode-alist)))
 ;; }}

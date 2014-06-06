@@ -1,3 +1,5 @@
+(require 'helm-config)
+
 (helm-mode 1)
 
 (setq helm-completing-read-handlers-alist
