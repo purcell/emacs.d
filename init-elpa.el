@@ -154,6 +154,8 @@ ARCHIVE is the string name of the package archive.")
              (not (string-equal archive "melpa")))
          )))
 
+;; un-comment below code if you prefer use all the package on melpa (unstable) without limitation
+;; (setq package-filter-function nil)
 
 ;;------------------------------------------------------------------------------
 ;; Fire up package.el and ensure the following packages are installed.

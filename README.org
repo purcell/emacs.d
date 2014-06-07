@@ -9,7 +9,7 @@
 - Remove bundled emacs 22 at first *if you are using OS X*!
 
 * General
-My first priority is *stable*. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]].
+My first priority is *stable*. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]]. If you want to get all the latest package from melpa, search the line containing "(setq package-filter-function nil)" in "init-elpa.el" and *un-comment* it.
 
 Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Python/C#/Lua/Javascript ...).
 
