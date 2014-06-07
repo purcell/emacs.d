@@ -1,0 +1,39 @@
+* wxwidgets-help (version 0.0.4)
+Look up wxWidgets API in its html manual which is produced by [[http://www.stack.nl/~dimitri/doxygen/][doxygen]].
+
+w3m (the command line application and emacs plugin) is required.
+* Install
+wxwidgets-help is already uploaded to [[http://marmalade-repo.org/]]. So the best way to install it is through Emacs package manager.
+* Set up
+Step 1, set environment variable WXWIN or WXWIDGETS to directory of wxWidgets.
+
+For example, add one line into your ~/.bashrc,
+#+BEGIN_SRC sh
+export WXWIN=$HOME/wxWidgets-master
+# or
+export WXWIDGETS=$HOME/wxWidgets-master
+
+#+END_SRC
+
+Step 2, create html manual from wxWidgets source.
+
+#+BEGIN_SRC sh
+sudo apt-get install doxygen graphviz # if you use ubuntu/debian
+cd $WXWIN/docs/doxygen;WX_SKIP_DOXYGEN_VERSION_CHECK=1 ./regen.sh html
+#+END_SRC
+* How to use it
+Move the focus on any keyword you want to look up and then "M-x wxhelp-browse-class-or-api".
+
+BTW, the keyword is copied to the clipboard automatically.
+* Contact me
+You can report bugs at [[https://github.com/redguardtoo/wxwidgets-help]]. My email is <chenbin DOT sh AT gmail>.
+* License
+Copyright (C) 2014 Chen Bin
+
+Author: Chen Bin <chenbin DOT sh AT gmail> Keywords: wxWidgets C++
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see [[http://www.gnu.org/licenses/]].

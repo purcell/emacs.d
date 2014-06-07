@@ -1,0 +1,73 @@
+* elpa-mirror (version 1.1.2)
+Set up ELPA mirror from *locally installed packages* is easy.
+
+# It will create everything you need (web files, packages, archive-contents) for hosting a ELPA mirror site.
+
+*Only locally installed packages will be included*.
+
+It's NOT a mirror of everything from elpa.gnu.org!
+
+The typical use case is that you want to create a your own repository for *ONLY* packages you are already using.
+
+The repository could be hosted on your USB stick or hard drive so you avoid the overhead of update packages through the network.
+
+* Why use elpa-mirror
+- The respository could be a local directory on hard driver. Network is not required to update packages.
+- Packages are locked. You have full control of all your packages. No package dependency hell!
+- Hosting your own ELPA site has *ZERO* cost. You only need an email address and some free cloud service like Dropbox.
+- Web files are optimized manually. So the web traffic is minimum.
+- The web site supports both mobile and desktop.
+
+* Install
+elpa-mirror is already uploaded to [[http://marmalade-repo.org/]]. The best way to install it is using Emacs' package manager.
+
+Or you can download the package from [[https://dl.dropboxusercontent.com/u/858862/myelpa/index.html]] and manually install it by "M-x package-install-file".
+* Set up
+Nothing to set up.
+
+* Usage
+** Create a local repository
+"M-x elpamr-create-mirror-for-installed". That's the only command!
+
+All files needed to host ELPA site will be output into user specified directory. Say it's "~/myelpa".
+
+** Use local repository
+You can use local file path, insert below code into your .emacs:
+#+BEGIN_SRC sh
+# Now elpa/marmalade/melpa site will be overrided
+(setq package-archives '(("myelpa" . "~/myelpa")))
+#+END_SRC
+
+** Build a remote repository (OPTIONAL)
+You can upload everything into any web server or cloud service. Then insert below code into .emacs:
+#+BEGIN_SRC sh
+# all-to-list will not override default elpa, so now you have to repositories, one is elpa, another is myelpa
+(add-to-list 'package-archives '("myelpa" . "https://dl.dropboxusercontent.com/u/858862/myelpa/"))
+#+END_SRC
+
+My home page is at [[https://dl.dropboxusercontent.com/u/858862/myelpa/index.html]].
+
+* Tips (OPTIONAL)
+You can tweak the content of index.html a little bit.
+
+#+BEGIN_SRC elisp
+;; default output directory
+(setq elpamr-default-output-directory "~/myelpa")
+
+;; displayed in sample code of index.html
+(setq elpamr-repository-name "myelpa")
+
+;; displayed in sample code of index.html
+(setq elpamr-repository-path "http://myelpa.mydomain.com")
+
+;; contact email, displayed in index.html
+(setq elpamr-email "myname@gmail.com")
+
+;; when exporting installed packages, ignore packages from these repositories
+;; "gnu" means packages hosted on http://elpa.gnu.org
+;; "melpa" means packages hosted on http://melpa.milkbox.net
+(setq elpamr-exclude-package-from-repositories '("myelpa" "gnu" "melpa"))
+#+END_SRC
+
+* Contact me
+You can report bugs at [[https://github.com/redguardtoo/elpa-mirror]].

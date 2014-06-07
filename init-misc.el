@@ -854,6 +854,13 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 (global-set-key (kbd "C-x C-j") 'direx:jump-to-directory)
 ;; }}
 
+;; {{ support MY packages which are not included in melpa
+(autoload 'wxhelp-browse-class-or-api "wxwidgets-help" "" t)
+(autoload 'issue-tracker-increment-issue-id-under-cursor "issue-tracker")
+(autoload 'elpamr-create-mirror-for-installed "elpa-mirror")
+(autoload 'org2nikola-export-subtree "org2nikola")
+;; }}
+
 (setq web-mode-imenu-regexp-list
   '(("<\\(h[1-9]\\)\\([^>]*\\)>\\([^<]*\\)" 1 3 ">" nil)
     ("^[ \t]*<\\([@a-z]+\\)[^>]*>? *$" 1 " id=\"\\([a-zA-Z0-9_]+\\)\"" "#" ">")

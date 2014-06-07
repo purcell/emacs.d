@@ -1,0 +1,53 @@
+* org2nikola (version 0.0.8)
+export org into html used by static blog generator like [[https://github.com/getnikola/nikola][nikola]].
+
+Features:
+- URL is normalized into pinyin characters if the article is written in Chinese
+- Support 3rd party syntax highligher which is written in javascript
+
+Bugs:
+- local image href is not supported yet!
+
+* Install
+Download org2nikola.el and put it some where, say "~/.emacs.d/lisp".
+
+The paste below code into ~/.emacs:
+#+BEGIN_SRC
+(add-to-list 'load-path "~/.emacs.d/lisp/")
+(require 'org2nikola)
+#+END_SRC
+
+* Set up (OPTIONAL)
+Paste below code into your .emacs:
+#+BEGIN_SRC elisp
+(setq org2nikola-output-root-directory "~/projs/blog.binchen.org")
+;; use google code prettify (https://code.google.com/p/google-code-prettify/)
+(setq org2nikola-use-google-code-prettify t)
+#+END_SRC
+
+* Usage
+Say I got a org-file with following content:
+#+BEGIN_SRC org
+ * article 1
+   blah
+ * article 2
+   blah
+blah
+#+END_SRC
+
+Put focus in anywhere of subtree "article 2", the "M-x org2nikola-export-subtree". That's the only command I implemented.
+
+* Credits
+- [[https://github.com/punchagan/][Puneeth Chaganti (AKA punchagan]] I borrow lots of ideas from his project [[https://github.com/punchagan/org2blog][org2blog]].
+
+* Contact me
+You can report bugs at [[https://github.com/redguardtoo/org2nikola]] My email is <chenbin DOT sh AT gmail>.
+
+Please use github issue tracker instead of email me directly if you want my response ASAP. It's because github will email me any issue you submit. The github email will be put into my "IMPORTANT" folder automatically. But regular email in my "INBOX" folder will be mixed with spams. I got lots of spams these days.
+
+* License
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see [[http://www.gnu.org/licenses/]].

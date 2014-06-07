@@ -65,18 +65,15 @@ ARCHIVE is the string name of the package archive.")
 ;; Standard package repositories
 ;;------------------------------------------------------------------------------
 
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-
 ;; We include the org repository for completeness, but don't use it.
 ;; Lock org-mode temporarily:
 ;; (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 
 
-;;------------------------------------------------------------------------------
-;; Also use Melpa for some packages built straight from VC
-;;------------------------------------------------------------------------------
-
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+;; use packages from melpa only, even packages in elpa.gnu.org are ignored
+(setq package-archives '(("melpa" . "http://melpa.milkbox.net/packages/")
+                         ("melpa-stable" . "http://hiddencameras.milkbox.net/packages/")
+                         ))
 
 ;; Un-comment below line if you download zip file from https://github.com/redguardtoo/myelpa/archive/master.zip and extract its content into ~/myelpa/
 ;; (setq package-archives '(("myelpa" . "~/myelpa/")))
@@ -86,7 +83,47 @@ ARCHIVE is the string name of the package archive.")
 
 (defvar melpa-include-packages
   '(bbdb
+    xml-rpc
+    kv
+    color-theme
+    wgrep
+    robe
+    inf-ruby
+    yari
+    dsvn
+    move-text
+    findr
+    mwe-log-commands
+    dired-details
+    yaml-mode
+    noflet
+    db
+    evil-matchit
+    creole
+    web
+    elnode
+    sass-mode
+    idomenu
+    elein
+    pointback
+    buffer-move
+    regex-tool
+    csharp-mode
+    switch-window
+    cmake-mode
+    sr-speedbar
+    smartparens
+    quack
+    iedit
+    legalese
+    htmlize
+    scratch
+    mic-paren
+    session
+    crontab-mode
     bookmark+
+    flymake-lua
+    multi-term
     dired+
     inflections
     dropdown-list
@@ -107,18 +144,6 @@ ARCHIVE is the string name of the package archive.")
     erlang
     fancy-narrow)
   "Don't install any Melpa packages except these packages")
-
-(defvar melpa-exclude-packages
-  ;; I'm happy my packages included in melpa. But need time to switch to melpa finally
-  '(slime
-    evil-nerd-commenter
-    evil-matchit
-    cpputils-cmake
-    company
-    evil
-    auto-complete
-    dash)
-  "Don't install Melpa versions of these packages.")
 
 ;; Don't take Melpa versions of certain packages
 (setq package-filter-function
@@ -174,7 +199,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'dired+)
 (require-package 'rainbow-mode '(0 6 0) nil)
 (require-package 'maxframe)
-(require-package 'org-mime)
 (require-package 'org-fstree)
 (require-package 'htmlize)
 (require-package 'diminish)
@@ -209,10 +233,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'cmake-mode)
 (require-package 'emmet-mode)
 (require-package 'session)
-(require-package 'tidy)
+;; (require-package 'tidy)
 (require-package 'unfill)
-(require-package 'auctex)
-(require-package 'etags-select '(1 13 0) nil) ;; evil may need it
 (require-package 'w3m)
 (require-package 'idomenu)
 (if *emacs24* (require-package 'ggtags))
@@ -223,7 +245,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'flyspell-lazy)
 (require-package 'bbdb '(20130421 1145 0) nil)
 (require-package 'iedit)
-(require-package 'wxwidgets-help '(0 0 3) nil)
 (require-package 'pomodoro '(20130114 1543 0) nil)
 (require-package 'flymake-lua)
 (require-package 'evil-nerd-commenter '(1 3 1) nil)
@@ -238,7 +259,6 @@ ARCHIVE is the string name of the package archive.")
 (if (and (>= emacs-major-version 24) (>= emacs-minor-version 1))
     (require-package 'js2-mode '(20140114 0 0) nil)
   )
-(require-package 'org2nikola '(0 0 8) nil)
 (require-package 'tagedit)
 (require-package 'fancy-narrow)
 (require-package 'sr-speedbar)
@@ -252,10 +272,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'fakir)
 (require-package 'elnode)
 (require-package 'evil-matchit '(1 2 9) nil)
-(require-package 'elpa-mirror '(1 1 2) nil)
 (if *emacs24* (require-package 'anaconda-mode))
 (require-package 'quack) ;; for scheme
-(require-package 'issue-tracker '(0 0 1) nil)
 
 ;; (require-package 'command-frequency)
 
