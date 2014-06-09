@@ -20,6 +20,13 @@
 (defvar taglist-window nil)
 (defvar taglist-current 0)
 
+(defun base-buffer-file-name (buffer)
+  "Return FILE from base BUFFER.
+The cloned buffer need to get FILE from 'buffer-base-buffer' function."
+  (if (buffer-base-buffer buffer)
+      (buffer-file-name (buffer-base-buffer buffer))
+    (buffer-file-name buffer)))
+
 (defun taglist nil
   (interactive)
   (require 'speedbar)
@@ -43,7 +50,7 @@
     (taglist-fill-tags
      source-buffer
      (cddr (speedbar-fetch-dynamic-tags
-	    (buffer-file-name source-buffer)))
+	    (base-buffer-file-name source-buffer)))
      ""
      current-line)
 
