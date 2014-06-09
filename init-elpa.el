@@ -249,7 +249,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'iedit)
 (require-package 'pomodoro '(20130114 1543 0) nil)
 (require-package 'flymake-lua)
-(require-package 'evil-nerd-commenter '(1 3 1) nil)
+(require-package 'evil-nerd-commenter '(1 4 0) nil)
 (require-package 'dropdown-list)
 (require-package 'yasnippet '(0 8 0) nil)
 ;; rvm-open-gem to get gem's code
