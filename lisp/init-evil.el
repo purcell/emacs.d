@@ -148,7 +148,23 @@
 (global-set-key (kbd "M-k") 'keyboard-quit)
 (global-set-key (kbd "C-o") 'evil-execute-in-normal-state)
 
+
+;;; ex-command with argument
+(evil-define-command evil-cscope-find (arg)
+  "cscope find commands.
+Example: cs f s <symbol> ==> cscope fine symbol"
+  :repeat nil
+  (interactive "<a>")
+  (let* ((arg1 (cdr (split-string arg))) ;strip "f" from arg
+	 (type (car arg1))
+	 (thing (car (cdr arg1))))
+    (cond ((string= type "s") (cscope-find-this-symbol thing))
+	  ((string= type "t") (cscope-find-this-text-string thing))
+	  ((string= type "d") (cscope-find-global-definition thing)))))
+
 (evil-ex-define-cmd "tlist" 'taglist)
+(evil-ex-define-cmd "cs[cope]" 'evil-cscope-find)
+
 
 ;; {{ evil-leader config
 (require-package 'evil-leader)
