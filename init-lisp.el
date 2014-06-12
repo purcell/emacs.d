@@ -24,7 +24,6 @@
      (global-set-key (kbd "M-(") 'paredit-wrap-round)
      (global-set-key (kbd "M-[") 'paredit-wrap-square)
      (global-set-key (kbd "M-{") 'paredit-wrap-curly)
-
      (global-set-key (kbd "M-)") 'paredit-close-round-and-newline)
      (global-set-key (kbd "M-]") 'paredit-close-square-and-newline)
      (global-set-key (kbd "M-}") 'paredit-close-curly-and-newline)
@@ -55,7 +54,6 @@
       (enable-paredit-mode)))
 
 
-
 ;; ----------------------------------------------------------------------------
 ;; Hippie-expand
 ;; ----------------------------------------------------------------------------
@@ -66,17 +64,10 @@
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially t))
 
 
-;; ----------------------------------------------------------------------------
-;; Automatic byte compilation
-;; ----------------------------------------------------------------------------
-;(auto-compile-on-save-mode 1)
-;; TODO: also use auto-compile-on-load-mode
-;; TODO: exclude .dir-locals.el
 
 ;; ----------------------------------------------------------------------------
 ;; Highlight current sexp
 ;; ----------------------------------------------------------------------------
-
 ;; Prevent flickery behaviour due to hl-sexp-mode unhighlighting before each command
 (eval-after-load 'hl-sexp
   '(defadvice hl-sexp-mode (after unflicker (turn-on) activate)
@@ -88,7 +79,6 @@
 ;; ----------------------------------------------------------------------------
 ;; Enable desired features for all lisp modes
 ;; ----------------------------------------------------------------------------
-
 (defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
   (enable-paredit-mode)
@@ -112,8 +102,6 @@
     (add-hook hook 'sanityinc/emacs-lisp-setup)))
 
 
-(require 'eldoc-eval)
-
 (add-to-list 'auto-mode-alist '("\\.emacs-project\\'" . emacs-lisp-mode))
 (add-to-list 'auto-mode-alist '("archive-contents\\'" . emacs-lisp-mode))
 
@@ -132,7 +120,6 @@
 ;; obviously it doesn't ensure that unopened files will also have
 ;; their .elc counterparts removed - VC hooks would be necessary for
 ;; that.
-
 (defvar sanityinc/vc-reverting nil
   "Whether or not VC or Magit is currently reverting buffers.")
 
@@ -153,9 +140,5 @@
 (defadvice vc-revert-buffer-internal (around sanityinc/reverting activate)
   (let ((sanityinc/vc-reverting t))
     ad-do-it))
-
-
-
-
 
 (provide 'init-lisp)

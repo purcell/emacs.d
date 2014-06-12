@@ -34,6 +34,7 @@
 
 ;; {{helm-gtags
 ;; customize
+(require 'helm-tags)
 (setq helm-c-gtags-path-style 'relative)
 (setq helm-c-gtags-ignore-case t)
 (setq helm-c-gtags-read-only t)
