@@ -20,19 +20,35 @@
       js2-skip-preprocessor-directives t
       js2-auto-indent-p t
       js2-bounce-indent-p t)
-(if (and (>= emacs-major-version 24) (>= emacs-minor-version 1) (not *no-memory*))
-    (progn
-      (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\)?\\'" . js2-mode) auto-mode-alist))
-      (autoload 'js2-mode "js2-mode" nil t)
-      (add-hook 'js2-mode-hook '(lambda ()
-                                  (js2-imenu-extras-mode)
-                                  (setq mode-name "JS2")
-                                  (require 'js-doc)
-                                  (define-key js2-mode-map "\C-cd" 'js-doc-insert-function-doc)
-                                  (define-key js2-mode-map "@" 'js-doc-insert-tag)
-                                  ))
-      (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode)))
-    (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\)?\\'" . javascript-mode) auto-mode-alist)))
+
+;; js-mode imenu enhancement
+;; @see http://stackoverflow.com/questions/20863386/idomenu-not-working-in-javascript-mode
+(defun mo-js-imenu-make-index ()
+  (save-excursion
+    (imenu--generic-function '((nil "function\\s-+\\([^ ]+\\)(" 1)
+                               (nil " \\([^ ]+\\)\\s-*=\\s-*function\\s-*(" 1)))))
+
+(defun mo-js-mode-hook ()
+  (setq imenu-create-index-function 'mo-js-imenu-make-index)
+  (define-key js-mode-map [?\M-i] 'imenu))
+(add-hook 'js-mode-hook 'mo-js-mode-hook)
+
+(cond
+ ((and (>= emacs-major-version 24) (>= emacs-minor-version 1) (not *no-memory*))
+  (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\)?\\'" . js2-mode) auto-mode-alist))
+  (autoload 'js2-mode "js2-mode" nil t)
+  (add-hook 'js2-mode-hook '(lambda ()
+                              (js2-imenu-extras-mode)
+                              (setq mode-name "JS2")
+                              (require 'js-doc)
+                              (define-key js2-mode-map "\C-cd" 'js-doc-insert-function-doc)
+                              (define-key js2-mode-map "@" 'js-doc-insert-tag)
+                              ))
+  (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode))
+  )
+ (t
+  (setq auto-mode-alist (cons '("\\.js\\(\\.erb\\)?\\'" . js-mode) auto-mode-alist))
+  ))
 ;; }}
 
 (add-hook 'coffee-mode-hook 'flymake-coffee-load)
