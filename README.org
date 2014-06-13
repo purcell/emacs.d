@@ -89,6 +89,8 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - needed by `org-mode` to export org to odt
 - install through OS package manager
 
+** jshint (if you use js-mode instead js2-mode)
+- install `node.js` through OS package manager, then `sudo npm install -g jshint`
 ** xsel
 - needed by my clipboard command `copy-to-x-clipboard` and `paste-from-x-clipboard` under Linux
 - install through OS package manager
