@@ -28,9 +28,28 @@
     (imenu--generic-function '((nil "function\\s-+\\([^ ]+\\)(" 1)
                                (nil " \\([^ ]+\\)\\s-*=\\s-*function\\s-*(" 1)))))
 
+(defun flymake-jshint-init ()
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+           (local-file (file-relative-name
+                        temp-file
+                        (file-name-directory buffer-file-name)))
+           (arglist (list local-file)))
+      (list "jshint" arglist)))
+
 (defun mo-js-mode-hook ()
   (setq imenu-create-index-function 'mo-js-imenu-make-index)
-  (define-key js-mode-map [?\M-i] 'imenu))
+  (flymake-mode 1)
+  (setq flymake-err-line-patterns
+        (cons '(".*: line \\([[:digit:]]+\\), col \\([[:digit:]]+\\), \\(.*\\)$"
+                nil 1 2 3)
+              flymake-err-line-patterns))
+
+  (add-to-list 'flymake-allowed-file-name-masks
+               '("\\.js\\'" flymake-jshint-init)
+               '("\\.json\\'" flymake-jshint-init))
+  (flymake-mode 1)
+  )
 (add-hook 'js-mode-hook 'mo-js-mode-hook)
 
 (cond
