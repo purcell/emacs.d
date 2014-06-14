@@ -89,7 +89,6 @@
 (require 'init-csv)
 (require 'init-erlang)
 (require 'init-javascript)
-(require 'init-sh)
 (when *emacs24*
   (require 'init-org)
   (require 'init-org-mime))
@@ -122,6 +121,7 @@
 ;; use evil mode (vi key binding)
 (require 'init-evil)
 (require 'init-misc)
+(require 'init-sh)
 (require 'init-ctags)
 (require 'init-ace-jump-mode)
 (require 'init-bbdb)
