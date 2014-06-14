@@ -41,7 +41,8 @@
 
 (add-to-list 'auto-mode-alist '("\\.[Cc][Ss][Vv]\\'" . csv-mode))
 (autoload 'csv-mode "csv-mode" "Major mode for comma-separated value files." t)
-'
+
+
 ;;----------------------------------------------------------------------------
 ;; Don't disable narrowing commands
 ;;----------------------------------------------------------------------------
@@ -854,9 +855,9 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 
 ;; {{ support MY packages which are not included in melpa
 (autoload 'wxhelp-browse-class-or-api "wxwidgets-help" "" t)
-(autoload 'issue-tracker-increment-issue-id-under-cursor "issue-tracker")
-(autoload 'elpamr-create-mirror-for-installed "elpa-mirror")
-(autoload 'org2nikola-export-subtree "org2nikola")
+(autoload 'issue-tracker-increment-issue-id-under-cursor "issue-tracker" "" t)
+(autoload 'elpamr-create-mirror-for-installed "elpa-mirror" "" t)
+(autoload 'org2nikola-export-subtree "org2nikola" "" t)
 ;; }}
 
 (setq web-mode-imenu-regexp-list
