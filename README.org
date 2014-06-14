@@ -4,9 +4,10 @@
 - C++/C developers, you need tell Emacs location of header files. You *MUST* see section `clang` now!
 - I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs if you set up environment variable HOME.
 - I whitelist packages from [[http://melpa.milkbox.net][melpa]] because it is too cutting edge. Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
-- If you not willing to fetch packages from remote repositories, see the section *Install packages without elpa/marmalade/melpa* for easier way.
+- If you not are willing to or cannot fetch packages from remote repositories, see the section *Install packages without elpa/marmalade/melpa*.
 - In your bug report, please include details of environment (OS, Emacs version ...) and the full output of `emacs --debug-init`.
 - Remove bundled emacs 22 at first *if you are using OS X*!
+- If you don't want to use Emacs' own package manager, please extract the your package's source code at ~/.emacs.d/site-lisp. There are many samples there.
 
 * General
 My first priority is *stable*. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]]. If you want to get all the latest package from melpa, search the line containing "(setq package-filter-function nil)" in "init-elpa.el" and *un-comment* it.
@@ -29,9 +30,7 @@ Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Py
 * Install
 Download [[https://github.com/redguardtoo/emacs.d/archive/master.zip][this zip file]] and extract its content into ~/.emacs.d. Ensure that the 'init.el' contained in this repo ends up at ~/.emacs.d/init.el and old ~/.emacs *IS REMOVED*.
 
-Make sure you are connected to the internet.
-
-you may need run the below command in the terminal at least once to update the content from package repositories:
+You *possibly* need run the below command in the terminal at least once to update the content from package repositories:
 #+BEGIN_SRC elisp
 emacs -nw --batch -l ~/.emacs.d/init.el -f package-refresh-contents
 #+END_SRC
@@ -42,6 +41,19 @@ You do have USB stick, right?
 
 Check the section *Install packages without elpa/marmalade/melpa* for solutions.
 
+* Quick guide
+** Step 1, Learn basic knowledge about OS
+- Know what's environment variable
+- Know what's pipe, stdout, stdin
+** Step 2, Read Emacs official tutorial at least once
+Press "C-h t" (C means Ctrl) and start read tutorial.
+- Know how to move cursor
+- Know how to open help. Press "C-h v" and "C-h f".
+** Step 3, Learn org-mode basics
+[[http://orgmode.org/][Org-mode]] is a for notes-keeping and planning.
+Please watch the [[https://www.youtube.com/watch?v=oJTwQvgfgMM][Carsten Dominik's talk]]. It's really simple. The only hot key you need remember is "Tab".
+** Step 4, use Emacs to solve your first *specific* problem
+For that specific problem, you can visit [[http://www.emacswiki.org/emacs/][EmacsWiki]] for the solution. Newbies can ask for help on [[http://www.reddit.com/r/emacs/]].
 * Directory structure
 init.el is main file which include all the other *.el files.
 
@@ -101,12 +113,12 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - If you use `cpputils-cmake` and `cmake`, `cpputils-cmake` will do all the set up for you. You don't need read next item!
 - If you use `company-clang`, add `(setq company-clang-arguments '("-I/example1/dir" "-I/example2/dir"))` into ~/.emacs.d/init.el
 
-** [[https://addons.mozilla.org/en-us/firefox/addon/mozrepl/][MozRepl firefox addon]]
+** [[https://addons.mozilla.org/en-us/firefox/addon/mozrepl/][MozRepl (Firefox addon)]]
 - needed by [[http://www.emacswiki.org/emacs/MozRepl][MozRepl]]
-- install using firefox
+- used by Firefox
 
-** [[http://ctags.sourceforge.net][ctags]]
-- it creates tags for code navigation
+** [[http://ctags.sourceforge.net][CTags]]
+- it creates tags file for code navigation
 - needed by many tags related plugins
 - install through OS package manager
 - See [[http://blog.binchen.org/?p=1057][How to use ctags in Emacs effectively]] for my guide
