@@ -84,6 +84,7 @@ ARCHIVE is the string name of the package archive.")
 (defvar melpa-include-packages
   '(bbdb
     xml-rpc
+    json-rpc
     kv
     color-theme
     wgrep
@@ -198,7 +199,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'elein)
 (require-package 'markdown-mode)
 (require-package 'dired+)
-(require-package 'rainbow-mode '(0 6 0) nil)
 (require-package 'maxframe)
 (require-package 'org-fstree)
 (require-package 'htmlize)
