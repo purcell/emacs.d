@@ -39,7 +39,6 @@
 (eval-after-load 'magit
   '(progn
      (require 'magit-key-mode)
-     (require 'magit-svn)
      ))
 
 ;; {{ git-gutter
