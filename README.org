@@ -1,5 +1,5 @@
 * Warning
-- *If you are absolutely newbie and want to use Emacs immediately, please check the section "Install packages without elpa/marmalade/melpa". Use solution 1!*.
+- *If you are absolutely newbie and want to use Emacs immediately, please check the section "Install packages without elpa/marmalade/melpa".*.
 - I'm using [[http://www.vim.org][Vim]] key binding. Please see section *Tips* if you prefer the Emacs key binding.
 - People in Mainland China may need [[http://code.google.com/p/goagent/][goagent]] to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server (or any proxy server).
 - C++/C developers, you need tell Emacs location of header files. You *MUST* see section `clang` now!
@@ -150,7 +150,6 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - any package manager at Linux
 
 * Install packages without elpa/marmalade/melpa
-** Solution 1
 Here are the exact steps you need follow:
 - Go to [[https://github.com/redguardtoo/myelpa]].
 - Click "Download ZIP"
@@ -167,14 +166,6 @@ That's it. You will never need internet connection in the future.
 Please note that all your packages are locked to the versions I'm using. So you *can't* upgrade package online in the future.
 
 I don't recommend advanced users locking their package version.
-
-** Solution 2
-If you are too lazy to download ZIP file, you can uncomment below code in ~/.emacs.d/init-elpa.el,
-#+BEGIN_SRC bash
-(setq package-archives '(("myelpa" . "https://raw.github.com/redguardtoo/myelpa/master/")))
-#+END_SRC
-
-Then start Emacs. Obviously you need internet connection to access github.com.
 
 * Report bug
 Please file bug report at [[https://github.com/redguardtoo/emacs.d]]. Don't send me email!
