@@ -1,0 +1,13 @@
+@c -*-texinfo-*-
+@c This is part of the Evil manual.
+@c Copyright (C) 2011 Frank Fischer and Vegard Øye.
+@c See the file evil.texi for copying conditions.
+
+@ifclear macros
+@set macros
+
+@macro authors {}
+Frank Fischer and Vegard Øye
+@end macro
+
+@end ifclear

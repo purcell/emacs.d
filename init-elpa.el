@@ -99,8 +99,6 @@ ARCHIVE is the string name of the package archive.")
     yaml-mode
     noflet
     db
-    undo-tree
-    goto-last-change
     evil-matchit
     creole
     web
@@ -250,9 +248,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'iedit)
 (require-package 'pomodoro '(20130114 1543 0) nil)
 (require-package 'flymake-lua)
-(require-package 'evil) ;; evil dependent on undo-tree, goto-last-change
 (require-package 'evil-nerd-commenter '(1 4 0) nil)
-(require-package 'evil-matchit '(1 2 9) nil)
 (require-package 'dropdown-list)
 (require-package 'yasnippet '(0 8 0) nil)
 ;; rvm-open-gem to get gem's code
@@ -276,6 +272,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'git-gutter)
 (require-package 'fakir)
 (require-package 'elnode)
+(require-package 'evil-matchit '(1 2 9) nil)
 (if *emacs24* (require-package 'anaconda-mode))
 (require-package 'quack) ;; for scheme
 

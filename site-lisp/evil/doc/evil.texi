@@ -1,0 +1,769 @@
+\input texinfo @c -*-texinfo-*-
+@setfilename evil.info
+@documentencoding ISO-8859-1
+@include version.texi
+@settitle Evil-mode manual
+@include macros.texi
+
+@copying
+This manual is for Evil (version @value{VERSION} of @value{UPDATED}),
+an extensible vi layer for Emacs.
+
+Copyright @copyright{} 2011 @authors{}.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license is included in the section entitled
+``GNU Free Documentation License''.
+@end quotation
+
+The Evil team thanks everyone at gmane.emacs.vim-emulation for
+their feedback and contributions.
+@end copying
+
+@dircategory Emacs
+@direntry
+* Evil: (evil). Extensible vi layer for Emacs.
+@end direntry
+
+@titlepage
+@title Evil
+@subtitle Extensible vi layer for Emacs
+@author @authors{}
+@page
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top, Overview, (dir), (dir)
+@top Evil
+
+This is the manual for Evil, an extensible vi layer for Emacs.
+@end ifnottex
+
+@menu
+* Overview::
+* Settings::
+* Keymaps::
+* Hooks::
+* Macros::
+* Other internals::
+* GNU Free Documentation License::
+@end menu
+
+@node Overview
+@chapter Overview
+
+Evil is an extensible vi layer for Emacs.  It emulates the main features
+of Vim,@footnote{Vim is the most popular version of @dfn{vi}, a modal
+text editor with many implementations.  Vim also adds some functions of
+its own, like Visual selection and text objects.  For more information,
+see: @uref{http://www.vim.org/}} turning Emacs into a modal editor.
+Like Emacs in general, Evil is extensible in Emacs Lisp.
+
+@menu
+* Installation::
+* Modes and states::
+@end menu
+
+@node Installation
+@section Installation
+
+Evil lives in a Git repository.  To download Evil, do:
+
+@example
+git clone git://gitorious.org/evil/evil.git
+@end example
+
+@noindent Move Evil to @code{~/.emacs.d/evil}.  Then add the following
+lines to @code{~/.emacs}:
+
+@lisp
+(add-to-list 'load-path "~/.emacs.d/evil")
+(require 'evil)
+(evil-mode 1)
+@end lisp
+
+@noindent Evil requires @code{undo-tree.el} to provide linear undo
+and undo branches.  It is available from
+EmacsWiki.@footnote{@uref{http://www.emacswiki.org/emacs/UndoTree}}
+(A copy of @code{undo-tree.el} is also included in the Git repository.)
+
+@node Modes and states
+@section Modes and states
+
+The next time Emacs is started, it will come up in @dfn{Normal state},
+denoted by @code{<N>} on the mode line.  This is where the main vi
+bindings are defined.  Note that you can always disable Normal state
+with @kbd{C-z}, which switches to an ``Emacs state'' (denoted by
+@code{<E>}) in which vi keys are completely disabled.  Press @kbd{C-z}
+again to switch back to Normal state.
+
+Evil uses the term @dfn{state} for what is called a ``mode'' in vi,
+since ``mode'' already has its own meaning in Emacs.  Evil defines a
+number of states, such as Normal state (@code{<N>}), Insert state
+(@code{<I>}), Visual state (@code{<V>}), Replace state (@code{<R>}),
+Operator-Pending state (@code{<O>}), Motion state (@code{<M>}) and Emacs
+state (@code{<E>}).  Each state has its own keymaps and customization
+variables.
+
+Meanwhile, a @dfn{mode} in Emacs is a set of key bindings for editing a
+certain sort of text, like @code{emacs-lisp-mode} for Emacs Lisp.  Modes
+may include custom bindings for Evil states.
+
+@node Settings
+@chapter Settings
+
+Evil's behavior can be adjusted by setting various variables.
+The current values may be inspected by doing
+@kbd{M-x customize-group RET evil RET}.
+
+To change the value of a variable, add a @samp{setq} form to
+@code{~/.emacs}, preferably before Evil is loaded:@footnote{Strictly
+speaking, the order only matters if the variable affects the way Evil is
+loaded.  This is the case with some of the @samp{evil-want-} variables.}
+
+@lisp
+(setq evil-shift-width 8)
+;; @r{Load Evil}
+(require 'evil) @r{@dots{}}
+@end lisp
+
+@noindent Note that if a variable is buffer-local, you must use
+@samp{setq-default} instead of @samp{setq} to change its global value.
+
+@defvar evil-auto-indent
+Whether the current line is indented when entering Insert state.
+If @code{t} (the default), then the line is indented.  If @code{nil},
+then the line is not indented.  Buffer-local.
+@end defvar
+
+@defvar evil-shift-width
+The number of columns a line is shifted by the commands
+@kbd{>} and @kbd{<}.
+@end defvar
+
+@defvar evil-repeat-move-cursor
+If @code{t} (the default), then repeating a command with @kbd{.} may
+change the position of the cursor.  If @code{nil}, then the original
+position is preserved.
+@end defvar
+
+@defvar evil-find-skip-newlines
+If @code{t}, then @kbd{f}, @kbd{F}, @kbd{t} and @kbd{T} may skip over
+newlines to find a character.  If @code{nil} (the default), then they
+are restricted to the current line.
+@end defvar
+
+@defvar evil-move-cursor-back
+If @code{t} (the default), then the cursor moves backwards when exiting
+Insert state.  If @code{nil}, then the cursor does not move.
+@end defvar
+
+@defvar evil-want-fine-undo
+If @code{t}, then a change-based action like @kbd{cw} may be undone
+in several steps.  If @code{nil} (the default), then it is undone in
+one step.
+@end defvar
+
+@defvar evil-regexp-search
+If @code{t} (the default), then @kbd{/} and @kbd{?} use regular
+expressions for searching.  If @code{nil}, they use plain text.
+@end defvar
+
+@defvar evil-search-wrap
+If @code{t} (the default), then @kbd{/} and @kbd{?} wrap the search
+around the buffer.  If @code{nil}, then they stop at buffer boundaries.
+@end defvar
+
+@defvar evil-flash-delay
+The number of seconds to flash search matches when pressing @kbd{n}
+and @kbd{N}.
+@end defvar
+
+@defvar evil-want-C-i-jump
+If @code{t} (the default), then @kbd{C-i} jumps forwards in the jump
+list.  If @code{nil}, then @kbd{C-i} inserts a tab.
+@end defvar
+
+@defvar evil-want-C-u-scroll
+If @code{t}, then @kbd{C-u} scrolls the buffer.  If @code{nil} (the
+default), then @kbd{C-u} begins a numeric prefix argument.
+@end defvar
+
+@menu
+* The cursor::
+* The initial state::
+@end menu
+
+@node The cursor
+@section The cursor
+
+A state may change the cursor's appearance.  The cursor settings are
+stored in the variables below, which may contain a cursor type as per
+the @samp{cursor-type} variable, a color string as passed to the
+@samp{set-cursor-color} function, a zero-argument function for changing
+the cursor, or a list of the above.  For example, the following changes
+the cursor in Replace state to a red box:
+
+@lisp
+(setq evil-replace-state-cursor '("red" box))
+@end lisp
+
+@noindent If the state does not specify a cursor,
+@samp{evil-default-cursor} is used.
+
+@defvar evil-default-cursor
+The default cursor.
+@end defvar
+
+@defvar evil-normal-state-cursor
+The cursor for Normal state.
+@end defvar
+
+@defvar evil-insert-state-cursor
+The cursor for Insert state.
+@end defvar
+
+@defvar evil-visual-state-cursor
+The cursor for Visual state.
+@end defvar
+
+@defvar evil-replace-state-cursor
+The cursor for Replace state.
+@end defvar
+
+@defvar evil-operator-state-cursor
+The cursor for Operator-Pending state.
+@end defvar
+
+@defvar evil-motion-state-cursor
+The cursor for Motion state.
+@end defvar
+
+@defvar evil-emacs-state-cursor
+The cursor for Emacs state.
+@end defvar
+
+@node The initial state
+@section The initial state
+
+By default, a new buffer comes up in Normal state.  This can be changed
+with the function @samp{evil-set-initial-state}.
+
+@defun evil-set-initial-state mode state
+Set the initial state for a buffer in which @var{mode} is active to
+@var{state}.  @var{mode} should be a major mode such as
+@code{text-mode}, although minor modes work as well.
+@end defun
+
+@node Keymaps
+@chapter Keymaps
+
+Evil's key bindings are stored in a number of keymaps.  Each state has a
+@dfn{global keymap}, where the default key bindings for the state are
+stored.  For example, the global keymap for Normal state is
+@samp{evil-normal-state-map}, and the key bindings in this map are seen
+in all buffers that are currently in Normal state.
+
+Keymaps are modified with the Emacs function @samp{define-key}:
+
+@lisp
+(define-key evil-normal-state-map "w" 'foo)
+@end lisp
+
+@noindent This binds the key @kbd{w} to the command @samp{foo}
+in Normal state.  The file @code{evil-maps.el} contains all the
+key bindings.
+
+@defvar evil-normal-state-map
+The global keymap for Normal state.
+@end defvar
+
+@defvar evil-insert-state-map
+The global keymap for Insert state.
+@end defvar
+
+@defvar evil-visual-state-map
+The global keymap for Visual state.
+@end defvar
+
+@defvar evil-replace-state-map
+The global keymap for Replace state.
+@end defvar
+
+@defvar evil-operator-state-map
+The global keymap for Operator-Pending state.
+@end defvar
+
+@defvar evil-motion-state-map
+The global keymap for Motion state.
+@end defvar
+
+@noindent Each state also has a @dfn{buffer-local keymap},
+which is specific to the current buffer and has precedence over
+the global keymap.  These maps may be changed from a mode hook.
+
+@defvar evil-normal-state-local-map
+Buffer-local keymap for Normal state.
+@end defvar
+
+@defvar evil-insert-state-local-map
+Buffer-local keymap for Insert state.
+@end defvar
+
+@defvar evil-visual-state-local-map
+Buffer-local keymap for Visual state.
+@end defvar
+
+@defvar evil-replace-state-local-map
+Buffer-local keymap for Replace state.
+@end defvar
+
+@defvar evil-operator-state-local-map
+Buffer-local keymap for Operator-Pending state.
+@end defvar
+
+@defvar evil-motion-state-local-map
+Buffer-local keymap for Motion state.
+@end defvar
+
+@menu
+* @samp{evil-define-key}::
+@end menu
+
+@node @samp{evil-define-key}
+@section @samp{evil-define-key}
+
+Finally, Evil provides the function @samp{evil-define-key} for adding
+state bindings to a regular keymap.
+
+@defun evil-define-key state keymap key def
+In @var{keymap}, create a binding from @var{key} to @var{def} in
+@var{state}.  @var{state} is one of @samp{normal}, @samp{insert},
+@samp{visual}, @samp{replace}, @samp{operator} and @samp{motion}.
+The other parameters are like those of @samp{define-key}.
+@end defun
+
+@noindent @samp{evil-define-key} can be used to augment existing
+modes with state bindings, as well as create packages for custom
+bindings.  For example, the following will create a minor mode
+@code{foo-mode} with Normal state bindings for the keys @kbd{w}
+and @kbd{e}:
+
+@lisp
+(define-minor-mode foo-mode
+  "Foo mode."
+  :keymap (make-sparse-keymap))
+
+(evil-define-key 'normal foo-mode-map "w" 'bar)
+(evil-define-key 'normal foo-mode-map "e" 'baz)
+@end lisp
+
+@noindent This minor mode can then be enabled in any buffers where
+the custom bindings are desired:
+
+@lisp
+(add-hook 'text-mode-hook 'foo-mode) ; @r{enable alongside @code{text-mode}}
+@end lisp
+
+@noindent If the minor mode is put into its own file @code{foo.el}
+with a @code{(provide 'foo)} statement, it becomes an Emacs package.
+
+@node Hooks
+@chapter Hooks
+
+A @dfn{hook} is a list of functions to execute.  Hooks are modified with
+the Emacs function @samp{add-hook}.  Evil provides entry and exit hooks
+for all of its states.
+
+@defvar evil-normal-state-entry-hook
+Run when entering Normal state.
+@end defvar
+
+@defvar evil-normal-state-exit-hook
+Run when exiting Normal state.
+@end defvar
+
+@defvar evil-insert-state-entry-hook
+Run when entering Insert state.
+@end defvar
+
+@defvar evil-insert-state-exit-hook
+Run when exiting Insert state.
+@end defvar
+
+@defvar evil-visual-state-entry-hook
+Run when entering Visual state.
+@end defvar
+
+@defvar evil-visual-state-exit-hook
+Run when exiting Visual state.
+@end defvar
+
+@defvar evil-replace-state-entry-hook
+Run when entering Replace state.
+@end defvar
+
+@defvar evil-replace-state-exit-hook
+Run when exiting Replace state.
+@end defvar
+
+@defvar evil-operator-state-entry-hook
+Run when entering Operator-Pending state.
+@end defvar
+
+@defvar evil-operator-state-exit-hook
+Run when exiting Operator-Pending state.
+@end defvar
+
+@defvar evil-motion-state-entry-hook
+Run when entering Motion state.
+@end defvar
+
+@defvar evil-motion-state-exit-hook
+Run when exiting Motion state.
+@end defvar
+
+@noindent When these hooks are run, the variables @samp{evil-next-state}
+and @samp{evil-previous-state} hold information about the states being
+switched to and from.
+
+@defvar evil-next-state
+The state being switched to.
+@end defvar
+
+@defvar evil-previous-state
+The state being switched from.
+@end defvar
+
+@node Macros
+@chapter Macros
+
+Evil is implemented in terms of reusable macros.  Package writers can
+use these to define new commands.
+
+@menu
+* Motions::
+* Operators::
+* Text objects::
+* Types::
+* States::
+@end menu
+
+@node Motions
+@section Motions
+
+A @dfn{motion} is a command which moves the cursor, such as @kbd{w} and
+@kbd{e}.  Motions are defined with the macro @samp{evil-define-motion}.
+Motions not defined in this way should be declared with
+@samp{evil-declare-motion}.
+
+@defun evil-declare-motion command
+Declare @var{command} to be a motion.  This ensures that it works
+properly in Visual state.
+@end defun
+
+@defmac evil-define-motion motion (count args@dots{}) doc keyword-args@dots{} body@dots{}
+Define a movement command @var{motion}.  A motion can have any number of
+arguments, but the first argument, if any, has a predefined meaning as
+the @var{count}. It is a positive or negative number, or @code{nil}.
+The argument list is followed by the documentation string @var{doc},
+which is followed by optional keyword arguments:
+
+@table @code
+@item :type @var{type}
+The @var{type} determines how the motion works after an operator.  If
+@var{type} is @samp{inclusive}, then the ending position is included in
+the motion range.  If @var{type} is @samp{line}, then the range is
+expanded to linewise positions.  If @var{type} is @samp{block}, then the
+range is blockwise.  The default is @samp{exclusive}, which means that
+the range is used as-is.
+
+@item :jump @var{jump}
+If @var{jump} is @code{t}, then the previous position is stored in the
+jump list so it can be restored with @kbd{C-o}.  The default is
+@code{nil}.
+@end table
+
+The keyword arguments are followed by the @var{body}, which is where
+the motion's behavior is defined.  For instance:
+
+@lisp
+(evil-define-motion foo-forward (count)
+  "Move to the right by COUNT characters."
+  :type inclusive
+  (forward-char (or count 1)))
+@end lisp
+
+For more examples, you can view the source code for any command with
+@kbd{C-h k}.  For instance, @samp{evil-goto-line} may be viewed by
+typing @kbd{C-h k G} and following the file link.
+@end defmac
+
+@node Operators
+@section Operators
+
+An @dfn{operator} is a command which acts on the text moved over by a
+motion, such as @kbd{c}, @kbd{d} and @kbd{y}.  Operators are defined
+with the macro @samp{evil-define-operator}.
+
+@defmac evil-define-operator operator (beg end type args@dots{}) doc keyword-args@dots{} body@dots{}
+Define an operator command @var{operator}.  An operator must have at
+least two or three arguments, which have predefined meanings.
+@var{beg} is the beginning position, @var{end} is the ending position,
+and @var{type}, if given, is the type of the motion range.  The argument
+list is followed by the documentation string @var{doc}, which is
+followed by optional keyword arguments:
+
+@table @code
+@item :type @var{type}
+Make the input range be a certain @var{type}.  For example, an operator
+which only works with whole lines may set @var{type} to @samp{line}.
+
+@item :motion @var{motion}
+Use the motion @var{motion} instead of reading one from the keyboard.
+This does not affect the behavior in Visual state, where the selection
+boundaries are used instead.
+
+@item :repeat @var{repeat}
+If @var{repeat} is @code{t} (the default), then @kbd{.} will repeat the
+operator.  If @var{repeat} is @code{nil}, then the operator will not be
+repeated.
+
+@item :move-point @var{move-point}
+If @var{move-point} is @code{t} (the default), then the cursor is
+positioned at the beginning of the range.  If @var{move-point} is
+@code{nil}, then the original position is preserved.
+
+@item :keep-visual @var{keep-visual}
+If @var{keep-visual} is @code{t}, then the selection is not disabled
+when the operator is run in Visual state; it is up to the operator to do
+this.  The default is @code{nil}, which means that Visual state is
+exited automatically.
+@end table
+
+The keyword arguments are followed by the @var{body}, which is where the
+operator's actions on @var{beg} and @var{end} are defined.  For example,
+@samp{evil-rot13}, which is bound to @kbd{g?} and performs ROT13
+encryption on the text, may be defined as:
+
+@lisp
+(evil-define-operator evil-rot13 (beg end)
+  "ROT13 encrypt text."
+  (rot13-region beg end))
+@end lisp
+
+Pressing @kbd{g?w} will encrypt a word by calling @samp{rot13-region}
+on the text moved over by the @kbd{w} motion.
+@end defmac
+
+@node Text objects
+@section Text objects
+
+A @dfn{text object} is a special kind of motion which sets a beginning
+position as well as an ending position, such as @kbd{iw} and @kbd{a(}.
+In Visual state, text objects alter both ends of the selection.  Text
+objects are defined with the macro @samp{evil-define-text-object}.
+
+@defmac evil-define-text-object object (count args@dots{}) doc keyword-args@dots{} body@dots{}
+Define a text object @var{object}.  The first argument has a predefined
+meaning as the @var{count}: it is a positive or negative number.  The
+argument list is followed by the documentation string @var{doc}, which
+is followed by optional keyword arguments:
+
+@table @code
+@item :type @var{type}
+Use the type @var{type} after an operator.  In Visual state, this is the
+type of the selection.
+
+@item :extend-selection @var{extend-selection}
+If @var{extend-selection} is @code{t} (the default), then the text
+object always enlarges the current selection.  If @code{nil}, then the
+object replaces the selection.
+@end table
+
+The keyword arguments are followed by the @var{body}, which should
+evaluate to a list @code{(@var{beg} @var{end})} of two positions in the
+buffer.  For example, a text object which selects three characters
+following the current position could be defined as:
+
+@lisp
+(evil-define-text-object foo (count)
+  "Select three characters."
+  (list (point) (+ (point) 3)))
+@end lisp
+@end defmac
+
+@noindent Evil provides several functions which return a list of
+positions, for use in the definition of a text object.  These functions
+follow the rule that a positive @var{count} selects text after the
+current position, while a negative @var{count} selects text before it.
+
+@defun evil-inner-object-range count forward backward
+Return a text range @code{(@var{beg} @var{end})} of @var{count}
+``inner'' text objects (e.g., @kbd{iw}, @kbd{is}).  @var{forward} is a
+function which moves to the end of an object, and @var{backward} is a
+function which moves to the beginning.
+@end defun
+
+@defun evil-an-object-range count forward backward
+Return a text range @code{(@var{beg} @var{end})} of @var{count} text
+objects with whitespace (e.g., @kbd{aw}, @kbd{as}).  @var{forward} is a
+function which moves to the end of an object, and @var{backward} is a
+function which moves to the beginning.
+@end defun
+
+@defun evil-paren-range count open close &optional exclusive
+Return a text range @code{(@var{beg} @var{end})} of @var{count}
+delimited blocks (e.g., @kbd{i(}, @kbd{a(}). @var{open} and @var{close}
+are characters.  If @var{exclusive} is non-nil, then the delimiters are
+excluded from the range.  This function uses Emacs' syntax table and is
+only applicable for single-character delimiters; use
+@samp{evil-regexp-range} to match multiple characters.
+@end defun
+
+@defun evil-regexp-range count open close &optional exclusive
+Return a text range @code{(@var{beg} @var{end})} of @var{count}
+delimited blocks (e.g., @kbd{it}, @kbd{at}). @var{open} and @var{close}
+are regular expressions.  If @var{exclusive} is non-nil, then the
+delimiters are excluded from the range.
+@end defun
+
+@node Types
+@section Types
+
+A @dfn{type} is a transformation on a pair of buffer positions.  Evil
+defines the types @samp{exclusive}, @samp{inclusive}, @samp{line} and
+@samp{block}, which are used for motion ranges and Visual selection.
+Types are defined with the macro @samp{evil-define-type}.
+
+@defmac evil-define-type type doc keyword-args@dots{}
+Define a type @var{type}, described by the documentation string
+@var{doc}.  Then follows keyword arguments:
+
+@table @code
+@item :expand @var{expand}
+A function which takes two buffer positions and returns a list
+@code{(@var{beg} @var{end})} of expanded positions.
+
+@item :contract @var{contract}
+A function which takes two expanded buffer positions and returns a list
+@code{(@var{beg} @var{end})} of unexpanded positions.  Optional.
+
+@item :normalize @var{normalize}
+A function which takes two unexpanded buffer positions and returns a
+list @code{(@var{beg} @var{end})} of adjusted positions.  Optional.
+
+@item :injective @var{injective}
+If @code{t} (the default), then expansion is one-to-one -- i.e.,
+@var{expand} followed by @var{contract} always returns the original
+positions.  If @code{nil}, then several positions may expand to the same
+(for example, the @samp{line} type is one-to-many as it expands to the
+containing lines).
+@end table
+
+Further keywords and functions may be specified.  These are understood
+to be transformations on buffer positions, like @var{expand} and
+@var{contract}.
+@end defmac
+
+@node States
+@section States
+
+States are defined with the macro @samp{evil-define-state}.  The macro
+defines the necessary hooks, keymaps and variables for a state, as well
+as a toggle function @samp{evil-@var{state}-state} for entering the
+state, and a predicate function @samp{evil-@var{state}-state-p} which
+returns @code{t} when the state is active, and @code{nil} otherwise.
+
+@defmac evil-define-state state doc keyword-args@dots{} body@dots{}
+Define an Evil state @var{state}, described by the documentation string
+@var{doc}.  Then follows optional keyword arguments:
+
+@table @code
+@item :tag @var{tag}
+Mode line indicitor, e.g., @code{"<T>"}.
+@item :message @var{message}
+String shown in the echo area.
+@item :cursor @var{cursor}
+Cursor specification.
+@item :enable @var{enable}
+List of other modes and states to enable.  A state may enable another
+state's keymaps in addition to its own.
+@end table
+
+This is followed the @var{body}, which is executed whenever the state is
+enabled or disabled.  The state's predicate function may be used to
+distinguish between the two.
+@end defmac
+
+@node Other internals
+@chapter Other internals
+
+@menu
+* Command properties::
+@end menu
+
+@node Command properties
+@section Command properties
+
+Evil defines @dfn{command properties} to store information about
+commands, such as whether they should be repeated.  A command property
+is a @code{@var{:keyword}} with an associated value, e.g., @code{:repeat
+nil}.
+
+@defun evil-add-command-properties command &rest properties
+Add @var{properties} to @var{command}.  The properties should be
+specified as a list of keywords and values:
+
+@lisp
+(evil-add-command-properties 'my-command :repeat t)
+@end lisp
+@end defun
+
+@defun evil-set-command-properties command &rest properties
+Like @samp{evil-add-command-properties}, but resets all
+previous properties.
+@end defun
+
+@defun evil-get-command-property command property
+Return the value of a command property.
+@end defun
+
+@defmac evil-define-command command (args@dots{}) doc keyword-args@dots{} body@dots{}
+Define a command with command properties @var{keyword-args}.
+@end defmac
+
+@noindent For setting repeat properties, Evil provides the
+following functions:
+
+@defun evil-declare-repeat command
+Declare @var{command} to be repeatable.
+@end defun
+
+@defun evil-declare-not-repeat command
+Declare @var{command} to be nonrepeatable.
+@end defun
+
+@defun evil-declare-change-repeat command
+Declare @var{command} to be repeatable by buffer changes rather than
+keystrokes.
+@end defun
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+@include fdl-1.3.texi
+
+@bye
+
+@c Local Variables:
+@c mode: texinfo
+@c TeX-master: t
+@c sentence-end-double-space: t
+@c End:
