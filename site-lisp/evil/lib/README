@@ -1,6 +1,0 @@
-This folder contains external libraries that are freely distributable
-under the GNU GPL license. They may not be up to date.
-
-Emacs does not add subdirectories to the `load-path' by default.
-Therefore this directory is not covered by the installation
-instructions.

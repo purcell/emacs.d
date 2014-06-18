@@ -1,7 +1,0 @@
-@c -*-texinfo-*-
-@c This is part of the Evil manual.
-@c Copyright (C) 2011 Frank Fischer and Vegard Øye.
-@c See the file evil.texi for copying conditions.
-
-@set VERSION 0.1
-@set UPDATED 2011-07-30
