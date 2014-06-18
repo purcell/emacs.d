@@ -155,8 +155,9 @@ Here are the exact steps you need follow:
 - Go to [[https://github.com/redguardtoo/myelpa]].
 - Click "Download ZIP"
 - Extract zip somewhere say "~/myelpa".
-- Double check that there is a file name "archive-contents" in the directory "~/myelpa".
-- uncomment below code in ~/.emacs.d/init-elpa.el.
+- Double check that there is a file name "archive-contents" in the directory "~/myelpa"
+- Uncomment below code in ~/.emacs.d/init-elpa.el
+- Start Emacs now
 #+BEGIN_SRC bash
 (setq package-archives '(("myelpa" . "~/myelpa/")))
 #+END_SRC
@@ -173,7 +174,7 @@ If you are too lazy to download ZIP file, you can uncomment below code in ~/.ema
 (setq package-archives '(("myelpa" . "https://raw.github.com/redguardtoo/myelpa/master/")))
 #+END_SRC
 
-Then you are good to go. Obviously you need internet connection to access github.com.
+Then start Emacs. Obviously you need internet connection to access github.com.
 
 * Report bug
 Please file bug report at [[https://github.com/redguardtoo/emacs.d]]. Don't send me email!
