@@ -1,10 +1,10 @@
 * Warning
+- *If you are absolutely newbie and want to use Emacs immediately, please check the section "Install packages without elpa/marmalade/melpa". Use solution 1!*.
 - I'm using [[http://www.vim.org][Vim]] key binding. Please see section *Tips* if you prefer the Emacs key binding.
 - People in Mainland China may need [[http://code.google.com/p/goagent/][goagent]] to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server (or any proxy server).
 - C++/C developers, you need tell Emacs location of header files. You *MUST* see section `clang` now!
 - I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs if you set up environment variable HOME.
 - I whitelist packages from [[http://melpa.milkbox.net][melpa]] (melpa-unstable, actually). Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
-- If you not are willing to or cannot fetch packages from remote repositories, see the section *Install packages without elpa/marmalade/melpa*.
 - In your bug report, please include details of environment (OS, Emacs version ...) and the full output of `emacs --debug-init`.
 - Remove bundled emacs 22 at first *if you are using OS X*!
 - If you don't want to use Emacs' own package manager, please extract the your package's source code at ~/.emacs.d/site-lisp. There are many samples there.
