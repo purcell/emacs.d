@@ -1,0 +1,198 @@
+* evil-matchit (v1.3.1)
+
+Vim [[http://www.vim.org/scripts/script.php?script_id=39][matchit.vim]] by Benji Fisher ported into Emacs.
+
+When it's installed, you can press "%" to jump between matched tags in Emacs.
+
+Most modern languages are supported:
+- HTML
+- Python
+- Java
+- C++/C
+- Javascript
+- Perl
+- Latex
+- CMake
+- Org-mode (match tag of org-mode and tags of other languages embedded in org file)
+- Ruby
+- Bash
+- Lua
+- Vim script
+- Emacs email (mesage-mode)
+
+This package uses Evil as its vi layer!
+
+* Why use evil-matchit 
+- No learning curve. Press "%" to jump between matched tags. That's all!
+- Stable! The ONLY dependency is evil-mode. So it should work in any major modes (web-mode, html-mode ...).
+- Support any modern languages (html/java/c/c++/python/latex/javascript ...).
+- Powerful. For example, if you mix jsp, freemarker, html, jquery template or any weird syntax into one file, evil-matchit still works!
+- Extendable. You can write a plugin for it in 5 minutes.
+- I will provide long term support for it (next 10 years) because Emacs is my last editor.
+
+Here is screen cast for python:
+[[file:screencast.gif]]
+
+* Install
+evil-matchit is already uploaded to [[http://marmalade-repo.org/]]. So the best way to install it is using Emacs' package manager.
+
+Or you can download the package from https://dl.dropboxusercontent.com/u/858862/myelpa/index.html and manually install it by “M-x package-install-file”.
+* Set up
+Insert below code into your ~/.emacs:
+#+BEGIN_SRC lisp
+(require 'evil-matchit)
+(global-evil-matchit-mode 1)
+#+END_SRC
+
+Alternatively, you can enable evil-matchit-mode along a major mode by adding `turn-on-evil-matchit-mode' to the mode hook.
+
+* Usage
+Press "%" to jump inside item(s) between tags in evil-normal-mode whose command name is "evilmi-jump-items". Please note that you *DO NOT* need move cursor above the tag before jumping, evil-matchit is smart enough to *detect the beginning of tag automatically*.
+
+Press ",si" to select item(s) wrapped by tags in evil-normal-mode whose command name is "evilmi-select-items".
+
+Press ",di" to delete item(s) wrapped by tags in evil-normal-mode whose command name is "evilmi-delete-items".
+
+All commands support numeric argument like "3%", "5,si" or "9,di"
+
+* Advanced tips
+** Support more major modes
+Let's use html tag matching as an example.
+
+html tags are automatically supported in sgml-mode, nxml-mode, web-mode, html-mode and nxhtml-mode,.
+
+Let's say you want a new major-mode "my-mode" to do the html tag matching. Easy. Please add below line into your ~/.emacs:
+
+#+BEGIN_SRC elisp
+(plist-put evilmi-plugins my-mode '((evilmi-html-get-tag evilmi-html-jump)))
+#+END_SRC
+
+Further explanation: "evilmi-html-get-tag" and "evilmi-html-jump" are existing APIs which are defined in evil-matchit-html.el. The above line means that in my-mode, use "evilmi-html-get-tag" to find open/closed tag in current line and use "evilmi-html-jump" to jump to matched closed/open tag.
+
+** mixed languages in one html template file can be supported
+Say you embed python language in a html file. You can match both html tags and python statement by inserting below code into your ~/.emacs:
+#+BEGIN_SRC elisp
+(plist-put evilmi-plugins web-mode
+           '((evilmi-python-get-tag evilmi-python-jump)
+             (evilmi-html-get-tag evilmi-html-jump)
+             ))
+#+END_SRC
+** re-define keybinding
+You can define your own key bindings instead using evil-matchit default key binding.
+
+All you need to do is to define function evilmi-customize-keybinding before turning on evil-mathcit-mode:
+#+BEGIN_SRC elisp
+(defun evilmi-customize-keybinding ()
+  (evil-define-key 'normal evil-matchit-mode-map
+    "%" 'evilmi-jump-items
+    ",si" 'evilmi-select-items
+    ",di" 'evilmi-delete-items
+    )
+  )
+(global-evil-matchit-mode 1)
+#+END_SRC
+
+* Developer guide
+** Write elisp code to support a new language
+Simple. You only need define two functions and tell evil-matchit in which major-mode they should be used.
+
+Here is a complete sample:
+#+BEGIN_SRC elisp
+;; detect tag in current line and return the result in variable rlt
+;; the rlt will be used by evilmi-mylang-jump as the first parameter.
+;; if NO tag found, the rlt SHOULD be nil
+;;
+;; @return the data to be used by evilmi-mylang-jump which should be a list
+;;         the first element of the list is the position of cursor before jump
+;;         we use it to select/delete tag. The other elements of the list could
+;;         be any data type
+(defun evilmi-mylang-find-tag ()
+  (let (rlt )
+    (setq rlt '(position-of-open-end "anything-you-like" "anything-you-like")
+    rlt
+    )
+  )
+
+;; @parama rlt result from evilmi-mylang-find-tag
+;; @param NUM numeric argument when user press "%" to match tag
+;; @return the matching tag position in theory, useful only for
+;;         selecting or deleting text between matching tags and tags
+(defun evilmi-mylang-jump (rlt NUM)
+  (message "rlt=%s" rlt)
+  ;; if we need select region between tags (including tags itself)
+  ;; we get the beginning of region by reading the first element of
+  ;; rlt
+  (push-mark (nth 0 rlt) t t)
+  ;; say 999 is the where we jump to
+  (goto-char 999)
+  ;; If you need know where is the end of the region for region operation,
+  ;; you need return the end of region at the end of function
+  ;; region operation means selection/deletion of region.
+  888
+  )
+
+;; notify evil-matchit how to use above functions
+(plist-put evilmi-plugins mylang-mode '((evilmi-mylang-get-tag evilmi-mylang-jump)))
+#+END_SRC
+
+Place above code into your ~/.emacs, after the line "(global-evil-matchit-mode 1)"
+** Use SDK
+Please note SDK is totally *OPTIONAL*! You don't need SDK to write a plugin for evil-matchit.
+
+You can check the evil-matchit-script.el for the sample on how to use SDK.
+
+I attached the full content of evil-matchit-script.el here:
+#+BEGIN_SRC elisp
+(require 'evil-matchit-sdk)
+
+;; ruby/bash/lua/vimrc
+(defvar evilmi-script-match-tags
+  '((("unless" "if") ("elif" "elsif" "elseif" "else") ( "end" "fi" "endif"))
+    ("begin" ("rescue" "ensure") "end")
+    ("case" ("when" "else") ("esac" "end"))
+    (("fun!" "function!" "class" "def" "while" "function" "do") () ("end" "endfun" "endfunction"))
+    ("repeat" ()  "until")
+    )
+  "The table we look up match tags. This is a three column table.
+The first column contains the open tag(s).
+The second column contains the middle tag(s).
+The third column contains the closed tags(s).
+"
+  )
+
+;;;###autoload
+(defun evilmi-script-get-tag ()
+  (evilmi-sdk-get-tag evilmi-script-match-tags evilmi-sdk-extract-keyword-howtos)
+  )
+
+;;;###autoload
+(defun evilmi-script-jump (rlt NUM)
+  (evilmi-sdk-jump rlt NUM evilmi-script-match-tags evilmi-sdk-extract-keyword-howtos)
+  )
+
+(provide 'evil-matchit-script)
+#+END_SRC
+
+Simple, eh?
+
+Basically you just need:
+- copy the content of evil-matchit-script.el to your ~/.emacs
+- Search and replace the string "_script" with "_mylang" to respect the name space
+- Update the value of evilmi--mylang-match-tags
+- Notify the evil-matchit about support for new commands. As I mentioned before, it's just one line code in ~/.emacs
+
+#+BEGIN_SRC lisp
+(plist-put evilmi-plugins mylang-mode '((evilmi-mylang-get-tag evilmi-mylang-jump)))
+#+END_SRC
+
+** Share your code to the world
+Tweak your code a little bit to make it a plugin and ask me to merge it into upstream.
+
+Please check "evil-matchit-latext.el" for technical details about plugin.
+
+Key points about code quality of plugin:
+- minimum dependency. For example, if your plugin for html template files is only some web-mode API wrapper, it will break when user don't have web-mode
+- support emacs 23
+- performance is the first priority
+* Contact me
+You can report bugs at [[https://github.com/redguardtoo/evil-matchit]].

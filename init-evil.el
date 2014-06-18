@@ -72,7 +72,10 @@
 (define-key evil-normal-state-map "-" 'evil-numbers/dec-at-pt)
 (define-key evil-normal-state-map "go" 'goto-char)
 
+;; {{ evil-matchit
+(require 'evil-matchit)
 (global-evil-matchit-mode 1)
+;; }}
 
 (eval-after-load "evil" '(setq expand-region-contract-fast-key "z"))
 
@@ -347,7 +350,10 @@ to replace the symbol under cursor"
                 (set-face-background 'mode-line (car color))
                 (set-face-foreground 'mode-line (cdr color))))))
 
+;; {{ evil-nerd-commenter
 ;; comment/uncomment lines
+(require 'evil-nerd-commenter)
 (evilnc-default-hotkeys)
+;; }}
 
 (provide 'init-evil)
