@@ -1,6 +1,7 @@
 ;; flyspell set up for web-mode
 (defun web-mode-flyspell-verify ()
   (let ((f (get-text-property (- (point) 1) 'face))
+        thing
         rlt)
     (cond
      ((not (memq f '(web-mode-html-attr-value-face
@@ -16,16 +17,17 @@
                      web-mode-css-selector-face
                      web-mode-css-color-face
                      web-mode-type-face
-                     web-mode-block-control-face
-                     )
+                     web-mode-block-control-face)
                  ))
       (setq rlt t))
      ((memq f '(web-mode-html-attr-value-face))
       (save-excursion
         (search-backward-regexp "=['\"]" (line-beginning-position) t)
         (backward-char)
-        (setq rlt (string= (thing-at-point 'word) "value"))
-        ))
+        (setq thing (thing-at-point 'symbol))
+        (setq rlt (or (string-match "^ng-.*" thing)
+                     (string= "value" thing)))
+        rlt))
      (t t))
     rlt
     ))

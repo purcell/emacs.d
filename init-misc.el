@@ -772,6 +772,10 @@ The full path into relative path insert it as a local file link in org-mode"
     (message "%s => clipboard & yank ring" rlt)
       ))
 
+(defun current-thing-at-point ()
+  (interactive)
+  (message "thing = %s" (thing-at-point 'symbol)))
+
 (defun add-pwd-into-load-path ()
   "add current directory into load-path, useful for elisp developers"
   (interactive)
