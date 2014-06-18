@@ -112,7 +112,6 @@ ARCHIVE is the string name of the package archive.")
     switch-window
     cmake-mode
     sr-speedbar
-    smartparens
     quack
     iedit
     legalese
@@ -261,7 +260,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'tagedit)
 (require-package 'fancy-narrow)
 (require-package 'sr-speedbar)
-(require-package 'smartparens)
 ;; company-mode drop emacs 23 support
 (if (and (>= emacs-major-version 24)) (require-package 'company '(0 8 0) nil))
 (require-package 'legalese)
