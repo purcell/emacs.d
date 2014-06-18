@@ -1,12 +1,4 @@
-(autoload 'doctest-mode "doctest-mode" "Python doctest editing mode." t)
-
-(setq auto-mode-alist
-      (append '(("SConstruct\\'" . python-mode)
-		("SConscript\\'" . python-mode))
-              auto-mode-alist))
-
-(setq interpreter-mode-alist
-      (cons '("python" . python-mode) interpreter-mode-alist))
+(setq interpreter-mode-alist (cons '("python" . python-mode) interpreter-mode-alist))
 
 
 ;;----------------------------------------------------------------------------
@@ -15,12 +7,6 @@
 (eval-after-load 'python
   '(require 'flymake-python-pyflakes))
 
-(add-hook 'python-mode-hook '(lambda ()
-                               (when *emacs24*
-                                 (anaconda-eldoc)
-                                 (add-to-list 'company-backends 'company-anaconda))
-                               (flymake-python-pyflakes-load)))
-
-
+(add-hook 'python-mode-hook '(lambda () (flymake-python-pyflakes-load)))
 
 (provide 'init-python-mode)
