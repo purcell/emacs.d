@@ -104,7 +104,6 @@ ARCHIVE is the string name of the package archive.")
     elnode
     sass-mode
     idomenu
-    elein
     pointback
     buffer-move
     regex-tool
@@ -193,7 +192,6 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'haml-mode)
 (require-package 'sass-mode)
 (require-package 'scss-mode)
-(require-package 'elein)
 (require-package 'markdown-mode)
 (require-package 'dired+)
 (require-package 'maxframe)
