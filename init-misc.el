@@ -118,6 +118,7 @@
              ;; enable for all programming modes
              ;; http://emacsredux.com/blog/2013/04/21/camelcase-aware-editing/
              (subword-mode)
+             (if *emacs24* (electric-pair-mode 1))
              ;; eldoc, show API doc in minibuffer echo area
              (turn-on-eldoc-mode)
              ;; show trailing spaces in a programming mod
