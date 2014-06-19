@@ -85,10 +85,6 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - install through OS package manager
 - I force the dictionary to "en_US" in init-spelling.el. You can modify it in init-spelling.el.
 
-** sbcl (lisp environment)
-- needed by lisp `slime`
-- install through OS package manager
-
 ** tidy (html tidy program) or html5-tidy (RECOMMENDED)
 - needed by `web-mode` for real time HTML syntax check
 - install through OS package manager
