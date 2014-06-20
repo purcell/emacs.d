@@ -28,13 +28,13 @@
 
 
 ;;; Commentary:
-;;
+;; 
 ;; Purpose
 ;; =======
-;;
+;; 
 ;; Import and export of vCards as defined in RFC 2425 and RFC 2426
 ;; to/from The Insidious Big Brother Database (BBDB).
-;;
+;; 
 ;;
 ;; Usage
 ;; =====
@@ -87,7 +87,7 @@
 ;; vcard.el is needed.
 ;;
 ;; An existing BBDB record is extended by new information from a vCard
-;;
+;; 
 ;;   (a) if name and company and an email address match
 ;;   (b) or if name and company match
 ;;   (c) or if name and an email address match
@@ -111,7 +111,7 @@
 ;; unessential) information loss.  For labels of the vCard types ADR
 ;; and TEL, parameter translation is defined in
 ;; `bbdb-vcard-import-translation-table'.
-;;
+;; 
 ;; If there is a REV element, it is stored in BBDB's creation-date in
 ;; newly created BBDB records, or discarded for existing ones.  Time
 ;; and time zone information from REV are stored there as well if
@@ -248,7 +248,7 @@
 
 
 ;;; History:
-;;
+;; 
 
 
 ;;; Code:
@@ -603,14 +603,14 @@ Extend existing BBDB records where possible."
                (if vcard-rev            ; For fresh records,
                    (bbdb-record-putprop ; set creation-date from vcard-rev
                     fresh-record 'creation-date vcard-rev)
-                 (run-hook-with-args 'bbdb-create-hook fresh-record))
+                 (bbdb-invoke-hook 'bbdb-create-hook fresh-record))
                (setq record-freshness-info "BBDB record added:") ; user info
                fresh-record)))
            (bbdb-akas (bbdb-record-aka bbdb-record))
-           (bbdb-addresses (bbdb-record-address bbdb-record))
-           (bbdb-phones (bbdb-record-phone bbdb-record))
-           (bbdb-nets (bbdb-record-mail bbdb-record))
-           (bbdb-raw-notes (bbdb-record-Notes bbdb-record))
+           (bbdb-addresses (bbdb-record-addresses bbdb-record))
+           (bbdb-phones (bbdb-record-phones bbdb-record))
+           (bbdb-nets (bbdb-record-net bbdb-record))
+           (bbdb-raw-notes (bbdb-record-raw-notes bbdb-record))
            notes
            other-vcard-type)
       (bbdb-vcard-elements-of-type "BEGIN")   ; get rid of delimiter
@@ -628,12 +628,12 @@ Extend existing BBDB records where possible."
                              other-names
                              vcard-formatted-names
                              bbdb-akas))))
-;      (when vcard-org (bbdb-record-set-organization bbdb-record vcard-org))
-      (bbdb-record-set-mail
+      (when vcard-org (bbdb-record-set-company bbdb-record vcard-org))
+      (bbdb-record-set-net
        bbdb-record (union vcard-email bbdb-nets :test 'string=))
-      (bbdb-record-set-address
+      (bbdb-record-set-addresses
        bbdb-record (union vcard-adrs bbdb-addresses :test 'equal))
-      (bbdb-record-set-phone bbdb-record
+      (bbdb-record-set-phones bbdb-record
                               (union vcard-tels bbdb-phones :test 'equal))
       ;; prepare bbdb's notes:
       (when vcard-url (push (cons 'www vcard-url) bbdb-raw-notes))
@@ -681,17 +681,17 @@ Extend existing BBDB records where possible."
                     (and bbdb-vcard-skip-valueless
                          (zerop (length (cdr other-vcard-type)))))
           (push (bbdb-vcard-remove-x-bbdb other-vcard-type) bbdb-raw-notes)))
-      (bbdb-record-set-Notes
+      (bbdb-record-set-raw-notes
        bbdb-record
        (remove-duplicates bbdb-raw-notes :test 'equal :from-end t))
-      (bbdb-change-record bbdb-record t t)
+      (bbdb-change-record bbdb-record t)
       ;; Tell the user what we've done.
       (message "%s %s %s -- %s"
                record-freshness-info
                (bbdb-record-firstname bbdb-record)
                (bbdb-record-lastname bbdb-record)
                (replace-regexp-in-string
-                "\n" "; " (or (bbdb-record-organization bbdb-record) "-"))))))
+                "\n" "; " (or (bbdb-record-company bbdb-record) "-"))))))
 
 (defun bbdb-vcard-from (record)
   "Return BBDB RECORD as a vCard."
@@ -701,9 +701,9 @@ Extend existing BBDB records where possible."
            (last-name (bbdb-record-lastname record))
            (aka (bbdb-record-aka record))
            (company (bbdb-record-company record))
-           (net (bbdb-record-mail record))
-           (phones (bbdb-record-phone record))
-           (addresses (bbdb-record-address record))
+           (net (bbdb-record-net record))
+           (phones (bbdb-record-phones record))
+           (addresses (bbdb-record-addresses record))
            (www (bbdb-get-field record 'www))
            (notes
             (bbdb-vcard-split-structured-text (bbdb-record-notes record)
@@ -1127,11 +1127,7 @@ Make it unique against the list USED-UP-BASENAMES."
           company-search)))
     name-search))
 
-(defun bbdb-join (list separator)
-  "Join a LIST to a string where the list elements are separated by SEPARATOR.
-The inverse function of `bbdb-split'."
-  (when list
-    (mapconcat 'identity list separator)))
+
 
 (provide 'bbdb-vcard)
 
