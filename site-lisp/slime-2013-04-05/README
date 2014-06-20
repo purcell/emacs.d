@@ -1,0 +1,48 @@
+Overview.
+----------------------------------------
+
+  SLIME is the Superior Lisp Interaction Mode for Emacs. It is
+  implemented in two main parts: the Emacs Lisp side (slime.el), and
+  the support library for the Common Lisp (swank.lisp and swank-*.lisp)
+
+  For a real description, see the manual in doc/
+
+Quick setup instructions
+------------------------
+
+  Add this to your ~/.emacs file and fill in the appropriate filenames:
+
+    (add-to-list 'load-path "~/hacking/lisp/slime/")  ; your SLIME directory
+    (setq inferior-lisp-program "/opt/sbcl/bin/sbcl") ; your Lisp system
+    (require 'slime)
+    (slime-setup)
+
+  Make sure your `inferior-lisp-program' is set to a compatible
+  version of Lisp.
+
+  The function `slime-setup' can also load additional, contributed
+  packages ("contribs"). The most-often used package is
+  slime-fancy.el, which primarily installs a popular set of other
+  contributed packages. It includes a better REPL, and many more nice
+  features. To load it, change the bare (slime-setup) form above to
+  (slime-setup '(slime-fancy)).
+
+  Use `M-x' slime to fire up and connect to an inferior Lisp.
+  SLIME will now automatically be available in your Lisp source
+  buffers.
+
+Licence.
+----------------------------------------
+
+  SLIME is free software. All files, unless explicitly stated
+  otherwise, are public domain.
+
+Contact.
+----------------------------------------
+
+  Questions and comments are best directed to the mailing list:
+    http://common-lisp.net/mailman/listinfo/slime-devel
+
+  The mailing list archive is also available on Gmane:
+    http://news.gmane.org/gmane.lisp.slime.devel
+

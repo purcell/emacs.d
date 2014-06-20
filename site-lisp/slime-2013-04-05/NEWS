@@ -1,0 +1,190 @@
+* SLIME News                                         -*- outline -*-
+
+* (since 2.3)
+
+** UTF8 encoding
+SLIME now uses only UTF8 to encode strings on the wire.  Customization
+variables like slime-net-coding-system or swank:*coding-system* are
+now useless.
+
+* 2.3 (October 2011)
+
+** REPL no longer loaded by default
+SLIME has a REPL which communicates exclusively over SLIME's socket.
+This REPL is no longer loaded by default.  The default REPL is now the
+one by the Lisp implementation in the *inferior-lisp* buffer.  The
+simplest way to enable the old REPL is:
+
+  (slime-setup '(slime-repl))
+
+** Precise source tracking in Clozure CL
+Recent versions of the CCL compiler support source-location tracking.
+This makes the sldb-show-source command much more useful and M-. works
+better too.
+
+** Environment variables for Lisp process
+slime-lisp-implementations can be used to specify a list of strings to
+augment the process environment of the Lisp process.  E.g.:
+
+    (sbcl-cvs
+     ("/home/me/sbcl-cvs/src/runtime/sbcl"
+      "--core" "/home/me/sbcl-cvs/output/sbcl.core")
+     :env ("SBCL_HOME=/home/me/sbcl-cvs/contrib/"))
+
+* 2.1
+
+** Removed Features
+Some of the more esoteric features, like presentations or fuzzy
+completion, are no longer enabled by default.  A new directory
+"contrib/" contains the code for these packages.  To use them, you
+must make some changes to your ~/.emacs.  For details see, section
+"Contributed Packages" in the manual.
+
+** Stepper
+Juho Snellman implemented stepping commands for SBCL.
+
+** Completions
+SLIME can now complete keywords and character names (like #\newline).
+
+* 2.0 (April 2006)
+
+** In-place macro expansion
+Marco Baringer wrote a new minor mode to incrementally expand macros.
+
+** Improved arglist display
+SLIME now recognizes `make-instance' calls and displays the correct
+arglist if the classname is present.  Similarly, for `defmethod' forms
+SLIME displays the arguments of the generic function.
+
+** Persistent REPL history
+SLIME now saves the command history from REPL buffers in a file and
+reloads it for newly created REPL buffers.
+
+** Scieneer Common Lisp
+Douglas Crosher added support for Scieneer Common Lisp.
+
+** SBCL
+Various improvements to make SLIME work well with current SBCL versions.
+
+** Corman Common Lisp
+Espen Wiborg added support for Corman Common Lisp.
+
+** Presentations
+A new feature which associates objects in Lisp with their textual
+represetation in Emacs.  The text is clickable and operations on the
+associated object can be invoked from a pop-up menu.
+
+** Security
+SLIME has now a simple authentication mechanism: if the file
+~/.slime-secret exists we verify that Emacs and Lisp can access it.
+Since both parties have access to the same file system, we assume that
+we can trust each other.
+
+* 1.2 (March 2005)
+
+** New inspector
+The lisp side now returns a specially formated list of "things" to
+format which are then passed to emacs and rendered in the inspector
+buffer. Things can be either text, recursivly inspectable values, or
+functions to call. The new inspector has much better support CLOS
+objects and methods.
+
+** Unicode
+It's now possible to send non-ascii characters to Emacs, if the
+communication channel is configured properly.  See the variable
+`slime-net-coding-system'.
+
+** Arglist lookup while debugging
+Previously, arglist lookup was disabled while debugging.  This
+restriction was removed. 
+
+** Extended tracing command
+It's now possible to trace individual a single methods or all methods
+of a generic function.  Also tracing can be restricted to situations
+in which the traced function is called from a specific function.
+
+** M-x slime-browse-classes
+A simple class browser was added.
+
+** FASL files
+The fasl files for different Lisp/OS/hardware combinations are now
+placed in different directories.
+
+** Many other small improvements and bugfixes
+
+* 1.0 (September 2004)
+
+** slime-interrupt
+The default key binding for slime-interrupt is now C-c C-b.
+
+** sldb-inspect-condition
+In SLDB 'C' is now bound to sldb-inspect-condition.
+
+** More Menus
+SLDB and the REPL have now pull-down menus.
+
+** Global debugger hook.
+A new configurable *global-debugger* to control whether
+swank-debugger-hook should be installed globally is available. True by
+default.
+
+** When you call sldb-eval-in-frame with a prefix argument, the result is 
+now inserted in the REPL buffer.
+
+** Compile function
+For Allegro M-. works now for functions compiled with C-c C-c.
+
+** slime-edit-definition
+Better support for Allegro: works now for different type of
+definitions not only. So M-. now works for e.g. classes in Allegro.
+
+** SBCL 0.8.13
+SBCL 0.8.12 is no longer supported.  Support for 0.8.12 was broken for
+for some time now.
+
+* 1.0 beta (August 2004)
+
+** autodoc global variables
+The slime-autodoc-mode will now automatically show the value of a
+global variable at point.
+
+** Customize group
+The customize group is expanded and better-organised.
+
+** slime-interactive-eval
+Interactive-eval commands now print their results to the REPL when
+given a prefix argument.
+
+** slime-conservative-indentation
+New Elisp variable. Non-nil means that we exclude def* and with-* from
+indentation-learning. The default is t.
+
+** (slime-setup)
+New function to streamline setup in ~/.emacs
+
+** Modeline package
+The package name in the modeline is now updated on an idle timer. The
+message should now be more meaningful when moving around in files
+containing multiple IN-PACKAGE forms.
+
+** XREF bugfix
+The XREF commands did not find symbols in the right package.
+
+** REPL prompt
+The package name in the REPL's prompt is now abbreviated to the last
+`.'-delimited token, e.g. MY.COMPANY.PACKAGE would be PACKAGE. This
+can be disabled by setting SWANK::*AUTO-ABBREVIATE-DOTTED-PACKAGES* to
+NIL.
+
+** CMUCL source cache
+The source cache is now populated on `first-change-hook'. This makes
+M-. work accurately in more file modification scenarios.
+
+** SBCL compiler errors
+Detect compiler errors and make some noise. Previously certain
+problems (e.g. reader-errors) could slip by quietly.
+
+* 1.0 alpha (June 2004)
+
+The first preview release of SLIME.
+

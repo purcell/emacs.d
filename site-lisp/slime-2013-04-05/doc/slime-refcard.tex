@@ -1,0 +1,123 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{textcomp}
+\usepackage{fullpage}
+\pagestyle{empty}
+
+
+\newcommand{\group}[1]{\bigskip\par\noindent\textbf{\large#1}\medskip}
+\newcommand{\subgroup}[1]{\medskip\par\noindent\textbf{#1}\smallskip}
+\newcommand{\key}[2]{\par\noindent\textbf{#1}\hfill{#2}}
+\newcommand{\meta}[1]{\textlangle{#1}\textrangle}
+
+\begin{document}
+
+\twocolumn[\LARGE\centering{SLIME Quick Reference Card}\vskip1cm]
+
+\group{Getting help in Emacs}
+
+\key{C-h \meta{key}}{describe function bound to \meta{key}}
+\key{C-h b}{list the current key-bindings for the focus buffer}
+\key{C-h m}{describe mode}
+\key{C-h l}{shows the keys you have pressed}
+\key{\meta{key} l}{what starts with \meta{key}}
+
+\group{Programming}
+
+\subgroup{Completion}
+
+\key{M-tab, C-c C-i, C-M-i}{complete symbol}
+\key{C-c C-s}{complete form}
+\key{C-c M-i}{fuzzy complete symbol}
+
+\subgroup{Closure}
+
+\key{C-c C-q}{close parens at point}
+\key{C-]}{close all sexp}
+
+\subgroup{Indentation}
+
+\key{C-c M-q}{reindent defun}
+\key{C-M-q}{indent sexp}
+
+\subgroup{Documentation}
+
+\key{spc}{insert a space, display argument list}
+\key{C-c C-d d}{describe symbol}
+\key{C-c C-f}{describe function}
+\key{C-c C-d a}{apropos search for regexp}
+\key{C-c C-d z}{apropos with internal symbols}
+\key{C-c C-d p}{apropos in package}
+\key{C-c C-d h}{hyperspec lookup}
+\key{C-c C-d ~}{format character hyperspec lookup}
+
+
+\subgroup{Cross reference}
+
+\key{C-c C-w c}{show function callers}
+\key{C-c C-w r}{show references to global variable}
+\key{C-c C-w b}{show bindings of a global variable}
+\key{C-c C-w s}{show assignments to a global variable}
+\key{C-c C-w m}{show expansions of a macro}
+\key{C-c \textless}{list callers of a function}
+\key{C-c \textgreater}{list callees of a function}
+
+\subgroup{Finding definitions}
+
+\key{M-.}{edit definition}
+\key{M-, or M-*}{pop definition stack}
+\key{C-x 4 .}{edit definition in other window}
+\key{C-x 5 .}{edit definition in other frame}
+
+\newpage
+
+\subgroup{Macro expansion commands}
+
+\key{C-c C-m or C-c RET}{macroexpand-1}
+\key{C-c M-m}{macroexpand-all}
+\key{C-c C-t}{toggle tracing of the function at point}
+
+\subgroup{Disassembly}
+
+\key{C-c M-d}{disassemble function definition}
+
+\group{Compilation}
+
+\key{C-c C-c}{compile defun}
+\key{C-c C-y}{call defun}
+\key{C-c C-k}{compile and load file}
+\key{C-c M-k}{compile file}
+\key{C-c C-l}{load file}
+\key{C-c C-z}{switch to output buffer}
+\key{M-n}{next note}
+\key{M-p}{previous note}
+\key{C-c M-c}{remove notes}
+
+\group{Evaluation}
+
+\key{C-M-x}{eval defun}
+\key{C-x C-e}{eval last expression}
+\key{C-c C-p}{eval \& pretty print last expression}
+\key{C-c C-r}{eval region}
+\key{C-x M-e}{eval last expression, display output}
+\key{C-c :}{interactive eval}
+\key{C-c E}{edit value}
+\key{C-c C-u}{undefine function}
+
+\group{Abort/Recovery}
+
+\key{C-c C-b}{interrupt (send SIGINT)}
+\key{C-c \~}{sync the current package and working directory}
+\key{C-c M-p}{set package in REPL}
+
+\group{Inspector}
+
+\key{C-c I}{inspect (from minibuffer)}
+\key{ret}{operate on point}
+\key{d}{describe}
+\key{l}{pop}
+\key{n}{next}
+\key{q}{quit}
+\key{M-ret}{copy down}
+
+\end{document}
