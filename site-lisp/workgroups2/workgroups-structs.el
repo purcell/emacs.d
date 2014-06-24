@@ -12,6 +12,7 @@
 ;; (wg-session-... (wg-current-session))
 ;; Like:
 ;; (wg-session-file-name (wg-current-session))
+;; (wg-workgroup-parameters (wg-current-workgroup))
 ;;
 ;; To set a value (in `wg-write-session-file'):
 ;;

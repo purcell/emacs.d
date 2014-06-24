@@ -18,6 +18,10 @@
 (defun wg-switch-to-workgroup (workgroup &optional noerror)
   "Switch to WORKGROUP."
   (interactive (list (wg-read-workgroup-name)))
+  ;; Set a parameter when using ECB
+  (if (wg-current-workgroup t)
+      (wg-set-workgroup-parameter (wg-current-workgroup t) 'ecb (and (boundp 'ecb-minor-mode)
+                                                                     ecb-minor-mode)))
   (let ((workgroup (wg-get-workgroup-create workgroup))
         (current (wg-current-workgroup t)))
     (when (and (eq workgroup current) (not noerror))
@@ -25,9 +29,25 @@
     (when current (push current wg-deactivation-list))
     (unwind-protect
         (progn
+          ;; Before switching - turn off ECB
+          ;; https://github.com/pashinin/workgroups2/issues/34
+          (if (and (boundp 'ecb-minor-mode)
+                   ecb-minor-mode
+                   (equal ecb-frame (selected-frame)))
+              (let ((ecb-split-edit-window-after-start 'before-deactivation))
+                (ecb-deactivate)))
+
           (wg-restore-workgroup workgroup)
           (wg-set-previous-workgroup current)
           (wg-set-current-workgroup workgroup)
+
+          ;; If a workgroup had ECB - turn it on
+          (if (and (boundp 'ecb-minor-mode)
+                   (not ecb-minor-mode)
+                   (wg-workgroup-parameter (wg-current-workgroup t) 'ecb nil))
+              (let ((ecb-split-edit-window-after-start 'before-deactivation))
+                (ecb-activate)))
+
           (run-hooks 'wg-switch-to-workgroup-hook)
           (wg-fontified-message
             (:cmd "Switched: ")
