@@ -141,20 +141,8 @@
 ;;----------------------------------------------------------------------------
 ;; Variables configured via the interactive 'customize' interface
 ;;----------------------------------------------------------------------------
-(if (file-readable-p (expand-file-name "~/.custom.el"))
-     (load-file (expand-file-name "~/.custom.el")))
-
-;;----------------------------------------------------------------------------
-;; Allow users to provide an optional "init-local" containing personal settings
-;;----------------------------------------------------------------------------
-(require 'init-local nil t)
-
-
-;;----------------------------------------------------------------------------
-;; Locales (setting them earlier in this file doesn't work in X)
-;;----------------------------------------------------------------------------
-;(require 'init-locales) ;does not work in cygwin
-
+(if (file-exists-p "~/.custom.el")
+                   (load-file "~/.custom.el"))
 
 (when (require 'time-date nil t)
    (message "Emacs startup time: %d seconds."
