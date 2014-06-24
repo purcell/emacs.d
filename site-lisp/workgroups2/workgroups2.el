@@ -245,7 +245,7 @@ If ARG is anything else, turn on `workgroups-mode'."
     ;;(mapcar 'wg-after-make-frame (frame-list))
     (mapc 'wg-after-make-frame (frame-list))
     (wg-add-mode-line-display)
-    (wg-find-session-file wg-default-session-file)
+    (wg-find-session-file-on-workgroups-mode-entry)
     (run-hooks 'workgroups-mode-hook))
    (t
     (wg-save-session-on-workgroups-mode-exit)
