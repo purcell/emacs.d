@@ -3,7 +3,7 @@
 # key: ahttp
 # contributor: Chen Bin <chenbin DOT sh AT gmail>
 # --
-$http.${1:post}({2:url})
+$http.${1:post}(${2:url})
   .success(function(resp) {
     console.log('resp=', resp);
     $0
