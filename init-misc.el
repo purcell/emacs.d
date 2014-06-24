@@ -368,10 +368,8 @@
     (message "full path of current buffer => clipboard & yank ring")
     ))
 
-(global-set-key (kbd "C-x v f") 'copy-full-path-of-current-buffer)
-
 ;; {{ git-messenger
-(require 'git-messenger)
+(autoload 'git-messenger:popup-message "git-messenger" "" t)
 ;; show details to play `git blame' game
 (setq git-messenger:show-detail t)
 (add-hook 'git-messenger:after-popup-hook (lambda (msg)
@@ -420,7 +418,7 @@
 (add-hook 'minibuffer-setup-hook 'my/paste-in-minibuffer)
 ;;; }}
 
-(eval-after-load "speedbar" '(if (load "mwheel" t)
+(eval-after-load 'speedbar '(if (load "mwheel" t)
                                ;; Enable wheelmouse support by default
                                (cond (window-system
                                        (mwheel-install)))))
@@ -628,7 +626,7 @@ version control automatically"
 ;; }}
 
 ;; input open source license
-(require 'legalese)
+(autoload 'legalese "legalese" "" t)
 
 ;; {{ buf-move
 (autoload 'buf-move-left "buffer-move" "move buffer" t)
@@ -678,10 +676,10 @@ version control automatically"
 ;; }}
 
 ;; vimrc
-(require 'vimrc-mode)
+(autoload 'vimrc-mode "vimrc-mode")
 (add-to-list 'auto-mode-alist '("\\.?vim\\(rc\\)?$" . vimrc-mode))
 
-(require 'highlight-symbol)
+(autoload 'highlight-symbol-at-point "highlight-symbol" "" t)
 
 ;; {{ ack
 (autoload 'ack-same "full-ack" nil t)
@@ -691,9 +689,12 @@ version control automatically"
 ;; }}
 
 ;; {{ show email sent by `git send-email' in gnus
-(require 'gnus-article-treat-patch)
-(setq gnus-article-patch-conditions
-      '( "^@@ -[0-9]+,[0-9]+ \\+[0-9]+,[0-9]+ @@" ))
+(eval-after-load 'gnus
+    '(progn
+       (require 'gnus-article-treat-patch)
+       (setq gnus-article-patch-conditions
+             '( "^@@ -[0-9]+,[0-9]+ \\+[0-9]+,[0-9]+ @@" ))
+       ))
 ;; }}
 
 (defun toggle-full-window()
@@ -850,7 +851,7 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 (color-theme-molokai)
 
 ;; {{smart-compile: http://www.emacswiki.org/emacs/SmartCompile
-(require 'smart-compile)
+(autoload 'smart-compile "smart-compile" "" t)
 ;; }}
 
 ; {{ direx
