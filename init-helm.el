@@ -1,6 +1,6 @@
 (require 'helm-config)
 
-(helm-mode 1)
+;; (helm-mode 1)
 
 (setq helm-completing-read-handlers-alist
       '((describe-function . ido)
@@ -34,7 +34,7 @@
 
 ;; {{helm-gtags
 ;; customize
-(require 'helm-gtags)
+; (require 'helm-gtags)
 (setq helm-c-gtags-path-style 'relative)
 (setq helm-c-gtags-ignore-case t)
 (setq helm-c-gtags-read-only t)
