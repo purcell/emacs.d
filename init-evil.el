@@ -316,7 +316,10 @@ to replace the symbol under cursor"
   "xd" 'narrow-to-defun
   "zc" 'wg-create-workgroup
   "zk" 'wg-kill-workgroup
-  "zv" 'wg-switch-to-workgroup
+  "zv" '(lambda (wg)
+          (interactive (list (progn (wg-find-session-file wg-default-session-file)
+                                    (wg-read-workgroup-name))))
+          (wg-switch-to-workgroup wg))
   "zj" 'wg-switch-to-workgroup-at-index
   "z0" 'wg-switch-to-workgroup-at-index-0
   "z1" 'wg-switch-to-workgroup-at-index-1
@@ -328,7 +331,7 @@ to replace the symbol under cursor"
   "z7" 'wg-switch-to-workgroup-at-index-7
   "z8" 'wg-switch-to-workgroup-at-index-8
   "z9" 'wg-switch-to-workgroup-at-index-9
-  "zs" 'wg-save-session
+  "zs" '(lambda () (interactive)  (wg-save-session))
   "zb" 'wg-switch-to-buffer
   "zp" 'wg-switch-to-workgroup-left
   "zn" 'wg-switch-to-workgroup-right
