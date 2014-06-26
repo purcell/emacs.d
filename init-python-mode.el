@@ -1,4 +1,7 @@
-(setq interpreter-mode-alist (cons '("python" . python-mode) interpreter-mode-alist))
+(autoload 'doctest-mode "doctest-mode" "Python doctest editing mode." t)
+
+(setq interpreter-mode-alist
+      (cons '("python" . python-mode) interpreter-mode-alist))
 
 
 ;;----------------------------------------------------------------------------
@@ -7,6 +10,12 @@
 (eval-after-load 'python
   '(require 'flymake-python-pyflakes))
 
-(add-hook 'python-mode-hook '(lambda () (flymake-python-pyflakes-load)))
+(add-hook 'python-mode-hook '(lambda ()
+                               (when *emacs24*
+                                 (anaconda-mode)
+                                 (eldoc-mode))
+                               (flymake-python-pyflakes-load)))
+
+
 
 (provide 'init-python-mode)
