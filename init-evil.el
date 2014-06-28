@@ -320,22 +320,12 @@ to replace the symbol under cursor"
           (interactive (list (progn (wg-find-session-file wg-default-session-file)
                                     (wg-read-workgroup-name))))
           (wg-switch-to-workgroup wg))
-  "zj" 'wg-switch-to-workgroup-at-index
-  "z0" 'wg-switch-to-workgroup-at-index-0
-  "z1" 'wg-switch-to-workgroup-at-index-1
-  "z2" 'wg-switch-to-workgroup-at-index-2
-  "z3" 'wg-switch-to-workgroup-at-index-3
-  "z4" 'wg-switch-to-workgroup-at-index-4
-  "z5" 'wg-switch-to-workgroup-at-index-5
-  "z6" 'wg-switch-to-workgroup-at-index-6
-  "z7" 'wg-switch-to-workgroup-at-index-7
-  "z8" 'wg-switch-to-workgroup-at-index-8
-  "z9" 'wg-switch-to-workgroup-at-index-9
-  "zs" '(lambda () (interactive)  (wg-save-session))
+  "zj" '(lambda (index)
+          (interactive (list (progn (wg-find-session-file wg-default-session-file)
+                                    (wg-read-workgroup-index))))
+          (wg-switch-to-workgroup-at-index index))
+  "zs" '(lambda () (interactive)  (wg-save-session t))
   "zb" 'wg-switch-to-buffer
-  "zp" 'wg-switch-to-workgroup-left
-  "zn" 'wg-switch-to-workgroup-right
-  "zwu" 'wg-undo-wconfig-change
   "zwr" 'wg-redo-wconfig-change
   "zws" 'wg-save-wconfig
   "wf" 'popup-which-function
