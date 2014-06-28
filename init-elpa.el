@@ -263,7 +263,7 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'legalese)
 (require-package 'string-edit)
 (require-package 'dired-details)
-(require-package 'git-gutter)
+(require-package 'git-gutter '(0 62) nil)
 (require-package 'fakir)
 (require-package 'elnode)
 (when *emacs24*
