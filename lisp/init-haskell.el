@@ -6,8 +6,12 @@
 (after-load 'flycheck
   (require 'flycheck-hdevtools))
 
-(dolist (hook '(haskell-mode-hook inferior-haskell-mode-hook))
+(dolist (hook '(haskell-mode-hook inferior-haskell-mode-hook interactive-haskell-mode-hook))
   (add-hook hook 'turn-on-haskell-doc-mode))
+(add-hook 'haskell-mode-hook 'inferior-haskell-mode)
+
+(after-load 'haskell-interactive-mode
+  (diminish 'interactive-haskell-mode " IntHS"))
 
 (add-auto-mode 'haskell-mode "\\.ghci\\'")
 
