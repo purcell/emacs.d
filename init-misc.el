@@ -845,10 +845,6 @@ when toggle off input method, switch to evil-normal-state if current state is ev
 
 (global-set-key (kbd "C-\\") 'evil-toggle-input-method)
 
-;; color theme
-(require 'color-theme)
-(require 'color-theme-molokai)
-(color-theme-molokai)
 
 ;; {{smart-compile: http://www.emacswiki.org/emacs/SmartCompile
 (autoload 'smart-compile "smart-compile" "" t)

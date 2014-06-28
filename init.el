@@ -57,6 +57,8 @@
    (message "setup-cygwin failed, continue anyway")
    ))
 
+(require 'idle-require)
+
 (require 'init-elpa)
 (require 'init-exec-path) ;; Set up $PATH
 (require 'init-frame-hooks)
@@ -73,9 +75,7 @@
 (require 'init-uniquify)
 (require 'init-ibuffer)
 (require 'init-flymake)
-(require 'init-artbollocks-mode)
 (require 'init-recentf)
-(require 'init-ido)
 (require 'init-smex)
 (if *emacs24* (require 'init-helm))
 (require 'init-hippie-expand)
@@ -97,7 +97,6 @@
 (require 'init-python-mode)
 (require 'init-haskell)
 (require 'init-ruby-mode)
-(require 'init-lisp)
 (require 'init-elisp)
 (require 'init-yasnippet)
 ;; Use bookmark instead
@@ -105,38 +104,49 @@
 (require 'init-yari)
 (require 'init-cc-mode)
 (require 'init-gud)
-(require 'init-semantic)
 (require 'init-cmake-mode)
 (require 'init-csharp-mode)
 (require 'init-linum-mode)
-(require 'init-emacs-w3m)
-(require 'init-eim)
 (require 'init-which-func)
 (require 'init-keyfreq)
 ;; (require 'init-gist)
-(require 'init-emacspeak)
-(require 'init-pomodoro)
 (require 'init-moz)
 (require 'init-gtags)
 ;; use evil mode (vi key binding)
 (require 'init-evil)
-(require 'init-misc)
 (require 'init-sh)
 (require 'init-ctags)
 (require 'init-ace-jump-mode)
 (require 'init-bbdb)
 (require 'init-gnus)
 (require 'init-lua-mode)
-(require 'init-doxygen)
 (require 'init-workgroups2)
-(require 'init-move-window-buffer)
 (require 'init-term-mode)
 (require 'init-web-mode)
 (require 'init-sr-speedbar)
 (require 'init-slime)
 (when *emacs24* (require 'init-company))
 (require 'init-stripe-buffer)
-(require 'init-elnode)
+
+;; color theme
+(require 'color-theme)
+(require 'color-theme-molokai)
+(color-theme-molokai)
+
+(setq idle-require-idle-delay 3)
+(setq idle-require-symbols '(init-misc
+                             init-lisp
+                             init-eim
+                             init-ido
+                             init-move-window-buffer
+                             init-elnode
+                             init-doxygen
+                             init-pomodoro
+                             init-emacspeak
+                             init-artbollocks-mode
+                             init-emacs-w3m
+                             init-semantic))
+(idle-require-mode 1) ;; starts loading
 
 ;;----------------------------------------------------------------------------
 ;; Variables configured via the interactive 'customize' interface
