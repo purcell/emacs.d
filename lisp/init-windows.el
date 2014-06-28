@@ -37,6 +37,9 @@
 (global-set-key "\C-xn2" (split-window-func-with-new-buffer 'split-window-below))
 (global-set-key "\C-xn3" (split-window-func-with-new-buffer 'split-window-right))
 
+(require-package 'zygospore)
+(global-set-key "\C-x1" 'zygospore-toggle-delete-other-windows)
+
 ;;----------------------------------------------------------------------------
 ;; Rearrange split windows
 ;;----------------------------------------------------------------------------
