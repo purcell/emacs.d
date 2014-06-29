@@ -1,5 +1,5 @@
 ;; http://tapoueh.org/emacs/switch-window.html
-(require 'switch-window)
+(global-set-key (kbd "C-x o") 'switch-window)
 
 ;; move window
 (require 'window-numbering)
