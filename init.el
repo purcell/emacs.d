@@ -108,7 +108,7 @@
 (require 'init-csharp-mode)
 (require 'init-linum-mode)
 (require 'init-which-func)
-(require 'init-keyfreq)
+(require 'init-move-window-buffer)
 ;; (require 'init-gist)
 (require 'init-moz)
 (require 'init-gtags)
@@ -138,6 +138,7 @@
                              init-lisp
                              init-eim
                              init-ido
+                             init-keyfreq
                              init-move-window-buffer
                              init-elnode
                              init-doxygen
