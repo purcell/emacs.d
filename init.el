@@ -68,6 +68,7 @@
 (require 'init-xterm)
 (require 'init-osx-keys)
 (require 'init-gui-frames)
+(require 'init-ido)
 (require 'init-maxframe)
 (require 'init-proxies)
 (require 'init-dired)
@@ -137,7 +138,6 @@
 (setq idle-require-symbols '(init-misc
                              init-lisp
                              init-eim
-                             init-ido
                              init-keyfreq
                              init-move-window-buffer
                              init-elnode
