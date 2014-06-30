@@ -265,7 +265,8 @@ ARCHIVE is the string name of the package archive.")
 (require-package 'dired-details)
 ;; (require-package 'git-gutter '(0 63) nil)
 (require-package 'fakir)
-(require-package 'elnode)
+(require-package 'f)
+(require-package 'elnode) ;; elnode dependent on f
 (when *emacs24*
   (require-package 'anaconda-mode))
 (require-package 'quack) ;; for scheme
