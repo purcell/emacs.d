@@ -1,5 +1,5 @@
 * Warning
-- *If you are absolutely newbie and want to use Emacs immediately, please check the section "Install packages without elpa/marmalade/melpa".*.
+- *If you are absolutely newbie and want to use Emacs immediately, please check the section "Install stable version in easiest way".*
 - I'm using [[http://www.vim.org][Vim]] key binding. Please see section *Tips* if you prefer the Emacs key binding.
 - People in Mainland China may need [[http://code.google.com/p/goagent/][goagent]] to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server (or any proxy server).
 - C++/C developers, you need tell Emacs location of header files. You *MUST* see section `clang` now!
@@ -39,7 +39,7 @@ emacs -nw --batch -l ~/.emacs.d/init.el -f package-refresh-contents
 
 You do have USB stick, right?
 
-Check the section *Install packages without elpa/marmalade/melpa* for solutions.
+Check the section *Install stable version in easiest way* for solutions.
 
 * Quick guide
 ** Step 1, Learn basic knowledge about OS
@@ -149,24 +149,25 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 - [[https://github.com/mxcl/homebrew][homebrew]] at Mac
 - any package manager at Linux
 
-* Install packages without elpa/marmalade/melpa
+* Install stable version in easiest way
+You don't need git or network any more. All you need are just two zip files.
+
 Here are the exact steps you need follow:
-- Go to [[https://github.com/redguardtoo/myelpa]].
-- Click "Download ZIP"
-- Extract zip somewhere say "~/myelpa".
-- Double check that there is a file name "archive-contents" in the directory "~/myelpa"
-- Uncomment below code in ~/.emacs.d/init-elpa.el
-- Start Emacs now
+- Download https://github.com/redguardtoo/emacs.d/archive/v1.0.zip
+- Extract its content into empty directory "~/.emacs.d" ("~" means HOME directory). After extraction, there will be a file named "init.el" in "~/.emacs.d"
+- Download [[https://github.com/redguardtoo/myelpa/archive/v1.0.zip]]
+- Extract the zip somewhere, say "~/myelpa".
+- Double check that there is a file named "archive-contents" in the directory "~/myelpa"
+- Uncomment below code in ~/.emacs.d/init-elpa.el and start Emacs now!
 #+BEGIN_SRC bash
 (setq package-archives '(("myelpa" . "~/myelpa/")))
 #+END_SRC
 
-That's it. You will never need internet connection in the future.
+That's it. You will never need internet connection in the future. I tested it on *Emacs 24.3 and Emacs 23.4*.
 
-Please note that all your packages are locked to the versions I'm using. So you *can't* upgrade package online in the future.
+Please note that all your packages are locked. So you *cannot* upgrade package online in the future.
 
-I don't recommend advanced users locking their package version.
-
+I don't recommend advanced users locking their packages.
 * Report bug
 Please file bug report at [[https://github.com/redguardtoo/emacs.d]]. Don't send me email!
 
