@@ -70,7 +70,7 @@
   ))
 ;; }}
 
-(add-hook 'coffee-mode-hook 'flymake-coffee-load)
+(if *emacs24* (add-hook 'coffee-mode-hook 'flymake-coffee-load))
 
 ;; {{ js-beautify
 (defun js-beautify ()
