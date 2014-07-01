@@ -169,7 +169,7 @@ Here are the exact steps you need follow:
 
 That's it. You will never need internet connection in the future. I tested it on *Emacs 24.3 and Emacs 23.4*.
 
-Please note that all your packages are locked. So you *cannot* upgrade package online in the future.
+Please note that all your packages are locked. So you *cannot* upgrade package online in the future *unless you comment out above code line again*.
 
 I don't recommend advanced users locking their packages.
 * Report bug
