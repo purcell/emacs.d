@@ -4,10 +4,10 @@
 - People in Mainland China may need [[http://code.google.com/p/goagent/][goagent]] to download packages from ELPA. Run command "http_proxy=http://127.0.0.1:8087 emacs -nw" after starting goagent server (or any proxy server).
 - C++/C developers, you need tell Emacs location of header files. You *MUST* see section `clang` now!
 - I suggest Windows users using [[http://www.cygwin.com/][Cygwin]] version Emacs to avoid overhead of setting up third party tools. But this configuration is still usable even in  native windows Emacs if you set up environment variable HOME.
-- I whitelist packages from [[http://melpa.milkbox.net][melpa]] (melpa-unstable, actually). Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
+- I whitelist packages from [[http://melpa.milkbox.net][melpa]] (melpa-unstable, actually). Modify variable "melpa-include-packages" in init-elpa.el if you prefer some package from it.
 - In your bug report, please include details of environment (OS, Emacs version ...) and the full output of `emacs --debug-init`.
 - Remove bundled emacs 22 at first *if you are using OS X*!
-- If you don't want to use Emacs' own package manager, please extract the your package's source code at ~/.emacs.d/site-lisp. There are already samples there.
+- If you don't want to use Emacs' own package manager, please extract the package into ~/.emacs.d/site-lisp. There are already samples there.
 
 * General
 My first priority is *stable*. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]]. If you want to get all the latest package from melpa, search the line containing "(setq package-filter-function nil)" in "init-elpa.el" and *un-comment* it.
