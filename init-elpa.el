@@ -76,7 +76,7 @@ ARCHIVE is the string name of the package archive.")
                          ))
 
 ;; Un-comment below line if you download zip file from https://github.com/redguardtoo/myelpa/archive/master.zip and extract its content into ~/myelpa/
- (setq package-archives '(("myelpa" . "~/projs/myelpa/")))
+;; (setq package-archives '(("myelpa" . "~/myelpa")))
 
 ;; Or Un-comment below line if you prefer installing package from https://github.com/redguardtoo/myelpa/ directly
 ;; (setq package-archives '(("myelpa" . "https://raw.github.com/redguardtoo/myelpa/master/")))
