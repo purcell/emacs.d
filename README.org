@@ -7,12 +7,16 @@
 - I whitelist packages from [[http://melpa.milkbox.net][melpa]] (melpa-unstable, actually). Modify variable "melpa-include-packages" in init-elpa.el if prefer some package from it.
 - In your bug report, please include details of environment (OS, Emacs version ...) and the full output of `emacs --debug-init`.
 - Remove bundled emacs 22 at first *if you are using OS X*!
-- If you don't want to use Emacs' own package manager, please extract the your package's source code at ~/.emacs.d/site-lisp. There are many samples there.
+- If you don't want to use Emacs' own package manager, please extract the your package's source code at ~/.emacs.d/site-lisp. There are already samples there.
 
 * General
 My first priority is *stable*. So I use fewer cutting-edge packages from [[http://melpa.milkbox.net][melpa]]. If you want to get all the latest package from melpa, search the line containing "(setq package-filter-function nil)" in "init-elpa.el" and *un-comment* it.
 
 Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Python/C#/Lua/Javascript ...).
+
+I will provide a updated and stable set up here. But don't count on my explaining usage of every package. You need contact the original developer for tech support. Besides, [[http://www.emacswiki.org/emacs/][EmacsWiki]] has all the tips you need.
+
+If you need a high level guide on how to become a Emacs master. Please check my [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide][Mastering Emacs in one year]].
 
 * Features
 - All key binding and plugins are usable in terminal
@@ -182,8 +186,24 @@ If you use `gnus` for email (Gmail, for example). Check ~/.emacs.d/init-gnus.el 
 
 To toggle Chinese input method (eim, for example), press `C-\` or run command `M-x toggle-input-method`.
 
+* FAQ
+As I said, please contact the original developer for help. My answer may be outdated soon.
+** Why auto-completion/intellisense does not work?
+I assume you use company-mode. Other plugins have similar set up.
+
+At minimum:
+- You need install clang
+- Make sure your code is syntax correct at the beginning
+- assign reasonable value into company-clang-arguments
+
+Here is sample set up in ~/.emacs:
+#+begin_src elisp
+(setq company-clang-arguments '("-I/home/myname/projs/test-cmake" "-I/home/myname/projs/test-cmake/inc"))
+#+end_src
+
+In "friendly" Visual C++, you need do [[http://www.codeproject.com/Tips/588022/Using-Additional-Include-Directories][similar set up]].
 * My personal custom.el (OPTIONAL)
-It's publicized at [[http://blog.binchen.org/?p=430]]. It contains my personal stuff like color-theme and time locale.
+It's publicized at [[http://blog.binchen.org/?p=430]]. It contains my personal stuff.
 * About Emacs23
 Emacs23 support will *be dropped* in one year <2015-04-24 Thu>.
 Currently Emacs 23 will not support below packages:
