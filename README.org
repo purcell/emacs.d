@@ -202,6 +202,10 @@ Here is sample set up in ~/.emacs:
 #+end_src
 
 In "friendly" Visual C++, you need do [[http://www.codeproject.com/Tips/588022/Using-Additional-Include-Directories][similar set up]].
+** How to use color theme in CLI emacs
+#+BEGIN_SRC sh
+TERM=xterm-256color emacs -nw
+#+END_SRC
 * My personal custom.el (OPTIONAL)
 It's publicized at [[http://blog.binchen.org/?p=430]]. It contains my personal stuff.
 * About Emacs23
