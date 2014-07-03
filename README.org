@@ -16,7 +16,9 @@ Most modern popular programming languages are supported (C/C++/Java/Ruby/Perl/Py
 
 I will provide a updated and stable set up here. But don't count on my explaining usage of every package. You need contact the original developer for tech support. Besides, [[http://www.emacswiki.org/emacs/][EmacsWiki]] has all the tips you need.
 
-If you need a high level guide on how to become a Emacs master. Please check my [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide][Mastering Emacs in one year]].
+A guide for newbies is provided at section *Quick Guide*.
+
+If you need a high level guide on how to become a master. Please check my [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide][Mastering Emacs in one year]].
 
 * Features
 - All key binding and plugins are usable in terminal
@@ -46,17 +48,17 @@ You do have USB stick, right?
 Check the section *Install stable version in easiest way* for solutions.
 
 * Quick guide
-** Step 1, Learn basic knowledge about OS
+** Step 1, Learn OS basics
 - Know what's environment variable
 - Know what's pipe, stdout, stdin
-** Step 2, Read Emacs official tutorial at least once
+** Step 2, Read official tutorial at least once
 Press "C-h t" (C means Ctrl) and start read tutorial.
 - Know how to move cursor
 - Know how to open help. Press "C-h v" and "C-h f".
-** Step 3, Learn org-mode basics
+** Step 3, Know org-mode basics
 [[http://orgmode.org/][Org-mode]] is a for notes-keeping and planning.
 Please watch the [[https://www.youtube.com/watch?v=oJTwQvgfgMM][Carsten Dominik's talk]]. It's really simple. The only hot key you need remember is "Tab".
-** Step 4, use Emacs to solve your first *specific* problem
+** Step 4, Solve your first *specific* problem
 For that specific problem, you can visit [[http://www.emacswiki.org/emacs/][EmacsWiki]] for the solution. Newbies can ask for help on [[http://www.reddit.com/r/emacs/]].
 * Directory structure
 init.el is main file which include all the other *.el files.
@@ -206,6 +208,8 @@ In "friendly" Visual C++, you need do [[http://www.codeproject.com/Tips/588022/U
 #+BEGIN_SRC sh
 TERM=xterm-256color emacs -nw
 #+END_SRC
+** When editing python code, the computer is not responsive
+Don't open two Emacs instances to edit python files. This is the bug of anaconda-mode (version 20140605.757).
 * My personal custom.el (OPTIONAL)
 It's publicized at [[http://blog.binchen.org/?p=430]]. It contains my personal stuff.
 * About Emacs23
