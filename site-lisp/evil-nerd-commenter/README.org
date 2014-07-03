@@ -1,4 +1,4 @@
-* evil-nerd-commenter (v1.4.0)
+* evil-nerd-commenter (v1.5.0)
 
 *This program could be used independently WITHOUT evil-mode!*
 
@@ -22,11 +22,13 @@ Here is the live demo:
 [[https://raw.github.com/redguardtoo/evil-nerd-commenter/master/evil-nerd-commenter-demo.gif]]
 ** It will even fix Emacs bug for you
 I'll provide long-term support for this plugin for *ANY language* in the future. Here is a example how I work around [[https://github.com/redguardtoo/evil-nerd-commenter/issues/3][a bug in autoconf.el]].
-* Install
-evil-nerd-commenter is already uploaded to [[http://melpa.milkbox.net/]]. So the best way to install it is using Emacs' package manager.
 
 ** Perfect integration with org-mode
 The programming language embedded in org file will automatically be detected and *correct* comment syntax will be used!
+
+* Install
+evil-nerd-commenter is already uploaded to [[http://melpa.milkbox.net/]]. So the best way to install it is using Emacs' package manager.
+
 * Set up
 ** The easy way (RECOMMENDED)
 Nothing to set up if install it in the way as I suggested.
@@ -64,7 +66,7 @@ I prefer vi key binds. So I also use [[http://emacswiki.org/emacs/Evil][evil-mod
 Feel free to copy the content of evilnc-default-hotkeys into your .emacs instead calling it directly. So you can define your own hotkeys.
 
 ** The hard way
-If you don't use emacs package manager (Why?) to evil-nerd-commenter please insert below content into your ~/.emacs:
+If you don't use emacs package manager please insert below code into your ~/.emacs:
 #+BEGIN_SRC lisp
 ;; I suppose you know how to install evil.
 ;; If NOT, check http://www.emacswiki.org/emacs/Evil
@@ -78,9 +80,7 @@ If you don't use emacs package manager (Why?) to evil-nerd-commenter please inse
 
 ;; ",," is the default value of evilnc-hotkey-comment-operator,
 ;; so below line is NOT needed.
-;;
-;; Please put it *ABOVE* the (require 'evil-nerd-commenter)!!!
-;;
+;; But please put it *ABOVE* the (require 'evil-nerd-commenter)!!!
 (setq evilnc-hotkey-comment-operator ",,")
 (require 'evil-nerd-commenter)
 (evilnc-default-hotkeys)
@@ -206,7 +206,7 @@ Example 5: ",,ao" to comment out the current symbol, or ",,aW" to comment out th
 
 Example 6: ",,w" comment to the beginning of the next word, ",,e" to the end of the next word, ",,b" to the beginning of the previous word.
 
-Example 7: ",,it", comment the region inside html tags (all html major modes are supported except web-mode)
+Example 7: ",,it", comment the region inside html tags (all html major modes are supported , *including web-mode*)
 
 * Tips
 ** Tip 1, Yank in evil-mode
@@ -230,4 +230,4 @@ Please check my project [[https://github.com/redguardtoo/evil-matchit][evil-matc
 All the popular programming languages are supported;
 
 * Contact me
-You can report bugs at [[https://github.com/redguardtoo/evil-nerd-commenter]]. My email is <chenbin.sh@gmail.com>.
+You can report bugs at [[https://github.com/redguardtoo/evil-nerd-commenter]].

@@ -4,7 +4,7 @@
 
 ;; Author: Chen Bin <chenbin.sh@gmail.com>
 ;; URL: http://github.com/redguardtoo/evil-nerd-commenter
-;; Version: 1.4.0
+;; Version: 1.5.0
 ;; Keywords: commenter vim line evil
 ;;
 ;; This file is not part of GNU Emacs.
@@ -247,7 +247,37 @@
     ))
 
 (defun evilnc--comment-or-uncomment-region (beg end)
-  (evilnc--working-on-region beg end 'comment-or-uncomment-region))
+  (cond
+   ((string= major-mode "web-mode")
+    ;; web-mode comment only works when region selected
+    ;; uncomment only works when region not selected
+    ;; test three sample point, comment or uncomment
+    (cond
+     ((and (save-excursion
+             (goto-char beg)
+             (goto-char (line-end-position))
+             (web-mode-is-comment))
+           (web-mode-is-comment (/ (+ beg end) 2))
+           (save-excursion
+             (goto-char end)
+             (goto-char (line-beginning-position))
+             (web-mode-is-comment))
+           )
+      ;; don't know why, but we need goto the middle of comment
+      ;; in order to uncomment, or else trailing spaces will be appended
+      (goto-char (/ (+ beg end) 2))
+      (web-mode-uncomment (/ (+ beg end) 2))
+      )
+     (t
+      (when (not (region-active-p))
+        (push-mark beg t t)
+        (goto-char end))
+      (web-mode-comment (/ (+ beg end) 2)))
+     )
+    )
+    (t
+     (evilnc--working-on-region beg end 'comment-or-uncomment-region))
+    ))
 
 (defun evilnc--current-line-num ()
   (save-restriction
@@ -471,7 +501,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
        (cond
         ((eq type 'block)
          (let ((newpos (evilnc--extend-to-whole-comment beg end) ))
-           (evil-apply-on-block #'comment-or-uncomment-region (nth 0 newpos) (nth 1 newpos) nil)
+           (evil-apply-on-block #'evilnc--comment-or-uncomment-region (nth 0 newpos) (nth 1 newpos) nil)
            )
          )
         ((and (eq type 'line)
