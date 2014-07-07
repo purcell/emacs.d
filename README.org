@@ -210,6 +210,7 @@ TERM=xterm-256color emacs -nw
 #+END_SRC
 ** When editing python code, the computer is not responsive
 Don't open two Emacs instances to edit python files. This is the bug of anaconda-mode (version 20140605.757).
+UPDATE: the bug is fixed after that version.
 * My personal custom.el (OPTIONAL)
 It's publicized at [[http://blog.binchen.org/?p=430]]. It contains my personal stuff.
 * About Emacs23
