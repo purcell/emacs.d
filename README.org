@@ -112,7 +112,10 @@ These tools are *OPTIONAL*. Your Emacs will NOT crash if they are not installed.
 ** xsel
 - needed by my clipboard command `copy-to-x-clipboard` and `paste-from-x-clipboard` under Linux
 - install through OS package manager
-
+** [[http://www.cmake.org][CMake]]
+- needed by `cpputils-cmake`
+- install through OS package manager
+- Please use [[http://www.cmake.org/Wiki/CMake_FAQ][out-of-source build tree]] when using CMake
 ** [[http://clang.llvm.org][Clang]]
 - needed by `cpputils-cmake`, `company-clang`
 - install through OS package manager
@@ -189,7 +192,7 @@ If you use `gnus` for email (Gmail, for example). Check ~/.emacs.d/init-gnus.el 
 To toggle Chinese input method (eim, for example), press `C-\` or run command `M-x toggle-input-method`.
 
 * FAQ
-As I said, please contact the original developer for help. My answer may be outdated soon.
+Please contact the original developer for help. My answer may be outdated soon.
 ** Why auto-completion/intellisense does not work?
 I assume you use company-mode. Other plugins have similar set up.
 
