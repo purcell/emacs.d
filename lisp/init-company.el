@@ -37,8 +37,8 @@
     (company-complete-common)))
 
 (defun yas/expansion-at-point ()
-  "Tested with v0.6.1. Extracted from `yas/expand-1'"
-  (first (yas/current-key)))
+  "Tested with yasnippet-20140514.1649"
+  (first (yas--current-key)))
 
 (define-key company-active-map "\t" 'company-yasnippet-or-completion)
 
