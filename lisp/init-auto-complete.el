@@ -1,10 +1,12 @@
 (require-package 'auto-complete)
+(require-package 'auto-complete-clang)
 (require 'auto-complete-config)
+(require 'auto-complete-clang)
+
 (global-auto-complete-mode t)
 (setq-default ac-expand-on-auto-complete nil)
 (setq-default ac-auto-start nil)
 (setq-default ac-dwim nil) ; To get pop-ups with docs even if a word is uniquely completed
-
 ;;----------------------------------------------------------------------------
 ;; Use Emacs' built-in TAB completion hooks to trigger AC (Emacs >= 23.2)
 ;;----------------------------------------------------------------------------
@@ -47,6 +49,14 @@
 
 (add-hook 'auto-complete-mode-hook 'set-auto-complete-as-completion-at-point-function)
 
+;; {{@see https://github.com/brianjcj/auto-complete-clangUsing
+;; Using auto-complete-clang in cc-mode
+(setq-default ac-quick-help-delay 0.5)
+(defun my-ac-cc-mode-setup ()
+  (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
+
+(add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)
+;; }}
 
 (set-default 'ac-sources
              '(ac-source-imenu
