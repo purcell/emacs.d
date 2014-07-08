@@ -23,7 +23,19 @@
   (when (and (not (minibufferp))
 	     (fboundp 'auto-complete-mode)
 	     auto-complete-mode)
+    (auto-complete-yasnippet-or-completion)))
+
+;; TODO: Check if yasnippet exists
+(defun auto-complete-yasnippet-or-completion ()
+  (interactive)
+  (if (yas/expansion-at-point)
+      (progn (ac-abort)
+             (yas/expand))
     (auto-complete)))
+
+(defun yas/expansion-at-point ()
+  "Tested with yasnippet-20140514.1649"
+  (first (yas--current-key)))
 
 (defun sanityinc/never-indent ()
   (set (make-local-variable 'indent-line-function) (lambda () 'noindent)))
