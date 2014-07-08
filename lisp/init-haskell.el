@@ -12,9 +12,9 @@
         ad-do-it))))
 
 
-(dolist (hook '(haskell-mode-hook inferior-haskell-mode-hook interactive-haskell-mode-hook))
+(dolist (hook '(haskell-mode-hook inferior-haskell-mode-hook haskell-interactive-mode-hook))
   (add-hook hook 'turn-on-haskell-doc-mode))
-(add-hook 'haskell-mode-hook 'inferior-haskell-mode)
+(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 
 (after-load 'haskell-interactive-mode
   (diminish 'interactive-haskell-mode " IntHS"))
