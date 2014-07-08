@@ -143,6 +143,7 @@
 (require 'init-key-chord)
 (require 'init-hideshow-org)
 (require 'init-octave)
+(require 'init-mouse)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
