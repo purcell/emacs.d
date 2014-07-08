@@ -123,6 +123,7 @@
 (define-key evil-motion-state-map (kbd "RET") 'init-evil-undefine)
 (define-key evil-motion-state-map (kbd "SPC") 'init-evil-undefine)
 (define-key evil-normal-state-map (kbd "TAB") 'init-evil-undefine)
+(define-key evil-visual-state-map (kbd "TAB") 'init-evil-undefine)
 (define-key evil-insert-state-map (kbd "M-a") 'move-beginning-of-line)
 (define-key evil-normal-state-map (kbd "C-e") 'evil-end-of-visual-line)
 (define-key evil-visual-state-map (kbd "C-e") 'evil-end-of-visual-line)
