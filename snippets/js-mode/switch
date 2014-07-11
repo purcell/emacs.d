@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: switch
-# --
-switch ($1) {
-  $0
-}

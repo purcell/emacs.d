@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# group: jasmine
+# name: jasmine describe
+# key: jdescribe
+describe('$1', function(){
+  beforeEach(function(){
+    $2
+  });
+
+  afterEach(function(){
+    $3
+  });
+
+  it('$4', function(){
+    $5
+  });
+
+  $0
+});

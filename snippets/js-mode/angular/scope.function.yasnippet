@@ -1,8 +1,10 @@
 # -*- coding: utf-8; mode: snippet -*-
 # name: $scope.fname= function() { ... } (angular)
-# key: af
+# key: $f
+# group: angular
 # contributor: Chen Bin <chenbin DOT sh AT gmail>
 # --
 $scope.${1:init} = function() {
   $0
+  console.log('$scope.${1:$(yas/substr text "[^ ]*")} called');
 };

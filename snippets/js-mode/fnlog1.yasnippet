@@ -1,9 +1,9 @@
 # -*- mode: snippet -*-
-# name: function fn(...) { console.log('fn called'); }
+# name: var name = function (...) { console.log('fn called'); }
 # key: fn
 # contributor: Chen Bin <chenbin DOT sh AT gmail>
 # --
-function ${1:name} (${2:args}) {
+var ${1:name} = function (${2:args}) {
   console.log('${1:$(yas/substr text "[^ ]*")} called');
   $0
-}
+};

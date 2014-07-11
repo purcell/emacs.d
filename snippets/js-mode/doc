@@ -1,8 +1,0 @@
-# -*- coding: utf-8; mode: snippet -*-
-# name: Docblock
-# key: doc
-# contributor: David Miller <david@deadpansincerity.com>
-# --
-// ${1:Title}
-//
-// $2

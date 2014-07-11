@@ -1,5 +1,0 @@
-# name: fore
-# --
-forEach(function (${1:e}) {
-  $0
-});

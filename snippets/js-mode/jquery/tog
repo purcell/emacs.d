@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet -*-
+# name: jQuery toggleClass()
+# key: tog
+# group: jquery
+# contributor: David Miller <david@deadpansincerity.com>
+# --
+toggleClass('${1:class}')$0

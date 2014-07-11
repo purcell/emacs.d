@@ -1,8 +1,0 @@
-# -*- coding: utf-8 -*-
-# name: meth
-# contributor: David Miller <david@deadpansincerity.com>
-# --
-    this.$1 = function( ${2:args} )
-    {
-        $0
-    }
