@@ -128,7 +128,7 @@
 (require 'init-web-mode)
 (require 'init-sr-speedbar)
 (require 'init-smartparens)
-(require 'init-company)
+;; (require 'init-company)
 (require 'init-yasnippet)
 ; Edit server is a chrome plugin let you to edit text areas with emacs
 (require 'init-edit-server)
