@@ -13,6 +13,9 @@
     (define-key map "\e[5C"   [C-right])
     (define-key map "\e[5D"   [C-left])))
 
+(global-set-key [mouse-4] (lambda () (interactive) (scroll-down 1)))
+(global-set-key [mouse-5] (lambda () (interactive) (scroll-up 1)))
+
 (add-hook 'after-make-console-frame-hooks
           (lambda ()
             (when (< emacs-major-version 23)
