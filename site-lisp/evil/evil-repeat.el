@@ -3,7 +3,7 @@
 ;; Author: Frank Fischer <frank.fischer at mathematik.tu-chemnitz.de>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0.8
+;; Version: 1.0.9
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -325,6 +325,9 @@ invoked the current command"
   "Repeation recording function for commands that are repeated by keystrokes."
   (cond
    ((eq flag 'pre)
+    (when evil-this-register
+      (evil-repeat-record
+       `(set evil-this-register ,evil-this-register)))
     (setq evil-repeat-keys (this-command-keys)))
    ((eq flag 'post)
     (evil-repeat-record (if (zerop (length (this-command-keys)))
@@ -493,8 +496,19 @@ where point should be placed after all changes."
     (dolist (rep repeat-info)
       (cond
        ((or (arrayp rep) (stringp rep))
-        (execute-kbd-macro rep))
+        (let ((input-method current-input-method)
+              (evil-input-method nil))
+          (deactivate-input-method)
+          (unwind-protect
+              (execute-kbd-macro rep)
+            (activate-input-method input-method))))
        ((consp rep)
+        (when (and (= 3 (length rep))
+                   (eq (nth 0 rep) 'set)
+                   (eq (nth 1 rep) 'evil-this-register)
+                   (>= (nth 2 rep) ?0)
+                   (< (nth 2 rep) ?9))
+          (setcar (nthcdr 2 rep) (1+ (nth 2 rep))))
         (apply (car rep) (cdr rep)))
        (t
         (error "Unexpected repeat-info: %S" rep))))))

@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0.8
+;; Version: 1.0.9
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -35,7 +35,9 @@
 
 ;; set some error codes
 (put 'beginning-of-line 'error-conditions '(beginning-of-line error))
+(put 'beginning-of-line 'error-message "Beginning of line")
 (put 'end-of-line 'error-conditions '(end-of-line error))
+(put 'end-of-line 'error-message "End of line")
 
 (defun evil-motion-range (motion &optional count type)
   "Execute a motion and return the buffer positions.
@@ -381,9 +383,10 @@ if COUNT is positive, and to the left of it if negative.
        (setq ,count (or ,count 1))
        (when (/= ,count 0)
          (let ((type (evil-type ',object evil-visual-char))
-               (extend (evil-get-command-property
-                        ',object :extend-selection
-                        ',(plist-get keys :extend-selection)))
+               (extend (and (evil-visual-state-p)
+			    (evil-get-command-property
+			     ',object :extend-selection
+			     ',(plist-get keys :extend-selection))))
                (dir evil-visual-direction)
                mark point range selection)
            (cond

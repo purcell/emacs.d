@@ -2,7 +2,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0.8
+;; Version: 1.0.9
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -342,7 +342,7 @@ then this function does nothing."
 ;; run. This is appropriate since many buffers are used for throwaway
 ;; purposes. Passing the buffer to `display-buffer' indicates
 ;; otherwise, though, so advise this function to initialize Evil.
-(defadvice display-buffer (before evil activate)
+(defadvice display-buffer (before evil)
   "Initialize Evil in the displayed buffer."
   (when evil-mode
     (when (get-buffer (ad-get-arg 0))
@@ -350,7 +350,7 @@ then this function does nothing."
         (unless evil-local-mode
           (evil-local-mode 1))))))
 
-(defadvice switch-to-buffer (before evil activate)
+(defadvice switch-to-buffer (before evil)
   "Initialize Evil in the displayed buffer."
   (when evil-mode
     (let* ((arg0 (ad-get-arg 0))
@@ -409,7 +409,7 @@ then this function does nothing."
 
 ;; input methods should be disabled in non-insertion states
 (defun evil-activate-input-method ()
-  "Disable input method in states with :input-method nil."
+  "Enable input method in states with :input-method non-nil."
   (let (input-method-activate-hook
         input-method-deactivate-hook)
     (when (and evil-local-mode evil-state)
@@ -419,14 +419,42 @@ then this function does nothing."
 (put 'evil-activate-input-method 'permanent-local-hook t)
 
 (defun evil-deactivate-input-method ()
-  "Disable input method in states with :input-method nil."
+  "Disable input method in all states."
   (let (input-method-activate-hook
         input-method-deactivate-hook)
     (when (and evil-local-mode evil-state)
       (setq evil-input-method nil))))
 (put 'evil-deactivate-input-method 'permanent-local-hook t)
 
-(defadvice toggle-input-method (around evil activate)
+(defmacro evil-with-input-method-in-normal-state (&rest body)
+  "Executes body with `evil-input-method' active when not in replace or
+insert-state.
+
+Temporarily disables the hook containing `evil-activate-input-method',
+which prevents input methods from being used in states without
+:input-method t. Necessary for things like / that need to use input
+methods in normal state. DO NOT use in insert-state or replace-state because
+the input method can get restored in the wrong place."
+  `(unwind-protect
+       (progn
+         (remove-hook 'input-method-activate-hook 'evil-activate-input-method t)
+         (remove-hook 'input-method-deactivate-hook
+                      'evil-deactivate-input-method t)
+         ;; Setting current-input-method changes the buffer-local input method,
+         ;; while activate/deactivate-input-method clobber global settings.
+         ;; Use default-input-method instead of evil-input-method because
+         ;; default-input-method is not buffer local and thus gives more
+         ;; predictable, consistent behavior.
+         (setq current-input-method default-input-method)
+         ,@body)
+     ;; clean up after ourselves
+     (progn
+       (setq current-input-method nil)
+       (add-hook 'input-method-activate-hook 'evil-activate-input-method nil t)
+       (add-hook 'input-method-deactivate-hook
+                 'evil-deactivate-input-method nil t))))
+
+(defadvice toggle-input-method (around evil)
   "Refresh `evil-input-method'."
   (cond
    ((not evil-local-mode)

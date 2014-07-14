@@ -3,7 +3,7 @@
 ;; Author: Frank Fischer <frank fischer at mathematik.tu-chemnitz.de>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0.8
+;; Version: 1.0.9
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -136,21 +136,22 @@ is appended to the line."
   :keep-visual t
   (interactive
    (list
-    (concat
-     (cond
-      ((and (evil-visual-state-p)
-            evil-ex-visual-char-range
-            (memq (evil-visual-type) '(inclusive exclusive)))
-       "`<,`>")
-      ((evil-visual-state-p)
-       "'<,'>")
-      (current-prefix-arg
-       (let ((arg (prefix-numeric-value current-prefix-arg)))
-         (cond ((< arg 0) (setq arg (1+ arg)))
-               ((> arg 0) (setq arg (1- arg))))
-         (if (= arg 0) '(".")
-           (format ".,.%+d" arg)))))
-     evil-ex-initial-input)))
+    (let ((s (concat
+              (cond
+               ((and (evil-visual-state-p)
+                     evil-ex-visual-char-range
+                     (memq (evil-visual-type) '(inclusive exclusive)))
+                "`<,`>")
+               ((evil-visual-state-p)
+                "'<,'>")
+               (current-prefix-arg
+                (let ((arg (prefix-numeric-value current-prefix-arg)))
+                  (cond ((< arg 0) (setq arg (1+ arg)))
+                        ((> arg 0) (setq arg (1- arg))))
+                  (if (= arg 0) '(".")
+                    (format ".,.%+d" arg)))))
+              evil-ex-initial-input)))
+      (and (> (length s) 0) s))))
   (let ((evil-ex-current-buffer (current-buffer))
         (evil-ex-previous-command (unless initial-input
                                     (car-safe evil-ex-history)))

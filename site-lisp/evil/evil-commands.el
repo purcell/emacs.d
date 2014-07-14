@@ -2,7 +2,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0.8
+;; Version: 1.0.9
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -942,29 +942,37 @@ or line COUNT to the top of the window."
   (recenter -1)
   (evil-first-non-blank))
 
-(defun evil-scroll-left ()
-  "Scrolls the window half a screenwidth to the left."
-  (interactive)
+(evil-define-command evil-scroll-left (count)
+  "Scrolls the window COUNT half-screenwidths to the left."
+  :repeat nil
+  :keep-visual t
+  (interactive "p")
   (evil-with-hproject-point-on-window
-    (scroll-right (/ (window-width) 2))))
+    (scroll-right (* count (/ (window-width) 2)))))
 
-(defun evil-scroll-right ()
-  "Scrolls the window half a screenwidth to the right."
-  (interactive)
+(evil-define-command evil-scroll-right (count)
+  "Scrolls the window COUNT half-screenwidths to the right."
+  :repeat nil
+  :keep-visual t
+  (interactive "p")
   (evil-with-hproject-point-on-window
-    (scroll-left (/ (window-width) 2))))
+    (scroll-left (* count (/ (window-width) 2)))))
 
-(defun evil-scroll-column-left ()
-  "Scrolls the window one column to the left."
-  (interactive)
+(evil-define-command evil-scroll-column-left (count)
+  "Scrolls the window COUNT columns to the left."
+  :repeat nil
+  :keep-visual t
+  (interactive "p")
   (evil-with-hproject-point-on-window
-    (scroll-right 1)))
+    (scroll-right count)))
 
-(defun evil-scroll-column-right ()
-  "Scrolls the window one column to the right."
-  (interactive)
+(evil-define-command evil-scroll-column-right (count)
+  "Scrolls the window COUNT columns to the right."
+  :repeat nil
+  :keep-visual t
+  (interactive "p")
   (evil-with-hproject-point-on-window
-    (scroll-left 1)))
+    (scroll-left count)))
 
 ;;; Text objects
 
@@ -1189,17 +1197,19 @@ or line COUNT to the top of the window."
   :move-point nil
   :repeat nil
   (interactive "<R><x><y>")
-  (cond
-   ((and (fboundp 'cua--global-mark-active)
-         (fboundp 'cua-copy-region-to-global-mark)
-         (cua--global-mark-active))
-    (cua-copy-region-to-global-mark beg end))
-   ((eq type 'block)
-    (evil-yank-rectangle beg end register yank-handler))
-   ((eq type 'line)
-    (evil-yank-lines beg end register yank-handler))
-   (t
-    (evil-yank-characters beg end register yank-handler))))
+  (let ((evil-was-yanked-without-register
+         (and evil-was-yanked-without-register (not register))))
+    (cond
+     ((and (fboundp 'cua--global-mark-active)
+           (fboundp 'cua-copy-region-to-global-mark)
+           (cua--global-mark-active))
+      (cua-copy-region-to-global-mark beg end))
+     ((eq type 'block)
+      (evil-yank-rectangle beg end register yank-handler))
+     ((eq type 'line)
+      (evil-yank-lines beg end register yank-handler))
+     (t
+      (evil-yank-characters beg end register yank-handler)))))
 
 (evil-define-operator evil-yank-line (beg end type register)
   "Saves whole lines into the kill-ring."
@@ -1224,7 +1234,8 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
       (unless (string-match-p "\n" text)
         ;; set the small delete register
         (evil-set-register ?- text))))
-  (evil-yank beg end type register yank-handler)
+  (let ((evil-was-yanked-without-register nil))
+    (evil-yank beg end type register yank-handler))
   (cond
    ((eq type 'block)
     (evil-apply-on-block #'delete-region beg end nil))
@@ -1800,6 +1811,7 @@ The return value is the yanked text."
 (evil-define-command evil-use-register (register)
   "Use REGISTER for the next command."
   :keep-visual t
+  :repeat ignore
   (interactive "<C>")
   (setq evil-this-register register))
 
@@ -1841,17 +1853,27 @@ when called interactively."
                          current-prefix-arg
                        0) 1)
            register (or evil-this-register (read-char)))
-     (if (eq register ?@)
-         (setq macro last-kbd-macro)
-       (setq macro (evil-get-register register t)))
+     (cond
+      ((eq register ?@)
+       (setq macro last-kbd-macro))
+      ((eq register ?:)
+       (setq macro (lambda () (evil-ex-repeat nil))))
+      (t
+       (setq macro (evil-get-register register t))))
      (list count macro)))
-  (if (or (and (not (stringp macro))
-               (not (vectorp macro)))
-          (member macro '("" [])))
-      ;; allow references to currently empty registers
-      ;; when defining macro
-      (unless evil-this-macro
-        (error "No previous macro"))
+  (cond
+   ((functionp macro)
+    (evil-repeat-abort)
+    (dotimes (i (or count 1))
+      (funcall macro)))
+   ((or (and (not (stringp macro))
+             (not (vectorp macro)))
+        (member macro '("" [])))
+    ;; allow references to currently empty registers
+    ;; when defining macro
+    (unless evil-this-macro
+      (error "No previous macro")))
+   (t
     (condition-case err
         (evil-with-single-undo
           (execute-kbd-macro macro count))
@@ -1859,7 +1881,7 @@ when called interactively."
       (error
        (evil-normal-state)
        (evil-normalize-keymaps)
-       (signal (car err) (cdr err))))))
+       (signal (car err) (cdr err)))))))
 
 ;;; Visual commands
 
