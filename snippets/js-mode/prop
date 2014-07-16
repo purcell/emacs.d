@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+#name : prop
+# --
+var $1 = $2;
+Object.defineProperty(this, "$1", {
+    get : function() {
+        return $1;
+    },
+    set : function(value) {
+        $1 = value;
+    }
+});

@@ -51,6 +51,7 @@
 (require 'init-sessions)
 (require 'init-fonts)
 (require 'init-mmm)
+(require 'init-ecb)
 
 (require 'init-editing-utils)
 
@@ -92,6 +93,8 @@
 
 (require 'init-dash)
 (require 'init-ledger)
+
+(require 'init-gnus)
 ;; Extra packages which don't require any configuration
 
 (require-package 'gnuplot)
