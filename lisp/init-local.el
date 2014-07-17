@@ -23,45 +23,9 @@
 (yas-global-mode 1)
 (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
 
-;; js-comint
-(require-package 'js-comint)
-(require 'js-comint)
-(setq inferior-js-program-command "node --interactive")
-(add-hook 'js2-mode-hook '(lambda ()
-  (local-set-key "\C-x\C-e" 'js-send-last-sexp)
-  (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
-  (local-set-key "\C-cb" 'js-send-buffer)
-  (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
-  (local-set-key "\C-cl" 'js-load-file-and-go)))
-(setenv "NODE_NO_READLINE" "1")
-
-;; cmake-mode
-(require-package 'cmake-mode)
-(require 'cmake-mode)
-(add-to-list 'auto-mode-alist '("CMakeLists.txt$" . cmake-mode))
-
-;; ;; cmake-project
-;; (require-package 'cmake-project)
-;; (require 'cmake-project)
-;; (defun maybe-cmake-project-hook ()
-;;   (if (file-exists-p "CMakeLists.txt") (cmake-project-mode)))
-;; (add-hook 'c-mode-hook 'maybe-cmake-project-hook)
-;; (add-hook 'c++-mode-hook 'maybe-cmake-project-hook)
-
 ;; undo-tree
 (global-set-key (kbd "<f9>") 'undo-tree-undo)
 (global-set-key (kbd "<f10>") 'undo-tree-redo)
-
-;; cpputil-cmake
-(require-package 'cpputils-cmake)
-(require 'cpputils-cmake)
-(add-hook 'c-mode-hook (lambda () (cppcm-reload-all)))
-(add-hook 'c++-mode-hook (lambda () (cppcm-reload-all)))
-;; OPTIONAL, somebody reported that they can use this package with Fortran
-(add-hook 'c90-mode-hook (lambda () (cppcm-reload-all)))
-;; OPTIONAL, avoid typing full path when starting gdb
-(global-set-key (kbd "C-c C-g")
- '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname " (cppcm-get-exe-path-current-buffer)))))
 
 ;; comments
 (global-set-key (kbd "<f11>") 'comment-or-uncomment-region)
@@ -81,64 +45,61 @@
 (require 'linum)
 (add-hook 'prog-mode-hook 'linum-mode)
 
-;; gnus
+;; (require 'smtpmail)
+;; (setq send-mail-function 'smtpmail-send-it
+;;       message-send-mail-function 'smtpmail-send-it
+;;       mail-from-style nil
+;;       smtpmail-debug-info t
+;;       smtpmail-debug-verb t)
 
-(require 'smtpmail)
-(setq send-mail-function 'smtpmail-send-it
-      message-send-mail-function 'smtpmail-send-it
-      mail-from-style nil
-      smtpmail-debug-info t
-      smtpmail-debug-verb t)
+;; (defun set-smtp (mech server port user password)
+;;   "Set related SMTP variables for supplied parameters."
+;;   (setq smtpmail-smtp-server server smtpmail-smtp-service port
+;;         smtpmail-auth-credentials (list (list server port user
+;;                                               password)) smtpmail-auth-supported (list mech)
+;;                                               smtpmail-starttls-credentials nil)
+;;   (message "Setting SMTP server to `%s:%s' for user `%s'."
+;;            server port user))
 
-(defun set-smtp (mech server port user password)
-  "Set related SMTP variables for supplied parameters."
-  (setq smtpmail-smtp-server server smtpmail-smtp-service port
-        smtpmail-auth-credentials (list (list server port user
-                                              password)) smtpmail-auth-supported (list mech)
-                                              smtpmail-starttls-credentials nil)
-  (message "Setting SMTP server to `%s:%s' for user `%s'."
-           server port user))
+;; (defun set-smtp-ssl (server port user password &optional key
+;;                             cert)
+;;   "Set related SMTP and SSL variables for supplied parameters."
+;;   (setq starttls-use-gnutls t
+;;         starttls-gnutls-program "gnutls-cli"
+;;         starttls-extra-arguments nil smtpmail-smtp-server server
+;;         smtpmail-smtp-service port
+;;         smtpmail-auth-credentials (list (list server port user
+;;                                               password)) smtpmail-starttls-credentials (list (list
+;;                                                                                               server port key cert)))
+;;   (message
+;;    "Setting SMTP server to `%s:%s' for user `%s'. (SSL
+;; enabled.)" server port user))
 
-(defun set-smtp-ssl (server port user password &optional key
-                            cert)
-  "Set related SMTP and SSL variables for supplied parameters."
-  (setq starttls-use-gnutls t
-        starttls-gnutls-program "gnutls-cli"
-        starttls-extra-arguments nil smtpmail-smtp-server server
-        smtpmail-smtp-service port
-        smtpmail-auth-credentials (list (list server port user
-                                              password)) smtpmail-starttls-credentials (list (list
-                                                                                              server port key cert)))
-  (message
-   "Setting SMTP server to `%s:%s' for user `%s'. (SSL
-enabled.)" server port user))
+;; ; This function will complain if you fill the from field with
+;; ; an account not present in smtp-accounts.
+;; (defun change-smtp ()
+;;   "Change the SMTP server according to the current from line."
+;;   (save-excursion
+;;     (loop with from = (save-restriction
+;;                         (message-narrow-to-headers)
+;;                         (message-fetch-field "from"))
+;;           for (auth-mech address . auth-spec) in smtp-accounts
+;;           when (string-match address from) do (cond
+;;                                                ((memq auth-mech '(cram-md5 plain login))
+;;                                                 (return (apply 'set-smtp (cons auth-mech auth-spec))))
+;;                                                ((eql auth-mech 'ssl)
+;;                                                 (return (apply 'set-smtp-ssl auth-spec)))
+;;                                                (t (error "Unrecognized SMTP auth. mechanism:
+;; `%s'." auth-mech))) finally (error "Cannot infer SMTP
+;; information."))))
 
-; This function will complain if you fill the from field with
-; an account not present in smtp-accounts.
-(defun change-smtp ()
-  "Change the SMTP server according to the current from line."
-  (save-excursion
-    (loop with from = (save-restriction
-                        (message-narrow-to-headers)
-                        (message-fetch-field "from"))
-          for (auth-mech address . auth-spec) in smtp-accounts
-          when (string-match address from) do (cond
-                                               ((memq auth-mech '(cram-md5 plain login))
-                                                (return (apply 'set-smtp (cons auth-mech auth-spec))))
-                                               ((eql auth-mech 'ssl)
-                                                (return (apply 'set-smtp-ssl auth-spec)))
-                                               (t (error "Unrecognized SMTP auth. mechanism:
-`%s'." auth-mech))) finally (error "Cannot infer SMTP
-information."))))
+;; (defvar %smtpmail-via-smtp (symbol-function 'smtpmail-via-smtp))
 
-(defvar %smtpmail-via-smtp (symbol-function 'smtpmail-via-smtp))
-
-(defun smtpmail-via-smtp (recipient smtpmail-text-buffer)
-  (with-current-buffer smtpmail-text-buffer
-    (change-smtp))
-  (funcall (symbol-value '%smtpmail-via-smtp) recipient
-           smtpmail-text-buffer))
-
+;; (defun smtpmail-via-smtp (recipient smtpmail-text-buffer)
+;;   (with-current-buffer smtpmail-text-buffer
+;;     (change-smtp))
+;;   (funcall (symbol-value '%smtpmail-via-smtp) recipient
+;;            smtpmail-text-buffer))
 
 ;; erc
 (require 'erc)
@@ -149,21 +110,6 @@ information."))))
   (erc-tls :server "irc.freenode.net" :port 6697
            :nick "ritsch_master"))
 
-;; malabar-mode
-(require-package 'malabar-mode)
-(require 'malabar-mode)
-(setq malabar-groovy-lib-dir "/usr/share/groovy")
-(defun start-malabar ()
-  (add-to-list 'auto-mode-alist '("\\.java\\'" . malabar-mode)))
-
-;; emacs-eclim
-(require-package 'emacs-eclim)
-(defun start-eclim ()
-  (interactive)
-  (require 'eclim)
-  (require 'eclimd)
-  (require 'ac-emacs-eclim-source)
-  (ac-emacs-eclim-config))
 
 ;; octave-mode
 (require 'octave-mod)
@@ -187,8 +133,8 @@ information."))))
 (setq reftex-plug-into-AUCTeX t)
 
 ;; games
-(setq tetris-score-file "~/.emacs.d/tetris-scores")
-(setq snake-score-file "~/.emacs.d/snake-scores")
+(setq tetris-score-file "~/.emacs.d/scores/tetris")
+(setq snake-score-file "~/.emacs.d/scores/snake")
 
 
 ;;; other packages in this kit:
