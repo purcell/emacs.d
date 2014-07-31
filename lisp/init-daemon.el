@@ -7,8 +7,7 @@
   (interactive)
   (save-some-buffers t)
   (offlineimap-kill)
-  (kill-emacs)
-  )
+  (kill-emacs))
 
 (defun client-save-kill-emacs(&optional display)
   " This is a function that can bu used to shutdown save buffers and
@@ -82,4 +81,6 @@ nil are ignored."
                     (and buffer-offer-save (> (buffer-size) 0)))))
         (setq modified-found t)))
     modified-found))
-(provide init-daemon)
+
+(provide 'init-daemon)
+;;; package init-daemon ends here

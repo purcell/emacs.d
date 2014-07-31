@@ -2,7 +2,7 @@
 #name : prop
 # --
 var $1 = $2;
-Object.defineProperty(this, "$1", {
+Object.defineProperty(this, "$3", {
     get : function() {
         return $1;
     },
