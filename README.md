@@ -69,7 +69,11 @@ create a file `~/.emacs.d/lisp/init-local.el` which looks like this:
 (provide 'init-local)
 ```
 
-Alternatively, fork the repo and hack away at the config to make it your own!
+If you need initialisation code which executes earlier in the startup process,
+you can also create an `~/.emacs.d/lisp/init-preload-local.el` file.
+
+If you plan to customize things more extensively, you should probably
+just fork the repo and hack away at the config to make it your own!
 
 ## Similar configs
 
