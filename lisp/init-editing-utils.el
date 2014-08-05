@@ -22,7 +22,6 @@
  grep-scroll-output t
  ;; Disable indent tab that the C indent will be effect
  ;indent-tabs-mode nil
- line-spacing 0.2
  make-backup-files nil
  mouse-yank-at-point t
  save-interprogram-paste-before-kill t
