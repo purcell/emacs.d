@@ -2,7 +2,7 @@
 (require-package 'emacs '(24))
 
 (require-package 'cider)
-(require-package 'ac-cider-compliment)
+(require-package 'ac-cider)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; nrepl with Clojure
@@ -11,8 +11,8 @@
 (setq nrepl-popup-stacktraces nil)
 
 (after-load 'cider
-  (add-hook 'cider-repl-mode-hook 'ac-cider-compliment-setup)
-  (add-hook 'cider-mode-hook 'ac-cider-compliment-setup)
+  (add-hook 'cider-repl-mode-hook 'ac-cider-setup)
+  (add-hook 'cider-mode-hook 'ac-cider-setup)
   (after-load 'auto-complete
     (add-to-list 'ac-modes 'cider-repl-mode))
 
