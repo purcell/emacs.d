@@ -62,8 +62,7 @@
 ;; so we zero it explicitly in those cases.
 (add-hook 'term-mode-hook
           (lambda ()
-            (set (make-local-variable 'line-spacing)
-                 0)))
+            (setq line-spacing 0)))
 
 
 (provide 'init-gui-frames)
