@@ -97,6 +97,7 @@
 (require 'init-ledger)
 
 (require 'init-gnus)
+(load-file "~/.gnus")
 ;; Extra packages which don't require any configuration
 
 (require-package 'gnuplot)
@@ -149,4 +150,3 @@
 ;; coding: utf-8
 ;; no-byte-compile: t
 ;; End:
-(put 'dired-find-alternate-file 'disabled nil)

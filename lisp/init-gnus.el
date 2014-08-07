@@ -34,7 +34,5 @@
                                mime-download-folder
                              "~/"))
 
-
-
 (provide 'init-gnus)
 ;;; init-gnus ends here
