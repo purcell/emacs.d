@@ -37,7 +37,7 @@ by the :height face attribute."
                          new-point-height)
                         t)))
     (set-face-attribute 'default nil :height new-height)
-    (message "default font size is now %d" new-point-height)))
+    (message "Default font size is now %d" new-point-height)))
 
 (defun sanityinc/increase-default-font-height ()
   (interactive)
