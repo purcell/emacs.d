@@ -32,6 +32,8 @@ been saved."
   (add-hook hook (lambda () (subword-mode +1))))
 (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 
+(add-hook 'haskell-interactive-mode-hook 'sanityinc/no-trailing-whitespace)
+
 (after-load 'haskell-interactive-mode
   (diminish 'interactive-haskell-mode " IntHS"))
 
