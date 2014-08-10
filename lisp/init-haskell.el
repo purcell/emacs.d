@@ -71,21 +71,17 @@ been saved."
 ;; Hook auto-complete into the completions provided by the inferior
 ;; haskell process, if any.
 
+(require-package 'ac-haskell-process)
+
+(add-hook 'interactive-haskell-mode-hook 'ac-haskell-process-setup)
+(add-hook 'haskell-interactive-mode-hook 'ac-haskell-process-setup)
+
+(after-load 'haskell-mode
+  (define-key haskell-mode-map (kbd "C-c C-d") 'ac-haskell-process-popup-doc))
+
 (after-load 'auto-complete
   (add-to-list 'ac-modes 'haskell-interactive-mode)
-
-  (defconst ac-source-haskell-process
-    '((candidates . (lambda ()
-                      (when (default-boundp 'haskell-session)
-                        (haskell-process-get-repl-completions (haskell-process) ac-prefix))))
-      (symbol . "h")))
-
-  (add-hook 'haskell-interactive-mode-hook 'set-auto-complete-as-completion-at-point-function)
-
-  (dolist (hook '(haskell-mode-hook haskell-interactive-mode-hook))
-    (add-hook 'hook (lambda ()
-                      (push 'ac-source-haskell-process ac-sources)))))
-
+  (add-hook 'haskell-interactive-mode-hook 'set-auto-complete-as-completion-at-point-function))
 
 
 (provide 'init-haskell)
