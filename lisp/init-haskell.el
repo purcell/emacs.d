@@ -66,4 +66,26 @@ been saved."
     (add-to-list
      'compilation-error-regexp-alist alias)))
 
+
+
+;; Hook auto-complete into the completions provided by the inferior
+;; haskell process, if any.
+
+(after-load 'auto-complete
+  (add-to-list 'ac-modes 'haskell-interactive-mode)
+
+  (defconst ac-source-haskell-process
+    '((candidates . (lambda ()
+                      (when (default-boundp 'haskell-session)
+                        (haskell-process-get-repl-completions (haskell-process) ac-prefix))))
+      (symbol . "h")))
+
+  (add-hook 'haskell-interactive-mode-hook 'set-auto-complete-as-completion-at-point-function)
+
+  (dolist (hook '(haskell-mode-hook haskell-interactive-mode-hook))
+    (add-hook 'hook (lambda ()
+                      (push 'ac-source-haskell-process ac-sources)))))
+
+
+
 (provide 'init-haskell)
