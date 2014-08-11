@@ -22,6 +22,11 @@
 (require 'init-exec-path) ;; Set up $PATH
 
 ;;----------------------------------------------------------------------------
+;; Allow users to provide an optional "init-preload-local.el"
+;;----------------------------------------------------------------------------
+(require 'init-preload-local nil t)
+
+;;----------------------------------------------------------------------------
 ;; Load configs for specific features and modes
 ;;----------------------------------------------------------------------------
 
@@ -58,6 +63,7 @@
 (require 'init-vc)
 (require 'init-darcs)
 (require 'init-git)
+(require 'init-github)
 
 (require 'init-crontab)
 (require 'init-textile)

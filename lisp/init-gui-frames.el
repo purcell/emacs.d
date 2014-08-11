@@ -32,6 +32,10 @@
 (when (fboundp 'set-scroll-bar-mode)
   (set-scroll-bar-mode nil))
 
+(let ((no-border '(internal-border-width . 0)))
+  (add-to-list 'default-frame-alist no-border)
+  (add-to-list 'initial-frame-alist no-border))
+
 (defun sanityinc/adjust-opacity (frame incr)
   (let* ((oldalpha (or (frame-parameter frame 'alpha) 100))
          (newalpha (+ incr oldalpha)))
@@ -62,8 +66,7 @@
 ;; so we zero it explicitly in those cases.
 (add-hook 'term-mode-hook
           (lambda ()
-            (set (make-local-variable 'line-spacing)
-                 0)))
+            (setq line-spacing 0)))
 
 
 (provide 'init-gui-frames)

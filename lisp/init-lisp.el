@@ -11,11 +11,11 @@
 
 ;; Make C-x C-e run 'eval-region if the region is active
 
-(defun sanityinc/eval-last-sexp-or-region (beg end prefix)
+(defun sanityinc/eval-last-sexp-or-region (prefix)
   "Eval region from BEG to END if active, otherwise the last sexp."
-  (interactive "r\nP")
-  (if (use-region-p)
-      (eval-region beg end)
+  (interactive "P")
+  (if (and (mark) (use-region-p))
+      (eval-region (min (point) (mark)) (max (point) (mark)))
     (pp-eval-last-sexp prefix)))
 
 (global-set-key (kbd "M-:") 'pp-eval-expression)
@@ -206,6 +206,19 @@
 
 ;; A quick way to jump to the definition of a function given its key binding
 (global-set-key (kbd "C-h K") 'find-function-on-key)
+
+
+
+(when (eval-when-compile (>= emacs-major-version 24))
+  ;; rainbow-mode needs color.el, bundled with Emacs >= 24.
+  (require-package 'rainbow-mode)
+
+  (defun sanityinc/enable-rainbow-mode-if-theme ()
+    (when (string-match "-theme\\.el" (buffer-name))
+      (rainbow-mode 1)))
+
+  (add-hook 'emacs-lisp-mode-hook 'sanityinc/enable-rainbow-mode-if-theme))
+
 
 
 (provide 'init-lisp)
