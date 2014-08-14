@@ -60,9 +60,7 @@
 ;; ---------------------------------------------------------------------------
 ;; Run and interact with an inferior JS via js-comint.el
 ;; ---------------------------------------------------------------------------
-
-(setq inferior-js-program-command "node --interactive")
-(setenv "NODE_NO_READLINE" "1")
+(setq inferior-js-program-command "js")
 
 (defvar inferior-js-minor-mode-map (make-sparse-keymap))
 (define-key inferior-js-minor-mode-map "\C-x\C-e" 'js-send-last-sexp)

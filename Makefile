@@ -10,6 +10,9 @@ DOTGNUS_SRC := .gnus
 DOTGNUS_DEST := $(HOME)/.gnus
 DOTGNUS_DEST_EXISTS := $(wildcard $(DOTGNUS_DEST))
 
+make:
+	echo "nothing to do"
+
 install:
    ifdef USING_SYSTEMD
 	mkdir -p "$(SYSTEMD_PATH)"

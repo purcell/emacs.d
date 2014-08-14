@@ -56,7 +56,6 @@
 (require 'init-sessions)
 (require 'init-fonts)
 (require 'init-mmm)
-(require 'init-ecb)
 
 (require 'init-editing-utils)
 
