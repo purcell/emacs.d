@@ -1,10 +1,10 @@
 # A reasonable Emacs config
 
 This is my emacs configuration tree, continually used and tweaked
-since 2000, and it may be a good starting point for other Emacs
-users, especially those who are web developers. These days it's
-somewhat geared towards OS X, but it is known to also work on Linux
-and Windows.
+since 2000, and it may be a good starting point for other Emacs users,
+especially those who are web developers. These days it's somewhat
+geared towards OS X, but it is known to also work on Linux and
+Windows.
 
 Emacs itself comes with support for many programming languages. This
 config adds improved defaults and extended support for the following:
@@ -39,9 +39,7 @@ Python, Javascript, PHP and a number of other languages.
 To install, clone this repo to `~/.emacs.d`, i.e. ensure that the
 `init.el` contained in this repo ends up at `~/.emacs.d/init.el`:
 
-```
-git clone https://github.com/purcell/emacs.d.git ~/.emacs.d
-```
+``` git clone https://github.com/purcell/emacs.d.git ~/.emacs.d ```
 
 Upon starting up Emacs for the first time, further third-party
 packages will be automatically downloaded and installed.
@@ -57,37 +55,42 @@ regular `find-file` prompt. (You might want to customize the
 
 ## Updates
 
-Update the config with `git pull`. You'll probably also want/need to update
-the third-party packages regularly too:
+Update the config with `git pull`. You'll probably also want/need to
+update the third-party packages regularly too:
 
-<kbd>M-x package-list-packages</kbd>, then <kbd>U</kbd> followed by <kbd>x</kbd>.
+<kbd>M-x package-list-packages</kbd>, then <kbd>U</kbd> followed by
+<kbd>x</kbd>.
 
 ## Adding your own customization
 
 To add your own customization, use <kbd>M-x customize</kbd> and/or
 create a file `~/.emacs.d/lisp/init-local.el` which looks like this:
 
-```el
-... your code here ...
+```el ... your code here ...
 
-(provide 'init-local)
-```
+(provide 'init-local) ```
+
+Alternatively, fork the repo and hack away at the config to make it
+your own!
 
 If you need initialisation code which executes earlier in the startup process,
 you can also create an `~/.emacs.d/lisp/init-preload-local.el` file.
 
 If you plan to customize things more extensively, you should probably
 just fork the repo and hack away at the config to make it your own!
+>>>>>>> refs/remotes/upstream/master
 
 ## Similar configs
 
-You might also want to check out `emacs-starter-kit` and `emacs-prelude`.
+You might also want to check out `emacs-starter-kit` and
+`emacs-prelude`.
 
 ## Support / issues
 
-If you hit any problems, please first ensure that you are using the latest version
-of this code, and that you have updated your packages to the most recent available
-versions (see "Updates" above). If you still experience problems, go ahead and
+If you hit any problems, please first ensure that you are using the
+latest version of this code, and that you have updated your packages
+to the most recent available versions (see "Updates" above). If you
+still experience problems, go ahead and
 [file an issue on the github project](https://github.com/purcell/emacs.d).
 
 -Steve Purcell

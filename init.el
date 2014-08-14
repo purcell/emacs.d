@@ -81,6 +81,8 @@
 (require 'init-ruby-mode)
 (require 'init-rails)
 (require 'init-sql)
+(require 'init-java)
+(require 'init-cmake)
 
 (require 'init-paredit)
 (require 'init-lisp)
@@ -98,6 +100,11 @@
 
 (require 'init-dash)
 (require 'init-ledger)
+
+(require 'init-gnus)
+(require 'init-erc)
+(load-file "~/.gnus")
+
 ;; Extra packages which don't require any configuration
 
 (require-package 'gnuplot)
@@ -111,6 +118,7 @@
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
+(require 'init-daemon)
 (require 'server)
 (unless (server-running-p)
   (server-start))

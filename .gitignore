@@ -18,7 +18,6 @@ cookies
 /ac-comphist.dat
 \#*
 /elpa
-site-lisp/package/
 /swank
 /.mc-lists.el
 /var
@@ -32,3 +31,7 @@ site-lisp/package/
 /emms/
 /.smex-items
 /image-dired/
+/scores
+/semanticdb
+srecode-map.el
+ede-projects.el
