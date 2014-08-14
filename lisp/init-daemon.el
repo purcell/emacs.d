@@ -6,8 +6,9 @@
   "Simple saves all unsaved buffers, quits, and shutdowns (kill) server"
   (interactive)
   (save-some-buffers t)
+
   ; additional cleaning:
-  (offlineimap-kill)
+  (kill-process "*OfflineIMAP*")
 
   (kill-emacs))
 

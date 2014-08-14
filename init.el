@@ -103,7 +103,9 @@
 (require 'init-ledger)
 
 (require 'init-gnus)
+(require 'init-erc)
 (load-file "~/.gnus")
+
 ;; Extra packages which don't require any configuration
 
 (require-package 'gnuplot)

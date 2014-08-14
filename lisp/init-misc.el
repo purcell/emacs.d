@@ -15,9 +15,9 @@
 
 (add-auto-mode 'conf-mode "Procfile")
 
-;;----------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Some great functions for finding the matching parenthesis
-;;----------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun goto-match-paren (arg)
   "Go to the matching if on (){}[], similar to vi style of % "
   (interactive "p")
@@ -54,5 +54,13 @@
       (goto-matching-ruby-block arg))))
 
 (global-set-key "\M--" 'dispatch-goto-matching)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; linum mode for all programming modes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require-package 'linum)
+(require 'linum)
+(add-hook 'prog-mode-hook 'linum-mode)
+
 
 (provide 'init-misc)

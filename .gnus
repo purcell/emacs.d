@@ -7,6 +7,11 @@
 ; smtp accounts for gnus:
 (defvar smtp-accounts '((ssl "yourname@yourdomain.somewhere" "smtp.yourdomain.somewhere" 587 "yourname@yourdomain.somewhere" nil)
                         (ssl "yourname@otherdomain.somewhereelse" "smtp.otherdomain.somewhereelse" 587 "yourname@otherdomain.somewhereelse" nil)))
+
+; the following enables queing the mail and send all collected
+; the mails can then be sent with smtpmail-send-queued-mail
+(setq smtpmail-queue-mail t)
+
 ; gnus mailboxes
 (setq gnus-select-method '(nnmaildir "imapuser1"
                                      (directory "~/Mail/imapuser1")
