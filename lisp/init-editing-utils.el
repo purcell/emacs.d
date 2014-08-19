@@ -248,6 +248,21 @@
 (global-set-key [M-S-up] 'md/move-lines-up)
 (global-set-key [M-S-down] 'md/move-lines-down)
 
+;; Temporary patch pending https://github.com/wyuenho/move-dup/pull/4
+(defun md/move-line (&optional n)
+  "Interactive function to move the current line N line.
+
+If the prefix N is positive, this function moves the current line
+forward N lines; otherwise backward."
+  (interactive "*p")
+  (let ((col (current-column)))
+    (goto-char (save-excursion
+                 (push-mark)
+                 (end-of-line)
+                 (md/move-region n)
+                 (region-beginning)))
+    (move-to-column col)))
+
 (global-set-key (kbd "C-c p") 'md/duplicate-down)
 (global-set-key (kbd "C-c P") 'md/duplicate-up)
 
