@@ -249,6 +249,7 @@
 (global-set-key [M-S-down] 'md/move-lines-down)
 
 (global-set-key (kbd "C-c p") 'md/duplicate-down)
+(global-set-key (kbd "C-c P") 'md/duplicate-up)
 
 ;;----------------------------------------------------------------------------
 ;; Fix backward-up-list to understand quotes, see http://bit.ly/h7mdIL
