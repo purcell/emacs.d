@@ -13,6 +13,7 @@ Selectively runs either `after-make-console-frame-hooks' or
                  'after-make-console-frame-hooks))))
 
 (add-hook 'after-make-frame-functions 'run-after-make-frame-hooks)
+(add-hook 'after-init-hook (lambda () (run-after-make-frame-hooks (current-frame))))
 
 
 (provide 'init-frame-hooks)
