@@ -14,8 +14,7 @@ Selectively runs either `after-make-console-frame-hooks' or
 
 (add-hook 'after-make-frame-functions 'run-after-make-frame-hooks)
 
-(defconst sanityinc/initial-frame (when (selected-window)
-                                    (window-frame (selected-window)))
+(defconst sanityinc/initial-frame (selected-frame)
   "The frame (if any) active during Emacs initialization.")
 
 (add-hook 'after-init-hook
