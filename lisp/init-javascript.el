@@ -24,14 +24,15 @@
 
 ;; js2-mode
 (after-load 'js2-mode
-  (add-hook 'js2-mode-hook '(lambda () (setq mode-name "JS2"))))
 
-(setq-default
- js2-basic-offset preferred-javascript-indent-level
- js2-bounce-indent-p nil)
+  (add-hook 'js2-mode-hook '(lambda () (setq mode-name "JS2")))
 
-(after-load 'js2-mode
-  (js2-imenu-extras-setup))
+  (setq-default
+   js2-basic-offset preferred-javascript-indent-level
+   js2-bounce-indent-p nil)
+
+  (after-load 'js2-mode
+    (js2-imenu-extras-setup)))
 
 ;; js-mode
 (setq-default js-indent-level preferred-javascript-indent-level)
