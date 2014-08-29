@@ -8,5 +8,7 @@
 
 (setq flycheck-display-errors-function #'flycheck-display-error-messages-unless-error-list)
 
+(setq flycheck-disabled-checkers
+      '(emacs-lisp-checkdoc haskell-hdevtools ledger))
 
 (provide 'init-flycheck)
