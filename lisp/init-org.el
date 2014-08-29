@@ -106,4 +106,25 @@
   (when *is-a-mac*
     (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link)))
 
+(after-load 'org
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((R . t)
+     (ditaa . t)
+     (dot . t)
+     (emacs-lisp . t)
+     (gnuplot . t)
+     (haskell . nil)
+     (latex . t)
+     (ledger . t)
+     (ocaml . nil)
+     (octave . t)
+     (python . t)
+     (ruby . t)
+     (screen . nil)
+     (sh . t)
+     (sql . nil)
+     (sqlite . t))))
+
+
 (provide 'init-org)

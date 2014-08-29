@@ -2,7 +2,7 @@
 (require-package 'whole-line-or-region)
 
 (when (fboundp 'electric-pair-mode)
-  (setq-default electric-pair-mode 1))
+  (electric-pair-mode))
 
 ;;----------------------------------------------------------------------------
 ;; Some basic preferences
@@ -22,7 +22,6 @@
  grep-scroll-output t
  ;; Disable indent tab that the C indent will be effect
  ;indent-tabs-mode nil
- line-spacing 0.2
  make-backup-files nil
  mouse-yank-at-point t
  save-interprogram-paste-before-kill t
@@ -74,7 +73,7 @@
   (move-end-of-line 1)
   (newline-and-indent))
 
-(global-set-key (kbd "<S-return>") 'sanityinc/newline-at-end-of-line)
+(global-set-key (kbd "S-<return>") 'sanityinc/newline-at-end-of-line)
 
 
 
@@ -106,6 +105,11 @@
 ;;----------------------------------------------------------------------------
 (autoload 'zap-up-to-char "misc" "Kill up to, but not including ARGth occurrence of CHAR.")
 (global-set-key (kbd "M-Z") 'zap-up-to-char)
+
+
+
+(require-package 'browse-kill-ring)
+
 
 ;;----------------------------------------------------------------------------
 ;; Don't disable narrowing commands
@@ -171,20 +175,6 @@
 (global-set-key (kbd "C-c c e") 'mc/edit-ends-of-lines)
 (global-set-key (kbd "C-c c a") 'mc/edit-beginnings-of-lines)
 
-
-(defun duplicate-region (beg end)
-  "Insert a copy of the current region after the region."
-  (interactive "r")
-  (save-excursion
-    (goto-char end)
-    (insert (buffer-substring beg end))))
-
-(defun duplicate-line-or-region (prefix)
-  "Duplicate either the current line or any current region."
-  (interactive "*p")
-  (whole-line-or-region-call-with-region 'duplicate-region prefix t))
-
-(global-set-key (kbd "C-c p") 'duplicate-line-or-region)
 
 ;; Train myself to use M-f and M-b instead
 (global-unset-key [M-left])
@@ -252,11 +242,29 @@
 ;; it will use those keybindings. For this reason, you might prefer to
 ;; use M-S-up and M-S-down, which will work even in lisp modes.
 ;;----------------------------------------------------------------------------
-(require-package 'move-text)
-(global-set-key [M-up] 'move-text-up)
-(global-set-key [M-down] 'move-text-down)
-(global-set-key [M-S-up] 'move-text-up)
-(global-set-key [M-S-down] 'move-text-down)
+(require-package 'move-dup)
+(global-set-key [M-up] 'md/move-lines-up)
+(global-set-key [M-down] 'md/move-lines-down)
+(global-set-key [M-S-up] 'md/move-lines-up)
+(global-set-key [M-S-down] 'md/move-lines-down)
+
+;; Temporary patch pending https://github.com/wyuenho/move-dup/pull/4
+(defun md/move-line (&optional n)
+  "Interactive function to move the current line N line.
+
+If the prefix N is positive, this function moves the current line
+forward N lines; otherwise backward."
+  (interactive "*p")
+  (let ((col (current-column)))
+    (goto-char (save-excursion
+                 (push-mark)
+                 (end-of-line)
+                 (md/move-region n)
+                 (region-beginning)))
+    (move-to-column col)))
+
+(global-set-key (kbd "C-c p") 'md/duplicate-down)
+(global-set-key (kbd "C-c P") 'md/duplicate-up)
 
 ;;----------------------------------------------------------------------------
 ;; Fix backward-up-list to understand quotes, see http://bit.ly/h7mdIL

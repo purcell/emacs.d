@@ -5,7 +5,8 @@
 (require-package 'git-rebase-mode)
 (require-package 'gitignore-mode)
 (require-package 'gitconfig-mode)
-(require-package 'git-messenger)
+(require-package 'git-messenger) ;; Though see also vc-annotate's "n" & "p" bindings
+(require-package 'git-timemachine)
 
 (setq-default
  magit-save-some-buffers nil
@@ -23,6 +24,8 @@
 (require-package 'fullframe)
 (after-load 'magit
   (fullframe magit-status magit-mode-quit-window))
+
+(add-hook 'git-commit-mode-hook 'goto-address-mode)
 
 
 ;;; When we start working on git-backed files, use git-wip if available
@@ -79,15 +82,6 @@
 
 (require-package 'git-messenger)
 (global-set-key (kbd "C-x v p") #'git-messenger:popup-message)
-
-
-;;; github
-
-(require-package 'yagist)
-(require-package 'github-browse-file)
-(require-package 'bug-reference-github)
-(add-hook 'prog-mode-hook 'bug-reference-prog-mode)
-
 
 
 (provide 'init-git)

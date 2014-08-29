@@ -29,6 +29,10 @@ Python, Javascript, PHP and a number of other languages.
 * Emacs 23 or greater (note that Emacs 24 is required for some
   functionality, and will likely become the minimum required version
   some time soon.)
+* To make the most of the programming language-specific support in
+  this config, further programs will likely be required, particularly
+  those that [flycheck](https://github.com/flycheck/flycheck) uses to
+  provide on-the-fly syntax checking.
 
 ## Installation
 
@@ -46,7 +50,7 @@ packages will be automatically downloaded and installed.
 
 This config enables `ido-mode` completion in the minibuffer wherever
 possible, which might confuse you when trying to open files using
-<kbd>C-x C-f</kbd>, e.g. if you want to open a directory to use
+<kbd>C-x C-f</kbd>, e.g. when you want to open a directory to use
 `dired` -- if you get stuck, use <kbd>C-f</kbd> to drop into the
 regular `find-file` prompt. (You might want to customize the
 `ido-show-dot-for-dired` variable if this is an issue for you.)
@@ -69,7 +73,11 @@ create a file `~/.emacs.d/lisp/init-local.el` which looks like this:
 (provide 'init-local)
 ```
 
-Alternatively, fork the repo and hack away at the config to make it your own!
+If you need initialisation code which executes earlier in the startup process,
+you can also create an `~/.emacs.d/lisp/init-preload-local.el` file.
+
+If you plan to customize things more extensively, you should probably
+just fork the repo and hack away at the config to make it your own!
 
 ## Similar configs
 
