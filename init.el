@@ -56,6 +56,7 @@
 (require 'init-sessions)
 (require 'init-fonts)
 (require 'init-mmm)
+(require 'init-yasnippet)
 
 (require 'init-editing-utils)
 
