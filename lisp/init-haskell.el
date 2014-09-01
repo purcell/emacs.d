@@ -2,6 +2,8 @@
 (when (> emacs-major-version 23)
   (require-package 'hayoo))
 
+(add-to-list 'completion-ignored-extensions ".hi")
+
 ;;; Flycheck specifics
 (when (> emacs-major-version 23)
   (require-package 'flycheck-hdevtools)
