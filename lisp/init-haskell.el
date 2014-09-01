@@ -1,4 +1,6 @@
 (require-package 'haskell-mode)
+(when (> emacs-major-version 23)
+  (require-package 'hayoo))
 
 ;;; Flycheck specifics
 (when (> emacs-major-version 23)
