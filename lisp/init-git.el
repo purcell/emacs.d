@@ -1,3 +1,5 @@
+;; TODO: link commits from vc-log to magit-show-commit
+;; TODO: smerge-mode
 (require-package 'magit)
 (require-package 'git-blame)
 (require-package 'git-commit-mode)
@@ -25,6 +27,8 @@
   (fullframe magit-status magit-mode-quit-window))
 
 (add-hook 'git-commit-mode-hook 'goto-address-mode)
+(after-load 'session
+  (add-to-list 'session-mode-disable-list 'git-commit-mode))
 
 
 ;;; When we start working on git-backed files, use git-wip if available
