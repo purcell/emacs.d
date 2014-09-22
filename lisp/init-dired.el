@@ -1,6 +1,7 @@
 (require-package 'dired+)
 
-(setq diredp-hide-details-initially-flag nil)
+(setq-default diredp-hide-details-initially-flag nil
+              dired-dwim-target t)
 
 (after-load 'dired
   (require 'dired+)
