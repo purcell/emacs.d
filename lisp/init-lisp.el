@@ -219,6 +219,9 @@
 
   (add-hook 'emacs-lisp-mode-hook 'sanityinc/enable-rainbow-mode-if-theme))
 
+(when (eval-when-compile (>= emacs-major-version 24))
+  (require-package 'highlight-quoted)
+  (add-hook 'emacs-lisp-mode-hook 'highlight-quoted-mode))
 
 
 (provide 'init-lisp)
