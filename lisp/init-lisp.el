@@ -34,6 +34,36 @@
       (view-mode 1))))
 
 
+
+;; Use C-c C-z to toggle between elisp files and an ielm session
+;; I might generalise this to ruby etc., or even just adopt the repl-toggle package.
+
+(defvar sanityinc/repl-original-buffer nil
+  "Buffer from which we jumped to this REPL.")
+(make-variable-buffer-local 'sanityinc/repl-original-buffer)
+
+(defvar sanityinc/repl-switch-function 'switch-to-buffer-other-window)
+
+(defun sanityinc/switch-to-ielm ()
+  (interactive)
+  (let ((orig-buffer (current-buffer)))
+    (if (get-buffer "*ielm*")
+        (funcall sanityinc/repl-switch-function "*ielm*")
+      (ielm))
+    (setq sanityinc/repl-original-buffer orig-buffer)))
+
+(defun sanityinc/repl-switch-back ()
+  "Switch back to the buffer from which we reached this REPL."
+  (interactive)
+  (if sanityinc/repl-original-buffer
+      (funcall sanityinc/repl-switch-function sanityinc/repl-original-buffer)
+    (error "No original buffer.")))
+
+(after-load 'lisp-mode
+  (define-key emacs-lisp-mode-map (kbd "C-c C-z") 'sanityinc/switch-to-ielm))
+(after-load 'ielm
+  (define-key ielm-map (kbd "C-c C-z") 'sanityinc/repl-switch-back))
+
 ;; ----------------------------------------------------------------------------
 ;; Hippie-expand
 ;; ----------------------------------------------------------------------------
