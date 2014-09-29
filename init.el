@@ -64,6 +64,7 @@
 (require 'init-git)
 (require 'init-github)
 
+(require 'init-compile)
 (require 'init-crontab)
 (require 'init-textile)
 (require 'init-markdown)
