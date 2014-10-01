@@ -119,6 +119,7 @@
 ;; Additonal packages exclude with purcell init setting
 ;; Most settings are ported by https://github.com/redguardtoo/emacs.d
 (require 'init-color-theme)
+(require 'init-sr-speedbar)
 (require 'init-term-mode)
 (require 'init-cc-mode)
 (require 'init-xcscope)
@@ -133,7 +134,6 @@
 ;(require 'init-ctags) ;Enable if necessary
 (require 'init-buffer-move)
 (require 'init-web-mode)
-(require 'init-sr-speedbar)
 (require 'init-smartparens)
 ;; (require 'init-company)
 (require 'init-yasnippet)
