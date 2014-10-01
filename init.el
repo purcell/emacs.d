@@ -48,7 +48,8 @@
 (require-package 'mwe-log-commands)
 
 (require 'init-frame-hooks)
-(require 'init-xterm)
+(when window-system
+  (require 'init-xterm))
 ;(require 'init-themes) ;Can not understand the settings now
 (when *is-a-mac*
   (require 'init-osx-keys))
@@ -149,7 +150,6 @@
 (require 'init-key-chord)
 (require 'init-hideshow-org)
 (require 'init-octave)
-(require 'init-mouse)
 ;(require 'elnode) ;Untest package
 
 ;; Extra packages which don't require any configuration
