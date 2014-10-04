@@ -67,5 +67,20 @@ re-downloaded in order to locate PACKAGE."
 (require-package 'fullframe)
 (fullframe list-packages quit-window)
 
+
+(require-package 'cl-lib)
+(require 'cl-lib)
+
+(defun sanityinc/maybe-widen-package-menu-columns ()
+  "Widen some columns of the package menu table to avoid truncation."
+  (when (boundp 'tabulated-list-format)
+    (when (string= "Version" (elt (elt tabulated-list-format 1) 0))
+      (setf (elt (elt tabulated-list-format 1) 1) 13))
+    (let ((longest-archive-name (apply 'max (mapcar 'length (mapcar 'car package-archives)))))
+     (when (string= "Archive" (elt (elt tabulated-list-format 3) 0))
+       (setf (elt (elt tabulated-list-format 3) 1) longest-archive-name)))))
+
+(add-hook 'package-menu-mode-hook 'sanityinc/maybe-widen-package-menu-columns)
+
 
 (provide 'init-elpa)
