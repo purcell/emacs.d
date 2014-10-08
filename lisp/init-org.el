@@ -35,6 +35,7 @@ The Org-syntax text will be pushed to the kill ring, and also returned."
       org-agenda-include-diary t
       org-agenda-window-setup 'current-window
       org-fast-tag-selection-single-key 'expert
+      org-html-validation-link nil
       org-export-kill-product-buffer-when-displayed t
       org-tags-column 80)
 
