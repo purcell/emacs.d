@@ -4,24 +4,7 @@
 (when *is-a-mac*
   (require-package 'org-mac-link)
   (autoload 'org-mac-grab-link "org-mac-link" nil t)
-  (require-package 'org-mac-iCal)
-
-  (after-load 'org-mac-link
-    (defun org-mac-message-get-links (&optional select-or-flag)
-      "Create links to the messages currently selected or flagged in Mail.app.
-This will use AppleScript to get the message-id and the subject of the
-messages in Mail.app and make a link out of it.
-When SELECT-OR-FLAG is \"s\", get the selected messages (this is also
-the default).  When SELECT-OR-FLAG is \"f\", get the flagged messages.
-The Org-syntax text will be pushed to the kill ring, and also returned."
-      (interactive "sLink to (s)elected or (f)lagged messages: ")
-      (setq select-or-flag (or select-or-flag "s"))
-      (message "AppleScript: searching mailboxes...")
-      (org-mac-paste-applescript-links
-       (cond
-        ((string= select-or-flag "s") (org-as-get-selected-mail))
-        ((string= select-or-flag "f") (org-as-get-flagged-mail))
-        (t (error "Please select \"s\" or \"f\"")))))))
+  (require-package 'org-mac-iCal))
 
 (define-key global-map (kbd "C-c l") 'org-store-link)
 (define-key global-map (kbd "C-c a") 'org-agenda)
