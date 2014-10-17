@@ -75,6 +75,7 @@
   (newline-and-indent))
 
 (global-set-key (kbd "S-<return>") 'sanityinc/newline-at-end-of-line)
+(global-set-key (kbd "C-o") 'sanityinc/newline-at-end-of-line)
 
 
 
@@ -337,7 +338,7 @@ With arg N, insert N newlines."
     (end-of-line)
     (indent-according-to-mode)))
 
-(global-set-key (kbd "C-o") 'sanityinc/open-line-with-reindent)
+;; (global-set-key (kbd "C-o") 'sanityinc/open-line-with-reindent)
 
 
 ;;----------------------------------------------------------------------------
