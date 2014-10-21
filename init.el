@@ -72,12 +72,9 @@
 (require 'init-git)
 (require 'init-github)
 
-<<<<<<< HEAD
 (require 'init-evil)
 
-=======
 (require 'init-compile)
->>>>>>> ec38a875ebca058b9a7a3158a230ba62f406ddd8
 (require 'init-crontab)
 (require 'init-textile)
 (require 'init-markdown)
