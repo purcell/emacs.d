@@ -22,6 +22,11 @@
 (require 'init-exec-path) ;; Set up $PATH
 
 ;;----------------------------------------------------------------------------
+;; Allow users to provide an optional "init-preload-local.el"
+;;----------------------------------------------------------------------------
+(require 'init-preload-local nil t)
+
+;;----------------------------------------------------------------------------
 ;; Load configs for specific features and modes
 ;;----------------------------------------------------------------------------
 
@@ -36,10 +41,10 @@
 (require 'init-themes)
 (require 'init-osx-keys)
 (require 'init-gui-frames)
-(require 'init-maxframe)
 (require 'init-proxies)
 (require 'init-dired)
 (require 'init-isearch)
+(require 'init-grep)
 (require 'init-uniquify)
 (require 'init-ibuffer)
 (require 'init-flycheck)
@@ -62,11 +67,14 @@
 (require 'init-editing-utils)
 (require 'init-autopair)
 
+(require 'init-vc)
 (require 'init-darcs)
 (require 'init-git)
+(require 'init-github)
 
 (require 'init-evil)
 
+(require 'init-compile)
 (require 'init-crontab)
 (require 'init-textile)
 (require 'init-markdown)
@@ -76,6 +84,7 @@
 (require 'init-php)
 (require 'init-org)
 (require 'init-nxml)
+(require 'init-html)
 (require 'init-css)
 (require 'init-haml)
 (require 'init-python-mode)
@@ -88,6 +97,8 @@
 (require 'init-lisp)
 (require 'init-slime)
 (require 'init-clojure)
+(when (>= emacs-major-version 24)
+  (require 'init-clojure-cider))
 (require 'init-common-lisp)
 (require 'init-racket)
 

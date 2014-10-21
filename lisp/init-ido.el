@@ -1,4 +1,5 @@
 ;; Use C-f during file selection to switch to regular find-file
+(require 'ido)
 (ido-mode t)
 (ido-everywhere t)
 (setq ido-enable-flex-matching t)
@@ -11,23 +12,20 @@
  (ido-ubiquitous-mode t))
 
 ;; Use smex to handle M-x
-(require-package 'smex)
-(global-set-key [remap execute-extended-command] 'smex)
+(when (eval-when-compile (>= emacs-major-version 24))
+  (require-package 'smex)
+  ;; Change path for ~/.smex-items
+  (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
+  (global-set-key [remap execute-extended-command] 'smex))
 
 (require-package 'idomenu)
 
 ;; Allow the same buffer to be open in different frames
 (setq ido-default-buffer-method 'selected-window)
 
-(when (eval-when-compile (< emacs-major-version 24))
- (defun sanityinc/ido-choose-from-recentf ()
-   "Use ido to select a recently opened file from the `recentf-list'"
-   (interactive)
-   (if (and ido-use-virtual-buffers (fboundp 'ido-toggle-virtual-buffers))
-       (ido-switch-buffer)
-     (find-file (ido-completing-read "Open file: " recentf-list nil t))))
+;; http://www.reddit.com/r/emacs/comments/21a4p9/use_recentf_and_ido_together/cgbprem
+(add-hook 'ido-setup-hook (lambda () (define-key ido-completion-map [up] 'previous-history-element)))
 
- (global-set-key [(meta f11)] 'sanityinc/ido-choose-from-recentf))
 
 
 
