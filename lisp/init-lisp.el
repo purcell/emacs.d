@@ -4,9 +4,6 @@
 
 (require-package 'lively)
 
-(require-package 'pretty-mode)
-(autoload 'turn-on-pretty-mode "pretty-mode")
-
 (setq-default initial-scratch-message
               (concat ";; Happy hacking " (or user-login-name "") "!\n\n"))
 
@@ -14,17 +11,58 @@
 
 ;; Make C-x C-e run 'eval-region if the region is active
 
-(defun sanityinc/eval-last-sexp-or-region (beg end prefix)
+(defun sanityinc/eval-last-sexp-or-region (prefix)
   "Eval region from BEG to END if active, otherwise the last sexp."
-  (interactive "r\nP")
-  (if (use-region-p)
-      (eval-region beg end)
+  (interactive "P")
+  (if (and (mark) (use-region-p))
+      (eval-region (min (point) (mark)) (max (point) (mark)))
     (pp-eval-last-sexp prefix)))
 
 (global-set-key (kbd "M-:") 'pp-eval-expression)
 
 (after-load 'lisp-mode
   (define-key emacs-lisp-mode-map (kbd "C-x C-e") 'sanityinc/eval-last-sexp-or-region))
+
+(require-package 'ipretty)
+(ipretty-mode 1)
+
+
+(defadvice pp-display-expression (after make-read-only (expression out-buffer-name) activate)
+  "Enable `view-mode' in the output buffer - if any - so it can be closed with `\"q\"."
+  (when (get-buffer out-buffer-name)
+    (with-current-buffer out-buffer-name
+      (view-mode 1))))
+
+
+
+;; Use C-c C-z to toggle between elisp files and an ielm session
+;; I might generalise this to ruby etc., or even just adopt the repl-toggle package.
+
+(defvar sanityinc/repl-original-buffer nil
+  "Buffer from which we jumped to this REPL.")
+(make-variable-buffer-local 'sanityinc/repl-original-buffer)
+
+(defvar sanityinc/repl-switch-function 'switch-to-buffer-other-window)
+
+(defun sanityinc/switch-to-ielm ()
+  (interactive)
+  (let ((orig-buffer (current-buffer)))
+    (if (get-buffer "*ielm*")
+        (funcall sanityinc/repl-switch-function "*ielm*")
+      (ielm))
+    (setq sanityinc/repl-original-buffer orig-buffer)))
+
+(defun sanityinc/repl-switch-back ()
+  "Switch back to the buffer from which we reached this REPL."
+  (interactive)
+  (if sanityinc/repl-original-buffer
+      (funcall sanityinc/repl-switch-function sanityinc/repl-original-buffer)
+    (error "No original buffer.")))
+
+(after-load 'lisp-mode
+  (define-key emacs-lisp-mode-map (kbd "C-c C-z") 'sanityinc/switch-to-ielm))
+(after-load 'ielm
+  (define-key ielm-map (kbd "C-c C-z") 'sanityinc/repl-switch-back))
 
 ;; ----------------------------------------------------------------------------
 ;; Hippie-expand
@@ -111,7 +149,8 @@
   (rainbow-delimiters-mode t)
   (enable-paredit-mode)
   (turn-on-eldoc-mode)
-  (redshank-mode))
+  (redshank-mode)
+  (add-hook 'after-save-hook #'check-parens nil t))
 
 (defun sanityinc/emacs-lisp-setup ()
   "Enable features useful when working with elisp."
@@ -136,21 +175,12 @@
 (dolist (hook (mapcar #'derived-mode-hook-name sanityinc/elispy-modes))
   (add-hook hook 'sanityinc/emacs-lisp-setup))
 
-(defun sanityinc/maybe-check-parens ()
-  "Run `check-parens' if this is a lispy mode."
-  (when (memq major-mode sanityinc/lispy-modes)
-    (check-parens)))
-
-(add-hook 'after-save-hook #'sanityinc/maybe-check-parens)
 
 (require-package 'eldoc-eval)
 (require 'eldoc-eval)
 
 (add-to-list 'auto-mode-alist '("\\.emacs-project\\'" . emacs-lisp-mode))
 (add-to-list 'auto-mode-alist '("archive-contents\\'" . emacs-lisp-mode))
-
-(after-load 'lisp-mode
-  (define-key emacs-lisp-mode-map (kbd "C-x C-a") 'pp-macroexpand-last-sexp))
 
 (require-package 'cl-lib-highlight)
 (after-load 'lisp-mode
@@ -201,6 +231,22 @@
 
 ;; A quick way to jump to the definition of a function given its key binding
 (global-set-key (kbd "C-h K") 'find-function-on-key)
+
+
+
+(when (eval-when-compile (>= emacs-major-version 24))
+  ;; rainbow-mode needs color.el, bundled with Emacs >= 24.
+  (require-package 'rainbow-mode)
+
+  (defun sanityinc/enable-rainbow-mode-if-theme ()
+    (when (string-match "\\(color-theme-\\|-theme\\.el\\)" (buffer-name))
+      (rainbow-mode 1)))
+
+  (add-hook 'emacs-lisp-mode-hook 'sanityinc/enable-rainbow-mode-if-theme))
+
+(when (eval-when-compile (>= emacs-major-version 24))
+  (require-package 'highlight-quoted)
+  (add-hook 'emacs-lisp-mode-hook 'highlight-quoted-mode))
 
 
 (provide 'init-lisp)

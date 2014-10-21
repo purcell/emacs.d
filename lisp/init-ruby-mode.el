@@ -92,10 +92,6 @@
 (mapc 'sanityinc/set-up-mode-for-erb
       '(coffee-mode js-mode js2-mode js3-mode markdown-mode textile-mode))
 
-(require-package 'tagedit)
-(after-load 'sgml-mode
-  (tagedit-add-paredit-like-keybindings))
-
 (mmm-add-mode-ext-class 'html-erb-mode "\\.jst\\.ejs\\'" 'ejs)
 
 (add-auto-mode 'html-erb-mode "\\.rhtml\\'" "\\.html\\.erb\\'")
