@@ -12,7 +12,7 @@ config adds improved defaults and extended support for the following:
 * Ruby / Ruby on Rails
 * CSS / LESS / SASS / SCSS
 * HAML / Markdown / Textile / ERB
-* Clojure (via nrepl)
+* Clojure (with Cider and nRepl)
 * Javascript / Coffeescript
 * Python
 * PHP
@@ -81,7 +81,7 @@ just fork the repo and hack away at the config to make it your own!
 
 ## Similar configs
 
-You might also want to check out `emacs-starter-kit` and `emacs-prelude`.
+You might also want to check out `emacs-starter-kit` and `prelude`.
 
 ## Support / issues
 
