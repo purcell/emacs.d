@@ -26,7 +26,7 @@ Python, Javascript, PHP and a number of other languages.
 
 ## Requirements
 
-* Emacs 23 or greater (note that Emacs 24 is required for some
+* Emacs 23.3 or greater (note that Emacs 24 is required for some
   functionality, and will likely become the minimum required version
   some time soon.)
 * To make the most of the programming language-specific support in
