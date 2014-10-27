@@ -57,6 +57,17 @@
 (require-package 'whitespace-cleanup-mode)
 (global-whitespace-cleanup-mode t)
 
+
+;;; Newline behaviour
+
+(global-set-key (kbd "RET") 'newline-and-indent)
+(defun sanityinc/newline-at-end-of-line ()
+  "Move to end of line, enter a newline, and reindent."
+  (interactive)
+  (move-end-of-line 1)
+  (newline-and-indent))
+
+(global-set-key (kbd "S-<return>") 'sanityinc/newline-at-end-of-line)
 
 
 
