@@ -143,11 +143,15 @@
 (after-load 'redshank
   (diminish 'redshank-mode))
 
+(when (version<= "24.1" emacs-version)
+  (require-package 'aggressive-indent))
 
 (defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
   (rainbow-delimiters-mode t)
   (enable-paredit-mode)
+  (when (fboundp 'aggressive-indent-mode)
+    (aggressive-indent-mode))
   (turn-on-eldoc-mode)
   (redshank-mode)
   (add-hook 'after-save-hook #'check-parens nil t))
