@@ -1,8 +1,7 @@
 (require-package 'json-mode)
-(when (>= emacs-major-version 24)
-  (require-package 'js2-mode)
-  (require-package 'ac-js2)
-  (require-package 'coffee-mode))
+(maybe-require-package 'js2-mode)
+(maybe-require-package 'ac-js2)
+(maybe-require-package 'coffee-mode)
 (require-package 'js-comint)
 
 (defcustom preferred-javascript-mode
@@ -92,8 +91,7 @@
 ;; Alternatively, use skewer-mode
 ;; ---------------------------------------------------------------------------
 
-(when (and (>= emacs-major-version 24) (featurep 'js2-mode))
-  (require-package 'skewer-mode)
+(when (maybe-require-package 'skewer-mode)
   (after-load 'skewer-mode
     (add-hook 'skewer-mode-hook
               (lambda () (inferior-js-keys-mode -1)))))
