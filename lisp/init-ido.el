@@ -6,6 +6,7 @@
 (setq ido-use-filename-at-point nil)
 (setq ido-auto-merge-work-directories-length 0)
 (setq ido-use-virtual-buffers t)
+(setq ido-save-directory-list-file (expand-file-name ".ido.last" user-emacs-directory))
 
 (when (maybe-require-package 'ido-ubiquitous)
   (ido-ubiquitous-mode t))
