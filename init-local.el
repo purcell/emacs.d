@@ -72,6 +72,8 @@
 ;;disable cua
 (cua-selection-mode -1)
 
+;; scroll-bar-mode
+(scroll-bar-mode 1)
 
 ;; hide show mode
 ;(add-hook 'c-mode-common-hook 'hs-minor-mode)
@@ -118,20 +120,20 @@
   (interactive "P")
   (copy-thing 'backward-word 'forward-word arg))
 
-;; toggle comment on line
-(defun toggle-comment-on-line ()
+;; toggle comment
+(defun toggle-comment ()
   "comment or uncomment current line"
   (interactive)
-  (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
+  (if (use-region-p)
+      (comment-or-uncomment-region (region-beginning) (region-end))
+      (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
 
 ;; define-key
 (global-set-key "\C-xf" 'find-file)
 (global-set-key "\M-g" 'goto-line)
 (global-set-key "\C-o" 'custom-open-newline)
 (global-set-key (kbd "C-S-o") 'custom-open-newline-prev)
-(global-set-key "\C-cw" 'copy-word)
-(global-set-key [backtab] 'untab)
-(global-set-key (kbd "C-M-;") 'toggle-comment-on-line)
+(global-set-key (kbd "C-;") 'toggle-comment)
 
 
 

@@ -60,10 +60,10 @@
 
 (require 'init-crontab)
 (require 'init-textile)
-(require 'init-markdown)
+;(require 'init-markdown)
 (require 'init-csv)
 (require 'init-erlang)
-(require 'init-javascript)
+;;(require 'init-javascript)
 (require 'init-sh)
 (require 'init-php)
 (require 'init-org)
@@ -72,7 +72,7 @@
 (require 'init-haml)
 (require 'init-python-mode)
 (require 'init-haskell)
-(require 'init-ruby-mode)
+;(require 'init-ruby-mode)
 (require 'init-rails)
 
 (require 'init-lisp)
@@ -123,9 +123,3 @@
 ;; Locales (setting them earlier in this file doesn't work in X)
 ;;----------------------------------------------------------------------------
 ;(require 'init-locales)
-
-
-;; Local Variables:
-;; coding: utf-8
-;; no-byte-compile: t
-;; End:
