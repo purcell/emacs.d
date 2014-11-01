@@ -1,13 +1,11 @@
 (require-package 'haskell-mode)
-(when (> emacs-major-version 23)
-  (require-package 'hayoo))
+(maybe-require-package 'hayoo)
 
 (add-to-list 'completion-ignored-extensions ".hi")
 
 ;;; Flycheck specifics
-(when (> emacs-major-version 23)
-  (require-package 'flycheck-hdevtools)
-  (require-package 'flycheck-haskell)
+(when (and (maybe-require-package 'flycheck-haskell)
+           (require-package 'flycheck-hdevtools))
   (after-load 'flycheck
     (add-hook 'haskell-mode-hook #'flycheck-haskell-setup)
 
@@ -54,8 +52,7 @@ been saved."
   (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
   (define-key haskell-mode-map (kbd "C-o") 'open-line))
 
-(when (eval-when-compile (>= emacs-major-version 24))
-  (require-package 'ghci-completion)
+(when (maybe-require-package 'ghci-completion)
   (add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion))
 
 (eval-after-load 'page-break-lines
