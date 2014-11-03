@@ -12,7 +12,7 @@ config adds improved defaults and extended support for the following:
 * Ruby / Ruby on Rails
 * CSS / LESS / SASS / SCSS
 * HAML / Markdown / Textile / ERB
-* Clojure (via nrepl)
+* Clojure (with Cider and nRepl)
 * Javascript / Coffeescript
 * Python
 * PHP
@@ -26,7 +26,7 @@ Python, Javascript, PHP and a number of other languages.
 
 ## Requirements
 
-* Emacs 23 or greater (note that Emacs 24 is required for some
+* Emacs 23.3 or greater (note that Emacs 24 is required for some
   functionality, and will likely become the minimum required version
   some time soon.)
 * To make the most of the programming language-specific support in
@@ -81,7 +81,7 @@ just fork the repo and hack away at the config to make it your own!
 
 ## Similar configs
 
-You might also want to check out `emacs-starter-kit` and `emacs-prelude`.
+You might also want to check out `emacs-starter-kit` and `prelude`.
 
 ## Support / issues
 
@@ -97,3 +97,7 @@ versions (see "Updates" above). If you still experience problems, go ahead and
 [![](http://api.coderwall.com/purcell/endorsecount.png)](http://coderwall.com/purcell)
 
 [![](http://www.linkedin.com/img/webpromo/btn_liprofile_blue_80x15.png)](http://uk.linkedin.com/in/stevepurcell)
+
+[sanityinc.com](http://www.sanityinc.com/)
+
+[@sanityinc](https://twitter.com/)

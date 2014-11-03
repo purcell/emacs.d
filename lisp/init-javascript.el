@@ -1,8 +1,7 @@
 (require-package 'json-mode)
-(when (>= emacs-major-version 24)
-  (require-package 'js2-mode)
-  (require-package 'ac-js2)
-  (require-package 'coffee-mode))
+(maybe-require-package 'js2-mode)
+(maybe-require-package 'ac-js2)
+(maybe-require-package 'coffee-mode)
 (require-package 'js-comint)
 
 (defcustom preferred-javascript-mode
@@ -28,11 +27,12 @@
   (setq-default js2-mode-show-parse-errors nil
                 js2-mode-show-strict-warnings nil)
   ;; ... but enable it if flycheck can't handle javascript
-  (add-hook 'js2-mode-hook
-            (lambda ()
-              (unless (flycheck-get-checker-for-buffer)
-                (set (make-local-variable 'js2-mode-show-parse-errors) t)
-                (set (make-local-variable 'js2-mode-show-strict-warnings) t))))
+  (autoload 'flycheck-get-checker-for-buffer "flycheck")
+  (defun sanityinc/disable-js2-checks-if-flycheck-active ()
+    (unless (flycheck-get-checker-for-buffer)
+      (set (make-local-variable 'js2-mode-show-parse-errors) t)
+      (set (make-local-variable 'js2-mode-show-strict-warnings) t)))
+  (add-hook 'js2-mode-hook 'sanityinc/disable-js2-checks-if-flycheck-active)
 
   (add-hook 'js2-mode-hook '(lambda () (setq mode-name "JS2")))
 
@@ -91,8 +91,7 @@
 ;; Alternatively, use skewer-mode
 ;; ---------------------------------------------------------------------------
 
-(when (and (>= emacs-major-version 24) (featurep 'js2-mode))
-  (require-package 'skewer-mode)
+(when (maybe-require-package 'skewer-mode)
   (after-load 'skewer-mode
     (add-hook 'skewer-mode-hook
               (lambda () (inferior-js-keys-mode -1)))))

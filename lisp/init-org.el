@@ -6,7 +6,6 @@
   (autoload 'org-mac-grab-link "org-mac-link" nil t)
   (require-package 'org-mac-iCal))
 
-
 (define-key global-map (kbd "C-c l") 'org-store-link)
 (define-key global-map (kbd "C-c a") 'org-agenda)
 
@@ -19,6 +18,7 @@
       org-agenda-include-diary t
       org-agenda-window-setup 'current-window
       org-fast-tag-selection-single-key 'expert
+      org-html-validation-link nil
       org-export-kill-product-buffer-when-displayed t
       org-tags-column 80)
 
