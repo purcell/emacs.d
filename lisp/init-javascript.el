@@ -6,12 +6,12 @@
 (require-package 'js-comint)
 
 (defcustom preferred-javascript-mode
-  (first (remove-if-not #'fboundp '(js2-mode js-mode)))
+  (first (remove-if-not #'fboundp '(js-mode js2-mode)))
   "Javascript mode to use for .js files."
   :type 'symbol
   :group 'programming
-  :options '(js2-mode js-mode))
-(defvar preferred-javascript-indent-level 2)
+  :options '(js-mode js2-mode))
+(defvar preferred-javascript-indent-level 4)
 
 ;; Need to first remove from list if present, since elpa adds entries too, which
 ;; may be in an arbitrary order
