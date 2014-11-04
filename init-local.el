@@ -128,6 +128,12 @@
       (comment-or-uncomment-region (region-beginning) (region-end))
       (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
 
+;; insert date
+(defun date ()
+  "Insert string for the current time formatted like '2:34 PM'."
+  (interactive)                 ; permit invocation in minibuffer
+  (insert (format-time-string "%Y-%m-%d %H:%M")))
+
 ;; define-key
 (global-set-key "\C-xf" 'find-file)
 (global-set-key "\M-g" 'goto-line)
