@@ -51,7 +51,7 @@
 ;(require 'init-sessions)
 (require 'init-fonts)
 (require 'init-mmm)
-(require 'init-growl)
+;;(require 'init-growl)
 
 (require 'init-editing-utils)
 
@@ -79,8 +79,8 @@
 (require 'init-slime)
 (require 'init-clojure)
 (require 'init-common-lisp)
-(require 'init-smali)
-(require 'init-lua)
+;;(require 'init-smali)
+;;(require 'init-lua)
 
 (when *spell-check-support-enabled*
   (require 'init-spelling))

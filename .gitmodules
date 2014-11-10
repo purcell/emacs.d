@@ -4,19 +4,10 @@
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
 	url = https://github.com/capitaomorte/yasnippet.git
-[submodule "snippets/java-mode"]
-	path = snippets/java-mode
-	url = https://github.com/nekop/yasnippet-java-mode.git
-[submodule "snippets/sh-mode"]
-	path = snippets/java-mode
-	url = https://github.com/fourcels/yasnippet-sh-mode.git
+
 [submodule "site-lisp/Emacs-Smali"]
 	path = site-lisp/Emacs-Smali
 	url = https://github.com/strazzere/Emacs-Smali.git
-    ignore = all
-[submodule "site-lisp/Emacs-Groovy-Mode"]
-	path = site-lisp/Emacs-Groovy-Mode
-	url = https://github.com/russel/Emacs-Groovy-Mode.git
     ignore = all
 [submodule "site-lisp/gradle-mode"]
 	path = site-lisp/gradle-mode

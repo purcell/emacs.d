@@ -45,8 +45,8 @@
 (prefer-coding-system 'gb18030)
 (prefer-coding-system 'utf-8)
 
-(set-face-attribute
-  'default nil :font "Monaco-14") ; default font
+;;(set-face-attribute
+;;  'default nil :font "Monaco-14") ; default font
 
 (if window-system
     (set-fontset-font
