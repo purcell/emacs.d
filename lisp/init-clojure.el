@@ -25,13 +25,13 @@
   (add-hook 'slime-repl-mode-hook 'slime-clojure-repl-setup))
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Misc clojure tweaks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (after-load 'clojure-mode
   (add-hook 'clojure-mode-hook 'sanityinc/lisp-setup)
+  (add-hook 'clojure-mode-hook 'evil-paredit-mode)
   (add-hook 'clojure-mode-hook 'subword-mode))
 
 
