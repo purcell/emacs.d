@@ -1,0 +1,10 @@
+(require-package 'yasnippet)
+(require 'yasnippet)
+(setq yas/prompt-functions 
+         '(yas/dropdown-prompt yas/x-prompt yas/completing-prompt yas/ido-prompt yas/no-prompt))
+(yas/global-mode 1)
+(yas/minor-mode-on)
+(define-key yas-minor-mode-map (kbd "<tab>") nil)
+(define-key yas-minor-mode-map (kbd "TAB") nil)
+(define-key yas-minor-mode-map (kbd "\C-cu") 'yas-expand)
+(provide 'init-yasnippet)
