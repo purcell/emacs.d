@@ -155,8 +155,5 @@
 (require 'autopair)
 (autopair-global-mode)
 
-;;gradle mode
-(require 'gradle-mode)
-
 
 (provide 'init-local)
