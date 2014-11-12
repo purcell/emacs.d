@@ -7,9 +7,9 @@
     (progn
       (setq load-path
             (append
-             (loop for dir in (directory-files parent-dir)
-                   unless (string-match "^\\." dir)
-                   collecting (expand-file-name dir))
+             (remove-if-not
+              (lambda (dir) (file-directory-p dir))
+              (directory-files (expand-file-name parent-dir) t "^[^\\.]"))
              load-path)))))
 
 (sanityinc/add-subdirs-to-load-path
