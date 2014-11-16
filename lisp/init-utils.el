@@ -1,11 +1,10 @@
 (if (fboundp 'with-eval-after-load)
     (defalias 'after-load 'with-eval-after-load)
-  (defmacro after-load (file &rest body)
-    "Execute BODY after FILE is loaded.
-FILE is normally a feature name, but it can also be a file name,
-in case that file does not provide any feature."
-    (declare (indent 1) (debug t))
-    `(eval-after-load ,file (lambda () ,@body))))
+  (defmacro after-load (feature &rest body)
+    "After FEATURE is loaded, evaluate BODY."
+    (declare (indent defun))
+    `(eval-after-load ,feature
+       '(progn ,@body))))
 
 
 ;;----------------------------------------------------------------------------
