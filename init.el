@@ -64,8 +64,10 @@
 
 (require 'init-vc)
 (require 'init-darcs)
-(require 'init-git)
-(require 'init-github)
+(when (>= emacs-major-version 24)
+  (progn
+    (require 'init-git)
+    (require 'init-github)))
 
 (require 'init-compile)
 (require 'init-crontab)
