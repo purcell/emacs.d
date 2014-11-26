@@ -79,6 +79,9 @@
 ;; hide show mode
 ;(add-hook 'c-mode-common-hook 'hs-minor-mode)
 
+;; copy, paste
+(setq x-select-enable-clipboard t)
+
 ;;custom function
 (defun untab ()
   (interactive)
