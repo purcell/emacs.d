@@ -1,0 +1,4 @@
+# name: strong
+# key: strong
+# --
+<strong>$0</strong>
