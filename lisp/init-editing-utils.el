@@ -2,8 +2,8 @@
 
 (when (fboundp 'electric-pair-mode)
   (electric-pair-mode))
-(when (fboundp 'electric-indent-mode)
-  (electric-indent-mode))
+(when (eval-when-compile (version< "24.4" emacs-version))
+  (electric-indent-mode 1))
 
 ;;----------------------------------------------------------------------------
 ;; Some basic preferences
