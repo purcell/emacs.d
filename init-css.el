@@ -51,8 +51,8 @@
 (add-hook 'css-mode-hook 'maybe-flymake-css-load)
 
 
-(add-hook 'sass-mode-hook 'flymake-sass-load)
-(add-hook 'scss-mode-hook 'flymake-sass-load)
+;; (add-hook 'sass-mode-hook 'flymake-sass-load)
+;; (add-hook 'scss-mode-hook 'flymake-sass-load)
 (setq-default scss-compile-at-save nil)
 
 

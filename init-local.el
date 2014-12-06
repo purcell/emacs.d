@@ -45,6 +45,7 @@
 (prefer-coding-system 'gb18030)
 (prefer-coding-system 'utf-8)
 
+
 (when *is-a-mac*
     (set-face-attribute
     'default nil :font "Monaco-14")) ; mac default font
@@ -144,6 +145,7 @@
 (global-set-key "\C-o" 'custom-open-newline)
 (global-set-key (kbd "C-S-o") 'custom-open-newline-prev)
 (global-set-key (kbd "C-;") 'toggle-comment)
+(global-set-key (kbd "C-SPC") nil)
 
 
 
@@ -157,7 +159,7 @@
 
 ;;auto pair
 (require 'autopair)
-(autopair-global-mode)
+;;(autopair-global-mode)
 
 
 (provide 'init-local)
