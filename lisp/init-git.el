@@ -68,19 +68,20 @@
     (add-to-list 'compilation-error-regexp-alist (car defn))))
 
 (defvar git-svn--available-commands nil "Cached list of git svn subcommands")
+(defun git-svn--available-commands ()
+  (or git-svn--available-commands
+      (setq git-svn--available-commands
+            (sanityinc/string-all-matches
+             "^  \\([a-z\\-]+\\) +"
+             (shell-command-to-string "git svn help") 1))))
 
-(defun git-svn (dir)
+(defun git-svn (dir command)
   "Run a git svn subcommand in DIR."
-  (interactive "DSelect directory: ")
-  (unless git-svn--available-commands
-    (setq git-svn--available-commands
-          (sanityinc/string-all-matches
-           "^  \\([a-z\\-]+\\) +"
-           (shell-command-to-string "git svn help") 1)))
+  (interactive (list (read-directory-name "Directory: ")
+                     (completing-read "git-svn command: " (git-svn--available-commands) nil t nil nil (git-svn--available-commands))))
   (let* ((default-directory (vc-git-root dir))
          (compilation-buffer-name-function (lambda (major-mode-name) "*git-svn*")))
-    (compile (concat "git svn "
-                     (ido-completing-read "git-svn command: " git-svn--available-commands nil t)))))
+    (compile (concat "git svn " command))))
 
 
 (require-package 'git-messenger)
