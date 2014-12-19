@@ -128,3 +128,15 @@
 
 
 (provide 'init-org)
+
+;; export html custom style sheet
+(setq org-export-html-style-include-scripts nil
+      org-export-html-style-include-default nil)
+(setq org-export-html-style
+      "<link rel=\"stylesheet\" type=\"text/css\" href=\"org-style.css\" media=\"only screen and (min-device-width: 480px)\" /><link rel=\"stylesheet\" type=\"text/css\" href=\"org-style-phone.css\" media=\"only screen and (max-device-width: 480px)\" />")
+
+;; under score
+(setq org-export-with-sub-superscripts nil)
+
+;; out put directory
+(setq org-export-publishing-directory "~/Documents/Dropbox/record-html")

@@ -1,0 +1,91 @@
+* {
+		font-family: "Georgia";
+}
+
+h1, h2, h3, h4, h5, h6,
+h1 span, h2 span, h3 span, h4 span, h5 span, h6 span,
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+		font-family: "Arial";
+}
+
+pre {
+		font-family: Monaco, "Courier New", Courier;
+}
+
+#text-table-of-contents a {
+		font-family: "Arial";
+}
+
+/* @end */
+
+/* @group Baseline */
+body {
+	font-size: 1em;
+	overflow: hidden;
+	padding: 0;
+	margin: 0 auto;
+	width: 98%;
+	color: #6C6C6C;
+}
+
+/* @group Layout */
+
+#content {
+	overflow: hidden;
+}
+
+#table-of-contents, #text-table-of-contents {
+	display: none;
+}
+
+/* #main { */
+div.outline-2 {
+	width: 98%;
+	font-size: 1.3em;
+	margin: 0;
+}
+
+div.outline-2 h2 {
+	color: #6C6C6C;
+	border-radius: 5px;
+	padding: 8px 2px;
+	light-height: 5em;
+	background: #ccc;
+	border: 1px solid #aaa;
+}
+
+div.outline-2 p {
+	font-size: 1em;
+	line-height: 4em;
+}
+
+/* @end */
+
+/* @group Header */
+h1.title {
+	margin-top: 10px;
+	text-align: left;
+	width: 100%;
+	font-size: 4em;
+	font-weight: bold;
+	letter-spacing: -0.1em;
+	margin-bottom: 0.2em;
+}
+
+/* @end */
+
+
+/* footer */
+
+#postamble {
+	border-top: solid 1px #aaa;
+	margin: 0;
+	font-size: 0.8333333333333334em;
+	line-height: 1.8em;
+	margin-bottom: 1.8em;
+	clear: both;
+	text-align: center;
+}
+
+
+/* end */

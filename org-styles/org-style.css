@@ -1,0 +1,354 @@
+/**
+ * This stylesheet will work pretty well with a regular Org Mode HTML export.
+ * However, you do have to turn off all of the defaults:
+ *
+ * (setq org-export-html-style-include-scripts nil
+ *       org-export-html-style-include-default nil)
+ *
+ * and insert a call to the stylesheet:
+ *
+ * (setq org-export-html-style
+ *       "<link rel=\"stylesheet\" type=\"text/css\" href=\"org-style.css\" />")
+ */
+
+/* @group Fonts */
+
+* {
+		font-family: "Georgia";
+}
+
+h1, h2, h3, h4, h5, h6,
+h1 span, h2 span, h3 span, h4 span, h5 span, h6 span,
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+		font-family: "Arial";
+}
+
+pre {
+		font-family: Monaco, "Courier New", Courier;
+}
+
+#text-table-of-contents a {
+		font-family: "Arial";
+}
+
+/* @end */
+
+/* @group Baseline */
+body {
+	font-size: 14px;
+	line-height: 1.7em;
+	padding: 0;
+	margin: 0;
+	color: #6C6C6C;
+}
+h1 {
+	margin: 0;
+	font-size: 1.6666666666666667em;
+	line-height: 0.9em;
+	margin-bottom: 0.9em;
+}
+h2 {
+	margin: 0;
+	font-size: 1.5em;
+	line-height: 1em;
+	margin-bottom: 1em;
+}
+h3 {
+	margin: 0;
+	font-size: 1.3333333333333333em;
+	line-height: 1.125em;
+	margin-bottom: 1.125em;
+}
+h4 {
+	margin: 0;
+	font-size: 1.1666666666666667em;
+	line-height: 1.2857142857142858em;
+	margin-bottom: 1.2857142857142858em;
+}
+p, ul, blockquote, pre, td, th, label {
+	margin: 0;
+	font-size: 0.9em;
+	line-height: 1.9em;
+	margin-bottom: 1.5em;
+}
+p {
+	font-size: 1.2em;
+	color: #444;
+}
+p.small, #postamble {
+	margin: 0;
+	font-size: 0.8333333333333334em;
+	line-height: 1.8em;
+	margin-bottom: 1.8em;
+}
+table {
+	border-collapse: collapse;
+	margin-bottom: 1.5em;
+	border: solid 1px #aaa;
+	width: 100%;
+}
+
+thead tr {
+	color: #068;
+	background: #ccc;
+}
+
+tbody tr:nth-child(even) {
+	background: #f7f7f7;
+}
+
+tbody tr:hover {
+	background: #eaeaea;
+}
+
+th {
+	border: solid 1px #aaa;
+}
+
+td {
+	border: solid 1px #ddd;
+}
+
+/* @end */
+
+/* @group Layout */
+
+#content {
+	/* width: 70em; */
+	width: 95%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#header {
+	height: 10em;
+}
+
+#table-of-contents {
+	width: 23%;
+	float: left;
+	overflow: hidden;
+	color: #6C6C6C;
+	background: #ccc;
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	margin-top: 10px;
+}
+
+#text-table-of-contents {
+	background: #eee;
+	padding: 10px 0;
+}
+
+/* #main { */
+div.outline-2 {
+	margin: 0;
+	width: 75%;
+	float: right;
+	/* The lines below are useful if the "main" div isn't available and
+		 div.outline-2 has to be used. */
+	position: relative;
+}
+
+#table-of-contents ul {
+	margin-bottom: 0;
+	padding: 0 6px;
+}
+
+#postamble {
+	clear: both;
+	text-align: center;
+}
+
+div.outline-2 pre {
+	background: #303030;
+	color: #fff;
+	/* border: 1pt solid #AEBDCC; */
+	padding: 5pt;
+	overflow:auto;
+}
+
+/* @end */
+
+/* @group Header */
+
+h1.title {
+	margin-top: 10px;
+	text-align: left;
+	width: 75%;
+	float: right;
+}
+
+h1.title {
+	font-size: 3em;
+	font-weight: bold;
+	letter-spacing: -0.1em;
+	margin-bottom: 0.2em;
+}
+
+/* @end */
+
+/* @group Org Keywords */
+
+.todo {
+	color: red;
+}
+
+.done {
+	color: green;
+}
+
+.tag {
+	color: blue;
+	text-transform: lowercase;
+	/* This will be obscured by the surrounding span tag, so blank everything. */
+	background: #fff;
+	border: none;
+	/* position: relative;
+	text-align: right;
+	right: 1em; */
+}
+
+.timestamp {
+}
+
+.timestamp-kwd  {
+	/* keyword associated with a time stamp, like SCHEDULED */
+}
+
+.target {
+	/* target for links */
+}
+
+/* @end */
+
+/* @group Table of Contents */
+
+#table-of-contents h2 {
+	letter-spacing: -0.1em;
+	margin-bottom: 0px;
+	padding: 5px 8px;
+	border-bottom: 1px solid #aaa;
+	color: #068;
+}
+
+#table-of-contents li {
+	line-height: 2.0;
+	font-size: 1.1em;
+}
+
+#table-of-contents a {
+	color: #333 ! important;
+	text-decoration: none ! important;
+	opacity: 1.0;
+	border-bottom: dotted #cdcdcd 1px;
+}
+
+#table-of-contents ul,
+#table-of-contents ol {
+		padding-left: 1.5em;
+}
+
+/* @end */
+
+/* @group Outline Level 2 */
+
+.outline-2 h2 {
+	color: #6C6C6C;
+	border-radius: 5px;
+	padding: 8px 2px;
+	light-height: 5em;
+	background: #ccc;
+	border: 1px solid #aaa;
+}
+
+.outline-2 h2, .outline-2 h3 {
+	letter-spacing: -0.05em;
+}
+
+.outline-2 {
+	padding: 5px;
+	/* margin-bottom: 10px; */
+	/* border-top: 1px solid #ccc; */
+}
+
+/* @end */
+
+h1 span, h2 span, h3 span, h4 span, h5 span, h6 span {
+		/* background-color: #eee; */
+		padding: 5px;
+		/* border: 1px solid #ccc; */
+}
+
+.outline-1, .outline-2, .outline-3, .outline-4, .outline-5, .outline-6 {
+		margin-left: 2em;
+}
+
+a {
+		text-decoration: none;
+		color: #57d; /* TODO: Find a better colour for this. */
+}
+
+a:hover {
+		border-bottom: 1px dotted #57d;
+}
+
+#postamble {
+	border-top: solid 1px #aaa;
+}
+
+#postamble p {
+	margin: 0px;
+}
+
+
+/************************************************/
+
+
+ <!--/*--><![CDATA[/*><!--*/
+	/* html { font-family: Times, serif; font-size: 12pt; } */
+	/* .title  { text-align: center; } */
+	/* .todo   { color: red; } */
+	/* .done   { color: green; } */
+	/* .tag    { background-color: #add8e6; font-weight:normal } */
+	/* .target { } */
+	/* .timestamp { color: #bebebe; } */
+	/* .timestamp-kwd { color: #5f9ea0; } */
+	/* .right  {margin-left:auto; margin-right:0px;  text-align:right;} */
+	/* .left   {margin-left:0px;  margin-right:auto; text-align:left;} */
+	/* .center {margin-left:auto; margin-right:auto; text-align:center;} */
+	/* p.verse { margin-left: 3% } */
+	/* pre { */
+	/* border: 1pt solid #AEBDCC; */
+	/* background-color: #F3F5F7; */
+	/* padding: 5pt; */
+	/* font-family: courier, monospace; */
+	/*			font-size: 90%; */
+	/*			overflow:auto; */
+	/* } */
+	/* table { border-collapse: collapse; } */
+	/* td, th { vertical-align: top;  } */
+	/* th.right  { text-align:center;  } */
+	/* th.left   { text-align:center;   } */
+	/* th.center { text-align:center; } */
+	/* td.right  { text-align:right;  } */
+	/* td.left   { text-align:left;   } */
+	/* td.center { text-align:center; } */
+	/* dt { font-weight: bold; } */
+	/* div.figure { padding: 0.5em; } */
+	/* div.figure p { text-align: center; } */
+	/* div.inlinetask { */
+	/*	padding:10px; */
+	/*	border:2px solid gray; */
+	/*	margin:10px; */
+	/*	background: #ffffcc; */
+	/* } */
+	/* textarea { overflow-x: auto; } */
+	/* .linenr { font-size:smaller } */
+	/* .code-highlighted {background-color:#ffff00;} */
+	/* .org-info-js_info-navigation { border-style:none; } */
+	/* #org-info-js_console-label { font-size:10px; font-weight:bold; */
+	/*														 white-space:nowrap; } */
+	/* .org-info-js_search-highlight {background-color:#ffff00; color:#000000; */
+	/*															 font-weight:bold; } */
+	/* /\*]]>*\/--> */
