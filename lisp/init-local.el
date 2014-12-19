@@ -4,7 +4,9 @@
 
 (set-language-environment 'utf-8)
 ;; Set Default Font
-(add-to-list 'default-frame-alist '(font .  "WenQuanYi Micro Hei Mono-24" ))
+;(add-to-list 'default-frame-alist '(font .  "WenQuanYi Micro Hei Mono-24" ))
+;(add-to-list 'default-frame-alist '(font .  "Source Code Pro-20" ))
+(add-to-list 'default-frame-alist '(font .  "DejaVu Sans Mono-24" ))
 
 ;;; Enable line number.
 (global-linum-mode t)
@@ -35,6 +37,9 @@
 (setq ac-auto-start 2)
 ; case sensitivity is important when finding matches
 (setq ac-ignore-case nil)
+
+;; Use Ctr-H to do backspace
+(global-set-key [(control h)] 'delete-backward-char)
 
 ;; turn on soft wrapping mode for org mode
 (add-hook 'org-mode-hook
