@@ -39,7 +39,7 @@
 ;;(global-whitespace-mode 1)
 
 ;; init size
-(setq initial-frame-alist '((width . 85) (height . 40)))
+(setq initial-frame-alist '((width . 85) (height . 30)))
 
 ;; encoding and default font
 (prefer-coding-system 'gb18030)
