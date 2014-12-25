@@ -39,7 +39,7 @@
 ;;(global-whitespace-mode 1)
 
 ;; init size
-(setq initial-frame-alist '((width . 85) (height . 30)))
+(setq initial-frame-alist '((width . 85) (height . 35)))
 
 ;; encoding and default font
 (prefer-coding-system 'gb18030)
@@ -84,15 +84,6 @@
 (setq x-select-enable-clipboard t)
 
 ;;custom function
-(defun untab ()
-  (interactive)
-   (let ((tabs tab-stop-list) (temp nil))
-    (while (and tabs (> (current-column) (car tabs)))
-      (setq temp tabs)
-      (setq tabs (cdr tabs)))
-    (progn
-      (delete-horizontal-space t)
-	  (indent-to (car temp)))))
 
 (defun custom-open-newline ()
   (interactive)
@@ -159,7 +150,7 @@
 
 ;;auto pair
 (require 'autopair)
-;;(autopair-global-mode)
+(autopair-global-mode)
 
 
 (provide 'init-local)
