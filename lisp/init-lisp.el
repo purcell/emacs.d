@@ -266,4 +266,31 @@
 (after-load 'ert
   (define-key ert-results-mode-map (kbd "g") 'ert-results-rerun-all-tests))
 
+
+(defun sanityinc/cl-libify-next ()
+  "Find next symbol from 'cl and replace it with the 'cl-lib equivalent."
+  (interactive)
+  (let ((case-fold-search nil))
+    (re-search-forward
+     (concat
+      "("
+      (regexp-opt
+       ;; Not an exhaustive list
+       '("loop" "incf" "plusp" "first" "decf" "minusp" "assert"
+         "case" "destructuring-bind" "second" "third" "defun*"
+         "defmacro*" "return-from" "labels" "cadar" "fourth"
+         "cadadr") t)
+      "\\_>")))
+  (let ((form (match-string 1)))
+    (backward-sexp)
+    (cond
+     ((string-match "^\\(defun\\|defmacro\\)\\*$")
+      (kill-sexp)
+      (insert (concat "cl-" (match-string 1))))
+     (t
+      (insert "cl-")))
+    (when (fboundp 'aggressive-indent-indent-defun)
+      (aggressive-indent-indent-defun))))
+
+
 (provide 'init-lisp)
