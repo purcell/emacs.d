@@ -261,4 +261,9 @@
     (flycheck-package-setup)))
 
 
+
+;; ERT
+(after-load 'ert
+  (define-key ert-results-mode-map (kbd "g") 'ert-results-rerun-all-tests))
+
 (provide 'init-lisp)
