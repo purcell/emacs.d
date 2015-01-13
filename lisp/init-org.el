@@ -139,4 +139,4 @@
 (setq org-export-with-sub-superscripts nil)
 
 ;; out put directory
-(setq org-export-publishing-directory "~/Documents/Dropbox/record-html")
+(setq org-export-publishing-directory "~/workspace/rexhouy.github.io/")
