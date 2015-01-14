@@ -86,6 +86,12 @@
 (require 'init-rails)
 (require 'init-sql)
 
+;;----------------------------------------------------------------------------
+;; Customer configure file
+;;----------------------------------------------------------------------------
+(require 'init-custom)
+
+
 (require 'init-paredit)
 (require 'init-lisp)
 (require 'init-slime)
@@ -147,6 +153,7 @@
 
 
 (provide 'init)
+
 
 ;; Local Variables:
 ;; coding: utf-8
