@@ -33,3 +33,5 @@ site-lisp/package/
 /.smex-items
 /image-dired/
 /eshell
+/.cask/
+/.sx/
