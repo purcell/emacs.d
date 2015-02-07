@@ -31,7 +31,7 @@
 
 (defun sanityinc/string-rtrim (str)
   "Remove trailing whitespace from `STR'."
-  (replace-regexp-in-string "[ \t\n]*$" "" str))
+  (replace-regexp-in-string "[ \t\n]+$" "" str))
 
 
 ;;----------------------------------------------------------------------------
