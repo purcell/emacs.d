@@ -44,6 +44,7 @@
 
 ;; But don't show trailing whitespace in SQLi, inf-ruby etc.
 (dolist (hook '(special-mode-hook
+                Info-mode-hook
                 eww-mode-hook
                 term-mode-hook
                 comint-mode-hook
