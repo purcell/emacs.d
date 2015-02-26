@@ -14,30 +14,38 @@
 
 ;;; Changing font sizes
 
-(require 'cl)
-
-(defun sanityinc/font-name-replace-size (font-name new-size)
-  (let ((parts (split-string font-name "-")))
-    (setcar (nthcdr 7 parts) (format "%d" new-size))
-    (mapconcat 'identity parts "-")))
-
 (defun sanityinc/increment-default-font-height (delta)
-  "Adjust the default font height by DELTA on every frame.
-Emacs will keep the pixel size of the frame approximately the
-same.  DELTA should be a multiple of 10, to match the units used
-by the :height face attribute."
-  (let* ((new-height (+ (face-attribute 'default :height) delta))
-         (new-point-height (/ new-height 10)))
+  "Adjust the default font height by DELTA on every graphical frame.
+The pixel size of the frame will be kept approximately the same,
+to the extent possible, as with the function `set-frame-font'.
+DELTA should be a multiple of 10, to match the units used by
+the :height face attribute."
+  (interactive "nIncrement (e.g. 10, -5)? ")
+  (unless (display-multi-font-p (selected-frame))
+    (error "Cannot be applied from a non-graphical frame"))
+  (let* ((cur-height (face-attribute 'default :height))
+         (new-height (+ cur-height delta)))
+    ;; Modify the special "user" theme, which is always combined
+    ;; with any other loaded theme(s).  An alternative approach
+    ;; would be modifying the default face's face-override-spec
+    ;; property (see `face-spec-set'), but that produces more
+    ;; redraws
+    (custom-push-theme 'theme-face 'default 'user 'set `((t (:height ,new-height))))
     (dolist (f (frame-list))
+      (when (display-multi-font-p f)
+        (let ((pixel-height (* (frame-parameter f 'height)
+                               (frame-char-height f)))
+              (pixel-width  (* (frame-parameter f 'width)
+                               (frame-char-width f))))
+          (face-spec-recalc 'default f)
+          (unless (frame-parameter f 'fullscreen)
+            (modify-frame-parameters
+             f
+             `((height . ,(round pixel-height (frame-char-height f)))
+               (width . ,(round pixel-width  (frame-char-width f))))))))
       (with-selected-frame f
-        ;; Latest 'set-frame-font supports a "frames" arg, but
-        ;; we cater to Emacs 23 by looping instead.
-        (set-frame-font (sanityinc/font-name-replace-size
-                         (face-font 'default)
-                         new-point-height)
-                        t)))
-    (set-face-attribute 'default nil :height new-height)
-    (message "Default font size is now %d" new-point-height)))
+        (run-hooks 'after-setting-font-hook)))
+    (message "Default font size is now %d" (/ new-height 10))))
 
 (defun sanityinc/increase-default-font-height ()
   (interactive)
