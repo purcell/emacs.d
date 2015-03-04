@@ -46,6 +46,7 @@
   (lambda () (setq truncate-lines nil)))
 
 ;; Enable yasnippet globally.
+(require 'yasnippet)
 (yas-global-mode 1)
 ;; use Ctrl-TAB to trigger yas
 (define-key yas-minor-mode-map (kbd "<tab>") nil)
