@@ -1,3 +1,6 @@
+;; TODO: enhance ibuffer-fontification-alist
+;;   See http://www.reddit.com/r/emacs/comments/21fjpn/fontifying_buffer_list_for_emacs_243/
+
 (require-package 'fullframe)
 (after-load 'ibuffer
  (fullframe ibuffer ibuffer-quit))

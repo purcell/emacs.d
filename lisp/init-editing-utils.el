@@ -44,6 +44,7 @@
 
 ;; But don't show trailing whitespace in SQLi, inf-ruby etc.
 (dolist (hook '(special-mode-hook
+                Info-mode-hook
                 eww-mode-hook
                 term-mode-hook
                 comint-mode-hook
@@ -92,8 +93,12 @@
 (dolist (hook '(prog-mode-hook html-mode-hook css-mode-hook))
   (add-hook hook 'highlight-symbol-mode)
   (add-hook hook 'highlight-symbol-nav-mode))
-(eval-after-load 'highlight-symbol
-  '(diminish 'highlight-symbol-mode))
+(add-hook 'org-mode-hook 'highlight-symbol-nav-mode)
+(after-load 'highlight-symbol
+  (diminish 'highlight-symbol-mode)
+  (defadvice highlight-symbol-temp-highlight (around sanityinc/maybe-suppress activate)
+    "Suppress symbol highlighting while isearching."
+    (unless isearch-mode ad-do-it)))
 
 ;;----------------------------------------------------------------------------
 ;; Zap *up* to char is a handy pair for zap-to-char
@@ -104,6 +109,9 @@
 
 
 (require-package 'browse-kill-ring)
+(setq browse-kill-ring-separator "\f")
+(after-load 'page-break-lines
+  (push 'browse-kill-ring-mode page-break-lines-modes))
 
 
 ;;----------------------------------------------------------------------------
@@ -341,7 +349,7 @@ With arg N, insert N newlines."
 
 
 (require-package 'guide-key)
-(setq guide-key/guide-key-sequence '("C-x" "C-c" "C-x 4" "C-x 5" "C-c ;" "C-c ; f" "C-c ' f" "C-x n"))
+(setq guide-key/guide-key-sequence '("C-x" "C-c" "C-x 4" "C-x 5" "C-c ;" "C-c ; f" "C-c ' f" "C-x n" "C-x C-r"))
 (guide-key-mode 1)
 (diminish 'guide-key-mode)
 

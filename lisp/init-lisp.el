@@ -5,7 +5,7 @@
 (require-package 'lively)
 
 (setq-default initial-scratch-message
-              (concat ";; Happy hacking " (or user-login-name "") "!\n\n"))
+              (concat ";; Happy hacking " (or user-login-name "") " - Emacs ♥ you!\n\n"))
 
 
 
