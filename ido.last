@@ -1,0 +1,209 @@
+;;; -*- coding: utf-8 -*-
+
+;; ----- ido-last-directory-list -----
+(
+ ("/Users/leslie/Dropbox/Programming/FP/Erlang/Programming-Erlang/" . "Chapter13/")
+ ("/Users/leslie/Dropbox/Programming/FP/Erlang/" . "Programming-Erlang/")
+ ("/Users/leslie/Dropbox/Programming/FP/" . "Erlang/")
+ ("/Users/leslie/kuaipan/Programming/RubyCode/CraftingRailsApplication/responders/" . "lib/")
+ ("/Users/leslie/kuaipan/Programming/RubyCode/CraftingRailsApplication/" . "responders/")
+ ("/Users/leslie/kuaipan/Programming/RubyCode/" . "CraftingRailsApplication/")
+ ("/Users/leslie/kuaipan/Programming/" . "RubyCode/")
+ ("/Users/" . "leslie/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/generators/merb/" . "mailer/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/generators/" . "merb/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/" . "generators/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/" . "lib/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/views/" . "notifier/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/" . "views/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/" . "app/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/" . "dummy/")
+ ("/Users/leslie/codes/" . "report_center/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/" . "app/")
+ ("/Users/leslie/Dropbox/Programming/" . "FP/")
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/assets/" . "javascripts/")
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/" . "app/")
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/views/" . "posts/")
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/" . "assets/")
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/" . "blogger/")
+ ("/Users/leslie/kuaipan/MyCodeBase/" . "Demos/")
+ ("/Users/leslie/kuaipan/" . "Programming/")
+ ("/Users/leslie/" . "kuaipan/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/test/" . "fixtures/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/app/" . "models/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/" . "live_assets/")
+ ("/Users/leslie/Dropbox/Programming/Ruby/" . "CraftingRailsApplication/")
+ ("/Users/leslie/Dropbox/" . "Programming/")
+)
+
+;; ----- ido-work-directory-list -----
+(
+ "/Users/leslie/Dropbox/Programming/FP/Erlang/Programming-Erlang/Chapter9/"
+ "/Users/leslie/Dropbox/Programming/FP/Erlang/Programming-Erlang/Chapter4/"
+ "/Users/leslie/Dropbox/Programming/FP/Erlang/Programming-Erlang/Chapter8/"
+ "/Users/leslie/kuaipan/Programming/RubyCode/CraftingRailsApplication/responders/lib/"
+ "/Users/leslie/kuaipan/Programming/RubyCode/CraftingRailsApplication/responders/test/responders/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/live_assets/lib/live_assets/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/generators/merb/mailer/templates/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/generators/merb/mailer/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/views/notifier/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/mailers/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/views/handlers/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/integration/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/controllers/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/app/models/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/app/controllers/"
+ "/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/"
+ "/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/assets/javascripts/"
+ "/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/views/posts/"
+ "/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/controllers/"
+ "/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/test/fixtures/"
+)
+
+;; ----- ido-work-file-list -----
+(
+ "walks.erl"
+ "geometry1.erl"
+ "b.erl"
+ "abc.erl"
+ "shop2.erl"
+ "mylists.erl"
+ "responders.rb"
+ "http_cache_test.rb"
+ "live_assets.rb"
+ "view.merb"
+)
+
+;; ----- ido-dir-file-cache -----
+(
+ ("/Users/leslie/Dropbox/Programming/FP/Erlang/Programming-Erlang/Chapter8/" (21286 22373 0 0) "m1.erl" "m1.beam" "b.erl" "b.beam" "abc.erl" "abc.beam" "a.erl" "a.beam" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/FP/Erlang/Programming-Erlang/Chapter13/" (21288 2295 0 0) "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/FP/Erlang/Programming-Erlang/" (21288 2295 0 0) "hello.erl" "hello.beam" "Chapter9/" "Chapter8/" "Chapter7 Binaries and the Bit Syntax/" "Chapter6/" "Chapter5/" "Chapter4/" "Chapter13/" "afile_server.erl" "afile_server.beam" "afile_client.erl" "afile_client.beam" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/FP/Erlang/Programming-Erlang/Chapter9/" (21285 17213 0 0) "walks.erl" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/FP/Erlang/Programming-Erlang/Chapter4/" (21279 51825 0 0) "shop2.erl" "shop1.erl" "shop1.beam" "shop.erl" "shop.beam" "mylists.erl" "mylists.beam" "lib_misc.erl" "lib_misc.beam" "geometry1.erl" "geometry1.beam" "geometry.erl" "geometry.beam" "fruit.erl" "fruit.beam" "../" "./")
+
+ ("/Users/leslie/kuaipan/Programming/RubyCode/CraftingRailsApplication/responders/lib/" (21267 57879 0 0) "tasks/" "responders.rb" "responders/" "generators/" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/FP/Erlang/" (21273 23036 0 0) "tail-recursion.erl" "SPiE/" "Programming-Erlang/" "fact.erl" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/FP/" (21020 29047 0 0) "Scala/" "Lisp/" "Haskell/" "Erlang/" "Elixir/" "Clojure/" ".DS_Store" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/" (21276 5773 0 0) "Stap/" "Shell/" "Rust/" "Ruby/" "R/" "Python/" "JavaScript/" "Java/" "Go/" "FP/" "D/" "configuration-management/" "com.googlecode.iterm2.plist" "C/" ".DS_Store" "../" "./")
+
+ ("/Users/leslie/Dropbox/" (21277 18360 0 0) "武汉地铁2号线阶梯价格表.jpg" "松本行弘的程序员世界——目录.txt" "yufanxi10-26.jpg" "WXS简历（完）.doc" "watched/" "The Blog of Ben Rockwood.html" "ssh_config.gpg" "square.itermcolors" "Slides/" "rss.xml" "ripple_wallet.png" "recent/" "Public/" "Programming/" "Photos/" "Papers/" "notes/" "Math/" "Icon
+" "help_loving.jpg" "helloworld.lisp" "gnupg-w32cli-1.2.2.zip" "GDocsForMe-beta/" "drawing.pdf" "Dillinger/" "Data_Mining/" "Configuration/" "classes vs prototypes some philosophical and historical observations.pdf" "book/" "bitcoin/" "binary_search.rb" "Apps/" ".tmux.shared" ".tmux.master" ".tmux.conf" ".DS_Store" ".dropbox.cache/" "../" "./")
+
+ ("/Users/leslie/" (21277 18317 0 0) "桌面（原身）/" "快盘/" "workspace/" "vhosts/" "variables" "test.erl" "test.beam" "target/" "src_for_ruby/" "SkyDrive/" "Samsung/" "Public/" "prompt_colors" "prompt" "Pictures/" "open_projects.rb" "Music/" "Movies/" "Library/" "kuaipan/" "Gits/" "functions" "erl_crash.dump" "dwhelper/" "Dropbox/" "Downloads/" "dotfile/" "Documents/" "Desktop/" "Demos/" "De" "codes/" "bin/" "Applications/" "aliases" ".zshrc" ".zsh_history" ".zsh-update" ".zsh/" ".zlogin" ".zcompdump-MrZhang-5.0.2" ".zcompdump-MrZhang-4.3.11" ".zcompdump-leslie-5.0.5" ".zcompdump-leslie-5.0.2" ".zcompdump" ".yaws/" ".xlive/" ".vimrc.local" ".vimrc.bundles.local" ".vimrc.bundles" ".vimrc" ".vimperator/" ".viminfo" ".vim/" ".Trash/" ".tmux.conf" ".subversion/" ".ssh/" ".sqlite_history" ".spm/" ".smex-items" ".scala_history" ".sbt/" ".rvmrc" ".rvm/" ".rnd" ".pry_history" ".profile" ".pow/" ".passenger/" ".oh-my-zsh/" ".nvm/" ".npmrc" ".npm/" ".node-gyp/" ".mysql_history" ".meteor/" ".m2/" ".local/" ".lesshst" ".ivy2/" ".irb-history" ".inputrc" ".httpie/" ".hgignore_global" ".gnupg/" ".gitignore_global" ".gitconfig" ".git-prompt.sh" ".gemrc" ".gem/" ".emacs.d/" ".DS_Store" ".dropbox/" ".cups/" ".config/" ".cache/" ".bundle/" ".bashrc" ".bash_profile" ".bash_history" ".bash/" ".atom/" ".android/" ".adobe/" ".ackrc" "../" "./")
+
+ ("/Users/leslie/kuaipan/Programming/RubyCode/" (21267 57878 0 0) "选择排序.rb" "逆序数对.rb" "图形.rb" "中国字.rb" "xx.exe" "xx.c" "wuhan.rb" "track_exec.rb" "systemhook.rb" "Symbol.rb" "streaming/" "sort/" "sinatra.rb" "shuxing.rb" "sexp/" "sequance_digit.rb" "rubykoans-2010-12-23/" "recommendations.rb" "Rails/" "quene.rb" "proxy.rb~" "proxy.rb" "point2.cpp" "point.cpp" "Patterns/" "os/" "oauth/" "net/" "my_Ruby.rb" "Module.rb" "mm.c" "meta/" "md5_cracked.rb" "md5.txt" "main.c" "lazy_list.rb" "kmeans.rb" "IO/" "intelligence/" "imdb.rb" "hierarchy/" "GetTheLast.rb" "gem_make.rb" "fibonacciHash.rb" "fibonacci.rb" "everypage.rb" "dog.rb" "CraftingRailsApplication/" "cong123zhongzhaochu6dezuhe.rb" "cluster.rb" "Clever algorithms/" "ClassVaries/" "cache" "block/" "attr.rb" "alias_method_system.rb" "alias_method.rb" "__FILE__.rb" "27进制.rb" ".DS_Store" "../" "./")
+
+ ("/Users/leslie/kuaipan/Programming/RubyCode/CraftingRailsApplication/" (21270 38896 0 0) "translator/" "templater/" "template/" "responders/" "pdf_render/" "mongo_metrics/" "mail_form_v3/" "mail_form/" "live_assets/" "handlers/" ".DS_Store" "../" "./")
+
+ ("/Users/leslie/kuaipan/Programming/RubyCode/CraftingRailsApplication/responders/test/responders/" (21265 47723 0 0) "http_cache_test.rb" "flash_test.rb" "../" "./")
+
+ ("/Users/leslie/kuaipan/Programming/RubyCode/CraftingRailsApplication/responders/lib/responders/" (21265 43806 0 0) "version.rb" "locales/" "http_cache.rb" "flash.rb" "../" "./")
+
+ ("/Users/leslie/kuaipan/Programming/RubyCode/CraftingRailsApplication/responders/test/" (21265 34944 0 0) "test_helper.rb" "responders_test.rb" "responders/" "dummy/" "../" "./")
+
+ ("/Users/leslie/kuaipan/Programming/RubyCode/CraftingRailsApplication/responders/" (21264 14797 0 0) "test/" "responders.gemspec" "README.rdoc" "Rakefile" "MIT-LICENSE" "lib/" "Gemfile.lock" "Gemfile" ".git/" "../" "./")
+
+ ("/Users/leslie/kuaipan/Programming/" (20956 49959 0 0) "网络/" "算法设计/" "数据结构(信管06)/" "开发注意事项/" "UML/" "sql/" "RubyCode/" "ratings.sql" "R/" "Python/" "lisp/" "key.pdf" "js/" "java/" "eclipse  key.pdf" "C/" "auto-generator.xml" ".DS_Store" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/" (21260 8879 0 0) "YAML_and_ruby.rb" "transfer-to-edr-git.rb" "trace-object-creating.rb" "Test/" "state_machine/" "somple_delegator_stats.rb" "Snippet/" "singleton_class_extends.rb" "sinatra/" "set_origin_url_git.rb" "ruby-under-a-microscope/" "rubinius/" "replace_string.rb" "redis/" "rebuilding-rails-free/" "realtime/" "rake/" "Rails/" "rack/" "performance/" "object_address.rb" "network/" "mvc/" "mongodb/" "metaprogramming/" "kevin.wang/" "john_ruby.yaml" "homebrew-nginx.rb" "heap.json" "god/" "get_attendee_resys.rb" "gems/" "GameRubyAI.rb" "fp_style/" "flipfloprb" "excel_csv/" "eloquent_ruby/" "dRuby/" "download_railcasts_video.rb" "douban-login.rb" "dm/" "creature.rb" "compwr.rb" "command-line/" "c_extend/" "basic_knowledges/" "Asyncs/" "ascii_code.rb" "arel_table.rb" "amazon_free_ebooks/" "51qiangzuo.rb" "10_things_you_didnot_know_ruby_could_do/" ".DS_Store" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/live_assets/lib/live_assets/" (21259 15903 0 0) "version.rb" "live_assets.rb" "engine.rb" "../" "./")
+
+ ("/Users/" (21244 10483 0 0) "Shared/" "leslie/" ".localized" ".DS_Store" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/configuration-management/" (20853 61235 0 0) "ansible/" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/live_assets/" (21257 60365 0 0) "test/" "README.rdoc" "Rakefile" "MIT-LICENSE" "live_assets.gemspec" "lib/" "Gemfile.lock" "Gemfile" "config/" "bin/" "app/" ".gitignore" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/" (21257 60346 0 0) "templater/" "template/" "pdf_render/" "mail_form_v3/" "mail_form/" "live_assets/" "handlers/" ".DS_Store" "../" "./")
+
+ ("/Users/leslie/codes/report_center/" (21259 6383 0 0) "vendor/" "tmp/" "spec/" "script/" "README.rdoc" "Rakefile" "public/" "log/" "lib/" "Gemfile.lock" "Gemfile" "doc/" "db/" "config.ru" "config/" "Capfile" "app/" ".rvmrc" ".rspec" ".gitignore" ".git/" "../" "./")
+
+ ("/Users/leslie/codes/report_center/app/" (21243 21214 0 0) "views/" "models/" "mailers/" "helpers/" "controllers/" "assets/" "../" "./")
+
+ ("/Users/leslie/codes/report_center/app/models/" (21243 21214 0 0) "takeda_plato_raw.rb" "takeda_plato.rb" "stat.rb" "roche_tsa_raw.rb" "roche_tsa.rb" "params_manager.rb" "hongkong_takeda_plato.rb" "async_task.rb" ".gitkeep" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/generators/merb/mailer/templates/" (21255 8415 0 0) "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/generators/merb/mailer/" (21255 8415 0 0) "templates/" "mailer_generattor.rb" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/generators/merb/" (21255 8218 0 0) "mailer/" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/generators/" (21255 8218 0 0) "merb/" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/" (21255 8182 0 0) "tasks/" "handlers.rb" "handlers/" "generators/" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/integration/" (21254 65078 0 0) "rendering_test.rb" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/views/handlers/" (21255 1125 0 0) "string_handler.html.string" "rdiscount.html.md" "rb_handler.html.rb" "merb.text.merb" "merb.html.merb" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/views/notifier/" (21254 63438 0 0) "contact.merb" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/views/" (21254 63409 0 0) "notifier/" "layouts/" "handlers/" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/mailers/" (21254 63326 0 0) "notifier.rb" ".keep" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/" (21253 25668 0 0) "test/" "README.rdoc" "Rakefile" "MIT-LICENSE" "lib/" "handlers.gemspec" "Gemfile.lock" "Gemfile" ".gitignore" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/lib/handlers/" (21252 2244 0 0) "version.rb" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/controllers/" (21252 38412 0 0) "handlers_controller.rb" "concerns/" "application_controller.rb" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/app/" (21252 2232 0 0) "views/" "models/" "mailers/" "helpers/" "controllers/" "assets/" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/test/fixtures/" (21248 33830 0 0) "users.yml" "sql_templates.yml" ".keep" "../" "./")
+
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/assets/javascripts/" (21248 36460 0 0) "welcome.js.coffee" "users.js.coffee" "posts.js.coffee" "posts.js" "comments.js.coffee" "application.js" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/app/controllers/" (21252 2244 0 0) "users_controller.rb" "sql_templates_controller.rb" "concerns/" "cms_controller.rb" "cms_controller (Leslie's conflicted copy 2014-02-18).rb" "application_controller.rb" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/dummy/" (21252 2232 0 0) "tmp/" "README.rdoc" "Rakefile" "public/" "log/" "lib/" "db/" "config.ru" "config/" "bin/" "app/" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/handlers/test/" (21252 2244 0 0) "test_helper.rb" "integration/" "handlers_test.rb" "dummy/" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/app/models/" (21248 34550 0 0) "user.rb" "sql_template.rb" "concerns/" ".keep" "../" "./")
+
+ ("/Users/leslie/codes/plato/" (21249 56907 0 0) "vendor/" "unicorn.sh.example" "trash/" "tmp/" "tags" "spec/" "script/" "routes" "README.rdoc" "Rakefile" "public/" "log/" "lib/" "Gemfile.lock" "Gemfile" "features/" "engine/" "doc/" "db/" "course_dash/" "config.ru" "config/" "Capfile" "app/" ".rvmrc" ".rspec" ".idea/" ".gitignore" ".git/" ".DS_Store" ".cdn_token_file.example" ".cdn_token_file" ".bundle/" "../" "./")
+
+ ("/Users/leslie/codes/" (21244 44395 0 0) "wenku/" "wenda_webapp/" "wenda_aprovel_new_svn/" "wenda/" "video_transfer/" "video_service/" "vendor/" "user_passport/" "uasthree/" "uas/" "tweeter/" "tsa_course_core/" "transfer-to-edr-git.rb" "the-world-as-we-know-it.jpg" "test_paper/" "test/" "tabmixplus/" "survey_with_namespace/" "survey/" "sms/" "SimpleCaptcha3/" "signature_app/" "short_url.zip" "short_url/" "search/" "ruby_code/" "Rubinius/" "rose_3d.js" "rose.html" "romance_services/" "romance.zip" "romance/" "Rocaltrol/" "report_service/" "report_center/" "rails_elf/" "rails-engine/" "rails-api/" "public/" "project_config/" "plato_wenda/" "plato_webapp/" "plato_gc/" "plato_core/" "plato/" "open_class_old/" "open_class_activities/" "old_svn_wenda_aprovel/" "old_epico_course/" "nero/" "mysql-connector-license.txt" "mysql-connector-java-5.1.18-bin.jar" "moviecool/" "mongoid_taggable_with_context/" "mongo_reports/" "mms/" "medicine/" "log/" "livecast/" "live_broadcast/" "lenskit/" "JRuby/" "joh/" "jenny/" "ical/" "hospital_sphinx/" "gitosis-admin/" "github_blog/" "git_edoctor_cn/" "gc_core/" "formal_survey/" "examination/" "eva/" "eRails/" "epico_course2/" "epico_course/" "elive-obj-c/" "edr-assets/" "edoctor_sms/" "edoctor_cn/" "edoctor_case/" "ed_reader/" "ed_case/" "ecloud/" "deploy_helper/" "demo_examination/" "daemons/" "curl_joh/" "crawler_stat/" "course_core/" "course_api/" "course/" "change_git.rb" "bpinstitute/" "ask_aprovel/" "app_upload/" "app_store.zip" "app_store/" "_edr_assets/" ".DS_Store" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/" (21248 32998 0 0) "vendor/" "tmp/" "test/" "README.rdoc" "Rakefile" "public/" "log/" "lib/" "Gemfile.lock" "Gemfile" "db/" "config.ru" "config/" "bin/" "app/" ".gitignore" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/test/integration/" (21249 42391 0 0) "cms_test.rb" ".keep" "../" "./")
+
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/" (21248 29994 0 0) "vendor/" "tmp/" "test/" "README.rdoc" "README.md" "Rakefile" "public/" "log/" "lib/" "Gemfile.lock" "Gemfile" "db/" "config.ru" "config/" "bin/" "app/" ".gitignore" ".git/" "../" "./")
+
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/views/posts/" (21248 29046 0 0) "show.json.jbuilder" "show.html.erb" "new.html.erb" "index.json.jbuilder" "index.html.erb" "edit.html.erb" "_form.html.erb" "../" "./")
+
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/assets/" (21246 64925 0 0) "stylesheets/" "javascripts/" "images/" "../" "./")
+
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/views/" (21246 64925 0 0) "welcome/" "users/" "posts/" "layouts/" "comments/" "../" "./")
+
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/controllers/" (21246 65159 0 0) "welcome_controller.rb" "users_controller.rb" "posts_controller.rb" "concerns/" "comments_controller.rb" "application_controller.rb" "../" "./")
+
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/blogger/app/" (21246 64925 0 0) "views/" "models/" "mailers/" "helpers/" "controllers/" "assets/" "../" "./")
+
+ ("/Users/leslie/kuaipan/MyCodeBase/Demos/" (21246 64925 0 0) "blogger/" "../" "./")
+
+ ("/Users/leslie/kuaipan/MyCodeBase/" (21246 64925 0 0) "Test/" "nodejs/" "github/" "Demos/" "../" "./")
+
+ ("/Users/leslie/kuaipan/" (21244 14185 0 0) "杂七杂八/" "我的在线文档(从WPS在线文档迁移)/" "小论文/" "图片/" "养生/" "他山之石/" "Zotero/" "works/" "Useful Tools/" "T盘迁移的文件/" "surveyor.md" "study/" "source_code/" "Software/" "Randy.wav" "Programming/" "Notes/" "MyCodeBase/" "mima/" "Linux/" "Library/" "LaTex模板/" "Icon
+" "Go Easy on Yourself, a New Wave of Research Urges.doc" "Entainments/" "English/" "Configuration/" "CintaNotes/" "booklist/" "BitSync/" "amazon/" "[Pictures]/" "[MobileBackup]/" ".DS_Store" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/test/" (21245 32058 0 0) "test_helper.rb" "models/" "mailers/" "integration/" "helpers/" "fixtures/" "controllers/" "../" "./")
+
+ ("/Users/leslie/Dropbox/Programming/Ruby/CraftingRailsApplication/templater/app/" (21245 32052 0 0) "views/" "models/" "mailers/" "helpers/" "controllers/" "assets/" "../" "./")
+)
+
+;; ----- ido-unc-hosts-cache -----
+t
