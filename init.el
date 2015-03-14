@@ -164,4 +164,4 @@
 ;; coding: utf-8
 ;; no-byte-compile: 
 ;; End:
-
+(setq use-dialog-box nil)
