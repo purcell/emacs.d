@@ -14,6 +14,7 @@
 
 (add-hook 'ibuffer-hook 'ibuffer-set-up-preferred-filters)
 
+(setq-default ibuffer-show-empty-filter-groups nil)
 
 
 (after-load 'ibuffer
