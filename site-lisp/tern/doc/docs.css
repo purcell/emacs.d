@@ -1,0 +1,142 @@
+@font-face {
+  font-family: 'Signika';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Signika-Bold'), url(http://themes.googleusercontent.com/static/fonts/signika/v3/7M5kxD4eGxuhgFaIk95pBRsxEYwM7FgeyaSgU71cLG0.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Ubuntu Mono';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Ubuntu Mono'), local('UbuntuMono-Regular'), url('http://themes.googleusercontent.com/static/fonts/ubuntumono/v3/ViZhet7Ak-LRXZMXzuAfkYbN6UDyHWBl620a-IRfuBk.woff') format('woff');
+}
+
+body {
+  font-family: "Helvetica Neue", "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, sans-serif;
+  color: #222;
+  font-size: 11pt;
+  max-width: 700px;
+  margin: 0 0 0 60px;
+  padding: 60px 0 4em;
+}
+
+#top {
+  position: fixed;
+  top: 0;
+  background: white;
+  padding-top: 15px;
+  left: 20px; right: 20px;
+  z-index: 5;
+}
+
+#head {
+  border-radius: 5px;
+  background: #1c5b64;
+  box-shadow: 0px 3px 3px rgba(0, 0, 0, .5);
+  position: relative;
+  font-family: "Signika", sans-serif;
+  font-weight: 700;
+}
+
+#head > a {
+  border-right: 1px solid #276c81;
+  display: inline-block;
+  height: 25px;
+  padding: 5px 20px;
+  color: white;
+  text-decoration: none;
+  line-height: 25px;
+  font-size: 17px;
+}
+
+#head > a.title {
+  font-size: 20px;
+  line-height: 24px;
+  padding-left: 80px;
+  background: url(logo.png);
+  background-position: 40px center;
+  background-size: auto 80%;
+  background-repeat: no-repeat;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+}
+
+#head > a:hover {
+  background-color: #276c81 !important;
+}
+
+.title span {
+  font-size: 13px;
+}
+
+code, pre { font-family: "Ubuntu Mono", monospace; }
+code { color: #124f55; font-size: 110%; }
+pre {
+  border-left: 3px solid #def;
+  padding: 2px 0 2px 10px;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Signika", sans-serif;
+  font-weight: 700;
+  color: #124f55;
+}
+h1 { font-size: 20pt; }
+h2 { font-size: 17pt; }
+h3 { font-size: 13pt; }
+h4 { font-size: 11pt; }
+
+a, a:visited, a code { color: #df4c11; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+ul, ol {
+  margin: 0;
+  padding: 0;
+}
+li {
+  margin-left: 1.5em;
+  padding: 0;
+}
+
+li p { margin: 0; }
+dd p:first-child { margin-top: 1px; }
+dd { margin-left: 20px; }
+dt { text-indent: -1em; padding-left: 1em; }
+
+a[id] {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  top: -60px;
+}
+
+.release-note {
+  margin-left: 1em;
+}
+ 
+/* CodeMirror default theme for highlighting */
+
+.cm-s-default .cm-keyword {color: #708;}
+.cm-s-default .cm-atom {color: #219;}
+.cm-s-default .cm-number {color: #164;}
+.cm-s-default .cm-def {color: #00f;}
+.cm-s-default .cm-variable {color: black;}
+.cm-s-default .cm-variable-2 {color: #05a;}
+.cm-s-default .cm-variable-3 {color: #085;}
+.cm-s-default .cm-property {color: black;}
+.cm-s-default .cm-operator {color: black;}
+.cm-s-default .cm-comment {color: #a50;}
+.cm-s-default .cm-string {color: #a11;}
+.cm-s-default .cm-string-2 {color: #f50;}
+.cm-s-default .cm-meta {color: #555;}
+.cm-s-default .cm-error {color: #f00;}
+.cm-s-default .cm-qualifier {color: #555;}
+.cm-s-default .cm-builtin {color: #30a;}
+.cm-s-default .cm-bracket {color: #997;}
+.cm-s-default .cm-tag {color: #170;}
+.cm-s-default .cm-attribute {color: #00c;}
+.cm-s-default .cm-header {color: blue;}
+.cm-s-default .cm-quote {color: #090;}
+.cm-s-default .cm-hr {color: #999;}
+.cm-s-default .cm-link {color: #00c;}

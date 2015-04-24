@@ -17,7 +17,7 @@
 (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 
 ;; Use C-x C-m to do M-x per Steve Yegge's advice
-(global-set-key (kbd "C-x C-m") 'smex)
+;;(global-set-key (kbd "C-x C-m") 'smex)
 
 ;; Expand region (increases selected region by semantic units)
 (global-set-key (kbd "C-'") 'er/expand-region)
@@ -27,21 +27,21 @@
 (global-set-key (kbd "C-S-c C-e") 'mc/edit-ends-of-lines)
 (global-set-key (kbd "C-S-c C-a") 'mc/edit-beginnings-of-lines)
 
-;; Mark additional regions matching current region
-(global-set-key (kbd "M-æ") 'mc/mark-all-dwim)
-(global-set-key (kbd "C-å") 'mc/mark-previous-like-this)
-(global-set-key (kbd "C-æ") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-Æ") 'mc/mark-more-like-this-extended)
-(global-set-key (kbd "M-å") 'mc/mark-all-in-region)
-
-;; Symbol and word specific mark-more
-(global-set-key (kbd "s-æ") 'mc/mark-next-word-like-this)
-(global-set-key (kbd "s-å") 'mc/mark-previous-word-like-this)
-(global-set-key (kbd "M-s-æ") 'mc/mark-all-words-like-this)
-(global-set-key (kbd "s-Æ") 'mc/mark-next-symbol-like-this)
-(global-set-key (kbd "s-Å") 'mc/mark-previous-symbol-like-this)
-(global-set-key (kbd "M-s-Æ") 'mc/mark-all-symbols-like-this)
-
+;;;; Mark additional regions matching current region
+;;(global-set-key (kbd "M-æ") 'mc/mark-all-dwim)
+;;(global-set-key (kbd "C-å") 'mc/mark-previous-like-this)
+;;(global-set-key (kbd "C-æ") 'mc/mark-next-like-this)
+;;(global-set-key (kbd "C-Æ") 'mc/mark-more-like-this-extended)
+;;(global-set-key (kbd "M-å") 'mc/mark-all-in-region)
+;;
+;;;; Symbol and word specific mark-more
+;;(global-set-key (kbd "s-æ") 'mc/mark-next-word-like-this)
+;;(global-set-key (kbd "s-å") 'mc/mark-previous-word-like-this)
+;;(global-set-key (kbd "M-s-æ") 'mc/mark-all-words-like-this)
+;;(global-set-key (kbd "s-Æ") 'mc/mark-next-symbol-like-this)
+;;(global-set-key (kbd "s-Å") 'mc/mark-previous-symbol-like-this)
+;;(global-set-key (kbd "M-s-Æ") 'mc/mark-all-symbols-like-this)
+;;
 ;; Extra multiple cursors stuff
 (global-set-key (kbd "C-~") 'mc/reverse-regions)
 (global-set-key (kbd "M-~") 'mc/sort-regions)
@@ -109,6 +109,9 @@
 ;; Make shell more convenient, and suspend-frame less
 (global-set-key (kbd "C-z") 'shell)
 (global-set-key (kbd "C-x M-z") 'suspend-frame)
+(global-set-key (kbd "C-x C-m") 'toggle-frame-maximized)
+
+
 
 ;; Zap to char
 (global-set-key (kbd "M-z") 'zap-up-to-char)
@@ -311,32 +314,32 @@
 ;; Find file in project
 (global-set-key (kbd "C-x o") 'find-file-in-project)
 
-;; Find file in project, with specific patterns
-;;(global-unset-key (kbd "C-x C-o")) ;; which used to be delete-blank-lines (also bound to C-c C-<return>)
-;;(global-set-key (kbd "C-x C-o ja") (ffip-create-pattern-file-finder "*.java"))
-;;(global-set-key (kbd "C-x C-o js") (ffip-create-pattern-file-finder "*.js"))
-;;(global-set-key (kbd "C-x C-o ht") (ffip-create-pattern-file-finder "*.html"))
-;;(global-set-key (kbd "C-x C-o jp") (ffip-create-pattern-file-finder "*.jsp"))
-;;(global-set-key (kbd "C-x C-o cs") (ffip-create-pattern-file-finder "*.css"))
-;;(global-set-key (kbd "C-x C-o ft") (ffip-create-pattern-file-finder "*.feature"))
-;;(global-set-key (kbd "C-x C-o cl") (ffip-create-pattern-file-finder "*.clj"))
-;;(global-set-key (kbd "C-x C-o el") (ffip-create-pattern-file-finder "*.el"))
-;;(global-set-key (kbd "C-x C-o ed") (ffip-create-pattern-file-finder "*.edn"))
-;;(global-set-key (kbd "C-x C-o md") (ffip-create-pattern-file-finder "*.md"))
-;;(global-set-key (kbd "C-x C-o rb") (ffip-create-pattern-file-finder "*.rb"))
-;;(global-set-key (kbd "C-x C-o or") (ffip-create-pattern-file-finder "*.org"))
-;;(global-set-key (kbd "C-x C-o ph") (ffip-create-pattern-file-finder "*.php"))
-;;(global-set-key (kbd "C-x C-o tx") (ffip-create-pattern-file-finder "*.txt"))
-;;(global-set-key (kbd "C-x C-o vm") (ffip-create-pattern-file-finder "*.vm"))
-;;(global-set-key (kbd "C-x C-o xm") (ffip-create-pattern-file-finder "*.xml"))
-;;(global-set-key (kbd "C-x C-o in") (ffip-create-pattern-file-finder "*.ini"))
-;;(global-set-key (kbd "C-x C-o pr") (ffip-create-pattern-file-finder "*.properties"))
-;;(global-set-key (kbd "C-x C-o in") (ffip-create-pattern-file-finder "*.ini"))
-;;(global-set-key (kbd "C-x C-o gr") (ffip-create-pattern-file-finder "*.groovy"))
-;;(global-set-key (kbd "C-x C-o ga") (ffip-create-pattern-file-finder "*.gradle"))
-;;(global-set-key (kbd "C-x C-o sc") (ffip-create-pattern-file-finder "*.scala"))
-;;(global-set-key (kbd "C-x C-o co") (ffip-create-pattern-file-finder "*.conf"))
-;;(global-set-key (kbd "C-x C-o !") (ffip-create-pattern-file-finder "*"))
+;;Find file in project, with specific patterns
+(global-unset-key (kbd "C-x C-o")) ;; which used to be delete-blank-lines (also bound to C-c C-<return>)
+(global-set-key (kbd "C-x C-o ja") (ffip-create-pattern-file-finder "*.java"))
+(global-set-key (kbd "C-x C-o js") (ffip-create-pattern-file-finder "*.js"))
+(global-set-key (kbd "C-x C-o ht") (ffip-create-pattern-file-finder "*.html"))
+(global-set-key (kbd "C-x C-o jp") (ffip-create-pattern-file-finder "*.jsp"))
+(global-set-key (kbd "C-x C-o cs") (ffip-create-pattern-file-finder "*.css"))
+(global-set-key (kbd "C-x C-o ft") (ffip-create-pattern-file-finder "*.feature"))
+(global-set-key (kbd "C-x C-o cl") (ffip-create-pattern-file-finder "*.clj"))
+(global-set-key (kbd "C-x C-o el") (ffip-create-pattern-file-finder "*.el"))
+(global-set-key (kbd "C-x C-o ed") (ffip-create-pattern-file-finder "*.edn"))
+(global-set-key (kbd "C-x C-o md") (ffip-create-pattern-file-finder "*.md"))
+(global-set-key (kbd "C-x C-o rb") (ffip-create-pattern-file-finder "*.rb"))
+(global-set-key (kbd "C-x C-o or") (ffip-create-pattern-file-finder "*.org"))
+(global-set-key (kbd "C-x C-o ph") (ffip-create-pattern-file-finder "*.php"))
+(global-set-key (kbd "C-x C-o tx") (ffip-create-pattern-file-finder "*.txt"))
+(global-set-key (kbd "C-x C-o vm") (ffip-create-pattern-file-finder "*.vm"))
+(global-set-key (kbd "C-x C-o xm") (ffip-create-pattern-file-finder "*.xml"))
+(global-set-key (kbd "C-x C-o in") (ffip-create-pattern-file-finder "*.ini"))
+(global-set-key (kbd "C-x C-o pr") (ffip-create-pattern-file-finder "*.properties"))
+(global-set-key (kbd "C-x C-o in") (ffip-create-pattern-file-finder "*.ini"))
+(global-set-key (kbd "C-x C-o gr") (ffip-create-pattern-file-finder "*.groovy"))
+(global-set-key (kbd "C-x C-o ga") (ffip-create-pattern-file-finder "*.gradle"))
+(global-set-key (kbd "C-x C-o sc") (ffip-create-pattern-file-finder "*.scala"))
+(global-set-key (kbd "C-x C-o co") (ffip-create-pattern-file-finder "*.conf"))
+(global-set-key (kbd "C-x C-o !") (ffip-create-pattern-file-finder "*"))
 
 ;; View occurrence in occur mode
 (define-key occur-mode-map (kbd "v") 'occur-mode-display-occurrence)
@@ -382,21 +385,19 @@
 (global-set-key (kbd "M-i") 'back-to-indentation)
 
 
-;;(define-key html-mode-map (kbd "C-t C-d") 'tagedit-disable-experimental-features)
-;;(define-key html-mode-map (kbd "C-t C-e") 'tagedit-add-experimental-features)
+(define-key html-mode-map (kbd "C-t C-d") 'tagedit-disable-experimental-features)
+(define-key html-mode-map (kbd "C-t C-e") 'tagedit-add-experimental-features)
+(define-key html-mode-map (kbd "C-<right>") 'tagedit-forward-slurp-tag)
+(define-key html-mode-map (kbd "C-<left>") 'tagedit-forward-barf-tag)
+(define-key html-mode-map (kbd "M-r") 'tagedit-raise-tag)
+(define-key html-mode-map (kbd "M-s") 'tagedit-splice-tag)
+(define-key html-mode-map (kbd "M-J") 'tagedit-join-tags)
+(define-key html-mode-map (kbd "M-S") 'tagedit-split-tag)
+(define-key html-mode-map (kbd "M-?") 'tagedit-convolute-tags)
+(define-key html-mode-map (kbd "C-k") 'tagedit-kill)
+(define-key html-mode-map (kbd "S-k") 'tagedit-kill-attribute)
 
-;;(define-key html-mode-map (kbd "C-<right>") 'tagedit-forward-slurp-tag)
-;;(define-key html-mode-map (kbd "C-<left>") 'tagedit-forward-barf-tag)
-;;(define-key html-mode-map (kbd "M-r") 'tagedit-raise-tag)
-;;(define-key html-mode-map (kbd "M-s") 'tagedit-splice-tag)
-;;(define-key html-mode-map (kbd "M-J") 'tagedit-join-tags)
-;;(define-key html-mode-map (kbd "M-S") 'tagedit-split-tag)
-;;(define-key html-mode-map (kbd "M-?") 'tagedit-convolute-tags)
-;;(define-key html-mode-map (kbd "C-k") 'tagedit-kill)
-
-;;(define-key html-mode-map (kbd "S-k") 'tagedit-kill-attribute)
-
-;; key bindings for org
+;;key bindings for org
 ;;(global-set-key (kbd "<f12>") 'org-agenda) ;; configured blew
 (global-set-key (kbd "<f9> c") 'calendar)
 (global-set-key (kbd "<f9> v") 'visible-mode)

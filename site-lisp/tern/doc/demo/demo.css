@@ -1,0 +1,89 @@
+.CodeMirror {
+  border: 1px solid silver;
+  height: 400px;
+  line-height: 1.3;
+  font-size: 14pt;
+  font-family: "Ubuntu Mono";
+  z-index: 2;
+}
+.CodeMirror pre {
+  padding: 0 9px;
+}
+.CodeMirror-linenumber {
+  font-size: 80%;
+  padding-top: 2px;
+}
+
+ul.tabs {
+  list-style: none;
+  margin: 0 0 -1px 0;
+  padding: 0 0 0 37px;
+  font-family: "Ubuntu Mono";
+  overflow: hidden;
+}
+ul.tabs li {
+  font-size: 11pt;
+  color: #777;
+  cursor: pointer;
+  margin: 0 2px 0 0;
+  padding: 2px 10px 5px;
+  border: 1px solid silver;
+  border-bottom-width: 0px;
+  background: #f3f3f3;
+  display: inline-block;
+  z-index: 1;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  position: relative;
+}
+ul.tabs li:hover {
+  color: #444;
+}
+ul.tabs li.selected {
+  background: white;
+  color: #222;
+  z-index: 3;
+  cursor: default;
+}
+ul.tabs li:before,
+ul.tabs li:after {
+  position: absolute;
+  bottom: 0;
+  width: 6px;
+  height: 6px;
+  content: " ";
+  border: 1px solid silver;
+}
+ul.tabs li:before {
+  left: -7px;
+  border-bottom-right-radius: 6px;
+  border-width: 0 1px 1px 0;
+  box-shadow: 2px 2px 0 #f3f3f3;
+}
+ul.tabs li:after {
+  right: -7px;
+  border-bottom-left-radius: 6px;
+  border-width: 0 0 1px 1px;
+  box-shadow: -2px 2px 0 #f3f3f3;
+}
+ul.tabs li.selected:before {
+  box-shadow: 2px 2px 0 white;
+}
+ul.tabs li.selected:after {
+  box-shadow: -2px 2px 0 white;
+}
+
+#commands {
+  font-family: "Ubuntu Mono";
+  font-size: 11pt;
+  position: absolute;
+  right: 0;
+  top: 0;
+  max-width: 10em;
+}
+
+.CodeMirror div.CodeMirror-cursor {
+  border-left: 2px solid #444;
+}
+
+.CodeMirror-hint { font-size: 12pt; }

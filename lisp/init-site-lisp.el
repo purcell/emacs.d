@@ -12,6 +12,11 @@
               (directory-files (expand-file-name parent-dir) t "^[^\\.]"))
              load-path)))))
 
+
+;; Set path to dependencies
+(setq site-lisp-dir
+      (expand-file-name "site-lisp" user-emacs-directory))
+
 (sanityinc/add-subdirs-to-load-path
  (expand-file-name "site-lisp/" user-emacs-directory))
 

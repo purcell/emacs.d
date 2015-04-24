@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+var ts = require("../lib/typescript.js");
+var fs = require("fs"), path = require("path"), url = require("url");
+
+var arg = process.argv[2];
+if (!arg) { console.log("Usage: " + process.argv[1] + " (path|url)"); process.exit(1); }
+
+function fetch(target, redir) {
+  require(/^https/.test(target) ? "https" : "http").get(url.parse(target), function(resp) {
+    var body = "";
+    resp.setEncoding("utf8");
+    resp.on("data", function(d) { body += d; });
+    resp.on("end", function() {
+      if (resp.statusCode >= 400) { console.log("Could not fetch " + target + ":\n" + body); process.exit(1); }
+      if (resp.statusCode >= 300 && redir < 10 && resp.headers.location) return fetch(resp.headers.location, redir + 1);
+      finish(body, path.basename(target.slice(6)));
+    });
+  });
+}
+
+if (/^https?:/.test(arg))
+  fetch(arg, 0);
+else
+  finish(fs.readFileSync(arg, "utf8"), path.basename(arg));
+
+function finish(text, name) {
+  console.log(JSON.stringify(ts.translate(text, name), null, 2));
+}

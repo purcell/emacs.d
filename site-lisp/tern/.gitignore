@@ -1,0 +1,5 @@
+.tern-port
+/node_modules
+/misc
+*.elc
+*.pyc

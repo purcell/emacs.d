@@ -1,0 +1,1752 @@
+<!doctype html>
+<!-- This file is generated from src/*.txt. Do not edit by hand. -->
+<head>
+  <meta charset="utf-8">
+  <title>Tern Reference Manual</title>
+  <link rel="stylesheet" href="./docs.css" type="text/css">
+</head>
+<div id=top>
+  <div id=head>
+    <a href="http://ternjs.net" class=title>Tern: <span class=subtitle>Intelligent JavaScript tooling</span>
+    </a><a href="demo.html">Demo
+    </a><a href="manual.html">Docs
+    </a><a href="https://github.com/marijnh/tern">Code</a>
+  </div>
+</div>
+<h1>Tern Reference Manual</h1>
+<div id="preamble">
+<div class="sectionbody">
+<p> Tern consists of several components. Depending on what you are trying
+to do with it, you will be interested in a different layer. At the
+very top are the <a href="#editor">editor plugins</a>. These talk to a
+<a href="#server">Tern server</a>, which is implemented on top of the
+<a href="#server_api">server module</a>, which uses the <a href="#infer">inference engine</a> to do the actual type inference.</p>
+</div>
+</div>
+<h2> <a id="contents"></a>Contents</h2>
+<div class="ulist"><ul>
+<li>
+<p>
+<a href="#server">The Tern server</a>
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+<a href="#protocol">JSON protocol</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#server_api">Programming interface</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#typedef">JSON type definitions</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#plugins">Server plugins</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#configuration">Project configuration</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#utils">Utilities</a>
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+<a href="#infer">Inference engine</a>
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+<a href="#infer_context">Context</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#infer_analysis">Analysis</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#infer_types">Types</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#infer_aval">Abstract values</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#infer_constraint">Constraints</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#infer_scopes">Scopes</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#infer_util">Utilities</a>
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+<a href="#editor">Editor plugins</a>
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+<a href="#emacs">Emacs</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#vim">Vim</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#sublime_text">Sublime Text</a>
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+<a href="#software">Related Software</a>
+</p>
+</li>
+</ul></div>
+<h2> <a id="server"></a>The Tern server</h2>
+<p> The <code>bin/tern</code> <em>binary</em> (<a href="http://nodejs.org">node.js</a> script, really),
+is used to start a Tern server. You will usually want to let an
+<a href="#plugins">editor plugin</a> start it for you, but it can be started
+manually, which can be useful for debugging.</p>
+<p> (Note that the basic structure of the server is also available through
+a <a href="#server_api">programming interface</a>, and that some project,
+especially those running client-side in a browser, will want to use
+that instead of the HTTP server described here.)</p>
+<p>  <a id="project_file"></a>When started, the server will look for a <code>.tern-project</code> file in the
+current directory or one of the directories above that, and use it for
+its <a href="#configuration">configuration</a>. If no project file is found,
+it&#8217;ll fall back to an empty default configuration.</p>
+<p> A server write the port it is listening on (which is random) to
+standard output on startup. It will serve a <a href="#protocol">simple JSON protocol</a> via HTTP on that port. Clients can upload code and ask
+questions about the code through this protocol.</p>
+<p> The following command-line flags are supported:</p>
+<dl>
+<dt>
+<code>--port &lt;number&gt;</code>
+</dt>
+<dd>
+<p>
+Specify a port to listen on, instead of the
+default behavior of letting the OS pick a random unused port.
+</p>
+</dd>
+<dt>
+<code>--persistent</code>
+</dt>
+<dd>
+<p>
+By default, the server will shut itself down after
+five minutes of inactivity. Pass it a this option to disable
+auto-shutdown.
+</p>
+</dd>
+<dt>
+<code>--verbose</code>
+</dt>
+<dd>
+<p>
+Will cause the server to spit out information about the
+requests and responses that it handles, and any errors that are
+raised. Useful for debugging.
+</p>
+</dd>
+<dt>
+<code>--no-port-file</code>
+</dt>
+<dd>
+<p>
+The server won&#8217;t write a <code>.tern-port</code> file. Can be
+used if the port files are a problem for you. Will prevent other
+clients from finding the server (and may thus result in multiple
+servers for the same project).
+</p>
+</dd>
+</dl>
+<h3> <a id="protocol"></a>JSON protocol</h3>
+<p> Sending queries to a Tern server is done by making <code>POST</code> requests to
+the server&#8217;s port (using <code>/</code> as the requests&#8217;s path) with a
+<a href="http://json.org">JSON</a> document in the body of the request.</p>
+<p> This document should be an object, with two optional fields, <code>query</code>
+and <code>files</code>. The first describes the kind of information you want to
+ask for. It may be omitted if the request is only used to push new
+code to the server (in which case you&#8217;ll get an empty object, <code>{}</code> as
+response). The <code>files</code> property, if given, contains an array of file
+specifications, as described below. It may be omitted when the query
+should operate on the code that the server already has, without adding
+anything new.</p>
+<p> A query is an object with at least a <code>type</code> property, which determines
+what kind of query it is. Depending on the type, other properties must
+or may be present in order to provide further details.</p>
+<p> These are the queries that a Tern server understands by default.
+(Plug-ins may add custom query types.)</p>
+<dl>
+<dt>
+<a id="req_completions"></a><code>completions</code>
+</dt>
+<dd>
+<p>
+Asks the server for a set of completions at the given point.
+</p>
+<p> Accepted fields are:</p>
+<dl>
+<dt>
+<code>file</code>, <code>end</code> (required)
+</dt>
+<dd>
+<p>
+Specify the location to complete at.
+<a href="#loc_spec">See below</a>.
+</p>
+</dd>
+<dt>
+<code>types</code> (optional, default <code>false</code>)
+</dt>
+<dd>
+<p>
+Whether to include the types of
+the completions in the result data.
+</p>
+</dd>
+<dt>
+<code>depths</code> (optional, default <code>false</code>)
+</dt>
+<dd>
+<p>
+Whether to include the distance
+(in scopes for variables, in prototypes for properties) between the
+completions and the origin position in the result data.
+</p>
+</dd>
+<dt>
+<code>docs</code>, <code>urls</code>, <code>origins</code> (optional, default <code>false</code>)
+</dt>
+<dd>
+<p>
+Whether to
+include documentation strings, urls, and origin files (if found) in
+the result data.
+</p>
+</dd>
+<dt>
+<code>filter</code> (optional, default <code>true</code>)
+</dt>
+<dd>
+<p>
+When on, only completions that
+match the current word at the given point will be returned. Turn this
+off to get all results, so that you can filter on the client side.
+</p>
+</dd>
+<dt>
+<code>caseInsensitive</code> (optional, default <code>false</code>)
+</dt>
+<dd>
+<p>
+Whether to use a
+case-insensitive compare between the current word and potential
+completions.
+</p>
+</dd>
+<dt>
+<code>guess</code> (optional, default <code>true</code>)
+</dt>
+<dd>
+<p>
+When completing a property and no
+completions are found, Tern will use some heuristics to try and return
+some properties anyway. Set this to <code>false</code> to turn that off.
+</p>
+</dd>
+<dt>
+<code>sort</code> (optional, default <code>true</code>)
+</dt>
+<dd>
+<p>
+Determines whether the result set
+will be sorted.
+</p>
+</dd>
+<dt>
+<code>expandWordForward</code> (optional, default <code>true</code>)
+</dt>
+<dd>
+<p>
+When disabled, only
+the text <em>before</em> the given position is considered part of the word.
+When enabled (the default), the whole variable name that the cursor is
+on will be included.
+</p>
+</dd>
+<dt>
+<code>omitObjectPrototype</code> (optional, default <code>true</code>)
+</dt>
+<dd>
+<p>
+Whether to ignore
+the properties of <code>Object.prototype</code> unless they have been spelled out
+by at least to characters.
+</p>
+</dd>
+</dl>
+<p> The result returned will be an object with <code>start</code> and <code>end</code>
+properties, which give the start and end <a href="#offsets">offsets</a> of the word that was
+completed, and a <code>completions</code> property holding an array of
+completions. When one of the <code>types</code>, <code>depths</code>, <code>docs</code>, <code>urls</code>, or
+<code>origins</code> options was passed, the array will hold objects with a
+<code>name</code> property (the completion text), and, depending on the options,
+<code>type</code>, <code>depth</code>, <code>doc</code>, <code>url</code>, and <code>origin</code> properties. When none of
+these options are enabled, the result array will hold plain strings.</p>
+</dd>
+<dt>
+<a id="req_type"></a><code>type</code>
+</dt>
+<dd>
+<p>
+Query the type of something.
+</p>
+<dl>
+<dt>
+<code>file</code>, <code>end</code> (required), <code>start</code> (optional)
+</dt>
+<dd>
+<p>
+Specify the expression
+we want the type of. <a href="#loc_spec">See below</a>.
+</p>
+</dd>
+<dt>
+<code>preferFunction</code> (optional, default <code>false</code>)
+</dt>
+<dd>
+<p>
+Set to <code>true</code> when you
+are interested in a function type. This will cause function types to
+win when something has multiple types.
+</p>
+</dd>
+<dt>
+<code>depth</code> (optional, default <code>0</code>)
+</dt>
+<dd>
+<p>
+Determines how deep the type string
+must be expanded. Nested objects will only display property types up
+to this depth, and be represented by their type name or a
+representation showing only property names below it.
+</p>
+</dd>
+</dl>
+<p> The returned object will have the following properties:</p>
+<dl>
+<dt>
+<code>type</code> (string)
+</dt>
+<dd>
+<p>
+A description of the type of the value. May be <code>"?"</code>
+when no type was found.
+</p>
+</dd>
+<dt>
+<code>guess</code> (bool)
+</dt>
+<dd>
+<p>
+Whether the given type was guessed, or should be
+considered reliable.
+</p>
+</dd>
+<dt>
+<code>name</code> (string, optional)
+</dt>
+<dd>
+<p>
+The name associated with the type.
+</p>
+</dd>
+<dt>
+<code>exprName</code> (string, optional)
+</dt>
+<dd>
+<p>
+When the inspected expression was an
+identifier or a property access, this will hold the name of the
+variable or property.
+</p>
+</dd>
+<dt>
+<code>doc</code>, <code>url</code>, <code>origin</code> (strings, optional)
+</dt>
+<dd>
+<p>
+If the type had
+documentation and origin information associated with it, these will
+also be returned.
+</p>
+</dd>
+</dl>
+</dd>
+<dt>
+<a id="req_definition"></a><code>definition</code>
+</dt>
+<dd>
+<p>
+Asks for the definition of something.
+This will try, for a variable or property, to return the point at
+which it was defined. If that fails, or the chosen expression is not
+an identifier or property reference, it will try to return the
+definition site of the type the expression has. If no type is found,
+or the type is not an object or function (other types don&#8217;t store
+their definition site), it will fail to return useful information.
+</p>
+<p> Only takes <code>file</code>, <code>end</code> (required), and <code>start</code> (optional) fields to
+specify the expression you want the definition of. <a href="#loc_spec">See below</a>.</p>
+<p> The returned object will have the following properties:</p>
+<dl>
+<dt>
+<code>start</code>, <code>end</code> (<a href="#offsets">offsets</a>, optional)
+</dt>
+<dd>
+<p>
+The start and end positions of
+the definition.
+</p>
+</dd>
+<dt>
+<code>file</code> (string, optional)
+</dt>
+<dd>
+<p>
+The file in which the definition was
+defined.
+</p>
+</dd>
+<dt>
+<code>context</code> (string, optional), <code>contextOffset</code> (number, optional)
+</dt>
+<dd>
+<p>
+A
+slice of the code in front of the definition, and the offset from the
+start of the context to the actual definition. Can be used to find a
+definition&#8217;s location in a modified file.
+</p>
+</dd>
+<dt>
+<code>doc</code>, <code>url</code>, <code>origin</code> (strings, optional)
+</dt>
+<dd>
+<p>
+If the definition had
+documentation or an origin associated with it, it will be returned.
+</p>
+</dd>
+</dl>
+</dd>
+<dt>
+<a id="req_documentation"></a><code>documentation</code>
+</dt>
+<dd>
+<p>
+Get the documentation string
+and URL for a given expression, if any.
+</p>
+<p> Takes <code>file</code>, <code>end</code> (required), and <code>start</code> (optional) fields to
+specify the expression we are interested in. <a href="#loc_spec">See below</a>.</p>
+<p> Returns an object with the following properties:</p>
+<dl>
+<dt>
+<code>doc</code>, <code>url</code>, <code>origin</code> (strings, optional)
+</dt>
+<dd>
+<p>
+The documentation string,
+url, and the origin of the definition or value, if any.
+</p>
+</dd>
+</dl>
+</dd>
+<dt>
+<a id="req_refs"></a><code>refs</code>
+</dt>
+<dd>
+<p>
+Used to find all references to a given variable
+or property.
+</p>
+<p> Takes <code>file</code>, <code>end</code> (required), and <code>start</code> (optional) fields to
+specify the expression we are interested in. <a href="#loc_spec">See below</a>.</p>
+<p> Returns an object with a <code>name</code> property holding the name of the
+variable or property, a <code>refs</code> property holding an array of <code>{file,
+start, end}</code> objects, and, for variables, a <code>type</code> property holding
+either <code>"global"</code> or <code>"local"</code>.</p>
+</dd>
+<dt>
+<a id="req_rename"></a><code>rename</code>
+</dt>
+<dd>
+<p>
+Rename a variable in a scope-aware way.
+</p>
+<p> Takes <code>file</code>, <code>end</code> (required), and <code>start</code> (optional) fields to
+specify the variable we want to rename (<a href="#loc_spec">see below</a>), and a
+<code>newName</code> property that gives the new name of the variable.</p>
+<p> Returns an object whose <code>changes</code> property holds an array of <code>{file,
+start, end, text}</code> objects, which give the changes that must be
+performed to apply the rename. The client is responsible for doing the
+actual modification.</p>
+</dd>
+<dt>
+<a id="req_properties"></a><code>properties</code>
+</dt>
+<dd>
+<p>
+Get a list of all known object
+property names (for <em>any</em> object).
+</p>
+<dl>
+<dt>
+<code>prefix</code> (string, optional)
+</dt>
+<dd>
+<p>
+Causes the server to only return
+properties that start with the given string.
+</p>
+</dd>
+<dt>
+<code>sort</code> (optional, default <code>true</code>)
+</dt>
+<dd>
+<p>
+Whether the result should be sorted.
+</p>
+</dd>
+</dl>
+<p> The returned object will have a <code>completions</code> property holding an
+array of strings, which are the property names.</p>
+</dd>
+<dt>
+<a id="req_files"></a><code>files</code>
+</dt>
+<dd>
+<p>
+Get the files that the server currently holds
+in its set of analyzed files.
+</p>
+<p> Does not take any parameters. Returns an object with a <code>files</code>
+property holding an array of strings (the file names).</p>
+</dd>
+<dt>
+<a id="req_node_exports"></a><code>node_exports</code>
+</dt>
+<dd>
+<p>
+Only available when the
+<a href="#plugin_node">node.js plugin</a> is loaded. Get the exported type of a
+node module file.
+</p>
+<p> Takes a <code>file</code> field to indicate the file to query for. Returns an
+object with <code>type</code>, and optional <code>url</code>, <code>doc</code>, <code>origin</code>, <code>start, and
+`end</code> properties indicating the type and metainformation for the
+exports, plus, if the exported value is an object type, a <code>props</code>
+property containing an object mapping property names of this object to
+objects holding information about the types of the properties, again
+containing <code>type</code> and optional <code>url</code>, <code>doc</code>, <code>origin</code>, <code>start</code>, and
+<code>end</code> fields.</p>
+</dd>
+</dl>
+<p> <a id="loc_spec"></a> When specifying a location, which is needed for most of
+the query types, the required <code>file</code> field may hold either a filename,
+or a string in the form <code>"#N"</code>, where <code>N</code> should be an integer
+referring to one of the files included in the request (more on that
+<a href="#protocol_files">later</a>). The required <code>end</code> field is an offset into
+this file, either a number or a <code>{line, ch}</code> object. It should point
+at the end of the expression the request is interested in, or
+somewhere inside of it if that doesn&#8217;t end up pointing inside a
+sub-expression (in which case the inner expression would be used). An
+optional <code>start</code> field can be used to disambiguate between
+expressions—if given, the innermost expression that spans the range
+between start and end will be used.</p>
+<p> <a id="offsets"></a> Offsets into a file can be either (zero-based) integers, or <code>{line,
+ch}</code> objects, where both <code>line</code> and <code>ch</code> are zero-based integers.
+Offsets returned by the server will be integers, unless the
+<code>lineCharPositions</code> field in the request was set to <code>true</code>, in which
+case they will be <code>{line, ch}</code> objects.</p>
+<p> <a id="variable"></a> Requests that take an input expression also accept a
+<code>variable</code> field which, when given, will cause the server to not look
+for an expression in the code, but to make up a variable expression
+with the given name. This does not remove the need to pass in an
+<code>end</code>, since that will be used to determine the scope in which the
+variable is interpreted.</p>
+<p> <a id="protocol_files"></a> The <code>files</code> property of a request must, if present,
+hold an array of file descriptions. These can be complete files, which
+have a <code>type</code> property holding <code>"full"</code> and <code>name</code> and <code>text</code>
+properties holding strings. Complete files will be stored by the
+server and can be reused in later requests.</p>
+<p> Alternatively, you can pass in partial files. This is useful when
+needing to perform a query on a large file without re-uploading and
+re-analyzing the whole file. A partial file has a <code>type</code> property
+holding the string <code>"part"</code>, a <code>text</code> property holding some slice of
+the file (starting at a line boundary), a <code>name</code> property referring to
+an existing file, and an <code>offset</code> property, either an integer or a
+<code>{line, ch}</code> object, indicating the approximate position of the
+fragment in the file.</p>
+<h3> <a id="server_api"></a>Programming interface</h3>
+<p> <a id="tern.Server"></a> The base server (without HTTP or configuration-file
+reading) is implemented in <code>lib/tern.js</code>. That package exposes a
+<code>Server</code> constructor that can be used to create a server. It takes an
+object holding configuration options options as argument. These are
+recognized (all have a default):</p>
+<dl>
+<dt>
+<a id="option_defs"></a> <code>defs</code> (array of strings)
+</dt>
+<dd>
+<p>
+The <a href="#typedef">definition</a>
+objects to load into the server&#8217;s environment.
+</p>
+</dd>
+<dt>
+<a id="option_plugins"></a> <code>plugins</code> (object)
+</dt>
+<dd>
+<p>
+Specifies the set of
+<a href="#plugins">plugins</a> that the server should load. The property names of
+the object name the plugins, and their values hold options that will
+be passed to them.
+</p>
+</dd>
+<dt>
+<a id="option_getFile"></a> <code>getFile</code> (function)
+</dt>
+<dd>
+<p>
+Provides a way for the
+server to try and fetch the content of files. Depending on the <code>async</code>
+option, this is either a function that takes a filename and returns a
+string (when not <code>async</code>), or a function that takes a filename and a
+callback, and calls the callback with an optional error as the first
+argument, and the content string (if no error) as the second.
+</p>
+</dd>
+<dt>
+<a id="option_async"></a> <code>async</code> (bool)
+</dt>
+<dd>
+<p>
+Indicates whether <code>getFile</code> is
+asynchronous. Default is <code>false</code>.
+</p>
+</dd>
+<dt>
+<a id="option_fetchTimeout"></a> <code>fetchTimeout</code> (number)
+</dt>
+<dd>
+<p>
+Indicates the
+maximum amount of milliseconds to wait for an asynchronous <code>getFile</code>
+before giving up on it. Defaults to <code>1000</code>.
+</p>
+</dd>
+</dl>
+<p> A server object has the following methods:</p>
+<dl>
+<dt>
+<a id="tern.Server.addFile"></a> <code>addFile(name: string, text?: string)</code>
+</dt>
+<dd>
+<p>
+Register a file with the server. Note that files can also be
+<a href="#protocol_files">included</a> in requests.
+</p>
+</dd>
+<dt>
+<a id="tern.Server.delFile"></a> <code>delFile(name: string)</code>
+</dt>
+<dd>
+<p>
+Unregister a file.
+</p>
+</dd>
+<dt>
+<a id="tern.Server.request"></a> <code>request(doc: object, callback: fn(error, response))</code>
+</dt>
+<dd>
+<p>
+Perform a request. <code>doc</code> is a (parsed) JSON document as described in
+the <a href="#protocol">protocol documentation</a>. The <code>callback</code> function will
+be called when the request completes. If an error occurred, it will be
+passed as a first argument. Otherwise, the resonse (parsed) JSON
+object will be passed as second argument.
+</p>
+<p> When the server hasn&#8217;t been configured to be
+<a href="#option_async">asynchronous</a>, the callback will be called before
+<code>request</code> returns.</p>
+</dd>
+<dt>
+<a id="tern.Server.flush"></a> <code>flush(callback: fn())</code>
+</dt>
+<dd>
+<p>
+Forces all files to be
+fetched an analyzed, and then calls the callback function.
+</p>
+</dd>
+<dt>
+<a id="tern.Server.on"></a> <code>on(eventType: string, handler: fn())</code>
+</dt>
+<dd>
+<p>
+Register
+an event handler for the named type of event.
+</p>
+</dd>
+<dt>
+<a id="tern.Server.off"></a> <code>off(eventType: string, handler: fn())</code>
+</dt>
+<dd>
+<p>
+Unregister an event handler.
+</p>
+</dd>
+</dl>
+<p> The server fires the following type of events (mostly useful for
+plugins):</p>
+<dl>
+<dt>
+<a id="event_reset"></a> <code>reset ()</code>
+</dt>
+<dd>
+<p>
+When the server throws away its current
+analysis data and starts a fresh run.
+</p>
+</dd>
+<dt>
+<a id="event_beforeLoad"></a> <code>beforeLoad (file)</code>
+</dt>
+<dd>
+<p>
+Before analyzing a file.
+<code>file</code> is an object holding <code>{name, text, scope}</code> properties.
+</p>
+</dd>
+<dt>
+<a id="event_afterLoad"></a> <code>afterLoad (file)</code>
+</dt>
+<dd>
+<p>
+After analyzing a file.
+</p>
+</dd>
+</dl>
+<h3> <a id="typedef"></a>JSON type definitions</h3>
+<p> To be able to specify the types of things without actually analyzing
+source code, either because there is no JavaScript source code (as for
+the built-in types) or because the source code is too big, or because
+Tern is unable to construct the correct types from the source code,
+Tern defines a JSON data format for specifying types. A few examples
+of files in this format can be found in the <code>defs/</code> directory in the
+distribution.</p>
+<p> A type definition data structure is basically a tree of objects, where
+the top-level object specifies variables in the global scope, and the
+nested objects specify properties of object types. Properties prefixed
+with an exclamation point (<code>!</code>) hold special directives, all other
+properties refer to variable or property names.</p>
+<p> Here is an example:</p>
+<pre data-language="application/x-json" class="cm-s-default">{
+  <span class="cm-string cm-property">"!name"</span>: <span class="cm-string">"mylibrary"</span>,
+  <span class="cm-string cm-property">"!define"</span>: {
+    <span class="cm-string cm-property">"point"</span>: {
+      <span class="cm-string cm-property">"x"</span>: <span class="cm-string">"number"</span>,
+      <span class="cm-string cm-property">"y"</span>: <span class="cm-string">"number"</span>
+    }
+  },
+  <span class="cm-string cm-property">"MyConstructor"</span>: {
+    <span class="cm-string cm-property">"!type"</span>: <span class="cm-string">"fn(arg: string)"</span>,
+    <span class="cm-string cm-property">"staticFunction"</span>: <span class="cm-string">"fn() -> bool"</span>,
+    <span class="cm-string cm-property">"prototype"</span>: {
+      <span class="cm-string cm-property">"property"</span>: <span class="cm-string">"[number]"</span>,
+      <span class="cm-string cm-property">"clone"</span>: <span class="cm-string">"fn() -> +MyConstructor"</span>,
+      <span class="cm-string cm-property">"getPoint"</span>: <span class="cm-string">"fn(i: number) -> point"</span>
+    }
+  },
+  <span class="cm-string cm-property">"someOtherGlobal"</span>: <span class="cm-string">"string"</span>
+}</pre>
+<p> This defines a library that sets two globals, <code>MyConstructor</code> holding
+a constructor function, and <code>someOtherGlobal</code> holding a string. The
+origin of the types, variables, and properties defined by this
+document will be <code>"mylibrary"</code>, as set by the <code>!name</code> property.</p>
+<p> The value of a variable or property can be either a string or an
+object. Strings can be one of the built-in types (<code>"number"</code>,
+<code>"string"</code>, <code>"bool"</code>), a function type (<code>"fn(arg1: type1, arg2: type2)
+-&gt; rettype"</code>, where <code>-&gt; rettype</code> is optional), or an array type
+(<code>"[type]"</code>). Strings can also name types, either by describing the
+path to the type in the global scope (<code>"Date.prototype"</code>) or by
+referring to one of the local definitions in the <code>!define</code> property of
+the document. Finally, a type can be prefixed with a <code>+</code> to indicate
+an instance of a constructor (<code>+Date</code>).</p>
+<p> Objects describe types by enumerating their properties. By default,
+their type will simply be an instance of <code>Object</code>, but a <code>!type</code>
+property can be used to make the type a function or array type, as the
+example does for <code>MyConstructor</code>. Alternatively, a <code>!proto</code> property
+can be used to give the object a custom prototype, for example
+<code>"!proto": Element.prototype</code>.</p>
+<p> Documentation can be attached to a type using <code>!doc</code>, which should
+hold a (short) documentation string and <code>!url</code>, which should hold a
+URL that has the full documentation of the type or function being
+defined.</p>
+<p> Finally, a function can be annotated with effects that it has. These
+aren&#8217;t currently documented, but you can search for <code>!effects</code> in
+<code>defs/ecma5.json</code> to see some examples. Similarly, a function type
+string&#8217;s return type may contain the variables <code>!0</code> (the first
+argument&#8217;s type, <code>!N</code> for the N-1th), <code>!this</code> (the self type of the
+call), and a special property <code>!ret</code> (the return type of a function).</p>
+<h3> <a id="plugins"></a>Server plugins</h3>
+<p> Plugins are JavaScript programs that add extra functionality to a
+server. The distribution currently comes plugins for parsing
+<a href="#plugin_doc_comment">doc comments</a>, and plugins for
+<a href="#plugin_node">node.js</a> and <a href="#plugin_requirejs">RequireJS</a>, which
+teach the Tern server about the dependency management mechanisms
+defined by those systems (as well as, for node.js, including types for
+the built-in libraries).</p>
+<p> A plugin can use several hooks to add custom behavior.</p>
+<dl>
+<dt>
+<a id="infer.registerFunction"></a><code>infer.registerFunction(name: string, f: fn(self, args, argnodes))</code>
+</dt>
+<dd>
+<p>
+This is a function in the <a href="#infer">inference engine module</a> that
+allows custom ways to compute function return types or effects. When a
+function is specified to return <code>!custom:myname</code> or has an effect
+<code>"custom myname"</code>, a call to the function will cause the function
+registered under <code>"myname"</code> to be called with the argument types and
+argument AST nodes given to the call. This is used, for example, to
+make calls to <code>require</code> trigger the necessary machinations to fetch a
+dependency and return its type.
+</p>
+</dd>
+<dt>
+<a id="tern.registerPlugin"></a><code>tern.registerPlugin(name: string, fn(Server, options))</code>
+</dt>
+<dd>
+<p>
+This can be used to register an initialization function
+for the plugin with the given name. A Tern server, when
+<a href="#option_plugins">configured</a> to load this plugin, will call this
+initialization function, passing in the server instance and the
+options specified for the plugin (if any). This is the place where you
+register event handlers on the server and/or initialize the plugin&#8217;s
+state.
+</p>
+<p> An object returned from this function can be used to further
+configure the server. Its <code>defs</code> property may contain a <a href="#typedef">JSON type definition</a> data structure that the server should load, and its
+<code>passes</code> property may hold an object mapping pass names to functions.
+Currently the following passes are supported:</p>
+<dl>
+<dt>
+<code>"postParse" (ast, text)</code>
+</dt>
+<dd>
+<p>
+Will be run right after a file is parsed,
+and passed the parse tree and the parsed file as arguments.
+</p>
+</dd>
+<dt>
+<code>"preInfer" (ast, scope)</code>
+</dt>
+<dd>
+<p>
+Run right before the type inference pass,
+passing the syntax tree and a <a href="#infer_scope">scope</a> object.
+</p>
+</dd>
+<dt>
+<code>"postInfer" (ast, scope)</code>
+</dt>
+<dd>
+<p>
+Run after the type inference pass.
+</p>
+</dd>
+</dl>
+</dd>
+<dt>
+<a id="tern.defineQueryType"></a><code>tern.defineQueryType(name: string, desc: object)</code>
+</dt>
+<dd>
+<p>
+Defines a new type of query with the server. The <code>desc</code> object is a
+property describing the request. It should at least have a <code>run</code>
+property, which holds a function <code>fn(Server, query)</code> that will be
+called to handle queries with a <code>type</code> property that matches the given
+name. It may also have a <code>takesFile</code> property which, if true, will
+cause the server to try and resolve the file on which the query
+operates (from its <code>file</code> property) and pass that (a <code>{name, text,
+scope, ast}</code> object) as a third argument to the <code>run</code> function. You
+will probably need to use the <a href="#infer">inference module&#8217;s API</a> to
+do someting useful in this function.
+</p>
+</dd>
+</dl>
+<h3> <a id="configuration"></a>Project configuration</h3>
+<p> A <code>.tern-project</code> file is a <a href="http://json.org">JSON</a> file in a format
+like this:</p>
+<pre data-language="application/x-json" class="cm-s-default">{
+  <span class="cm-string cm-property">"libs"</span>: [
+    <span class="cm-string">"browser"</span>,
+    <span class="cm-string">"jquery"</span>
+  ],
+  <span class="cm-string cm-property">"loadEagerly"</span>: [
+    <span class="cm-string">"importantfile.js"</span>
+  ],
+  <span class="cm-string cm-property">"plugins"</span>: {
+    <span class="cm-string cm-property">"requirejs"</span>: {
+      <span class="cm-string cm-property">"baseURL"</span>: <span class="cm-string">"./"</span>,
+      <span class="cm-string cm-property">"paths"</span>: {}
+    }
+  }
+}</pre>
+<p> The <code>libs</code> property refers to the <a href="#typedef">JSON type descriptions</a>
+that should be loaded into the environment for this project. See the
+<code>defs/</code> directory for examples. The strings given here will be
+suffixed with <code>.json</code>, and searched for first in the project&#8217;s own
+dir, and then in the <code>defs/</code> directory of the Tern distribution.</p>
+<p> By default, local files are loaded into the Tern server when they are
+opened by the editor. <code>loadEagerly</code> allows you to force some files to
+always be loaded, it may be an array of filenames or glob patterns
+(i.e. <code>foo/bar/*.js</code>). The <code>dontLoad</code> option can be used to prevent
+Tern from loading certain files. It also takes an array of file names
+or glob patterns.</p>
+<p> Finally, <code>plugins</code> is an object used to load and configure Tern
+plugins. The names of the properties refer to files that implement
+plugins, either in the project dir or under <code>plugin/</code> in the Tern
+directory. Their values are configuration objects that will be passed
+to the plugins. You can leave them at <code>{}</code> when you don&#8217;t need to pass
+any options.</p>
+<h4> <a id="plugin_doc_comment"></a>Doc comments plugin</h4>
+<p> This plugin, which is enabled by default in the <code>bin/tern</code> server,
+parses comments before function declarations, variable declarations,
+and object properties. It will look for
+<a href="http://usejsdoc.org/">JSDoc</a>-style type declarations, and try to parse
+them and add them to the inferred types, and it will treat the first
+sentence of comment text as the docstring for the defined variable or
+property.</p>
+<p> To turn this plugin off, set <code>doc_comment: null</code> in your
+<a href="#option_plugins">plugin option</a>.</p>
+<h4> <a id="plugin_node"></a>Node.js plugin</h4>
+<p> The <a href="http://nodejs.org">node.js</a> plugin, called <code>"node"</code>, provides
+variables that are part of the node environment, such as <code>process</code> and
+<code>require</code>, and hooks up <code>require</code> to try and find the dependencies
+that are being loaded, and assign them the correct types. It also
+includes types for the built-in modules that node.js provides (<code>"fs"</code>,
+<code>"http"</code>, etc).</p>
+<p> The plugin understands the following configuration parameters:</p>
+<dl>
+<dt>
+<code>dontLoad</code>
+</dt>
+<dd>
+<p>
+Can be set to <code>true</code> to disable dynamic loading of
+required modules entirely, or to a regular expression to disable
+loading of files that match the expression.
+</p>
+</dd>
+<dt>
+<code>load</code>
+</dt>
+<dd>
+<p>
+If <code>dontLoad</code> isn&#8217;t given, this setting is checked. If it is
+a regular expression, the plugin will only load files that match the
+expression.
+</p>
+</dd>
+<dt>
+<code>modules</code>
+</dt>
+<dd>
+<p>
+Can be used to assign <a href="#typedef">JSON type definitions</a> to
+certain modules, so that those are loaded instead of the source code
+itself. If given, should be an object mapping module names to either
+JSON objects defining the types in the module, or a string referring
+to a file name (relative to the project directory) that contains the
+JSON data.
+</p>
+</dd>
+</dl>
+<h4> <a id="plugin_requirejs"></a>RequireJS plugin</h4>
+<p> This plugin teaches the server to understand
+<a href="http://requirejs.org">RequireJS</a>-style dependency management. It
+defines the global functions <code>define</code> and <code>requirejs</code>, and will do its
+best to resolve dependencies and give them their proper types.</p>
+<p> These options are understood:</p>
+<dl>
+<dt>
+<code>baseURL</code>
+</dt>
+<dd>
+<p>
+The base path to prefix to dependency filenames.
+</p>
+</dd>
+<dt>
+<code>paths</code>
+</dt>
+<dd>
+<p>
+An object mapping filename prefixes to specific paths. For
+example <code>{"acorn": "lib/acorn/"}</code>.
+</p>
+</dd>
+</dl>
+<h3> <a id="utils"></a>Utilities</h3>
+<dl>
+<dt>
+<code>bin/test</code>
+</dt>
+<dd>
+<p>
+Runs Tern&#8217;s own testsuite. Tests are defined in the <code>test/</code>
+directory, as code interspersed with comments that indicate the
+types and conditions to check for.
+</p>
+</dd>
+<dt>
+<code>bin/condense</code>
+</dt>
+<dd>
+<p>
+Utility for condensing source code down to a <a href="#typedef">JSON type definition</a> file. Takes a list of files to condense, optionally
+interleaved with filenames prefixed with a <code>+</code>, which will be loaded
+(to provide type information) but not included in the output.
+</p>
+<p> Pass <code>--plugin name</code> or <code>--plugin name={jsonconfig}</code> to load
+plugins. Use <code>--def file</code> to load <a href="#typedef">JSON definitions</a>.</p>
+</dd>
+<dt>
+<code>bin/from_ts</code>
+</dt>
+<dd>
+<p>
+Given a typescript <code>.def.ts</code> file, will attempt to convert it to a
+Tern-style <a href="#typedef">JSON definition</a> file.
+</p>
+</dd>
+</dl>
+<h2> <a id="infer"></a>Inference engine</h2>
+<p> The inference engine module (<code>lib/infer.js</code>) implements a system that,
+given a context and an abstract syntax tree (parsed representation of
+the code), tries to infer the types of the variables and properties in
+the code.</p>
+<p> The parser is implemented in a separate module,
+<a href="http:://marijnhaverbeke.nl/acorn">Acorn</a>, which provides a regular
+JavaScript parser, an error-tolerant parser, and a number of utilities
+for iterating through and searching in abstract syntax trees. The
+syntax tree format used by Acorn and Tern is described in the
+<a href="https://developer.mozilla.org/en-US/docs/SpiderMonkey/Parser_API">Mozilla
+parser API</a> document (though support for features that are not in
+ECMAScript 5, such as <code>let</code>, is omitted).</p>
+<p> A high-level description of the way Tern&#8217;s type inference algorithm
+works can be found in a <a href="http://marijnhaverbeke.nl/blog/tern.html">blog
+post</a> I wrote on the subject.</p>
+<p> This module also exposes some utility functions that are useful to
+implement the <a href="#protocol">services</a> the server exposes.</p>
+<h3> <a id="infer_context"></a>Context</h3>
+<p> A context is an object that holds a global JavaScript scope, as well
+as some meta-information and state used by the type inference process.
+Almost all operations in the inference module require a context.</p>
+<p> To prevent having to pass the context around through every function, a
+form of dynamic binding is used—the <code>withContext</code> function executes a
+function body with a given object used as the current context.</p>
+<dl>
+<dt>
+<a id="infer.Context"></a><code>infer.Context(defs: [object])</code>
+</dt>
+<dd>
+<p>
+A constructor
+function for contexts. <code>defs</code> should be an array of <a href="#typedef">type definition objects</a>, which will be used to initialize the
+global scope.
+</p>
+</dd>
+<dt>
+<a id="infer.withContext"></a><code>infer.withContext(context: Context, f: fn())</code>
+</dt>
+<dd>
+<p>
+Calls <code>f</code> with the current context bound to <code>context</code>. Basically, all
+code that does something with the inference engine should be wrapped
+in such a call.
+</p>
+</dd>
+<dt>
+<a id="infer.cx"></a><code>infer.cx() → Context</code>
+</dt>
+<dd>
+<p>
+Returns the current context
+object.
+</p>
+</dd>
+<dt>
+<a id="infer.Context.topScope"></a><code>context.topScope</code>
+</dt>
+<dd>
+<p>
+The top-level
+<a href="#infer_scopes">scope</a> of the context.
+</p>
+</dd>
+</dl>
+<h3> <a id="infer_analysis"></a>Analysis</h3>
+<p> To push code into a context, you first parse it, yielding a syntax
+tree, and then tell Tern to analyze that.</p>
+<dl>
+<dt>
+<a id="infer.parse"></a><code>infer.parse(text: string) → AST</code>
+</dt>
+<dd>
+<p>
+Parse a piece of
+code for use by Tern. Will automatically fall back to the
+error-tolerant parser if the regular parser can&#8217;t parse the code.
+</p>
+</dd>
+<dt>
+<a id="infer.analyze"></a><code>infer.analyze(ast: AST, name: string, scope?: Scope)</code>
+</dt>
+<dd>
+<p>
+Analyze a syntax tree. <code>name</code> will be used to set the origin of types,
+properties, and variables produced by this code. The optional <code>scope</code>
+argument can be used to specify a <a href="#infer_scopes">scope</a> in which the
+code should be analyzed. It will default to the top-level scope.
+</p>
+</dd>
+</dl>
+<p> The same code, or slightly modified variants of the same code, can be
+analyzed in a context multiple times. The variables and properties
+that the context knows, as well as the types it assigns to them, will
+become the union of the variables and types created by the various
+forms of the code. When incrementally re-analyzing code as it is being
+edited, this leads to an degradation in the preciseness of the
+results. To prevent that, it is possible to <em>purge</em> all elements that
+come from a specific origin from a context.</p>
+<dl>
+<dt>
+<a id="infer.purgeTypes"></a><code>infer.purgeTypes(origins: [string], start?: number, end?: number)</code>
+</dt>
+<dd>
+<p>
+Purges the types that have one of the origins given from the context.
+<code>start</code> and <code>end</code> can be given to only purge types that occurred in
+the source code between those offsets. This is not entirely
+precise—the state of the context won&#8217;t be back where it was before the
+file was analyzed—but it prevents most of the noticeable inaccuracies
+that re-analysis tends to produce.
+</p>
+</dd>
+<dt>
+<a id="infer.markVariablesDefinedBy"></a><code>infer.markVariablesDefinedBy(scope: Scope, origins: [string], start?: number, end?: number)</code>
+</dt>
+<dd>
+<p>
+Cleaning up variables is slightly trickier than cleaning up types.
+This does a first pass over the given scope, and marks variables
+defined by the given origins. This is indended to be followed by a
+call to <a href="#infer.analyze"><code>analyze</code></a> and then a call to
+<a href="#infer.purgeMarkedVariables"><code>purgeMarkedVariables</code></a>.
+</p>
+</dd>
+<dt>
+<a id="infer.purgeMarkedVariables"></a><code>infer.purgeMarkedVariables</code>
+</dt>
+<dd>
+<p>
+Purges
+variables that were marked by a call to
+<a href="#infer.markVariablesDefinedBy"><code>markVariablesDefinedBy</code></a> and not
+re-defined in the meantime.
+</p>
+</dd>
+</dl>
+<h3> <a id="infer_types"></a>Types</h3>
+<p> Tern has a more or less complete implementation of the JavaScript type
+system.</p>
+<dl>
+<dt>
+<a id="infer.Obj"></a><code>infer.Obj(proto, name?: string)</code>
+</dt>
+<dd>
+<p>
+Constructor for the
+type that represents JavaScript objects. <code>proto</code> may be another
+object, or <code>true</code> as a short-hand for <code>Object.prototype</code>, or <code>null</code>
+for prototype-less objects.
+</p>
+</dd>
+<dt>
+<a id="infer.Fn"></a><code>infer.Fn(name: string?, self: AVal, args: [AVal], argNames: [string], retval: AVal)</code>
+</dt>
+<dd>
+<p>
+Constructor for the type that implements functions. Inherits from
+<a href="#infer.Obj">Obj</a>. The <a href="#infer_aval"><code>AVal</code></a> types are used to track
+the input and output types of the function.
+</p>
+</dd>
+<dt>
+<a id="infer.Arr"></a><code>infer.Arr(contentType: AVal)</code>
+</dt>
+<dd>
+<p>
+Constructor that creates
+an array type with the given content type.
+</p>
+</dd>
+<dt>
+<a id="infer.Context.num"></a><code>context.num</code>
+</dt>
+<dd>
+<p>
+The primitive number type.
+</p>
+</dd>
+<dt>
+<a id="infer.Context.str"></a><code>context.str</code>
+</dt>
+<dd>
+<p>
+The primitive string type.
+</p>
+</dd>
+<dt>
+<a id="infer.Context.bool"></a><code>context.bool</code>
+</dt>
+<dd>
+<p>
+The primitive boolean type.
+</p>
+</dd>
+</dl>
+<p> Types expose the following interface (plus some <code>AVal</code>-compatibility
+methods, see <a href="#type_is_aval">below</a>).</p>
+<dl>
+<dt>
+<a id="infer.Type.name"></a><code>type.name: string</code>
+</dt>
+<dd>
+<p>
+The name of the type, if any.
+</p>
+</dd>
+<dt>
+<a id="infer.Type.origin"></a><code>type.origin: string</code>
+</dt>
+<dd>
+<p>
+The origin file of the type.
+</p>
+</dd>
+<dt>
+<a id="infer.Type.originNode"></a><code>type.originNode: AST</code>
+</dt>
+<dd>
+<p>
+The syntax node that
+defined the type. Only present for object and function types, and even
+for those it may be missing (if the type was created by a type
+definition file, or synthesized in some other way).
+</p>
+</dd>
+<dt>
+<a id="infer.Type.toString"></a><code>type.toString(maxDepth: number) → string</code>
+</dt>
+<dd>
+<p>
+Return
+a string that describes the type. <code>maxDepth</code> indicates the depth to
+which inner types should be shown.
+</p>
+</dd>
+<dt>
+<a id="infer.Type.getProp"></a><code>type.getProp(prop: string) → AVal</code>
+</dt>
+<dd>
+<p>
+Get an
+<a href="#infer_aval"><code>AVal</code></a> that represents the named property of this type.
+</p>
+</dd>
+<dt>
+<a id="infer.Type.forAllProps"></a><code>type.forAllProps(f: fn(prop: string, val: AVal, local: bool))</code>
+</dt>
+<dd>
+<p>
+Call the given function for all properties of the object, including
+properties that are added in the future.
+</p>
+</dd>
+</dl>
+<p> Object types have a few extra methods and properties.</p>
+<dl>
+<dt>
+<a id="infer.Obj.proto"></a><code>obj.proto</code>
+</dt>
+<dd>
+<p>
+The prototype of the object, or <code>null</code>.
+</p>
+</dd>
+<dt>
+<a id="infer.Obj.props"></a><code>obj.props</code>
+</dt>
+<dd>
+<p>
+An object mapping the object&#8217;s known
+properties to AVals. Don&#8217;t manipulate this directly (ever), only use
+it if you have to iterate over the properties.
+</p>
+</dd>
+<dt>
+<a id="infer.Obj.hasProp"></a><code>obj.hasProp(prop: string) → AVal?</code>
+</dt>
+<dd>
+<p>
+Looks up
+the AVal associated with the given property, or returns <code>null</code> if it
+doesn&#8217;t exist.
+</p>
+</dd>
+<dt>
+<a id="infer.Obj.defProp"></a><code>obj.defProp(prop: string) → AVal</code>
+</dt>
+<dd>
+<p>
+Looks up the
+given property, or defines it if it did not yet exist.
+</p>
+</dd>
+</dl>
+<h3> <a id="infer_aval"></a>Abstract values</h3>
+<p> Abstract values are objects used to represent sets of types. Each
+variable and property has an abstract value associated with it, but
+they are also used for other purposes, such as tracking the return
+type of a function, or building up the type for some kinds of
+expressions.</p>
+<p> In a cleanly typed program where each thing has only a single type,
+abstract values will all have one type associated with them. When, for
+example, a variable can hold two different types of values, the
+associated abstract value will hold both these types. In some cases,
+no type can be assigned to something at all, in which case the
+abstract value remains empty.</p>
+<p> Abstract values expose the following interface:</p>
+<dl>
+<dt>
+<a id="infer.AVal"></a><code>infer.AVal()</code>
+</dt>
+<dd>
+<p>
+Constructor. Creates an empty AVal.
+</p>
+</dd>
+<dt>
+<a id="infer.AVal.addType"></a><code>aval.addType(type: Type, weight?: number)</code>
+</dt>
+<dd>
+<p>
+Add a type to this abstract value. If the type is already in there,
+this is a no-op. <code>weight</code> can be given to give this type a non-default
+weight, which is mostly useful when adding a provisionary type that
+should be overridden later if a real type is found. The default weight
+is <code>100</code>, and passing a weight lower than that will make the type
+assignment &#8220;weak&#8221;.
+</p>
+</dd>
+<dt>
+<a id="infer.AVal.propagate"></a><code>aval.propagate(target: Constraint)</code>
+</dt>
+<dd>
+<p>
+Sets
+this AVal to propagate all types it receives to the given
+<a href="#infer_constraint">constraint</a>. This is the mechanism by which types
+are propagated through the type graph.
+</p>
+</dd>
+<dt>
+<a id="infer.AVal.hasType"></a><code>aval.hasType(type: Type) → bool</code>
+</dt>
+<dd>
+<p>
+Queries whether the
+AVal <em>currently</em> holds the given type.
+</p>
+</dd>
+<dt>
+<a id="infer.AVal.isEmpty"></a><code>aval.isEmpty() → bool</code>
+</dt>
+<dd>
+<p>
+Queries whether the
+AVal is empty.
+</p>
+</dd>
+<dt>
+<a id="infer.AVal.getType"></a><code>aval.getType(guess?: bool) → Type?</code>
+</dt>
+<dd>
+<p>
+Asks the
+abstract value for its current type. May return <code>null</code> when there is
+no type, or conflicting types are present. When <code>guess</code> is <code>true</code> or
+not given, an empty AVal will try to use heuristics based on its
+propagation edges to guess a type.
+</p>
+</dd>
+<dt>
+<a id="infer.AVal.getFunctionType"></a><code>aval.getFunctionType() → Type?</code>
+</dt>
+<dd>
+<p>
+Asks
+the AVal if it contains a function type. Useful when you aren&#8217;t
+interested in other kinds of types.
+</p>
+</dd>
+</dl>
+<p> Abstract values that are used to represent variables or properties
+will have, when possible, an <code>originNode</code> property pointing to an AST
+node.</p>
+<p> <a id="type_is_aval"></a> As a memory-consuming hack, <a href="#infer_types">types</a>
+also expose the interface of abstact values, so that in cases where an
+AVal is expected, but the precise type is known, the type object can
+simply be used.</p>
+<p> <a id="infer.ANull"></a>The <code>infer.ANull</code> value is a special AVal-like object
+that never holds any types, and discards types added to it. It can be
+used as a placeholder in situations where we either aren&#8217;t interested
+in the types, or there simply are no types.</p>
+<h3> <a id="infer_constraint"></a>Constraints</h3>
+<p> Constraints are things that can receive values. They use the same
+<code>addType</code> method to receive them, which causes all AVals to also be
+useable as constraints. The inference engine defines a number of
+additional constraints to propagate values in more indirect ways. See
+the <a href="http://marijnhaverbeke.nl/blog/tern.html">blog post</a> on the
+inference algorithm for some examples.</p>
+<dl>
+<dt>
+<a id="infer.constraint"></a><code>infer.constraint(props: string, methods: object) → constructor</code>
+</dt>
+<dd>
+<p>
+This is a constructor-constructor for constraints. Given a
+comma-separated list of fields (for example <code>"prop, target"</code>), it will
+return a constructor that takes those fields as arguments and stores
+them in <code>this</code>, with a prototype that derives from a generic
+constraint type, extended with the properties specified in <code>methods</code>.
+</p>
+</dd>
+</dl>
+<p> Beyond <a href="#infer.AVal.addType"><code>addType</code></a>, there are a few optional
+methods that constraints can expose to tell the system something about
+itself.</p>
+<dl>
+<dt>
+<a id="infer.Constraint.typeHint"></a><code>constraint.typeHint() → Type?</code>
+</dt>
+<dd>
+<p>
+May return a type
+that <a href="#infer.AVal.getType"><code>getType</code></a> can use to &#8220;guess&#8221; its type
+based on the fact that it propagates to this constraint.
+</p>
+</dd>
+<dt>
+<a id="infer.Constraint.propHint"></a><code>constraint.propHint() → string?</code>
+</dt>
+<dd>
+<p>
+May return a
+string when this constraint is indicative of the presence of a
+specific property in the source AVal.
+</p>
+</dd>
+</dl>
+<h3> <a id="infer_scopes"></a>Scopes</h3>
+<p> Scopes are derived from the <a href="#infer.Obj"><code>Obj</code></a> type, and variables
+are represented the same way as properties.</p>
+<dl>
+<dt>
+<a id="infer.Scope"></a><code>infer.Scope(parent?: Scope)</code>
+</dt>
+<dd>
+<p>
+Constructor for scope
+objects. The top scope won&#8217;t have a parent.
+</p>
+</dd>
+<dt>
+<a id="infer.Scope.defVar"></a><code>scope.defVar(name: string, originNode: AST) → AVal</code>
+</dt>
+<dd>
+<p>
+Ensures that this scope or some scope above it has a property by the
+given name (defining it in the top scope if it is missing), and, if
+the property doesn&#8217;t already have an
+<a href="#infer.Type.originNode"><code>originNode</code></a>, assigns the given node to it.
+</p>
+</dd>
+</dl>
+<h3> <a id="infer_util"></a>Utilities</h3>
+<p> These are miscellaneous utilities that come in helpful when doing code
+analysis.</p>
+<dl>
+<dt>
+<a id="infer.findExpressionAt"></a><code>infer.findExpressionAt(ast: AST, start: number?, end: number, scope?: Scope) → {node, state}</code>
+</dt>
+<dd>
+<p>
+Searches the given syntax tree for an expression that ends at the
+given end offset and, if <code>start</code> is given, starts at the given start
+offset. <code>scope</code> can be given to override the outer scope, which
+defaults to the context&#8217;s top scope. Will return a <code>{node, state}</code>
+object if successful, where <code>node</code> is AST node, and <code>state</code> is the
+scope at that point. Returns <code>null</code> if unsuccessful.
+</p>
+</dd>
+<dt>
+<a id="infer.findExpressionAround"></a><code>infer.findExpressionAround(ast: AST, start: number?, end: number, scope?: Scope) → {node, state}</code>
+</dt>
+<dd>
+<p>
+Similar to <a href="#infer.findExpressionAround"><code>findExpressionAround</code></a>,
+except that it will return the innermost expression node that spans
+the given range, rather than only exact matches.
+</p>
+</dd>
+<dt>
+<a id="infer.expressionType"></a><code>infer.expressionType(expr: {node, state}) → AVal</code>
+</dt>
+<dd>
+<p>
+Determine an expression for the given node and scope (as returned by
+the functions above). Will return an <a href="#infer_aval"><code>AVal</code></a> or plain
+<a href="#infer_types"><code>Type</code></a>.
+</p>
+</dd>
+<dt>
+<a id="infer.scopeAt"></a><code>infer.scopeAt(ast: AST, pos: number, scope?: Scope) → Scope</code>
+</dt>
+<dd>
+<p>
+Find the scope at a given position in the syntax tree. The <code>scope</code>
+parameter can be used to override the scope used for code that isn&#8217;t
+wrapped in any function.
+</p>
+</dd>
+<dt>
+<a id="infer.findRefs"></a><code>infer.findRefs(ast: AST, scope: Scope, name: string, refScope: Scope, f: fn(AST, Scope))</code>
+</dt>
+<dd>
+<p>
+Will traverse the given syntax tree, using <code>scope</code> as the starting
+scope, looking for references to variable <code>name</code> that resolve to scope
+<code>refScope</code>, and call <code>f</code> with the node of the reference and its local
+scope for each of them.
+</p>
+</dd>
+<dt>
+<a id="infer.findPropRefs"></a><code>infer.findPropRefs(ast: AST, scope: Scope, objType: Obj, propName: string, f: fn(AST))</code>
+</dt>
+<dd>
+<p>
+Analogous to <a href="#infer.findRefs"><code>findRefs</code></a>, but used to look for
+references to a specific property instead. Whereas <code>findRefs</code> is
+precise, this is dependent on type inference, and thus can not be
+relied on to be precise.
+</p>
+</dd>
+</dl>
+<p> Whenever the code in <code>lib/infer.js</code> guesses a type through fuzzy
+heuristics (through <a href="#infer.AVal.getType"><code>getType</code></a> or
+<a href="#infer.expressionType"><code>expressionType</code></a>), it sets a flag. The
+following two function allow access to this flag:</p>
+<dl>
+<dt>
+<a id="infer.didGuess"></a><code>infer.didGuess() → bool</code>
+</dt>
+<dd>
+<p>
+Test whether the
+guessing flag is set.
+</p>
+</dd>
+<dt>
+<a id="infer.resetGuessing"></a><code>infer.resetGuessing(val?: bool)</code>
+</dt>
+<dd>
+<p>
+Reset the
+guessing flag.
+</p>
+</dd>
+</dl>
+<h2> <a id="editor"></a>Editor plugins</h2>
+<p> If your editor of choice is not yet supported, you are encouraged to
+try and port one of the existing plugins to it. When figuring out how
+things work, the code powering the demo, in <code>doc/demo/demo.js</code>, might
+also come in useful.</p>
+<p> All these plugins use the <a href="http://nodejs.org">node.js</a>-based server, and
+thus require that (as well as <a href="http://npmjs.org">npm</a>) to be installed.</p>
+<h3> <a id="emacs"></a>Emacs</h3>
+<p> The Emacs mode is part of the main tern
+<a href="https://github.com/marijnh/tern">repository</a>. It can be installed as
+follows:</p>
+<div class="olist arabic"><ol class="arabic">
+<li>
+<p>
+Make sure you are using Emacs 24 or later. The Tern mode requires
+  lexical scoping.
+</p>
+</li>
+<li>
+<p>
+Clone this repository somewhere. Do <code>npm install</code> to get the
+  dependencies.
+</p>
+</li>
+<li>
+<p>
+Make Emacs aware of <code>emacs/tern.el</code>. For example by adding this to
+  your <code>.emacs</code> file:
+</p>
+<pre data-language="commonlisp" class="cm-s-default"><span class="cm-bracket">(</span><span class="cm-variable">add-to-list</span> '<span class="cm-variable">load-path</span> <span class="cm-string">"/path/to/tern/emacs/"</span><span class="cm-bracket">)</span>
+<span class="cm-bracket">(</span><span class="cm-variable">autoload</span> '<span class="cm-variable">tern-mode</span> <span class="cm-string">"tern.el"</span> <span class="cm-atom">nil</span> <span class="cm-atom">t</span><span class="cm-bracket">)</span></pre>
+</li>
+<li>
+<p>
+Optionally set <code>tern-mode</code> to be automatically enabled for your
+  JavaScript mode of choice. Here&#8217;s the snippet for <code>js-mode</code>:
+</p>
+<pre data-language="commonlisp" class="cm-s-default"><span class="cm-bracket">(</span><span class="cm-variable">add-hook</span> '<span class="cm-variable">js-mode-hook</span> <span class="cm-bracket">(</span><span class="cm-variable">lambda</span> <span class="cm-bracket">()</span> <span class="cm-bracket">(</span><span class="cm-variable">tern-mode</span> <span class="cm-atom">t</span><span class="cm-bracket">)))</span></pre>
+</li>
+</ol></div>
+<p> The Emacs mode uses the <code>bin/tern</code> server, and project configuration
+is done with a <a href="#project_file"><code>.tern-project</code></a> file.</p>
+<p> Buffers in <code>tern-mode</code> add a <code>completion-at-point</code> function that
+activates Tern&#8217;s completion. So, unless you rebound the key, <code>M-tab</code>
+(or <code>C-M-i</code>) will trigger completion.</p>
+<p> When the point is in an argument list, Tern will show argument names
+and types at the bottom of the screen.</p>
+<p> The following additional keys are bound:</p>
+<dl>
+<dt>
+<code>M-.</code>
+</dt>
+<dd>
+<p>
+Jump to the definition of the thing under the cursor.
+</p>
+</dd>
+<dt>
+<code>M-,</code>
+</dt>
+<dd>
+<p>
+Brings you back to last place you were when you pressed <code>M-.</code>.
+</p>
+</dd>
+<dt>
+<code>C-c C-r</code>
+</dt>
+<dd>
+<p>
+Rename the variable under the cursor.
+</p>
+</dd>
+<dt>
+<code>C-c C-c</code>
+</dt>
+<dd>
+<p>
+Find the type of the thing under the cursor.
+</p>
+</dd>
+<dt>
+<code>C-c C-d</code>
+</dt>
+<dd>
+<p>
+Find docs of the thing under the cursor. Press again to
+open the associated URL (if any).
+</p>
+</dd>
+</dl>
+<h4> <a id="_auto_complete"></a>Auto-Complete</h4>
+<p> If you want to use <code>auto-complete.el</code> for completion, append following codes:</p>
+<pre data-language="commonlisp" class="cm-s-default"><span class="cm-bracket">(</span><span class="cm-variable">eval-after-load</span> '<span class="cm-variable">tern</span>
+   '<span class="cm-bracket">(</span><span class="cm-variable">progn</span>
+      <span class="cm-bracket">(</span><span class="cm-variable">require</span> '<span class="cm-variable">tern-auto-complete</span><span class="cm-bracket">)</span>
+      <span class="cm-bracket">(</span><span class="cm-variable">tern-ac-setup</span><span class="cm-bracket">)))</span></pre>
+<p> If <code>tern-ac-on-dot</code> is non-nil (default), typing <code>.</code>(dot) invokes auto-complete to select completions.
+Calling the command <code>tern-ac-complete</code>, one can invoke auto-complete manually.</p>
+<h3> <a id="vim"></a>Vim</h3>
+<p> The Vim plugin is maintained in a
+<a href="https://github.com/marijnh/tern_for_vim">separate repository</a>. Please
+see its README for details.</p>
+<h3> <a id="sublime_text"></a>Sublime Text</h3>
+<p> There are two implementations of Sublime Text modules for Tern. One
+written by me, at <a href="https://github.com/marijnh/tern_for_sublime">https://github.com/marijnh/tern_for_sublime</a>. This
+one uses the node.js-based server. The other is written by Sergey
+Chikuyonok, and can be found at
+<a href="https://github.com/emmetio/sublime-tern">https://github.com/emmetio/sublime-tern</a>. It uses a Python V8 bridge
+to run the server.</p>
+<p> See the readme files in those repositories for details.</p>
+<h2> <a id="software"></a>Related Software</h2>
+<p> This is a place to gather links to software that is built on Tern.
+Drop me an <a href="mailto:marijnh@gmail.com">email</a> if you want to suggest a
+link.</p>
+<h3> <a id="_jsctags"></a>jsctags</h3>
+<p> <a href="https://github.com/ramitos/jsctags">jsctags</a> is a tool that generates
+ctags files from JavaScript code by using Tern&#8217;s inference engine.</p>
+<h3> <a id="_codemirror_tern_addon"></a>CodeMirror Tern addon</h3>
+<p> The <a href="http://codemirror.net">CodeMirror</a> browser-based editor has an
+<a href="http://codemirror.net/demo/tern.html">addon</a> for integrating with Tern.</p>
+</div>

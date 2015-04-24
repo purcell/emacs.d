@@ -1,0 +1,3 @@
+// environment=string
+
+foo; //: string
