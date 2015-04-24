@@ -1,6 +1,9 @@
 ;; add zencoding by lujianmei
 (display-time)
 
+;; Set path to dependencies
+(setq site-lisp-dir
+      (expand-file-name "site-lisp" user-emacs-directory))
 
 
 
