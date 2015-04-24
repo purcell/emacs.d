@@ -1,0 +1,120 @@
+;;; -*- coding: utf-8 -*-
+
+;; ----- ido-last-directory-list -----
+(
+ ("/home/kevin/.emacs.d/elpa/" . "wanderlust-20150307.1525/")
+ ("/home/kevin/.emacs.d/users/kevin/" . "settings/")
+ ("/home/kevin/.emacs.d_manger/site-lisp/" . "tern/")
+ ("/home/kevin/.emacs.d/users/" . "kevin/")
+ ("/home/kevin/.emacs.d/" . "users/")
+ ("/home/kevin/.emacs.d_mine/" . "settings/")
+ ("/home/kevin/workspace/github/work-notes/" . "notes/")
+ ("/home/kevin/workspace/github/" . "work-notes/")
+ ("/home/kevin/workspace/" . "github/")
+ ("/home/kevin/" . ".emacs.d/")
+)
+
+;; ----- ido-work-directory-list -----
+(
+ "/home/kevin/.emacs.d/users/kevin/"
+ "/home/kevin/"
+ "/home/kevin/.emacs.d/users/kevin/settings/"
+ "/home/kevin/.emacs.d/elpa/wanderlust-20150307.1525/"
+ "/home/kevin/.emacs.d_manger/site-lisp/"
+ "/home/kevin/.emacs.d_manger/site-lisp/tern/"
+ "/home/kevin/.emacs.d_manger/site-lisp/project-archetypes/"
+ "/home/kevin/.emacs.d_manger/site-lisp/multifiles/"
+ "/home/kevin/.emacs.d_manger/site-lisp/jump-char/"
+ "/home/kevin/.emacs.d_manger/site-lisp/eproject/"
+ "/home/kevin/.emacs.d_manger/site-lisp/dired-dd-0.9.1.28/"
+ "/home/kevin/.emacs.d_manger/site-lisp/dash/"
+ "/home/kevin/.emacs.d_manger/site-lisp/change-inner/"
+ "/home/kevin/.emacs.d_manger/site-lisp/browse-kill-ring/"
+ "/home/kevin/.emacs.d_manger/site-lisp/ace-jump-mode/"
+ "/home/kevin/.emacs.d/lisp/"
+ "/home/kevin/.emacs.d/"
+ "/home/kevin/.emacs.d_mine/settings/"
+ "/home/kevin/workspace/github/work-notes/notes/"
+ "/home/kevin/workspace/github/work-notes/"
+ "/home/kevin/Desktop/"
+)
+
+;; ----- ido-work-file-list -----
+(
+ "init.el"
+ ".bash_profile"
+ ".bashrc"
+ "init-wl.el"
+ "wl.el"
+ "smooth-scrolling.el"
+ "single-quotes-mode.el"
+ "frame-cmds.el"
+ "README.md"
+ "project-archetypes.el"
+)
+
+;; ----- ido-dir-file-cache -----
+(
+ ("/home/kevin/.emacs.d/" (21818 23359 530715 150000) "var/" "eshell/" ".places" "site-lisp/" "../" ".session" "README.md" ".agignore" ".emacs.desktop" "LICENSE" "init.el" "ido.last" "ac-comphist.dat" "lisp/" ".gitignore" "custom.el" "users/" "./" ".emacs.desktop.lock" ".smex-items" "elpa/" "history" ".git/" "auto-save-list/" ".mc-lists.el")
+
+ ("/home/kevin/" (21818 23475 907385 829000) ".mplayer/" ".ddd/" ".gemrc" ".xfce4-session.verbose-log" ".conkyrc~" ".netbeans/" ".mozilla/" ".msmtprc" ".viminfo" ".gem/" "VirtualBox VMs/" ".freemind/" ".emacs.d_manger/" ".m2/" ".fehbg" ".config/" ".bbdb" ".adobe/" ".fgfs/" ".cache/" ".asoundrc" "#*message*-20150423-060913#" "Projects/" ".swt/" ".bashrc" ".recentf~" ".kde/" ".gnus.el" "record/" ".thunderbird/" ".mldonkey/" ".shutter/" ".gnome/" ".bash_history" ".gstreamer-0.10/" "thunderbird/" ".conkyrc" "Documents/" "workspace/" "linux/" ".speed-dreams-2/" ".local/" ".svnqt/" ".android/" ".sunpinyin/" "study-material/" ".other/" ".cask/" ".bash_logout" ".srecode/" ".vimrc" ".recently-used" ".openoffice/" ".scorched3d/" ".xinitrc" ".subversion/" ".Xauthority" ".backups/" ".fbtermrc" ".wireshark/" ".fvwm/" ".xfce4-session.verbose-log.last" "tmp/" ".python_history" ".ICEauthority" ".macromedia/" "sync/" "Programe/" ".pki/" ".bash_profile~" ".bashrc~" ".msmtprc~" ".dia/" ".texlive/" "Pictures/" ".gimp-2.8/" ".matho_history" ".newsrc-dribble" ".trash/" ".java/" ".w3m/" ".muttrc" ".bash_profile" ".sass-cache/" ".thumbnails/" ".IntelliJIdea13/" ".archey3.cfg" ".eclipse/" ".smex-items" ".semanticdb/" "svn/" ".screenlayout/" "mails/" ".ccache/" "test.file" ".mime-example~" ".recentf" "software/" ".Xresources" ".dbus/" ".kde4/" ".visualvm/" ".jrebel/" ".muttrc~" ".pypanelrc" "Desktop/" ".esd_auth" ".gnome2/" ".gnupg/" ".addresses" "Downloads/" ".plugman/" "TRS/" ".mime-example" ".gtkrc-2.0-kde4" "test/" ".purple/" ".ssh/" ".icons/" "weather_files/" ".wl_bak" ".gitconfig" ".IntelliJIdea14/" ".gnome2_private/" ".tgdb/" ".rtorrent.rc" ".AndroidStudioBeta/" ".vim/" ".emacs.d/" ".#test.org" ".mutt/" ".elmo/" "Users/" ".npm/" ".cordova/" ".emacs.keyfreq" ".Skype/" "../" "./")
+
+ ("/home/kevin/.config/" (21818 21786 830660 916000) "htop/" "Kingsoft/" "gedit/" "google-chrome/" "xfce4/" "nautilus/" "imsettings/" "vlc/" "libreoffice/" "../" "katesyntaxhighlightingrc" "xfce4-session/" "user-dirs.dirs" "gconf/" "README.md" "Flavio Tordini/" "Thunar/" "configstore/" "wesnoth/" "Trolltech.conf" "Software/" "tint2/" "smplayer/" "orage/" "ristretto/" "openbox_bak/" "pulse/" "gnome-mplayer/" "menus/" "mimeapps.list" "autostart/" "KDE/" "bcloud/" "QtProject.conf" "tracker/" "sublime-text-2/" "sealert.conf" "enchant/" "gnome-session/" "kdeglobals" "goa-1.0/" "kwriterc" "qBittorrent/" "terminator/" "bleachbit/" "kconf_updaterc" "./" "lwqq/" "ImageMagick/" "katevirc" "oxygen-gtk/" "stardict/" "kactivitymanagerdrc" "fcitx/" "gtk-3.0/" ".git/" "conky/" "chromium/" "wpa_supplicant/" "evolution/" "dconf/" "VirtualBox/" "globaltime/" "abrt/" "kateschemarc" "user-dirs.locale" "ibus/" "gtk-2.0/" "filezilla/" "katepartrc" "openbox/" "epdfview/")
+
+ ("/home/kevin/.config/openbox/" (21818 22616 457356 192000) "wallpapers.sh" "../" "menu.xml" "rc.xml" "autostart" "./" "environment")
+
+ ("/home/kevin/.emacs.d/users/kevin/settings/" (21818 22560 827354 274000) "../" "init-wl.el" "key-bindings.el" "#key-bindings.el#" "init-dired.el" "sane-defaults.el" "mode-mappings.el" "init-ffip.el" "./")
+
+ ("/home/kevin/.emacs.d/elpa/" (21818 20869 310629 276000) "unfill-20131103.213/" "ghci-completion-20140316.2331/" "csv-mode-1.3/" "color-theme-sanityinc-tomorrow-20150328.1259/" "smartparens-20150419.833/" "git-messenger-20150314.602/" "expand-region-20150414.908/" "elisp-slime-nav-20141224.854/" "smart-forward-readme.txt" "boxquote-1.22/" "session-20120510.1700/" "ac-html-20150118.2116/" "s-20140910.334/" "yaml-mode-20141125.37/" "jump-char-20150108.1235/" "gntp-20141024.1950/" "regex-tool-20131104.1434/" "diminish-20091203.1012/" "elein-20120120.316/" "skewer-less-20131015.622/" "org-pomodoro-20150331.1023/" "smex-20141210.1422/" "scratch-20120830.1028/" "alert-20150402.1246/" "dired-details+-20150104.2150/" "ace-jump-mode-20140616.115/" "bug-reference-github-20131202.1303/" "rainbow-mode-0.11.signed" "exec-path-from-shell-20141212.846/" "change-inner-20130208.1130/" "org-fstree-20090723.819/" "ruby-compilation-20140620.217/" "flycheck-clojure-20150116.234/" "sass-mode-20141219.324/" "anzu-20150305.553/" "macrostep-20150416.1831/" "ruby-hash-syntax-20141010.839/" "eproject-20141019.746/" "wanderlust-20150307.1525/" "github-browse-file-20150411.1223/" "js2-mode-20150406.1341/" "highlight-escape-sequences-20130531.1512/" "flycheck-20150412.242/" "less-css-mode-20140919.524/" "multifiles-readme.txt" "ipretty-20140406.2220/" "async-20150412.2207/" "gnuplot-20141231.1337/" "smooth-scrolling-20131219.2039/" "tidy-20111222.1756/" "flycheck-hdevtools-20150329.323/" "logito-20120225.1255/" "textile-mode-20120721.1258/" "popup-20150315.612/" "change-inner-readme.txt" "git-commit-mode-20150330.1048/" "vc-darcs-20141122.1326/" "fullframe-20140619.305/" "ido-ubiquitous-20150421.1059/" "paredit-20150217.713/" "ibuffer-vc-20150401.204/" "fold-this-20150306.1445/" "cl-lib-highlight-20140127.1312/" "hippie-expand-slime-20130907.132/" "tagedit-20141021.2139/" "ac-haskell-process-20150204.1104/" "haskell-mode-20150420.2132/" "boxquote-readme.txt" "rainbow-delimiters-20150320.17/" "yasnippet-readme.txt" "diff-hl-20150408.1926/" "ledger-mode-20150405.937/" "flycheck-ledger-20140605.1146/" "undo-tree-20140509.522/" "cljsbuild-mode-20140619.126/" "flim-20150310.651/" "fold-this-readme.txt" "ido-completing-read+-20150412.1842/" "auto-complete-20150408.1132/" "packed-20150122.2048/" "scss-mode-20150107.1400/" "git-timemachine-20150403.1137/" "coffee-mode-20150318.1623/" "rinari-20150331.1208/" "git-blame-20110509.926/" "rainbow-mode-0.11/" "wgrep-20141016.1656/" "redshank-20120510.1230/" "git-rebase-mode-20150122.1114/" "guide-key-20150107.2235/" "queue-0.1.1/" "jump-20130702.33/" "flycheck-haskell-20150406.327/" "move-dup-20140925.808/" "findr-20130824.1207/" "epl-20150326.1212/" "skewer-mode-20141215.1525/" "multifiles-20130615.1433/" "csv-nav-20130407.1820/" "erlang-20150319.456/" "highlight-symbol-20140923.729/" "gitconfig-mode-20150405.1627/" "flycheck-package-20150331.1108/" "mwe-log-commands-20100703.541/" "gh-20150126.1125/" "mmm-mode-20150325.15/" "jump-char-readme.txt" "semi-20150203.1543/" "hayoo-20140831.521/" "json-reformat-20150406.1705/" "csv-mode-1.3.signed" "project-local-variables-20080502.1652/" "js-comint-20080530.757/" "smooth-scrolling-readme.txt" "sql-indent-20090325.2254/" "markdown-mode-20150121.1229/" "dsvn-20130120.1257/" "dired-details+-readme.txt" "slime-20150419.1413/" "smarty-mode-20100703.458/" "ac-cider-20150306.254/" "ac-html-bootstrap-20150218.408/" "magit-20150422.316/" "github-clone-20141006.210/" "default-text-scale-20150227.956/" "whole-line-or-region-20110901.130/" "let-alist-1.0.3/" "inflections-20121016.157/" "pcache-20150125.1653/" "page-break-lines-20150226.817/" "dash-20150311.2355/" "color-theme-sanityinc-solarized-20150328.1301/" "magit-svn-20150319.1355/" "dired-details-20130824.1158/" "queue-0.1.1.signed" "ac-js2-20140906.442/" "aggressive-indent-20150401.1516/" "yasnippet-20150415.244/" "multiple-cursors-20150307.2322/" "hl-sexp-20101130.443/" "paredit-everywhere-20140906.210/" "ac-slime-20141002.639/" "darcsum-20140315.2110/" "zencoding-mode-20140213.22/" "cider-20150422.158/" "apel-20141024.1642/" "css-eldoc-20150124.1923/" "htmlize-20130207.1202/" "gitignore-mode-20150405.1627/" "php-mode-20150414.707/" "smartparens-readme.txt" "magit-gh-pulls-20150328.2353/" "zencoding-mode-readme.txt" "let-alist-1.0.3.signed" "ac-inf-ruby-20131115.350/" "yasnippet-0.9.0.1/" "lively-20120728.1413/" "fill-column-indicator-20140509.1101/" "gnupg/" "switch-window-20150114.215/" "whitespace-cleanup-mode-20150214.353/" "inf-ruby-20150403.946/" "json-snatcher-20140527.2147/" "smart-forward-20140430.13/" "lua-mode-20150303.1303/" "tern-20150410.410/" "haml-mode-20150420.1125/" "json-mode-20150413.1948/" "clojure-mode-20150410.2319/" "archives/" "dired+-20150416.2324/" "pip-requirements-20150228.309/" "auto-compile-20150306.733/" "browse-kill-ring-20150104.1237/" "robe-20150417.1126/" "dired-sort-20090209.438/" "yari-20140206.611/" "simple-httpd-20140908.1908/" "names-20150125.552/" "idomenu-20141123.1320/" "pkg-info-20140610.630/" "eproject-readme.txt" "popwin-20150315.600/" "ac-html-bootstrap-readme.txt" "crontab-mode-20090510.1355/" "log4e-20150105.505/" "yagist-20140321.1512/" "helm-20150423.342/" "highlight-quoted-20140916.1122/" "../" "./")
+
+ ("/home/kevin/.emacs.d/users/kevin/lisp/" (21818 18529 147215 245000) "dired+.el" "../" "dired-view.el" "markdown-mode.el" "./" "highlight.el" "files+.el" "markdown-setting.el")
+
+ ("/home/kevin/.emacs.d/users/kevin/" (21818 20506 513950 100000) "../" "defuns/" "init.el" "lisp/" "./" "settings/" "folders")
+
+ ("/home/kevin/.emacs.d/lisp/" (21818 8967 830218 864000) "init-auto-complete.el" "init-themes.el" "init-utils.el" "init-org.el" "init-ibuffer.el" "init-fonts.el" "init-csv.el" "init-textile.el" "init-xterm.el" "init-compile.el" "init-locales.el" "init-proxies.el" "../" "init-sql.el" "init-local.el" "init-windows.el" "init-dash.el" "init-haml.el" "init-spelling.el" "init-github.el" "init-elpa.el" ".dir-locals.el" "init-ruby-mode.el" "init-isearch.el" "init-hippie-expand.el" "init-editing-utils.el" "init-common-lisp.el" "init-misc.el" "init-rails.el" "init-html.el" "init-flycheck.el" "init-haskell.el" "init-nxml.el" "init-clojure.el" "init-dired.el" "init-flyspell.el" "init-crontab.el" "init-php.el" "init-grep.el" "init-python-mode.el" "init-lisp.el" "init-markdown.el" "init-clojure-cider.el" "init-mmm.el" "init-frame-hooks.el" "init-compat.el" "init-css.el" "init-site-lisp.el" "init-erlang.el" "./" "init-javascript.el" "init-git.el" "init-sessions.el" "init-exec-path.el" "init-ido.el" "init-benchmarking.el" "init-vc.el" "init-darcs.el" "init-paredit.el" "init-ledger.el" "init-slime.el" "init-uniquify.el" "init-gui-frames.el" "init-osx-keys.el" "init-recentf.el")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/change-inner/" (21817 51254 467622 859000) "../" "README.md" "./" "change-inner.el")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/eproject/" (21817 51604 754301 606000) "../" "lang/" "contrib/" ".gitignore" "eproject.el" "./" "eproject-tests.el" "eproject-extras.el")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/jump-char/" (21817 52063 230984 83000) "../" "README.org" "./" "jump-char.el")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/project-archetypes/" (21817 52312 434326 9000) "../" "project-archetypes.el" "./")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/" (21818 10642 713609 955000) "mouse-slider-mode.el" "smex/" "dired-dd-0.9.1.28/" "wl/" "groovy-mode/" "delsel/" "yaml-mode/" "buster-snippets/" "tern/" "smooth-scrolling.el" "annoying-arrows-mode/" "feature-mode/" "../" "diminish.el" "buster-mode/" "angular-snippets/" "single-quotes-mode.el" "datomic-snippets/" "apache-mode.el" "find-file-in-project/" "jump-char/" "rhtml-mode/" "#frame-cmds.el#" "browse-kill-ring/" "fill-column-indicator/" "oppdrag-mode.el" "s/" "change-inner/" "bash-completion/" "js2-mode/" "shell-command.el" "evil/" "clj-refactor/" "undo-tree.el" "skewer-mode/" "multifiles/" "puppet-mode/" "perspective/" "jade-mode/" "multiple-cursors/" "eproject/" "bbdb/" "frame-fns.el" "dash/" "js2-refactor/" "frame-cmds.el" "./" "php-mode/" "w3m/" "expand-region/" "hardcore-mode/" "ido-ubiquitous/" "wgrep/" "smart-forward/" "ace-jump-mode/" "tagedit/" "fold-this/" "mew/" "project-archetypes/" "crappy-jsp-mode/" "zoom-frm.el" "simplezen/" "top-mode.el")
+
+ ("/home/kevin/.emacs.d/elpa/wanderlust-20150307.1525/" (21816 37748 111116 152000) "elmo-version.el" "elsp-sa.el" "elsp-spamoracle.elc" "elmo-signal.el" "elmo-pop3.elc" "modb.el" "wl-thread.el" "wl-address.elc" "elmo-map.elc" "elmo-maildir.elc" "elmo-localdir.el" "wl-highlight.elc" "wl-version.elc" "wanderlust-autoloads.el" "elsp-bogofilter.elc" "modb-entity.el" "mmimap.el" "slp.el" "wl-summary.elc" "wl-thread.elc" "wl-refile.el" "elmo-search.elc" "wl-e21.elc" "slp.elc" "elmo-cache.el" "../" "mmimap.elc" "elmo-flag.elc" "wl.info-2" "elmo-spam.elc" "elmo-nntp.el" "wl-score.el" "wl-demo.el" "elmo-mime.elc" "modb-legacy.elc" "elmo-vars.elc" "elmo-vars.el" "elmo-sendlog.el" "wl-template.elc" "elmo-dop.el" "wl-vars.elc" "wanderlust-pkg.el" "elsp-spamoracle.el" "dir" "wl-expire.elc" "elmo-sendlog.elc" "elmo-flag.el" "elmo-null.elc" "elmo-imap4.el" "elmo-net.elc" "elmo-pop3.el" "elmo-null.el" "acap.elc" "elmo-imap4.elc" "wl.elc" "elmo-search.el" "wl-acap.elc" "modb.elc" "wl-message.elc" "pldap.elc" "wl-version.el" "wl-summary.el" "wl-template.el" "elmo-multi.elc" "wl.info-1" "wl-batch.elc" "elmo-date.elc" "wl-util.elc" "modb-entity.elc" "elmo-nntp.elc" "wl-ja.info" "wl-batch.el" "elmo-localnews.elc" "elmo-localnews.el" "wl-folder.elc" "wl-highlight.el" "wl-address.el" "wl-draft.el" "wl-mime.el" "elmo-msgdb.el" "wl-score.elc" "modb-legacy.el" "acap.el" "elmo-pipe.elc" "elsp-sa.elc" "elmo-internal.el" "elmo.el" "elmo-spam.el" "wl-util.el" "wl-fldmgr.el" "wl-action.el" "modb-standard.elc" "wl-addrmgr.elc" "wl-folder.el" "elmo-access.elc" "elmo-multi.el" "elmo-filter.el" "wl-spam.el" "icons/" "elsp-bogofilter.el" "wl-action.elc" "elmo-archive.elc" "wl-expire.el" "elmo-msgdb.elc" "elmo-split.elc" "elmo-util.elc" "wl-addrmgr.el" "elmo-archive.el" "elmo-file.el" "./" "elsp-bsfilter.el" "elmo-localdir.elc" "wl-demo.elc" "elmo-dop.elc" "elmo-signal.elc" "elmo-shimbun.el" "elmo.elc" "elsp-bsfilter.elc" "wl-refile.elc" "elmo-pipe.el" "elmo-util.el" "elmo-mime.el" "elmo-internal.elc" "wl.info" "wl-mime.elc" "wl-message.el" "wl-vars.el" "wl.el" "wl-e21.el" "elmo-access.el" "elmo-date.el" "wl-draft.elc" "wl-spam.elc" "wl-fldmgr.elc" "pldap.el" "elsp-spamfilter.el" "elmo-file.elc" "elmo-map.el" "elmo-cache.elc" "elmo-filter.elc" "elmo-version.elc" "elmo-net.el" "wl-acap.el" "elmo-maildir.el" "modb-standard.el" "elmo-split.el")
+
+ ("/home/kevin/.emacs.d_manger/" (21817 25029 56718 498000) ".folders" "#init.el#" "session.28795f802-4e8c-4b07-ab75-0cbd488ff74c" "var/" "eshell/" ".places" "site-lisp/" "../" "README.md" "session.2bc9e02ab-ffe1-4029-9a5b-457b0d2f7293" ".emacs.desktop" "session.21d9342e2-4834-425f-b9e6-216f992c0363" "defuns/" "themes/" "tramp" ".cask/" "init.el" "backups/" "ido.last" ".gitignore" "custom.el" "my-site-lisp/" ".gitmodules" "users/" "./" "settings/" "session.204225d81-3dd5-4801-bd3c-347db21f2865" "elpa/" "history" ".git/" "snippets/" "auto-save-list/" ".mc-lists.el" "recentf" "project-archetypes/")
+
+ ("/home/kevin/.emacs.d/users/" (21818 3261 860022 98000) "../" "kevin/" "backup/" "./")
+
+ ("/home/kevin/.emacs.d/elpa/smart-forward-20140430.13/" (21817 52440 140997 80000) "smart-forward-autoloads.el" "smart-forward-pkg.elc" "../" "smart-forward-pkg.el" "smart-forward.elc" "smart-forward.el" "./")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/tern/" (21741 1806 675225 261000) "index.html" "../" "README.md" "package.json" "doc/" "lib/" "bin/" "plugin/" "LICENSE" ".gitignore" "emacs/" "./" "defs/" ".tern-project" "test/")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/multifiles/" (21741 1806 675225 261000) "Carton" "features/" "multifiles.el" "../" "wishful-readme.md" "README.md" "watch-tests.watchr" ".gitignore" ".gitmodules" "./" "util/" "Makefile" "run-travis-ci.sh")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/ace-jump-mode/" (21817 51942 880979 932000) "../" "ace-jump-mode.el" "./")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/dired-dd-0.9.1.28/" (21810 39982 674547 4000) "dired-dd.html" "ChangeLog" "README" "../" "NEWS" "spinout/" "dired-dd-b3-menu.el" "ls-japan.el" "dired-do-emacs-command.el" "COPYING" "non-dired-drop/" "dired-dd.el" "./" "INSTALL" "dired-dd.texi" "dired-dd.info" "Makefile" "dired-dd_toc.html")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/dash/" (21741 1806 675225 261000) "Cask" "../" "create-docs.sh" "README.md" "pre-commit.sh" "rainbow-dash.png" "dash-functional.el" "dev/" "run-tests.sh" "dash-template.texi" "watch-tests.watchr" "readme-template.md" "./" "dash.el" ".travis.yml" "run-travis-ci.sh")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/browse-kill-ring/" (21817 51246 454289 250000) "README" "../" "./" "browse-kill-ring.el")
+
+ ("/home/kevin/.emacs.d_mine/settings/" (21816 49200 56728 913000) "setup-org.el" "setup-ido.el" "setup-markdown-mode.el" "setup-perspective.el" "setup-hippie.el" "../" "setup-ruby-mode.el" "setup-skewer.el" "setup-rgrep.el" "key-bindings.el" "my-misc.el" "setup-ffip.el" "#key-bindings.el#" "setup-yesqlg.el" "setup-paredit.el" "setup-yasnippet.el" "mac.el" "appearance.el" "setup-flycheck.el" "sane-defaults.el" "setup-js2-mode.el" "mode-mappings.el" "setup-package.el" "./" "setup-magit.el" "setup-html-mode.el" ".git/" "setup-shell.el" "setup-clojure-mode.el" "setup-dired.el" "setup-elnode.el")
+
+ ("/home/kevin/.emacs.d_mine/" (21816 18499 243785 705000) ".folders" "#init.el#" "session.28795f802-4e8c-4b07-ab75-0cbd488ff74c" "var/" "eshell/" ".places" "site-lisp/" "../" "README.md" "session.2bc9e02ab-ffe1-4029-9a5b-457b0d2f7293" ".emacs.desktop" "session.21d9342e2-4834-425f-b9e6-216f992c0363" "defuns/" "themes/" "tramp" ".cask/" "init.el" "backups/" "ido.last" ".gitignore" "custom.el" "my-site-lisp/" ".gitmodules" "users/" "./" "settings/" "session.204225d81-3dd5-4801-bd3c-347db21f2865" "elpa/" "history" ".git/" "snippets/" "auto-save-list/" ".mc-lists.el" "recentf" "project-archetypes/")
+
+ ("/home/kevin/workspace/github/work-notes/" (21815 18073 846610 109000) "../" "README.md" "schedules/" "notes/" "work-note-in-2015.org" "./" ".git/" "work-note-in-2015.html")
+
+ ("/home/kevin/workspace/github/" (21807 18897 693331 207000) "jekyllblog/" "../" "qdframe-project/" "./" "Worg-3b157bd120a9ad360644f91bfe12738e42f8941a.tar.gz" "jekyllblog_back/" ".git/" "work-notes/" "Worg/")
+
+ ("/home/kevin/workspace/" (21805 35407 836647 572000) "zhoushannews/" "TRS.WCM.V6.5Developer/" "kde/" "Qdframe/" "30服务器.txt" "../" "python/" ".metadata/" "taobao/" "linux_c/" "qt/" "bvseo/" "Fillezilla/" "perl/" "HaierFramework/" "github/" "arduino/" "pie/" "Mytest/" "shell/" "./" "phonegap/" "wireshark/" "javascript-frameworks/" "system_monitor/")
+
+ ("/home/kevin/Desktop/" (21816 11502 546877 762000) "../" "#.directory#" "OWASP_Top-10_2013 - Presentation.pptx" "./" ".directory")
+)
+
+;; ----- ido-unc-hosts-cache -----
+t
