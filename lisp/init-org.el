@@ -133,10 +133,6 @@ typical word processor."
 
 ;;; Agenda views
 
-(setq org-agenda-files (list (expand-file-name "gtd.org" org-directory)
-                             org-default-notes-file
-                             ))
-
 
 (let ((active-project-match "-INBOX/PROJECT"))
 
