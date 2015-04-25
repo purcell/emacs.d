@@ -109,10 +109,32 @@ bold;}.ra{text-align: right;}</style>")
 (require 'expand-region)
 (require 'multiple-cursors)
 (require 'jump-char)
-(require 'eproject)
+;;(require 'eproject)
 (require 'smart-forward)
 (require 'change-inner)
 (require 'multifiles)
+
+;; using projectile to manage projects
+(projectile-global-mode)
+
+;;(add-hook 'ruby-mode-hook 'projectile-mode)
+;; enable cache for big project
+;;(setq projectile-enable-caching t)
+;; using F5 for finding files in project
+(global-set-key [f5] 'projectile-find-file)
+
+;;in order to allow for the occasions where you want to select the top-level directory.
+(setq projectile-find-dir-includes-top-level t)
+
+;; using helm for project find 
+(setq projectile-completion-system 'helm)
+(helm-projectile-on)
+(setq projectile-switch-project-action 'helm-projectile-find-file)
+(setq projectile-switch-project-action 'helm-projectile) ;; another choice
+
+
+
+
 
 ;; Don't use expand-region fast keys
 (setq expand-region-fast-keys-enabled nil)
