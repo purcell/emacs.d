@@ -1,4 +1,5 @@
 #!/bin/sh -e
+echo "Attempting startup..."
 ${EMACS:=emacs} -nw --batch \
                 --eval '(let ((debug-on-error t)
                               (user-emacs-directory default-directory)
