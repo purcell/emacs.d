@@ -109,7 +109,7 @@
 ;; Make shell more convenient, and suspend-frame less
 (global-set-key (kbd "C-z") 'shell)
 (global-set-key (kbd "C-x M-z") 'suspend-frame)
-(global-set-key (kbd "C-x C-m") 'toggle-frame-maximized)
+(global-set-key (kbd "C-x C-m") 'toggle-frame-maximized) ;; already have C-x RET
 
 
 
@@ -414,12 +414,14 @@
 
 ;; Using dired-view for allowing select file in Dired-Mode by file's fist name.
 ;;(define-key dired-mode-map (kbd ";") 'dired-view-minor-mode-toggle)
-(define-key dired-mode-map (kbd ":") 'dired-view-minor-mode-dired-toggle)
+(define-key dired-mode-map (kbd ";") 'dired-view-minor-mode-dired-toggle)
 
 ;; Jump to current buffer's directory it is in.
 (define-key global-map (kbd "C-x C-j") 'dired-jump)
 (define-key global-map (kbd "C-x 4 C-j") 'dired-jump-other-window)
 (define-key global-map (kbd "C-x C-h") 'dired-omit-mode)
 
+
+(global-unset-key (kbd "C-SPC")) ;; close C-SPC for mark, using for toggle fcitx
 
 (provide 'key-bindings)

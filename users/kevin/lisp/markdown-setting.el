@@ -852,8 +852,8 @@
 
 
 
-(setq markdown-css-theme "solarized-dark")
-(setq markdown-xhtml-header-content markdown-css-style-solarized-dark )
+(setq markdown-css-theme "solarized-light")
+(setq markdown-xhtml-header-content markdown-css-style-solarized-light )
 
 
 
