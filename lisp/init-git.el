@@ -28,7 +28,8 @@
 
 (add-hook 'git-commit-mode-hook 'goto-address-mode)
 (after-load 'session
-  (add-to-list 'session-mode-disable-list 'git-commit-mode))
+  (when (boundp 'session-mode-disable-list) ; newer Emacsen
+    (add-to-list 'session-mode-disable-list 'git-commit-mode)))
 
 
 ;;; When we start working on git-backed files, use git-wip if available
