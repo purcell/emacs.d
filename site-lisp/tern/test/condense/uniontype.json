@@ -1,0 +1,11 @@
+{
+  "!name": "uniontype.js",
+  "x": {
+    "!span": "9[0:9]-10[0:10]",
+    "!type": "fn(a: string|[number])"
+  },
+  "y": {
+    "!span": "26[1:9]-27[1:10]",
+    "!type": "fn() -> bool|number"
+  }
+}

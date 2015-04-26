@@ -1,47 +1,47 @@
 // number tests
 
 var x = Math.PI;
-x. //+ toExponential, toString, toFixed
+x. //+ toExponential, toPrecision, toString, toFixed
 
 Math.cos(x). //+ toExponential, ...
 
 var a = [1, 2, 3]; 
-a[0]. //+ toExponential, toString, toFixed
+a[0]. //+ toExponential, toPrecision, toString, toFixed
 
 var y = a.slice(2);
-y[0]. //+ toExponential, toString, toFixed
+y[0]. //+ toExponential, toPrecision, toString, toFixed
 
 var z = [].reduce(function(a, b) { return a - 2; }, 0);
-z. //+ toExponential, toString, toFixed, ...
+z. //+ toExponential, toPrecision, toString, toFixed, ...
 
 var n = Math.cos.call(null, 10); 
-n. //+ toExponential, toString, toFixed
+n. //+ toExponential, toPrecision, toString, toFixed
 
 var m = 10 - "1";
-m. //+ toExponential, toString, toFixed
+m. //+ toExponential, toPrecision, toString, toFixed
 
 var k = m;
-k. //+ toExponential, toString, toFixed
+k. //+ toExponential, toPrecision, toString, toFixed
 
 var l = (function () { return { x: 10, y: 100 }; })().x;
-l. //+ toExponential, toString, toFixed
+l. //+ toExponential, toPrecision, toString, toFixed
 
 var a2 = parseInt("2");
-a2. //+ toExponential, toString, toFixed
+a2. //+ toExponential, toPrecision, toString, toFixed
 
 var a3 = parseFloat("1.5");
-a3. //+ toExponential, toString, toFixed
+a3. //+ toExponential, toPrecision, toString, toFixed
 
 var a4 = Number("10");
-a4. //+ toExponential, toString, toFixed
+a4. //+ toExponential, toPrecision, toString, toFixed
 
 var a5 = (2 > 1) ? 10: 200;
-a5. //+ toExponential, toString, toFixed
+a5. //+ toExponential, toPrecision, toString, toFixed
 
 var b1 = Number.POSITIVE_INFINITY;
-b1. //+ toExponential, toString, toFixed
+b1. //+ toExponential, toPrecision, toString, toFixed
 
-Math.acos(-1 * Math.abs(-1)). //+ toExponential, toString, toFixed
+Math.acos(-1 * Math.abs(-1)). //+ toExponential, toPrecision, toString, toFixed
 
 Math. //+ abs, min, max, ...
 Math.p //+ pow, propertyIsEnumerable
@@ -49,7 +49,7 @@ Math.p //+ pow, propertyIsEnumerable
 // regular expression tests
 
 var reg = new RegExp(/test/i, "test Test");
-reg. //+ compile, exec, test, ...
+reg. //+ exec, test, ...
 
 var pattern1 = /is/g;
 pattern1. //+ global, ignoreCase, multiline, ...
@@ -76,7 +76,7 @@ var s2 = new String("hello, world");
 s2. //+ substring, toLowerCase, trim, substr, toUpperCase, ...
 
 var s3 = "test";
-s3. //+ split, trimLeft, trimRight, ...
+s3. //+ split, trim, ...
 
 var s4 = ["Strawberry", "Blueberry"][0];
 s4. //+ toLocaleLowerCase, toLocaleUpperCase, ...
@@ -89,7 +89,7 @@ person.lastname = "Doe";
 person.age = 50;
 person.eyecolor = "blue";
 person. //+ age, eyecolor, firstname, lastname
-person.age. //+ toExponential, toFixed, toString
+person.age. //+ toExponential, toPrecision, toFixed, toString
 person.lastname. //+ charAt, charCodeAt, concat, ...
 
 function personType(firstname, lastname, age, eyecolor) {
@@ -120,10 +120,10 @@ var base = {foo: 10, bar: 20, foo2: { a: 10, b: "test" } };
 base. //+ bar, baz, foo, foo2
 base.f //+ foo, foo2
 base.foo //+ foo, foo2
-base.foo. //+ toExponential, toFixed, toString
+base.foo. //+ toExponential, toPrecision, toFixed, toString
 base.foo2 //+ foo2
 base.foo2. //+ a, b
-base.foo2.a. //+ toExponential, toFixed, toString
+base.foo2.a. //+ toExponential, toPrecision, toFixed, toString
 base.foo2.b. //+ charAt, charCodeAt, concat, ...
 
 base.baz = 30;
@@ -134,18 +134,18 @@ var gen2 = Object.create(gen1);
 gen1.quux = 50;
 gen2.kaka = 10;
 gen1.  //+ bar, baz, foo, foo2, quux
-gen1.foo. //+ toExponential, toFixed, toString
+gen1.foo. //+ toExponential, toPrecision, toFixed, toString
 gen1.kaka. //+ 
-gen1.quux. //+ toExponential, toFixed, toString
+gen1.quux. //+ toExponential, toPrecision, toFixed, toString
 gen2. //+ bar, baz, foo, foo2, quux, kaka
-gen2.kaka. //+ toExponential, toFixed, toString
-gen2.quux. //+ toExponential, toFixed, toString
+gen2.kaka. //+ toExponential, toPrecision, toFixed, toString
+gen2.quux. //+ toExponential, toPrecision, toFixed, toString
 
 var extend = Object.create(base, { prop1: { value: "hi" }, prop2: { value: 10 } });
 extend. //+ bar, baz, foo, foo2, prop1, prop2
 extend.prop1. //+ charAt, charCodeAt, concat, ... @14
-extend.prop2. //+ toExponential, toFixed, toString
-extend.bar. //+ toExponential, toFixed, toString
+extend.prop2. //+ toExponential, toPrecision, toFixed, toString
+extend.bar. //+ toExponential, toPrecision, toFixed, toString
 
 var empty = Object.create(null);
 empty.prop1 = "hi";
@@ -177,7 +177,7 @@ var foo = new Foo(true);
 
 foo. //+ bar, makeString, x, y, ...
 foo.makeString(). //+ charAt, charCodeAt, concat, ...
-foo.bar. //+ toExponential, toFixed, toString
+foo.bar. //+ toExponential, toPrecision, toFixed, toString
 
 config = {
   CSS: {
@@ -258,7 +258,7 @@ function one(){
   var localVar1InOne = "test"; 
   globalVar1 = 10; 
   function innerFunc1() {
-    globalVar1. //+ toExponential, toFixed, toString
+    globalVar1. //+ toExponential, toPrecision, toFixed, toString
     localVar1InOne. //+ charAt, charCodeAt, concat, ...
     var localVar1InInnerFunc = "hello";
   }
@@ -266,7 +266,7 @@ function one(){
 }
 person. //+ firstname, lastname, age, eyecolor
 
-globalVar1. //+ toExponential, toFixed, toString
+globalVar1. //+ toExponential, toPrecision, toFixed, toString
 localVar1InOne. //+ 
 
 function timeout(f, timeout) {}
@@ -316,7 +316,7 @@ varInIf.           //+
 // for control flow
 function testForControlFlow1() {
   varInForLoop. //+ charAt, charCodeAt, concat, ...
-  varInNestedForLoop. //+ toExponential, toString, toFixed
+  varInNestedForLoop. //+ toExponential, toPrecision, toString, toFixed
 
   var m = "test";
   for (var n = 0; n < 10; n++) {
@@ -324,7 +324,7 @@ function testForControlFlow1() {
     for (var j = 0; j < 5; j++ ) {
       var varInNestedForLoop = 10;
     }
-    varInNestedForLoop. //+ toExponential, toString, toFixed
+    varInNestedForLoop. //+ toExponential, toPrecision, toString, toFixed
   }
 }
 varInForLoop. //+ 

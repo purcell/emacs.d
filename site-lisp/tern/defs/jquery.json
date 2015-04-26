@@ -11,7 +11,7 @@
     }
   },
   "jQuery": {
-    "!type": "fn(selector: string, context: frameElement) -> jQuery.fn",
+    "!type": "fn(selector: string, context?: frameElement) -> jQuery.fn",
     "!url": "http://api.jquery.com/jquery/",
     "!doc": "Return a collection of matched elements either found in the DOM based on passed argument(s) or created by passing an HTML string.",
     "fn": {
@@ -436,7 +436,7 @@
         "!doc": "Get the closest ancestor element that is positioned."
       },
       "on": {
-        "!type": "fn(events: string, selector?: string, data?: ?, handler: fn(+jQuery.Event)) -> jQuery.fn",
+        "!type": "fn(events: string, handler: fn(+jQuery.Event)) -> jQuery.fn",
         "!url": "http://api.jquery.com/on/",
         "!doc": "Attach an event handler function for one or more events to the selected elements."
       },
@@ -501,7 +501,7 @@
         "!doc": "Get all preceding siblings of each element up to but not including the element matched by the selector, DOM node, or jQuery object."
       },
       "promise": {
-        "!type": "fn(type?: string, target: ?) -> +jQuery.Deferred",
+        "!type": "fn(type?: string, target: ?) -> +jQuery.Promise",
         "!url": "http://api.jquery.com/promise/",
         "!doc": "Return a Promise object to observe when all actions of a certain type bound to the collection, queued or not, have finished."
       },
@@ -743,7 +743,7 @@
       }
     },
     "ajax": {
-      "!type": "fn(url: string, settings: ?) -> +XMLHttpRequest",
+      "!type": "fn(url: string, settings: ?) -> +jQuery.jqXHR",
       "!url": "http://api.jquery.com/jquery.ajax/",
       "!doc": "Perform an asynchronous HTTP (Ajax) request."
     },
@@ -982,7 +982,7 @@
           "!doc": "Call the progressCallbacks on a Deferred object with the given context and args."
         },
         "pipe":{
-          "!type": "fn(doneFilter?: fn(), failFilter?: fn()) -> +jQuery.Deferred",
+          "!type": "fn(doneFilter?: fn(), failFilter?: fn()) -> +jQuery.Promise",
           "!url": "http://api.jquery.com/deferred.pipe/",
           "!doc": "Utility method to filter and/or chain Deferreds."
         },
@@ -992,7 +992,7 @@
           "!doc": "Add handlers to be called when the Deferred object generates progress notifications."
         },
         "promise":{
-          "!type": "fn(target: ?) -> +jQuery.Deferred",
+          "!type": "fn(target: ?) -> +jQuery.Promise",
           "!url": "http://api.jquery.com/deferred.promise/",
           "!doc": "Return a Deferred's Promise object."
         },
@@ -1022,13 +1022,50 @@
           "!doc": "Determine the current state of a Deferred object."
         },
         "then":{
-          "!type": "fn(doneFilter: fn(), failFilter?: fn(), progressFilter?: fn()) -> +jQuery.Deferred",
+          "!type": "fn(doneFilter: fn(), failFilter?: fn(), progressFilter?: fn()) -> +jQuery.Promise",
           "!url": "http://api.jquery.com/deferred.then/",
           "!doc": "Add handlers to be called when the Deferred object is resolved, rejected, or still in progress."
         }
       }
     },
-    "Promise": "jQuery.Deferred",
+    "Promise": {
+      "!url": "http://api.jquery.com/jQuery.Deferred/",
+      "!doc": "A constructor function that returns a chainable utility object with methods to register multiple callbacks into callback queues, invoke callback queues, and relay the success or failure state of any synchronous or asynchronous function.",
+      "prototype": {
+        "always": "fn(callback: fn()) -> +jQuery.Promise",
+        "done": "fn(callback: fn()) -> +jQuery.Promise",
+        "fail": "fn(callback: fn()) -> +jQuery.Promise",
+        "isRejected": "fn() -> bool",
+        "isResolved": "fn() -> bool",
+        "pipe": "fn(doneFilter?: fn(), failFilter?: fn()) -> +jQuery.Promise",
+        "promise": "fn(target: ?) -> +jQuery.Deferred",
+        "state": "fn() -> string",
+        "then": "fn(doneFilter: fn(), failFilter?: fn(), progressFilter?: fn()) -> +jQuery.Promise"
+      }
+    },
+    "jqXHR": {
+      "prototype": {
+        "always": "fn(callback: fn()) -> +jQuery.jqXHR",
+        "done": "fn(callback: fn()) -> +jQuery.jqXHR",
+        "fail": "fn(callback: fn()) -> +jQuery.jqXHR",
+        "isRejected": "fn() -> bool",
+        "isResolved": "fn() -> bool",
+        "pipe": "fn(doneFilter?: fn(), failFilter?: fn()) -> +jQuery.Promise",
+        "promise": "fn(target: ?) -> +jQuery.Promise",
+        "state": "fn() -> string",
+        "then": "fn(doneFilter: fn(), failFilter?: fn(), progressFilter?: fn()) -> +jQuery.Promise",
+        "readyState": "number",
+        "status": "number",
+        "statusText": "string",
+        "responseText": "string",
+        "responseXML": "string",
+        "setRequestHeader": "fn(name: string, val: string)",
+        "getAllResponseHeader": "fn() ->",
+        "getResponseHeader": "fn() ->",
+        "statusCode": "fn() -> number",
+        "abort": "fn()"
+      }
+    },
     "dequeue": {
         "!type": "fn(queue?: string) -> jQuery.fn",
         "!url": "http://api.jquery.com/jQuery.dequeue/",
@@ -1067,17 +1104,17 @@
       "start": "fn()"
     },
     "get":{
-      "!type": "fn(url: string, data?: ?, success: fn(data: string, textStatus: string, req: +XMLHttpRequest), dataType?: string) -> +XMLHttpRequest",
+      "!type": "fn(url: string, data?: ?, success: fn(data: string, textStatus: string, req: +XMLHttpRequest), dataType?: string) -> +jQuery.jqXHR",
       "!url": "http://api.jquery.com/jquery.get/",
       "!doc": "Load data from the server using a HTTP GET request."
     },
     "getJSON": {
-      "!type": "fn(url: string, data?: ?, success: fn(data: ?, textStatus: string, req: +XMLHttpRequest)) -> +XMLHttpRequest",
+      "!type": "fn(url: string, data?: ?, success: fn(data: ?, textStatus: string, req: +XMLHttpRequest)) -> +jQuery.jqXHR",
       "!url": "http://api.jquery.com/jquery.getJSON/",
       "!doc": "Load JSON-encoded data from the server using a GET HTTP request."
     },
     "getScript": {
-      "!type": "fn(url: string, success?: fn(script: string, textStatus: string, req: +XMLHttpRequest)) -> +XMLHttpRequest",
+      "!type": "fn(url: string, success?: fn(script: string, textStatus: string, req: +XMLHttpRequest)) -> +jQuery.jqXHR",
       "!url": "http://api.jquery.com/jquery.getScript/",
       "!doc": "Load a JavaScript file from the server using a GET HTTP request, then execute it."
     },
@@ -1199,7 +1236,7 @@
       "!doc": "Parses a string into an XML document."
     },
     "post": {
-      "!type": "fn(url: string, data?: ?, success: fn(data: string, textStatus: string, req: +XMLHttpRequest), dataType?: string) -> +XMLHttpRequest",
+      "!type": "fn(url: string, data?: ?, success: fn(data: string, textStatus: string, req: +XMLHttpRequest), dataType?: string) -> +jQuery.jqXHR",
       "!url": "http://api.jquery.com/jquery.post/",
       "!doc": "Load data from the server using a HTTP POST request."
     },
@@ -1275,7 +1312,7 @@
       "!doc": "Sorts an array of DOM elements, in place, with the duplicates removed. Note that this only works on arrays of DOM elements, not strings or numbers."
     },
     "when": {
-      "!type": "fn(deferred: +jQuery.Deferred) -> +jQuery.Deferred",
+      "!type": "fn(deferred: +jQuery.Deferred) -> +jQuery.Promise",
       "!url": "http://api.jquery.com/jquery.when/",
       "!doc": "Provides a way to execute callback functions based on one or more objects, usually Deferred objects that represent asynchronous events."
     }

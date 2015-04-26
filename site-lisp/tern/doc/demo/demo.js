@@ -57,7 +57,7 @@ function load(file, c) {
 }
 
 CodeMirror.on(window, "load", function() {
-  var files = ["../defs/ecma5.json", "../defs/browser.json", "../defs/jquery.json"];
+  var files = ["../defs/ecma5.json", "../defs/ecma6.json", "../defs/browser.json", "../defs/jquery.json"];
   var loaded = 0;
   for (var i = 0; i < files.length; ++i) (function(i) {
     load(files[i], function(json) {
@@ -79,10 +79,11 @@ CodeMirror.on(window, "load", function() {
 function initEditor() {
   var keyMap = {
     "Ctrl-I": function(cm) { server.showType(cm); },
+    "Ctrl-O": function(cm) { server.showDocs(cm); },
     "Ctrl-Space": function(cm) { server.complete(cm); },
     "Alt-.": function(cm) { server.jumpToDef(cm); },
     "Alt-,": function(cm) { server.jumpBack(cm); },
-    "Ctrl-Q": function(cm) { server.renamce(cm); }
+    "Ctrl-Q": function(cm) { server.rename(cm); }
   };
 
   editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -93,10 +94,10 @@ function initEditor() {
 
   server = new CodeMirror.TernServer({
     defs: defs,
-    plugins: {requirejs: {}, doc_comment: true},
+    plugins: {requirejs: {}, doc_comment: true, complete_strings: true},
     switchToDoc: function(name) { selectDoc(docID(name)); },
-    workerDeps: ["../../../acorn/acorn.js", "../../../acorn/acorn_loose.js",
-                 "../../../acorn/util/walk.js", "../../../../lib/signal.js", "../../../../lib/tern.js",
+    workerDeps: ["../../../acorn/dist/acorn.js", "../../../acorn/dist/acorn_loose.js",
+                 "../../../acorn/dist/walk.js", "../../../../lib/signal.js", "../../../../lib/tern.js",
                  "../../../../lib/def.js", "../../../../lib/infer.js", "../../../../lib/comment.js",
                  "../../../../plugin/requirejs.js", "../../../../plugin/doc_comment.js"],
     workerScript: "../node_modules/codemirror/addon/tern/worker.js",
@@ -123,6 +124,7 @@ function initEditor() {
 var commands = {
   complete: function(cm) { server.complete(cm); },
   jumptodef: function(cm) { server.jumpToDef(cm); },
+  finddocs: function(cm) { server.showDocs(cm); },
   findtype: function(cm) { server.showType(cm); },
   rename: function(cm) { server.rename(cm); },
   addfile: function() {

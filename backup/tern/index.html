@@ -1,0 +1,111 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <link rel=stylesheet href="doc/docs.css">
+  <title>Tern</title>
+</head>
+
+<div id=top>
+  <div id=head>
+    <a href="http://ternjs.net" class=title>Tern: <span class=subtitle>Intelligent JavaScript tooling</span>
+    </a><a href="doc/demo.html">Demo
+    </a><a href="doc/manual.html">Docs
+    </a><a href="https://github.com/marijnh/tern">Code</a>
+  </div>
+</div>
+
+<p>Tern is a stand-alone <strong>code-analysis engine</strong> for
+JavaScript. It is intended to be used with a <a href="#plugins">code
+editor plugin</a> to enhance the editor's support for intelligent
+JavaScript editing. Features provided are:</p>
+
+<ul>
+  <li>Autocompletion on variables and properties
+  <li>Function argument hints
+  <li>Querying the type of an expression
+  <li>Finding the definition of something
+  <li>Automatic refactoring
+</ul>
+
+<p>Tern is open-source (<a href="LICENSE">MIT license</a>), written in
+JavaScript, and capable of running both
+on <a href="http://nodejs.org">node.js</a> and in
+the <a href="doc/demo.html">browser</a>.</p>
+
+<h2><a id="plugins"></a>Editor plugins</h2>
+
+<p>There is currently Tern support for the following editors:</p>
+
+<ul>
+  <li><a href="doc/manual.html#emacs">Emacs</a>
+  <li><a href="https://github.com/marijnh/tern_for_vim">Vim</a>
+  <li><a href="https://github.com/marijnh/tern_for_sublime">Sublime Text</a>
+  <li><a href="http://brackets.io/">Brackets</a> (built in to the base editor)
+</ul>
+
+<p>Follow the links to find instructions on how to install the
+plugins.</p>
+
+<h2><a id="support"></a>Community and support</h2>
+
+<p>There are two mailing lists for the project, a low-volume one for
+announcements
+at <a href="https://groups.google.com/forum/?fromgroups#!forum/tern-announce">tern-announce</a>,
+and an open one where everyone can post
+at <a href="https://groups.google.com/forum/?fromgroups#!forum/tern-dev">tern-dev</a>.
+For reporting bugs, I prefer that you use
+the <a href="https://github.com/marijnh/tern/issues?state=open">github
+issue tracker</a>.</p>
+
+<p>Code contributions are welcome, preferably
+through <a href="https://github.com/marijnh/tern/pulls">pull
+requests</a>.</p>
+
+<p>The maintainer of the project
+(<a href="mailto:marijnh@gmail.com">Marijn Haverbeke</a>) is, in
+principle, available for consulting work around Tern. Commercial
+support contracts are also possible. Contact me for details.</p>
+
+<h2><a id="docs"></a>Documentation</h2>
+
+<p>The <a href="doc/manual.html">reference manual</a> should be your
+first stop for figuring out how to use Tern.</p>
+
+<p>If you are interested in the way the system works internally, take
+a look at this <a href="http://marijnhaverbeke.nl/blog/tern.html">blog
+post</a>.</p>
+
+<h2><a id="releases"></a>Release history</h2>
+
+<p class="release">12-08-2013: <a href="https://github.com/marijnh/tern/tree/0.4.0">Version 0.4</a></p>
+
+<ul class="release-note">
+  <li>Several fixes for exponential running time on some inputs.</li>
+  <li>New IDO completion frontend for the Emacs mode.</li>
+  <li>Add missing <code>buffer</code> and <code>timers</code> modules to node plugin.</li>
+  <li>A few fixes to the <code>bin/condense</code> tool.
+</ul>
+
+<p class="release">10-07-2013: <a href="https://github.com/marijnh/tern/tree/0.3.0">Version 0.3</a></p>
+
+<ul class="release-note">
+  <li>Better <code>this</code> handling.</li>
+  <li>Added underscore definition file.</li>
+  <li>Improved dependency resolution in node plugin.</li>
+  <li><code>node_exports</code> query type added.</li>
+  <li>Glob patterns in <code>loadEagerly</code>/<code>dontLoad</code> settings.</li>
+</ul>
+
+<p class="release">11-06-2013: <a href="https://github.com/marijnh/tern/tree/0.2.0">Version 0.2</a></p>
+
+<ul class="release-note">
+  <li>Make the codebase Windows-safe.</li>
+  <li>Improved handling of large codebases.</li>
+  <li>Move comment parsing logic into a plugin (<code>doc_comment</code>).</li>
+  <li>Many bugfixes.</li>
+</ul>
+
+<p class="release">03-05-2013: <a href="https://github.com/marijnh/tern/tree/0.1.0">Version 0.1</a></p>
+
+<p class="release-note">First numbered release. Should be considered
+beta status, but useable enough to test.</p>

@@ -49,6 +49,38 @@ very top are the <a href="#editor">editor plugins</a>. These talk to a
 <p>
 <a href="#plugins">Server plugins</a>
 </p>
+<div class="ulist"><ul>
+<li>
+<p>
+<a href="#plugin_doc_comment">Doc comments</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#plugin_complete_strings">String completion</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#plugin_node">node</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#plugin_requirejs">RequireJS</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#plugin_angular">Angular.js</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#plugin_third_party">Third-party plugins</a>
+</p>
+</li>
+</ul></div>
 </li>
 <li>
 <p>
@@ -124,6 +156,16 @@ very top are the <a href="#editor">editor plugins</a>. These talk to a
 <a href="#sublime_text">Sublime Text</a>
 </p>
 </li>
+<li>
+<p>
+<a href="#tern_java">Eclipse</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#tern_for_gedit">Gedit</a>
+</p>
+</li>
 </ul></div>
 </li>
 <li>
@@ -144,7 +186,9 @@ that instead of the HTTP server described here.)</p>
 <p>  <a id="project_file"></a>When started, the server will look for a <code>.tern-project</code> file in the
 current directory or one of the directories above that, and use it for
 its <a href="#configuration">configuration</a>. If no project file is found,
-it&#8217;ll fall back to an empty default configuration.</p>
+it&#8217;ll fall back to a default configuration. You can change this
+default configuration by putting a <code>.tern-config</code> file, with the same
+format as <code>.tern-project</code>, in your home directory.</p>
 <p> A server write the port it is listening on (which is random) to
 standard output on startup. It will serve a <a href="#protocol">simple JSON protocol</a> via HTTP on that port. Clients can upload code and ask
 questions about the code through this protocol.</p>
@@ -157,6 +201,15 @@ questions about the code through this protocol.</p>
 <p>
 Specify a port to listen on, instead of the
 default behavior of letting the OS pick a random unused port.
+</p>
+</dd>
+<dt>
+<code>--host &lt;host&gt;</code>
+</dt>
+<dd>
+<p>
+Specify a host to listen on. Defaults to 127.0.0.1.
+Pass <code>null</code> or <code>any</code> to listen on all available hosts.
 </p>
 </dd>
 <dt>
@@ -195,14 +248,18 @@ servers for the same project).
 <p> Sending queries to a Tern server is done by making <code>POST</code> requests to
 the server&#8217;s port (using <code>/</code> as the requests&#8217;s path) with a
 <a href="http://json.org">JSON</a> document in the body of the request.</p>
-<p> This document should be an object, with two optional fields, <code>query</code>
-and <code>files</code>. The first describes the kind of information you want to
-ask for. It may be omitted if the request is only used to push new
+<p> This document should be an object, with three optional fields,
+<code>query</code>, <code>files</code>, and <code>timeout</code>.</p>
+<p> The first (<code>query</code>) describes the kind of information you are
+requesting. It may be omitted if the request is only used to push new
 code to the server (in which case you&#8217;ll get an empty object, <code>{}</code> as
 response). The <code>files</code> property, if given, contains an array of file
 specifications, as described below. It may be omitted when the query
 should operate on the code that the server already has, without adding
-anything new.</p>
+anything new. When the <code>timeout</code> field is set, it should contain a
+number, which is interpreted as the maximum amount of milliseconds to
+work (CPU work, ignoring I/O) on this request before returning with a
+timeout error.</p>
 <p> A query is an object with at least a <code>type</code> property, which determines
 what kind of query it is. Depending on the type, other properties must
 or may be present in order to provide further details.</p>
@@ -316,15 +373,26 @@ the properties of <code>Object.prototype</code> unless they have been spelled ou
 by at least to characters.
 </p>
 </dd>
+<dt>
+<code>includeKeywords</code> (optional, default <code>false</code>)
+</dt>
+<dd>
+<p>
+Whether to include
+JavaScript keywords when completing something that is not a property.
+</p>
+</dd>
 </dl>
 <p> The result returned will be an object with <code>start</code> and <code>end</code>
-properties, which give the start and end <a href="#offsets">offsets</a> of the word that was
-completed, and a <code>completions</code> property holding an array of
-completions. When one of the <code>types</code>, <code>depths</code>, <code>docs</code>, <code>urls</code>, or
-<code>origins</code> options was passed, the array will hold objects with a
-<code>name</code> property (the completion text), and, depending on the options,
-<code>type</code>, <code>depth</code>, <code>doc</code>, <code>url</code>, and <code>origin</code> properties. When none of
-these options are enabled, the result array will hold plain strings.</p>
+properties, which give the start and end <a href="#offsets">offsets</a> of the
+word that was completed, an <code>isProperty</code> property that holds a boolean
+indicating whether the completion is for a property or a variable, and
+a <code>completions</code> property holding an array of completions. When one of
+the <code>types</code>, <code>depths</code>, <code>docs</code>, <code>urls</code>, or <code>origins</code> options was
+passed, the array will hold objects with a <code>name</code> property (the
+completion text), and, depending on the options, <code>type</code>, <code>depth</code>,
+<code>doc</code>, <code>url</code>, and <code>origin</code> properties. When none of these options are
+enabled, the result array will hold plain strings.</p>
 </dd>
 <dt>
 <a id="req_type"></a><code>type</code>
@@ -621,6 +689,9 @@ the file (starting at a line boundary), a <code>name</code> property referring t
 an existing file, and an <code>offset</code> property, either an integer or a
 <code>{line, ch}</code> object, indicating the approximate position of the
 fragment in the file.</p>
+<p> To remove a file from the server&#8217;s model of the project, you can
+include an object with a <code>name</code> property that identifies the file and
+a <code>type</code> property of <code>"delete"</code>.</p>
 <h3> <a id="server_api"></a>Programming interface</h3>
 <p> <a id="tern.Server"></a> The base server (without HTTP or configuration-file
 reading) is implemented in <code>lib/tern.js</code>. That package exposes a
@@ -684,12 +755,16 @@ before giving up on it. Defaults to <code>1000</code>.
 <p> A server object has the following methods:</p>
 <dl>
 <dt>
-<a id="tern.Server.addFile"></a> <code>addFile(name: string, text?: string)</code>
+<a id="tern.Server.addFile"></a> <code>addFile(name: string, text?: string, parent?: string)</code>
 </dt>
 <dd>
 <p>
 Register a file with the server. Note that files can also be
-<a href="#protocol_files">included</a> in requests.
+<a href="#protocol_files">included</a> in requests. When using this to
+automatically load a dependency, specify the name of the file (as Tern
+knows it) as the third argument. That way, the file is counted towards
+the <a href="#dependency_budget">dependency budget</a> of the root of its
+dependency graph.
 </p>
 </dd>
 <dt>
@@ -786,25 +861,28 @@ nested objects specify properties of object types. Properties prefixed
 with an exclamation point (<code>!</code>) hold special directives, all other
 properties refer to variable or property names.</p>
 <p> Here is an example:</p>
-<pre data-language="application/x-json" class="cm-s-default">{
-  <span class="cm-string cm-property">"!name"</span>: <span class="cm-string">"mylibrary"</span>,
-  <span class="cm-string cm-property">"!define"</span>: {
-    <span class="cm-string cm-property">"point"</span>: {
-      <span class="cm-string cm-property">"x"</span>: <span class="cm-string">"number"</span>,
-      <span class="cm-string cm-property">"y"</span>: <span class="cm-string">"number"</span>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>{
+  "!name": "mylibrary",
+  "!define": {
+    "point": {
+      "x": "number",
+      "y": "number"
     }
   },
-  <span class="cm-string cm-property">"MyConstructor"</span>: {
-    <span class="cm-string cm-property">"!type"</span>: <span class="cm-string">"fn(arg: string)"</span>,
-    <span class="cm-string cm-property">"staticFunction"</span>: <span class="cm-string">"fn() -> bool"</span>,
-    <span class="cm-string cm-property">"prototype"</span>: {
-      <span class="cm-string cm-property">"property"</span>: <span class="cm-string">"[number]"</span>,
-      <span class="cm-string cm-property">"clone"</span>: <span class="cm-string">"fn() -> +MyConstructor"</span>,
-      <span class="cm-string cm-property">"getPoint"</span>: <span class="cm-string">"fn(i: number) -> point"</span>
+  "MyConstructor": {
+    "!type": "fn(arg: string)",
+    "staticFunction": "fn() -&gt; bool",
+    "prototype": {
+      "property": "[number]",
+      "clone": "fn() -&gt; +MyConstructor",
+      "getPoint": "fn(i: number) -&gt; point"
     }
   },
-  <span class="cm-string cm-property">"someOtherGlobal"</span>: <span class="cm-string">"string"</span>
+  "someOtherGlobal": "string"
 }</pre>
+</div></div>
 <p> This defines a library that sets two globals, <code>MyConstructor</code> holding
 a constructor function, and <code>someOtherGlobal</code> holding a string. The
 origin of the types, variables, and properties defined by this
@@ -903,6 +981,18 @@ passing the syntax tree and a <a href="#infer_scope">scope</a> object.
 Run after the type inference pass.
 </p>
 </dd>
+<dt>
+<code>"typeAt" (file, end, expr, type)</code>
+</dt>
+<dd>
+<p>
+Run after Tern attempts to find the
+type at the position <code>end</code> in the given file, this should return either
+the given type (already calculated by Tern and earlier <code>"typeAt"</code>
+passes) or an alternate type to be used instead. This is useful when a
+plugin can provide a more helpful type than Tern (e.g. within comments).
+</p>
+</dd>
 </dl>
 </dd>
 <dt>
@@ -923,41 +1013,6 @@ do someting useful in this function.
 </p>
 </dd>
 </dl>
-<h3> <a id="configuration"></a>Project configuration</h3>
-<p> A <code>.tern-project</code> file is a <a href="http://json.org">JSON</a> file in a format
-like this:</p>
-<pre data-language="application/x-json" class="cm-s-default">{
-  <span class="cm-string cm-property">"libs"</span>: [
-    <span class="cm-string">"browser"</span>,
-    <span class="cm-string">"jquery"</span>
-  ],
-  <span class="cm-string cm-property">"loadEagerly"</span>: [
-    <span class="cm-string">"importantfile.js"</span>
-  ],
-  <span class="cm-string cm-property">"plugins"</span>: {
-    <span class="cm-string cm-property">"requirejs"</span>: {
-      <span class="cm-string cm-property">"baseURL"</span>: <span class="cm-string">"./"</span>,
-      <span class="cm-string cm-property">"paths"</span>: {}
-    }
-  }
-}</pre>
-<p> The <code>libs</code> property refers to the <a href="#typedef">JSON type descriptions</a>
-that should be loaded into the environment for this project. See the
-<code>defs/</code> directory for examples. The strings given here will be
-suffixed with <code>.json</code>, and searched for first in the project&#8217;s own
-dir, and then in the <code>defs/</code> directory of the Tern distribution.</p>
-<p> By default, local files are loaded into the Tern server when they are
-opened by the editor. <code>loadEagerly</code> allows you to force some files to
-always be loaded, it may be an array of filenames or glob patterns
-(i.e. <code>foo/bar/*.js</code>). The <code>dontLoad</code> option can be used to prevent
-Tern from loading certain files. It also takes an array of file names
-or glob patterns.</p>
-<p> Finally, <code>plugins</code> is an object used to load and configure Tern
-plugins. The names of the properties refer to files that implement
-plugins, either in the project dir or under <code>plugin/</code> in the Tern
-directory. Their values are configuration objects that will be passed
-to the plugins. You can leave them at <code>{}</code> when you don&#8217;t need to pass
-any options.</p>
 <h4> <a id="plugin_doc_comment"></a>Doc comments plugin</h4>
 <p> This plugin, which is enabled by default in the <code>bin/tern</code> server,
 parses comments before function declarations, variable declarations,
@@ -968,6 +1023,22 @@ sentence of comment text as the docstring for the defined variable or
 property.</p>
 <p> To turn this plugin off, set <code>doc_comment: null</code> in your
 <a href="#option_plugins">plugin option</a>.</p>
+<p> The plugin understands the following configuration parameters:</p>
+<dl>
+<dt>
+<code>fullDocs</code>
+</dt>
+<dd>
+<p>
+Can be set to <code>true</code> to return the full comment text instead of the first sentence.
+</p>
+</dd>
+</dl>
+<h4> <a id="plugin_complete_strings"></a>String completion plugin</h4>
+<p> When enabled, this plugin will gather (short) strings in your code,
+and completing when inside a string will try to complete to previously
+seen strings. Takes a single option, <code>maxLength</code>, which controls the
+maximum length of string values to gather, and defaults to 15.</p>
 <h4> <a id="plugin_node"></a>Node.js plugin</h4>
 <p> The <a href="http://nodejs.org">node.js</a> plugin, called <code>"node"</code>, provides
 variables that are part of the node environment, such as <code>process</code> and
@@ -1012,7 +1083,7 @@ JSON data.
 </dd>
 </dl>
 <h4> <a id="plugin_requirejs"></a>RequireJS plugin</h4>
-<p> This plugin teaches the server to understand
+<p> This plugin (<code>"requirejs"</code>) teaches the server to understand
 <a href="http://requirejs.org">RequireJS</a>-style dependency management. It
 defines the global functions <code>define</code> and <code>requirejs</code>, and will do its
 best to resolve dependencies and give them their proper types.</p>
@@ -1035,7 +1106,93 @@ An object mapping filename prefixes to specific paths. For
 example <code>{"acorn": "lib/acorn/"}</code>.
 </p>
 </dd>
+<dt>
+<code>override</code>
+</dt>
+<dd>
+<p>
+An object that can be used to override some dependency
+names to refer to predetermined types. The value associated with a
+name can be a string starting with the character <code>=</code>, in which case
+the part after the <code>=</code> will be interpreted as a global variable (or
+dot-separated path) that contains the proper type. If it is a string
+not starting with <code>=</code>, it is interpreted as the path to the file that
+contains the code for the module. If it is an object, it is
+interpreted as <a href="#typedef">JSON type definition</a>.
+</p>
+</dd>
 </dl>
+<h4> <a id="plugin_angular"></a>Angular.js plugin</h4>
+<p> Adds the <code>angular</code> object to the top-level environment, and tries to
+wire up some of the bizarre dependency management scheme from this
+library, so that dependency injections get the right types. Enabled
+with the name <code>"angular"</code>.</p>
+<h4> <a id="plugin_third_party"></a>Third-party plugins</h4>
+<p> It is possible to write third-party plugins and distribute them
+independently, either as packages using <a href="https://www.npmjs.org">npm</a> or as
+raw JavaScript files.</p>
+<p> When a <em>name</em> attribute is specified in the <code>plugins</code> section of the
+project configuration, Tern first searches for a file <em><code>name</code></em><code>.js</code> in its
+distribution <code>plugin</code> directory, then for a file <em><code>name</code></em><code>.js</code> in the
+user&#8217;s project directory, and finally for an installed package named
+"tern-<em>name</em>" to load as a plugin. A plugin distributed as an npm package
+must have a package name matching the pattern "tern-<em>name</em>".</p>
+<p> The main module for a third-party plugin that will be installed outside of
+the Tern distribution should export a single method <code>initialize(ternDir:
+string)</code> which takes the location of the Tern distribution loading the
+plugin as an argument. Tern will call this method immediately after loading
+the plugin to tell the plugin where to find Tern modules. A plugin with
+this method will work regardless of its install location relative to the
+Tern distribution, but plugins without it may fail to find Tern modules or
+even silently load the wrong Tern modules depending on install location.</p>
+<p> Plugin packages can specify the Tern version required as a
+<a href="http://blog.nodejs.org/2013/02/07/peer-dependencies">peer dependency</a>.</p>
+<h3> <a id="configuration"></a>Project configuration</h3>
+<p> A <code>.tern-project</code> file is a <a href="http://json.org">JSON</a> file in a format
+like this:</p>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>{
+  "libs": [
+    "browser",
+    "jquery"
+  ],
+  "loadEagerly": [
+    "importantfile.js"
+  ],
+  "plugins": {
+    "requirejs": {
+      "baseURL": "./",
+      "paths": {}
+    }
+  }
+}</pre>
+</div></div>
+<p> The <code>libs</code> property refers to the <a href="#typedef">JSON type descriptions</a>
+that should be loaded into the environment for this project. See the
+<code>defs/</code> directory for examples. The strings given here will be
+suffixed with <code>.json</code>, and searched for first in the project&#8217;s own
+dir, and then in the <code>defs/</code> directory of the Tern distribution.</p>
+<p> By default, local files are loaded into the Tern server when queries
+are run on them the editor. <code>loadEagerly</code> allows you to force some
+files to always be loaded, it may be an array of filenames or glob
+patterns (i.e. <code>foo/bar/*.js</code>). The <code>dontLoad</code> option can be used to
+prevent Tern from loading certain files. It also takes an array of
+file names or glob patterns.</p>
+<p> The <code>plugins</code> field may hold object used to load and configure Tern
+plugins. The names of the properties refer to files that implement
+plugins, either in the project dir or under <code>plugin/</code> in the Tern
+directory. Their values are configuration objects that will be passed
+to the plugins. You can leave them at <code>{}</code> when you don&#8217;t need to pass
+any options.</p>
+<p>  <a id="dependency_budget"></a>To configure the amount of work Tern is prepared to do to load a
+single dependency, the <code>dependencyBudget</code> option can be added to a
+project file. It indicates the maximum size of the files loaded in
+response to a single dependency (through plugins that load
+dependencies, such as the <a href="#plugin_node">node</a> and
+<a href="#plugin_requirejs">RequireJS</a> plugins), counted in expressions. The
+default value is 20 000. Files loaded as dependencies of dependencies
+count towards the budget of the original dependency.</p>
 <h3> <a id="utils"></a>Utilities</h3>
 <dl>
 <dt>
@@ -1049,7 +1206,7 @@ types and conditions to check for.
 </p>
 </dd>
 <dt>
-<code>bin/condense</code>
+<a id="condense"></a><code>bin/condense</code>
 </dt>
 <dd>
 <p>
@@ -1657,15 +1814,21 @@ Clone this repository somewhere. Do <code>npm install</code> to get the
 Make Emacs aware of <code>emacs/tern.el</code>. For example by adding this to
   your <code>.emacs</code> file:
 </p>
-<pre data-language="commonlisp" class="cm-s-default"><span class="cm-bracket">(</span><span class="cm-variable">add-to-list</span> '<span class="cm-variable">load-path</span> <span class="cm-string">"/path/to/tern/emacs/"</span><span class="cm-bracket">)</span>
-<span class="cm-bracket">(</span><span class="cm-variable">autoload</span> '<span class="cm-variable">tern-mode</span> <span class="cm-string">"tern.el"</span> <span class="cm-atom">nil</span> <span class="cm-atom">t</span><span class="cm-bracket">)</span></pre>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>(add-to-list 'load-path "/path/to/tern/emacs/")
+(autoload 'tern-mode "tern.el" nil t)</pre>
+</div></div>
 </li>
 <li>
 <p>
 Optionally set <code>tern-mode</code> to be automatically enabled for your
   JavaScript mode of choice. Here&#8217;s the snippet for <code>js-mode</code>:
 </p>
-<pre data-language="commonlisp" class="cm-s-default"><span class="cm-bracket">(</span><span class="cm-variable">add-hook</span> '<span class="cm-variable">js-mode-hook</span> <span class="cm-bracket">(</span><span class="cm-variable">lambda</span> <span class="cm-bracket">()</span> <span class="cm-bracket">(</span><span class="cm-variable">tern-mode</span> <span class="cm-atom">t</span><span class="cm-bracket">)))</span></pre>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>(add-hook 'js-mode-hook (lambda () (tern-mode t)))</pre>
+</div></div>
 </li>
 </ol></div>
 <p> The Emacs mode uses the <code>bin/tern</code> server, and project configuration
@@ -1721,10 +1884,13 @@ open the associated URL (if any).
 </dl>
 <h4> <a id="_auto_complete"></a>Auto-Complete</h4>
 <p> If you want to use <code>auto-complete.el</code> for completion, append following codes:</p>
-<pre data-language="commonlisp" class="cm-s-default"><span class="cm-bracket">(</span><span class="cm-variable">eval-after-load</span> '<span class="cm-variable">tern</span>
-   '<span class="cm-bracket">(</span><span class="cm-variable">progn</span>
-      <span class="cm-bracket">(</span><span class="cm-variable">require</span> '<span class="cm-variable">tern-auto-complete</span><span class="cm-bracket">)</span>
-      <span class="cm-bracket">(</span><span class="cm-variable">tern-ac-setup</span><span class="cm-bracket">)))</span></pre>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>(eval-after-load 'tern
+   '(progn
+      (require 'tern-auto-complete)
+      (tern-ac-setup)))</pre>
+</div></div>
 <p> If <code>tern-ac-on-dot</code> is non-nil (default), typing <code>.</code>(dot) invokes auto-complete to select completions.
 Calling the command <code>tern-ac-complete</code>, one can invoke auto-complete manually.</p>
 <h3> <a id="vim"></a>Vim</h3>
@@ -1739,6 +1905,13 @@ Chikuyonok, and can be found at
 <a href="https://github.com/emmetio/sublime-tern">https://github.com/emmetio/sublime-tern</a>. It uses a Python V8 bridge
 to run the server.</p>
 <p> See the readme files in those repositories for details.</p>
+<h3> <a id="tern_java"></a>Eclipse / Java</h3>
+<p> <a href="https://github.com/angelozerr/tern.java">tern.java</a> is a Tern client
+written in Java. It includes Eclipse integration.</p>
+<h3> <a id="tern_for_gedit"></a>gedit</h3>
+<p> <a href="https://github.com/Swatinem/tern_for_gedit">tern_for_gedit</a> integrates
+Tern with the <a href="https://github.com/Swatinem/tern_for_gedit">gedit</a>
+editor.</p>
 <h2> <a id="software"></a>Related Software</h2>
 <p> This is a place to gather links to software that is built on Tern.
 Drop me an <a href="mailto:marijnh@gmail.com">email</a> if you want to suggest a
@@ -1749,4 +1922,10 @@ ctags files from JavaScript code by using Tern&#8217;s inference engine.</p>
 <h3> <a id="_codemirror_tern_addon"></a>CodeMirror Tern addon</h3>
 <p> The <a href="http://codemirror.net">CodeMirror</a> browser-based editor has an
 <a href="http://codemirror.net/demo/tern.html">addon</a> for integrating with Tern.</p>
+<h3> <a id="_tern_ace"></a>tern.ace</h3>
+<p> <a href="https://github.com/angelozerr/tern.ace">tern.ace</a> integrates Tern in
+the <a href="http://ace.c9.io/">ACE</a> editor.</p>
+<h3> <a id="_tern_orion"></a>tern.orion</h3>
+<p> <a href="https://github.com/angelozerr/tern.orion">tern.orion</a> integrates Tern in
+the <a href="http://www.eclipse.org/orion/">Orion</a> editor.</p>
 </div>

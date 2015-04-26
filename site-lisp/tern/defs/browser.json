@@ -1,67 +1,5 @@
 {
   "!name": "browser",
-  "!define": {
-    "canvas.context2d": {
-      "canvas": "+Element",
-      "width": "number",
-      "height": "number",
-      "commit": "fn()",
-      "save": "fn()",
-      "restore": "fn()",
-      "currentTransform": "?",
-      "scale": "fn(x: number, y: number)",
-      "rotate": "fn(angle: number)",
-      "translate": "fn(x: number, y: number)",
-      "transform": "fn(a: number, b: number, c: number, d: number, e: number, f: number)",
-      "setTransform": "fn(a: number, b: number, c: number, d: number, e: number, f: number)",
-      "resetTransform": "fn()",
-      "globalAlpha": "number",
-      "globalCompositeOperation": "string",
-      "imageSmoothingEnabled": "bool",
-      "strokeStyle": "string",
-      "fillStyle": "string",
-      "createLinearGradient": "fn(x0: number, y0: number, x1: number, y1: number) -> ?",
-      "createPattern": "fn(image: ?, repetition: string) -> ?",
-      "shadowOffsetX": "number",
-      "shadowOffsetY": "number",
-      "shadowBlur": "number",
-      "shadowColor": "string",
-      "clearRect": "fn(x: number, y: number, w: number, h: number)",
-      "fillRect": "fn(x: number, y: number, w: number, h: number)",
-      "strokeRect": "fn(x: number, y: number, w: number, h: number)",
-      "fillRule": "string",
-      "fill": "fn()",
-      "beginPath": "fn()",
-      "stroke": "fn()",
-      "clip": "fn()",
-      "resetClip": "fn()",
-      "measureText": "fn(text: string) -> ?",
-      "drawImage": "fn(image: ?, dx: number, dy: number)",
-      "createImageData": "fn(sw: number, sh: number) -> ?",
-      "getImageData": "fn(sx: number, sy: number, sw: number, sh: number) -> ?",
-      "putImageData": "fn(imagedata: ?, dx: number, dy: number)",
-      "lineWidth": "number",
-      "lineCap": "string",
-      "lineJoin": "string",
-      "miterLimit": "number",
-      "setLineDash": "fn(segments: [number])",
-      "getLineDash": "fn() -> [number]",
-      "lineDashOffset": "number",
-      "font": "string",
-      "textAlign": "string",
-      "textBaseline": "string",
-      "direction": "string",
-      "closePath": "fn()",
-      "moveTo": "fn(x: number, y: number)",
-      "lineTo": "fn(x: number, y: number)",
-      "quadraticCurveTo": "fn(cpx: number, cpy: number, x: number, y: number)",
-      "bezierCurveTo": "fn(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number)",
-      "arcTo": "fn(x1: number, y1: number, x2: number, y2: number, radius: number)",
-      "rect": "fn(x: number, y: number, w: number, h: number)",
-      "arc": "fn(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: bool)",
-      "ellipse": "fn(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: bool)"
-    }
-  },
   "location": {
     "assign": {
       "!type": "fn(url: string)",
@@ -431,7 +369,7 @@
         "!doc": "Returns a set of elements which have all the given class names. When called on the document object, the complete document is searched, including the root node. You may also call getElementsByClassName on any element; it will return only elements which are descendants of the specified root element with the given class names."
       },
       "querySelector": {
-        "!type": "fn(selectors: string) -> +Node",
+        "!type": "fn(selectors: string) -> +Element",
         "!url": "https://developer.mozilla.org/en/docs/DOM/Element.querySelector",
         "!doc": "Returns the first element that is a descendent of the element on which it is invoked that matches the specified group of selectors."
       },
@@ -730,7 +668,7 @@
         "!doc": "Height of an element relative to the element's offsetParent."
       },
       "getContext": {
-        "!type": "fn(id: string) -> canvas.context2d",
+        "!type": "fn(id: string) -> CanvasRenderingContext2D",
         "!url": "https://developer.mozilla.org/en/docs/DOM/HTMLCanvasElement",
         "!doc": "DOM canvas elements expose the HTMLCanvasElement interface, which provides properties and methods for manipulating the layout and presentation of canvas elements. The HTMLCanvasElement interface inherits the properties and methods of the element object interface."
       },
@@ -934,6 +872,26 @@
         "!type": "string",
         "!url": "https://developer.mozilla.org/en/docs/DOM/element.innerHTML",
         "!doc": "Sets or gets the HTML syntax describing the element's descendants."
+      },
+      "createdCallback": {
+        "!type": "fn()",
+        "!url": "http://w3c.github.io/webcomponents/spec/custom/index.html#dfn-created-callback",
+        "!doc": "This callback is invoked after custom element instance is created and its definition is registered. The actual timing of this callback is defined further in this specification."
+      },
+      "attachedCallback": {
+        "!type": "fn()",
+        "!url": "http://w3c.github.io/webcomponents/spec/custom/index.html#dfn-entered-view-callback",
+        "!doc": "Unless specified otherwise, this callback must be enqueued whenever custom element is inserted into a document and this document has a browsing context."
+      },
+      "detachedCallback": {
+        "!type": "fn()",
+        "!url": "http://w3c.github.io/webcomponents/spec/custom/index.html#dfn-left-view-callback",
+        "!doc": "Unless specified otherwise, this callback must be enqueued whenever custom element is removed from the document and this document has a browsing context."
+      },
+      "attributeChangedCallback": {
+        "!type": "fn()",
+        "!url": "http://w3c.github.io/webcomponents/spec/custom/index.html#dfn-attribute-changed-callback",
+        "!doc": "Unless specified otherwise, this callback must be enqueued whenever custom element's attribute is added, changed or removed."
       }
     },
     "!url": "https://developer.mozilla.org/en/docs/DOM/Element",
@@ -1306,7 +1264,20 @@
         "!type": "+HTMLCollection",
         "!url": "https://developer.mozilla.org/en/docs/DOM/document.styleSheets",
         "!doc": "Returns a list of stylesheet objects for stylesheets explicitly linked into or embedded in a document."
-      }
+      },
+      "currentScript": {
+        "!type": "+Node",
+        "!url": "https://developer.mozilla.org/en-US/docs/Web/API/document.currentScript",
+        "!doc": "Returns the <script> element whose script is currently being processed."
+      },
+      "registerElement": {
+        "!type": "fn(type: string, options?: ?)",
+        "!url": "http://w3c.github.io/webcomponents/spec/custom/#extensions-to-document-interface-to-register",
+        "!doc": "The registerElement method of the Document interface provides a way to register a custom element and returns its custom element constructor."
+      },
+      "getElementsByClassName": "Element.prototype.getElementsByClassName",
+      "querySelector": "Element.prototype.querySelector",
+      "querySelectorAll": "Element.prototype.querySelectorAll"
     },
     "!url": "https://developer.mozilla.org/en/docs/DOM/document",
     "!doc": "Each web page loaded in the browser has its own document object. This object serves as an entry point to the web page's content (the DOM tree, including elements such as <body> and <table>) and provides functionality global to the document (such as obtaining the page's URL and creating new elements in the document)."
@@ -1321,6 +1292,270 @@
     "prototype": "Document.prototype",
     "!url": "https://developer.mozilla.org/en/docs/Parsing_and_serializing_XML",
     "!doc": "The Web platform provides the following objects for parsing and serializing XML:"
+  },
+  "HTMLElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement"
+  },
+  "HTMLAnchorElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement"
+  },
+  "HTMLAreaElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLAreaElement"
+  },
+  "HTMLAudioElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLAudioElement"
+  },
+  "HTMLBaseElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLBaseElement"
+  },
+  "HTMLBodyElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLBodyElement"
+  },
+  "HTMLBRElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLBRElement"
+  },
+  "HTMLButtonElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLButtonElement"
+  },
+  "HTMLCanvasElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement"
+  },
+  "HTMLDataElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLDataElement"
+  },
+  "HTMLDataListElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLDataListElement"
+  },
+  "HTMLDivElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement"
+  },
+  "HTMLDListElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLDListElement"
+  },
+  "HTMLDocument": {
+    "!type": "Document",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLDocument"
+  },
+  "HTMLEmbedElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLEmbedElement"
+  },
+  "HTMLFieldSetElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLFieldSetElement"
+  },
+  "HTMLFormControlsCollection": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormControlsCollection"
+  },
+  "HTMLFormElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement"
+  },
+  "HTMLHeadElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLHeadElement"
+  },
+  "HTMLHeadingElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLHeadingElement"
+  },
+  "HTMLHRElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLHRElement"
+  },
+  "HTMLHtmlElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLHtmlElement"
+  },
+  "HTMLIFrameElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLIFrameElement"
+  },
+  "HTMLImageElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement"
+  },
+  "HTMLInputElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement"
+  },
+  "HTMLKeygenElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLKeygenElement"
+  },
+  "HTMLLabelElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement"
+  },
+  "HTMLLegendElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLLegendElement"
+  },
+  "HTMLLIElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLLIElement"
+  },
+  "HTMLLinkElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement"
+  },
+  "HTMLMapElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLMapElement"
+  },
+  "HTMLMediaElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement"
+  },
+  "HTMLMetaElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLMetaElement"
+  },
+  "HTMLMeterElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLMeterElement"
+  },
+  "HTMLModElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLModElement"
+  },
+  "HTMLObjectElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLObjectElement"
+  },
+  "HTMLOListElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLOListElement"
+  },
+  "HTMLOptGroupElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptGroupElement"
+  },
+  "HTMLOptionElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptionElement"
+  },
+  "HTMLOptionsCollection": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptionsCollection"
+  },
+  "HTMLOutputElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLOutputElement"
+  },
+  "HTMLParagraphElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLParagraphElement"
+  },
+  "HTMLParamElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLParamElement"
+  },
+  "HTMLPreElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLPreElement"
+  },
+  "HTMLProgressElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLProgressElement"
+  },
+  "HTMLQuoteElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLQuoteElement"
+  },
+  "HTMLScriptElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLScriptElement"
+  },
+  "HTMLSelectElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLSelectElement"
+  },
+  "HTMLSourceElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLSourceElement"
+  },
+  "HTMLSpanElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLSpanElement"
+  },
+  "HTMLStyleElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLStyleElement"
+  },
+  "HTMLTableCaptionElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableCaptionElement"
+  },
+  "HTMLTableCellElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableCellElement"
+  },
+  "HTMLTableColElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableColElement"
+  },
+  "HTMLTableDataCellElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableDataCellElement"
+  },
+  "HTMLTableElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableElement"
+  },
+  "HTMLTableHeaderCellElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableHeaderCellElement"
+  },
+  "HTMLTableRowElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableRowElement"
+  },
+  "HTMLTableSectionElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableSectionElement"
+  },
+  "HTMLTextAreaElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTextAreaElement"
+  },
+  "HTMLTimeElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTimeElement"
+  },
+  "HTMLTitleElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTitleElement"
+  },
+  "HTMLTrackElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLTrackElement"
+  },
+  "HTMLUListElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLUListElement"
+  },
+  "HTMLUnknownElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement"
+  },
+  "HTMLVideoElement": {
+    "!type": "Element",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement"
   },
   "Attr": {
     "!type": "fn()",
@@ -1585,6 +1820,11 @@
         "!type": "fn()",
         "!url": "https://developer.mozilla.org/en/docs/DOM/event.stopImmediatePropagation",
         "!doc": "Prevents other listeners of the same event to be called."
+      },
+      "type": {
+        "!type": "string",
+        "!url": "https://developer.mozilla.org/en-US/docs/Web/API/event.type",
+        "!doc": "Returns a string containing the type of event."
       },
       "NONE": "number",
       "CAPTURING_PHASE": "number",
@@ -2056,6 +2296,19 @@
     "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
     "!doc": "The FileReader object lets web applications asynchronously read the contents of files (or raw data buffers) stored on the user's computer, using File or Blob objects to specify the file or data to read. File objects may be obtained from a FileList object returned as a result of a user selecting files using the <input> element, from a drag and drop operation's DataTransfer object, or from the mozGetAsFile() API on an HTMLCanvasElement."
   },
+  "URL": {
+    "createObjectURL": {
+      "!type": "fn(blob: +Blob) -> string",
+      "!url": "https://developer.mozilla.org/en-US/docs/Web/API/URL.createObjectURL",
+      "!doc": "The URL.createObjectURL() static method creates a DOMString containing an URL representing the object given in parameter."
+
+    },
+    "revokeObjectURL": {
+      "!type": "fn(string)",
+      "!url": "https://developer.mozilla.org/en-US/docs/Web/API/URL.revokeObjectURL",
+      "!doc": "The URL.revokeObjectURL() static method releases an existing object URL which was previously created by calling window.URL.createObjectURL()."
+    }
+  },
   "Range": {
     "!type": "fn()",
     "prototype": {
@@ -2286,6 +2539,42 @@
     "!url": "https://developer.mozilla.org/en/docs/DOM/DOMParser",
     "!doc": "DOMParser can parse XML or HTML source stored in a string into a DOM Document. DOMParser is specified in DOM Parsing and Serialization."
   },
+  "FormData": {
+    "!type": "fn()",
+    "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData",
+    "prototype": {
+      "append": {
+        "!type": "fn(name: string, value: ?, filename: string)",
+        "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/append",
+        "!doc": "Appends a new value onto an existing key inside a FormData object, or adds the key if it does not already exist."
+      },
+      "delete": {
+        "!type": "fn(name: string)",
+        "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/delete",
+        "!doc": "Deletes a key/value pair from a FormData object."
+      },
+      "get": {
+        "!type": "fn(name: string)",
+        "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/get",
+        "!doc": "Returns the first value associated with a given key from within a FormData object."
+      },
+      "getAll": {
+        "!type": "fn(name: string)",
+        "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/getAll",
+        "!doc": "Returns an array of all the values associated with a given key from within a FormData."
+      },
+      "has": {
+        "!type": "fn(name: string)",
+        "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/has",
+        "!doc": "Returns a boolean stating whether a FormData object contains a certain key/value pair."
+      },
+      "set": {
+        "!type": "fn(name: string, value: ?, filename: string)",
+        "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/set",
+        "!doc": "Sets a new value for an existing key inside a FormData object, or adds the key/value if it does not already exist."
+      }
+    }
+  },
   "Selection": {
     "!type": "fn()",
     "prototype": {
@@ -2415,7 +2704,7 @@
   "window": {
     "!type": "<top>",
     "!url": "https://developer.mozilla.org/en/docs/DOM/window",
-    "!doc": "This section provides a brief reference for all of the methods, properties, and events available through the DOM window object. The window object implements the Window interface, which in turn inherits from the AbstractView interface. Some additional global functions, namespaces objects, and constructors, not typically associated with the window, but available on it, are listed in the JavaScript Reference."
+    "!doc": "The window object represents a window containing a DOM document."
   },
   "opener": {
     "!type": "<top>",
@@ -2682,7 +2971,7 @@
   "ononline": {
     "!type": "?",
     "!url": "https://developer.mozilla.org/en/docs/DOM/document.ononline",
-    "!doc": ",fgh s dgkljgsdfl dfjg sdlgj sdlg sdlfj dlg jkdfkj dfjgdfkglsdfjsdlfkgj hdflkg hdlkfjgh dfkjgh"
+    "!doc": "\"online\" event is fired when the browser switches between online and offline mode."
   },
   "onoffline": {
     "!type": "?",
@@ -2918,5 +3207,67 @@
     "!type": "fn(node: +Element, pseudo?: string) -> Element.prototype.style",
     "!url": "https://developer.mozilla.org/en/docs/DOM/window.getComputedStyle",
     "!doc": "Gives the final used values of all the CSS properties of an element."
+  },
+  "CanvasRenderingContext2D": {
+    "canvas": "+Element",
+    "width": "number",
+    "height": "number",
+    "commit": "fn()",
+    "save": "fn()",
+    "restore": "fn()",
+    "currentTransform": "?",
+    "scale": "fn(x: number, y: number)",
+    "rotate": "fn(angle: number)",
+    "translate": "fn(x: number, y: number)",
+    "transform": "fn(a: number, b: number, c: number, d: number, e: number, f: number)",
+    "setTransform": "fn(a: number, b: number, c: number, d: number, e: number, f: number)",
+    "resetTransform": "fn()",
+    "globalAlpha": "number",
+    "globalCompositeOperation": "string",
+    "imageSmoothingEnabled": "bool",
+    "strokeStyle": "string",
+    "fillStyle": "string",
+    "createLinearGradient": "fn(x0: number, y0: number, x1: number, y1: number) -> ?",
+    "createPattern": "fn(image: ?, repetition: string) -> ?",
+    "shadowOffsetX": "number",
+    "shadowOffsetY": "number",
+    "shadowBlur": "number",
+    "shadowColor": "string",
+    "clearRect": "fn(x: number, y: number, w: number, h: number)",
+    "fillRect": "fn(x: number, y: number, w: number, h: number)",
+    "strokeRect": "fn(x: number, y: number, w: number, h: number)",
+    "fillRule": "string",
+    "fill": "fn()",
+    "beginPath": "fn()",
+    "stroke": "fn()",
+    "clip": "fn()",
+    "resetClip": "fn()",
+    "fillText": "fn(text: string, x: number, y: number, maxWidth: number)",
+    "strokeText": "fn(text: string, x: number, y: number, maxWidth: number)",
+    "measureText": "fn(text: string) -> ?",
+    "drawImage": "fn(image: ?, dx: number, dy: number)",
+    "createImageData": "fn(sw: number, sh: number) -> ?",
+    "getImageData": "fn(sx: number, sy: number, sw: number, sh: number) -> ?",
+    "putImageData": "fn(imagedata: ?, dx: number, dy: number)",
+    "lineWidth": "number",
+    "lineCap": "string",
+    "lineJoin": "string",
+    "miterLimit": "number",
+    "setLineDash": "fn(segments: [number])",
+    "getLineDash": "fn() -> [number]",
+    "lineDashOffset": "number",
+    "font": "string",
+    "textAlign": "string",
+    "textBaseline": "string",
+    "direction": "string",
+    "closePath": "fn()",
+    "moveTo": "fn(x: number, y: number)",
+    "lineTo": "fn(x: number, y: number)",
+    "quadraticCurveTo": "fn(cpx: number, cpy: number, x: number, y: number)",
+    "bezierCurveTo": "fn(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number)",
+    "arcTo": "fn(x1: number, y1: number, x2: number, y2: number, radius: number)",
+    "rect": "fn(x: number, y: number, w: number, h: number)",
+    "arc": "fn(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: bool)",
+    "ellipse": "fn(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: bool)"
   }
 }

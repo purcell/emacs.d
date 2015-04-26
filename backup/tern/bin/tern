@@ -1,0 +1,191 @@
+#!/usr/bin/env node
+
+// HTTP server for desktop editors
+
+// Reads .tern-project files, wraps a Tern server in an HTTP wrapper
+// so that editor plug-ins can talk to it.
+
+var tern = require("../lib/tern");
+var fs = require("fs"), path = require("path"), url = require("url");
+var glob = require("glob"), minimatch = require("minimatch");
+
+var projectFileName = ".tern-project", portFileName = ".tern-port";
+var maxIdleTime = 6e4 * 5; // Shut down after five minutes of inactivity
+
+var persistent = process.argv.indexOf("--persistent") > -1;
+var verbose = process.argv.indexOf("--verbose") > -1;
+var noPortFile = process.argv.indexOf("--no-port-file") > -1;
+var port = 0;
+var portArg = process.argv.indexOf("--port");
+if (portArg > -1) {
+   port = Number(process.argv[portArg + 1]);
+   if (isNaN(port)) port = 0;
+}
+
+function findProjectDir() {
+  var dir = process.cwd();
+  for (;;) {
+    try {
+      if (fs.statSync(path.resolve(dir, projectFileName)).isFile()) return dir;
+    } catch(e) {}
+    var shorter = path.dirname(dir);
+    if (shorter == dir) return null;
+    dir = shorter;
+  }
+}
+
+var defaultConfig = {
+  libs: [],
+  loadEagerly: false,
+  plugins: {},
+  ecmaScript: true
+};
+
+function readProjectFile(dir) {
+  var data = JSON.parse(fs.readFileSync(path.resolve(dir, projectFileName), "utf8"));
+  for (var option in defaultConfig) if (!data.hasOwnProperty(option))
+    data[option] = defaultConfig[option];
+  return data;
+}
+
+function findFile(file, projectDir, fallbackDir) {
+  var local = path.resolve(projectDir, file);
+  if (fs.existsSync(local)) return local;
+  var shared = path.resolve(fallbackDir, file);
+  if (fs.existsSync(shared)) return shared;
+}
+
+var distDir = path.resolve(__dirname, "..");
+
+function findDefs(projectDir, config) {
+  var defs = [], src = config.libs;
+  if (src.indexOf("ecma5") == -1 && config.ecmaScript) src = ["ecma5"].concat(src);
+  for (var i = 0; i < src.length; ++i) {
+    var file = src[i];
+    if (!/\.json$/.test(file)) file = file + ".json";
+    var found = findFile(file, projectDir, path.resolve(distDir, "defs"));
+    if (found) defs.push(JSON.parse(fs.readFileSync(found, "utf8")));
+    else process.stderr.write("Failed to find library " + src[i] + ".\n");
+  }
+  return defs;
+}
+
+var defaultPlugins = ["doc_comment"];
+
+function loadPlugins(projectDir, plugins) {
+  var options = {};
+  for (var plugin in plugins) {
+    var val = plugins[plugin];
+    if (!val) continue;
+    var found = findFile(plugin + ".js", projectDir, path.resolve(distDir, "plugin"));
+    if (!found) {
+      process.stderr.write("Failed to find plugin " + plugin + ".\n");
+      continue;
+    }
+    require(found);
+    options[path.basename(plugin)] = val;
+  }
+  
+  defaultPlugins.forEach(function(name) {
+    if (!plugins.hasOwnProperty(name)) {
+      options[name] = true;
+      require("../plugin/" + name);
+    }
+  });
+  return options;
+}
+
+var projectDir = findProjectDir();
+if (projectDir) {
+  var config = readProjectFile(projectDir);
+} else {
+  projectDir = process.cwd();
+  var config = defaultConfig;
+}
+var server = startServer(projectDir, config);
+
+function startServer(dir, config) {
+  var defs = findDefs(dir, config);
+  var plugins = loadPlugins(dir, config.plugins);
+  var server = new tern.Server({
+    getFile: function(name, c) {
+      if (config.dontLoad && config.dontLoad.some(function(pat) {return minimatch(name, pat)}))
+        c(null, "");
+      else
+        fs.readFile(path.resolve(dir, name), "utf8", c);
+    },
+    async: true,
+    defs: defs,
+    plugins: plugins,
+    debug: verbose,
+    projectDir: dir
+  });
+
+  if (config.loadEagerly) config.loadEagerly.forEach(function(pat) {
+    glob.sync(pat).forEach(function(file) {
+      server.addFile(file);
+    });
+  });
+  return server;
+}
+
+function doShutdown() {
+  if (persistent) return;
+  console.log("Was idle for " + Math.floor(maxIdleTime / 6e4) + " minutes. Shutting down.");
+  process.exit();
+}
+
+var shutdown = setTimeout(doShutdown, maxIdleTime);
+
+var httpServer = require("http").createServer(function(req, resp) {
+  clearTimeout(shutdown);
+  shutdown = setTimeout(doShutdown, maxIdleTime);
+
+  var target = url.parse(req.url, true);
+  if (target.pathname == "/ping") return respondSimple(resp, 200, "pong");
+  if (target.pathname != "/") return respondSimple(resp, 404, "No service at " + target.pathname);
+
+  if (req.method == "POST") {
+    var body = "";
+    req.on("data", function (data) { body += data; });
+    req.on("end", function() { respond(resp, body); });
+  } else if (req.method == "GET") {
+    if (target.query.doc) respond(resp, target.query.doc);
+    else respondSimple(resp, 400, "Missing query document");
+  }
+});
+httpServer.listen(port, "127.0.0.1", function() {
+  var port = httpServer.address().port;
+  if (!noPortFile) {
+    var portFile = path.resolve(projectDir, portFileName);
+    fs.writeFileSync(portFile, String(port), "utf8");
+    process.on("exit", function() {
+      try {
+        var cur = Number(fs.readFileSync(portFile, "utf8"));
+        if (cur == port) fs.unlinkSync(portFile);
+      } catch(e) {}
+    });
+  }
+  process.on("SIGINT", function() { process.exit(); });
+  process.on("SIGTERM", function() { process.exit(); });
+  console.log("Listening on port " + port);
+});
+
+function respondSimple(resp, status, text) {
+  resp.writeHead(status, {"content-type": "text/plain"});
+  resp.end(text);
+  if (verbose) console.log("Response: " + status + " " + text);
+}
+
+function respond(resp, doc) {
+  try { var doc = JSON.parse(doc); }
+  catch(e) { return respondSimple(resp, 400, "JSON parse error: " + e.message); }
+  if (verbose) console.log("Request: " + JSON.stringify(doc, null, 2));
+
+  server.request(doc, function(err, data) {
+    if (err) return respondSimple(resp, 400, String(err));
+    resp.writeHead(200, {"content-type": "application/json"});
+    if (verbose) console.log("Response: " + JSON.stringify(data, null, 2) + "\n");
+    resp.end(JSON.stringify(data));
+  });
+}

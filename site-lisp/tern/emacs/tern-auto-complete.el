@@ -3,7 +3,7 @@
 
 ;; Author:  <m.sakurai at kiwanami.net>
 ;; Version: 0.0.1
-;; Package-Requires: ((tern "0.0.1") (auto-complete "1.4") (emacs "24"))
+;; Package-Requires: ((tern "0.0.1") (auto-complete "1.4") (cl-lib "0.5") (emacs "24"))
 
 ;;; Commentary:
 
@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
+(require 'cl-lib)
 (require 'tern)
 (require 'auto-complete)
 
@@ -32,7 +32,10 @@
 
 ;;; Completion
 
-(defvar tern-ac-on-dot t "[AC] If t, tern enable completion by auto-completion.")
+(defcustom tern-ac-on-dot t
+  "[AC] If t, tern enable completion by auto-completion."
+  :type 'boolean
+  :group 'auto-complete)
 
 (defvar tern-ac-complete-reply nil  "[internal] tern-ac-complete-reply.")
 
@@ -43,15 +46,15 @@
   (setq tern-last-point-pos (point))
   (setq tern-ac-complete-reply nil)
   (setq tern-ac-complete-request-point (point))
-  (tern-run-query 
-   (lambda (data) 
+  (tern-run-query
+   (lambda (data)
      (tern-ac-complete-response data)
      (funcall cc))
-   `((type . "completions") (types . t) (docs . t))
+   `((type . "completions") (types . t) (docs . t) (caseInsensitive . t))
    (point)))
 
 (defun tern-ac-complete-response (data)
-  (let ((cs (loop for elt across (cdr (assq 'completions data)) collect elt))
+  (let ((cs (cl-loop for elt across (cdr (assq 'completions data)) collect elt))
         (start (+ 1 (cdr (assq 'start data))))
         (end (+ 1 (cdr (assq 'end data)))))
     (setq tern-last-completions (list (buffer-substring-no-properties start end) start end cs))
@@ -69,7 +72,8 @@
   "Insert dot and complete code at point by tern."
   (interactive)
   (insert ".")
-  (tern-ac-complete))
+  (unless (nth 4 (syntax-ppss))
+    (tern-ac-complete)))
 
 (defvar tern-ac-completion-truncate-length 22
   "[AC] truncation length for type summary.")
@@ -80,10 +84,10 @@
      (let ((doc (cdr (assq 'doc item)))
            (type (cdr (assq 'type item)))
            (name (cdr (assq 'name item))))
-       (popup-make-item 
+       (popup-make-item
         name
         :symbol (if (string-match "fn" type) "f" "v")
-        :summary (truncate-string-to-width 
+        :summary (truncate-string-to-width
                   type tern-ac-completion-truncate-length 0 nil "...")
         :document (concat type "\n\n" doc))))
    tern-ac-complete-reply))
@@ -94,12 +98,10 @@
         tern-ac-complete-request-point)))
 
 ;; (makunbound 'ac-source-tern-completion)
-(eval-after-load 'auto-complete
-  '(progn
-     (ac-define-source tern-completion
-       '((candidates . tern-ac-completion-matches)
-         (prefix . tern-ac-completion-prefix)
-         (requires . -1)))))
+(ac-define-source tern-completion
+  '((candidates . tern-ac-completion-matches)
+    (prefix . tern-ac-completion-prefix)
+    (requires . -1)))
 
 ;;;###autoload
 (defun tern-ac-setup ()

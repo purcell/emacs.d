@@ -1,0 +1,1 @@
+var myElement = new Date();

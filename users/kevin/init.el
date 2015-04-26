@@ -2,10 +2,17 @@
 (display-time)
 
 ;; Set path to dependencies
-(setq site-lisp-dir
-      (expand-file-name "site-lisp" user-emacs-directory))
+;;(setq site-lisp-dir (expand-file-name "site-lisp/" user-emacs-directory))
 
-
+;; Tern.JS
+(add-to-list 'load-path "~/.emacs.d/site-lisp/tern/emacs/")
+(autoload 'tern-mode "tern.el" nil t)
+;;(add-hook 'js2-mode-hook (lambda () (tern-mode t)))
+(eval-after-load 'auto-complete
+  '(eval-after-load 'tern
+     '(progn
+        (require 'tern-auto-complete)
+        (tern-ac-setup))))
 
 
 ;;设置窗口位置为屏库左上角(0,0)

@@ -11,7 +11,7 @@
     if (!/(^|\/)(\.\/|[^\/]+\/\.\.\/)/.test(path)) return path;
     var parts = path.split("/");
     for (var i = 0; i < parts.length; ++i) {
-      if (parts[i] == ".") parts.splice(i--, 1);
+      if (parts[i] == "." || !parts[i]) parts.splice(i--, 1);
       else if (i && parts[i] == "..") parts.splice(i-- - 1, 2);
     }
     return parts.join("/");
@@ -45,23 +45,35 @@
       data.require = new infer.Fn("require", infer.ANull, [infer.cx().str], ["module"], new infer.AVal);
       data.require.computeRet = function(_self, _args, argNodes) {
         if (argNodes.length && argNodes[0].type == "Literal" && typeof argNodes[0].value == "string")
-          return getInterface(argNodes[0].value, data);
+          return getInterface(path.join(path.dirname(data.currentFile), argNodes[0].value), data);
         return infer.ANull;
       };
     }
     return data.require;
   }
 
-  function getInterface(name, data) {
-    if (name == "require") return getRequire(data);
-    if (name == "module") return infer.cx().definitions.requirejs.module;
+  function getModuleInterface(data, exports) {
+    var mod = new infer.Obj(infer.cx().definitions.requirejs.module, "module");
+    var expProp = mod.defProp("exports");
+    expProp.propagate(getModule(data.currentFile, data));
+    exports.propagate(expProp, EXPORT_OBJ_WEIGHT);
+    return mod;
+  }
 
+  function getExports(data) {
+    var exports = new infer.Obj(true, "exports");
+    getModule(data.currentFile, data).addType(exports, EXPORT_OBJ_WEIGHT);
+    return exports;
+  }
+
+  function getInterface(name, data) {
     if (data.options.override && Object.prototype.hasOwnProperty.call(data.options.override, name)) {
       var over = data.options.override[name];
       if (typeof over == "string" && over.charAt(0) == "=") return infer.def.parsePath(over.slice(1));
       if (typeof over == "object") {
-        if (data.interfaces[name]) return data.interfaces[name];
-        var scope = data.interfaces[name] = new infer.Obj(null, name);
+        var known = getKnownModule(name, data);
+        if (known) return known;
+        var scope = data.interfaces[stripJSExt(name)] = new infer.Obj(null, stripJSExt(name));
         infer.def.load(over, scope);
         return scope;
       }
@@ -71,46 +83,80 @@
     if (!/^(https?:|\/)|\.js$/.test(name))
       name = resolveName(name, data);
     name = flattenPath(name);
-    var known = data.interfaces[name];
+
+    var known = getKnownModule(name, data);
+
     if (!known) {
-      known = data.interfaces[name] = new infer.AVal;
-      data.server.addFile(name);
+      known = getModule(name, data);
+      data.server.addFile(name, null, data.currentFile);
+    }
+    return known;
+  }
+
+  function getKnownModule(name, data) {
+    return data.interfaces[stripJSExt(name)];
+  }
+
+  function getModule(name, data) {
+    var known = getKnownModule(name, data);
+    if (!known) {
+      known = data.interfaces[stripJSExt(name)] = new infer.AVal;
+      known.origin = name;
     }
     return known;
   }
 
   var EXPORT_OBJ_WEIGHT = 50;
 
+  function stripJSExt(f) {
+    return f.replace(/\.js$/, '');
+  }
+
+  var path = {
+    dirname: function(path) {
+      var lastSep = path.lastIndexOf("/");
+      return lastSep == -1 ? "" : path.slice(0, lastSep);
+    },
+    relative: function(from, to) {
+      if (to.indexOf(from) == 0) return to.slice(from.length);
+      else return to;
+    },
+    join: function(a, b) {
+      if (b && b.charAt(0) != ".") return b;
+      if (a && b) return a + "/" + b;
+      else return (a || "") + (b || "");
+    }
+  };
+
   infer.registerFunction("requireJS", function(_self, args, argNodes) {
     var server = infer.cx().parent, data = server && server._requireJS;
     if (!data || !args.length) return infer.ANull;
 
     var name = data.currentFile;
-    var out = data.interfaces[name];
-    if (!out) out = data.interfaces[name] = new infer.AVal;
+    var out = getModule(name, data);
 
-    var deps = [], fn;
+    var deps = [], fn, exports, mod;
+
+    function interf(name) {
+      if (name == "require") return getRequire(data);
+      if (name == "exports") return exports || (exports = getExports(data));
+      if (name == "module") return mod || (mod = getModuleInterface(data, exports || (exports = getExports(data))));
+      return getInterface(name, data);
+    }
+
     if (argNodes && args.length > 1) {
       var node = argNodes[args.length == 2 ? 0 : 1];
+      var base = path.relative(server.options.projectDir, path.dirname(node.sourceFile.name));
       if (node.type == "Literal" && typeof node.value == "string") {
-        deps.push(getInterface(node.value, data));
+        deps.push(interf(path.join(base, node.value), data));
       } else if (node.type == "ArrayExpression") for (var i = 0; i < node.elements.length; ++i) {
         var elt = node.elements[i];
-        if (elt.type == "Literal" && typeof elt.value == "string") {
-          if (elt.value == "exports") {
-            var exports = new infer.Obj(true);
-            deps.push(exports);
-            out.addType(exports, EXPORT_OBJ_WEIGHT);
-          } else {
-            deps.push(getInterface(elt.value, data));
-          }
-        }
+        if (elt.type == "Literal" && typeof elt.value == "string")
+          deps.push(interf(path.join(base, elt.value), data));
       }
     } else if (argNodes && args.length == 1 && argNodes[0].type == "FunctionExpression" && argNodes[0].params.length) {
       // Simplified CommonJS call
-      var exports = new infer.Obj(true);
-      deps.push(getInterface("require", data), exports);
-      out.addType(exports, EXPORT_OBJ_WEIGHT);
+      deps.push(interf("require", data), interf("exports", data), interf("module", data));
       fn = args[0];
     }
 
@@ -142,7 +188,7 @@
     }
   }
 
-  infer.registerFunction("requireJSConfig", function(_self, args, argNodes) {
+  infer.registerFunction("requireJSConfig", function(_self, _args, argNodes) {
     var server = infer.cx().parent, data = server && server._requireJS;
     if (data && argNodes && argNodes.length && argNodes[0].type == "ObjectExpression") {
       var config = parseExprNode(argNodes[0]);
@@ -159,6 +205,24 @@
     return infer.ANull;
   });
 
+  function preCondenseReach(state) {
+    var interfaces = infer.cx().parent._requireJS.interfaces;
+    var rjs = state.roots["!requirejs"] = new infer.Obj(null);
+    for (var name in interfaces) {
+      var prop = rjs.defProp(name.replace(/\./g, "`"));
+      interfaces[name].propagate(prop);
+      prop.origin = interfaces[name].origin;
+    }
+  }
+
+  function postLoadDef(data) {
+    var cx = infer.cx(), interfaces = cx.definitions[data["!name"]]["!requirejs"];
+    var data = cx.parent._requireJS;
+    if (interfaces) for (var name in interfaces.props) {
+      interfaces.props[name].propagate(getInterface(name, data));
+    }
+  }
+
   tern.registerPlugin("requirejs", function(server, options) {
     server._requireJS = {
       interfaces: Object.create(null),
@@ -174,7 +238,13 @@
       this._requireJS.interfaces = Object.create(null);
       this._requireJS.require = null;
     });
-    return {defs: defs};
+    return {
+      defs: defs,
+      passes: {
+        preCondenseReach: preCondenseReach,
+        postLoadDef: postLoadDef
+      }
+    };
   });
 
   var defs = {
@@ -183,15 +253,103 @@
       module: {
         id: "string",
         uri: "string",
-        config: "fn() -> ?",
-        exports: "?"
+        config: "fn() -> ?"
+      },
+      config: {
+        "!url": "http://requirejs.org/docs/api.html#config",
+        baseUrl: {
+          "!type": "string",
+          "!doc": "the root path to use for all module lookups",
+          "!url": "http://requirejs.org/docs/api.html#config-baseUrl"
+        },
+        paths: {
+          "!type": "?",
+          "!doc": "path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a '/' or has a URL protocol in it ('like http:').",
+          "!url": "http://requirejs.org/docs/api.html#config-paths"
+        },
+        shim: {
+          "!type": "?",
+          "!doc": "Configure the dependencies, exports, and custom initialization for older, traditional 'browser globals' scripts that do not use define() to declare the dependencies and set a module value.",
+          "!url": "http://requirejs.org/docs/api.html#config-shim"
+        },
+        map: {
+          "!type": "?",
+          "!doc": "For the given module prefix, instead of loading the module with the given ID, substitute a different module ID.",
+          "!url": "http://requirejs.org/docs/api.html#config-map"
+        },
+        config: {
+          "!type": "?",
+          "!doc": "There is a common need to pass configuration info to a module. That configuration info is usually known as part of the application, and there needs to be a way to pass that down to a module. In RequireJS, that is done with the config option for requirejs.config(). Modules can then read that info by asking for the special dependency 'module' and calling module.config().",
+          "!url": "http://requirejs.org/docs/api.html#config-moduleconfig"
+        },
+        packages: {
+          "!type": "?",
+          "!doc": "configures loading modules from CommonJS packages. See the packages topic for more information.",
+          "!url": "http://requirejs.org/docs/api.html#config-packages"
+        },
+        nodeIdCompat: {
+          "!type": "?",
+          "!doc": "Node treats module ID example.js and example the same. By default these are two different IDs in RequireJS. If you end up using modules installed from npm, then you may need to set this config value to true to avoid resolution issues.",
+          "!url": "http://requirejs.org/docs/api.html#config-nodeIdCompat"
+        },
+        waitSeconds: {
+          "!type": "number",
+          "!doc": "The number of seconds to wait before giving up on loading a script. Setting it to 0 disables the timeout. The default is 7 seconds.",
+          "!url": "http://requirejs.org/docs/api.html#config-waitSeconds"
+        },
+        context: {
+          "!type": "number",
+          "!doc": "A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. To use it correctly, see the Multiversion Support section.",
+          "!url": "http://requirejs.org/docs/api.html#config-context"
+        },
+        deps: {
+          "!type": "?",
+          "!doc": "An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined. Using deps is just like doing a require([]) call, but done as soon as the loader has processed the configuration. It does not block any other require() calls from starting their requests for modules, it is just a way to specify some modules to load asynchronously as part of a config block.",
+          "!url": "http://requirejs.org/docs/api.html#config-deps"
+        },
+        callback: {
+          "!type": "fn()",
+          "!doc": "A function to execute after deps have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's deps array has been loaded.",
+          "!url": "http://requirejs.org/docs/api.html#config-callback"
+        },
+        enforceDefine: {
+          "!type": "bool",
+          "!doc": "If set to true, an error will be thrown if a script loads that does not call define() or have a shim exports string value that can be checked. See Catching load failures in IE for more information.",
+          "!url": "http://requirejs.org/docs/api.html#config-enforceDefine"
+        },
+        xhtml: {
+          "!type": "bool",
+          "!doc": "If set to true, document.createElementNS() will be used to create script elements.",
+          "!url": "http://requirejs.org/docs/api.html#config-xhtml"
+        },
+        urlArgs: {
+          "!type": "string",
+          "!doc": "Extra query string arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly.",
+          "!url": "http://requirejs.org/docs/api.html#config-urlArgs"
+        },
+        scriptType: {
+          "!type": "string",
+          "!doc": "Specify the value for the type='' attribute used for script tags inserted into the document by RequireJS. Default is 'text/javascript'. To use Firefox's JavaScript 1.8 features, use 'text/javascript;version=1.8'.",
+          "!url": "http://requirejs.org/docs/api.html#config-scriptType"
+        },
+        skipDataMain: {
+          "!type": "bool",
+          "!doc": "Introduced in RequireJS 2.1.9: If set to true, skips the data-main attribute scanning done to start module loading. Useful if RequireJS is embedded in a utility library that may interact with other RequireJS library on the page, and the embedded version should not do data-main loading.",
+          "!url": "http://requirejs.org/docs/api.html#config-skipDataMain"
+        }
       }
     },
     requirejs: {
       "!type": "fn(deps: [string], callback: fn(), errback: fn()) -> !custom:requireJS",
-      onError: "fn(err: +Error)",
-      load: "fn(context: ?, moduleName: string, url: string)",
-      config: "fn(config: ?) -> !custom:requireJSConfig",
+      onError: {
+        "!type": "fn(err: +Error)",
+        "!doc": "To detect errors that are not caught by local errbacks, you can override requirejs.onError()",
+        "!url": "http://requirejs.org/docs/api.html#requirejsonerror"
+      },
+      load: {
+        "!type": "fn(context: ?, moduleName: string, url: string)"
+      },
+      config: "fn(config: config) -> !custom:requireJSConfig",
       version: "string",
       isBrowser: "bool"
     },

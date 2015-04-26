@@ -1,0 +1,1077 @@
+= Tern Reference Manual =
+
+Tern consists of several components. Depending on what you are trying
+to do with it, you will be interested in a different layer. At the
+very top are the <<editor,editor plugins>>. These talk to a
+<<server,Tern server>>, which is implemented on top of the
+<<server_api,server module>>, which uses the <<infer,inference
+engine>> to do the actual type inference.
+
+[[contents]]
+== Contents ==
+
+* <<server,The Tern server>>
+** <<protocol,JSON protocol>>
+** <<server_api,Programming interface>>
+** <<typedef,JSON type definitions>>
+** <<plugins,Server plugins>>
+** <<configuration,Project configuration>>
+** <<utils,Utilities>>
+* <<infer,Inference engine>>
+** <<infer_context,Context>>
+** <<infer_analysis,Analysis>>
+** <<infer_types,Types>>
+** <<infer_aval,Abstract values>>
+** <<infer_constraint,Constraints>>
+** <<infer_scopes,Scopes>>
+** <<infer_util,Utilities>>
+* <<editor,Editor plugins>>
+** <<emacs,Emacs>>
+** <<vim,Vim>>
+** <<sublime_text,Sublime Text>>
+* <<software,Related Software>>
+
+[[server]]
+== The Tern server ==
+
+The `bin/tern` 'binary' (http://nodejs.org[node.js] script, really),
+is used to start a Tern server. You will usually want to let an
+<<plugins,editor plugin>> start it for you, but it can be started
+manually, which can be useful for debugging.
+
+(Note that the basic structure of the server is also available through
+a <<server_api,programming interface>>, and that some project,
+especially those running client-side in a browser, will want to use
+that instead of the HTTP server described here.)
+
+[[project_file]]
+When started, the server will look for a `.tern-project` file in the
+current directory or one of the directories above that, and use it for
+its <<configuration,configuration>>. If no project file is found,
+it'll fall back to an empty default configuration.
+
+A server write the port it is listening on (which is random) to
+standard output on startup. It will serve a <<protocol,simple JSON
+protocol>> via HTTP on that port. Clients can upload code and ask
+questions about the code through this protocol.
+
+The following command-line flags are supported:
+
+`--port <number>`:: Specify a port to listen on, instead of the
+default behavior of letting the OS pick a random unused port.
+
+`--persistent`:: By default, the server will shut itself down after
+five minutes of inactivity. Pass it a this option to disable
+auto-shutdown.
+
+`--verbose`:: Will cause the server to spit out information about the
+requests and responses that it handles, and any errors that are
+raised. Useful for debugging.
+
+`--no-port-file`:: The server won't write a `.tern-port` file. Can be
+used if the port files are a problem for you. Will prevent other
+clients from finding the server (and may thus result in multiple
+servers for the same project).
+
+[[protocol]]
+=== JSON protocol ===
+
+Sending queries to a Tern server is done by making `POST` requests to
+the server's port (using `/` as the requests's path) with a
+http://json.org[JSON] document in the body of the request.
+
+This document should be an object, with two optional fields, `query`
+and `files`. The first describes the kind of information you want to
+ask for. It may be omitted if the request is only used to push new
+code to the server (in which case you'll get an empty object, `{}` as
+response). The `files` property, if given, contains an array of file
+specifications, as described below. It may be omitted when the query
+should operate on the code that the server already has, without adding
+anything new.
+
+A query is an object with at least a `type` property, which determines
+what kind of query it is. Depending on the type, other properties must
+or may be present in order to provide further details.
+
+These are the queries that a Tern server understands by default.
+(Plug-ins may add custom query types.)
+
+[[req_completions]]`completions`:: Asks the server for a set of completions at the given point.
++
+Accepted fields are:
+
+`file`, `end` (required);; Specify the location to complete at.
+<<loc_spec,See below>>.
+
+`types` (optional, default `false`);; Whether to include the types of
+the completions in the result data.
+
+`depths` (optional, default `false`);; Whether to include the distance
+(in scopes for variables, in prototypes for properties) between the
+completions and the origin position in the result data.
+
+`docs`, `urls`, `origins` (optional, default `false`);; Whether to
+include documentation strings, urls, and origin files (if found) in
+the result data.
+
+`filter` (optional, default `true`);; When on, only completions that
+match the current word at the given point will be returned. Turn this
+off to get all results, so that you can filter on the client side.
+
+`caseInsensitive` (optional, default `false`);; Whether to use a
+case-insensitive compare between the current word and potential
+completions.
+
+`guess` (optional, default `true`);; When completing a property and no
+completions are found, Tern will use some heuristics to try and return
+some properties anyway. Set this to `false` to turn that off.
+
+`sort` (optional, default `true`);; Determines whether the result set
+will be sorted.
+
+`expandWordForward` (optional, default `true`);; When disabled, only
+the text _before_ the given position is considered part of the word.
+When enabled (the default), the whole variable name that the cursor is
+on will be included.
+
+`omitObjectPrototype` (optional, default `true`);; Whether to ignore
+the properties of `Object.prototype` unless they have been spelled out
+by at least to characters.
+
++
+The result returned will be an object with `start` and `end`
+properties, which give the start and end <<offsets,offsets>> of the word that was
+completed, and a `completions` property holding an array of
+completions. When one of the `types`, `depths`, `docs`, `urls`, or
+`origins` options was passed, the array will hold objects with a
+`name` property (the completion text), and, depending on the options,
+`type`, `depth`, `doc`, `url`, and `origin` properties. When none of
+these options are enabled, the result array will hold plain strings.
+
+[[req_type]]`type`:: Query the type of something.
+
+`file`, `end` (required), `start` (optional);; Specify the expression
+we want the type of. <<loc_spec,See below>>.
+
+`preferFunction` (optional, default `false`);; Set to `true` when you
+are interested in a function type. This will cause function types to
+win when something has multiple types.
+
+`depth` (optional, default `0`);; Determines how deep the type string
+must be expanded. Nested objects will only display property types up
+to this depth, and be represented by their type name or a
+representation showing only property names below it.
+
++
+The returned object will have the following properties:
+
+`type` (string);; A description of the type of the value. May be `"?"`
+when no type was found.
+
+`guess` (bool);; Whether the given type was guessed, or should be
+considered reliable.
+
+`name` (string, optional);; The name associated with the type.
+
+`exprName` (string, optional);; When the inspected expression was an
+identifier or a property access, this will hold the name of the
+variable or property.
+
+`doc`, `url`, `origin` (strings, optional);; If the type had
+documentation and origin information associated with it, these will
+also be returned.
+
+[[req_definition]]`definition`:: Asks for the definition of something.
+This will try, for a variable or property, to return the point at
+which it was defined. If that fails, or the chosen expression is not
+an identifier or property reference, it will try to return the
+definition site of the type the expression has. If no type is found,
+or the type is not an object or function (other types don't store
+their definition site), it will fail to return useful information.
++
+Only takes `file`, `end` (required), and `start` (optional) fields to
+specify the expression you want the definition of. <<loc_spec,See
+below>>.
++
+The returned object will have the following properties:
+
+`start`, `end` (<<offsets,offsets>>, optional);; The start and end positions of
+the definition.
+
+`file` (string, optional);; The file in which the definition was
+defined.
+
+`context` (string, optional), `contextOffset` (number, optional);; A
+slice of the code in front of the definition, and the offset from the
+start of the context to the actual definition. Can be used to find a
+definition's location in a modified file.
+
+`doc`, `url`, `origin` (strings, optional);; If the definition had
+documentation or an origin associated with it, it will be returned.
+
+[[req_documentation]]`documentation`:: Get the documentation string
+and URL for a given expression, if any.
++
+Takes `file`, `end` (required), and `start` (optional) fields to
+specify the expression we are interested in. <<loc_spec,See below>>.
++
+Returns an object with the following properties:
+
+`doc`, `url`, `origin` (strings, optional);; The documentation string,
+url, and the origin of the definition or value, if any.
+
+[[req_refs]]`refs`:: Used to find all references to a given variable
+or property.
++
+Takes `file`, `end` (required), and `start` (optional) fields to
+specify the expression we are interested in. <<loc_spec,See below>>.
++
+Returns an object with a `name` property holding the name of the
+variable or property, a `refs` property holding an array of `{file,
+start, end}` objects, and, for variables, a `type` property holding
+either `"global"` or `"local"`.
+
+[[req_rename]]`rename`:: Rename a variable in a scope-aware way.
++
+Takes `file`, `end` (required), and `start` (optional) fields to
+specify the variable we want to rename (<<loc_spec,see below>>), and a
+`newName` property that gives the new name of the variable.
++
+Returns an object whose `changes` property holds an array of `{file,
+start, end, text}` objects, which give the changes that must be
+performed to apply the rename. The client is responsible for doing the
+actual modification.
+
+[[req_properties]]`properties`:: Get a list of all known object
+property names (for _any_ object).
+
+`prefix` (string, optional);; Causes the server to only return
+properties that start with the given string.
+
+`sort` (optional, default `true`);; Whether the result should be sorted.
+
++
+The returned object will have a `completions` property holding an
+array of strings, which are the property names.
+
+[[req_files]]`files`:: Get the files that the server currently holds
+in its set of analyzed files.
++
+Does not take any parameters. Returns an object with a `files`
+property holding an array of strings (the file names).
+
+[[req_node_exports]]`node_exports`:: Only available when the
+<<plugin_node,node.js plugin>> is loaded. Get the exported type of a
+node module file.
++
+Takes a `file` field to indicate the file to query for. Returns an
+object with `type`, and optional `url`, `doc`, `origin`, `start, and
+`end` properties indicating the type and metainformation for the
+exports, plus, if the exported value is an object type, a `props`
+property containing an object mapping property names of this object to
+objects holding information about the types of the properties, again
+containing `type` and optional `url`, `doc`, `origin`, `start`, and
+`end` fields.
+
+[[loc_spec]] When specifying a location, which is needed for most of
+the query types, the required `file` field may hold either a filename,
+or a string in the form `"#N"`, where `N` should be an integer
+referring to one of the files included in the request (more on that
+<<protocol_files,later>>). The required `end` field is an offset into
+this file, either a number or a `{line, ch}` object. It should point
+at the end of the expression the request is interested in, or
+somewhere inside of it if that doesn't end up pointing inside a
+sub-expression (in which case the inner expression would be used). An
+optional `start` field can be used to disambiguate between
+expressions—if given, the innermost expression that spans the range
+between start and end will be used.
+
+[[offsets]] Offsets into a file can be either (zero-based) integers, or `{line,
+ch}` objects, where both `line` and `ch` are zero-based integers.
+Offsets returned by the server will be integers, unless the
+`lineCharPositions` field in the request was set to `true`, in which
+case they will be `{line, ch}` objects.
+
+[[variable]] Requests that take an input expression also accept a
+`variable` field which, when given, will cause the server to not look
+for an expression in the code, but to make up a variable expression
+with the given name. This does not remove the need to pass in an
+`end`, since that will be used to determine the scope in which the
+variable is interpreted.
+
+[[protocol_files]] The `files` property of a request must, if present,
+hold an array of file descriptions. These can be complete files, which
+have a `type` property holding `"full"` and `name` and `text`
+properties holding strings. Complete files will be stored by the
+server and can be reused in later requests.
+
+Alternatively, you can pass in partial files. This is useful when
+needing to perform a query on a large file without re-uploading and
+re-analyzing the whole file. A partial file has a `type` property
+holding the string `"part"`, a `text` property holding some slice of
+the file (starting at a line boundary), a `name` property referring to
+an existing file, and an `offset` property, either an integer or a
+`{line, ch}` object, indicating the approximate position of the
+fragment in the file.
+
+[[server_api]]
+=== Programming interface ===
+
+[[tern.Server]] The base server (without HTTP or configuration-file
+reading) is implemented in `lib/tern.js`. That package exposes a
+`Server` constructor that can be used to create a server. It takes an
+object holding configuration options options as argument. These are
+recognized (all have a default):
+
+[[option_defs]] `defs` (array of strings):: The <<typedef,definition>>
+objects to load into the server's environment.
+
+[[option_plugins]] `plugins` (object):: Specifies the set of
+<<plugins,plugins>> that the server should load. The property names of
+the object name the plugins, and their values hold options that will
+be passed to them.
+
+[[option_getFile]] `getFile` (function):: Provides a way for the
+server to try and fetch the content of files. Depending on the `async`
+option, this is either a function that takes a filename and returns a
+string (when not `async`), or a function that takes a filename and a
+callback, and calls the callback with an optional error as the first
+argument, and the content string (if no error) as the second.
+
+[[option_async]] `async` (bool):: Indicates whether `getFile` is
+asynchronous. Default is `false`.
+
+[[option_fetchTimeout]] `fetchTimeout` (number):: Indicates the
+maximum amount of milliseconds to wait for an asynchronous `getFile`
+before giving up on it. Defaults to `1000`.
+
+A server object has the following methods:
+
+[[tern.Server.addFile]] `addFile(name: string, text?: string)`::
+Register a file with the server. Note that files can also be
+<<protocol_files,included>> in requests.
+
+[[tern.Server.delFile]] `delFile(name: string)`:: Unregister a file.
+
+[[tern.Server.request]] `request(doc: object, callback: fn(error, response))`::
+Perform a request. `doc` is a (parsed) JSON document as described in
+the <<protocol,protocol documentation>>. The `callback` function will
+be called when the request completes. If an error occurred, it will be
+passed as a first argument. Otherwise, the resonse (parsed) JSON
+object will be passed as second argument.
++
+When the server hasn't been configured to be
+<<option_async,asynchronous>>, the callback will be called before
+`request` returns.
+
+[[tern.Server.flush]] `flush(callback: fn())`:: Forces all files to be
+fetched an analyzed, and then calls the callback function.
+
+[[tern.Server.on]] `on(eventType: string, handler: fn())`:: Register
+an event handler for the named type of event.
+
+[[tern.Server.off]] `off(eventType: string, handler: fn())`::
+Unregister an event handler.
+
+The server fires the following type of events (mostly useful for
+plugins):
+
+[[event_reset]] `reset ()`:: When the server throws away its current
+analysis data and starts a fresh run.
+
+[[event_beforeLoad]] `beforeLoad (file)`:: Before analyzing a file.
+`file` is an object holding `{name, text, scope}` properties.
+
+[[event_afterLoad]] `afterLoad (file)`:: After analyzing a file.
+
+[[typedef]]
+=== JSON type definitions ===
+
+To be able to specify the types of things without actually analyzing
+source code, either because there is no JavaScript source code (as for
+the built-in types) or because the source code is too big, or because
+Tern is unable to construct the correct types from the source code,
+Tern defines a JSON data format for specifying types. A few examples
+of files in this format can be found in the `defs/` directory in the
+distribution.
+
+A type definition data structure is basically a tree of objects, where
+the top-level object specifies variables in the global scope, and the
+nested objects specify properties of object types. Properties prefixed
+with an exclamation point (`!`) hold special directives, all other
+properties refer to variable or property names.
+
+Here is an example:
+
+[source,application/x-json]
+----
+{
+  "!name": "mylibrary",
+  "!define": {
+    "point": {
+      "x": "number",
+      "y": "number"
+    }
+  },
+  "MyConstructor": {
+    "!type": "fn(arg: string)",
+    "staticFunction": "fn() -> bool",
+    "prototype": {
+      "property": "[number]",
+      "clone": "fn() -> +MyConstructor",
+      "getPoint": "fn(i: number) -> point"
+    }
+  },
+  "someOtherGlobal": "string"
+}
+----
+
+This defines a library that sets two globals, `MyConstructor` holding
+a constructor function, and `someOtherGlobal` holding a string. The
+origin of the types, variables, and properties defined by this
+document will be `"mylibrary"`, as set by the `!name` property.
+
+The value of a variable or property can be either a string or an
+object. Strings can be one of the built-in types (`"number"`,
+`"string"`, `"bool"`), a function type (`"fn(arg1: type1, arg2: type2)
+-> rettype"`, where `-> rettype` is optional), or an array type
+(`"[type]"`). Strings can also name types, either by describing the
+path to the type in the global scope (`"Date.prototype"`) or by
+referring to one of the local definitions in the `!define` property of
+the document. Finally, a type can be prefixed with a `+` to indicate
+an instance of a constructor (`+Date`).
+
+Objects describe types by enumerating their properties. By default,
+their type will simply be an instance of `Object`, but a `!type`
+property can be used to make the type a function or array type, as the
+example does for `MyConstructor`. Alternatively, a `!proto` property
+can be used to give the object a custom prototype, for example
+`"!proto": Element.prototype`.
+
+Documentation can be attached to a type using `!doc`, which should
+hold a (short) documentation string and `!url`, which should hold a
+URL that has the full documentation of the type or function being
+defined.
+
+Finally, a function can be annotated with effects that it has. These
+aren't currently documented, but you can search for `!effects` in
+`defs/ecma5.json` to see some examples. Similarly, a function type
+string's return type may contain the variables `!0` (the first
+argument's type, `!N` for the N-1th), `!this` (the self type of the
+call), and a special property `!ret` (the return type of a function).
+
+[[plugins]]
+=== Server plugins ===
+
+Plugins are JavaScript programs that add extra functionality to a
+server. The distribution currently comes plugins for parsing
+<<plugin_doc_comment,doc comments>>, and plugins for
+<<plugin_node,node.js>> and <<plugin_requirejs,RequireJS>>, which
+teach the Tern server about the dependency management mechanisms
+defined by those systems (as well as, for node.js, including types for
+the built-in libraries).
+
+A plugin can use several hooks to add custom behavior.
+
+[[infer.registerFunction]]`infer.registerFunction(name: string, f: fn(self, args, argnodes))`::
+This is a function in the <<infer,inference engine module>> that
+allows custom ways to compute function return types or effects. When a
+function is specified to return `!custom:myname` or has an effect
+`"custom myname"`, a call to the function will cause the function
+registered under `"myname"` to be called with the argument types and
+argument AST nodes given to the call. This is used, for example, to
+make calls to `require` trigger the necessary machinations to fetch a
+dependency and return its type.
+
+[[tern.registerPlugin]]`tern.registerPlugin(name: string, fn(Server, options))`::
+This can be used to register an initialization function
+for the plugin with the given name. A Tern server, when
+<<option_plugins,configured>> to load this plugin, will call this
+initialization function, passing in the server instance and the
+options specified for the plugin (if any). This is the place where you
+register event handlers on the server and/or initialize the plugin's
+state.
++
+An object returned from this function can be used to further
+configure the server. Its `defs` property may contain a <<typedef,JSON
+type definition>> data structure that the server should load, and its
+`passes` property may hold an object mapping pass names to functions.
+Currently the following passes are supported:
+
+`"postParse" (ast, text)`;; Will be run right after a file is parsed,
+and passed the parse tree and the parsed file as arguments.
+
+`"preInfer" (ast, scope)`;; Run right before the type inference pass,
+passing the syntax tree and a <<infer_scope,scope>> object.
+
+`"postInfer" (ast, scope)`;; Run after the type inference pass.
+
+[[tern.defineQueryType]]`tern.defineQueryType(name: string, desc: object)`::
+Defines a new type of query with the server. The `desc` object is a
+property describing the request. It should at least have a `run`
+property, which holds a function `fn(Server, query)` that will be
+called to handle queries with a `type` property that matches the given
+name. It may also have a `takesFile` property which, if true, will
+cause the server to try and resolve the file on which the query
+operates (from its `file` property) and pass that (a `{name, text,
+scope, ast}` object) as a third argument to the `run` function. You
+will probably need to use the <<infer,inference module's API>> to
+do someting useful in this function.
+
+[[configuration]]
+=== Project configuration ===
+
+A `.tern-project` file is a http://json.org[JSON] file in a format
+like this:
+
+[source,application/x-json]
+----
+{
+  "libs": [
+    "browser",
+    "jquery"
+  ],
+  "loadEagerly": [
+    "importantfile.js"
+  ],
+  "plugins": {
+    "requirejs": {
+      "baseURL": "./",
+      "paths": {}
+    }
+  }
+}
+----
+
+The `libs` property refers to the <<typedef,JSON type descriptions>>
+that should be loaded into the environment for this project. See the
+`defs/` directory for examples. The strings given here will be
+suffixed with `.json`, and searched for first in the project's own
+dir, and then in the `defs/` directory of the Tern distribution.
+
+By default, local files are loaded into the Tern server when they are
+opened by the editor. `loadEagerly` allows you to force some files to
+always be loaded, it may be an array of filenames or glob patterns
+(i.e. `foo/bar/*.js`). The `dontLoad` option can be used to prevent
+Tern from loading certain files. It also takes an array of file names
+or glob patterns.
+
+Finally, `plugins` is an object used to load and configure Tern
+plugins. The names of the properties refer to files that implement
+plugins, either in the project dir or under `plugin/` in the Tern
+directory. Their values are configuration objects that will be passed
+to the plugins. You can leave them at `{}` when you don't need to pass
+any options.
+
+[[plugin_doc_comment]]
+==== Doc comments plugin ====
+
+This plugin, which is enabled by default in the `bin/tern` server,
+parses comments before function declarations, variable declarations,
+and object properties. It will look for
+http://usejsdoc.org/[JSDoc]-style type declarations, and try to parse
+them and add them to the inferred types, and it will treat the first
+sentence of comment text as the docstring for the defined variable or
+property.
+
+To turn this plugin off, set `doc_comment: null` in your
+<<option_plugins,plugin option>>.
+
+[[plugin_node]]
+==== Node.js plugin ====
+
+The http://nodejs.org[node.js] plugin, called `"node"`, provides
+variables that are part of the node environment, such as `process` and
+`require`, and hooks up `require` to try and find the dependencies
+that are being loaded, and assign them the correct types. It also
+includes types for the built-in modules that node.js provides (`"fs"`,
+`"http"`, etc).
+
+The plugin understands the following configuration parameters:
+
+`dontLoad`:: Can be set to `true` to disable dynamic loading of
+required modules entirely, or to a regular expression to disable
+loading of files that match the expression.
+
+`load`:: If `dontLoad` isn't given, this setting is checked. If it is
+a regular expression, the plugin will only load files that match the
+expression.
+
+`modules`:: Can be used to assign <<typedef,JSON type definitions>> to
+certain modules, so that those are loaded instead of the source code
+itself. If given, should be an object mapping module names to either
+JSON objects defining the types in the module, or a string referring
+to a file name (relative to the project directory) that contains the
+JSON data.
+
+[[plugin_requirejs]]
+==== RequireJS plugin ====
+
+This plugin teaches the server to understand
+http://requirejs.org[RequireJS]-style dependency management. It
+defines the global functions `define` and `requirejs`, and will do its
+best to resolve dependencies and give them their proper types.
+
+These options are understood:
+
+`baseURL`:: The base path to prefix to dependency filenames.
+
+`paths`:: An object mapping filename prefixes to specific paths. For
+example `{"acorn": "lib/acorn/"}`.
+
+[[utils]]
+=== Utilities ===
+
+`bin/test`::
+
+Runs Tern's own testsuite. Tests are defined in the `test/`
+directory, as code interspersed with comments that indicate the
+types and conditions to check for.
+
+`bin/condense`::
+
+Utility for condensing source code down to a <<typedef,JSON type
+definition>> file. Takes a list of files to condense, optionally
+interleaved with filenames prefixed with a `+`, which will be loaded
+(to provide type information) but not included in the output.
++
+Pass `--plugin name` or `--plugin name={jsonconfig}` to load
+plugins. Use `--def file` to load <<typedef,JSON definitions>>.
+
+`bin/from_ts`::
+
+Given a typescript `.def.ts` file, will attempt to convert it to a
+Tern-style <<typedef,JSON definition>> file.
+
+[[infer]]
+== Inference engine ==
+
+The inference engine module (`lib/infer.js`) implements a system that,
+given a context and an abstract syntax tree (parsed representation of
+the code), tries to infer the types of the variables and properties in
+the code.
+
+The parser is implemented in a separate module,
+http:://marijnhaverbeke.nl/acorn[Acorn], which provides a regular
+JavaScript parser, an error-tolerant parser, and a number of utilities
+for iterating through and searching in abstract syntax trees. The
+syntax tree format used by Acorn and Tern is described in the
+https://developer.mozilla.org/en-US/docs/SpiderMonkey/Parser_API[Mozilla
+parser API] document (though support for features that are not in
+ECMAScript 5, such as `let`, is omitted).
+
+A high-level description of the way Tern's type inference algorithm
+works can be found in a http://marijnhaverbeke.nl/blog/tern.html[blog
+post] I wrote on the subject.
+
+This module also exposes some utility functions that are useful to
+implement the <<protocol,services>> the server exposes.
+
+[[infer_context]]
+=== Context ===
+
+A context is an object that holds a global JavaScript scope, as well
+as some meta-information and state used by the type inference process.
+Almost all operations in the inference module require a context.
+
+To prevent having to pass the context around through every function, a
+form of dynamic binding is used—the `withContext` function executes a
+function body with a given object used as the current context.
+
+[[infer.Context]]`infer.Context(defs: [object])`:: A constructor
+function for contexts. `defs` should be an array of <<typedef,type
+definition objects>>, which will be used to initialize the
+global scope.
+
+[[infer.withContext]]`infer.withContext(context: Context, f: fn())`::
+Calls `f` with the current context bound to `context`. Basically, all
+code that does something with the inference engine should be wrapped
+in such a call.
+
+[[infer.cx]]`infer.cx() → Context`:: Returns the current context
+object.
+
+[[infer.Context.topScope]]`context.topScope`:: The top-level
+<<infer_scopes,scope>> of the context.
+
+[[infer_analysis]]
+=== Analysis ===
+
+To push code into a context, you first parse it, yielding a syntax
+tree, and then tell Tern to analyze that.
+
+[[infer.parse]]`infer.parse(text: string) → AST`:: Parse a piece of
+code for use by Tern. Will automatically fall back to the
+error-tolerant parser if the regular parser can't parse the code.
+
+[[infer.analyze]]`infer.analyze(ast: AST, name: string, scope?: Scope)`::
+Analyze a syntax tree. `name` will be used to set the origin of types,
+properties, and variables produced by this code. The optional `scope`
+argument can be used to specify a <<infer_scopes,scope>> in which the
+code should be analyzed. It will default to the top-level scope.
+
+The same code, or slightly modified variants of the same code, can be
+analyzed in a context multiple times. The variables and properties
+that the context knows, as well as the types it assigns to them, will
+become the union of the variables and types created by the various
+forms of the code. When incrementally re-analyzing code as it is being
+edited, this leads to an degradation in the preciseness of the
+results. To prevent that, it is possible to _purge_ all elements that
+come from a specific origin from a context.
+
+[[infer.purgeTypes]]`infer.purgeTypes(origins: [string], start?: number, end?: number)`::
+Purges the types that have one of the origins given from the context.
+`start` and `end` can be given to only purge types that occurred in
+the source code between those offsets. This is not entirely
+precise—the state of the context won't be back where it was before the
+file was analyzed—but it prevents most of the noticeable inaccuracies
+that re-analysis tends to produce.
+
+[[infer.markVariablesDefinedBy]]`infer.markVariablesDefinedBy(scope: Scope, origins: [string], start?: number, end?: number)`::
+Cleaning up variables is slightly trickier than cleaning up types.
+This does a first pass over the given scope, and marks variables
+defined by the given origins. This is indended to be followed by a
+call to <<infer.analyze,`analyze`>> and then a call to
+<<infer.purgeMarkedVariables,`purgeMarkedVariables`>>.
+
+[[infer.purgeMarkedVariables]]`infer.purgeMarkedVariables`:: Purges
+variables that were marked by a call to
+<<infer.markVariablesDefinedBy,`markVariablesDefinedBy`>> and not
+re-defined in the meantime.
+
+[[infer_types]]
+=== Types ===
+
+Tern has a more or less complete implementation of the JavaScript type
+system.
+
+[[infer.Obj]]`infer.Obj(proto, name?: string)`:: Constructor for the
+type that represents JavaScript objects. `proto` may be another
+object, or `true` as a short-hand for `Object.prototype`, or `null`
+for prototype-less objects.
+
+[[infer.Fn]]`infer.Fn(name: string?, self: AVal, args: [AVal], argNames: [string], retval: AVal)`::
+Constructor for the type that implements functions. Inherits from
+<<infer.Obj,Obj>>. The <<infer_aval,`AVal`>> types are used to track
+the input and output types of the function.
+
+[[infer.Arr]]`infer.Arr(contentType: AVal)`:: Constructor that creates
+an array type with the given content type.
+
+[[infer.Context.num]]`context.num`:: The primitive number type.
+
+[[infer.Context.str]]`context.str`:: The primitive string type.
+
+[[infer.Context.bool]]`context.bool`:: The primitive boolean type.
+
+Types expose the following interface (plus some `AVal`-compatibility
+methods, see <<type_is_aval,below>>).
+
+[[infer.Type.name]]`type.name: string`:: The name of the type, if any.
+
+[[infer.Type.origin]]`type.origin: string`:: The origin file of the type.
+
+[[infer.Type.originNode]]`type.originNode: AST`:: The syntax node that
+defined the type. Only present for object and function types, and even
+for those it may be missing (if the type was created by a type
+definition file, or synthesized in some other way).
+
+[[infer.Type.toString]]`type.toString(maxDepth: number) → string`:: Return
+a string that describes the type. `maxDepth` indicates the depth to
+which inner types should be shown.
+
+[[infer.Type.getProp]]`type.getProp(prop: string) → AVal`:: Get an
+<<infer_aval,`AVal`>> that represents the named property of this type.
+
+[[infer.Type.forAllProps]]`type.forAllProps(f: fn(prop: string, val: AVal, local: bool))`::
+Call the given function for all properties of the object, including
+properties that are added in the future.
+
+Object types have a few extra methods and properties.
+
+[[infer.Obj.proto]]`obj.proto`:: The prototype of the object, or `null`.
+
+[[infer.Obj.props]]`obj.props`:: An object mapping the object's known
+properties to AVals. Don't manipulate this directly (ever), only use
+it if you have to iterate over the properties.
+
+[[infer.Obj.hasProp]]`obj.hasProp(prop: string) → AVal?`:: Looks up
+the AVal associated with the given property, or returns `null` if it
+doesn't exist.
+
+[[infer.Obj.defProp]]`obj.defProp(prop: string) → AVal`:: Looks up the
+given property, or defines it if it did not yet exist.
+
+[[infer_aval]]
+=== Abstract values ===
+
+Abstract values are objects used to represent sets of types. Each
+variable and property has an abstract value associated with it, but
+they are also used for other purposes, such as tracking the return
+type of a function, or building up the type for some kinds of
+expressions.
+
+In a cleanly typed program where each thing has only a single type,
+abstract values will all have one type associated with them. When, for
+example, a variable can hold two different types of values, the
+associated abstract value will hold both these types. In some cases,
+no type can be assigned to something at all, in which case the
+abstract value remains empty.
+
+Abstract values expose the following interface:
+
+[[infer.AVal]]`infer.AVal()`:: Constructor. Creates an empty AVal.
+
+[[infer.AVal.addType]]`aval.addType(type: Type, weight?: number)`::
+Add a type to this abstract value. If the type is already in there,
+this is a no-op. `weight` can be given to give this type a non-default
+weight, which is mostly useful when adding a provisionary type that
+should be overridden later if a real type is found. The default weight
+is `100`, and passing a weight lower than that will make the type
+assignment ``weak''.
+
+[[infer.AVal.propagate]]`aval.propagate(target: Constraint)`:: Sets
+this AVal to propagate all types it receives to the given
+<<infer_constraint,constraint>>. This is the mechanism by which types
+are propagated through the type graph.
+
+[[infer.AVal.hasType]]`aval.hasType(type: Type) → bool`:: Queries whether the
+AVal _currently_ holds the given type.
+
+[[infer.AVal.isEmpty]]`aval.isEmpty() → bool`:: Queries whether the
+AVal is empty.
+
+[[infer.AVal.getType]]`aval.getType(guess?: bool) → Type?`:: Asks the
+abstract value for its current type. May return `null` when there is
+no type, or conflicting types are present. When `guess` is `true` or
+not given, an empty AVal will try to use heuristics based on its
+propagation edges to guess a type.
+
+[[infer.AVal.getFunctionType]]`aval.getFunctionType() → Type?`:: Asks
+the AVal if it contains a function type. Useful when you aren't
+interested in other kinds of types.
+
+Abstract values that are used to represent variables or properties
+will have, when possible, an `originNode` property pointing to an AST
+node.
+
+[[type_is_aval]] As a memory-consuming hack, <<infer_types,types>>
+also expose the interface of abstact values, so that in cases where an
+AVal is expected, but the precise type is known, the type object can
+simply be used.
+
+[[infer.ANull]]The `infer.ANull` value is a special AVal-like object
+that never holds any types, and discards types added to it. It can be
+used as a placeholder in situations where we either aren't interested
+in the types, or there simply are no types.
+
+[[infer_constraint]]
+=== Constraints ===
+
+Constraints are things that can receive values. They use the same
+`addType` method to receive them, which causes all AVals to also be
+useable as constraints. The inference engine defines a number of
+additional constraints to propagate values in more indirect ways. See
+the http://marijnhaverbeke.nl/blog/tern.html[blog post] on the
+inference algorithm for some examples.
+
+[[infer.constraint]]`infer.constraint(props: string, methods: object) → constructor`::
+This is a constructor-constructor for constraints. Given a
+comma-separated list of fields (for example `"prop, target"`), it will
+return a constructor that takes those fields as arguments and stores
+them in `this`, with a prototype that derives from a generic
+constraint type, extended with the properties specified in `methods`.
+
+Beyond <<infer.AVal.addType,`addType`>>, there are a few optional
+methods that constraints can expose to tell the system something about
+itself.
+
+[[infer.Constraint.typeHint]]`constraint.typeHint() → Type?`:: May return a type
+that <<infer.AVal.getType,`getType`>> can use to ``guess'' its type
+based on the fact that it propagates to this constraint.
+
+[[infer.Constraint.propHint]]`constraint.propHint() → string?`:: May return a
+string when this constraint is indicative of the presence of a
+specific property in the source AVal.
+
+[[infer_scopes]]
+=== Scopes ===
+
+Scopes are derived from the <<infer.Obj,`Obj`>> type, and variables
+are represented the same way as properties.
+
+[[infer.Scope]]`infer.Scope(parent?: Scope)`:: Constructor for scope
+objects. The top scope won't have a parent.
+
+[[infer.Scope.defVar]]`scope.defVar(name: string, originNode: AST) → AVal`::
+Ensures that this scope or some scope above it has a property by the
+given name (defining it in the top scope if it is missing), and, if
+the property doesn't already have an
+<<infer.Type.originNode,`originNode`>>, assigns the given node to it.
+
+[[infer_util]]
+=== Utilities ===
+
+These are miscellaneous utilities that come in helpful when doing code
+analysis.
+
+[[infer.findExpressionAt]]`infer.findExpressionAt(ast: AST, start: number?, end: number, scope?: Scope) → {node, state}`::
+Searches the given syntax tree for an expression that ends at the
+given end offset and, if `start` is given, starts at the given start
+offset. `scope` can be given to override the outer scope, which
+defaults to the context's top scope. Will return a `{node, state}`
+object if successful, where `node` is AST node, and `state` is the
+scope at that point. Returns `null` if unsuccessful.
+
+[[infer.findExpressionAround]]`infer.findExpressionAround(ast: AST, start: number?, end: number, scope?: Scope) → {node, state}`::
+Similar to <<infer.findExpressionAround,`findExpressionAround`>>,
+except that it will return the innermost expression node that spans
+the given range, rather than only exact matches.
+
+[[infer.expressionType]]`infer.expressionType(expr: {node, state}) → AVal`::
+Determine an expression for the given node and scope (as returned by
+the functions above). Will return an <<infer_aval,`AVal`>> or plain
+<<infer_types,`Type`>>.
+
+[[infer.scopeAt]]`infer.scopeAt(ast: AST, pos: number, scope?: Scope) → Scope`::
+Find the scope at a given position in the syntax tree. The `scope`
+parameter can be used to override the scope used for code that isn't
+wrapped in any function.
+
+[[infer.findRefs]]`infer.findRefs(ast: AST, scope: Scope, name: string, refScope: Scope, f: fn(AST, Scope))`::
+Will traverse the given syntax tree, using `scope` as the starting
+scope, looking for references to variable `name` that resolve to scope
+`refScope`, and call `f` with the node of the reference and its local
+scope for each of them.
+
+[[infer.findPropRefs]]`infer.findPropRefs(ast: AST, scope: Scope, objType: Obj, propName: string, f: fn(AST))`::
+Analogous to <<infer.findRefs,`findRefs`>>, but used to look for
+references to a specific property instead. Whereas `findRefs` is
+precise, this is dependent on type inference, and thus can not be
+relied on to be precise.
+
+Whenever the code in `lib/infer.js` guesses a type through fuzzy
+heuristics (through <<infer.AVal.getType,`getType`>> or
+<<infer.expressionType,`expressionType`>>), it sets a flag. The
+following two function allow access to this flag:
+
+[[infer.didGuess]]`infer.didGuess() → bool`:: Test whether the
+guessing flag is set.
+
+[[infer.resetGuessing]]`infer.resetGuessing(val?: bool)`:: Reset the
+guessing flag.
+
+[[editor]]
+== Editor plugins ==
+
+If your editor of choice is not yet supported, you are encouraged to
+try and port one of the existing plugins to it. When figuring out how
+things work, the code powering the demo, in `doc/demo/demo.js`, might
+also come in useful.
+
+All these plugins use the http://nodejs.org[node.js]-based server, and
+thus require that (as well as http://npmjs.org[npm]) to be installed.
+
+[[emacs]]
+=== Emacs ===
+
+The Emacs mode is part of the main tern
+https://github.com/marijnh/tern[repository]. It can be installed as
+follows:
+
+. Make sure you are using Emacs 24 or later. The Tern mode requires
+  lexical scoping.
+
+. Clone this repository somewhere. Do `npm install` to get the
+  dependencies.
+
+. Make Emacs aware of `emacs/tern.el`. For example by adding this to
+  your `.emacs` file:
++
+[source,commonlisp]
+----
+(add-to-list 'load-path "/path/to/tern/emacs/")
+(autoload 'tern-mode "tern.el" nil t)
+----
+
+. Optionally set `tern-mode` to be automatically enabled for your
+  JavaScript mode of choice. Here's the snippet for `js-mode`:
++
+[source,commonlisp]
+----
+(add-hook 'js-mode-hook (lambda () (tern-mode t)))
+----
+
+The Emacs mode uses the `bin/tern` server, and project configuration
+is done with a <<project_file,`.tern-project`>> file.
+
+Buffers in `tern-mode` add a `completion-at-point` function that
+activates Tern's completion. So, unless you rebound the key, `M-tab`
+(or `C-M-i`) will trigger completion.
+
+When the point is in an argument list, Tern will show argument names
+and types at the bottom of the screen.
+
+The following additional keys are bound:
+
+`M-.`:: Jump to the definition of the thing under the cursor.
+
+`M-,`:: Brings you back to last place you were when you pressed `M-.`.
+
+`C-c C-r`:: Rename the variable under the cursor.
+
+`C-c C-c`:: Find the type of the thing under the cursor.
+
+`C-c C-d`:: Find docs of the thing under the cursor. Press again to
+open the associated URL (if any).
+
+==== Auto-Complete ====
+
+If you want to use `auto-complete.el` for completion, append following codes:
+
+[source,commonlisp]
+----
+(eval-after-load 'tern
+   '(progn
+      (require 'tern-auto-complete)
+      (tern-ac-setup)))
+----
+
+If `tern-ac-on-dot` is non-nil (default), typing `.`(dot) invokes auto-complete to select completions.
+Calling the command `tern-ac-complete`, one can invoke auto-complete manually.
+
+[[vim]]
+=== Vim ===
+
+The Vim plugin is maintained in a
+https://github.com/marijnh/tern_for_vim[separate repository]. Please
+see its README for details.
+
+[[sublime_text]]
+=== Sublime Text ===
+
+There are two implementations of Sublime Text modules for Tern. One
+written by me, at <https://github.com/marijnh/tern_for_sublime>. This
+one uses the node.js-based server. The other is written by Sergey
+Chikuyonok, and can be found at
+<https://github.com/emmetio/sublime-tern>. It uses a Python V8 bridge
+to run the server.
+
+See the readme files in those repositories for details.
+
+[[software]]
+== Related Software ==
+
+This is a place to gather links to software that is built on Tern.
+Drop me an mailto:marijnh@gmail.com[email] if you want to suggest a
+link.
+
+=== jsctags ===
+
+https://github.com/ramitos/jsctags[jsctags] is a tool that generates
+ctags files from JavaScript code by using Tern's inference engine.
+
+=== CodeMirror Tern addon ===
+
+The http://codemirror.net[CodeMirror] browser-based editor has an
+http://codemirror.net/demo/tern.html[addon] for integrating with Tern.

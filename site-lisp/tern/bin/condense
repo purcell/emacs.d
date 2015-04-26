@@ -36,10 +36,15 @@ loadDef("ecma5");
 function loadPlugin(name, val) {
   var found = findFile(name, "plugin", ".js");
   if (!found) {
-    console.error("Could not find plugin " + name);
-    process.exit(1);
+    try {
+      found = require.resolve("tern-" + name);
+    } catch (e) {
+      console.error("Could not find plugin " + name);
+      process.exit(1);
+    }
   }
-  require(found);
+  var mod = require(found);
+  if (mod.hasOwnProperty("initialize")) mod.initialize(ourDir);
   plugins[path.basename(name, ".js")] = val;
 }
 
@@ -92,6 +97,5 @@ if (!origins.length) usage(1);
 
 server.flush(function(err) {
   if (err) throw err;
-  if (plugins.node) server._node.modules[origins[0]].propagate(server.cx.topScope.defProp("exports"));
   console.log(JSON.stringify(condense.condense(origins, name, {spans: spans}), null, 2));
 });

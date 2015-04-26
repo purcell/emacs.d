@@ -7,14 +7,72 @@
 // The idea being that big libraries can be analyzed once, dumped, and
 // then cheaply included in later analysis.
 
-(function(mod) {
+(function(root, mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     return mod(exports, require("./infer"));
   if (typeof define == "function" && define.amd) // AMD
     return define(["exports", "./infer"], mod);
-  mod(self.tern || (self.tern = {}), tern); // Plain browser env
-})(function(exports, infer) {
+  mod(root.tern || (root.tern = {}), tern); // Plain browser env
+})(this, function(exports, infer) {
   "use strict";
+
+  exports.condense = function(origins, name, options) {
+    if (typeof origins == "string") origins = [origins];
+    var state = new State(origins, name || origins[0], options || {});
+
+    runPass(state.passes.preCondenseReach, state);
+
+    state.cx.topScope.path = "<top>";
+    state.cx.topScope.reached("", state);
+    for (var path in state.roots)
+      reach(state.roots[path], null, path, state);
+    for (var i = 0; i < state.patchUp.length; ++i)
+      patchUpSimpleInstance(state.patchUp[i], state);
+
+    runPass(state.passes.postCondenseReach, state);
+
+    for (var path in state.types)
+      store(createPath(path.split("."), state), state.types[path], state);
+    for (var path in state.altPaths)
+      storeAlt(path, state.altPaths[path], state);
+    var hasDef = false;
+    for (var _def in state.output["!define"]) { hasDef = true; break; }
+    if (!hasDef) delete state.output["!define"];
+
+    runPass(state.passes.postCondense, state);
+
+    return simplify(state.output, state.options.sortOutput);
+  };
+
+  function State(origins, name, options) {
+    this.origins = origins;
+    this.cx = infer.cx();
+    this.passes = options.passes || this.cx.parent && this.cx.parent.passes || {};
+    this.maxOrigin = -Infinity;
+    for (var i = 0; i < origins.length; ++i)
+      this.maxOrigin = Math.max(this.maxOrigin, this.cx.origins.indexOf(origins[i]));
+    this.output = {"!name": name, "!define": {}};
+    this.options = options;
+    this.types = Object.create(null);
+    this.altPaths = Object.create(null);
+    this.patchUp = [];
+    this.roots = Object.create(null);
+  }
+
+  State.prototype.isTarget = function(origin) {
+    return this.origins.indexOf(origin) > -1;
+  };
+
+  State.prototype.getSpan = function(node) {
+    if (this.options.spans == false || !this.isTarget(node.origin)) return null;
+    if (node.span) return node.span;
+    var srv = this.cx.parent, file;
+    if (!srv || !node.originNode || !(file = srv.findFile(node.origin))) return null;
+    var start = node.originNode.start, end = node.originNode.end;
+    var pStart = file.asLineChar(start), pEnd = file.asLineChar(end);
+    return start + "[" + pStart.line + ":" + pStart.ch + "]-" +
+      end + "[" + pEnd.line + ":" + pEnd.ch + "]";
+  };
 
   function pathLen(path) {
     var len = 1, pos = 0, dot;
@@ -25,251 +83,215 @@
     return len;
   }
 
-  function isTarget(state, orig) {
-    return state.sources.indexOf(orig) > -1;
+  function hop(obj, prop) {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
   }
 
-  function setPath(type, path, state, curOrigin) {
+  function isSimpleInstance(o) {
+    return o.proto && !(o instanceof infer.Fn) && o.proto != infer.cx().protos.Object &&
+      o.proto.hasCtor && !o.hasCtor;
+  }
+
+  function reach(type, path, id, state, byName) {
     var actual = type.getType(false);
     if (!actual) return;
-    var orig = path ? type.origin || actual.origin : -1;
+    var orig = type.origin || actual.origin, relevant = false;
     if (orig) {
       var origPos = state.cx.origins.indexOf(orig);
-      if (origPos < curOrigin || (path && origPos > state.maxOrigin)) return;
-      // If the path leading up to this does not contain elements that
-      // are in (or younger than) the set of origins we are interested
-      // in, and this object is in the set of target origins, and it's
-      // not a 'magic' path (!ret and such), add this entity to the
-      // set of things added to foreign/external objects.
-      if (curOrigin != -1 && curOrigin < state.minOrigin && isTarget(state, orig) && path.indexOf("!") < 0 &&
-          state.addedToForeign.indexOf(path) < 0)
-        state.addedToForeign.push(actual, path);
-      curOrigin = origPos;
+      // This is a path that is newer than the code we are interested in.
+      if (origPos > state.maxOrigin) return;
+      relevant = state.isTarget(orig);
     }
-    if (path && actual.path && pathLen(actual.path) <= pathLen(path)) return;
-    actual.setPath(path, state, curOrigin);
+    var newPath = path ? path + "." + id : id, oldPath = actual.path;
+    var shorter = !oldPath || pathLen(oldPath) > pathLen(newPath);
+    if (shorter) {
+      if (!(actual instanceof infer.Prim)) actual.path = newPath;
+      if (actual.reached(newPath, state, !relevant) && relevant) {
+        var data = state.types[oldPath];
+        if (data) {
+          delete state.types[oldPath];
+          state.altPaths[oldPath] = actual;
+        } else data = {type: actual};
+        data.span = state.getSpan(type) || (actual != type && state.isTarget(actual.origin) && state.getSpan(actual)) || data.span;
+        data.doc = type.doc || (actual != type && state.isTarget(actual.origin) && actual.doc) || data.doc;
+        data.data = actual.metaData;
+        data.byName = data.byName == null ? !!byName : data.byName && byName;
+        state.types[newPath] = data;
+      }
+    } else {
+      if (relevant) state.altPaths[newPath] = actual;
+    }
+  }
+  function reachByName(aval, path, id, state) {
+    var type = aval.getType();
+    if (type) reach(type, path, id, state, true);
   }
 
-  infer.Prim.prototype.setPath = function() {};
+  infer.Prim.prototype.reached = function() {return true;};
 
-  infer.Arr.prototype.setPath = function(path, state, curOrigin) {
-    this.path = path;
-    setPath(this.getProp("<i>"), path + ".<i>", state, curOrigin);
+  infer.Arr.prototype.reached = function(path, state, concrete) {
+    if (!concrete) reachByName(this.getProp("<i>"), path, "<i>", state);
+    return true;
   };
 
-  infer.Fn.prototype.setPath = function(path, state, curOrigin) {
-    infer.Obj.prototype.setPath.call(this, path, state, curOrigin);
-    for (var i = 0; i < this.args.length; ++i) setPath(this.args[i], path + ".!" + i, state, curOrigin);
-    setPath(this.retval, path + ".!ret", state, curOrigin);
+  infer.Fn.prototype.reached = function(path, state, concrete) {
+    infer.Obj.prototype.reached.call(this, path, state, concrete);
+    if (!concrete) {
+      for (var i = 0; i < this.args.length; ++i)
+        reachByName(this.args[i], path, "!" + i, state);
+      reachByName(this.retval, path, "!ret", state);
+    }
+    return true;
   };
 
-  infer.Obj.prototype.setPath = function(path, state, curOrigin) {
-    this.path = path || "<top>";
-    var start = path ? path + "." : "";
-    for (var prop in this.props)
-      setPath(this.props[prop], start + prop, state, curOrigin);
-    if (this.proto) setPath(this.proto, start + "!proto", state, curOrigin);
+  infer.Obj.prototype.reached = function(path, state, concrete) {
+    if (isSimpleInstance(this) && !this.condenseForceInclude) {
+      if (state.patchUp.indexOf(this) == -1) state.patchUp.push(this);
+      return true;
+    } else if (this.proto && !concrete) {
+      reach(this.proto, path, "!proto", state);
+    }
+    var hasProps = false;
+    for (var prop in this.props) {
+      reach(this.props[prop], path, prop, state);
+      hasProps = true;
+    }
+    if (!hasProps && !this.condenseForceInclude && !(this instanceof infer.Fn)) {
+      this.nameOverride = "?";
+      return false;
+    }
+    return true;
   };
 
-  // FIXME maybe cut off output at a certain path length? the long
-  // paths tend to be uninteresting internals
-  function desc(type, state, asStr) {
-    var actual = type.getType(false);
-    if (!actual) return "?";
-
-    var found = actual.path && state.paths[actual.path];
-    if (found) return actual.path;
-
-    if (state.seen.indexOf(type) > -1) return type.path || "?";
-    state.seen.push(type);
-    var d = actual.getDesc(state, !asStr && getSpan(state, type), asStr);
-    state.seen.pop();
-    return d;
+  function patchUpSimpleInstance(obj, state) {
+    var path = obj.proto.hasCtor.path;
+    if (path) {
+      obj.nameOverride = "+" + path;
+    } else {
+      path = obj.path;
+    }
+    for (var prop in obj.props)
+      reach(obj.props[prop], path, prop, state);
   }
 
-  infer.Prim.prototype.getDesc = function(_state, span, asStr) {
-    return asStr ? this.name : addSpan(this.name, span);
+  function createPath(parts, state) {
+    var base = state.output, defs = state.output["!define"];
+    for (var i = 0, path; i < parts.length; ++i) {
+      var part = parts[i];
+      path = path ? path + "." + part : part;
+      var me = state.types[path];
+      if (part.charAt(0) == "!" || me && me.byName) {
+        if (hop(defs, path)) base = defs[path];
+        else defs[path] = base = {};
+      } else {
+        if (hop(base, parts[i])) base = base[part];
+        else base = base[part] = {};
+      }
+    }
+    return base;
+  }
+
+  function store(out, info, state) {
+    var name = typeName(info.type);
+    if (name != info.type.path && name != "?") {
+      out["!type"] = name;
+    } else if (info.type.proto && info.type.proto != state.cx.protos.Object) {
+      var protoName = typeName(info.type.proto);
+      if (protoName != "?") out["!proto"] = protoName;
+    }
+    if (info.span) out["!span"] = info.span;
+    if (info.doc) out["!doc"] = info.doc;
+    if (info.data) out["!data"] = info.data;
+  }
+
+  function storeAlt(path, type, state) {
+    var parts = path.split("."), last = parts.pop();
+    if (last[0] == "!") return;
+    var known = state.types[parts.join(".")];
+    var base = createPath(parts, state);
+    if (known && known.type.constructor != infer.Obj) return;
+    if (!hop(base, last)) base[last] = type.nameOverride || type.path;
+  }
+
+  var typeNameStack = [];
+  function typeName(value) {
+    var isType = value instanceof infer.Type;
+    if (isType) {
+      if (typeNameStack.indexOf(value) > -1)
+        return value.path || "?";
+      typeNameStack.push(value);
+    }
+    var name = value.typeName();
+    if (isType) typeNameStack.pop();
+    return name;
+  }
+
+  infer.AVal.prototype.typeName = function() {
+    if (this.types.length == 0) return "?";
+    if (this.types.length == 1) return typeName(this.types[0]);
+    var simplified = infer.simplifyTypes(this.types);
+    if (simplified.length > 2) return "?";
+    for (var strs = [], i = 0; i < simplified.length; i++)
+      strs.push(typeName(simplified[i]));
+    return strs.join("|");
   };
 
-  infer.Arr.prototype.getDesc = function(state, span, asStr) {
-    var str = "[" + desc(this.getProp("<i>"), state, true) + "]";
-    return asStr ? str : addSpan(str, getSpan(state, this, span));
+  infer.ANull.typeName = function() { return "?"; };
+
+  infer.Prim.prototype.typeName = function() { return this.name; };
+
+  infer.Arr.prototype.typeName = function() {
+    return "[" + typeName(this.getProp("<i>")) + "]";
   };
 
-  infer.Fn.prototype.getDesc = function(state, span) {
-    if (this.path && !isTarget(state, this.origin)) return this.path;
-
+  infer.Fn.prototype.typeName = function() {
     var out = "fn(";
     for (var i = 0; i < this.args.length; ++i) {
       if (i) out += ", ";
       var name = this.argNames[i];
       if (name && name != "?") out += name + ": ";
-      out += desc(this.args[i], state, true);
+      out += typeName(this.args[i]);
     }
     out += ")";
-    if (this.computeRetSource) {
+    if (this.computeRetSource)
       out += " -> " + this.computeRetSource;
-    } else if (!this.retval.isEmpty()) {
-      var rettype = this.retval.getType();
-      if (rettype) out += " -> " + desc(rettype, state, true);
-    }
+    else if (!this.retval.isEmpty())
+      out += " -> " + typeName(this.retval);
+    return out;
+  };
 
-    if (!hasProps(this)) return out;
-
-    var obj = {"!type": out};
-    if (this.doc) obj["!doc"] = this.doc;
-    addSpan(obj, getSpan(state, this, span));
-    state.paths[this.path] = {structure: obj};
-    setProps(this, obj, state);
+  infer.Obj.prototype.typeName = function() {
+    if (this.nameOverride) return this.nameOverride;
+    if (!this.path) return "?";
     return this.path;
   };
 
-  function getSpan(state, node, deflt) {
-    if (state.options.spans == false) return null;
-    if (node.span) return node.span;
-    if (!node.originNode) return deflt;
-    var srv = state.cx.parent, file = srv && srv.findFile(node.origin);
-    if (!file) return deflt;
-    var pStart = file.asLineChar(node.originNode.start), pEnd = file.asLineChar(node.originNode.end);
-    return node.originNode.start + "[" + pStart.line + ":" + pStart.ch + "]-" +
-      node.originNode.end + "[" + pEnd.line + ":" + pEnd.ch + "]";
+  function simplify(data, sort) {
+    if (typeof data != "object") return data;
+    var sawType = false, sawOther = false;
+    for (var prop in data) {
+      if (prop == "!type") sawType = true;
+      else sawOther = true;
+      if (prop != "!data")
+        data[prop] = simplify(data[prop], sort);
+    }
+    if (sawType && !sawOther) return data["!type"];
+    return sort ? sortObject(data) : data;
   }
 
-  function addSpan(target, span) {
-    if (span) {
-      if (typeof target == "string") target = {"!type": target};
-      target["!span"] = span;
+  function sortObject(obj) {
+    var props = [], out = {};
+    for (var prop in obj) props.push(prop);
+    props.sort();
+    for (var i = 0; i < props.length; ++i) {
+      var prop = props[i];
+      out[prop] = obj[prop];
     }
-    return target;
+    return out;
   }
 
-  function hasProps(obj) {
-    if (obj.doc || obj.originNode) return true;
-    for (var _prop in obj.props) return true;
+  function runPass(functions) {
+    if (functions) for (var i = 0; i < functions.length; ++i)
+      functions[i].apply(null, Array.prototype.slice.call(arguments, 1));
   }
-
-  function setProps(source, target, state) {
-    for (var prop in source.props) {
-      var val = source.props[prop];
-      if (isTarget(state, val.origin)) target[prop] = desc(val, state);
-    }
-  }
-
-  function isSimpleInstance(o, state) {
-    if (o._fromProto) return true;
-
-    if (o.proto && o.proto != state.cx.protos.Object && o.proto.hasCtor &&
-        !o.hasCtor && o.proto.hasCtor.path) {
-      desc(o.proto, state);
-      o._fromProto = true;
-      var protoDesc = state.paths[o.proto.path];
-      if (protoDesc) {
-        setProps(o, protoDesc.structure, state);
-        protoDesc.mayCull = false;
-      }
-      return true;
-    }
-  }
-
-  infer.Obj.prototype.getDesc = function(state, span) {
-    if (isSimpleInstance(this, state)) return "+" + this.proto.hasCtor.path;
-    if (!isTarget(state, this.origin)) return this.path;
-
-    var structure = {}, proto;
-    var rec = state.paths[this.path] = {structure: structure};
-
-    if (this.proto && this.proto != state.cx.protos.Object) {
-      proto = desc(this.proto, state);
-      if (proto == "?") proto = null;
-    }
-
-    if (rec.mayCull == null && !proto && !hasProps(this)) rec.mayCull = true;
-    if (proto) structure["!proto"] = proto;
-    if (this.doc) structure["!doc"] = this.doc;
-    addSpan(structure, getSpan(state, structure, span));
-    setProps(this, structure, state);
-    return this.path;
-  };
-
-  function sanitize(desc, state, path) {
-    if (typeof desc == "string") {
-      var found;
-      if (desc == path && (found = state.paths[desc])) {
-        if (found.mayCull) return "?";
-        found.inlined = true;
-        return sanitize(found.structure, state, path);
-      } else {
-        return desc;
-      }
-    }
-
-    for (var v in desc) if (!/^!(?:define|name|proto|doc|span|url)$/.test(v))
-      desc[v] = sanitize(desc[v], state, path == null ? null : path ? path + "." + v : v);
-    return desc;
-  }
-
-  exports.condense = function(sources, name, options) {
-    if (!options) options = {};
-    if (typeof sources == "string") sources = [sources];
-    if (!name) name = sources[0];
-
-    var cx = infer.cx(), defs = {}, minOrigin = Infinity, maxOrigin = -Infinity;
-    for (var i = 0; i < sources.length; ++i) {
-      var pos = cx.origins.indexOf(sources[i]);
-      if (pos < 0) continue;
-      minOrigin = Math.min(pos, minOrigin);
-      maxOrigin = Math.max(pos, maxOrigin);
-    }
-    var output = {"!name": name, "!define": defs};
-    var state = {sources: sources,
-                 paths: Object.create(null),
-                 cx: cx,
-                 minOrigin: minOrigin, maxOrigin: maxOrigin,
-                 addedToForeign: [],
-                 seen: [],
-                 options: options};
-
-    setPath(cx.topScope, "", state, -1);
-
-    for (var v in cx.topScope.props) {
-      var av = cx.topScope.props[v];
-      if (!isTarget(state, av.origin)) continue;
-      var d = desc(av, state);
-      if (d != "?") output[v] = d;
-    }
-
-    if (state.addedToForeign.length > 0) {
-      var list = state.addedToForeign;
-      state.addedToForeign = [];
-      for (var i = 0; i < list.length; i += 2) {
-        var d = list[i], parts = list[i + 1].split(".");
-        var parent = infer.def.parsePath(parts.slice(0, parts.length - 1).join("."));
-        if (isSimpleInstance(parent, state))
-          parts = parent.proto.path.split(".").concat(parts[parts.length - 1]);
-        var val = desc(d, state);
-        if (val == "?" || parts.some(function(s) {return s.charAt(0) == "!";})) continue;
-        for (var j = 0, cur = output; j < parts.length - 1; ++j) {
-          var part = parts[j];
-          if (Object.prototype.hasOwnProperty.call(cur, part)) cur = cur[part];
-          else cur = cur[part] = {};
-        }
-        cur[parts[parts.length - 1]] = val;
-      }
-    }
-
-    sanitize(output, state, "");
-    var toAdd = [];
-    for (var path in state.paths) {
-      var elt = state.paths[path];
-      if (!elt.inlined && !elt.mayCull)
-        toAdd.push(path, sanitize(elt.structure, state, null));
-    }
-    if (toAdd.length)
-      // Invert order to minimize forward references
-      for (var i = toAdd.length - 2; i >= 0; i -= 2) defs[toAdd[i]] = toAdd[i + 1];
-    else
-      delete output["!define"];
-
-    return output;
-  };
 });

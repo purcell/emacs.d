@@ -1,0 +1,18 @@
+{
+  "!define": {
+    "!node": {
+      "node_export_function_a`js": {
+        "!span": "0[0:0]-26[1:0]",
+        "a": {
+          "!span": "8[0:8]-9[0:9]",
+          "!type": "fn()"
+        }
+      },
+      "node_other_module_type_ref`js": {
+        "!span": "0[0:0]-51[1:0]",
+        "b": "!node.node_export_function_a`js.a"
+      }
+    }
+  },
+  "!name": "node_other_module_type_ref.js"
+}

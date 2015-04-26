@@ -1,0 +1,14 @@
+{
+  "!define": {
+    "!requirejs": {
+      "requirejs_const": {
+        "!span": "7[0:7]-15[0:15]",
+        "a": {
+          "!span": "8[0:8]-9[0:9]",
+          "!type": "string"
+        }
+      }
+    }
+  },
+  "!name": "requirejs_const.js"
+}

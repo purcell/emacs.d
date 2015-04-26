@@ -3,3 +3,5 @@
 /misc
 *.elc
 *.pyc
+
+.DS_Store

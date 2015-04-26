@@ -1,0 +1,14 @@
+{
+  "!define": {
+    "!requirejs": {
+      "requirejs_empty_deps": {
+        "!span": "33[1:9]-41[1:17]",
+        "c": {
+          "!span": "34[1:10]-35[1:11]",
+          "!type": "string"
+        }
+      }
+    }
+  },
+  "!name": "requirejs_empty_deps.js"
+}

@@ -6,5 +6,5 @@ var newElt = document.createElement("div");
 newElt.style.bo; //+ border, borderColor, ... @16
 
 var e_which;
-window.addEventListener("mousemove", function(e) { e.which. }); //+ toExponential, toString, toFixed @60
+window.addEventListener("mousemove", function(e) { e.which. }); //+ toExponential, toFixed, toString, toFixed @60
 

@@ -15,6 +15,12 @@ engine>> to do the actual type inference.
 ** <<server_api,Programming interface>>
 ** <<typedef,JSON type definitions>>
 ** <<plugins,Server plugins>>
+*** <<plugin_doc_comment,Doc comments>>
+*** <<plugin_complete_strings,String completion>>
+*** <<plugin_node,node>>
+*** <<plugin_requirejs,RequireJS>>
+*** <<plugin_angular,Angular.js>>
+*** <<plugin_third_party,Third-party plugins>>
 ** <<configuration,Project configuration>>
 ** <<utils,Utilities>>
 * <<infer,Inference engine>>
@@ -29,6 +35,8 @@ engine>> to do the actual type inference.
 ** <<emacs,Emacs>>
 ** <<vim,Vim>>
 ** <<sublime_text,Sublime Text>>
+** <<tern_java,Eclipse>>
+** <<tern_for_gedit,Gedit>>
 * <<software,Related Software>>
 
 [[server]]
@@ -48,7 +56,9 @@ that instead of the HTTP server described here.)
 When started, the server will look for a `.tern-project` file in the
 current directory or one of the directories above that, and use it for
 its <<configuration,configuration>>. If no project file is found,
-it'll fall back to an empty default configuration.
+it'll fall back to a default configuration. You can change this
+default configuration by putting a `.tern-config` file, with the same
+format as `.tern-project`, in your home directory.
 
 A server write the port it is listening on (which is random) to
 standard output on startup. It will serve a <<protocol,simple JSON
@@ -59,6 +69,9 @@ The following command-line flags are supported:
 
 `--port <number>`:: Specify a port to listen on, instead of the
 default behavior of letting the OS pick a random unused port.
+
+`--host <host>`:: Specify a host to listen on. Defaults to 127.0.0.1.
+Pass `null` or `any` to listen on all available hosts.
 
 `--persistent`:: By default, the server will shut itself down after
 five minutes of inactivity. Pass it a this option to disable
@@ -80,14 +93,19 @@ Sending queries to a Tern server is done by making `POST` requests to
 the server's port (using `/` as the requests's path) with a
 http://json.org[JSON] document in the body of the request.
 
-This document should be an object, with two optional fields, `query`
-and `files`. The first describes the kind of information you want to
-ask for. It may be omitted if the request is only used to push new
+This document should be an object, with three optional fields,
+`query`, `files`, and `timeout`.
+
+The first (`query`) describes the kind of information you are
+requesting. It may be omitted if the request is only used to push new
 code to the server (in which case you'll get an empty object, `{}` as
 response). The `files` property, if given, contains an array of file
 specifications, as described below. It may be omitted when the query
 should operate on the code that the server already has, without adding
-anything new.
+anything new. When the `timeout` field is set, it should contain a
+number, which is interpreted as the maximum amount of milliseconds to
+work (CPU work, ignoring I/O) on this request before returning with a
+timeout error.
 
 A query is an object with at least a `type` property, which determines
 what kind of query it is. Depending on the type, other properties must
@@ -138,15 +156,20 @@ on will be included.
 the properties of `Object.prototype` unless they have been spelled out
 by at least to characters.
 
+`includeKeywords` (optional, default `false`);; Whether to include
+JavaScript keywords when completing something that is not a property.
+
 +
 The result returned will be an object with `start` and `end`
-properties, which give the start and end <<offsets,offsets>> of the word that was
-completed, and a `completions` property holding an array of
-completions. When one of the `types`, `depths`, `docs`, `urls`, or
-`origins` options was passed, the array will hold objects with a
-`name` property (the completion text), and, depending on the options,
-`type`, `depth`, `doc`, `url`, and `origin` properties. When none of
-these options are enabled, the result array will hold plain strings.
+properties, which give the start and end <<offsets,offsets>> of the
+word that was completed, an `isProperty` property that holds a boolean
+indicating whether the completion is for a property or a variable, and
+a `completions` property holding an array of completions. When one of
+the `types`, `depths`, `docs`, `urls`, or `origins` options was
+passed, the array will hold objects with a `name` property (the
+completion text), and, depending on the options, `type`, `depth`,
+`doc`, `url`, and `origin` properties. When none of these options are
+enabled, the result array will hold plain strings.
 
 [[req_type]]`type`:: Query the type of something.
 
@@ -314,6 +337,10 @@ an existing file, and an `offset` property, either an integer or a
 `{line, ch}` object, indicating the approximate position of the
 fragment in the file.
 
+To remove a file from the server's model of the project, you can
+include an object with a `name` property that identifies the file and
+a `type` property of `"delete"`.
+
 [[server_api]]
 === Programming interface ===
 
@@ -347,9 +374,13 @@ before giving up on it. Defaults to `1000`.
 
 A server object has the following methods:
 
-[[tern.Server.addFile]] `addFile(name: string, text?: string)`::
+[[tern.Server.addFile]] `addFile(name: string, text?: string, parent?: string)`::
 Register a file with the server. Note that files can also be
-<<protocol_files,included>> in requests.
+<<protocol_files,included>> in requests. When using this to
+automatically load a dependency, specify the name of the file (as Tern
+knows it) as the third argument. That way, the file is counted towards
+the <<dependency_budget,dependency budget>> of the root of its
+dependency graph.
 
 [[tern.Server.delFile]] `delFile(name: string)`:: Unregister a file.
 
@@ -506,6 +537,12 @@ passing the syntax tree and a <<infer_scope,scope>> object.
 
 `"postInfer" (ast, scope)`;; Run after the type inference pass.
 
+`"typeAt" (file, end, expr, type)`;; Run after Tern attempts to find the
+type at the position `end` in the given file, this should return either
+the given type (already calculated by Tern and earlier `"typeAt"`
+passes) or an alternate type to be used instead. This is useful when a
+plugin can provide a more helpful type than Tern (e.g. within comments).
+
 [[tern.defineQueryType]]`tern.defineQueryType(name: string, desc: object)`::
 Defines a new type of query with the server. The `desc` object is a
 property describing the request. It should at least have a `run`
@@ -517,6 +554,117 @@ operates (from its `file` property) and pass that (a `{name, text,
 scope, ast}` object) as a third argument to the `run` function. You
 will probably need to use the <<infer,inference module's API>> to
 do someting useful in this function.
+
+[[plugin_doc_comment]]
+==== Doc comments plugin ====
+
+This plugin, which is enabled by default in the `bin/tern` server,
+parses comments before function declarations, variable declarations,
+and object properties. It will look for
+http://usejsdoc.org/[JSDoc]-style type declarations, and try to parse
+them and add them to the inferred types, and it will treat the first
+sentence of comment text as the docstring for the defined variable or
+property.
+
+To turn this plugin off, set `doc_comment: null` in your
+<<option_plugins,plugin option>>.
+
+The plugin understands the following configuration parameters:
+
+`fullDocs`:: Can be set to `true` to return the full comment text instead of the first sentence.
+
+[[plugin_complete_strings]]
+==== String completion plugin ====
+
+When enabled, this plugin will gather (short) strings in your code,
+and completing when inside a string will try to complete to previously
+seen strings. Takes a single option, `maxLength`, which controls the
+maximum length of string values to gather, and defaults to 15.
+
+[[plugin_node]]
+==== Node.js plugin ====
+
+The http://nodejs.org[node.js] plugin, called `"node"`, provides
+variables that are part of the node environment, such as `process` and
+`require`, and hooks up `require` to try and find the dependencies
+that are being loaded, and assign them the correct types. It also
+includes types for the built-in modules that node.js provides (`"fs"`,
+`"http"`, etc).
+
+The plugin understands the following configuration parameters:
+
+`dontLoad`:: Can be set to `true` to disable dynamic loading of
+required modules entirely, or to a regular expression to disable
+loading of files that match the expression.
+
+`load`:: If `dontLoad` isn't given, this setting is checked. If it is
+a regular expression, the plugin will only load files that match the
+expression.
+
+`modules`:: Can be used to assign <<typedef,JSON type definitions>> to
+certain modules, so that those are loaded instead of the source code
+itself. If given, should be an object mapping module names to either
+JSON objects defining the types in the module, or a string referring
+to a file name (relative to the project directory) that contains the
+JSON data.
+
+[[plugin_requirejs]]
+==== RequireJS plugin ====
+
+This plugin (`"requirejs"`) teaches the server to understand
+http://requirejs.org[RequireJS]-style dependency management. It
+defines the global functions `define` and `requirejs`, and will do its
+best to resolve dependencies and give them their proper types.
+
+These options are understood:
+
+`baseURL`:: The base path to prefix to dependency filenames.
+
+`paths`:: An object mapping filename prefixes to specific paths. For
+example `{"acorn": "lib/acorn/"}`.
+
+`override`:: An object that can be used to override some dependency
+names to refer to predetermined types. The value associated with a
+name can be a string starting with the character `=`, in which case
+the part after the `=` will be interpreted as a global variable (or
+dot-separated path) that contains the proper type. If it is a string
+not starting with `=`, it is interpreted as the path to the file that
+contains the code for the module. If it is an object, it is
+interpreted as <<typedef,JSON type definition>>.
+
+[[plugin_angular]]
+==== Angular.js plugin ====
+
+Adds the `angular` object to the top-level environment, and tries to
+wire up some of the bizarre dependency management scheme from this
+library, so that dependency injections get the right types. Enabled
+with the name `"angular"`.
+
+[[plugin_third_party]]
+==== Third-party plugins ====
+
+It is possible to write third-party plugins and distribute them
+independently, either as packages using https://www.npmjs.org[npm] or as
+raw JavaScript files.
+
+When a 'name' attribute is specified in the `plugins` section of the
+project configuration, Tern first searches for a file '`name`'`.js` in its
+distribution `plugin` directory, then for a file '`name`'`.js` in the
+user's project directory, and finally for an installed package named
+"tern-'name'" to load as a plugin. A plugin distributed as an npm package
+must have a package name matching the pattern "tern-'name'".
+
+The main module for a third-party plugin that will be installed outside of
+the Tern distribution should export a single method `initialize(ternDir:
+string)` which takes the location of the Tern distribution loading the
+plugin as an argument. Tern will call this method immediately after loading
+the plugin to tell the plugin where to find Tern modules. A plugin with
+this method will work regardless of its install location relative to the
+Tern distribution, but plugins without it may fail to find Tern modules or
+even silently load the wrong Tern modules depending on install location.
+
+Plugin packages can specify the Tern version required as a
+http://blog.nodejs.org/2013/02/07/peer-dependencies[peer dependency].
 
 [[configuration]]
 === Project configuration ===
@@ -549,75 +697,29 @@ that should be loaded into the environment for this project. See the
 suffixed with `.json`, and searched for first in the project's own
 dir, and then in the `defs/` directory of the Tern distribution.
 
-By default, local files are loaded into the Tern server when they are
-opened by the editor. `loadEagerly` allows you to force some files to
-always be loaded, it may be an array of filenames or glob patterns
-(i.e. `foo/bar/*.js`). The `dontLoad` option can be used to prevent
-Tern from loading certain files. It also takes an array of file names
-or glob patterns.
+By default, local files are loaded into the Tern server when queries
+are run on them the editor. `loadEagerly` allows you to force some
+files to always be loaded, it may be an array of filenames or glob
+patterns (i.e. `foo/bar/*.js`). The `dontLoad` option can be used to
+prevent Tern from loading certain files. It also takes an array of
+file names or glob patterns.
 
-Finally, `plugins` is an object used to load and configure Tern
+The `plugins` field may hold object used to load and configure Tern
 plugins. The names of the properties refer to files that implement
 plugins, either in the project dir or under `plugin/` in the Tern
 directory. Their values are configuration objects that will be passed
 to the plugins. You can leave them at `{}` when you don't need to pass
 any options.
 
-[[plugin_doc_comment]]
-==== Doc comments plugin ====
-
-This plugin, which is enabled by default in the `bin/tern` server,
-parses comments before function declarations, variable declarations,
-and object properties. It will look for
-http://usejsdoc.org/[JSDoc]-style type declarations, and try to parse
-them and add them to the inferred types, and it will treat the first
-sentence of comment text as the docstring for the defined variable or
-property.
-
-To turn this plugin off, set `doc_comment: null` in your
-<<option_plugins,plugin option>>.
-
-[[plugin_node]]
-==== Node.js plugin ====
-
-The http://nodejs.org[node.js] plugin, called `"node"`, provides
-variables that are part of the node environment, such as `process` and
-`require`, and hooks up `require` to try and find the dependencies
-that are being loaded, and assign them the correct types. It also
-includes types for the built-in modules that node.js provides (`"fs"`,
-`"http"`, etc).
-
-The plugin understands the following configuration parameters:
-
-`dontLoad`:: Can be set to `true` to disable dynamic loading of
-required modules entirely, or to a regular expression to disable
-loading of files that match the expression.
-
-`load`:: If `dontLoad` isn't given, this setting is checked. If it is
-a regular expression, the plugin will only load files that match the
-expression.
-
-`modules`:: Can be used to assign <<typedef,JSON type definitions>> to
-certain modules, so that those are loaded instead of the source code
-itself. If given, should be an object mapping module names to either
-JSON objects defining the types in the module, or a string referring
-to a file name (relative to the project directory) that contains the
-JSON data.
-
-[[plugin_requirejs]]
-==== RequireJS plugin ====
-
-This plugin teaches the server to understand
-http://requirejs.org[RequireJS]-style dependency management. It
-defines the global functions `define` and `requirejs`, and will do its
-best to resolve dependencies and give them their proper types.
-
-These options are understood:
-
-`baseURL`:: The base path to prefix to dependency filenames.
-
-`paths`:: An object mapping filename prefixes to specific paths. For
-example `{"acorn": "lib/acorn/"}`.
+[[dependency_budget]]
+To configure the amount of work Tern is prepared to do to load a
+single dependency, the `dependencyBudget` option can be added to a
+project file. It indicates the maximum size of the files loaded in
+response to a single dependency (through plugins that load
+dependencies, such as the <<plugin_node,node>> and
+<<plugin_requirejs,RequireJS>> plugins), counted in expressions. The
+default value is 20 000. Files loaded as dependencies of dependencies
+count towards the budget of the original dependency.
 
 [[utils]]
 === Utilities ===
@@ -628,7 +730,7 @@ Runs Tern's own testsuite. Tests are defined in the `test/`
 directory, as code interspersed with comments that indicate the
 types and conditions to check for.
 
-`bin/condense`::
+[[condense]]`bin/condense`::
 
 Utility for condensing source code down to a <<typedef,JSON type
 definition>> file. Takes a list of files to condense, optionally
@@ -1059,6 +1161,19 @@ to run the server.
 
 See the readme files in those repositories for details.
 
+[[tern_java]]
+=== Eclipse / Java ===
+
+https://github.com/angelozerr/tern.java[tern.java] is a Tern client
+written in Java. It includes Eclipse integration.
+
+[[tern_for_gedit]]
+=== gedit ===
+
+https://github.com/Swatinem/tern_for_gedit[tern_for_gedit] integrates
+Tern with the https://github.com/Swatinem/tern_for_gedit[gedit]
+editor.
+
 [[software]]
 == Related Software ==
 
@@ -1075,3 +1190,13 @@ ctags files from JavaScript code by using Tern's inference engine.
 
 The http://codemirror.net[CodeMirror] browser-based editor has an
 http://codemirror.net/demo/tern.html[addon] for integrating with Tern.
+
+=== tern.ace ===
+
+https://github.com/angelozerr/tern.ace[tern.ace] integrates Tern in
+the http://ace.c9.io/[ACE] editor.
+
+=== tern.orion ===
+
+https://github.com/angelozerr/tern.orion[tern.orion] integrates Tern in
+the http://www.eclipse.org/orion/[Orion] editor.

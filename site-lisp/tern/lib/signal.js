@@ -1,10 +1,10 @@
-(function(mod) {
+(function(root, mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     return mod(exports);
   if (typeof define == "function" && define.amd) // AMD
     return define(["exports"], mod);
-  mod((self.tern || (self.tern = {})).signal = {}); // Plain browser env
-})(function(exports) {
+  mod((root.tern || (root.tern = {})).signal = {}); // Plain browser env
+})(this, function(exports) {
   function on(type, f) {
     var handlers = this._handlers || (this._handlers = Object.create(null));
     (handlers[type] || (handlers[type] = [])).push(f);

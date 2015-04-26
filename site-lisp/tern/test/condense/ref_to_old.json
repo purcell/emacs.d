@@ -1,0 +1,7 @@
+{
+  "!name": "ref_to_old.js",
+  "myElement": {
+    "!span": "4[0:4]-13[0:13]",
+    "!type": "+Date"
+  }
+}

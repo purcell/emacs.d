@@ -13,8 +13,16 @@ var projectFileName = ".tern-project", portFileName = ".tern-port";
 var maxIdleTime = 6e4 * 5; // Shut down after five minutes of inactivity
 
 var persistent = process.argv.indexOf("--persistent") > -1;
+var stripCRs = process.argv.indexOf("--strip-crs") > -1;
+var disableLoadingLocal = process.argv.indexOf("--disable-loading-local") > -1;
 var verbose = process.argv.indexOf("--verbose") > -1;
 var noPortFile = process.argv.indexOf("--no-port-file") > -1;
+var host = "127.0.0.1";
+var hostArg = process.argv.indexOf("--host");
+if (hostArg > -1) {
+  host = process.argv[hostArg + 1];
+  if (host == "null" || host == "any") host = null;
+}
 var port = 0;
 var portArg = process.argv.indexOf("--port");
 if (portArg > -1) {
@@ -38,11 +46,25 @@ var defaultConfig = {
   libs: [],
   loadEagerly: false,
   plugins: {},
-  ecmaScript: true
+  ecmaScript: true,
+  dependencyBudget: tern.defaultOptions.dependencyBudget
 };
+var homeDir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+if (homeDir && fs.existsSync(path.resolve(homeDir, ".tern-config")))
+  defaultConfig = readProjectFile(path.resolve(homeDir, ".tern-config"));
 
-function readProjectFile(dir) {
-  var data = JSON.parse(fs.readFileSync(path.resolve(dir, projectFileName), "utf8"));
+function readJSON(fileName) {
+  var file = fs.readFileSync(fileName, "utf8");
+  try {
+    return JSON.parse(file);
+  } catch (e) {
+    console.error("Bad JSON in " + fileName + ": " + e.message);
+    process.exit(1);
+  }
+}
+
+function readProjectFile(fileName) {
+  var data = readJSON(fileName);
   for (var option in defaultConfig) if (!data.hasOwnProperty(option))
     data[option] = defaultConfig[option];
   return data;
@@ -50,7 +72,7 @@ function readProjectFile(dir) {
 
 function findFile(file, projectDir, fallbackDir) {
   var local = path.resolve(projectDir, file);
-  if (fs.existsSync(local)) return local;
+  if (!disableLoadingLocal && fs.existsSync(local)) return local;
   var shared = path.resolve(fallbackDir, file);
   if (fs.existsSync(shared)) return shared;
 }
@@ -64,7 +86,7 @@ function findDefs(projectDir, config) {
     var file = src[i];
     if (!/\.json$/.test(file)) file = file + ".json";
     var found = findFile(file, projectDir, path.resolve(distDir, "defs"));
-    if (found) defs.push(JSON.parse(fs.readFileSync(found, "utf8")));
+    if (found) defs.push(readJSON(found));
     else process.stderr.write("Failed to find library " + src[i] + ".\n");
   }
   return defs;
@@ -79,13 +101,18 @@ function loadPlugins(projectDir, plugins) {
     if (!val) continue;
     var found = findFile(plugin + ".js", projectDir, path.resolve(distDir, "plugin"));
     if (!found) {
-      process.stderr.write("Failed to find plugin " + plugin + ".\n");
-      continue;
+      try {
+        found = require.resolve("tern-" + plugin);
+      } catch (e) {
+        process.stderr.write("Failed to find plugin " + plugin + ".\n");
+        continue;
+      }
     }
-    require(found);
+    var mod = require(found);
+    if (mod.hasOwnProperty("initialize")) mod.initialize(distDir);
     options[path.basename(plugin)] = val;
   }
-  
+
   defaultPlugins.forEach(function(name) {
     if (!plugins.hasOwnProperty(name)) {
       options[name] = true;
@@ -97,7 +124,7 @@ function loadPlugins(projectDir, plugins) {
 
 var projectDir = findProjectDir();
 if (projectDir) {
-  var config = readProjectFile(projectDir);
+  var config = readProjectFile(path.resolve(projectDir, projectFileName));
 } else {
   projectDir = process.cwd();
   var config = defaultConfig;
@@ -118,11 +145,13 @@ function startServer(dir, config) {
     defs: defs,
     plugins: plugins,
     debug: verbose,
-    projectDir: dir
+    projectDir: dir,
+    dependencyBudget: config.dependencyBudget,
+    stripCRs: stripCRs
   });
 
   if (config.loadEagerly) config.loadEagerly.forEach(function(pat) {
-    glob.sync(pat).forEach(function(file) {
+    glob.sync(pat, { cwd: dir }).forEach(function(file) {
       server.addFile(file);
     });
   });
@@ -136,6 +165,9 @@ function doShutdown() {
 }
 
 var shutdown = setTimeout(doShutdown, maxIdleTime);
+
+process.stdin.on("end", function() { process.exit(); });
+process.stdin.resume();
 
 var httpServer = require("http").createServer(function(req, resp) {
   clearTimeout(shutdown);
@@ -154,7 +186,7 @@ var httpServer = require("http").createServer(function(req, resp) {
     else respondSimple(resp, 400, "Missing query document");
   }
 });
-httpServer.listen(port, "127.0.0.1", function() {
+httpServer.listen(port, host, function() {
   var port = httpServer.address().port;
   if (!noPortFile) {
     var portFile = path.resolve(projectDir, portFileName);

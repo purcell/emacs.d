@@ -20,9 +20,9 @@
   <script src="../node_modules/codemirror/addon/search/searchcursor.js"></script>
   <script src="../node_modules/codemirror/addon/search/search.js"></script>
   <script src="../node_modules/codemirror/addon/edit/matchbrackets.js"></script>
-  <script src="../node_modules/acorn/acorn.js"></script>
-  <script src="../node_modules/acorn/acorn_loose.js"></script>
-  <script src="../node_modules/acorn/util/walk.js"></script>
+  <script src="../node_modules/acorn/dist/acorn.js"></script>
+  <script src="../node_modules/acorn/dist/acorn_loose.js"></script>
+  <script src="../node_modules/acorn/dist/walk.js"></script>
   <script src="../lib/signal.js"></script>
   <script src="../lib/tern.js"></script>
   <script src="../lib/def.js"></script>
@@ -31,7 +31,7 @@
   <script src="demo/demo.js"></script>
   <script src="../plugin/requirejs.js"></script>
   <script src="../plugin/doc_comment.js"></script>
-
+  <script src="../plugin/complete_strings.js"></script>
 
 <div id=top>
   <div id=head>
@@ -53,6 +53,7 @@ function argument hints will appear in the bar below the editor.</p>
     <option>commands...</option>
     <option value=complete>Autocomplete (ctrl-space)</option>
     <option value=jumptodef>Jump to definition (alt-.)</option>
+    <option value=finddocs>Describe (ctrl-o)</option>
     <option value=findtype>Find type of (ctrl-i)</option>
     <option value=rename>Rename variable (ctrl-q)</option>
     <option value=addfile>Add a new file</option>
