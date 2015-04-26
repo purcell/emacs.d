@@ -1,5 +1,7 @@
 #!/bin/sh -e
-test -n "$TRAVIS" && rm -f .session .emacs.desktop
+if [ -n "$TRAVIS" ]; then
+    export HOME=$PWD/..
+fi
 echo "Attempting startup..."
 ${EMACS:=emacs} -nw --batch \
                 --eval '(let ((debug-on-error t)
