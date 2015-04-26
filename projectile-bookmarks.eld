@@ -1,1 +1,1 @@
-("~/.emacs.d/" "~/workspace/github/work-notes/" "~/workspace/javascript-frameworks/front-end-casarte-mobile/" "~/workspace/javascript-frameworks/project-app-front-end-framework/" "~/workspace/javascript-frameworks/project-front-end-framework/")
+("~/.emacs.d/" "~/.emacs.d_manger/" "~/.emacs.d_manger/settings/" "~/workspace/github/work-notes/" "~/workspace/javascript-frameworks/project-front-end-framework/" "~/workspace/javascript-frameworks/front-end-casarte-mobile/" "~/workspace/javascript-frameworks/project-app-front-end-framework/")

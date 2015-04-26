@@ -55,8 +55,7 @@
          (looking-at (regexp-quote close)))
     (forward-char (length close)))
 
-   ((js2-mode-inside-comment-or-string)
-    (funcall 'self-insert-command 1))
+
 
    (:else
     (let ((end (js2r--something-to-close-statement)))
