@@ -1,4 +1,5 @@
 #!/bin/sh -e
+test -n "$TRAVIS" && rm -f .session .emacs.desktop
 echo "Attempting startup..."
 ${EMACS:=emacs} -nw --batch \
                 --eval '(let ((debug-on-error t)
