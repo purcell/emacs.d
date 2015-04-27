@@ -1,0 +1,9 @@
+output-xhtml: no
+add-xml-decl: yes
+input-xml: true
+#doctype: yes
+char-encoding: ascii
+indent: auto
+wrap: 76
+#repeated-attributes: keep-last
+#error-file: errs.txt

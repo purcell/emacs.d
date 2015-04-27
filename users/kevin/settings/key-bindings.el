@@ -424,4 +424,11 @@
 
 (global-unset-key (kbd "C-SPC")) ;; close C-SPC for mark, using for toggle fcitx
 
+;; helm-project
+(global-set-key (kbd "C-c h") 'helm-projectile)
+
+;; Tabbar
+(global-set-key (kbd "C-c t") 'tabbar-ruler-move)
+
+
 (provide 'key-bindings)

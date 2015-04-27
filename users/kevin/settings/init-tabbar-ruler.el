@@ -11,4 +11,6 @@
 ;;(tabbar-ruler-group-buffer-groups)
 (tabbar-ruler-group-by-projectile-project)
 
-(global-set-key (kbd "C-c t") 'tabbar-ruler-move)
+
+(provide 'init-tabbar-ruler)
+;;; init-tabbar-ruler.el ends here
