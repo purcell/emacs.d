@@ -5,14 +5,14 @@
 ;;(setq site-lisp-dir (expand-file-name "site-lisp/" user-emacs-directory))
 
 ;; Tern.JS
-(add-to-list 'load-path "~/.emacs.d/site-lisp/tern/emacs/")
-(autoload 'tern-mode "tern.el" nil t)
+;;(add-to-list 'load-path "~/.emacs.d/site-lisp/tern/emacs/")
+;;(autoload 'tern-mode "tern.el" nil t)
 ;;(add-hook 'js2-mode-hook (lambda () (tern-mode t)))
-(eval-after-load 'auto-complete
-  '(eval-after-load 'tern
-     '(progn
-        (require 'tern-auto-complete)
-        (tern-ac-setup))))
+;;(eval-after-load 'auto-complete
+;;  '(eval-after-load 'tern
+;;     '(progn
+;;        (require 'tern-auto-complete)
+;;        (tern-ac-setup))))
 
 
 ;;设置窗口位置为屏库左上角(0,0)
@@ -26,55 +26,6 @@
 ;;(split-window-right 50)
 
 
-
-
-;; add css for org-mode export to html files
-                                        ; Use org.css from the norang website for export document stylesheets
-;;(setq org-html-head-extra "<link rel=\"stylesheet\" href=\"./org.css\" type=\"text/css\" />")
-(setq org-html-head-extra "<style type=\"text/css\">body{margin:
-1em; border-right: 5px solid #bbb; border-bottom: 5px solid #bbb;
-padding: 0; background: #ddd none repeat scroll 0 0; border: 1px
-solid #000; margin: 0; padding: 2em; color: #000;
-font-family: \"Bitstream Vera Sans\", Verdana, sans-serif;
-font-size: 85%;}code{color: #00f;}div#content{border: 1px solid
-#bbb; background: #fff; margin: 0; padding: 2em;}a{color: #139;
-text-decoration: none; padding: 1px;}a:hover{color:
-#900;}#table-of-contents{margin: 1em 0; padding:
-.1em;}div#content div#org-div-home-and-up{background: #369;
-color: #fff;}div#org-div-home-and-up
-a:link,div#org-div-home-and-up a:visited{color: #fff; background:
-#369;}div#org-div-home-and-up a:hover{color:
-#900;}div.title{margin: -1em -1em 0; font-size: 200%;
-font-weight: bold; background: #369; color: #fff; padding: .75em
-1em; font-family: \"BitStream Vera Sans\", Verdana; letter-spacing:
-.1em;}h1{background: #369 none repeat scroll 0 0; color: #fff;
-font-family: \"BitStream Vera Sans\", Verdana; font-size: 200%;
-font-weight: bold; letter-spacing: 0.1em; margin: -1em -1em .2em;
-padding: 0.75em 1em;}h2{font-size: 180%; border-bottom: 1px solid
-#ccc; padding: .2em;}h3{font-size: 120%; border-bottom: 1px solid
-#eee;}h4{font-size: 110%; border-bottom: 1px solid
-#eee;}tt{color: #00f;}.verbatim{margin: .5em 0;}pre{border: 1px
-solid #ccc; background: #eee; padding: .5em; overflow:
-auto;}.verbatim pre{margin: 0;}.verbatim-caption{border: 1px
-solid #ccc; border-bottom: 0; background: #fff; display: block;
-font-size: 80%; padding: .2em;}div#postamble{text-align: left;
-color: #888; font-size: 80%; padding: 0; margin: 0;}div#postamble
-p{padding: 0; margin: 0;}div#postamble a{color:
-#888;}div#postamble a:hover{color: #900;}table{font-size: 100%;
-border-collapse: collapse; margin: .5em 0;}th, td{border: 1px
-solid #777; padding: .3em; margin: 2px;}th{background:
-#eee;}span.underline{text-decoration:
-underline;}.fixme{background: #ff0; font-weight:
-bold;}.ra{text-align: right;}</style>")
-
-
-;; set parent node into DONE when all sub-tasks are done in org mode
-(defun org-summary-todo (n-done n-not-done)
-  "Switch entry to DONE when all subentries are done, to TODO otherwise."
-  (let (org-log-done org-log-states)   ; turn off logging
-    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-
-(add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
 
 (require 'dired-view)
 ;; Enable Dired-view hook for Dired Mode
@@ -120,6 +71,7 @@ bold;}.ra{text-align: right;}</style>")
 (require 'smart-forward)
 (require 'change-inner)
 (require 'multifiles)
+(require 'tabbar)
 
 ;; using projectile to manage projects
 (projectile-global-mode)
@@ -166,9 +118,9 @@ bold;}.ra{text-align: right;}</style>")
 
 
 
-(add-to-list 'load-path "~/Emacs/zencoding/")
-(require 'zencoding-mode)
-(add-hook 'sgml-mode-hook 'zencoding-mode) ;; Auto-start on any markup modes
+;;(add-to-list 'load-path "~/Emacs/zencoding/")
+;;(require 'zencoding-mode)
+;;(add-hook 'sgml-mode-hook 'zencoding-mode) ;; Auto-start on any markup modes
 
 
 
@@ -178,23 +130,23 @@ bold;}.ra{text-align: right;}</style>")
 
 
 ;; add helm-css-scss config https://github.com/ShingoFukuyama/helm-css-scss
-(require 'helm-css-scss)
+;;(require 'helm-css-scss)
 ;; Allow comment inserting depth at each end of a brace
-(setq helm-css-scss-insert-close-comment-depth 2)
+;;(setq helm-css-scss-insert-close-comment-depth 2)
 ;; If this value is t, split window appears inside the current window
-(setq helm-css-scss-split-with-multiple-windows nil)
+;;(setq helm-css-scss-split-with-multiple-windows nil)
 ;; Split direction. 'split-window-vertically or 'split-window-horizontally
-(setq helm-css-scss-split-direction 'split-window-vertically)
+;;(setq helm-css-scss-split-direction 'split-window-vertically)
 
 ;; Set local keybind map for css-mode / scss-mode / less-css-mode
-(dolist ($hook '(css-mode-hook scss-mode-hook less-css-mode-hook))
-  (add-hook
-   $hook (lambda ()
-           (local-set-key (kbd "s-i") 'helm-css-scss)
-           (local-set-key (kbd "s-I") 'helm-css-scss-back-to-last-point))))
+;;(dolist ($hook '(css-mode-hook scss-mode-hook less-css-mode-hook))
+;;  (add-hook
+;;   $hook (lambda ()
+;;           (local-set-key (kbd "s-i") 'helm-css-scss)
+;;           (local-set-key (kbd "s-I") 'helm-css-scss-back-to-last-point))))
 
-(define-key isearch-mode-map (kbd "s-i") 'helm-css-scss-from-isearch)
-(define-key helm-css-scss-map (kbd "s-i") 'helm-css-scss-multi-from-helm-css-scss)
+;;(define-key isearch-mode-map (kbd "s-i") 'helm-css-scss-from-isearch)
+;;(define-key helm-css-scss-map (kbd "s-i") 'helm-css-scss-multi-from-helm-css-scss)
 
 
 (provide 'init)

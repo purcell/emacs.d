@@ -144,7 +144,7 @@
           (lambda ()
             (message "init completed in %.2fms"
                      (sanityinc/time-subtract-millis after-init-time before-init-time))))
-;; test
+
 
 (provide 'init)
 

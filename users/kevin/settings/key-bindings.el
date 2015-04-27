@@ -427,8 +427,13 @@
 ;; helm-project
 (global-set-key (kbd "C-c h") 'helm-projectile)
 
-;; Tabbar
-(global-set-key (kbd "C-c t") 'tabbar-ruler-move)
+;; start tabbar-mode
+(global-set-key (kbd "C-c t") 'tabbar-mode)
+;; Tabbar, following is default key binding, no need to set again
+;;(global-set-key (kbd "C-c <C-left>") 'tabbar-forward-tab)
+;;(global-set-key (kbd "C-c <C-right>") 'tabbar-backward-tab)
+;;(global-set-key (kbd "C-c <C-up>") 'tabbar-forward-group)
+;;(global-set-key (kbd "C-c <C-down>") 'tabbar-backward-group)
 
 
 (provide 'key-bindings)
