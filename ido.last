@@ -8,7 +8,7 @@
  ("/home/kevin/.emacs.d/users/" . "kevin/")
  ("/home/kevin/.emacs.d/" . "users/")
  ("/home/kevin/.emacs.d_mine/" . "settings/")
- ("/home/kevin/workspace/github/work-notes/" . "notes/")
+ ("/home/kevin/workspace/github/work-notes/" . "schedules/")
  ("/home/kevin/workspace/github/" . "work-notes/")
  ("/home/kevin/workspace/" . "github/")
  ("/home/kevin/" . ".emacs.d/")
@@ -16,10 +16,14 @@
 
 ;; ----- ido-work-directory-list -----
 (
+ "/home/kevin/"
+ "/home/kevin/.emacs.d/"
+ "/home/kevin/.emacs.d/users/kevin/settings/"
+ "/home/kevin/.emacs.d/lisp/"
+ "/home/kevin/workspace/github/work-notes/schedules/"
+ "/home/kevin/workspace/github/work-notes/notes/"
  "/home/kevin/workspace/github/work-notes/"
  "/home/kevin/.emacs.d/users/kevin/"
- "/home/kevin/"
- "/home/kevin/.emacs.d/users/kevin/settings/"
  "/home/kevin/.emacs.d/elpa/wanderlust-20150307.1525/"
  "/home/kevin/.emacs.d_manger/site-lisp/"
  "/home/kevin/.emacs.d_manger/site-lisp/tern/"
@@ -32,42 +36,47 @@
  "/home/kevin/.emacs.d_manger/site-lisp/change-inner/"
  "/home/kevin/.emacs.d_manger/site-lisp/browse-kill-ring/"
  "/home/kevin/.emacs.d_manger/site-lisp/ace-jump-mode/"
- "/home/kevin/.emacs.d/lisp/"
- "/home/kevin/.emacs.d/"
  "/home/kevin/.emacs.d_mine/settings/"
- "/home/kevin/workspace/github/work-notes/notes/"
  "/home/kevin/Desktop/"
 )
 
 ;; ----- ido-work-file-list -----
 (
- "work-note-in-2015.html"
+ "test.org"
+ "test.tex"
  "init.el"
+ "org-latex-hack.el"
+ "init-my-org.el"
+ "init-org.el"
+ "casarte-mobile-project-schedule.org"
+ "casarte-mobile-project-document.org"
+ "work-note-in-2015.html"
  ".bash_profile"
- ".bashrc"
- "init-wl.el"
- "wl.el"
- "smooth-scrolling.el"
- "single-quotes-mode.el"
- "frame-cmds.el"
- "README.md"
 )
 
 ;; ----- ido-dir-file-cache -----
 (
- ("/home/kevin/workspace/github/work-notes/notes/" (21822 47949 811114 339000) "work-note-for-dangan.org" "../" "template-git-manage.org" "img/" "javascript-object-oriented.html" "responsive-needs.html" "emacs-document.org" "phonegap-document-and-queries.org" "zhoushan-project-document.org" "emacs-document.md" "emacs-document.html" "responsive-needs.org" "./" "front-end-audit-document.org" "hangzhoudangan-project-document.org" "javascript-object-oriented.org" "front-end-dev-document.org" "front-end-dev-document.html" "app-front-end-dev-document.html" "responsive-needs.md" "app-front-end-dev-document.md" "casarte-mobile-project-document.org" "app-front-end-dev-document.org")
+ ("/home/kevin/" (21824 6341 147782 817000) "ss" "node_modules/" "font" ".mplayer/" ".ddd/" "2048" ".gemrc" ".xfce4-session.verbose-log" ".conkyrc~" ".netbeans/" ".mozilla/" ".msmtprc" ".viminfo" ".zcompdump-archlinux-kevin-5.0.7" ".gem/" "VirtualBox VMs/" ".freemind/" ".emacs.d_manger/" ".m2/" ".fehbg" ".config/" ".bbdb" "fonts/" ".zsh_history" ".adobe/" ".fgfs/" ".cache/" ".asoundrc" "Projects/" ".swt/" "#.bbdb#" ".bashrc" ".recentf~" ".kde/" ".gnus.el" "record/" ".thunderbird/" ".mldonkey/" ".shutter/" ".gnome/" ".bash_history" ".gstreamer-0.10/" "thunderbird/" ".conkyrc" "org-article/" "Documents/" "workspace/" "linux/" "testbeamer.org" ".speed-dreams-2/" ".zshrc" ".local/" ".svnqt/" "test.toc" ".android/" ".sunpinyin/" "study-material/" ".zshrc.pre-oh-my-zsh" ".other/" ".cask/" ".bash_logout" ".srecode/" ".vimrc" ".recently-used" ".openoffice/" "test.pdf" ".scorched3d/" ".xinitrc" ".subversion/" "missfont.log" ".Xauthority" ".backups/" ".fbtermrc" "test.org" "test.out" "auto/" ".wireshark/" ".fvwm/" ".xfce4-session.verbose-log.last" "tmp/" ".python_history" ".ICEauthority" ".macromedia/" "sync/" "Programe/" ".oh-my-zsh/" ".pki/" "test.aux" ".bash_profile~" ".bashrc~" ".msmtprc~" ".dia/" ".texlive/" "Pictures/" ".gimp-2.8/" ".matho_history" ".newsrc-dribble" ".trash/" ".java/" ".w3m/" ".muttrc" ".bash_profile" ".sass-cache/" ".thumbnails/" ".IntelliJIdea13/" ".archey3.cfg" ".eclipse/" ".smex-items" ".semanticdb/" ".zcompdump" "test.tex" "svn/" ".screenlayout/" "mails/" ".ccache/" ".mime-example~" ".recentf" "software/" ".Xresources" ".dbus/" ".kde4/" ".visualvm/" ".jrebel/" ".muttrc~" ".pypanelrc" "Desktop/" ".esd_auth" ".gnome2/" ".gnupg/" ".addresses" "Downloads/" ".plugman/" "TRS/" ".mime-example" ".gtkrc-2.0-kde4" "test/" ".purple/" ".ssh/" ".icons/" "weather_files/" ".wl_bak" ".gitconfig" ".IntelliJIdea14/" ".tidyrc" ".gnome2_private/" ".tgdb/" "test.log" ".rtorrent.rc" ".zhistory" ".AndroidStudioBeta/" ".vim/" ".emacs.d/" ".zsh-update" ".mutt/" ".elmo/" "Users/" ".npm/" ".cordova/" ".#.bbdb" ".emacs.keyfreq" ".Skype/" "../" "./")
+
+ ("/home/kevin/.emacs.d/users/kevin/settings/" (21823 58239 886989 247000) "init-skewer.el" "init-rgrep.el" "init-yasnippet.el" "init-shell.el" "init-package.el" "../" "init-projectile.el" "init-wl.el" "key-bindings.el" "init-js2-mode.el" "init-helm-swoop.el" "init-dired.el" "sane-defaults.el" "mode-mappings.el" "init-helm-projectile.el" "./" "init-tabbar.el" "init-html-mode.el" "init-paredit.el" "init-my-org.el" "org-latex-hack.el" "init-perspective.el")
+
+ ("/home/kevin/.emacs.d_manger/site-lisp/tern/" (21820 45155 353492 69000) "index.html" "../" "README.md" "package.json" "doc/" "lib/" "bin/" "plugin/" "LICENSE" ".#.tern-project" ".gitignore" "emacs/" "./" "defs/" ".tern-project" "test/")
+
+ ("/home/kevin/workspace/github/work-notes/notes/" (21823 45322 40477 146000) "work-note-for-dangan.org" "front-end-dev-document.tex" "../" "template-git-manage.org" "img/" "javascript-object-oriented.html" "app-front-end-dev-document.pdf" "responsive-needs.html" "emacs-document.org" "phonegap-document-and-queries.org" "zhoushan-project-document.org" "emacs-document.md" "front-end-dev-document.pdf" "auto/" "emacs-document.html" ".#front-end-dev-document.org" "#front-end-dev-document.org#" "responsive-needs.org" "./" "front-end-audit-document.org" "hangzhoudangan-project-document.org" "javascript-object-oriented.org" "app-front-end-dev-document.tex" "front-end-dev-document.org" "front-end-dev-document.html" "app-front-end-dev-document.html" "responsive-needs.md" "app-front-end-dev-document.md" "casarte-mobile-project-document.org" "app-front-end-dev-document.org")
+
+ ("/home/kevin/workspace/github/work-notes/schedules/" (21823 35163 883932 24000) "zhoushan-project-schedule.org" "../" "casarte-mobile-project-schedule.org" "front-end-dev-plan.org" "missfont.log" "auto/" "daily-tasks.org" "hangzhoudangan-project-schedule.org" "zhoushan-project.html" "./" "app-front-end-dev-schedule.org" "zhoushan-project-schedule.html" "front-end-dev-plan.html")
+
+ ("/home/kevin/.emacs.d/" (21823 58042 416991 610000) "var/" "eshell/" ".places" "site-lisp/" "../" ".session" ".projectile" "README.md" ".agignore" ".emacs.desktop" "projectile.cache" "LICENSE" "init.el" "projectile-bookmarks.eld" "backups/" "ido.last" "ac-comphist.dat" "lisp/" ".gitignore" "custom.el" "users/" "backup/" "./" ".emacs.desktop.lock" ".smex-items" "elpa/" "history" ".git/" "auto-save-list/" ".mc-lists.el" "docs/")
+
+ ("/usr/share/texmf-dist/tex/latex/base/" (21823 45670 73806 315000) "zhfontcfg.sty" "auto/" "org-article.cls" "x2enc.dfu" "utf8test.tex" "utf8enc.dfu" "utf8.def" "utf8-test.tex" "ullasy.fd" "ulasy.fd" "ucmtt.fd" "ucmss.fd" "ucmr.fd" "ts1enc.dfu" "ts1enc.def" "ts1cmvtt.fd" "ts1cmtt.fd" "ts1cmss.fd" "ts1cmr.fd" "tracefnt.sty" "textcomp.sty" "texsys.cfg" "testpage.tex" "t2cenc.dfu" "t2benc.dfu" "t2aenc.dfu" "t1lcmtt.fd" "t1lcmss.fd" "t1enc.sty" "t1enc.dfu" "t1enc.def" "t1cmvtt.fd" "t1cmtt.fd" "t1cmss.fd" "t1cmr.fd" "t1cmfr.fd" "t1cmfib.fd" "t1cmdh.fd" "syntonly.sty" "small2e.tex" "slides.sty" "slides.def" "slides.cls" "size12.clo" "size11.clo" "size10.clo" "showidx.sty" "shortvrb.sty" "sfonts.def" "sample2e.tex" "report.sty" "report.cls" "proc.sty" "proc.cls" "preload.ltx" "preload.cfg" "ot4enc.def" "ot2enc.dfu" "ot1lcmtt.fd" "ot1lcmss.fd" "ot1enc.dfu" "ot1enc.def" "ot1cmvtt.fd" "ot1cmtt.fd" "ot1cmss.fd" "ot1cmr.fd" "ot1cmfr.fd" "ot1cmfib.fd" "ot1cmdh.fd" "openbib.sty" "omxlcmex.fd" "omxcmex.fd" "omslcmsy.fd" "omsenc.dfu" "omsenc.def" "omscmsy.fd" "omscmr.fd" "omllcmm.fd" "omlenc.def" "omlcmr.fd" "omlcmm.fd" "oldlfont.sty" "nfssfont.tex" "next.def" "newlfont.sty" "minimal.cls" "makeidx.sty" "macce.def" "ly1enc.dfu" "ltxguide.cls" "ltxdoc.cls" "ltxcheck.tex" "ltpatch.ltx" "ltnews.cls" "lppl.tex" "letter.sty" "letter.cls" "leqno.sty" "leqno.clo" "lcyenc.dfu" "latin9.def" "latin5.def" "latin4.def" "latin3.def" "latin2.def" "latin10.def" "latin1.def" "latexsym.sty" "latexbug.tex" "latex209.def" "latex.ltx" "lablst.tex" "inputenc.sty" "ifthen.sty" "idx.tex" "hyphen.ltx" "graphpap.sty" "fonttext.ltx" "fonttext.cfg" "fontmath.ltx" "fontmath.cfg" "fontenc.sty" "fltrace.sty" "fleqn.sty" "fleqn.clo" "flafter.sty" "fixltx2e.sty" "fix-cm.sty" "exscale.sty" "docstrip.tex" "doc.sty" "decmulti.def" "cp865.def" "cp858.def" "cp852.def" "cp850.def" "cp437de.def" "cp437.def" "cp1257.def" "cp1252.def" "cp1250.def" "book.sty" "book.cls" "bk12.clo" "bk11.clo" "bk10.clo" "bezier.sty" "ascii.def" "article.sty" "article.cls" "applemac.def" "ansinew.def" "alltt.sty" "../" "./")
+
+ ("/usr/share/emacs/24.5/etc/" (21815 18514 409938 171000) "wl/" "DOC" "README" "LINUX-GNU" "CALC-NEWS" "JOKES" "grep.txt" "emacs.desktop" "NEWS.22" "ps-prin0.ps" "DEVEL.HUMOR" "MH-E-NEWS" "edt-user.el" "package-keyring.gpg" "FTP" "ETAGS.README" "GNUS-NEWS" "gnus-tut.txt" "ETAGS.EBNF" "NEWS.21" "COPYING" "schema/" "enriched.txt" "charsets/" "future-bug" "NEWS.19" "HELLO" "publicsuffix.txt" "WHY-FREE" "e/" "forms/" "NEWS.23" "org/" "DEBUG" "srecode/" "tutorials/" "GNU" "NEWS.18" "ORDERS" "emacs.icon" "TODO" "ERC-NEWS" "ORG-NEWS" "nxml/" "PROBLEMS" "NXML-NEWS" "NEXTSTEP" "ps-prin1.ps" "ses-example.ses" "CENSORSHIP" "gnus/" "compilation.txt" "images/" "THE-GNU-PROJECT" "DISTRIB" "NEWS.1-17" "NEWS.20" "NEWS" "TERMS" "spook.lines" "AUTHORS" "emacs-buffer.gdb" "MACHINES" "refcards/" "yow.lines" "rgb.txt" "CONTRIBUTE" "MORE.STUFF" "themes/" "emacs.appdata.xml" "../" "./")
+
+ ("/home/kevin/.emacs.d/users/kevin/" (21822 49734 411092 984000) "../" "defuns/" "init.el" "lisp/" "./" "settings/" "folders" ".tidyrc")
 
  ("/home/kevin/workspace/github/work-notes/" (21822 45630 601142 88000) "../" "README.md" ".emacs.desktop" "schedules/" "notes/" "work-note-in-2015.org" "./" ".emacs.desktop.lock" ".git/" "work-note-in-2015.html" ".e-note")
 
- ("/home/kevin/.emacs.d/users/kevin/settings/" (21821 25139 843252 773000) "init-org.el" "init-skewer.el" "init-rgrep.el" "init-yasnippet.el" "init-shell.el" "init-package.el" "../" "init-projectile.el" "init-wl.el" "key-bindings.el" "init-tabbar-ruler.el" "init-js2-mode.el" "init-helm-swoop.el" "init-dired.el" "sane-defaults.el" "mode-mappings.el" "./" "init-html-mode.el" "init-paredit.el" "init-perspective.el")
-
- ("/home/kevin/.emacs.d/users/kevin/" (21821 24421 623261 366000) "../" "defuns/" "init.el" "lisp/" "./" "settings/" "folders")
-
  ("/home/kevin/.emacs.d/users/" (21821 4782 755942 108000) "../" "kevin/" "backup/" "./")
-
- ("/home/kevin/.emacs.d/" (21821 25239 286584 916000) "var/" "eshell/" ".places" "site-lisp/" "../" ".session" ".projectile" "README.md" ".agignore" ".emacs.desktop" "projectile.cache" "LICENSE" "init.el" "projectile-bookmarks.eld" "backups/" "ido.last" "ac-comphist.dat" "lisp/" ".gitignore" "custom.el" "users/" "backup/" "./" ".emacs.desktop.lock" ".smex-items" "elpa/" "history" ".git/" "auto-save-list/" ".mc-lists.el" "docs/")
-
- ("/home/kevin/" (21821 25239 349918 249000) "node_modules/" ".mplayer/" ".ddd/" ".gemrc" ".xfce4-session.verbose-log" ".conkyrc~" ".netbeans/" ".mozilla/" ".msmtprc" ".viminfo" ".gem/" "VirtualBox VMs/" ".freemind/" ".emacs.d_manger/" ".m2/" ".fehbg" ".config/" ".bbdb" ".adobe/" ".fgfs/" ".cache/" ".asoundrc" "Projects/" ".swt/" "#.bbdb#" ".bashrc" ".recentf~" ".kde/" ".gnus.el" "record/" ".thunderbird/" ".mldonkey/" ".shutter/" "##test.js##" ".gnome/" ".bash_history" ".gstreamer-0.10/" "thunderbird/" ".conkyrc" "Documents/" "workspace/" "linux/" ".speed-dreams-2/" ".local/" ".svnqt/" ".android/" ".sunpinyin/" "study-material/" ".other/" ".cask/" ".bash_logout" ".srecode/" ".vimrc" ".recently-used" ".openoffice/" "test.js" ".scorched3d/" ".xinitrc" ".subversion/" ".Xauthority" ".backups/" ".fbtermrc" ".wireshark/" ".fvwm/" ".xfce4-session.verbose-log.last" "tmp/" ".python_history" ".ICEauthority" ".macromedia/" "sync/" "Programe/" ".pki/" ".bash_profile~" ".bashrc~" ".msmtprc~" ".dia/" ".texlive/" "Pictures/" ".gimp-2.8/" ".matho_history" ".newsrc-dribble" ".trash/" ".java/" ".w3m/" ".muttrc" ".bash_profile" ".sass-cache/" ".thumbnails/" ".IntelliJIdea13/" ".archey3.cfg" ".eclipse/" ".smex-items" ".semanticdb/" "svn/" ".screenlayout/" "mails/" ".ccache/" "test.file" ".mime-example~" ".recentf" "software/" ".Xresources" ".dbus/" ".kde4/" ".visualvm/" "touchpadToggle.sh" ".jrebel/" ".muttrc~" ".pypanelrc" "Desktop/" ".esd_auth" ".gnome2/" "#test.js#" ".gnupg/" ".addresses" "Downloads/" ".plugman/" "TRS/" ".mime-example" ".gtkrc-2.0-kde4" "test/" ".purple/" ".ssh/" ".icons/" "weather_files/" ".wl_bak" ".gitconfig" ".IntelliJIdea14/" ".gnome2_private/" ".tgdb/" ".rtorrent.rc" ".AndroidStudioBeta/" ".vim/" ".emacs.d/" ".mutt/" ".elmo/" "Users/" ".npm/" ".cordova/" ".emacs.keyfreq" ".Skype/" "../" "./")
 
  ("/home/kevin/.config/openbox/" (21818 23889 77882 669000) "wallpapers.sh" "../" "menu.xml" "rc.xml" "autostart" "./" "environment")
 
@@ -87,8 +96,6 @@
 
  ("/home/kevin/workspace/javascript-frameworks/" (21817 13018 117741 163000) "qunit/" "project-front-end-framework/" "../" "closure/" "my/" "templates/" "npm-debug.log" "demo/" "frames/" "./" "front-end-casarte-mobile/" "appframework_origin/" "project-app-front-end-framework/" "dev_tools/")
 
- ("/home/kevin/workspace/github/work-notes/schedules/" (21816 53823 443555 13000) "zhoushan-project-schedule.org" "../" "casarte-mobile-project-schedule.org" "front-end-dev-plan.org" "#app-front-end-dev-schedule.org#" "daily-tasks.org" "hangzhoudangan-project-schedule.org" "zhoushan-project.html" "./" "app-front-end-dev-schedule.org" "zhoushan-project-schedule.html" "front-end-dev-plan.html")
-
  ("/home/kevin/.emacs.d/elpa/" (21818 20869 310629 276000) "unfill-20131103.213/" "ghci-completion-20140316.2331/" "csv-mode-1.3/" "color-theme-sanityinc-tomorrow-20150328.1259/" "smartparens-20150419.833/" "git-messenger-20150314.602/" "expand-region-20150414.908/" "elisp-slime-nav-20141224.854/" "smart-forward-readme.txt" "boxquote-1.22/" "session-20120510.1700/" "ac-html-20150118.2116/" "s-20140910.334/" "yaml-mode-20141125.37/" "jump-char-20150108.1235/" "gntp-20141024.1950/" "regex-tool-20131104.1434/" "diminish-20091203.1012/" "elein-20120120.316/" "skewer-less-20131015.622/" "org-pomodoro-20150331.1023/" "smex-20141210.1422/" "scratch-20120830.1028/" "alert-20150402.1246/" "dired-details+-20150104.2150/" "ace-jump-mode-20140616.115/" "bug-reference-github-20131202.1303/" "rainbow-mode-0.11.signed" "exec-path-from-shell-20141212.846/" "change-inner-20130208.1130/" "org-fstree-20090723.819/" "ruby-compilation-20140620.217/" "flycheck-clojure-20150116.234/" "sass-mode-20141219.324/" "anzu-20150305.553/" "macrostep-20150416.1831/" "ruby-hash-syntax-20141010.839/" "eproject-20141019.746/" "wanderlust-20150307.1525/" "github-browse-file-20150411.1223/" "js2-mode-20150406.1341/" "highlight-escape-sequences-20130531.1512/" "flycheck-20150412.242/" "less-css-mode-20140919.524/" "multifiles-readme.txt" "ipretty-20140406.2220/" "async-20150412.2207/" "gnuplot-20141231.1337/" "smooth-scrolling-20131219.2039/" "tidy-20111222.1756/" "flycheck-hdevtools-20150329.323/" "logito-20120225.1255/" "textile-mode-20120721.1258/" "popup-20150315.612/" "change-inner-readme.txt" "git-commit-mode-20150330.1048/" "vc-darcs-20141122.1326/" "fullframe-20140619.305/" "ido-ubiquitous-20150421.1059/" "paredit-20150217.713/" "ibuffer-vc-20150401.204/" "fold-this-20150306.1445/" "cl-lib-highlight-20140127.1312/" "hippie-expand-slime-20130907.132/" "tagedit-20141021.2139/" "ac-haskell-process-20150204.1104/" "haskell-mode-20150420.2132/" "boxquote-readme.txt" "rainbow-delimiters-20150320.17/" "yasnippet-readme.txt" "diff-hl-20150408.1926/" "ledger-mode-20150405.937/" "flycheck-ledger-20140605.1146/" "undo-tree-20140509.522/" "cljsbuild-mode-20140619.126/" "flim-20150310.651/" "fold-this-readme.txt" "ido-completing-read+-20150412.1842/" "auto-complete-20150408.1132/" "packed-20150122.2048/" "scss-mode-20150107.1400/" "git-timemachine-20150403.1137/" "coffee-mode-20150318.1623/" "rinari-20150331.1208/" "git-blame-20110509.926/" "rainbow-mode-0.11/" "wgrep-20141016.1656/" "redshank-20120510.1230/" "git-rebase-mode-20150122.1114/" "guide-key-20150107.2235/" "queue-0.1.1/" "jump-20130702.33/" "flycheck-haskell-20150406.327/" "move-dup-20140925.808/" "findr-20130824.1207/" "epl-20150326.1212/" "skewer-mode-20141215.1525/" "multifiles-20130615.1433/" "csv-nav-20130407.1820/" "erlang-20150319.456/" "highlight-symbol-20140923.729/" "gitconfig-mode-20150405.1627/" "flycheck-package-20150331.1108/" "mwe-log-commands-20100703.541/" "gh-20150126.1125/" "mmm-mode-20150325.15/" "jump-char-readme.txt" "semi-20150203.1543/" "hayoo-20140831.521/" "json-reformat-20150406.1705/" "csv-mode-1.3.signed" "project-local-variables-20080502.1652/" "js-comint-20080530.757/" "smooth-scrolling-readme.txt" "sql-indent-20090325.2254/" "markdown-mode-20150121.1229/" "dsvn-20130120.1257/" "dired-details+-readme.txt" "slime-20150419.1413/" "smarty-mode-20100703.458/" "ac-cider-20150306.254/" "ac-html-bootstrap-20150218.408/" "magit-20150422.316/" "github-clone-20141006.210/" "default-text-scale-20150227.956/" "whole-line-or-region-20110901.130/" "let-alist-1.0.3/" "inflections-20121016.157/" "pcache-20150125.1653/" "page-break-lines-20150226.817/" "dash-20150311.2355/" "color-theme-sanityinc-solarized-20150328.1301/" "magit-svn-20150319.1355/" "dired-details-20130824.1158/" "queue-0.1.1.signed" "ac-js2-20140906.442/" "aggressive-indent-20150401.1516/" "yasnippet-20150415.244/" "multiple-cursors-20150307.2322/" "hl-sexp-20101130.443/" "paredit-everywhere-20140906.210/" "ac-slime-20141002.639/" "darcsum-20140315.2110/" "zencoding-mode-20140213.22/" "cider-20150422.158/" "apel-20141024.1642/" "css-eldoc-20150124.1923/" "htmlize-20130207.1202/" "gitignore-mode-20150405.1627/" "php-mode-20150414.707/" "smartparens-readme.txt" "magit-gh-pulls-20150328.2353/" "zencoding-mode-readme.txt" "let-alist-1.0.3.signed" "ac-inf-ruby-20131115.350/" "yasnippet-0.9.0.1/" "lively-20120728.1413/" "fill-column-indicator-20140509.1101/" "gnupg/" "switch-window-20150114.215/" "whitespace-cleanup-mode-20150214.353/" "inf-ruby-20150403.946/" "json-snatcher-20140527.2147/" "smart-forward-20140430.13/" "lua-mode-20150303.1303/" "tern-20150410.410/" "haml-mode-20150420.1125/" "json-mode-20150413.1948/" "clojure-mode-20150410.2319/" "archives/" "dired+-20150416.2324/" "pip-requirements-20150228.309/" "auto-compile-20150306.733/" "browse-kill-ring-20150104.1237/" "robe-20150417.1126/" "dired-sort-20090209.438/" "yari-20140206.611/" "simple-httpd-20140908.1908/" "names-20150125.552/" "idomenu-20141123.1320/" "pkg-info-20140610.630/" "eproject-readme.txt" "popwin-20150315.600/" "ac-html-bootstrap-readme.txt" "crontab-mode-20090510.1355/" "log4e-20150105.505/" "yagist-20140321.1512/" "helm-20150423.342/" "highlight-quoted-20140916.1122/" "../" "./")
 
  ("/home/kevin/.emacs.d/users/kevin/lisp/" (21818 18529 147215 245000) "dired+.el" "../" "dired-view.el" "markdown-mode.el" "./" "highlight.el" "files+.el" "markdown-setting.el")
@@ -102,8 +109,6 @@
  ("/home/kevin/.emacs.d_manger/" (21817 25029 56718 498000) ".folders" "#init.el#" "session.28795f802-4e8c-4b07-ab75-0cbd488ff74c" "var/" "eshell/" ".places" "site-lisp/" "../" "README.md" "session.2bc9e02ab-ffe1-4029-9a5b-457b0d2f7293" ".emacs.desktop" "session.21d9342e2-4834-425f-b9e6-216f992c0363" "defuns/" "themes/" "tramp" ".cask/" "init.el" "backups/" "ido.last" ".gitignore" "custom.el" "my-site-lisp/" ".gitmodules" "users/" "./" "settings/" "session.204225d81-3dd5-4801-bd3c-347db21f2865" "elpa/" "history" ".git/" "snippets/" "auto-save-list/" ".mc-lists.el" "recentf" "project-archetypes/")
 
  ("/home/kevin/.emacs.d/elpa/smart-forward-20140430.13/" (21817 52440 140997 80000) "smart-forward-autoloads.el" "smart-forward-pkg.elc" "../" "smart-forward-pkg.el" "smart-forward.elc" "smart-forward.el" "./")
-
- ("/home/kevin/.emacs.d_manger/site-lisp/tern/" (21741 1806 675225 261000) "index.html" "../" "README.md" "package.json" "doc/" "lib/" "bin/" "plugin/" "LICENSE" ".gitignore" "emacs/" "./" "defs/" ".tern-project" "test/")
 
  ("/home/kevin/.emacs.d_manger/site-lisp/multifiles/" (21741 1806 675225 261000) "Carton" "features/" "multifiles.el" "../" "wishful-readme.md" "README.md" "watch-tests.watchr" ".gitignore" ".gitmodules" "./" "util/" "Makefile" "run-travis-ci.sh")
 
