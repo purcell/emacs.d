@@ -84,17 +84,14 @@
 
 ;; If lines of message are larger than this value, treat it as `large'.
 (setq mime-edit-message-default-max-lines 1000)
-
-
-
+(require 'signature)
 ;; ----------------------------------------------------------------------------
 ;;; w3m octet configuration for handling attachments
+
 (require 'mime-w3m)
 (require 'octet)
 (require 'w3m-util)
 (octet-mime-setup)
-
-
 
 ;;----------------
 ;;LOADING dired-dd, you can check the

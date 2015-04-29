@@ -11,7 +11,7 @@
 (setq org-todo-keyword-faces
       (quote (("TODO" :foreground "red" :weight bold)
               ("NEXT" :foreground "blue" :weight bold)
-              ("STARTED" :forceground "green" :weight bold)
+              ("STARTED" :foreground "green" :weight bold)
               ("DONE" :foreground "forest green" :weight bold)
               ("WAITING" :foreground "orange" :weight bold)
               ("HOLD" :foreground "magenta" :weight bold)
@@ -221,6 +221,7 @@ bold;}.ra{text-align: right;}</style>")
 \\usepackage{latexsym}
 \\usepackage{natbib}
 \\usepackage{fancyhdr}
+\\usepackage{comment}
 \\usepackage[xetex,colorlinks=true,CJKbookmarks=true,
 linkcolor=blue,
 urlcolor=blue,
@@ -368,7 +369,8 @@ marginparsep=7pt, marginparwidth=.6in}
 
 (setq org-latex-default-class "cn-article")
 
-
+;;
+(add-hook 'message-mode-hook 'turn-on-orgtbl)
 
 
 (provide 'init-my-org)
