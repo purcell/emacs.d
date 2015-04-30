@@ -24,24 +24,28 @@
 
 ;; Lots of stuff from http://doc.norang.ca/org-mode.html
 
-(defun sanityinc/grab-ditaa ()
+(defun sanityinc/grab-ditaa (url jar-name)
+  "Download URL and extract JAR-NAME as `org-ditaa-jar-path'."
   ;; TODO: handle errors
-  (message "Grabbing ditaa.jar for org.")
+  (message "Grabbing " jar-name " for org.")
   (let ((zip-temp (make-temp-name "emacs-ditaa")))
     (unwind-protect
         (progn
           (when (executable-find "unzip")
-            (url-copy-file "http://switch.dl.sourceforge.net/project/ditaa/ditaa/0.9/ditaa0_9.zip" zip-temp)
-            (shell-command (concat "unzip -p " zip-temp " ditaa0_9.jar > "
+            (url-copy-file url zip-temp)
+            (shell-command (concat "unzip -p " (shell-quote-argument zip-temp)
+                                   " " (shell-quote-argument jar-name) " > "
                                    (shell-quote-argument org-ditaa-jar-path)))))
       (when (file-exists-p zip-temp)
         (delete-file zip-temp)))))
 
 (after-load 'ob-ditaa
   (unless (file-exists-p org-ditaa-jar-path)
-    (setq org-ditaa-jar-path (expand-file-name "ditaa.jar" (file-name-directory user-init-file)))
-    (unless (file-exists-p org-ditaa-jar-path)
-      (sanityinc/grab-ditaa))))
+    (let ((jar-name "ditaa0_9.jar")
+          (url "http://softlayer-ams.dl.sourceforge.net/project/ditaa/ditaa/0.9/ditaa0_9.zip"))
+      (setq org-ditaa-jar-path (expand-file-name jar-name (file-name-directory user-init-file)))
+      (unless (file-exists-p org-ditaa-jar-path)
+        (sanityinc/grab-ditaa url jar-name)))))
 
 
 
