@@ -1,6 +1,31 @@
-(setq org-directory "~/workspace/github/worknotes/org")
+;; config for org-mode
+;; add some capture config
+(setq org-directory "~/workspace/github/work-notes/org")
 (setq org-default-notes-file (concat org-directory "/notes.org"))
-(define-key global-map (kbd "M-<f6>") 'org-capture)
+;;(define-key global-map (kbd "M-<f6>") 'org-capture)
+
+;; I use C-c c to start capture mode
+(global-set-key (kbd "C-c c") 'org-capture)
+
+;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
+(setq org-capture-templates
+      (quote (("t" "todo" entry (file (concat org-directory "/refile.org"))
+               "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+              ("r" "respond" entry  (file (concat org-directory "/refile.org"))
+               "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t :immediate-finish t)
+              ("n" "note" entry  (file (concat org-directory "/refile.org"))
+               "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+              ("j" "Journal" entry  (file (concat org-directory "/refile.org"))
+               "* %?\n%U\n" :clock-in t :clock-resume t)
+              ("w" "org-protocol" entry  (file (concat org-directory "/refile.org"))
+               "* TODO Review %c\n%U\n" :immediate-finish t)
+              ("m" "Meeting" entry  (file (concat org-directory "/refile.org"))
+               "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+              ("p" "Phone call" entry  (file (concat org-directory "/refile.org"))
+               "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
+              ("h" "Habit" entry  (file (concat org-directory "/refile.org"))
+               "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"<%Y-%m-%d %a .+1d/3d>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n"))))
+
 
 
 ;; add some of TODO configuration
@@ -27,6 +52,14 @@
               ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
               ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
               ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
+
+(setq org-tag-alist '((:startgroup . nil)
+                      ("@Members" . ?m)
+                      (:grouptags . nil)
+                      ("@陆健美" . ?l)
+                      ("@孔祥润" . ?k)
+                      ("@番梦琳" . ?p)))
+
 
 ;; config agenda view
 ;; Do not dim blocked tasks
@@ -371,6 +404,8 @@ marginparsep=7pt, marginparwidth=.6in}
 
 ;;
 (add-hook 'message-mode-hook 'turn-on-orgtbl)
+
+
 
 
 (provide 'init-my-org)

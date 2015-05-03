@@ -200,10 +200,11 @@ Default is t."
   (interactive)
   (setq tabbar-buffer-groups-function 'tabbar-ruler-projectile-tabbar-buffer-groups))
 
-  
-  
-  ;; group by projectile
-  (tabbar-ruler-group-by-projectile-project)
+
+
+;; group by projectile
+(tabbar-ruler-group-by-projectile-project)
+(tabbar-mode)
 
 (provide 'init-tabbar)
 

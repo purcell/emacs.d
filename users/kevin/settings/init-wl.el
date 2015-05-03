@@ -150,7 +150,7 @@
       wl-fcc ".Sent"
       wl-fcc-force-as-read t
       wl-from (concat user-full-name " <" user-mail-address ">")
-;;      wl-from (concat user-full-name "< lu.jianmei@trs.com.cn > ")
+      ;;      wl-from (concat user-full-name "< lu.jianmei@trs.com.cn > ")
       wl-organization "TRS Ltd."
 
       ;; Automatic signature insertion
@@ -159,7 +159,7 @@
       signature-delete-blank-lines-at-eof t
 
       ;; User Email addresses
-      wl-user-mail-address-list nil
+      wl-user-mail-address-list t
 
       wl-draft-reply-buffer-style 'keep
       wl-interactive-send nil
