@@ -154,6 +154,8 @@
 (setq org-plantuml-jar-path "/opt/plantuml/plantuml.jar")
 
 
+;; auto save files
+(run-at-time "00:59" 3600 'org-save-all-org-buffers)
 
 (provide 'init)
 ;;; init.el ends here

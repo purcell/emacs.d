@@ -143,6 +143,40 @@
                nil))))
 
 
+;; config for export-mutilpul files
+                                        ; Increase default number of headings to export
+(setq org-export-headline-levels 6)
+                                        ; List of projects
+                                        ; Work-notes
+
+(setq org-publish-project-alist
+                                        ;
+                                        ; (work notes for)
+      (quote (("work-notes"
+               :base-directory "~/workspace/github/work-notes/"
+               :publishing-directory "~/workspace/github/publish-works"
+               :recursive t
+               :table-of-contents t
+               :base-extension "org"
+               :publishing-function org-html-publish-to-html
+               :style-include-default t
+               :section-numbers y
+               :table-of-contents y
+               :author-info y
+               :creator-info y)
+              ("work-notes-extra"
+               :base-directory "~/worknotes/github/work-notes/"
+               :publishing-directory "~/workspace/github/publish-works"
+               :base-extension "css\\|pdf\\|png\\|jpg\\|gif"
+               :publishing-function org-publish-attachment
+               :recursive t
+               :author nil)
+              ("worknotes"
+               :components ("work-notes" "work-notes-extra"))
+              )))
+
+
+
 
 ;; add css for org-mode export to html files
                                         ; Use org.css from the norang website for export document stylesheets
@@ -181,7 +215,7 @@ border-collapse: collapse; margin: .5em 0;}th, td{border: 1px
 solid #777; padding: .3em; margin: 2px;}th{background:
 #eee;}span.underline{text-decoration:
 underline;}.fixme{background: #ff0; font-weight:
-bold;}.ra{text-align: right;}</style>")
+bold;}.ra{text-align: right;}span.todo.NEXT{color:blue;}span.todo.STARTED{color:green;}span.todo.WAITTING{color:orange;}span.todo.HOLD{color:magenta;}.tag{font-size:124%;}</style>")
 
 
 ;; set parent node into DONE when all sub-tasks are done in org mode
@@ -194,6 +228,20 @@ bold;}.ra{text-align: right;}</style>")
 
 
 
+                                        ; I'm lazy and don't want to remember the name of the project to publish when I modify
+                                        ; a file that is part of a project.  So this function saves the file, and publishes
+                                        ; the project that includes this file
+                                        ;
+                                        ; It's bound to C-S-F12 so I just edit and hit C-S-F12 when I'm done and move on to the next thing
+(defun bh/save-then-publish (&optional force)
+  (interactive "P")
+  (save-buffer)
+  (org-save-all-org-buffers)
+  (let (
+        )
+    (org-publish-current-project force)))
+
+(global-set-key (kbd "C-<f12>") 'bh/save-then-publish)
 
 
 ;; config for export PDF
