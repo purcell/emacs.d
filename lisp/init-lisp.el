@@ -1,6 +1,6 @@
 (require-package 'elisp-slime-nav)
 (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
-  (add-hook hook 'elisp-slime-nav-mode))
+  (add-hook hook 'turn-on-elisp-slime-nav-mode))
 
 (require-package 'lively)
 
@@ -162,7 +162,6 @@
 
 (defun sanityinc/emacs-lisp-setup ()
   "Enable features useful when working with elisp."
-  (elisp-slime-nav-mode t)
   (set-up-hippie-expand-for-elisp)
   (ac-emacs-lisp-mode-setup))
 
