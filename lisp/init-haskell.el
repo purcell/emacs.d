@@ -18,6 +18,10 @@
   (add-to-list 'ac-modes 'haskell-interactive-mode)
   (add-hook 'haskell-interactive-mode-hook 'set-auto-complete-as-completion-at-point-function))
 
+(when (executable-find "ghci-ng")
+  (setq-default haskell-process-args-cabal-repl
+                e '("--ghc-option=-ferror-spans" "--with-ghc=ghci-ng")))
+
 
 
 ;; Flycheck specifics
