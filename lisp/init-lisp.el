@@ -33,6 +33,16 @@
     (with-current-buffer out-buffer-name
       (view-mode 1))))
 
+
+
+(defun sanityinc/maybe-set-bundled-elisp-readonly ()
+  "If this elisp appears to be part of Emacs, then disallow editing."
+  (when (and (buffer-file-name)
+             (string-match-p "\\.el\\.gz\\'" (buffer-file-name)))
+    (setq buffer-read-only t)
+    (view-mode 1)))
+
+(add-hook 'emacs-lisp-mode-hook 'sanityinc/maybe-set-bundled-elisp-readonly)
 
 
 ;; Use C-c C-z to toggle between elisp files and an ielm session
