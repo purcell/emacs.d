@@ -149,14 +149,9 @@
 (define-key helm-css-scss-map (kbd "s-i") 'helm-css-scss-multi-from-helm-css-scss)
 
 
-;; set for plantuml
-(setq org-ditaa-jar-path "/usr/share/java/ditaa/ditaa-0_9.jar")
-(setq org-plantuml-jar-path "/opt/plantuml/plantuml.jar")
 
 
-;; auto save files
-(run-at-time "00:59" 3600 'org-save-all-org-buffers)
-
+(setq debug-on-error t)
 (provide 'init)
 ;;; init.el ends here
 

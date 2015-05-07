@@ -11,20 +11,14 @@
  ("/home/kevin/workspace/github/work-notes/" . "notes/")
  ("/home/kevin/workspace/github/" . "work-notes/")
  ("/home/kevin/workspace/" . "github/")
- ("/home/kevin/" . "workspace/")
+ ("/home/kevin/" . ".emacs.d/")
 )
 
 ;; ----- ido-work-directory-list -----
 (
- "/sudo:root@localhost:/etc/"
- "/home/kevin/"
- "/home/kevin/.emacs.d/"
- "/home/kevin/.emacs.d/users/kevin/settings/"
- "/home/kevin/.emacs.d/lisp/"
- "/home/kevin/workspace/github/work-notes/schedules/"
- "/home/kevin/workspace/github/work-notes/notes/"
- "/home/kevin/workspace/github/work-notes/"
  "/home/kevin/.emacs.d/users/kevin/"
+ "/home/kevin/"
+ "/home/kevin/.emacs.d/users/kevin/settings/"
  "/home/kevin/.emacs.d/elpa/wanderlust-20150307.1525/"
  "/home/kevin/.emacs.d_manger/site-lisp/"
  "/home/kevin/.emacs.d_manger/site-lisp/tern/"
@@ -37,22 +31,26 @@
  "/home/kevin/.emacs.d_manger/site-lisp/change-inner/"
  "/home/kevin/.emacs.d_manger/site-lisp/browse-kill-ring/"
  "/home/kevin/.emacs.d_manger/site-lisp/ace-jump-mode/"
+ "/home/kevin/.emacs.d/lisp/"
+ "/home/kevin/.emacs.d/"
  "/home/kevin/.emacs.d_mine/settings/"
+ "/home/kevin/workspace/github/work-notes/notes/"
+ "/home/kevin/workspace/github/work-notes/"
  "/home/kevin/Desktop/"
 )
 
 ;; ----- ido-work-file-list -----
 (
- "profile"
- ".bash_profile"
- ".zshrc"
- "test.org"
- "test.tex"
  "init.el"
- "org-latex-hack.el"
- "init-my-org.el"
- "init-org.el"
- "casarte-mobile-project-schedule.org"
+ ".bash_profile"
+ ".bashrc"
+ "init-wl.el"
+ "wl.el"
+ "smooth-scrolling.el"
+ "single-quotes-mode.el"
+ "frame-cmds.el"
+ "README.md"
+ "project-archetypes.el"
 )
 
 ;; ----- ido-dir-file-cache -----

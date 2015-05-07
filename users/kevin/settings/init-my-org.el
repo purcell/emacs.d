@@ -4,6 +4,21 @@
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 ;;(define-key global-map (kbd "M-<f6>") 'org-capture)
 
+
+;; set for plantuml
+(setq org-ditaa-jar-path "/usr/share/java/ditaa/ditaa-0_9.jar")
+(setq org-plantuml-jar-path "/opt/plantuml/plantuml.jar")
+
+
+
+                                        ; Use fundamental mode when editing plantuml blocks with C-c '
+(add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
+
+;; auto save files
+(run-at-time "00:59" 3600 'org-save-all-org-buffers)
+
+
+
 ;; I use C-c c to start capture mode
 (global-set-key (kbd "C-c c") 'org-capture)
 
@@ -263,15 +278,9 @@ bold;}.ra{text-align: right;}span.todo.NEXT{color:blue;}span.todo.STARTED{color:
 (setq TeX-auto-save t)
 (setq TeX-parse-self t)
 (setq-default TeX-master nil)
-(defun org-mode-article-modes ()
-  (reftex-mode t)
-  (and (buffer-file-name)
-       (file-exists-p (buffer-file-name))
-       (reftex-parse-all)))
-(add-hook 'org-mode-hook
-          (lambda ()
-            (if (member "REFTEX" org-todo-keywords-1)
-                (org-mode-article-modes))))
+
+
+
 (unless (boundp 'org-latex-classes)
   (setq org-latex-classes nil))
 
@@ -391,7 +400,11 @@ marginparsep=7pt, marginparwidth=.6in}
    (perl . t)
    (sh . t)
    (ditaa . t)
+   (plantuml . t)
+   (org . t)
    (python . t)
+   (sh . t)
+   (dot . t)
    (haskell . t)
    (dot . t)
    (latex . t)
