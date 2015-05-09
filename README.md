@@ -46,7 +46,11 @@ git clone https://github.com/purcell/emacs.d.git ~/.emacs.d
 ```
 
 Upon starting up Emacs for the first time, further third-party
-packages will be automatically downloaded and installed.
+packages will be automatically downloaded and installed. If you
+encounter any errors at that stage, try restarting Emacs, and possibly
+running `M-x package-refresh-contents` before doing so.
+
+
 
 ## Important note about `ido`
 
