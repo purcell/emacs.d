@@ -41,6 +41,7 @@
 
 ;; ----- ido-work-file-list -----
 (
+ ".zshrc"
  "init.el"
  ".bash_profile"
  ".bashrc"
@@ -50,12 +51,15 @@
  "single-quotes-mode.el"
  "frame-cmds.el"
  "README.md"
- "project-archetypes.el"
 )
 
 ;; ----- ido-dir-file-cache -----
 (
- ("/home/kevin/" (21835 58125 789941 671000) ".mplayer/" ".ddd/" ".gemrc" ".xfce4-session.verbose-log" ".conkyrc~" ".netbeans/" ".mozilla/" ".msmtprc" ".viminfo" ".zcompdump-archlinux-kevin-5.0.7" ".gem/" "VirtualBox VMs/" ".freemind/" ".emacs.d_manger/" ".m2/" ".fehbg" ".config/" ".org-timestamps/" ".bbdb" "hangzhoudangan.apk" "fonts/" ".zsh_history" ".adobe/" ".fgfs/" ".cache/" ".asoundrc" "some_filename2.png" "Projects/" "tests.tex" ".swt/" ".bashrc" ".recentf~" ".kde/" ".gnus.el" "record/" ".thunderbird/" ".mldonkey/" ".shutter/" ".gnome/" "tests.org" ".bash_history" ".gstreamer-0.10/" "thunderbird/" ".conkyrc" "org-article/" "Documents/" "workspace/" "linux/" "sequence.png" ".speed-dreams-2/" ".zshrc" ".local/" ".svnqt/" ".android/" ".sunpinyin/" "study-material/" "test.tex.pdf" ".zshrc.pre-oh-my-zsh" "test.tex.tex" ".other/" ".cask/" ".bash_logout" "app现在所存在的部分问题.doc" ".srecode/" ".vimrc" "some_filename3.png" ".recently-used" ".openoffice/" ".scorched3d/" ".xinitrc" ".subversion/" ".Xauthority" ".backups/" ".fbtermrc" "auto/" ".wireshark/" ".fvwm/" ".xfce4-session.verbose-log.last" "tmp/" ".python_history" ".ICEauthority" "docker/" ".macromedia/" "sync/" "Programe/" ".oh-my-zsh/" ".pki/" ".bash_profile~" ".bashrc~" ".msmtprc~" ".dia/" ".texlive/" "Pictures/" ".gimp-2.8/" "some_filename.png" ".matho_history" ".newsrc-dribble" ".trash/" ".java/" ".w3m/" ".muttrc" ".bash_profile" ".sass-cache/" ".thumbnails/" ".IntelliJIdea13/" "tests.html" ".archey3.cfg" ".eclipse/" ".smex-items" ".semanticdb/" ".zcompdump" "test.tex" "svn/" ".screenlayout/" "mails/" ".ccache/" ".mime-example~" ".recentf" "software/" ".Xresources" ".dbus/" ".kde4/" ".visualvm/" ".jrebel/" "tests.pdf" ".muttrc~" ".pypanelrc" "Desktop/" ".esd_auth" ".gnome2/" ".gnupg/" "some_filename6.png" ".addresses" "Downloads/" ".plugman/" "TRS/" ".mime-example" ".gtkrc-2.0-kde4" "test/" ".purple/" ".ssh/" ".icons/" "weather_files/" ".wl_bak" ".gitconfig" ".IntelliJIdea14/" ".tidyrc" ".gnome2_private/" ".tgdb/" ".rtorrent.rc" ".zhistory" ".AndroidStudioBeta/" ".vim/" ".emacs.d/" "org-mode-doc/" ".zsh-update" "信息安全排查-刘新文.xls" ".mutt/" ".elmo/" "Users/" ".npm/" ".cordova/" ".emacs.keyfreq" "test.html" ".Skype/" "../" "./")
+ ("/home/kevin/" (21836 16294 909965 863000) ".mplayer/" ".ddd/" ".gemrc" ".xfce4-session.verbose-log" ".conkyrc~" ".netbeans/" ".mozilla/" ".msmtprc" ".viminfo" ".zcompdump-archlinux-kevin-5.0.7" ".gem/" "VirtualBox VMs/" ".freemind/" ".emacs.d_manger/" ".m2/" ".fehbg" ".config/" ".org-timestamps/" ".bbdb" "hangzhoudangan.apk" "fonts/" ".zsh_history" ".adobe/" ".fgfs/" ".cache/" ".asoundrc" "some_filename2.png" "Projects/" "tests.tex" ".swt/" ".bashrc" ".recentf~" ".kde/" ".gnus.el" "record/" ".thunderbird/" ".mldonkey/" ".shutter/" ".gnome/" "tests.org" ".bash_history" ".gstreamer-0.10/" "thunderbird/" ".conkyrc" "org-article/" "Documents/" "workspace/" "linux/" "sequence.png" ".speed-dreams-2/" ".zshrc" ".local/" ".svnqt/" ".android/" ".sunpinyin/" "study-material/" "test.tex.pdf" ".zshrc.pre-oh-my-zsh" "test.tex.tex" ".other/" ".cask/" ".bash_logout" "app现在所存在的部分问题.doc" ".srecode/" ".vimrc" "some_filename3.png" ".recently-used" ".openoffice/" ".scorched3d/" ".xinitrc" ".subversion/" ".Xauthority" ".backups/" ".fbtermrc" "auto/" ".wireshark/" ".fvwm/" ".xfce4-session.verbose-log.last" "tmp/" ".python_history" ".ICEauthority" "docker/" ".macromedia/" "sync/" "Programe/" ".oh-my-zsh/" ".pki/" ".bash_profile~" ".bashrc~" ".msmtprc~" ".dia/" ".texlive/" "Pictures/" ".gimp-2.8/" "some_filename.png" ".matho_history" ".newsrc-dribble" ".trash/" ".java/" ".w3m/" ".muttrc" ".bash_profile" ".sass-cache/" ".thumbnails/" ".IntelliJIdea13/" "tests.html" ".archey3.cfg" ".eclipse/" ".smex-items" ".semanticdb/" ".zcompdump" "test.tex" "svn/" ".screenlayout/" "mails/" ".ccache/" ".mime-example~" ".recentf" "software/" ".Xresources" ".dbus/" ".kde4/" ".visualvm/" ".jrebel/" "tests.pdf" ".muttrc~" ".pypanelrc" "Desktop/" ".esd_auth" ".gnome2/" ".gnupg/" "some_filename6.png" ".addresses" "Downloads/" ".plugman/" "TRS/" ".mime-example" ".gtkrc-2.0-kde4" "test/" ".purple/" ".ssh/" ".icons/" "weather_files/" ".wl_bak" ".gitconfig" ".IntelliJIdea14/" ".tidyrc" ".gnome2_private/" ".tgdb/" ".rtorrent.rc" ".zhistory" ".AndroidStudioBeta/" ".vim/" ".emacs.d/" "org-mode-doc/" ".zsh-update" "信息安全排查-刘新文.xls" ".mutt/" ".elmo/" "Users/" ".npm/" ".cordova/" ".emacs.keyfreq" "test.html" ".Skype/" "../" "./")
+
+ ("/home/kevin/workspace/github/" (21830 35692 137823 801000) "publish-works/" "jekyllblog/" "../" "qdframe-project/" "./" "Worg-3b157bd120a9ad360644f91bfe12738e42f8941a.tar.gz" "jekyllblog_back/" ".git/" "work-notes/" "Worg/")
+
+ ("/home/kevin/workspace/github/work-notes/" (21836 15290 533311 214000) "../" "README.md" "org/" "schedules/" ".gitignore" "notes/" "work-note-in-2015.org" "./" ".emacs.desktop.lock" ".git/" ".e-note")
 
  ("/home/kevin/workspace/github/work-notes/schedules/" (21830 37150 367806 353000) "zhoushan-project-schedule.org" "../" "casarte-mobile-project-schedule.org" "img/" ".#zhoushan-project-schedule.org" "front-end-dev-plan.org" "auto/" "daily-tasks.org" "hangzhoudangan-project-schedule.org" "./" "app-front-end-dev-schedule.org" "data/")
 
@@ -74,8 +78,6 @@
  ("/usr/share/emacs/24.5/etc/" (21815 18514 409938 171000) "wl/" "DOC" "README" "LINUX-GNU" "CALC-NEWS" "JOKES" "grep.txt" "emacs.desktop" "NEWS.22" "ps-prin0.ps" "DEVEL.HUMOR" "MH-E-NEWS" "edt-user.el" "package-keyring.gpg" "FTP" "ETAGS.README" "GNUS-NEWS" "gnus-tut.txt" "ETAGS.EBNF" "NEWS.21" "COPYING" "schema/" "enriched.txt" "charsets/" "future-bug" "NEWS.19" "HELLO" "publicsuffix.txt" "WHY-FREE" "e/" "forms/" "NEWS.23" "org/" "DEBUG" "srecode/" "tutorials/" "GNU" "NEWS.18" "ORDERS" "emacs.icon" "TODO" "ERC-NEWS" "ORG-NEWS" "nxml/" "PROBLEMS" "NXML-NEWS" "NEXTSTEP" "ps-prin1.ps" "ses-example.ses" "CENSORSHIP" "gnus/" "compilation.txt" "images/" "THE-GNU-PROJECT" "DISTRIB" "NEWS.1-17" "NEWS.20" "NEWS" "TERMS" "spook.lines" "AUTHORS" "emacs-buffer.gdb" "MACHINES" "refcards/" "yow.lines" "rgb.txt" "CONTRIBUTE" "MORE.STUFF" "themes/" "emacs.appdata.xml" "../" "./")
 
  ("/home/kevin/.emacs.d/users/kevin/" (21822 49734 411092 984000) "../" "defuns/" "init.el" "lisp/" "./" "settings/" "folders" ".tidyrc")
-
- ("/home/kevin/workspace/github/work-notes/" (21822 45630 601142 88000) "../" "README.md" ".emacs.desktop" "schedules/" "notes/" "work-note-in-2015.org" "./" ".emacs.desktop.lock" ".git/" "work-note-in-2015.html" ".e-note")
 
  ("/home/kevin/.emacs.d/users/" (21821 4782 755942 108000) "../" "kevin/" "backup/" "./")
 
@@ -124,8 +126,6 @@
  ("/home/kevin/.emacs.d_mine/settings/" (21816 49200 56728 913000) "setup-org.el" "setup-ido.el" "setup-markdown-mode.el" "setup-perspective.el" "setup-hippie.el" "../" "setup-ruby-mode.el" "setup-skewer.el" "setup-rgrep.el" "key-bindings.el" "my-misc.el" "setup-ffip.el" "#key-bindings.el#" "setup-yesqlg.el" "setup-paredit.el" "setup-yasnippet.el" "mac.el" "appearance.el" "setup-flycheck.el" "sane-defaults.el" "setup-js2-mode.el" "mode-mappings.el" "setup-package.el" "./" "setup-magit.el" "setup-html-mode.el" ".git/" "setup-shell.el" "setup-clojure-mode.el" "setup-dired.el" "setup-elnode.el")
 
  ("/home/kevin/.emacs.d_mine/" (21816 18499 243785 705000) ".folders" "#init.el#" "session.28795f802-4e8c-4b07-ab75-0cbd488ff74c" "var/" "eshell/" ".places" "site-lisp/" "../" "README.md" "session.2bc9e02ab-ffe1-4029-9a5b-457b0d2f7293" ".emacs.desktop" "session.21d9342e2-4834-425f-b9e6-216f992c0363" "defuns/" "themes/" "tramp" ".cask/" "init.el" "backups/" "ido.last" ".gitignore" "custom.el" "my-site-lisp/" ".gitmodules" "users/" "./" "settings/" "session.204225d81-3dd5-4801-bd3c-347db21f2865" "elpa/" "history" ".git/" "snippets/" "auto-save-list/" ".mc-lists.el" "recentf" "project-archetypes/")
-
- ("/home/kevin/workspace/github/" (21807 18897 693331 207000) "jekyllblog/" "../" "qdframe-project/" "./" "Worg-3b157bd120a9ad360644f91bfe12738e42f8941a.tar.gz" "jekyllblog_back/" ".git/" "work-notes/" "Worg/")
 
  ("/home/kevin/workspace/" (21805 35407 836647 572000) "zhoushannews/" "TRS.WCM.V6.5Developer/" "kde/" "Qdframe/" "30服务器.txt" "../" "python/" ".metadata/" "taobao/" "linux_c/" "qt/" "bvseo/" "Fillezilla/" "perl/" "HaierFramework/" "github/" "arduino/" "pie/" "Mytest/" "shell/" "./" "phonegap/" "wireshark/" "javascript-frameworks/" "system_monitor/")
 

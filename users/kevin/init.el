@@ -151,7 +151,8 @@
 
 
 
-(setq debug-on-error t)
+;;(setq debug-on-error nil)
+
 (provide 'init)
 ;;; init.el ends here
 

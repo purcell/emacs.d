@@ -1,0 +1,28 @@
+/* XPM */
+static char *shimbun[] = {
+/* width height num_colors chars_per_pixel */
+"    16    16        5            1",
+/* colors */
+". c None",
+"# c #000000",
+"a c #9ec29e",
+"b c #ffffff",
+"c c #b1f5a0",
+/* pixels */
+"................",
+"................",
+".#############..",
+"#a#bbbbbbbbbb#..",
+"#a#ba#a###b#b#..",
+"##a#bbbbbbbbb#..",
+"#a##b##a##a#ab#.",
+".#aa#bbbbbb#bb#.",
+".##a#baaabbbbb#.",
+".##a#baaa#b#b#b#",
+"..#a#cccccccccb#",
+"..##cccccccccc#.",
+"...###########..",
+"................",
+"................",
+"................"
+};
