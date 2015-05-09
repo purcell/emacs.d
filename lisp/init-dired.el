@@ -4,6 +4,10 @@
 (setq-default diredp-hide-details-initially-flag nil
               dired-dwim-target t)
 
+;; Prefer g-prefixed coreutils version of standard utilities when available
+(let ((gls (executable-find "gls")))
+  (when gls (setq insert-directory-program gls)))
+
 (after-load 'dired
   (require 'dired+)
   (require 'dired-sort)
