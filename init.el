@@ -99,6 +99,7 @@
 (require 'init-haskell)
 (require 'init-elm)
 (require 'init-ruby-mode)
+(require 'init-yard-mode)
 (require 'init-rails)
 (require 'init-sql)
 (require 'init-rust)
