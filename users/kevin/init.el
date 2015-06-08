@@ -4,6 +4,10 @@
 ;; Set path to dependencies
 ;;(setq site-lisp-dir (expand-file-name "site-lisp/" user-emacs-directory))
 
+;; add sunrise-commander
+(add-to-list 'load-path "~/.emacs.d/user/kevin/lisp/sunrise-commander-master/")
+
+
 ;; Tern.JS
 (add-to-list 'load-path "~/.emacs.d/site-lisp/tern/emacs/")
 (autoload 'tern-mode "tern.el" nil t)

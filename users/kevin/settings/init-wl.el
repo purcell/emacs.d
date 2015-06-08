@@ -63,6 +63,11 @@
 (autoload 'wl-user-agent-compose "wl-draft" "Compose with Wanderlust." t)
 
 
+;; default setting for wanderlust
+(setq
+ wl-forward-subject-prefix "Fwd: " )    ;; use "Fwd: " not "Forward: "
+
+
 ;; Header From:
 ;;(setq wl-from "Lu Jianmei <lu.jianmei@trs.com.cn>")
 
@@ -73,7 +78,7 @@
 ;;(setq wl-subscribed-mailing-list t)
 ;;(setq wl-draft-delete-myself-from-cc t)
 ;; Mail-Followup-To:’ field is automatically inserted in the draft buffer
-(setq wl-insert-mail-followup-to t)
+;; (setq wl-insert-mail-followup-to t)
 ;; ‘Mail-Reply-To:’ field is automatically inserted in the draft buffer.
 (setq wl-insert-mail-reply-to t)
 
@@ -84,6 +89,34 @@
 ;;(setq wl-draft-use-frame t)
 
 
+;; suggested by Masaru Nomiya on the WL mailing list
+;;It's not uncommon to forget
+;;to add a subject or an attachment when you send a mail (or at least, when I
+;;send a mail…). However, using wl-mail-send-pre-hook we can let Wanderlust warn
+;;us when something like that happens.
+(defun djcb-wl-draft-subject-check ()
+  "check whether the message has a subject before sending"
+  (if (and (< (length (std11-field-body "Subject")) 1)
+           (null (y-or-n-p "No subject! Send current draft?")))
+      (error "Abort.")))
+
+
+;; note, this check could cause some false positives; anyway, better
+;; safe than sorry...
+(defun djcb-wl-draft-attachment-check ()
+  "if attachment is mention but none included, warn the the user"
+  (save-excursion
+    (goto-char 0)
+    (unless ;; don't we have an attachment?
+
+        (re-search-forward "^Content-Disposition: attachment" nil t)
+      (when ;; no attachment; did we mention an attachment?
+          (re-search-forward "attach" nil t)
+        (unless (y-or-n-p "Possibly missing an attachment. Send current draft?")
+          (error "Abort."))))))
+
+(add-hook 'wl-mail-send-pre-hook 'djcb-wl-draft-subject-check)
+(add-hook 'wl-mail-send-pre-hook 'djcb-wl-draft-attachment-check)
 
 ;; [[ SEMI Setting ]]
 
@@ -97,6 +130,28 @@
 ;; If lines of message are larger than this value, treat it as `large'.
 (setq mime-edit-message-default-max-lines 1000)
 (require 'signature)
+
+
+;; --------------------------
+;; solve some encode issue
+(setq mel-b-ccl-module nil)
+(setq mel-q-ccl-module nil)
+(setq base64-external-encoder '("mimencode"))
+(setq base64-external-decoder '("mimencode" "-u"))
+(setq base64-external-decoder-option-to-specify-file '("-o"))
+(setq quoted-printable-external-encoder '("mimencode" "-q"))
+(setq quoted-printable-external-decoder '("mimencode" "-q" "-u"))
+(setq quoted-printable-external-decoder-option-to-specify-file '("-o"))
+(setq base64-internal-decoding-limit 0)
+(setq base64-internal-encoding-limit 0)
+(setq quoted-printable-internal-decoding-limit 0)
+(setq quoted-printable-internal-encoding-limit 0)
+
+(setq-default mime-transfer-level 8)
+(setq mime-header-accept-quoted-encoded-words t)
+
+
+
 ;; ----------------------------------------------------------------------------
 ;;; w3m octet configuration for handling attachments
 
@@ -104,6 +159,33 @@
 (require 'octet)
 ;;(require 'w3m-util)
 (octet-mime-setup)
+
+;;------------------------
+;;  when a new e-mail has arrived, or when there's a meeting in 15 minutes you should attend.
+;;  Pop-up a warning
+(defun djcb-popup (title msg &optional icon sound)
+  "Show a popup if we're on X, or echo it otherwise; TITLE is the title
+of the message, MSG is the context. Optionally, you can provide an ICON and
+a sound to be played"
+
+  (interactive)
+  (when sound (shell-command
+               (concat "mplayer -really-quiet " sound " 2> /dev/null")))
+  (if (eq window-system 'x)
+      (shell-command (concat "notify-send "
+
+                             (if icon (concat "-i " icon) "")
+                             " '" title "' '" msg "'"))
+    ;; text only version
+
+    (message (concat title ": " msg))))
+
+
+(add-hook 'wl-biff-notify-hook
+          (lambda()
+            (djcb-popup "Wanderlust" "You have new mail!"
+                        "/usr/share/icons/gnome/32x32/status/mail-unread-new.png"
+                        "/usr/share/sounds/freedesktop/stereo/phone-incoming-call.oga")))
 
 ;;----------------
 ;;LOADING dired-dd, you can check the
@@ -368,7 +450,7 @@
         ;;        "-gmane.comp.window-managers.stumpwm.devel@news.gmane.org"
         ;;        "-gmane.comp.mozilla.conkeror@news.gmane.org"
         )
-      wl-biff-check-interval 180
+      wl-biff-check-interval 10
       wl-biff-use-idle-timer t)
 
 ;; ----------------------------------------------------------------------------
@@ -395,19 +477,25 @@ e.g.
 
 ;; ----------------------------------------------------------------------------
 ;;; Configure BBDB to manage Email addresses
+(require 'bbdb)
+(bbdb-initialize)
 
 (require 'bbdb-wl)
 (bbdb-wl-setup)
 
 (setq bbdb-use-pop-up t ;; Allow pop-ups
-      bbdb-pop-up-target-lines 2
+      bbdb-pop-up-target-lines 1
       bbdb/mail-auto-create-p t ;; auto collection
       bbdb-wl-ignore-folder-regexp "^@" ;; folders without auto collection
       bbdb-north-american-phone-numbers-p nil
       bbdb-auto-notes-alist '(("X-ML-Name" (".*$" ML 0)))
       bbdb-dwim-net-address-allow-redundancy t
+      bbdb-quiet-about-name-mismatches 2       ;; show name-mismatches 2 secs
 
+      bbdb-offer-save 1 ;; 1 means save-without-asking
       ;; shows the name of bbdb in the summary
+
+      bbdb-electric-p 1 ;; be disposable with SPC
 
       ;; Not with wl-summary-showto-folder-regexp
       ;;wl-summary-from-function 'bbdb-wl-from-func
@@ -416,7 +504,36 @@ e.g.
 
       ;; Using BBDB for pet names is OK
       wl-summary-get-petname-function 'bbdb-wl-get-petname
+
+      bbdb-always-add-address t            ;; add new addresses to existing...
+      ;; ...contacts automatically
+      bbdb-canonicalize-redundant-nets-p t     ;; x@foo.bar.cx => x@bar.cx
+
+      bbdb-completion-type nil                 ;; complete on anything
+
+      bbdb-complete-name-allow-cycling t       ;; cycle through matches
+      ;; this only works partially
+
+      bbbd-message-caching-enabled t           ;; be fast
+      bbdb-use-alternate-names t               ;; use AKA
+
+
+      bbdb-elided-display t                    ;; single-line addresses
+
+      ;; auto-create addresses from mail
+      bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook
+      bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
+      '(( "From" . "no.?reply\\|DAEMON\\|daemon\\|facebookmail\\|twitter"))
+
+
       )
+;; http://bbdb.sourceforge.net/bbdb.html#SEC33
+;; (define-key wl-draft-mode-map "<C-tab>" 'bbdb-complete-name)
+
+ (add-hook 'wl-draft-mode-hook
+           (lambda ()
+             (define-key wl-draft-mode-map "<C-tab>" 'bbdb-complete-name)))
+
 
 ;; ----------------------------------------------------------------------------
 ;;; Configure recently used Email addresses
@@ -868,6 +985,51 @@ so that the appropriate emacs mode is selected according to the file extension."
           (message msg))
       (error msg))))
 
+
+
+;; ----------------------------------------------------------------------------
+;; reformat the email content, by pressing M-q
+(require 'filladapt)
+
+;; from a WL mailing list post by Per b. Sederber
+;; Re-fill messages that arrive poorly formatted
+(defun wl-summary-refill-message (all)
+  (interactive "P")
+  (if (and wl-message-buffer (get-buffer-window wl-message-buffer))
+      (progn
+        (wl-summary-toggle-disp-msg 'on)
+        (save-excursion
+          (set-buffer wl-message-buffer)
+          (goto-char (point-min))
+          (re-search-forward "^$")
+          (while (or (looking-at "^\\[[1-9]") (looking-at "^$"))
+            (forward-line 1))
+          (let* ((buffer-read-only nil)
+                 (find (lambda (regexp)
+                         (save-excursion
+                           (if (re-search-forward regexp nil t)
+                               (match-beginning 0)
+                             (point-max)))))
+                 (start (point))
+                 (end (if all
+                          (point-max)
+                        (min (funcall find "^[^>\n]* wrote:[ \n]+")
+                             (funcall find "^>>>>>")
+                             (funcall find "^ *>.*\n *>")
+                             (funcall find "^-----Original Message-----")))))
+            (save-restriction
+              (narrow-to-region start end)
+              (filladapt-mode 1)
+              (fill-region (point-min) (point-max)))))
+        (message "Message re-filled"))
+    (message "No message to re-fill")))
+
+;;(define-key wl-summary-mode-map "\M-q" 'wl-summary-refill-message)
+ (add-hook 'wl-summary-mode-hook
+           (lambda ()
+             (define-key wl-summary-mode-map "\M-q" 'wl-summary-refill-message)))
+
+
 ;; ----------------------------------------------------------------------------
 ;;; General mairix interface
 
@@ -912,7 +1074,7 @@ so that the appropriate emacs mode is selected according to the file extension."
 
 (defvar my-mairix-map
   (let ((map (make-sparse-keymap)))
-;;    (define-key my-map "m" map)
+    ;;    (define-key my-map "m" map)
     map)
   "Sub-keymap in the my keymap for the mairix commands")
 
