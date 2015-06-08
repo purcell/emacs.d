@@ -30,15 +30,15 @@
 (add-to-list 'auto-mode-alist '("\\.jade$" . jade-mode))
 
 ;; HTML
-(add-to-list 'auto-mode-alist '("\\.html\\'" . crappy-jsp-mode))
+;;(add-to-list 'auto-mode-alist '("\\.html\\'" . crappy-jsp-mode))
 (add-to-list 'auto-mode-alist '("\\.tag$" . html-mode))
 (add-to-list 'auto-mode-alist '("\\.vm$" . html-mode))
 (add-to-list 'auto-mode-alist '("\\.ejs$" . html-mode))
 
 ;; JSP
-(autoload 'crappy-jsp-mode "crappy-jsp-mode")
-(add-to-list 'auto-mode-alist '("\\.jsp$" . crappy-jsp-mode))
-(add-to-list 'auto-mode-alist '("\\.jspf$" . crappy-jsp-mode))
+                                        ;(autoload 'crappy-jsp-mode "crappy-jsp-mode")
+;;(add-to-list 'auto-mode-alist '("\\.jsp$" . crappy-jsp-mode))
+;;(add-to-list 'auto-mode-alist '("\\.jspf$" . crappy-jsp-mode))
 
 ;; Ruby
 (autoload 'rhtml-mode "rhtml-mode")

@@ -8,14 +8,14 @@
 
 WORK{
     %INBOX: "lu.jianmei"/clear@imap.qiye.163.com	"Inbox"
-#	%.Sent: "lu.jianmei"/clear@imap.qiye.163.com	"Sent"
-#	%.Draft: "lu.jianmei"/clear@imap.qiye.163.com	"Draft"
-#	%.Trash: "lu.jianmei"/clear@imap.qiye.163.com	"Trash"
+    %已发送: "lu.jianmei"/clear@imap.qiye.163.com	        "Sent"
+    %草稿箱: "lu.jianmei"/clear@imap.qiye.163.com	"Draft"
+#    %已删除: "lu.jianmei"/clear@imap.qiye.163.com	"Trash"
     %haier: "lu.jianmei"/clear@imap.qiye.163.com	"Haier"
     %pm: "lu.jianmei"/clear@imap.qiye.163.com	"PM"
     %trs: "lu.jianmei"/clear@imap.qiye.163.com	"TRS"
-    %nagios: "lu.jianmei"/clear@imap.qiye.163.com	"Nagios"
-    %me: "lu.jianmei"/clear@imap.qiye.163.com	"ME"
+#    %nagios: "lu.jianmei"/clear@imap.qiye.163.com	"Nagios"
+#    %me: "lu.jianmei"/clear@imap.qiye.163.com	"ME"
 
 }
 

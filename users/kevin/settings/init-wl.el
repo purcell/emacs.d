@@ -58,7 +58,7 @@
 ;;; Autoload Wanderlust on command "wl"
 
 (autoload 'wl "wl" "Wanderlust" t)
-;;(autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
+(autoload 'wl-other-frame "wl" "Wanderlust on new frame." nil)
 (autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
 (autoload 'wl-user-agent-compose "wl-draft" "Compose with Wanderlust." t)
 
@@ -70,6 +70,18 @@
 ;; set following as a local domain name without hostname.
 ;;(setq wl-local-domain "trs.com.cn")
 
+;;(setq wl-subscribed-mailing-list t)
+;;(setq wl-draft-delete-myself-from-cc t)
+;; Mail-Followup-To:’ field is automatically inserted in the draft buffer
+(setq wl-insert-mail-followup-to t)
+;; ‘Mail-Reply-To:’ field is automatically inserted in the draft buffer.
+(setq wl-insert-mail-reply-to t)
+
+;; The initial setting is full. Style of draft buffer window (except for replying and forwarding). keep is to use current window, full is to use full frame window, split is to split current window and use it.
+;;(setq wl-draft-buffer-style full)
+;;(setq wl-draft-reply-buffer-style full)
+;; Open draft in a frame
+;;(setq wl-draft-use-frame t)
 
 
 
@@ -88,9 +100,9 @@
 ;; ----------------------------------------------------------------------------
 ;;; w3m octet configuration for handling attachments
 
-(require 'mime-w3m)
+;;(require 'mime-w3m)
 (require 'octet)
-(require 'w3m-util)
+;;(require 'w3m-util)
 (octet-mime-setup)
 
 ;;----------------
@@ -143,7 +155,8 @@
       elmo-pop3-use-cache t
       wl-ask-range nil
 
-      elmo-message-fetch-confirm t
+      ;; do not need confirm when fetch
+      elmo-message-fetch-confirm nil
       elmo-message-fetch-threshold 250000
       ;;elmo-network-session-idle-timeout 30
 
@@ -339,18 +352,21 @@
 
 (setq wl-biff-check-folder-list
       '("%INBOX: lu.jianmei/user@imap.qiye.163.com:143"
-;;        "&anysky133/user@imap.163.com:143"
-;;        "&xxxxxxx+enquiries/user@mail.plus.net:110!direct"
-;;        "%inbox:hxxxxxx0/clear@imap.gmail.com:993!"
-;;        "-gmane.emacs.cvs@news.gmane.org"
-;;        "-gmane.emacs.devel@news.gmane.org"
-;;        "-gmane.emacs.orgmode@news.gmane.org"
-;;        "-gmane.emacs.emms.user@news.gmane.org"
-;;        "-gmane.emacs.sources@news.gmane.org"
-;;        "-gmane.mail.wanderlust.general@news.gmane.org"
-;;        "-gmane.mail.wanderlust.general.japanese@news.gmane.org"
-;;        "-gmane.comp.window-managers.stumpwm.devel@news.gmane.org"
-;;        "-gmane.comp.mozilla.conkeror@news.gmane.org"
+        "%TRS: lu.jianmei/user@imap.qiye.163.com:143"
+        "%Haier: lu.jianmei/user@imap.qiye.163.com:143"
+        "%PM: lu.jianmei/user@imap.qiye.163.com:143"
+        ;;        "&anysky133/user@imap.163.com:143"
+        ;;        "&xxxxxxx+enquiries/user@mail.plus.net:110!direct"
+        ;;        "%inbox:hxxxxxx0/clear@imap.gmail.com:993!"
+        ;;        "-gmane.emacs.cvs@news.gmane.org"
+        ;;        "-gmane.emacs.devel@news.gmane.org"
+        ;;        "-gmane.emacs.orgmode@news.gmane.org"
+        ;;        "-gmane.emacs.emms.user@news.gmane.org"
+        ;;        "-gmane.emacs.sources@news.gmane.org"
+        ;;        "-gmane.mail.wanderlust.general@news.gmane.org"
+        ;;        "-gmane.mail.wanderlust.general.japanese@news.gmane.org"
+        ;;        "-gmane.comp.window-managers.stumpwm.devel@news.gmane.org"
+        ;;        "-gmane.comp.mozilla.conkeror@news.gmane.org"
         )
       wl-biff-check-interval 180
       wl-biff-use-idle-timer t)
@@ -405,10 +421,9 @@ e.g.
 ;; ----------------------------------------------------------------------------
 ;;; Configure recently used Email addresses
 
-;;(require 'recent-addresses)
-
-;;(setq recent-addresses-file
-;;      (expand-file-name "~/Emacs/Wanderlust/recent-addresses"))
+(require 'recent-addresses)
+(setq recent-addresses-file
+      (expand-file-name "~/mails/recent-addresses"))
 
 ;; ----------------------------------------------------------------------------
 ;;; Configure supercite to manage citations
@@ -428,7 +443,7 @@ e.g.
                 (sc-hdr "" (sc-mail-field "sc-author"))
                 ","))))
 
-;(add-to-list 'sc-rewrite-header-list '(my-sc-header) t)
+;;(add-to-list 'sc-rewrite-header-list '(my-sc-header) t)
 
 (setq sc-preferred-header-style 8)
 
@@ -473,7 +488,7 @@ e.g.
     (set-frame-position (selected-frame) 663 0)
     (set-frame-height (selected-frame) 70)
     (set-frame-width (selected-frame) 114)
-;;    (my-wl-163-smtp-server) ;; Set the default smtp server to zen
+    ;;    (my-wl-163-smtp-server) ;; Set the default smtp server to zen
     (my-wl-trs-smtp-server) ;; Set the default smtp server to trs
     (my-bbdb-wl-refile-alist) ;; Add the BBDB refiling folders
     (run-with-idle-timer 30 t 'my-wl-auto-save-draft-buffers)
@@ -489,7 +504,7 @@ e.g.
       (insert-signature arg))
 
     ;; Keep track of recently used Email addresses
-    ;;(recent-addresses-mode 1)
+    (recent-addresses-mode 1)
     ))
 
 (add-hook
@@ -727,15 +742,15 @@ Set the `j' key to run `mime-preview-quit'."
   "Set up appropriate modes for writing Email
 and clean-up citation for replies."
   (interactive)
-   ;; Fold over-lenght lines
+  ;; Fold over-lenght lines
   (setq truncate-lines nil)
   (turn-on-auto-fill)
-;;  (flyspell-mode t)
+  ;;  (flyspell-mode t)
   (wl-draft-config-exec)
   ;; Switch on the completion selection mode
   ;; and set the default completion-selection to bbdb
-  (completion-selection-mode t)
-  (completion-selection-set 'complete-bbdb)
+  ;;(completion-selection-mode t)
+  ;;(completion-selection-set 'complete-bbdb)
   ;; Clean up reply citation
   (save-excursion
     ;; Goto the beginning of the message body
@@ -921,6 +936,8 @@ so that the appropriate emacs mode is selected according to the file extension."
 (define-key my-mairix-map "e" 'mairix-edit-saved-searches)
 
 
+;;How can I stop [[CategoryBBDB|BBDB]] checking for name mismatches?
+(remove-hook 'wl-message-redisplay-hook 'bbdb-wl-get-update-record)
 ;; ----------------------------------------------------------------------------
 
 ;;; init-wl.el ends here

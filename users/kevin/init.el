@@ -149,9 +149,14 @@
 (define-key helm-css-scss-map (kbd "s-i") 'helm-css-scss-multi-from-helm-css-scss)
 
 
-
-
 ;;(setq debug-on-error nil)
+
+
+
+
+(autoload 'wget "wget" "wget interface for Emacs." t)
+(autoload 'wget-web-page "wget" "wget interface to download whole web page." t)
+
 
 (provide 'init)
 ;;; init.el ends here

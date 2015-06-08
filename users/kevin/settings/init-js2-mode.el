@@ -23,6 +23,12 @@
 
 ;; add hook for js2-mode, automatically startup tern-mode
 (add-hook 'js2-mode-hook (lambda () (tern-mode t)))
+;; add auto-complete based on ternjs
+(eval-after-load 'tern
+  '(progn
+     (require 'tern-auto-complete)
+     (tern-ac-setup)))
+
 
 (require 'js2-refactor)
 (js2r-add-keybindings-with-prefix "C-c C-m")
@@ -255,5 +261,10 @@
                     (:else 0)))))
     (unless first-line
       (indent-line-to offset))))
+
+
+
+
+
 
 (provide 'init-js2-mode)
