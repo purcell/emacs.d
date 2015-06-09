@@ -436,4 +436,8 @@
 ;;(global-set-key (kbd "C-c <C-down>") 'tabbar-backward-group)
 
 
+
+;; config for sunrise commander
+(global-set-key (kbd "C-c x") 'sunrise)
+(global-set-key (kbd "C-c X") 'sunrise-cd)
 (provide 'key-bindings)
