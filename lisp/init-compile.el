@@ -19,5 +19,21 @@
   (add-hook 'compilation-finish-functions
             'sanityinc/alert-after-compilation-finish))
 
+(defvar sanityinc/last-compilation-buffer nil
+  "The last buffer in which compilation took place.")
+
+(defadvice compilation-start (after sanityinc/save-compilation-buffer activate)
+  "Save the compilation buffer to find it later."
+  (setq sanityinc/last-compilation-buffer next-error-last-buffer))
+
+(defadvice recompile (around sanityinc/find-prev-compilation (&optional edit-command) activate)
+  "Find the previous compilation buffer, if present, and recompile there."
+  (if (and (null edit-command)
+           sanityinc/last-compilation-buffer
+           (buffer-live-p (get-buffer sanityinc/last-compilation-buffer)))
+      (with-current-buffer sanityinc/last-compilation-buffer
+        ad-do-it)
+    ad-do-it))
+
 
 (provide 'init-compile)
