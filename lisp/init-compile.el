@@ -29,6 +29,7 @@
 (defadvice recompile (around sanityinc/find-prev-compilation (&optional edit-command) activate)
   "Find the previous compilation buffer, if present, and recompile there."
   (if (and (null edit-command)
+           (not (derived-mode-p 'compilation-mode))
            sanityinc/last-compilation-buffer
            (buffer-live-p (get-buffer sanityinc/last-compilation-buffer)))
       (with-current-buffer sanityinc/last-compilation-buffer
