@@ -36,5 +36,7 @@
         ad-do-it)
     ad-do-it))
 
+(global-set-key [f6] 'recompile)
+
 
 (provide 'init-compile)

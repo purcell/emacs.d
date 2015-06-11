@@ -42,8 +42,7 @@
 (after-load 'ruby-mode
   (let ((m ruby-mode-map))
     (define-key m [S-f7] 'ruby-compilation-this-buffer)
-    (define-key m [f7] 'ruby-compilation-this-test)
-    (define-key m [f6] 'recompile)))
+    (define-key m [f7] 'ruby-compilation-this-test)))
 
 
 
