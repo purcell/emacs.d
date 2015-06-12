@@ -156,9 +156,9 @@
 ;; ----------------------------------------------------------------------------
 ;;; w3m octet configuration for handling attachments
 
-;;(require 'mime-w3m)
+(require 'mime-w3m)
 (require 'octet)
-;;(require 'w3m-util)
+(require 'w3m-util)
 (octet-mime-setup)
 
 ;;------------------------
