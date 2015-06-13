@@ -1,0 +1,28 @@
+/* XPM */
+static char *plugged[] = {
+"32 16 8 1",
+"  c None",
+". c #a6caf0",
+"# c #8fa5cf",
+"a c #717171",
+"b c #5d5d97",
+"c c #8488ca",
+"d c #9f9f9f",
+"e c #7f8080",
+"                                ",
+"                                ",
+"            ...                 ",
+"           .ccb....             ",
+"           accb####.            ",
+"          .accb#####..          ",
+"   eeeeeeeeaccb#####.eeeeeeee   ",
+"   dddddddcaccb#####.dedddddd   ",
+"   dddddddcaccb#####.dedddddd   ",
+"   eeeeeeeeaccb#####.eeeeeeee   ",
+"          aaccb####aaa          ",
+"           accbaaaaa            ",
+"           aaaaaaaa             ",
+"            aaa                 ",
+"                                ",
+"                                "
+};
