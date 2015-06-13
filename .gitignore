@@ -21,7 +21,8 @@ cookies
 site-lisp/package/
 /swank
 /users/backup/
-
+/backup/
+/backups/
 /users/kevin/personal/
 /.mc-lists.el
 /var
