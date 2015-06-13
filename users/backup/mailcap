@@ -1,0 +1,14 @@
+application/pdf; okular  %s
+application/msword; catdoc %s
+application/octet-stream; et  %s
+application/octet-stream; wpp  %s
+application/octet-stream; wps  %s
+application/*; xdg-open  %s
+image/*; ristretto %s
+text/html; chromium %s
+text/*; emacsclient -c %s
+video/*; xdg-open %s
+audio/*; xdg-open %s
+application/x-rar; xarchiver %s
+application/x-zip; xarchiver %s
+application/x-tar; xarchiver %s

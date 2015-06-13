@@ -1,0 +1,28 @@
+/* XPM */
+static char *unplugged_xpm[] = {
+"32 16 8 1",
+"  c None",
+". c #f0caa6",
+"# c #cfa58f",
+"a c #717171",
+"b c #975d5d",
+"c c #ca8884",
+"d c tomato",
+"e c #80807f",
+"                                ",
+"                                ",
+"        ..       .              ",
+"       .cc       b....          ",
+"       accccc    b####.         ",
+"      .accccc    b#####..       ",
+"   eeeeaccccc    b#####.eeeee   ",
+"   dddcacc       b#####.deddd   ",
+"   dddcacc       b#####.deddd   ",
+"   eeeeaccccc    b#####.eeeee   ",
+"      aaccccc    b####aaa       ",
+"       accccc    baaaaa         ",
+"       aaa       aaaaa          ",
+"        aa       a              ",
+"                                ",
+"                                "
+};
