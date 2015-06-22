@@ -159,6 +159,9 @@
 (autoload 'wget-web-page "wget" "wget interface to download whole web page." t)
 
 
+;; Mutt support.
+(setq auto-mode-alist (append '(("/tmp/mutt.*" . mail-mode)) auto-mode-alist))
+
 (provide 'init)
 ;;; init.el ends here
 
