@@ -24,6 +24,9 @@
 ;; TODO: hippie-expand ignoring : for names in ruby-mode
 ;; TODO: hippie-expand adaptor for auto-complete sources
 
+(after-load 'page-break-lines
+  (push 'ruby-mode page-break-lines-modes))
+
 
 ;;; Inferior ruby
 (require-package 'inf-ruby)
