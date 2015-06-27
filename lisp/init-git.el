@@ -20,7 +20,7 @@
 (global-set-key [(meta f12)] 'magit-status)
 
 (after-load 'magit
-  (define-key magit-status-mode-map (kbd "C-M-<up>") 'magit-goto-parent-section))
+  (define-key magit-status-mode-map (kbd "C-M-<up>") 'magit-section-up))
 
 (require-package 'fullframe)
 (after-load 'magit
