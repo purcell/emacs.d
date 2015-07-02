@@ -2,15 +2,14 @@
 ;; TODO: smerge-mode
 (require-package 'magit)
 (require-package 'git-blame)
-(require-package 'git-commit-mode)
-(require-package 'git-rebase-mode)
+(require-package 'git-commit)
+(require-package 'git-rebase)
 (require-package 'gitignore-mode)
 (require-package 'gitconfig-mode)
 (require-package 'git-messenger) ;; Though see also vc-annotate's "n" & "p" bindings
 (require-package 'git-timemachine)
 
 (setq-default
- magit-save-some-buffers nil
  magit-process-popup-time 10
  magit-diff-refine-hunk t
  magit-completing-read-function 'magit-ido-completing-read)
@@ -18,18 +17,17 @@
 ;; Hint: customize `magit-repo-dirs' so that you can use C-u M-F12 to
 ;; quickly open magit on any one of your projects.
 (global-set-key [(meta f12)] 'magit-status)
+(global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 
 (after-load 'magit
-  (define-key magit-status-mode-map (kbd "C-M-<up>") 'magit-goto-parent-section))
+  (define-key magit-status-mode-map (kbd "C-M-<up>") 'magit-section-up))
 
 (require-package 'fullframe)
 (after-load 'magit
   (fullframe magit-status magit-mode-quit-window))
 
 (add-hook 'git-commit-mode-hook 'goto-address-mode)
-(after-load 'session
-  (when (boundp 'session-mode-disable-list) ; newer Emacsen
-    (add-to-list 'session-mode-disable-list 'git-commit-mode)))
 
 
 ;;; When we start working on git-backed files, use git-wip if available
