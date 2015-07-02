@@ -47,6 +47,9 @@
     (define-key m [S-f7] 'ruby-compilation-this-buffer)
     (define-key m [f7] 'ruby-compilation-this-test)))
 
+(after-load 'ruby-compilation
+  (defalias 'rake 'ruby-compilation-rake))
+
 
 
 ;;; Robe
