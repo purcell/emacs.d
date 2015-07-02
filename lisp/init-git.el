@@ -1,24 +1,24 @@
 ;; TODO: link commits from vc-log to magit-show-commit
 ;; TODO: smerge-mode
-(require-package 'magit)
 (require-package 'git-blame)
 (require-package 'git-commit)
-(require-package 'git-rebase)
 (require-package 'gitignore-mode)
 (require-package 'gitconfig-mode)
 (require-package 'git-messenger) ;; Though see also vc-annotate's "n" & "p" bindings
 (require-package 'git-timemachine)
 
-(setq-default
- magit-process-popup-time 10
- magit-diff-refine-hunk t
- magit-completing-read-function 'magit-ido-completing-read)
 
-;; Hint: customize `magit-repo-dirs' so that you can use C-u M-F12 to
-;; quickly open magit on any one of your projects.
-(global-set-key [(meta f12)] 'magit-status)
-(global-set-key (kbd "C-x g") 'magit-status)
-(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
+(when (maybe-require-package 'magit)
+  (setq-default
+   magit-process-popup-time 10
+   magit-diff-refine-hunk t
+   magit-completing-read-function 'magit-ido-completing-read)
+
+  ;; Hint: customize `magit-repo-dirs' so that you can use C-u M-F12 to
+  ;; quickly open magit on any one of your projects.
+  (global-set-key [(meta f12)] 'magit-status)
+  (global-set-key (kbd "C-x g") 'magit-status)
+  (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup))
 
 (after-load 'magit
   (define-key magit-status-mode-map (kbd "C-M-<up>") 'magit-section-up))
@@ -28,17 +28,6 @@
   (fullframe magit-status magit-mode-quit-window))
 
 (add-hook 'git-commit-mode-hook 'goto-address-mode)
-
-
-;;; When we start working on git-backed files, use git-wip if available
-
-(after-load 'magit
-  (when (executable-find magit-git-executable)
-    (global-magit-wip-save-mode)
-    (diminish 'magit-wip-save-mode)))
-
-(after-load 'magit
-  (diminish 'magit-auto-revert-mode))
 
 
 (when *is-a-mac*
@@ -54,12 +43,13 @@
 
 ;;; git-svn support
 
-(require-package 'magit-svn)
-(autoload 'magit-svn-enabled "magit-svn")
-(defun sanityinc/maybe-enable-magit-svn-mode ()
-  (when (magit-svn-enabled)
-    (magit-svn-mode)))
-(add-hook 'magit-status-mode-hook #'sanityinc/maybe-enable-magit-svn-mode)
+;; (when (maybe-require-package 'magit-svn)
+;;   (require-package 'magit-svn)
+;;   (autoload 'magit-svn-enabled "magit-svn")
+;;   (defun sanityinc/maybe-enable-magit-svn-mode ()
+;;     (when (magit-svn-enabled)
+;;       (magit-svn-mode)))
+;;   (add-hook 'magit-status-mode-hook #'sanityinc/maybe-enable-magit-svn-mode))
 
 (after-load 'compile
   (dolist (defn (list '(git-svn-updated "^\t[A-Z]\t\\(.*\\)$" 1 nil nil 0 1)
