@@ -110,10 +110,9 @@
 ;; ----------------------------------------------------------------------------
 ;; Automatic byte compilation
 ;; ----------------------------------------------------------------------------
-
-(require-package 'auto-compile)
-(auto-compile-on-save-mode 1)
-(auto-compile-on-load-mode 1)
+(when (maybe-require-package 'auto-compile)
+  (auto-compile-on-save-mode 1)
+  (auto-compile-on-load-mode 1))
 
 ;; ----------------------------------------------------------------------------
 ;; Load .el if newer than corresponding .elc
