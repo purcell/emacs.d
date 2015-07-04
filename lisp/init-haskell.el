@@ -18,6 +18,10 @@
   (add-to-list 'ac-modes 'haskell-interactive-mode)
   (add-hook 'haskell-interactive-mode-hook 'set-auto-complete-as-completion-at-point-function))
 
+(when (executable-find "ghci-ng")
+  (setq-default haskell-process-args-cabal-repl
+                '("--ghc-option=-ferror-spans" "--with-ghc=ghci-ng")))
+
 
 
 ;; Flycheck specifics
@@ -36,13 +40,6 @@
       (flycheck-haskell-configure)
       (flycheck-mode -1)
       (flycheck-mode))
-
-    (defadvice haskell-mode-stylish-buffer (around skip-if-flycheck-errors activate)
-      "Don't run stylish-buffer if the buffer appears to have a syntax error.
-This isn't a hard guarantee, since flycheck might sometimes not run until the file has
-been saved."
-      (unless (flycheck-has-current-errors-p 'error)
-        ad-do-it))
 
     (require 'flycheck-hdevtools)))
 
