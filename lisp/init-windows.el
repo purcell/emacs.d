@@ -67,10 +67,6 @@ Call a second time to restore the original window configuration."
     (switch-to-buffer-other-window nil)))
 
 (global-set-key (kbd "<f7>") 'sanityinc/split-window)
-(global-set-key (kbd "<f6>")
-                (lambda ()
-                  (interactive)
-                  (switch-to-buffer nil)))
 
 
 (provide 'init-windows)
