@@ -98,7 +98,7 @@
   (diminish 'highlight-symbol-mode)
   (defadvice highlight-symbol-temp-highlight (around sanityinc/maybe-suppress activate)
     "Suppress symbol highlighting while isearching."
-    (unless isearch-mode ad-do-it)))
+    (unless (or isearch-mode multiple-cursors-mode) ad-do-it)))
 
 ;;----------------------------------------------------------------------------
 ;; Zap *up* to char is a handy pair for zap-to-char
