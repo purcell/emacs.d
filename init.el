@@ -152,3 +152,4 @@
 ;; no-byte-compile: t
 ;; End:
 (put 'dired-find-alternate-file 'disabled nil)
+(put 'scroll-left 'disabled nil)
