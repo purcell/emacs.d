@@ -162,6 +162,23 @@
 ;; Mutt support.
 (setq auto-mode-alist (append '(("/tmp/mutt.*" . mail-mode)) auto-mode-alist))
 
+
+
+;; Emmet
+(require 'emmet-mode)
+(add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+(add-hook 'html-mode-hook 'emmet-mode)
+(add-hook 'css-mode-hook  'emmet-mode)
+;; preview is the default action
+(setq emmet-preview-default t)
+;; Emmet for helm
+(require 'helm-emmet)
+;; Emmet for autocomplete
+(require 'ac-emmet) ;; Not necessary if using ELPA package
+(add-hook 'sgml-mode-hook 'ac-emmet-html-setup)
+(add-hook 'css-mode-hook 'ac-emmet-css-setup)
+
+
 (provide 'init)
 ;;; init.el ends here
 
