@@ -36,3 +36,7 @@ site-lisp/package/
 /.cask/
 /.sx/
 /org-clock-save.el
+/ditaa*.jar
+/ido.last
+/recentf
+/viper

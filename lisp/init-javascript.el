@@ -1,4 +1,4 @@
-(require-package 'json-mode)
+(maybe-require-package 'json-mode)
 (maybe-require-package 'js2-mode)
 (maybe-require-package 'ac-js2)
 (maybe-require-package 'coffee-mode)
@@ -15,13 +15,17 @@
 ;; Need to first remove from list if present, since elpa adds entries too, which
 ;; may be in an arbitrary order
 (eval-when-compile (require 'cl))
-(setq auto-mode-alist (cons `("\\.js\\(\\.erb\\)?\\'" . ,preferred-javascript-mode)
+(setq auto-mode-alist (cons `("\\.\\(js\\|es6\\)\\(\\.erb\\)?\\'" . ,preferred-javascript-mode)
                             (loop for entry in auto-mode-alist
                                   unless (eq preferred-javascript-mode (cdr entry))
                                   collect entry)))
 
 
 ;; js2-mode
+
+;; Change some defaults: customize them to override
+(setq-default js2-basic-offset 2
+              js2-bounce-indent-p nil)
 (after-load 'js2-mode
   ;; Disable js2 mode's syntax error highlighting by default...
   (setq-default js2-mode-show-parse-errors nil
@@ -35,10 +39,6 @@
   (add-hook 'js2-mode-hook 'sanityinc/disable-js2-checks-if-flycheck-active)
 
   (add-hook 'js2-mode-hook (lambda () (setq mode-name "JS2")))
-
-  (setq-default
-   js2-basic-offset preferred-javascript-indent-level
-   js2-bounce-indent-p nil)
 
   (after-load 'js2-mode
     (js2-imenu-extras-setup)))

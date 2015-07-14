@@ -5,8 +5,8 @@
 (set-language-environment 'utf-8)
 ;; Set Default Font
 ;(add-to-list 'default-frame-alist '(font .  "WenQuanYi Micro Hei Mono-24" ))
-;(add-to-list 'default-frame-alist '(font .  "Source Code Pro-20" ))
-(add-to-list 'default-frame-alist '(font .  "DejaVu Sans Mono-24" ))
+(add-to-list 'default-frame-alist '(font .  "Source Code Pro-20" ))
+;(add-to-list 'default-frame-alist '(font .  "DejaVu Sans Mono-24" ))
 
 ;;; Enable line number.
 (global-linum-mode t)
@@ -62,9 +62,13 @@
 
 ;; js2-mode
 (custom-set-variables
- '(js2-basic-offset 4)
+ '(js2-basic-offset 2)
  '(js2-bounce-indent-p t)
  )
+
+;; Default indentation is usually 2 spaces, changing to 4.
+(add-hook 'html-mode-hook
+          (lambda () (set (make-local-variable 'sgml-basic-offset) 4)))
 
 (provide 'init-local)
 ;;; init-local.el ends here
