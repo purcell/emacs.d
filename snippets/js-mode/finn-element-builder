@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: finn-element-builder
+# key: eb
+# --
+var $1 = FINN.elementBuilder("${1:div}");$0

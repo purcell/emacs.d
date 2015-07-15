@@ -1,0 +1,30 @@
+# contributor: 
+# name: <akframemain>...</akframemain>
+# key: akframemain
+# --
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="./favicon.ico">
+    <link rel="stylesheet" href="http://www.test.com/web/src/css/akframe/ak-base.css"  ></link>
+    <link rel="stylesheet" href="http://www.test.com/web/src/css/akframe/ak-grids.css"  ></link>
+
+    <title>$0</title>
+ </head>
+
+  <body>
+  
+  
+  
+      <!-- Akframe core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="//cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  </body>
+</html>

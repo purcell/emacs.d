@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: class
+# key: cla
+# --
+class `(s-upper-camel-case (buffer-file-name-body))`
+  $0
+end

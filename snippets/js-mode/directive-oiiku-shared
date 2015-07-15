@@ -1,0 +1,13 @@
+# key: ng
+# name: directive-oiiku-shared
+# --
+angular.module("OIIKU_SHARED")
+    .directive("`(s-lower-camel-case (buffer-file-name-body))`", function (getContextPath) {
+        return {
+            restrict: "E",
+            templateUrl: getContextPath("angular-shared") + "/`(buffer-file-name-body)`.html",
+            link: function () {
+
+            }
+        };
+    });

@@ -1,0 +1,10 @@
+# key: mod
+# name: oocss-module
+# --
+<div class="mod">
+  <div class="inner">
+    <div class="bd">
+      $0
+    </div>
+  </div>
+</div>

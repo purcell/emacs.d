@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: c:forEach
+# key: cfe
+# --
+<c:forEach items="\${$1}" var="$2">
+           $0
+</c:forEach>

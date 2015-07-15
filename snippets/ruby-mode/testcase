@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: testcase
+# key: tc
+# --
+require 'test/unit'
+require '$1'
+
+class ${1:$(upper-camel-case yas/text)}TestCase < Test::Unit::TestCase
+
+  tt$0
+
+end

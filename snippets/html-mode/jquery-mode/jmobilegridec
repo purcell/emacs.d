@@ -1,0 +1,10 @@
+# contributor: 
+# name: <jmobilegridec>...</jmobilegridec>
+# key: jmgridec
+# --
+<div class="ui-grid-c">
+    <div class="ui-block-a"><div class="ui-bar ui-bar-a" >Block A</div></div>
+    <div class="ui-block-b"><div class="ui-bar ui-bar-a" >Block B</div></div>
+    <div class="ui-block-c"><div class="ui-bar ui-bar-a" >Block C</div></div>
+    <div class="ui-block-d"><div class="ui-bar ui-bar-a" >Block D</div></div>
+</div><!-- /grid-c -->

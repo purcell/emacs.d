@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: media
+# key: media
+# --
+<div class="media">
+  <img src="$1" class="img" alt="$2" />
+  <div class="bd">
+    $0
+  </div>
+</div>

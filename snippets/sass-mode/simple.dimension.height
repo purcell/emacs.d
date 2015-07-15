@@ -1,0 +1,4 @@
+# name: simpleDimensionHeight
+# key: sdh
+# --
+height : ${1:value}

@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: octopress-post
+# key: post
+# --
+---
+layout: post
+title: "$1"
+date: `(substring (buffer-file-name-body) 0 10)` `(substring (current-time-string) 11 16)`
+comments: true
+---
+{% img imgs /photos/`(substring (buffer-file-name-body) 0 10)`-`(substring (buffer-file-name-body) 11)`-1.jpg %}
+$0

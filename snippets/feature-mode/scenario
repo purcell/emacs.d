@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: scenario
+# key: sc
+# --
+Scenario: $1
+  Given $0
+  When
+  Then

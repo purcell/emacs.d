@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: namespace
+# key: ns
+# --
+(ns `(snippet--clojure-namespace-from-buffer-file-name)`)$0

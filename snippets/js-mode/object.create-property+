@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: object.create-property+
+# key: ppp
+# --
+${2:$1}: { value: params.${1:property} },
+ppp$0

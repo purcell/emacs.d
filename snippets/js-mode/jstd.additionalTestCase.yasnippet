@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: jstd.additionalTestCase
+# key: tcc
+# condition: (not buster-testcase-snippets-enabled)
+# --
+testCase("${2:`(chop-suffix "Test" (upper-camel-case (buffer-file-name-body)))`}$3", sinon.testCase({
+    tt$0
+}));
