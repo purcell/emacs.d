@@ -69,4 +69,8 @@ Call a second time to restore the original window configuration."
 (global-set-key (kbd "<f7>") 'sanityinc/split-window)
 
 
+
+(windmove-default-keybindings 'control)
+
+
 (provide 'init-windows)
