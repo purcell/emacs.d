@@ -40,6 +40,11 @@ site-lisp/package/
 /.cask/
 /.sx/
 /org-clock-save.el
+/games/
+
+recentf
+session
+session*
 
 core
 core.*
