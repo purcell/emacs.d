@@ -42,10 +42,10 @@ site-lisp/package/
 /org-clock-save.el
 /games/
 
-recentf
-session
-session*
-projectile*
+/recentf
+/session
+/session*
+/projectile*
 
 core
 core.*
