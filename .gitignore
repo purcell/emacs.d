@@ -45,6 +45,7 @@ site-lisp/package/
 recentf
 session
 session*
+projectile*
 
 core
 core.*
