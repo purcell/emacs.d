@@ -1,3 +1,4 @@
+
 ;; config for org-mode
 ;; add some capture config
 (setq org-directory "~/workspace/github/work-notes/org")
@@ -408,6 +409,7 @@ marginparsep=7pt, marginparwidth=.6in}
    (haskell . t)
    (dot . t)
    (latex . t)
+   (java . t)
    (js . t)
    ))
 

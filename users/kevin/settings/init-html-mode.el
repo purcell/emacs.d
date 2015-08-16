@@ -1,3 +1,6 @@
+(require-package 'simplezen)
+(require-package 'tagedit)
+
 (defun skip-to-next-blank-line ()
   (interactive)
   (let ((inhibit-changing-match-data t))

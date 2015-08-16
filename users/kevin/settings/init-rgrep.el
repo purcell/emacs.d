@@ -1,5 +1,7 @@
 (require 's)
 
+(require 's)
+
 (defun rgrep-fullscreen (regexp &optional files dir confirm)
   "Open grep in full screen, saving windows."
   (interactive

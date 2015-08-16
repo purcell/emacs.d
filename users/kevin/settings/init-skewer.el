@@ -1,3 +1,4 @@
+(require-package 'skewer-mode)
 
 ;; Bookmarklet to load skewer:
 ;;

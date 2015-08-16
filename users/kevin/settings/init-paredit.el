@@ -1,3 +1,5 @@
+(require-package 'paredit)
+
 ;; My keybindings for paredit
 
 (require 'paredit)

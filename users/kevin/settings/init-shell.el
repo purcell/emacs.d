@@ -1,3 +1,6 @@
+(require 'shell-command)
+
+
 ;; Setup shell
 
 ;; Note: Emacs runs .bashrc in *shell*

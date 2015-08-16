@@ -1,3 +1,4 @@
+(require-package 'perspective)
 ;; Load Perspective
 (require 'perspective)
 

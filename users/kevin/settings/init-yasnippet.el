@@ -1,3 +1,5 @@
+(require-package 'yasnippet)
+
 (require 'yasnippet)
 
 ;; Use only own snippets, do not use bundled ones

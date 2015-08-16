@@ -1,3 +1,6 @@
+(require-package 'tabbar)
+
+
 ;;; init-tabbar.el --- Init for tabbar
 
 ;; Filename: init-tabbar.el

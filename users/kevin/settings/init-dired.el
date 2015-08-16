@@ -1,3 +1,6 @@
+(require-package 'dash)
+
+
 (require 'dired)
 (require 'dash)
 
