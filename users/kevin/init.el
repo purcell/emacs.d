@@ -178,6 +178,8 @@
 (add-hook 'sgml-mode-hook 'ac-emmet-html-setup)
 (add-hook 'css-mode-hook 'ac-emmet-css-setup)
 
+;; set Symbolic link to Git-controlled source file; follow link? (y or n) as yes always
+(setq vc-follow-symlinks t)
 
 (provide 'init)
 ;;; init.el ends here
