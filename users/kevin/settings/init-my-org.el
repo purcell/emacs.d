@@ -181,7 +181,7 @@
                :author-info y
                :creator-info y)
               ("work-notes-extra"
-               :base-directory "~/worknotes/github/work-notes/"
+               :base-directory "~/workspace/github/work-notes/"
                :publishing-directory "~/workspace/github/publish-works"
                :base-extension "css\\|pdf\\|png\\|jpg\\|gif"
                :publishing-function org-publish-attachment
