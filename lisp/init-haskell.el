@@ -97,5 +97,12 @@
      'compilation-error-regexp-alist alias)))
 
 
+;; Stop haskell-mode's compiler note navigation from clobbering highlight-symbol-nav-mode
+(after-load 'haskell
+  (define-key interactive-haskell-mode-map (kbd "M-n") nil)
+  (define-key interactive-haskell-mode-map (kbd "M-p") nil)
+  (define-key interactive-haskell-mode-map (kbd "M-N") 'haskell-goto-next-error)
+  (define-key interactive-haskell-mode-map (kbd "M-P") 'haskell-goto-prev-error))
+
 
 (provide 'init-haskell)
