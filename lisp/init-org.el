@@ -113,6 +113,12 @@ typical word processor."
   (not (member (nth 2 (org-heading-components)) org-done-keywords)))
 (setq org-refile-target-verify-function 'sanityinc/verify-refile-target)
 
+(defun sanityinc/org-refile-anywhere (&optional goto default-buffer rfloc msg)
+  "A version of `org-refile' which suppresses `org-refile-target-verify-function'."
+  (interactive "P")
+  (let ((org-refile-target-verify-function))
+    (org-refile goto default-buffer rfloc msg)))
+
 ;; Targets start with the file name - allows creating level 1 tasks
 ;;(setq org-refile-use-outline-path (quote file))
 (setq org-refile-use-outline-path t)
