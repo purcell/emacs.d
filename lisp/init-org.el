@@ -42,7 +42,7 @@
 (after-load 'ob-ditaa
   (unless (file-exists-p org-ditaa-jar-path)
     (let ((jar-name "ditaa0_9.jar")
-          (url "http://softlayer-ams.dl.sourceforge.net/project/ditaa/ditaa/0.9/ditaa0_9.zip"))
+          (url "http://jaist.dl.sourceforge.net/project/ditaa/ditaa/0.9/ditaa0_9.zip"))
       (setq org-ditaa-jar-path (expand-file-name jar-name (file-name-directory user-init-file)))
       (unless (file-exists-p org-ditaa-jar-path)
         (sanityinc/grab-ditaa url jar-name)))))
@@ -112,6 +112,12 @@ typical word processor."
   "Exclude todo keywords with a done state from refile targets."
   (not (member (nth 2 (org-heading-components)) org-done-keywords)))
 (setq org-refile-target-verify-function 'sanityinc/verify-refile-target)
+
+(defun sanityinc/org-refile-anywhere (&optional goto default-buffer rfloc msg)
+  "A version of `org-refile' which suppresses `org-refile-target-verify-function'."
+  (interactive "P")
+  (let ((org-refile-target-verify-function))
+    (org-refile goto default-buffer rfloc msg)))
 
 ;; Targets start with the file name - allows creating level 1 tasks
 ;;(setq org-refile-use-outline-path (quote file))
@@ -322,7 +328,7 @@ typical word processor."
 (after-load 'org
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((R . t)
+   `((R . t)
      (ditaa . t)
      (dot . t)
      (emacs-lisp . t)
@@ -335,7 +341,7 @@ typical word processor."
      (python . t)
      (ruby . t)
      (screen . nil)
-     (sh . t)
+     (,(if (locate-library "ob-sh") 'sh 'shell) . t)
      (sql . nil)
      (sqlite . t))))
 

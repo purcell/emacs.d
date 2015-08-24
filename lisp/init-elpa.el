@@ -26,8 +26,9 @@
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
 ;;; Also use Melpa for most packages
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+(add-to-list 'package-archives `("melpa" . ,(if (< emacs-major-version 24)
+                                                "http://melpa.org/packages/"
+                                              "https://melpa.org/packages/")))
 
 
 
