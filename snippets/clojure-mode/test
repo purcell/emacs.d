@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: test
-# key: tt
-# --
-(deftest $1
-  (is (= $0)))

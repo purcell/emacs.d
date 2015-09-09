@@ -1,4 +1,0 @@
-# name: simpleDimensionWidth
-# key: sdw
-# --
-width : ${1:value}

@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: c:if
-# key: cif
-# --
-<c:if test="$1">$0</c:if>

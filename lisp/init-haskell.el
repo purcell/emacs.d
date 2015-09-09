@@ -18,6 +18,10 @@
   (add-to-list 'ac-modes 'haskell-interactive-mode)
   (add-hook 'haskell-interactive-mode-hook 'set-auto-complete-as-completion-at-point-function))
 
+(when (executable-find "ghci-ng")
+  (setq-default haskell-process-args-cabal-repl
+                '("--ghc-option=-ferror-spans" "--with-ghc=ghci-ng")))
+
 
 
 ;; Flycheck specifics
@@ -36,13 +40,6 @@
       (flycheck-haskell-configure)
       (flycheck-mode -1)
       (flycheck-mode))
-
-    (defadvice haskell-mode-stylish-buffer (around skip-if-flycheck-errors activate)
-      "Don't run stylish-buffer if the buffer appears to have a syntax error.
-This isn't a hard guarantee, since flycheck might sometimes not run until the file has
-been saved."
-      (unless (flycheck-has-current-errors-p 'error)
-        ad-do-it))
 
     (require 'flycheck-hdevtools)))
 
@@ -99,6 +96,13 @@ been saved."
     (add-to-list
      'compilation-error-regexp-alist alias)))
 
+
+;; Stop haskell-mode's compiler note navigation from clobbering highlight-symbol-nav-mode
+(after-load 'haskell
+  (define-key interactive-haskell-mode-map (kbd "M-n") nil)
+  (define-key interactive-haskell-mode-map (kbd "M-p") nil)
+  (define-key interactive-haskell-mode-map (kbd "M-N") 'haskell-goto-next-error)
+  (define-key interactive-haskell-mode-map (kbd "M-P") 'haskell-goto-prev-error))
 
 
 (provide 'init-haskell)

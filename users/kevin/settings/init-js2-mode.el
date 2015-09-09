@@ -30,11 +30,11 @@
      (tern-ac-setup)))
 
 
-(require 'js2-refactor)
+
+(require-package 'js2-refactor)
 (js2r-add-keybindings-with-prefix "C-c C-m")
 
-(require 'js2-imenu-extras)
-(js2-imenu-extras-setup)
+
 
 ;; Set up wrapping of pairs, with the possiblity of semicolons thrown into the mix
 
@@ -193,7 +193,9 @@
                        " *, *" t))
                 ))))
 
-(require 'json)
+
+(require-package 'json)
+
 
 
 (defun my-aget (key map)

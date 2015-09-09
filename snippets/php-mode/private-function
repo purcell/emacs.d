@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: private-function
-# key: pri
-# --
-private function ${1:name}($2) {
-        $0
-}

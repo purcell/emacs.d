@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: jstd-doc
-# key: doc
-# --
-/*:DOC ${1:element} = <${2:div}>$0</$2>*/

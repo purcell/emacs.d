@@ -1,9 +1,0 @@
-# -*- mode: snippet -*-
-# name: object.create
-# key: create
-# --
-create: function (params) {
-  return Object.create(this, {
-    ppp$0
-  });
-}

@@ -8,7 +8,8 @@
 ;; Make "C-x o" prompt for a target window when there are more than 2
 (require-package 'switch-window)
 (require 'switch-window)
-(setq switch-window-shortcut-style 'alphabet)
+(setq-default switch-window-shortcut-style 'alphabet)
+(setq-default switch-window-timeout nil)
 (global-set-key (kbd "C-x o") 'switch-window)
 
 
@@ -20,7 +21,9 @@
     (lambda ()
       (interactive)
       (funcall s-f)
-      (set-window-buffer (next-window) (other-buffer)))))
+      (let ((target-window (next-window)))
+        (set-window-buffer target-window (other-buffer))
+        (select-window target-window)))))
 
 (global-set-key "\C-x2" (split-window-func-with-other-buffer 'split-window-vertically))
 (global-set-key "\C-x3" (split-window-func-with-other-buffer 'split-window-horizontally))
@@ -67,10 +70,11 @@ Call a second time to restore the original window configuration."
     (switch-to-buffer-other-window nil)))
 
 (global-set-key (kbd "<f7>") 'sanityinc/split-window)
-(global-set-key (kbd "<f6>")
-                (lambda ()
-                  (interactive)
-                  (switch-to-buffer nil)))
+
+
+
+(unless (memq window-system '(nt w32))
+  (windmove-default-keybindings 'control))
 
 
 (provide 'init-windows)

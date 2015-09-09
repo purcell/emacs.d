@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: elvariable
-# key: el
-# --
-<%--@elvariable id="$1" type="$2"--%>

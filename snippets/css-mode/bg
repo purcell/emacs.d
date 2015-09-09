@@ -1,3 +1,0 @@
-#name : background-color: ...
-# --
-background-color: #${1:DDD};

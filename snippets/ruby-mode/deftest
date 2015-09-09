@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: tt
-# key: tt
-# --
-def test_$1
-  $0
-end

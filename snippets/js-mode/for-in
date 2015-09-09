@@ -1,9 +1,0 @@
-# -*- mode: snippet -*-
-# name: for-in
-# key: forin
-# --
-for (var key in ${1:obj}) {
-  if ($1.hasOwnProperty(key)) {
-    $0
-  }
-}

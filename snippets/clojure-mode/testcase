@@ -1,9 +1,0 @@
-# -*- mode: snippet -*-
-# name: testcase
-# key: tc
-# --
-(ns `(snippet--clojure-namespace-from-buffer-file-name)`
-  (:use [`(snippet--clojure-namespace-under-test)`])
-  (:use [clojure.test]))
-
-tt$0

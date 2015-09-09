@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: include
-# key: inc
-# --
-<%@ include file="_$0.jsp" %>

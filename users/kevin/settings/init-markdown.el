@@ -857,6 +857,6 @@
 
 
 
-(provide 'markdown-setting)
-;;; markdown-setting.el ends here
+(provide 'init-markdown)
+;;; init-markdown.el ends here
 

@@ -8,7 +8,7 @@
 (global-set-key (kbd "C-:") 'hippie-expand-lines)
 (global-set-key (kbd "C-,") 'completion-at-point)
 
-(require 'misc)
+
 (global-set-key (kbd "s-.") 'copy-from-above-command)
 
 ;; Smart M-x
@@ -385,17 +385,6 @@
 (global-set-key (kbd "M-i") 'back-to-indentation)
 
 
-(define-key html-mode-map (kbd "C-t C-d") 'tagedit-disable-experimental-features)
-(define-key html-mode-map (kbd "C-t C-e") 'tagedit-add-experimental-features)
-(define-key html-mode-map (kbd "C-<right>") 'tagedit-forward-slurp-tag)
-(define-key html-mode-map (kbd "C-<left>") 'tagedit-forward-barf-tag)
-(define-key html-mode-map (kbd "M-r") 'tagedit-raise-tag)
-(define-key html-mode-map (kbd "M-s") 'tagedit-splice-tag)
-(define-key html-mode-map (kbd "M-J") 'tagedit-join-tags)
-(define-key html-mode-map (kbd "M-S") 'tagedit-split-tag)
-(define-key html-mode-map (kbd "M-?") 'tagedit-convolute-tags)
-(define-key html-mode-map (kbd "C-k") 'tagedit-kill)
-(define-key html-mode-map (kbd "S-k") 'tagedit-kill-attribute)
 
 ;;key bindings for org
 ;;(global-set-key (kbd "<f12>") 'org-agenda) ;; configured blew

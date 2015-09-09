@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: do-block
-# key: do
-# --
-do ${1:|$2|}
-  $0
-end

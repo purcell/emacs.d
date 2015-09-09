@@ -76,7 +76,9 @@
 (setq-default truncate-lines t)
 
 ;; Keep cursor away from edges when scrolling up/down
-(require 'smooth-scrolling)
+
+(require-package 'smooth-scrolling)
+
 
 ;; Allow recursive minibuffers
 (setq enable-recursive-minibuffers t)
@@ -102,8 +104,10 @@
 (set-default 'fill-column 80)
 
 ;; Add parts of each file's directory to the buffer name if not unique
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'forward)
+
+;;(require 'uniquify)
+;;(setq uniquify-buffer-name-style 'forward)
+
 
 ;; A saner ediff
 (setq ediff-diff-options "-w")

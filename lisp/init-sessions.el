@@ -2,9 +2,6 @@
 (setq desktop-path (list user-emacs-directory)
       desktop-auto-save-timeout 600)
 (desktop-save-mode 1)
-(defadvice desktop-read (around trace-desktop-errors activate)
-  (let ((debug-on-error t))
-    ad-do-it))
 
 (defadvice desktop-read (around time-restore activate)
     (let ((start-time (current-time)))
@@ -34,6 +31,7 @@
 (require-package 'session)
 
 (setq session-save-file (expand-file-name ".session" user-emacs-directory))
+(setq session-name-disable-regexp "\\(?:\\`'/tmp\\|\\.git/[A-Z_]+\\'\\)")
 (add-hook 'after-init-hook 'session-initialize)
 
 ;; save a bunch of variables to the desktop file

@@ -1,3 +1,5 @@
+;; setting for projectile
+
 (setq projectile-other-file-alist '(("cpp" "h" "hpp" "ipp")
                                     ("ipp" "h" "hpp" "cpp")
                                     ("hpp" "h" "ipp" "cpp")

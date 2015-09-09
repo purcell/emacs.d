@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: assert_equal
-# key: ase
-# --
-assert_equal ${1:expected}, ${2:actual}$0

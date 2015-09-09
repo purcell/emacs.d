@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: object.create-property
-# key: pp
-# --
-${2:$1}: { value: params.${1:property} }$0

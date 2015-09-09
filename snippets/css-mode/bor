@@ -1,3 +1,0 @@
-#name : border size style color
-# --
-border: ${1:1px} ${2:solid} #${3:999};

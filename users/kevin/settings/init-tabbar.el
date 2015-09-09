@@ -1,5 +1,4 @@
-(require-package 'tabbar)
-
+;; setting for tabbar
 
 ;;; init-tabbar.el --- Init for tabbar
 

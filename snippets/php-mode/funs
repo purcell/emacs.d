@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: funs
-# key: funs
-# --
-public static function ${1:name}($2) {
-  $0
-}

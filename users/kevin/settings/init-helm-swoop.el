@@ -1,4 +1,6 @@
-(require-package 'helm-swoop)
+
+;; setting for helm-swoop
+
 ;; https://github.com/ShingoFukuyama/helm-swoop
 
 (require 'helm-swoop)

@@ -1,7 +1,0 @@
-;;; -*- coding: utf-8 -*-
-(("/home/kevin/.emacs.d/init.el" . 4748)
- ("/usr/share/emacs/24.5/lisp/international/mule.el.gz" . 10442)
- ("/home/kevin/.emacs.d/users/kevin/settings/init-my-org.el" . 15311)
- ("/usr/share/emacs/24.5/etc/ORG-NEWS" . 75667)
- ("/home/kevin/.emacs.d/users/kevin/settings/init-helm-swoop.el" . 1265)
- ("/home/kevin/.emacs.d/users/kevin/init.el" . 35))
