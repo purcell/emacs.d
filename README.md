@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/purcell/emacs.d.png?branch=master)](https://travis-ci.org/purcell/emacs.d)
+
 # A reasonable Emacs config
 
 This is my emacs configuration tree, continually used and tweaked
@@ -27,8 +29,8 @@ Python, Javascript, PHP and a number of other languages.
 ## Requirements
 
 * Emacs 23.3 or greater (note that Emacs 24 is required for some
-  functionality, and will likely become the minimum required version
-  some time soon.)
+  functionality, including `magit` and `flycheck`, and will likely
+  become the minimum required version some time soon.)
 * To make the most of the programming language-specific support in
   this config, further programs will likely be required, particularly
   those that [flycheck](https://github.com/flycheck/flycheck) uses to
@@ -44,7 +46,11 @@ git clone https://github.com/purcell/emacs.d.git ~/.emacs.d
 ```
 
 Upon starting up Emacs for the first time, further third-party
-packages will be automatically downloaded and installed.
+packages will be automatically downloaded and installed. If you
+encounter any errors at that stage, try restarting Emacs, and possibly
+running `M-x package-refresh-contents` before doing so.
+
+
 
 ## Important note about `ido`
 

@@ -14,7 +14,9 @@
 
 ;;; Standard package repositories
 
-;;(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(when (< emacs-major-version 24)
+  ;; Mainly for ruby-mode
+  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/")))
 
 ;; We include the org repository for completeness, but don't normally
 ;; use it.
@@ -24,8 +26,9 @@
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
 ;;; Also use Melpa for most packages
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+(add-to-list 'package-archives `("melpa" . ,(if (< emacs-major-version 24)
+                                                "http://melpa.org/packages/"
+                                              "https://melpa.org/packages/")))
 
 
 
