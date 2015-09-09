@@ -43,7 +43,7 @@ site-lisp/package/
 /.cask/
 /.sx/
 /org-clock-save.el
-<<<<<<< HEAD
+
 /games/
 
 /recentf
@@ -69,9 +69,9 @@ core.*
 *.org-source
 *.png
 *.toc
-=======
+
 /ditaa*.jar
 /ido.last
 /recentf
 /viper
->>>>>>> lujianmei-emacs.d
+
