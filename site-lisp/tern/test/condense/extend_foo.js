@@ -1,1 +1,0 @@
-foo.z = {something: "else"};

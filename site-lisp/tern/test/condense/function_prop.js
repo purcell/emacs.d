@@ -1,2 +1,0 @@
-foo = function() {};
-foo.s = '';
