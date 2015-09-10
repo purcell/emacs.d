@@ -30,10 +30,16 @@
 (require-package 'change-inner)
 (require-package 'multifiles)
 (require-package 'tabbar)
-(require-package 'avy)
 (require-package 'highlight)
 (require-package 'w3m)
 (require-package 'dired+)
+(require-package 'helm-swoop)
+(require-package 'helm-projectile)
+
+;; config for smart search
+(require-package 'avy)
+(require-package 'ace-isearch)
+(require 'ace-isearch)
 
 
 (require 'misc)
@@ -47,9 +53,6 @@
 ;;----------------------------------------------------------------------------
 
 ;; https://github.com/ShingoFukuyama/helm-swoop
-(require-package 'helm-swoop)
-
-(require-package 'helm-projectile)
 
 ;; using projectile to manage projects
 (projectile-global-mode)
@@ -93,6 +96,13 @@
 (put 'upcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 
+
+
+;;----------------------------------------------------------------------------
+;; Mutt config
+;;----------------------------------------------------------------------------
+;; Mutt support.
+(setq auto-mode-alist (append '(("/tmp/mutt.*" . mail-mode)) auto-mode-alist))
 
 
 

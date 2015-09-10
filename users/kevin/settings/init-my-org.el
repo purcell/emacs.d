@@ -469,6 +469,18 @@ marginparsep=7pt, marginparwidth=.6in}
 (add-hook 'message-mode-hook 'turn-on-orgtbl)
 
 
+;; ========================================
+;; Config theme for org mode
+;; ========================================
+(require-package 'org-beautify-theme)
 
+(defun org-beauty-install-theme ()
+  "Installs the Beautiful Org Theme"
+  (enable-theme ' kitty-bliss-theme)) ;; org-beautify-theme
+
+(if after-init-time
+    (org-beauty-install-theme)
+  (set-hook 'after-init-hook 'org-beauty-install-theme))
 
 (provide 'init-my-org)
+;; init-my-org.el end here
