@@ -1,22 +1,35 @@
-;;================================================================
-;; Config for Org Capture
-;;================================================================
+
 ;; config for org-mode
 ;; add some capture config
 (setq org-directory "~/workspace/github/work-notes/org")
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 ;;(define-key global-map (kbd "M-<f6>") 'org-capture)
+
+
+;; set for plantuml
+(setq org-ditaa-jar-path "/usr/share/java/ditaa/ditaa-0_9.jar")
+(setq org-plantuml-jar-path "/opt/plantuml/plantuml.jar")
+
+
+
+                                        ; Use fundamental mode when editing plantuml blocks with C-c '
+(add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
+
+;; auto save files
+(run-at-time "00:59" 3600 'org-save-all-org-buffers)
+
+
+
 ;; I use C-c c to start capture mode
 (global-set-key (kbd "C-c c") 'org-capture)
 
-
 ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
 (setq org-capture-templates
-      (quote (("t" "TODO" entry (file (concat org-directory "/refile.org"))
+      (quote (("t" "todo" entry (file (concat org-directory "/refile.org"))
                "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-              ("r" "RESPONED" entry  (file (concat org-directory "/refile.org"))
+              ("r" "respond" entry  (file (concat org-directory "/refile.org"))
                "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t :immediate-finish t)
-              ("n" "NOTES" entry  (file (concat org-directory "/refile.org"))
+              ("n" "note" entry  (file (concat org-directory "/refile.org"))
                "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
               ("j" "Journal" entry  (file (concat org-directory "/refile.org"))
                "* %?\n%U\n" :clock-in t :clock-resume t)
@@ -31,23 +44,7 @@
 
 
 
-;;================================================================
-;; Config for Picture Drawing
-;;================================================================
-;; set for plantuml
-(setq org-ditaa-jar-path "/usr/share/java/ditaa/ditaa-0_9.jar")
-(setq org-plantuml-jar-path "/opt/plantuml/plantuml.jar")
-;; Use fundamental mode when editing plantuml blocks with C-c '
-(add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
-
-;; auto save files
-(run-at-time "00:59" 3600 'org-save-all-org-buffers)
-
-
-
-;;================================================================
-;; Config for TODO Configuration
-;;================================================================
+;; add some of TODO configuration
 (setq org-todo-keywords
       (quote ((sequence "TODO(t)" "NEXT(n)" "STARTED(s)" "APPT(a)" "|" "DONE(d)")
               (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
@@ -71,97 +68,57 @@
               ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
               ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
               ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
-;; Config TODO tags
-(setq org-tag-alist '((:startgroup)
-                      ("@Develop" . ?1)
-                      (:grouptags )
-                      ("@孔祥润" . ?a)
-                      ("@青文豪" . ?b)
-                      ("@郭春光" . ?c)
-                      ("@番梦琳" . ?d)
-                      ("@陈金牛" . ?e)
-                      ("@卞翠翠" . ?f)
-                      ("@鄢广顺" . ?g)
-                      ("@王帅" . ?h)
-                      ("@于伟豪" . ?i)
-                      ("@王培聪" . ?j)
-                      ("@周勇" . ?k)
-                      ("@任成祥" . ?l)
-                      ("@安龙" . ?m)
-                      ("@董晓霞" . ?n)
-                      ("@付飞武" . ?o)
-                      ("@付维" . ?p)
-                      ("@刘俊" . ?q)
-                      ("@刘丽红" . ?r)
-                      ("@刘真君" . ?s)
-                      ("@孙晓坤" . ?t)
-                      ("@张明轩" . ?u)
-                      ("@柴杰" . ?v)
-                      ("@张京仁" . ?w)
-                      ("@赵泽军" . ?x)
-                      ("@周尔耕" . ?y)
-                      ("@陆健美" . ?z)
-                      (:endgroup)
 
-                      (:startgroup)
-                      ("@Test" . ?2)
-                      (:grouptags)
-                      ("@高玉谦" . ?A)
-                      ("@张家铭" . ?B)
-                      ("@宫𣫚" . ?C)
-                      ("@王美艳" . ?D)
-                      (:endgroup . nil)
-
-                      (:startgroup)
-                      ("@Servers" . ?3)
-                      (:grouptags)
-                      ("@孙立臣" . ?E)
-                      ("@赵丽" . ?F)
-                      (:endgroup)
-
-                      (:startgroup)
-                      ("@Front" . ?4)
-                      (:grouptags)
-                      ("@潘梦琳" . ?G)
-                      ("@刘品希" . ?H)
-                      ("@余虹君" . ?J)
-                      (:endgroup)
-
-                      (:startgroup)
-                      ("@Content" . ?5)
-                      (:grouptags)
-                      ("@费洪阳" . ?K)
-                      (:endgroup)
-
-                      (:startgroup)
-                      ("@APP" . ?6)
-                      (:grouptags)
-                      ("@李成龙" . ?L)
-                      ("@卢杨杨" . ?M)
-                      (:endgroup)
-
-                      (:startgroup)
-                      ("@Design" . ?7)
-                      (:grouptags )
-                      ("@孙嘉蔚" . ?N)
-                      (:endgroup)
-
+(setq org-tag-alist '((:startgroup . nil)
+                      ;;("@Members" . ?m)
+                      (:grouptags . nil)
+                      ("@陆健美" . ?ljm)
+                      ("@孔祥润" . ?kxr)
+                      ("@青文豪" . ?qwh)
+                      ("@张家铭" . ?zjm)
+                      ("@李成龙" . ?lcl)
+                      ("@郭春光" . ?gcg)
+                      ("@番梦琳" . ?pml)
+                      ("@陈金牛" . ?cjl)
+                      ("@卞翠翠" . ?bcc)
+                      ("@鄢广顺" . ?ygs)
+                      ("@王帅" . ?ws)
+                      ("@王培聪" . ?wpc)
+                      ("@周勇" . ?zy)
+                      ("@卢杨杨" . ?lyy)
+                      ("@高玉谦" . ?gyq)
+                      ("@任成祥" . ?rcx)
+                      ("@费洪阳" . ?fhy)
+                      ("@赵丽" . ?zl)
+                      ("@安龙" . ?al)
+                      ("@董晓霞" . ?dxx)
+                      ("@付飞武" . ?ffw)
+                      ("@付维" . ?fw)
+                      ("@宫𣫚" . ?gy)
+                      ("@刘俊" . ?lj)
+                      ("@刘丽红" . ?llh)
+                      ("@刘真君" . ?lzj)
+                      ("@孙晓坤" . ?sxk)
+                      ("@孙嘉蔚" . ?sjw)
+                      ("@张明轩" . ?zmx)
+                      ("@余虹君" . ?yhj)
+                      ("@柴杰" . ?cj)
+                      ("@刘品希" . ?lpx)
+                      ("@孙立臣" . ?slc)
+                      ("@王美艳" . ?wmy)
+                      ("@于伟豪" . ?ywh)
+                      ("@张京仁" . ?zjr)
+                      ("@赵泽军" . ?zzj)
+                      ("@周尔耕" . ?zeg)
                       ))
-;; Allow setting single tags without the menu
-(setq org-fast-tag-selection-single-key (quote expert))
-
-;; For tag searches ignore tasks with scheduled and deadline dates
-(setq org-agenda-tags-todo-honor-ignore-options t)
 
 
-;;================================================================
-;; Config for Agenda View
-;;================================================================
+;; config agenda view
 ;; Do not dim blocked tasks
 (setq org-agenda-dim-blocked-tasks nil)
 
 ;; Compact the block agenda view
-;;(setq org-agenda-compact-blocks t)
+(setq org-agenda-compact-blocks t)
 
 ;; Custom agenda command definitions
 (setq org-agenda-custom-commands
@@ -238,18 +195,15 @@
                nil))))
 
 
-;;================================================================
-;; Config for File Export HTML Format
-;;================================================================ 
-
-;; Increase default number of headings to export
+;; config for export-mutilpul files
+                                        ; Increase default number of headings to export
 (setq org-export-headline-levels 6)
-;; List of projects
-;; Work-notes
+                                        ; List of projects
+                                        ; Work-notes
 
 (setq org-publish-project-alist
-
-      ;; (work notes for)
+                                        ;
+                                        ; (work notes for)
       (quote (("work-notes"
                :base-directory "~/workspace/github/work-notes/"
                :publishing-directory "~/workspace/github/publish-works"
@@ -272,33 +226,12 @@
               ("worknotes"
                :components ("work-notes" "work-notes-extra"))
               )))
-;; set parent node into DONE when all sub-tasks are done in org mode
-(defun org-summary-todo (n-done n-not-done)
-  "Switch entry to DONE when all subentries are done, to TODO otherwise."
-  (let (org-log-done org-log-states)   ; turn off logging
-    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
 
-(add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
 
-;; I'm lazy and don't want to remember the name of the project to publish when I modify
-;; a file that is part of a project.  So this function saves the file, and publishes
-;; the project that includes this file
-;; It's bound to C-S-F12 so I just edit and hit C-S-F12 when I'm done and move on to the next thing
-(defun bh/save-then-publish (&optional force)
-  (interactive "P")
-  (save-buffer)
-  (org-save-all-org-buffers)
-  (let (
-        )
-    (org-publish-current-project force)))
-;; config for export-mutilpul files
-(global-set-key (kbd "C-<f12>") 'bh/save-then-publish)
 
-;;================================================================
-;; Config for File Export HTML CSS Template
-;;================================================================ 
+
 ;; add css for org-mode export to html files
-;; Use org.css from the norang website for export document stylesheets
+                                        ; Use org.css from the norang website for export document stylesheets
 ;;(setq org-html-head-extra "<link rel=\"stylesheet\" href=\"./org.css\" type=\"text/css\" />")
 (setq org-html-head-extra "<style type=\"text/css\">body{margin:
 1em; border-right: 5px solid #bbb; border-bottom: 5px solid #bbb;
@@ -337,10 +270,32 @@ underline;}.fixme{background: #ff0; font-weight:
 bold;}.ra{text-align: right;}span.todo.NEXT{color:blue;}span.todo.STARTED{color:green;}span.todo.WAITTING{color:orange;}span.todo.HOLD{color:magenta;}.tag{font-size:124%;}</style>")
 
 
+;; set parent node into DONE when all sub-tasks are done in org mode
+(defun org-summary-todo (n-done n-not-done)
+  "Switch entry to DONE when all subentries are done, to TODO otherwise."
+  (let (org-log-done org-log-states)   ; turn off logging
+    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
 
-;;================================================================
-;; Config for File Export To PDF 
-;;================================================================ 
+(add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+
+
+
+                                        ; I'm lazy and don't want to remember the name of the project to publish when I modify
+                                        ; a file that is part of a project.  So this function saves the file, and publishes
+                                        ; the project that includes this file
+                                        ;
+                                        ; It's bound to C-S-F12 so I just edit and hit C-S-F12 when I'm done and move on to the next thing
+(defun bh/save-then-publish (&optional force)
+  (interactive "P")
+  (save-buffer)
+  (org-save-all-org-buffers)
+  (let (
+        )
+    (org-publish-current-project force)))
+
+(global-set-key (kbd "C-<f12>") 'bh/save-then-publish)
+
+
 ;; config for export PDF
 (require 'ox-latex)
 (add-hook 'org-mode-hook
@@ -361,8 +316,13 @@ bold;}.ra{text-align: right;}span.todo.NEXT{color:blue;}span.todo.STARTED{color:
 (setq TeX-parse-self t)
 (setq-default TeX-master nil)
 
+
+
 (unless (boundp 'org-latex-classes)
   (setq org-latex-classes nil))
+
+
+
 
 (add-to-list 'org-latex-classes
              '("cn-article"
@@ -489,9 +449,6 @@ marginparsep=7pt, marginparwidth=.6in}
    (js . t)
    ))
 
-;;================================================================
-;; Config for File Export To PDF but use beamer
-;;================================================================ 
 ;; 导出Beamer的设置
 ;; allow for export=>beamer by placing #+LaTeX_CLASS: beamer in org files
 ;;-----------------------------------------------------------------------------
