@@ -69,6 +69,10 @@
               ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
               ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
               ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
+
+;;================================================================
+;; Config for Tags
+;;================================================================
 ;; Config TODO tags
 (setq org-tag-alist '((:startgroup)
                       ("@Develop" . ?1)
@@ -150,6 +154,20 @@
 
 ;; For tag searches ignore tasks with scheduled and deadline dates
 (setq org-agenda-tags-todo-honor-ignore-options t)
+
+
+;;================================================================
+;; Config for Global column view and properties
+;;================================================================
+;; Set default column view headings: Task Effort Clock_Summary
+(setq org-columns-default-format "%25ITEM %10Effort(Effort){:} %SCHEDULED %DEADLINE %11Status %TAGS %PRIORITY %TODO")
+;;(setq org-columns-default-format "%25ITEM  %9Approved(Approved?){X} %SCHEDULED %DEADLINE %11Status %TAGS %PRIORITY %TODO")
+;; global Effort estimate values
+;; global STYLE property values for completion
+(setq org-global-properties (quote (
+                                    ("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
+                                    ("Status_ALL" . "Not-start In-Progress Delay Finished Cancled")
+                                    ("STYLE_ALL" . "habit"))))
 
 
 ;;================================================================
