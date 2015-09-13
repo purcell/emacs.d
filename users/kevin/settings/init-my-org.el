@@ -3,7 +3,7 @@
 ;;================================================================
 ;; config for org-mode
 ;; add some capture config
-(setq org-directory "~/workspace/github/work-notes/projects")
+(setq org-directory "~/workspace/github/work-notes/schedules")
 ;;(setq org-default-notes-file (concat org-directory "/notes.org"))
 ;;(define-key global-map (kbd "M-<f6>") 'org-capture)
 ;; I use C-c c to start capture mode
