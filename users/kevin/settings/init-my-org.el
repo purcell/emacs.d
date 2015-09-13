@@ -168,6 +168,8 @@
                                     ("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
                                     ("Status_ALL" . "Not-start In-Progress Delay Finished Cancled")
                                     ("STYLE_ALL" . "habit"))))
+;; update dynamic blocks when save file
+(add-hook 'before-save-hook 'org-update-all-dblocks)
 
 
 ;;================================================================
