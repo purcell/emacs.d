@@ -18,12 +18,14 @@
 ;;----------------------------------------------------------------------------
 (defun split-window-func-with-other-buffer (split-function)
   (lexical-let ((s-f split-function))
-    (lambda ()
-      (interactive)
+    (lambda (&optional arg)
+      "Split this window and switch to the new window unless ARG is provided."
+      (interactive "P")
       (funcall s-f)
       (let ((target-window (next-window)))
         (set-window-buffer target-window (other-buffer))
-        (select-window target-window)))))
+        (unless arg
+          (select-window target-window))))))
 
 (global-set-key "\C-x2" (split-window-func-with-other-buffer 'split-window-vertically))
 (global-set-key "\C-x3" (split-window-func-with-other-buffer 'split-window-horizontally))
