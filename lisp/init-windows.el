@@ -75,6 +75,20 @@ Call a second time to restore the original window configuration."
 
 
 
+(defun sanityinc/toggle-current-window-dedication ()
+  "Toggle whether the current window is dedicated to its current buffer."
+  (interactive)
+  (let* ((window (selected-window))
+         (was-dedicated (window-dedicated-p window)))
+    (set-window-dedicated-p window (not was-dedicated))
+    (message "Window %sdedicated to %s"
+             (if was-dedicated "no longer " "")
+             (buffer-name))))
+
+(global-set-key (kbd "C-c <down>") 'sanityinc/toggle-current-window-dedication)
+
+
+
 (unless (memq window-system '(nt w32))
   (windmove-default-keybindings 'control))
 
