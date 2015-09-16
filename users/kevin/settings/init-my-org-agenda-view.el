@@ -6,12 +6,14 @@
 
 
 ;;================================================================
-;; Config for Agenda View
+;; Base config
 ;;================================================================
 
 (setq org-agenda-files (quote ("~/workspace/github/work-notes/agenda"
                                "~/workspace/github/work-notes/org"
                                "~/workspace/github/work-notes/schedules")))
+(defvar org-personal-agenda-files "~/workspace/github/work-notes/personal"
+  "Config for my own personal agenda org-files, for remembering things or personal plans.")
 
 ;; Set the agenda view to show the tasks on day/week/month/year
 (setq org-agenda-span 'week)
@@ -22,8 +24,8 @@
 ;; (setq org-agenda-start-day "+10d")
 
 ;; Config what is a stuck project
-(setq org-stuck-projects
-      `(,active-project-match ("MAYBE")))
+;;(setq org-stuck-projects
+;;      `(,active-project-match ("MAYBE")))
 
 
 ;; Do not dim blocked tasks
@@ -34,6 +36,86 @@
 
 ;; Compact the block agenda view
 ;;(setq org-agenda-compact-blocks t)
+
+;; Custom agenda command definitions
+(setq org-agenda-custom-commands
+      (quote (("N" "Notes" tags "NOTE"
+               ((org-agenda-overriding-header "Notes")
+                (org-tags-match-list-sublevels t)))
+              ("h" "Habits" tags-todo "STYLE=\"habit\""
+               ((org-agenda-overriding-header "Habits")
+                (org-agenda-sorting-strategy
+                 '(todo-state-down effort-up category-keep))))
+              (" " "Agenda"
+               ((agenda "" nil)
+                (tags "REFILE"
+                      ((org-agenda-overriding-header "Tasks to Refile")
+                       (org-tags-match-list-sublevels nil)))
+                (tags-todo "-CANCELLED/!"
+                           ((org-agenda-overriding-header "Stuck Projects")
+                            (org-agenda-skip-function 'bh/skip-non-stuck-projects)
+                            (org-agenda-sorting-strategy
+                             '(category-keep))))
+                (tags-todo "-HOLD-CANCELLED/!"
+                           ((org-agenda-overriding-header "Projects")
+                            (org-agenda-skip-function 'bh/skip-non-projects)
+                            (org-tags-match-list-sublevels 'indented)
+                            (org-agenda-sorting-strategy
+                             '(category-keep))))
+                (tags-todo "-CANCELLED/!NEXT"
+                           ((org-agenda-overriding-header (concat "Project Next Tasks"
+                                                                  (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                      ""
+                                                                    " (including WAITING and SCHEDULED tasks)")))
+                            (org-agenda-skip-function 'bh/skip-projects-and-habits-and-single-tasks)
+                            (org-tags-match-list-sublevels t)
+                            (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                            (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                            (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                            (org-agenda-sorting-strategy
+                             '(todo-state-down effort-up category-keep))))
+                (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+                           ((org-agenda-overriding-header (concat "Project Subtasks"
+                                                                  (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                      ""
+                                                                    " (including WAITING and SCHEDULED tasks)")))
+                            (org-agenda-skip-function 'bh/skip-non-project-tasks)
+                            (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                            (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                            (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                            (org-agenda-sorting-strategy
+                             '(category-keep))))
+                (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+                           ((org-agenda-overriding-header (concat "Standalone Tasks"
+                                                                  (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                      ""
+                                                                    " (including WAITING and SCHEDULED tasks)")))
+                            (org-agenda-skip-function 'bh/skip-project-tasks)
+                            (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                            (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                            (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                            (org-agenda-sorting-strategy
+                             '(category-keep))))
+                (tags-todo "-CANCELLED+WAITING|HOLD/!"
+                           ((org-agenda-overriding-header (concat "Waiting and Postponed Tasks"
+                                                                  (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                      ""
+                                                                    " (including WAITING and SCHEDULED tasks)")))
+                            (org-agenda-skip-function 'bh/skip-non-tasks)
+                            (org-tags-match-list-sublevels nil)
+                            (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                            (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)))
+                (tags "-REFILE/"
+                      ((org-agenda-overriding-header "Tasks to Archive")
+                       (org-agenda-skip-function 'bh/skip-non-archivable-tasks)
+                       (org-tags-match-list-sublevels nil))))
+               nil))))
+
+
+
+;;================================================================
+;; Special defun
+;;================================================================
 
 
 (defconst leuven-org-completed-date-regexp
@@ -46,18 +128,78 @@
           "\\) ")
   "Matches any completion time stamp.")
 
+(defun leuven--skip-entry-unless-deadline-in-n-days-or-more (n)
+  "Skip entries that have no deadline, or that have a deadline earlier than in N days."
+  (let* ((dl (org-entry-get nil "DEADLINE")))
+    (if (or (not dl)
+            (equal dl "")
+            (org-time< dl (+ (org-time-today) (* n 86400))))
+        (progn (outline-next-heading) (point)))))
+
+(defun leuven--skip-entry-unless-overdue-deadline ()
+  "Skip entries that have no deadline, or that have a deadline later than or equal to today."
+  (let* ((dl (org-entry-get nil "DEADLINE")))
+    (if (or (not dl)
+            (equal dl "")
+            (org-time>= dl (org-time-today)))
+        (progn (outline-next-heading) (point)))))
+
+(defun leuven--skip-entry-if-past-deadline ()
+  "Skip entries that have a deadline earlier than today."
+  (let* ((dl (org-entry-get nil "DEADLINE")))
+    (if (org-time< dl (org-time-today))
+        (progn (outline-next-heading) (point)))))
+
+(defun leuven--skip-entry-if-deadline-in-less-than-n-days-or-schedule-in-less-than-n-days (n1 n2)
+  "Skip entries that have a deadline in less than N1 days, or that have a
+  scheduled date in less than N2 days, or that have no deadline nor scheduled."
+  (let* ((dl (org-entry-get nil "DEADLINE"))
+         (sd (org-entry-get nil "SCHEDULED")))
+    (if (or (and dl
+                 (not (equal dl ""))
+                 (org-time< dl (+ (org-time-today) (* n1 86400))))
+            (and sd
+                 (not (equal sd ""))
+                 (org-time< sd (+ (org-time-today) (* n2 86400))))
+            (and (or (not dl)       ; No deadline.
+                     (equal dl ""))
+                 (or (not sd)       ; Nor scheduled.
+                     (equal sd ""))))
+        (progn (outline-next-heading) (point)))))
+
+(defun leuven--skip-entry-if-deadline-or-schedule ()
+  "Skip entries that have a deadline or that have a scheduled date."
+  (let* ((dl (org-entry-get nil "DEADLINE"))
+         (sd (org-entry-get nil "SCHEDULED")))
+    (if (or (and dl
+                 (not (equal dl "")))
+            (and sd
+                 (not (equal sd ""))))
+        (progn (outline-next-heading) (point)))))
+
+
+
 ;; Custom commands for the agenda -- start with a clean slate.
 (setq org-agenda-custom-commands nil)
+
+
+;;================================================================
+;; Special agenda view start with c
+;;================================================================
 
 (add-to-list 'org-agenda-custom-commands
              '("c" . "COLLECT...") t)
 
+
 ;; Collectbox.
 (add-to-list 'org-agenda-custom-commands
-             `("cb" "CollectBox"
+             `("cp" "Personal"
                ((alltodo ""))
-               ((org-agenda-files (list ,(concat org-directory "/refile.org"))))) t)
+               ((org-agenda-files (list ,(concat org-personal-agenda-files "/personal.org"))))) t)
 
+;;================================================================
+;; Special agenda view start with f
+;;================================================================
 (add-to-list 'org-agenda-custom-commands
              '("f" . "FOCUS...") t)
 
@@ -74,9 +216,7 @@
                                   ))
                          (org-agenda-span 'day)))
                 ;; Unscheduled new tasks (waiting to be prioritized and scheduled).
-                (tags-todo "LEVEL=2"
-                           ((org-agenda-overriding-header "COLLECTBOX (Unscheduled)")
-                            (org-agenda-files (list ,(concat org-directory "/refile.org")))))
+
                 ;; List of all TODO entries with deadline today.
                 (tags-todo "DEADLINE=\"<+0d>\""
                            ((org-agenda-overriding-header "DUE TODAY")
@@ -121,6 +261,7 @@
                ((org-agenda-format-date "")
                 (org-agenda-start-with-clockreport-mode nil))) t)
 
+
 (add-to-list 'org-agenda-custom-commands
              '("fh" "Hotlist"
                ;; tags-todo "DEADLINE<=\"<+1w>\"|PRIORITY={A}|FLAGGED"
@@ -161,6 +302,11 @@
                ((org-agenda-todo-ignore-scheduled 'future)
                 (org-agenda-sorting-strategy '(deadline-up)))) t) ; FIXME sort not OK.
 
+
+
+;;================================================================
+;; Special agenda view start with r
+;;================================================================
 (add-to-list 'org-agenda-custom-commands
              '("r" . "REVIEW...") t)
 
@@ -265,55 +411,6 @@
                 (org-agenda-sorting-strategy '(deadline-up))
                 (org-agenda-use-time-grid nil)
                 (org-agenda-write-buffer-name "Reminders"))) t)
-
-(defun leuven--skip-entry-unless-deadline-in-n-days-or-more (n)
-  "Skip entries that have no deadline, or that have a deadline earlier than in N days."
-  (let* ((dl (org-entry-get nil "DEADLINE")))
-    (if (or (not dl)
-            (equal dl "")
-            (org-time< dl (+ (org-time-today) (* n 86400))))
-        (progn (outline-next-heading) (point)))))
-
-(defun leuven--skip-entry-unless-overdue-deadline ()
-  "Skip entries that have no deadline, or that have a deadline later than or equal to today."
-  (let* ((dl (org-entry-get nil "DEADLINE")))
-    (if (or (not dl)
-            (equal dl "")
-            (org-time>= dl (org-time-today)))
-        (progn (outline-next-heading) (point)))))
-
-(defun leuven--skip-entry-if-past-deadline ()
-  "Skip entries that have a deadline earlier than today."
-  (let* ((dl (org-entry-get nil "DEADLINE")))
-    (if (org-time< dl (org-time-today))
-        (progn (outline-next-heading) (point)))))
-
-(defun leuven--skip-entry-if-deadline-in-less-than-n-days-or-schedule-in-less-than-n-days (n1 n2)
-  "Skip entries that have a deadline in less than N1 days, or that have a
-  scheduled date in less than N2 days, or that have no deadline nor scheduled."
-  (let* ((dl (org-entry-get nil "DEADLINE"))
-         (sd (org-entry-get nil "SCHEDULED")))
-    (if (or (and dl
-                 (not (equal dl ""))
-                 (org-time< dl (+ (org-time-today) (* n1 86400))))
-            (and sd
-                 (not (equal sd ""))
-                 (org-time< sd (+ (org-time-today) (* n2 86400))))
-            (and (or (not dl)       ; No deadline.
-                     (equal dl ""))
-                 (or (not sd)       ; Nor scheduled.
-                     (equal sd ""))))
-        (progn (outline-next-heading) (point)))))
-
-(defun leuven--skip-entry-if-deadline-or-schedule ()
-  "Skip entries that have a deadline or that have a scheduled date."
-  (let* ((dl (org-entry-get nil "DEADLINE"))
-         (sd (org-entry-get nil "SCHEDULED")))
-    (if (or (and dl
-                 (not (equal dl "")))
-            (and sd
-                 (not (equal sd ""))))
-        (progn (outline-next-heading) (point)))))
 
 (add-to-list 'org-agenda-custom-commands
              '("ra3" "Agenda for all TODO entries"
@@ -580,6 +677,9 @@
                ((org-agenda-overriding-header "Projects (High Level)")
                 (org-agenda-sorting-strategy nil))) t)
 
+;;================================================================
+;; Special agenda view start with +
+;;================================================================
 (add-to-list 'org-agenda-custom-commands
              '("+" . "MORE...") t)
 
@@ -589,7 +689,9 @@
                ((tags ,(concat "Assignee={" user-login-name "\\|"
                                user-mail-address "}")))
                ((org-agenda-overriding-header "ASSIGNED TO ME"))) t)
-
+;;================================================================
+;; Special agenda view start with E
+;;================================================================
 (add-to-list 'org-agenda-custom-commands
              '("E" . "Exported agenda files...") t)
 
@@ -614,6 +716,9 @@
                 (ps-number-of-columns 1))
                ("~/org___calls.pdf")) t)
 
+;;================================================================
+;; Special agenda view start with A
+;;================================================================
 (add-to-list 'org-agenda-custom-commands
              '("A" . "ARCHIVE...") t)
 
@@ -623,6 +728,9 @@
                ((org-agenda-todo-ignore-scheduled 'future)
                 (org-agenda-sorting-strategy '(deadline-down)))) t)
 
+;;================================================================
+;; Special agenda view start with R
+;;================================================================
 (add-to-list 'org-agenda-custom-commands
              '("R" . "REFERENCE...") t)
 
@@ -645,6 +753,9 @@
                ((tags "refile|capture"))
                ((org-agenda-overriding-header "Refile stuff"))) t)
 
+;;================================================================
+;; Special agenda view start with 1
+;;================================================================
 ;; Create a sparse tree (current buffer only) with all entries containing the
 ;; word `TODO', `FIXME' or `XXX'.
 (add-to-list 'org-agenda-custom-commands

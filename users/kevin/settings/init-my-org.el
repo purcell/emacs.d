@@ -51,7 +51,7 @@
               ("STARTED" :foreground "green" :weight bold)
               ("DONE" :foreground "forest green" :weight bold)
               ("WAITING" :foreground "orange" :weight bold)
-              ("MAYBE" :foreground "yellow" :weight bold)
+              ("MAYBE" :foreground "grey" :weight bold)
               ("HOLD" :foreground "magenta" :weight bold)
               ("CANCELLED" :foreground "forest green" :weight bold)
               ("MEETING" :foreground "forest green" :weight bold)

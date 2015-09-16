@@ -427,6 +427,9 @@
 
 
 ;; config for sunrise commander
-(global-set-key (kbd "C-c x") 'sunrise)
-(global-set-key (kbd "C-c X") 'sunrise-cd)
+;;(global-set-key (kbd "C-c x") 'sunrise)
+;;(global-set-key (kbd "C-c X") 'sunrise-cd)
+
+
+
 (provide 'key-bindings)
