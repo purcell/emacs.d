@@ -3,7 +3,7 @@
 ;;================================================================
 ;; config for org-mode
 ;; add some capture config
-(setq org-directory "~/workspace/github/work-notes/schedules")
+(setq org-directory "~/workspace/github/work-notes/org")
 ;;(setq org-default-notes-file (concat org-directory "/notes.org"))
 ;;(define-key global-map (kbd "M-<f6>") 'org-capture)
 ;; I use C-c c to start capture mode
@@ -38,16 +38,11 @@
 ;; Use fundamental mode when editing plantuml blocks with C-c '
 (add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
 
-;; auto save files
-(run-at-time "00:59" 3600 'org-save-all-org-buffers)
-
-
-
 ;;================================================================
 ;; Config for TODO Configuration
 ;;================================================================
 (setq org-todo-keywords
-      (quote ((sequence "TODO(t)" "NEXT(n)" "STARTED(s)" "APPT(a)" "|" "DONE(d)")
+      (quote ((sequence "TODO(t)" "NEXT(n)" "MAYBE(m)" "STARTED(s)" "APPT(a)" "|" "DONE(d)")
               (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 
 (setq org-todo-keyword-faces
@@ -56,6 +51,7 @@
               ("STARTED" :foreground "green" :weight bold)
               ("DONE" :foreground "forest green" :weight bold)
               ("WAITING" :foreground "orange" :weight bold)
+              ("MAYBE" :foreground "yellow" :weight bold)
               ("HOLD" :foreground "magenta" :weight bold)
               ("CANCELLED" :foreground "forest green" :weight bold)
               ("MEETING" :foreground "forest green" :weight bold)
@@ -75,77 +71,77 @@
 ;;================================================================
 ;; Config TODO tags
 (setq org-tag-alist '((:startgroup)
-                      ("@Develop" . ?1)
+                      ("Develop" . ?1)
                       (:grouptags )
-                      ("@孔祥润" . ?a)
-                      ("@青文豪" . ?b)
-                      ("@郭春光" . ?c)
-                      ("@番梦琳" . ?d)
-                      ("@陈金牛" . ?e)
-                      ("@卞翠翠" . ?f)
-                      ("@鄢广顺" . ?g)
-                      ("@王帅" . ?h)
-                      ("@于伟豪" . ?i)
-                      ("@王培聪" . ?j)
-                      ("@周勇" . ?k)
-                      ("@任成祥" . ?l)
-                      ("@安龙" . ?m)
-                      ("@董晓霞" . ?n)
-                      ("@付飞武" . ?o)
-                      ("@付维" . ?p)
-                      ("@刘俊" . ?q)
-                      ("@刘丽红" . ?r)
-                      ("@刘真君" . ?s)
-                      ("@孙晓坤" . ?t)
-                      ("@张明轩" . ?u)
-                      ("@柴杰" . ?v)
-                      ("@张京仁" . ?w)
-                      ("@赵泽军" . ?x)
-                      ("@周尔耕" . ?y)
-                      ("@陆健美" . ?z)
+                      ("孔祥润" . ?a)
+                      ("青文豪" . ?b)
+                      ("郭春光" . ?c)
+                      ("番梦琳" . ?d)
+                      ("陈金牛" . ?e)
+                      ("卞翠翠" . ?f)
+                      ("鄢广顺" . ?g)
+                      ("王帅" . ?h)
+                      ("于伟豪" . ?i)
+                      ("王培聪" . ?j)
+                      ("周勇" . ?k)
+                      ("任成祥" . ?l)
+                      ("安龙" . ?m)
+                      ("董晓霞" . ?n)
+                      ("付飞武" . ?o)
+                      ("付维" . ?p)
+                      ("刘俊" . ?q)
+                      ("刘丽红" . ?r)
+                      ("刘真君" . ?s)
+                      ("孙晓坤" . ?t)
+                      ("张明轩" . ?u)
+                      ("柴杰" . ?v)
+                      ("张京仁" . ?w)
+                      ("赵泽军" . ?x)
+                      ("周尔耕" . ?y)
+                      ("陆健美" . ?z)
                       (:endgroup)
 
                       (:startgroup)
-                      ("@Test" . ?2)
+                      ("Test" . ?2)
                       (:grouptags)
-                      ("@高玉谦" . ?A)
-                      ("@张家铭" . ?B)
-                      ("@宫𣫚" . ?C)
-                      ("@王美艳" . ?D)
+                      ("高玉谦" . ?A)
+                      ("张家铭" . ?B)
+                      ("宫𣫚" . ?C)
+                      ("王美艳" . ?D)
                       (:endgroup . nil)
 
                       (:startgroup)
-                      ("@Servers" . ?3)
+                      ("Servers" . ?3)
                       (:grouptags)
-                      ("@孙立臣" . ?E)
-                      ("@赵丽" . ?F)
+                      ("孙立臣" . ?E)
+                      ("赵丽" . ?F)
                       (:endgroup)
 
                       (:startgroup)
-                      ("@Front" . ?4)
+                      ("Front" . ?4)
                       (:grouptags)
-                      ("@潘梦琳" . ?G)
-                      ("@刘品希" . ?H)
-                      ("@余虹君" . ?J)
+                      ("潘梦琳" . ?G)
+                      ("刘品希" . ?H)
+                      ("余虹君" . ?J)
                       (:endgroup)
 
                       (:startgroup)
-                      ("@Content" . ?5)
+                      ("Content" . ?5)
                       (:grouptags)
-                      ("@费洪阳" . ?K)
+                      ("费洪阳" . ?K)
                       (:endgroup)
 
                       (:startgroup)
-                      ("@APP" . ?6)
+                      ("APP" . ?6)
                       (:grouptags)
-                      ("@李成龙" . ?L)
-                      ("@卢杨杨" . ?M)
+                      ("李成龙" . ?L)
+                      ("卢杨杨" . ?M)
                       (:endgroup)
 
                       (:startgroup)
-                      ("@Design" . ?7)
+                      ("Design" . ?7)
                       (:grouptags )
-                      ("@孙嘉蔚" . ?N)
+                      ("孙嘉蔚" . ?N)
                       (:endgroup)
 
                       ))
@@ -167,93 +163,11 @@
 (setq org-global-properties (quote (
                                     ("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
                                     ("Status_ALL" . "Not-start In-Progress Delay Finished Cancled")
+                                    ("ID_ALL" . "")
                                     ("STYLE_ALL" . "habit"))))
 ;; update dynamic blocks when save file
 (add-hook 'before-save-hook 'org-update-all-dblocks)
 
-
-;;================================================================
-;; Config for Agenda View
-;;================================================================
-;; Do not dim blocked tasks
-(setq org-agenda-dim-blocked-tasks nil)
-
-;; Compact the block agenda view
-;;(setq org-agenda-compact-blocks t)
-
-;; Custom agenda command definitions
-(setq org-agenda-custom-commands
-      (quote (("N" "Notes" tags "NOTE"
-               ((org-agenda-overriding-header "Notes")
-                (org-tags-match-list-sublevels t)))
-              ("h" "Habits" tags-todo "STYLE=\"habit\""
-               ((org-agenda-overriding-header "Habits")
-                (org-agenda-sorting-strategy
-                 '(todo-state-down effort-up category-keep))))
-              (" " "Agenda"
-               ((agenda "" nil)
-                (tags "REFILE"
-                      ((org-agenda-overriding-header "Tasks to Refile")
-                       (org-tags-match-list-sublevels nil)))
-                (tags-todo "-CANCELLED/!"
-                           ((org-agenda-overriding-header "Stuck Projects")
-                            (org-agenda-skip-function 'bh/skip-non-stuck-projects)
-                            (org-agenda-sorting-strategy
-                             '(category-keep))))
-                (tags-todo "-HOLD-CANCELLED/!"
-                           ((org-agenda-overriding-header "Projects")
-                            (org-agenda-skip-function 'bh/skip-non-projects)
-                            (org-tags-match-list-sublevels 'indented)
-                            (org-agenda-sorting-strategy
-                             '(category-keep))))
-                (tags-todo "-CANCELLED/!NEXT"
-                           ((org-agenda-overriding-header (concat "Project Next Tasks"
-                                                                  (if bh/hide-scheduled-and-waiting-next-tasks
-                                                                      ""
-                                                                    " (including WAITING and SCHEDULED tasks)")))
-                            (org-agenda-skip-function 'bh/skip-projects-and-habits-and-single-tasks)
-                            (org-tags-match-list-sublevels t)
-                            (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
-                            (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
-                            (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
-                            (org-agenda-sorting-strategy
-                             '(todo-state-down effort-up category-keep))))
-                (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
-                           ((org-agenda-overriding-header (concat "Project Subtasks"
-                                                                  (if bh/hide-scheduled-and-waiting-next-tasks
-                                                                      ""
-                                                                    " (including WAITING and SCHEDULED tasks)")))
-                            (org-agenda-skip-function 'bh/skip-non-project-tasks)
-                            (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
-                            (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
-                            (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
-                            (org-agenda-sorting-strategy
-                             '(category-keep))))
-                (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
-                           ((org-agenda-overriding-header (concat "Standalone Tasks"
-                                                                  (if bh/hide-scheduled-and-waiting-next-tasks
-                                                                      ""
-                                                                    " (including WAITING and SCHEDULED tasks)")))
-                            (org-agenda-skip-function 'bh/skip-project-tasks)
-                            (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
-                            (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
-                            (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
-                            (org-agenda-sorting-strategy
-                             '(category-keep))))
-                (tags-todo "-CANCELLED+WAITING|HOLD/!"
-                           ((org-agenda-overriding-header (concat "Waiting and Postponed Tasks"
-                                                                  (if bh/hide-scheduled-and-waiting-next-tasks
-                                                                      ""
-                                                                    " (including WAITING and SCHEDULED tasks)")))
-                            (org-agenda-skip-function 'bh/skip-non-tasks)
-                            (org-tags-match-list-sublevels nil)
-                            (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
-                            (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)))
-                (tags "-REFILE/"
-                      ((org-agenda-overriding-header "Tasks to Archive")
-                       (org-agenda-skip-function 'bh/skip-non-archivable-tasks)
-                       (org-tags-match-list-sublevels nil))))
-               nil))))
 
 
 ;;================================================================
@@ -566,5 +480,11 @@ marginparsep=7pt, marginparwidth=.6in}
 (add-hook 'message-mode-hook 'turn-on-orgtbl)
 
 
-(provide 'init-my-org)
+;;================================================================
+;; Config for Global function
+;;================================================================
+;; auto save files
+(run-at-time "00:59" 3600 'org-save-all-org-buffers)
+
+(provide 'init-my-orge)
 ;; init-my-org.el end here
