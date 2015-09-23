@@ -49,7 +49,7 @@
 
 ;; add smart swap buffers in multi-windows
 (require-package 'swap-buffers)
-(global-set-key (kbd "C-c b") 'swap-buffers)
+(global-set-key (kbd "C-x 5") 'swap-buffers)
 
 ;;----------------------------------------------------------------------------
 ;; Config for helm-projectile, helm-swoop
