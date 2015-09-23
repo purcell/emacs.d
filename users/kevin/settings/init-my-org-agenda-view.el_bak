@@ -25,9 +25,8 @@
 
 
 ;;================================================================
-;; Base function for agenda view
+;; Special defun for First
 ;;================================================================
-
 
 
 ;; Do not dim blocked tasks
@@ -307,7 +306,7 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
                                          ((org-agenda-overriding-header "Habits")
                                           (org-agenda-sorting-strategy
                                            '(todo-state-down effort-up category-keep))))
-                                        (" " "Agenda"
+                                        ("A" "Agenda"
                                          ((agenda "" nil)
                                           (tags "REFILE"
                                                 ((org-agenda-overriding-header "Tasks to Refile")
@@ -467,13 +466,6 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
              `("cq" "Qingdao Projects"
                ;; ((alltodo ""))
                ((org-agenda-files '("~/workspace/github/work-notes/qingdao-projects")))
-
-               ;; List of all TODO entries with deadline today.
-               (tags-todo "DEADLINE=\"<+0d>\""
-                          ((org-agenda-overriding-header "DUE TODAY")
-                           (org-agenda-skip-function
-                            '(org-agenda-skip-entry-if 'notdeadline))
-                           (org-agenda-sorting-strategy '(priority-down))))
                ) )
 
 ;; My-Projects

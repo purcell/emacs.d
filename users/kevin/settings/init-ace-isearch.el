@@ -1,17 +1,12 @@
 ;; settings for ace-isearch, which  combines `isearch', `ace-jump-mode', `avy', and `helm-swoop'.
 ;;  https://github.com/tam17aki/ace-isearch
 
-(require 'ace-isearch)
+;;(require 'ace-isearch)
 
 
 ;; (global-ace-isearch-mode +1)
 
 
-(custom-set-variables
- '(ace-isearch-input-length 7)
- '(ace-isearch-jump-delay 0.25)
- '(ace-isearch-function 'avy-goto-word-or-subword-1)
- '(ace-isearch-use-jump 'printing-char))
 
 
 ;; If you don't want to invoke ace-isearch-funtion-from-isearch, set this variable to nil.
