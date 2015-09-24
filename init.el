@@ -1,3 +1,4 @@
+
 ;;; This file bootstraps the configuration, which is divided into
 ;;; a number of other files.
 
@@ -83,6 +84,7 @@
 (require 'init-haml)
 (require 'init-python-mode)
 (require 'init-haskell)
+(require 'init-elm)
 (require 'init-ruby-mode)
 (require 'init-rails)
 (require 'init-sql)
@@ -146,13 +148,9 @@
                      (sanityinc/time-subtract-millis after-init-time before-init-time))))
 
 
-
-
 (provide 'init)
 
 ;; Local Variables:
 ;; coding: utf-8
 ;; no-byte-compile: t
 ;; End:
-(put 'dired-find-alternate-file 'disabled nil)
-(put 'scroll-left 'disabled nil)

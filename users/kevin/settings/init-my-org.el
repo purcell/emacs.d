@@ -3,7 +3,7 @@
 ;;================================================================
 ;; config for org-mode
 ;; add some capture config
-(setq org-directory "~/workspace/github/work-notes/org")
+(setq org-directory "~/workspace/github/work-notes/captures")
 ;;(setq org-default-notes-file (concat org-directory "/notes.org"))
 ;;(define-key global-map (kbd "M-<f6>") 'org-capture)
 ;; I use C-c c to start capture mode
@@ -29,6 +29,51 @@
               ("h" "Habit" entry  (file (concat org-directory "/refile.org"))
                "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"<%Y-%m-%d %a .+1d/3d>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n"))))
 
+
+
+;;================================================================
+;; Config for Refile
+;;================================================================
+;;
+
+
+;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+(setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                 (org-agenda-files :maxlevel . 9))))
+
+;; Use full outline paths for refile targets - we file directly with IDO
+(setq org-refile-use-outline-path t)
+
+;; Targets complete directly with IDO
+(setq org-outline-path-complete-in-steps nil)
+
+;; Allow refile to create parent tasks with confirmation
+(setq org-refile-allow-creating-parent-nodes (quote confirm))
+
+;; Use IDO for both buffer and file completion and ido-everywhere to t
+(setq org-completion-use-ido t)
+(setq ido-everywhere t)
+(setq ido-max-directory-size 100000)
+(ido-mode (quote both))
+;; Use the current window when visiting files and buffers with ido
+(setq ido-default-file-method 'selected-window)
+(setq ido-default-buffer-method 'selected-window)
+;; Use the current window for indirect buffer display
+(setq org-indirect-buffer-display 'current-window)
+
+;;;; Refile settings
+;; Exclude DONE state tasks from refile targets
+(defun bh/verify-refile-target ()
+  "Exclude todo keywords with a done state from refile targets"
+  (not (member (nth 2 (org-heading-components)) org-done-keywords)))
+
+(setq org-refile-target-verify-function 'bh/verify-refile-target)
+
+;;================================================================
+;; Config for Clock
+;;================================================================
+;;
+
 ;;================================================================
 ;; Config for Picture Drawing
 ;;================================================================
@@ -36,7 +81,7 @@
 (setq org-ditaa-jar-path "/usr/share/java/ditaa/ditaa-0_9.jar")
 (setq org-plantuml-jar-path "/opt/plantuml/plantuml.jar")
 ;; Use fundamental mode when editing plantuml blocks with C-c '
-(add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
+;;(add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
 
 ;;================================================================
 ;; Config for TODO Configuration
@@ -60,6 +105,7 @@
 (setq org-todo-state-tags-triggers
       (quote (("CANCELLED" ("CANCELLED" . t))
               ("WAITING" ("WAITING" . t))
+              ("MAYBE" ("WAITING" . t))
               ("HOLD" ("WAITING") ("HOLD" . t))
               (done ("WAITING") ("HOLD"))
               ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))

@@ -12,8 +12,6 @@
               (directory-files (expand-file-name parent-dir) t "^[^\\.]"))
              load-path)))))
 
-
-
 (sanityinc/add-subdirs-to-load-path
  (expand-file-name "site-lisp/" user-emacs-directory))
 
