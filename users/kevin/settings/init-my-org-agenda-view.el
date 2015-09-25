@@ -11,6 +11,7 @@
 
 (setq org-agenda-files (quote ("~/workspace/github/work-notes/personal"
                                "~/workspace/github/work-notes/project-schedules"
+                               "~/workspace/github/work-notes/captures"
                                )))
 
 ;; Set the agenda view to show the tasks on day/week/month/year
@@ -31,13 +32,13 @@
 
 
 ;; Custom commands for the agenda -- start with a clean slate.
-(setq org-agenda-custom-commands nil)
+;;(setq org-agenda-custom-commands nil)
 
 ;; Do not dim blocked tasks
 ;;(setq org-agenda-dim-blocked-tasks nil)
 
 ;; Compact the block agenda view
-(setq org-agenda-compact-blocks t)
+;;(setq org-agenda-compact-blocks t)
 
 
 ;;================================================================
@@ -54,6 +55,21 @@
           "\\) ")
   "Matches any completion time stamp.")
 
+
+;;================================================================
+;; Special defun for First
+;;================================================================
+;; This lets me filter tasks with just / RET on the agenda which removes tasks I'm not supposed to be working on now from the list of returned results.This helps to keep my agenda clutter-free.
+(defun bh/org-auto-exclude-function (tag)
+  "Automatic task exclusion in the agenda with / RET"
+  (and (cond
+        ((string= tag "hold")
+         t)
+        ((string= tag "farm")
+         t))
+       (concat "-" tag)))
+
+(setq org-agenda-auto-exclude-function 'bh/org-auto-exclude-function)
 
 
 ;; =========================================================================================
