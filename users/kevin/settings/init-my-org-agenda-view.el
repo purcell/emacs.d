@@ -31,10 +31,10 @@
 
 
 ;; Custom commands for the agenda -- start with a clean slate.
-;; (setq org-agenda-custom-commands nil)
+(setq org-agenda-custom-commands nil)
 
 ;; Do not dim blocked tasks
-(setq org-agenda-dim-blocked-tasks nil)
+;;(setq org-agenda-dim-blocked-tasks nil)
 
 ;; Compact the block agenda view
 (setq org-agenda-compact-blocks t)
@@ -537,23 +537,16 @@
                          (org-agenda-skip-function
                           '(leuven--skip-entry-unless-deadline-in-n-days-or-more 7))
                          (org-deadline-warning-days 28))))
-               (agenda ""
-                       ((org-agenda-format-date "")
-                        (org-agenda-overriding-header "Past due")
-                        (org-agenda-skip-function
-                         'leuven--skip-entry-unless-overdue-deadline)
-                        (org-deadline-warning-days 0)))
                ((org-agenda-deadline-faces '((0.0 . default)))
                 (org-agenda-start-with-clockreport-mode nil)
                 (org-agenda-format-date "")
                 (org-agenda-span 'day)
+                (org-agenda-files '("~/workspace/github/work-notes/qingdao-projects"))
                 (org-agenda-sorting-strategy '(deadline-up))
                 (org-agenda-use-time-grid nil)
-                (org-agenda-files '("~/workspace/github/work-notes/qingdao-projects"))
                 (org-agenda-write-buffer-name "Reminders"))) t)
 
-
-;; My Projects
+;; Qingdao Projects
 (add-to-list 'org-agenda-custom-commands
              `("dm" "My Projects All active tasks, by due date"
                ((agenda ""
@@ -586,22 +579,17 @@
                          (org-agenda-skip-function
                           '(leuven--skip-entry-unless-deadline-in-n-days-or-more 7))
                          (org-deadline-warning-days 28))))
-               (agenda ""
-                       ((org-agenda-format-date "")
-                        (org-agenda-overriding-header "Past due")
-                        (org-agenda-skip-function
-                         'leuven--skip-entry-unless-overdue-deadline)
-                        (org-deadline-warning-days 0)))
                ((org-agenda-deadline-faces '((0.0 . default)))
                 (org-agenda-start-with-clockreport-mode nil)
                 (org-agenda-format-date "")
                 (org-agenda-span 'day)
+                (org-agenda-files '("~/workspace/github/work-notes/project-schedules"))
                 (org-agenda-sorting-strategy '(deadline-up))
                 (org-agenda-use-time-grid nil)
-                (org-agenda-files '("~/workspace/github/work-notes/projects-schedules"))
                 (org-agenda-write-buffer-name "Reminders"))) t)
 
-;; Personal Schedule
+
+;; Qingdao Projects
 (add-to-list 'org-agenda-custom-commands
              `("dp" "Personal All active tasks, by due date"
                ((agenda ""
@@ -634,21 +622,14 @@
                          (org-agenda-skip-function
                           '(leuven--skip-entry-unless-deadline-in-n-days-or-more 7))
                          (org-deadline-warning-days 28))))
-               (agenda ""
-                       ((org-agenda-format-date "")
-                        (org-agenda-overriding-header "Past due")
-                        (org-agenda-skip-function
-                         'leuven--skip-entry-unless-overdue-deadline)
-                        (org-deadline-warning-days 0)))
                ((org-agenda-deadline-faces '((0.0 . default)))
                 (org-agenda-start-with-clockreport-mode nil)
                 (org-agenda-format-date "")
                 (org-agenda-span 'day)
+                (org-agenda-files '("~/workspace/github/work-notes/personal"))
                 (org-agenda-sorting-strategy '(deadline-up))
                 (org-agenda-use-time-grid nil)
-                (org-agenda-files '("~/workspace/github/work-notes/personal"))
                 (org-agenda-write-buffer-name "Reminders"))) t)
-
 
 
 (defun leuven--skip-entry-unless-deadline-in-n-days-or-more (n)
