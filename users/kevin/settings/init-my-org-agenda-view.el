@@ -9,6 +9,9 @@
 ;; Base config
 ;;================================================================
 
+(setq org-agenda-files (quote ("~/workspace/github/work-notes/personal"
+                               "~/workspace/github/work-notes/project-schedules"
+                               )))
 
 ;; Set the agenda view to show the tasks on day/week/month/year
 (setq org-agenda-span 'week)
@@ -23,12 +26,18 @@
                                         ;      `(,active-project-match ("MAYBE")))
 
 
-(setq org-agenda-files (quote ("~/workspace/github/work-notes/personal"
-                               ;;"~/workspace/github/work-notes/qingdao-projects"
-                               "~/workspace/github/work-notes/project-schedules"
-                               "~/workspace/github/work-notes/captures"
-                               )))
+;; In order to include entries from the Emacs diary into Org mode's agenda
+;;(setq org-agenda-include-diary t)
 
+
+;; Custom commands for the agenda -- start with a clean slate.
+;; (setq org-agenda-custom-commands nil)
+
+;; Do not dim blocked tasks
+(setq org-agenda-dim-blocked-tasks nil)
+
+;; Compact the block agenda view
+(setq org-agenda-compact-blocks t)
 
 
 ;;================================================================
@@ -45,22 +54,6 @@
           "\\) ")
   "Matches any completion time stamp.")
 
-;; Do not dim blocked tasks
-;; (setq org-agenda-dim-blocked-tasks nil)
-
-;; In order to include entries from the Emacs diary into Org mode's agenda
-;;(setq org-agenda-include-diary t)
-
-
-;; Custom commands for the agenda -- start with a clean slate.
-;; (setq org-agenda-custom-commands nil)
-
-
-
-;; Custom commands for the agenda -- start with a clean slate.
-(setq org-agenda-custom-commands nil)
-
-
 
 
 ;; =========================================================================================
@@ -73,21 +66,34 @@
 (add-to-list 'org-agenda-custom-commands
              `("cq" "Qingdao Projects"
                ((alltodo ""))
+               ((org-agenda-files (list ,"~/workspace/github/work-notes/qingdao-projects")))
                ((org-agenda-sorting-strategy '(priority-down time-down)))
-               ((org-agenda-files (list ,"~/workspace/github/work-notes/qingdao-projects")))) t)
+               ) t)
 
 ;; Personal schedules
 (add-to-list 'org-agenda-custom-commands
              `("cp" "My Personal Schedule"
                ((alltodo ""))
+               ((org-agenda-files (list ,"~/workspace/github/work-notes/personal")))
                ((org-agenda-sorting-strategy '(priority-down time-down)))
-               ((org-agenda-files (list ,"~/workspace/github/work-notes/personal")))) t)
+               ) t)
 ;; My projects
 (add-to-list 'org-agenda-custom-commands
              `("cm" "My Project Schedules"
                ((alltodo ""))
+               ((org-agenda-files (list ,"~/workspace/github/work-notes/project-schedules")))
                ((org-agenda-sorting-strategy '(priority-down time-down)))
-               ((org-agenda-files (list ,"~/workspace/github/work-notes/project-schedules")))) t)
+               ) t)
+;; =========================================================================================
+;; Config for All tasks
+;; =========================================================================================
+(add-to-list 'org-agenda-custom-commands
+             `("i" "Refile..."
+               ((org-agenda-files (list ,"~/workspace/github/work-notes/captures"))
+                ;; Refile
+                (tags "REFILE"
+                      ((org-agenda-overriding-header "Tasks to Refile")
+                       (org-tags-match-list-sublevels nil))))) t)
 
 ;; =========================================================================================
 ;; Config for Status list
@@ -110,7 +116,7 @@
                 ;; Unscheduled new tasks (waiting to be prioritized and scheduled).
                 (tags-todo "LEVEL=2"
                            ((org-agenda-overriding-header "Qingdao Projects (Unscheduled)")
-                            ;;(org-agenda-files (list ,"~/workspace/github/work-notes/qingdao-projects"))
+                            (org-agenda-files (list ,"~/workspace/github/work-notes/qingdao-projects"))
                             ))
                 ;; List of all TODO entries with deadline today.
                 (tags-todo "DEADLINE=\"<+0d>\""
@@ -143,7 +149,7 @@
                          (org-agenda-sorting-strategy
                           '(priority-down time-down))
                          (org-agenda-span 'day)
-                         ;;(org-agenda-files (list ,"~/workspace/github/work-notes/qingdao-projects"))
+                         (org-agenda-files (list ,"~/workspace/github/work-notes/qingdao-projects"))
                          (org-agenda-start-on-weekday nil)
                          (org-agenda-time-grid nil)))
                 ;; List of all TODO entries completed today.
@@ -154,7 +160,7 @@
                           'notregexp
                           (format-time-string leuven-org-completed-date-regexp)))
                        (org-agenda-sorting-strategy '(priority-down)))))
-               ((org-agenda-format-date "yyyy-MM-dd")
+               ((org-agenda-format-date "")
                 (org-agenda-files (list ,"~/workspace/github/work-notes/qingdao-projects"))
                 (org-agenda-start-with-clockreport-mode nil))) t)
 
@@ -173,7 +179,7 @@
                 ;; Unscheduled new tasks (waiting to be prioritized and scheduled).
                 (tags-todo "LEVEL=2"
                            ((org-agenda-overriding-header "My Projects Schedule (Unscheduled)")
-                            ;;(org-agenda-files (list ,"~/workspace/github/work-notes/project-schedules"))
+                            (org-agenda-files (list ,"~/workspace/github/work-notes/project-schedules"))
                             ))
                 ;; List of all TODO entries with deadline today.
                 (tags-todo "DEADLINE=\"<+0d>\""
@@ -206,7 +212,7 @@
                          (org-agenda-sorting-strategy
                           '(priority-down time-down))
                          (org-agenda-span 'day)
-                         ;;(org-agenda-files (list ,"~/workspace/github/work-notes/project-schedules"))
+                         (org-agenda-files (list ,"~/workspace/github/work-notes/project-schedules"))
                          (org-agenda-start-on-weekday nil)
                          (org-agenda-time-grid nil)))
                 ;; List of all TODO entries completed today.
@@ -217,7 +223,7 @@
                           'notregexp
                           (format-time-string leuven-org-completed-date-regexp)))
                        (org-agenda-sorting-strategy '(priority-down)))))
-               ((org-agenda-format-date "yyyy-MM-dd")
+               ((org-agenda-format-date "")
                 (org-agenda-files (list ,"~/workspace/github/work-notes/project-schedules"))
                 (org-agenda-start-with-clockreport-mode nil))) t)
 
@@ -236,7 +242,7 @@
                 ;; Unscheduled new tasks (waiting to be prioritized and scheduled).
                 (tags-todo "LEVEL=2"
                            ((org-agenda-overriding-header "Personal Schedule(Unscheduled)")
-                            ;;(org-agenda-files (list ,"~/workspace/github/work-notes/personal"))
+                            (org-agenda-files (list ,"~/workspace/github/work-notes/personal"))
                             ))
                 ;; List of all TODO entries with deadline today.
                 (tags-todo "DEADLINE=\"<+0d>\""
@@ -269,7 +275,7 @@
                          (org-agenda-sorting-strategy
                           '(priority-down time-down))
                          (org-agenda-span 'day)
-                         ;;(org-agenda-files (list ,"~/workspace/github/work-notes/personal"))
+                         (org-agenda-files (list ,"~/workspace/github/work-notes/personal"))
                          (org-agenda-start-on-weekday nil)
                          (org-agenda-time-grid nil)))
                 ;; List of all TODO entries completed today.
@@ -280,7 +286,7 @@
                           'notregexp
                           (format-time-string leuven-org-completed-date-regexp)))
                        (org-agenda-sorting-strategy '(priority-down)))))
-               ((org-agenda-format-date "yyyy-MM-dd")
+               ((org-agenda-format-date "")
                 (org-agenda-files (list ,"~/workspace/github/work-notes/personal"))
                 (org-agenda-start-with-clockreport-mode nil))) t)
 
@@ -699,7 +705,7 @@
 ;; ===================================================================================
 
 (add-to-list 'org-agenda-custom-commands
-             '("p" . "按优先级查看...") t)
+             '("p" . "按优先级查看完成状态...") t)
 
 (add-to-list 'org-agenda-custom-commands
              '("pq" "Qingdao Projects All Tasks (grouped by Priority)"

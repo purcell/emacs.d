@@ -202,7 +202,7 @@
 ;; Config for Global column view and properties
 ;;================================================================
 ;; Set default column view headings: Task Effort Clock_Summary
-(setq org-columns-default-format "%25ITEM %10Effort(Effort){:} %SCHEDULED %DEADLINE %11Status %TAGS %PRIORITY %TODO")
+(setq org-columns-default-format "%25ITEM %10Effort(Effort){:} %SCHEDULED %DEADLINE %11Status %20TAGS %PRIORITY %TODO")
 ;;(setq org-columns-default-format "%25ITEM  %9Approved(Approved?){X} %SCHEDULED %DEADLINE %11Status %TAGS %PRIORITY %TODO")
 ;; global Effort estimate values
 ;; global STYLE property values for completion
