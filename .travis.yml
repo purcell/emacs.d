@@ -1,35 +1,33 @@
-language: emacs-lisp
+language: ruby
+
+before_install:
+  - sudo mkdir /usr/local/evm
+  - sudo chown travis:travis /usr/local/evm
+
+  - sudo add-apt-repository -y ppa:cassou/emacs
+  - sudo apt-get update -qq
+  - sudo apt-get build-dep -qq emacs23
+  - sudo apt-get build-dep -qq emacs24
+
+  - bin/evm install $EVM_EMACS
+  - bin/evm use $EVM_EMACS
 
 env:
-  matrix:
-    - EMACS=emacs23
-    - EMACS=emacs24
-    - EMACS=emacs-snapshot
+  - EVM_EMACS=emacs-23.4-bin
+  - EVM_EMACS=emacs-24.1-bin
+  - EVM_EMACS=emacs-24.2-bin
+  - EVM_EMACS=emacs-24.3-bin
+  - EVM_EMACS=emacs-24.4-bin
+  - EVM_EMACS=emacs-24.5-bin
+  - EVM_EMACS=emacs-git-snapshot
 
 matrix:
   allow_failures:
     - env:
-        - EMACS=emacs-snapshot
-
-install:
-  - if [ "$EMACS" = "emacs23" ]; then
-        sudo apt-get update -qq &&
-        sudo apt-get install -qq emacs23-gtk emacs23-el;
-    fi
-  - if [ "$EMACS" = "emacs24" ]; then
-        sudo add-apt-repository -y ppa:cassou/emacs &&
-        sudo apt-get update -qq &&
-        sudo apt-get install -qq emacs24 emacs24-el;
-    fi
-  - if [ "$EMACS" = "emacs-snapshot" ]; then
-        sudo add-apt-repository -y ppa:ubuntu-elisp/ppa &&
-        sudo apt-get update -qq &&
-        sudo apt-get install -qq emacs-snapshot &&
-        sudo apt-get install -qq emacs-snapshot-el;
-    fi
+        - EVM_EMACS=emacs-git-snapshot
 
 script:
-  lsb_release -a && EMACS=$EMACS ./test-startup.sh
+  lsb_release -a && EMACS=$EVM_EMACS ./test-startup.sh
 
 notifications:
   email: false
