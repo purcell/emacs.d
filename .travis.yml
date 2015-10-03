@@ -31,9 +31,6 @@ matrix:
 script:
   lsb_release -a && ./test-startup.sh
 
-notifications:
-  email: false
-
 # Local Variables:
 # indent-tabs-mode: nil
 # coding: utf-8
