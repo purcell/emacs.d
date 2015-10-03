@@ -29,7 +29,7 @@ matrix:
         - EVM_EMACS=emacs-git-snapshot
 
 script:
-  lsb_release -a && EMACS=$EVM_EMACS ./test-startup.sh
+  lsb_release -a && ./test-startup.sh
 
 notifications:
   email: false
