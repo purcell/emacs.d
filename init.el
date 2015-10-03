@@ -91,7 +91,7 @@
 (require 'init-paredit)
 (require 'init-lisp)
 (require 'init-slime)
-(when (>= emacs-major-version 24)
+(unless (version<= emacs-version "24.2")
   (require 'init-clojure)
   (require 'init-clojure-cider))
 (require 'init-common-lisp)
