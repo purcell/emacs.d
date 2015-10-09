@@ -32,10 +32,10 @@
 
 
 ;; Custom commands for the agenda -- start with a clean slate.
-;;(setq org-agenda-custom-commands nil)
+(setq org-agenda-custom-commands nil)
 
 ;; Do not dim blocked tasks
-;;(setq org-agenda-dim-blocked-tasks nil)
+(setq org-agenda-dim-blocked-tasks nil)
 
 ;; Compact the block agenda view
 ;;(setq org-agenda-compact-blocks t)
@@ -76,7 +76,7 @@
 ;; Config for All tasks
 ;; =========================================================================================
 (add-to-list 'org-agenda-custom-commands
-             '("c" . "任务汇总...") t)
+             `("c" . "任务汇总...") t)
 
 ;; Qingdao Projects Schedule
 (add-to-list 'org-agenda-custom-commands
@@ -115,7 +115,7 @@
 ;; Config for Status list
 ;; =========================================================================================
 (add-to-list 'org-agenda-custom-commands
-             '("f" . "按进度状态查看...") t)
+             `("f" . "按进度状态查看...") t)
 
 (add-to-list 'org-agenda-custom-commands
              `("fq" "Qingdao Project Schedules"
@@ -307,7 +307,7 @@
                 (org-agenda-start-with-clockreport-mode nil))) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("fh" "Hotlist"
+             `("fh" "Hotlist"
                ;; tags-todo "DEADLINE<=\"<+1w>\"|PRIORITY={A}|FLAGGED"
                ((tags-todo "DEADLINE<\"<+0d>\""
                            ((org-agenda-overriding-header "OVERDUE")))
@@ -330,10 +330,10 @@
 ;; Config for Checking by Date
 ;; ========================================================================
 (add-to-list 'org-agenda-custom-commands
-             '("r" . "按日期及状态查看...") t)
+             `("r" . "按日期及状态查看...") t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("rq" "Qingdao Project All Tasks (grouped by Due Date)"
+             `("rq" "Qingdao Project All Tasks (grouped by Due Date)"
                (
                 (tags-todo "DEADLINE<\"<+0d>\""
                            ((org-agenda-overriding-header "OVERDUE")
@@ -387,7 +387,7 @@
 
 
 (add-to-list 'org-agenda-custom-commands
-             '("rm" "My Project Schedules All Tasks (grouped by Due Date)"
+             `("rm" "My Project Schedules All Tasks (grouped by Due Date)"
                (
 
                 (tags-todo "DEADLINE<\"<+0d>\""
@@ -451,7 +451,7 @@
                "~/org___all-tasks-by-due-date.pdf") t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("rp" "My Personal Schedules All Tasks (grouped by Due Date)"
+             `("rp" "My Personal Schedules All Tasks (grouped by Due Date)"
                (
                 (tags-todo "DEADLINE<\"<+0d>\""
                            (;;(org-agenda-files '("~/workspace/github/work-notes/project-schedules"))
@@ -518,7 +518,7 @@
 ;; Config for Checking by Due Date
 ;; ===================================================================================
 (add-to-list 'org-agenda-custom-commands
-             '("d" . "按日期查看...") t)
+             `("d" . "按日期查看...") t)
 
 ;; Qingdao Projects
 (add-to-list 'org-agenda-custom-commands
@@ -702,10 +702,10 @@
 ;; ===================================================================================
 
 (add-to-list 'org-agenda-custom-commands
-             '("p" . "按优先级查看完成状态...") t)
+             `("p" . "按优先级查看完成状态...") t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("pq" "Qingdao Projects All Tasks (grouped by Priority)"
+             `("pq" "Qingdao Projects All Tasks (grouped by Priority)"
                ((tags-todo "PRIORITY={A}"
                            ((org-agenda-overriding-header "HIGH")))
                 (tags-todo "PRIORITY={B}"
@@ -721,7 +721,7 @@
                 )) t)
 ;; My projects
 (add-to-list 'org-agenda-custom-commands
-             '("pm" "My Projects All Tasks (grouped by Priority)"
+             `("pm" "My Projects All Tasks (grouped by Priority)"
                ((tags-todo "PRIORITY={A}"
                            ((org-agenda-overriding-header "HIGH")))
                 (tags-todo "PRIORITY={B}"
@@ -738,7 +738,7 @@
 
 ;; Personal
 (add-to-list 'org-agenda-custom-commands
-             '("pp" "My Projects All Tasks (grouped by Priority)"
+             `("pp" "My Projects All Tasks (grouped by Priority)"
                ((tags-todo "PRIORITY={A}"
                            ((org-agenda-overriding-header "HIGH")))
                 (tags-todo "PRIORITY={B}"
@@ -760,11 +760,11 @@
 ;; ===================================================================================
 
 (add-to-list 'org-agenda-custom-commands
-             '("j" . "Timesheet for Clocking...") t)
+             `("j" . "Timesheet for Clocking...") t)
 
 ;; Show what happened today.
 (add-to-list 'org-agenda-custom-commands
-             '("jd" "Daily Timesheet"
+             `("jd" "Daily Timesheet"
                ((agenda ""))
                ((org-agenda-log-mode-items '(clock closed))
                 (org-agenda-overriding-header "DAILY TIMESHEET")
@@ -774,7 +774,7 @@
                 (org-agenda-time-grid nil))) t)
 ;; Show what happened this week.
 (add-to-list 'org-agenda-custom-commands
-             '("jw" "Qingdao Weekly Timesheet"
+             `("jw" "Qingdao Weekly Timesheet"
                ((agenda ""))
                (
                 ;; (org-agenda-format-date "")
@@ -790,10 +790,10 @@
 ;; ===================================================================================
 
 (add-to-list 'org-agenda-custom-commands
-             '("k" . "Calendar...") t)
+             `("k" . "Calendar...") t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("k7" "Events and appointments for 7 days"
+             `("k7" "Events and appointments for 7 days"
                ((agenda ""))
                ((org-agenda-entry-types '(:timestamp :sexp))
                 ;; (org-agenda-overriding-header "Calendar for 7 days")
@@ -811,7 +811,7 @@
     "Open an Org schedule calendar." t)
 
   (add-to-list 'org-agenda-custom-commands
-               '("km" "Calendar for current month"
+               `("km" "Calendar for current month"
                  (lambda (&rest ignore)
                    (cfw:open-org-calendar))) t)
 
@@ -826,7 +826,7 @@
 
   )
 (add-to-list 'org-agenda-custom-commands
-             '("u" . "Complete...") t)
+             `("u" . "Complete...") t)
 
 (add-to-list 'org-agenda-custom-commands
              `("uC" "Completed view"
@@ -870,7 +870,7 @@
   (time-subtract (current-time) (days-to-time n)))
 
 (add-to-list 'org-agenda-custom-commands
-             '("ux" "Completed tasks with no CLOCK lines"
+             `("ux" "Completed tasks with no CLOCK lines"
                ((todo "DONE|CANX"
                       ((org-agenda-overriding-header "Completed tasks with no CLOCK lines")
                        (org-agenda-skip-function
@@ -880,7 +880,7 @@
                        (org-agenda-sorting-strategy '(priority-down)))))) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("ur" "Recent items (past 7 days)"
+             `("ur" "Recent items (past 7 days)"
                ;; Faster than tags.
                ((agenda ""))
                ((org-agenda-start-day "-7d")
@@ -894,7 +894,7 @@
                 (org-agenda-include-inactive-timestamps t))) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("uw" "Weekly review"
+             `("uw" "Weekly review"
                ((tags "CATEGORY={@Collect}&LEVEL=2|TODO={NEW}"
                       ((org-agenda-overriding-header "NEW TASKS")))
 
@@ -959,26 +959,26 @@
                 )) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("uN" "Next"
+             `("uN" "Next"
                ((tags-todo "TODO<>{SDAY}"))
                ((org-agenda-overriding-header "List of all TODO entries with no due date (no SDAY)")
                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline))
                 (org-agenda-sorting-strategy '(priority-down)))) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("uW" "Waiting for"
+             `("uW" "Waiting for"
                ((tags-todo "TODO={WAIT}"))
                ((org-agenda-overriding-header "Waiting for")
                 (org-agenda-sorting-strategy '(deadline-up)))) t) ; FIXME does not work.
 
 (add-to-list 'org-agenda-custom-commands
-             '("uP" "Projects"
+             `("uP" "Projects"
                ((tags-todo "project-DONE-CANX"))
                ((org-agenda-overriding-header "Projects (High Level)")
                 (org-agenda-sorting-strategy nil))) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("+" . "MORE...") t)
+             `("+" . "MORE...") t)
 
 ;; Checking tasks that are assigned to me.
 (add-to-list 'org-agenda-custom-commands
@@ -988,11 +988,11 @@
                ((org-agenda-overriding-header "ASSIGNED TO ME"))) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("E" . "Exported agenda files...") t)
+             `("E" . "Exported agenda files...") t)
 
 ;; Exporting agenda views.
 (add-to-list 'org-agenda-custom-commands
-             '("Ea"
+             `("Ea"
                ((agenda ""))
                (;; (org-tag-faces nil)
                 (ps-landscape-mode t)
@@ -1000,7 +1000,7 @@
                ("~/workspace/github/publish-works/org-agenda.html" "~/workspace/github/publish-works/org-agenda.pdf")) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("Ep" "Call list"
+             `("Ep" "Call list"
                ((tags-todo "phone"))
                ((org-agenda-prefix-format " %-20:c [ ] " )
                 (org-agenda-remove-tags t)
@@ -1012,40 +1012,40 @@
                ("~/workspace/github/publish-works/org___calls.pdf")) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("A" . "ARCHIVE...") t)
+             `("A" . "ARCHIVE...") t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("Aa" "Archive"
+             `("Aa" "Archive"
                ((tags-todo "ARCHIVE"))
                ((org-agenda-todo-ignore-scheduled 'future)
                 (org-agenda-sorting-strategy '(deadline-down)))) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("R" . "REFERENCE...") t)
+             `("R" . "REFERENCE...") t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("Rs" "Like s, but with extra files"
+             `("Rs" "Like s, but with extra files"
                ((search ""))
                ((org-agenda-text-search-extra-files
                  ;; FIXME Add `agenda-archives'
                  leuven-org-search-extra-files))) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("RS" "Like s, but only TODO entries"
+             `("RS" "Like s, but only TODO entries"
                ((search ""))
                ((org-agenda-text-search-extra-files
                  ;; FIXME Add `agenda-archives'
                  leuven-org-search-extra-files))) t)
 
 (add-to-list 'org-agenda-custom-commands
-             '("Rn" "Organize thoughts to refile"
+             `("Rn" "Organize thoughts to refile"
                ((tags "refile|capture"))
                ((org-agenda-overriding-header "Refile stuff"))) t)
 
 ;; Create a sparse tree (current buffer only) with all entries containing the
 ;; word `TODO', `FIXME' or `XXX'.
 (add-to-list 'org-agenda-custom-commands
-             '("1" "Task markers (in current buffer)"
+             `("1" "Task markers (in current buffer)"
                ((occur-tree "\\<TODO\\|FIXME\\|XXX\\>"))) t)
 
 

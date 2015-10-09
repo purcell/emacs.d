@@ -206,7 +206,7 @@
 ;;(setq org-columns-default-format "%25ITEM %10Effort(Effort){:} %SCHEDULED %DEADLINE %11Status %20TAGS %PRIORITY %TODO")
 ;;(setq org-columns-default-format "%25ITEM  %9Approved(Approved?){X} %SCHEDULED %DEADLINE %11Status %TAGS %PRIORITY %TODO")
 (setq org-columns-default-format
-      "%TODO %30ITEM %15DEADLINE %15SCHEDULED %3PRIORITY %20TAGS %5Effort(Effort){:} %6CLOCKSUM")
+      "%30NAME %TODO %30ITEM %15DEADLINE %15SCHEDULED %3PRIORITY %20TAGS %5Effort(Effort){:} %6CLOCKSUM")
 ;; global Effort estimate values
 ;; global STYLE property values for completion
 (setq org-global-properties (quote (
