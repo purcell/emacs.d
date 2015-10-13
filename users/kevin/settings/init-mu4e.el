@@ -9,7 +9,8 @@
 
 
 ;; Reading email config
-(setq mu4e-maildir "~/.mutt/mails/lu.jianmei")
+;;(setq mu4e-maildir "~/.mutt/mails/lu.jianmei")
+(setq mu4e-maildir "~/Maildir/lu.jianmei")
 (setq mu4e-drafts-folder "/drafts"
       mu4e-sent-folder   "/sent"
       mu4e-trash-folder  "/trash"
