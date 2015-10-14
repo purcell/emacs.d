@@ -78,8 +78,8 @@
 ;; Config for Picture Drawing
 ;;================================================================
 ;; set for plantuml
-(setq org-ditaa-jar-path "/usr/share/java/ditaa/ditaa-0_9.jar")
-(setq org-plantuml-jar-path "/opt/plantuml/plantuml.jar")
+(setq org-ditaa-jar-path "~/.emacs.d/ditaa0_9.jar")
+(setq org-plantuml-jar-path "~/.emacs.d/plantuml.jar")
 ;; Use fundamental mode when editing plantuml blocks with C-c '
 ;;(add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
 
