@@ -103,6 +103,7 @@
 
 ;; Use M-w for copy-line if no active region
 (global-set-key (kbd "M-w") 'save-region-or-current-line)
+(global-set-key (kbd "M-c") 'save-region-or-current-line)
 (global-set-key (kbd "s-w") 'save-region-or-current-line)
 (global-set-key (kbd "M-W") (λ (save-region-or-current-line 1)))
 
@@ -380,6 +381,7 @@
 
 ;; Use M-w for copy-line if no active region
 (global-set-key (kbd "M-w") 'save-region-or-current-line)
+(global-set-key (kbd "M-c") 'save-region-or-current-line)
 
 ;; M-i for back-to-indentation
 (global-set-key (kbd "M-i") 'back-to-indentation)
