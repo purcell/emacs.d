@@ -11,9 +11,9 @@
 ;; Reading email config
 ;;(setq mu4e-maildir "~/.mutt/mails/lu.jianmei")
 (setq mu4e-maildir "~/Maildir/lu.jianmei")
-(setq mu4e-drafts-folder "/drafts"
-      mu4e-sent-folder   "/sent"
-      mu4e-trash-folder  "/trash"
+(setq mu4e-drafts-folder "/草稿箱"
+      mu4e-sent-folder   "/已发送"  ;; config for the sent, drafts folder mapping in Maildir (synced by offlineimap)
+      mu4e-trash-folder  "/已删除"
       mu4e-sent-messages-behavior 'delete
       mu4e-get-mail-command "offlineimap"
       mu4e-update-interval 60
@@ -24,8 +24,10 @@
          ("/haier"   . ?h)
          ("/pm"       . ?p)
          ("/trs"       . ?t)
-         ("/send"       . ?s)
-         ("/drafts"       . ?d)
+         ("/已发送"       . ?s)
+         ("/me"       . ?m)
+         ("/草稿箱"       . ?d)
+         ("/已删除"       . ?r)
          ;;("/Gmail/[Gmail].All Mail"    . ?a)
          )
       ;;message-signature
@@ -61,23 +63,32 @@
   (imagemagick-register-types))
 
 
-;; Send email config
-(setq message-send-mail-function 'smtpmail-send-it
-      smtpmail-stream-type 'starttls
-      smtpmail-default-smtp-server "smtp.qiye.163.com"
-      smtpmail-smtp-server "smtp.qiye.163.com"
-      smtpmail-smtp-service 25 ;;587(starttls) or 465(tls/ssl) or ?
+;; ;; Send email config
+;; (setq message-send-mail-function 'smtpmail-send-it
+;;       smtpmail-stream-type 'starttls
+;;       smtpmail-default-smtp-server "smtp.qiye.163.com"
+;;       smtpmail-smtp-server "smtp.qiye.163.com"
+;;       smtpmail-smtp-service 25 ;;587(starttls) or 465(tls/ssl) or ?
 
-      ;;tls-program '("gnutls-cli --priority NORMAL:%COMPAT -p %p %h")
-      ;;starttls-gnutls-program "gnutls-cli --priority NORMAL:%COMPAT"
-      starttls-gnutls-program "gnutls-cli"
-      starttls-use-gnutls t
-      smtpmail-debug-info t
-      smtpmail-debug-verb t
+;;       ;;tls-program '("gnutls-cli --priority NORMAL:%COMPAT -p %p %h")
+;;       ;;starttls-gnutls-program "gnutls-cli --priority NORMAL:%COMPAT"
+;;       starttls-gnutls-program "gnutls"
+;;       starttls-use-gnutls t
+;;       smtpmail-debug-info t
+;;       smtpmail-debug-verb t
 
-      ;;starttls-extra-arguments '("--priority NORMAL:%COMPAT")
-      starttls-extra-arguments '("--insecure")
-      )
+;;       ;;starttls-extra-arguments '("--priority NORMAL:%COMPAT")
+;;       starttls-extra-arguments '("--insecure")
+;;       )
+
+;; otherwise it tries to send through OS associated mail client
+(setq message-send-mail-function 'message-send-mail-with-sendmail)
+;; we substitute sendmail with msmtp
+(setq sendmail-program "/usr/local/Cellar/msmtp/1.6.2/bin/msmtp")
+;;need to tell msmtp which account we're using
+;;(setq message-sendmail-extra-arguments '("--read-envelop-from"))
+(setq message-sendmail-f-is-evil 't)
+;; you might want to set the following too
 
 (provide 'init-mu4e)
 ;; init-mu4e.el end here
