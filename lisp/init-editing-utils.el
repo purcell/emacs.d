@@ -23,7 +23,6 @@
  save-interprogram-paste-before-kill t
  scroll-preserve-screen-position 'always
  set-mark-command-repeat-pop t
- show-trailing-whitespace t
  tooltip-delay 1.5
  truncate-lines nil
  truncate-partial-width-windows nil)
@@ -34,29 +33,6 @@
 
 (transient-mark-mode t)
 
-
-;;; Whitespace
-
-(defun sanityinc/no-trailing-whitespace ()
-  "Turn off display of trailing whitespace in this buffer."
-  (setq show-trailing-whitespace nil))
-
-;; But don't show trailing whitespace in SQLi, inf-ruby etc.
-(dolist (hook '(special-mode-hook
-                Info-mode-hook
-                eww-mode-hook
-                term-mode-hook
-                comint-mode-hook
-                compilation-mode-hook
-                twittering-mode-hook
-                minibuffer-setup-hook))
-  (add-hook hook #'sanityinc/no-trailing-whitespace))
-
-
-(require-package 'whitespace-cleanup-mode)
-(global-whitespace-cleanup-mode t)
-
-(global-set-key [remap just-one-space] 'cycle-spacing)
 
 
 ;;; Newline behaviour
