@@ -14,12 +14,12 @@ env:
   - EVM_EMACS=emacs-24.3-travis
   - EVM_EMACS=emacs-24.4-travis
   - EVM_EMACS=emacs-24.5-travis
-  #- EVM_EMACS=emacs-git-snapshot
+  - EVM_EMACS=emacs-git-snapshot-travis
 
 matrix:
   allow_failures:
     - env:
-        - EVM_EMACS=emacs-git-snapshot
+        - EVM_EMACS=emacs-git-snapshot-travis
 
 script:
   lsb_release -a && ./test-startup.sh
