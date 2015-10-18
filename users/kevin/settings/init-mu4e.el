@@ -14,7 +14,7 @@
 (setq mu4e-drafts-folder "/草稿箱"
       mu4e-sent-folder   "/已发送"  ;; config for the sent, drafts folder mapping in Maildir (synced by offlineimap)
       mu4e-trash-folder  "/已删除"
-      mu4e-sent-messages-behavior 'delete
+      ;;mu4e-sent-messages-behavior 'delete
       mu4e-get-mail-command "offlineimap"
       mu4e-update-interval 60
       user-mail-address "lu.jianmei@trs.com.cn"
@@ -54,8 +54,11 @@
 
       mu4e-view-show-images t
       mu4e-view-prefer-html t
-      ;;; (setq mu4e-html2text-command "html2text -utf8 -width 72")
-      mu4e-html2text-command "html2text "
+      ;;; (setq mu4e-html2text-command "html2text")
+      ;; mu4e-html2text-command "html2text -utf8 -nobs -width 72"
+      ;; when is macos
+      ;;; mu4e-html2text-command "textutil -stdin -format html -convert txt -stdout"
+      mu4e-html2text-command "w3m -dump -T text/html -M"
       mail-user-agent 'mu4e-user-agent
       ;; don't keep message buffers around
       message-kill-buffer-on-exit t)
