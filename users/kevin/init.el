@@ -47,9 +47,16 @@
 (require 'misc)
 (require 'markdown-mode)
 
+
 ;; add smart swap buffers in multi-windows
 (require-package 'swap-buffers)
 (global-set-key (kbd "C-x 5") 'swap-buffers)
+
+;;----------------------------------------------------------------------------
+;; Config for ios development
+;;----------------------------------------------------------------------------
+(require-package 'swift-mode)
+(require-package 'osx-plist)
 
 ;;----------------------------------------------------------------------------
 ;; Config for helm-projectile, helm-swoop
