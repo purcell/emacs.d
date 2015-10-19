@@ -119,6 +119,36 @@
 (setq auto-mode-alist (append '(("/tmp/mutt.*" . mail-mode)) auto-mode-alist))
 
 
+;;----------------------------------------------------------------------------
+;; Base Using config
+;;----------------------------------------------------------------------------
+;; query switch to root, support when this file is not writable, auto ask switch to root
+(add-hook 'find-file-hook
+          (when (and (eq 0 (nth 2 (file-attributes buffer-file-name)))
+                     (not (file-writable-p buffer-file-name))
+                     (y-or-n-p "Switch to root ? "))
+            (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
+
+;; don't let the cursor go into minibuffer prompt
+(setq minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
+
+
+;; reference | http://github.com/milkypostman/dotemacs/init.el
+;; (defun rename-current-buffer-file ()
+;;   "Rename current buffer file."
+;;   (interactive)
+;;   (let ((oldname (buffer-file-name)))
+;;     (if (null oldname)
+;;         (error "Not a file buffer.")
+;;       (let ((newname (read-file-name "New name: " nil oldname)))
+;;         (if (get-file-buffer newname)
+;;             (error "A buffer named %s already exists." newname)
+;;           (rename-file oldname newname 0)
+;;           (rename-buffer newname)
+;;           (set-visited-file-name newname)
+;;           (set-buffer-modified-p nil)
+;;           (message "Successfully renamed to %s." (file-name-nondirectory newname)))))))
+;;(global-set-key (kbd "C-x C-r") 'rename-current-buffer-file)
 
 ;;----------------------------------------------------------------------------
 ;; Base config
@@ -135,6 +165,7 @@
 
 
 ;;(setq debug-on-error nil)
+
 
 
 
