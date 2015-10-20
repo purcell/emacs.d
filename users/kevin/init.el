@@ -123,14 +123,14 @@
 ;; Base Using config
 ;;----------------------------------------------------------------------------
 ;; query switch to root, support when this file is not writable, auto ask switch to root
-(add-hook 'find-file-hook
-          (when (and (eq 0 (nth 2 (file-attributes buffer-file-name)))
-                     (not (file-writable-p buffer-file-name))
-                     (y-or-n-p "Switch to root ? "))
-            (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
+;; (add-hook 'find-file-hook
+;;           (when (and (eq 0 (nth 2 (file-attributes buffer-file-name)))
+;;                      (not (file-writable-p buffer-file-name))
+;;                      (y-or-n-p "Switch to root ? "))
+;;             (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
 
-;; don't let the cursor go into minibuffer prompt
-(setq minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
+;; ;; don't let the cursor go into minibuffer prompt
+;; (setq minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
 
 
 ;; reference | http://github.com/milkypostman/dotemacs/init.el

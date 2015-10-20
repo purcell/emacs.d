@@ -350,7 +350,7 @@ bold;}.ra{text-align: right;}span.todo.NEXT{color:blue;}span.todo.STARTED{color:
                "\\documentclass[10pt,a4paper]{article}
 \\usepackage{graphicx}
 \\usepackage{xcolor}
-\\usepackage{xeCJK}
+
 \\usepackage{lmodern}
 \\usepackage{verbatim}
 \\usepackage{fixltx2e}
@@ -370,25 +370,21 @@ bold;}.ra{text-align: right;}span.todo.NEXT{color:blue;}span.todo.STARTED{color:
 \\usepackage{natbib}
 \\usepackage{fancyhdr}
 \\usepackage{comment}
+
+\\usepackage{zhfontcfg} % added my own sty file under /usr/local/texlive/texmf-local/tex/latex/local
+
 \\usepackage[xetex,colorlinks=true,CJKbookmarks=true,
 linkcolor=blue,
 urlcolor=blue,
 menucolor=blue]{hyperref}
-\\usepackage{fontspec,xunicode,xltxtra}
-\\setCJKmainfont{微软雅黑}
-\\setCJKfamilyfont{song}{微软雅黑}
-\\setCJKfamilyfont{yh}{微软雅黑}
-\\setCJKfamilyfont{wyh}{文泉驿微米黑}
-\\setmainfont[BoldFont=微软雅黑]{微软雅黑}
-\\setsansfont[BoldFont=微软雅黑]{微软雅黑}
-\\setmonofont{微软雅黑}
-\\newcommand\\fontnamemono{微软雅黑}%等宽字体
-\\newfontinstance\\MONO{\\fontnamemono}
-\\setCJKmainfont[Scale=0.9]{微软雅黑}%中文字体
-\\setCJKmonofont[Scale=0.9]{微软雅黑}
+\\usepackage{xunicode,xltxtra}
+
 \\hypersetup{unicode=true}
 \\geometry{a4paper, textwidth=6.5in, textheight=10in,
 marginparsep=7pt, marginparwidth=.6in}
+
+\\XeTeXlinebreakskip = 0pt plus 1pt
+
 \\definecolor{foreground}{RGB}{220,220,204}%浅灰
 \\definecolor{background}{RGB}{62,62,62}%浅黑
 \\definecolor{preprocess}{RGB}{250,187,249}%浅紫
@@ -494,9 +490,7 @@ marginparsep=7pt, marginparwidth=.6in}
 \\usepackage{lmodern}
 \\usepackage{fontspec,xunicode,xltxtra}
 \\usepackage{polyglossia}
-\\setmainfont{Times New Roman}
-\\setCJKmainfont{DejaVu Sans YuanTi}
-\\setCJKmonofont{DejaVu Sans YuanTi Mono}
+
 \\usepackage{verbatim}
 \\usepackage{listings}
 \\institute{{{{beamerinstitute}}}}
