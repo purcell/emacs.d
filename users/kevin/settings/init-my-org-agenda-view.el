@@ -3,6 +3,11 @@
 ;;; Commentary:
 
 ;;; Code:
+(setq-default org-agenda-clockreport-parameter-plist '(:link t :maxlevel 3))
+
+;;; marked as a project will be a project
+
+(add-hook 'org-agenda-mode-hook 'hl-line-mode)
 
 
 ;;================================================================
@@ -40,7 +45,7 @@
 ;; Compact the block agenda view
 ;;(setq org-agenda-compact-blocks t)
 
-
+(setq active-project-match "-INBOX/PROJECT")
 ;;================================================================
 ;; Special defun for First
 ;;================================================================
