@@ -1,3 +1,27 @@
+;;; init-my-org
+;;================================================================
+;; Config for org table
+;;================================================================
+
+;; (eval-when-compile (require 'cl)) 
+
+;; (defun set-font (english chinese english-size chinese-size) 
+;;   (set-face-attribute 'default nil :font 
+;;                       (format "%s:pixelsize=%d" english english-size)) 
+;;   (dolist (charset '(kana han symbol cjk-misc bopomofo)) 
+;;     (set-fontset-font (frame-parameter nil 'font) charset 
+;;                       (font-spec :family chinese :size chinese-size)))) 
+
+;; (ecase system-type 
+;;   (gnu/linux 
+;;    (set-face-bold-p 'bold nil) 
+;;    (set-face-underline-p 'bold nil) 
+;;    (set-font "monofur" "vera Sans YuanTi Mono" 20 16)) 
+;;   (darwin 
+;;    (set-font "monofur" "STHeiti" 20 16)))
+
+
+
 ;;================================================================
 ;; Config for Org Capture
 ;;================================================================
@@ -522,35 +546,15 @@ marginparsep=7pt, marginparwidth=.6in}
 ;;
 (add-hook 'message-mode-hook 'turn-on-orgtbl)
 
-
-
-;;================================================================
-;; Config for org table
-;;================================================================
-(eval-when-compile (require 'cl)) 
-
-(defun set-font (english chinese english-size chinese-size) 
-  (set-face-attribute 'default nil :font 
-                      (format "%s:pixelsize=%d" english english-size)) 
-  (dolist (charset '(kana han symbol cjk-misc bopomofo)) 
-    (set-fontset-font (frame-parameter nil 'font) charset 
-                      (font-spec :family chinese :size chinese-size)))) 
-
-(ecase system-type 
-  (gnu/linux 
-   (set-face-bold-p 'bold nil) 
-   (set-face-underline-p 'bold nil) 
-   (set-font "monofur" "vera Sans YuanTi Mono" 20 20)) 
-  (darwin 
-   (set-font "monofur" "STHeiti" 20 20)))
-
-
-
 ;;================================================================
 ;; Config for Global function
 ;;================================================================
 ;; auto save files
 (run-at-time "00:59" 3600 'org-save-all-org-buffers)
+
+
+
+
 
 (provide 'init-my-orge)
 ;; init-my-org.el end here

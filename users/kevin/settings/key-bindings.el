@@ -168,7 +168,13 @@
 (windmove-default-keybindings) ;; Shift+direction
 (global-set-key (kbd "C-x -") 'toggle-window-split)
 (global-set-key (kbd "C-x C--") 'rotate-windows)
-(global-unset-key (kbd "C-x C-+")) ;; don't zoom like this
+;;(global-unset-key (kbd "C-x C-+")) ;; don't zoom like this
+
+;; Reset Increase Font size and Descrease Font size short key binding after using chinese-font-setup plugin
+;; Reference: https://github.com/tumashu/chinese-fonts-setup
+(global-unset-key (kbd "C-x C-=")) ;; remove original font-resize
+(global-set-key (kbd "C-x C-=") 'cfs-increase-fontsize)
+(global-set-key (kbd "C-x M-=") 'cfs-decrease-fontsize)
 
 (global-set-key (kbd "C-x 3") 'split-window-right-and-move-there-dammit)
 

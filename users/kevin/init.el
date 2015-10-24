@@ -7,8 +7,13 @@
 ;; Default setup of smartparens
 
 
-
 (require-package 'smartparens)
+
+;; add font-config for chinese double-width fonts issue
+(require-package 'chinese-fonts-setup)
+(require 'chinese-fonts-setup)
+(setq cfs-profiles
+      '("program" "org-mode" "read-book"))
 
 
 (require 'smartparens-config)
@@ -159,6 +164,12 @@ user."
     (unless (file-writable-p file)
       (setq file (concat "/sudo:root@localhost:" file)))
     (find-file file)))
+
+
+
+
+
+
 
 ;;----------------------------------------------------------------------------
 ;; Base config
