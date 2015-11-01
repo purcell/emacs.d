@@ -5,7 +5,6 @@
 (mapc #'delete-file
       (file-expand-wildcards (concat user-emacs-directory "elpa/slime-2*/contrib/*.elc")))
 
-(require-package 'ac-slime)
 (require-package 'hippie-expand-slime)
 
 
@@ -43,9 +42,6 @@
   (define-key slime-repl-mode-map (kbd "TAB") 'indent-for-tab-command)
 
   (add-hook 'slime-repl-mode-hook 'sanityinc/slime-repl-setup))
-
-(after-load 'auto-complete
-  (add-to-list 'ac-modes 'slime-repl-mode))
 
 
 (provide 'init-slime)
