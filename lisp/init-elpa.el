@@ -46,19 +46,31 @@
 
 ;;; On-demand installation of packages
 
+(defun install-package-noerror (package)
+  "Try to install given PACKAGE without throwing errors."
+  (condition-case nil
+      (if (boundp 'package-selected-packages)
+          ;; Record this as a package the user installed explicitly
+          (package-install package nil)
+        (package-install package))
+    (error nil)))
+
 (defun require-package (package &optional min-version no-refresh)
   "Install given PACKAGE, optionally requiring MIN-VERSION.
 If NO-REFRESH is non-nil, the available package lists will not be
 re-downloaded in order to locate PACKAGE."
   (if (package-installed-p package min-version)
       t
-    (if (or (assoc package package-archive-contents) no-refresh)
+    (if no-refresh
         (if (boundp 'package-selected-packages)
             ;; Record this as a package the user installed explicitly
             (package-install package nil)
           (package-install package))
       (progn
-        (package-refresh-contents)
+        (when (assoc package package-archive-contents)
+          (install-package-noerror package))
+        (unless (package-installed-p package min-version)
+          (package-refresh-contents))
         (require-package package min-version t)))))
 
 
