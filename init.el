@@ -102,6 +102,8 @@
 
 (require 'init-dash)
 (require 'init-ledger)
+
+(require 'init-latex)
 ;; Extra packages which don't require any configuration
 
 (require-package 'gnuplot)
@@ -140,13 +142,6 @@
 ;; Locales (setting them earlier in this file doesn't work in X)
 ;;----------------------------------------------------------------------------
 (require 'init-locales)
-
-;;----------------------------------------------------------------------------
-;; cdlatex
-;;----------------------------------------------------------------------------
-(add-hook 'LaTeX-mode-hook
-               (lambda ()
-                 (cdlatex-mode t)))
 
 
 (add-hook 'after-init-hook
