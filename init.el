@@ -143,7 +143,6 @@
 ;;----------------------------------------------------------------------------
 (require 'init-locales)
 
-
 (add-hook 'after-init-hook
           (lambda ()
             (message "init completed in %.2fms"
