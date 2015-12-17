@@ -87,7 +87,7 @@
 
 ;;; YAML
 
-(require-package 'yaml-mode)
+(maybe-require-package 'yaml-mode)
 
 
 
