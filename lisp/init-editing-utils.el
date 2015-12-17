@@ -89,6 +89,7 @@
 (setq browse-kill-ring-separator "\f")
 (global-set-key (kbd "M-Y") 'browse-kill-ring)
 (after-load 'browse-kill-ring
+  (define-key browse-kill-ring-mode-map (kbd "C-g") 'browse-kill-ring-quit)
   (define-key browse-kill-ring-mode-map (kbd "M-n") 'browse-kill-ring-forward)
   (define-key browse-kill-ring-mode-map (kbd "M-p") 'browse-kill-ring-previous))
 (after-load 'page-break-lines
