@@ -2,7 +2,6 @@
 (maybe-require-package 'js2-mode)
 (maybe-require-package 'ac-js2)
 (maybe-require-package 'coffee-mode)
-(require-package 'js-comint)
 
 (defcustom preferred-javascript-mode
   (first (remove-if-not #'fboundp '(js2-mode js-mode)))
@@ -72,21 +71,22 @@
 ;; Run and interact with an inferior JS via js-comint.el
 ;; ---------------------------------------------------------------------------
 
-(setq inferior-js-program-command "js")
+(when (maybe-require-package 'js-comint)
+  (setq inferior-js-program-command "js")
 
-(defvar inferior-js-minor-mode-map (make-sparse-keymap))
-(define-key inferior-js-minor-mode-map "\C-x\C-e" 'js-send-last-sexp)
-(define-key inferior-js-minor-mode-map "\C-\M-x" 'js-send-last-sexp-and-go)
-(define-key inferior-js-minor-mode-map "\C-cb" 'js-send-buffer)
-(define-key inferior-js-minor-mode-map "\C-c\C-b" 'js-send-buffer-and-go)
-(define-key inferior-js-minor-mode-map "\C-cl" 'js-load-file-and-go)
+  (defvar inferior-js-minor-mode-map (make-sparse-keymap))
+  (define-key inferior-js-minor-mode-map "\C-x\C-e" 'js-send-last-sexp)
+  (define-key inferior-js-minor-mode-map "\C-\M-x" 'js-send-last-sexp-and-go)
+  (define-key inferior-js-minor-mode-map "\C-cb" 'js-send-buffer)
+  (define-key inferior-js-minor-mode-map "\C-c\C-b" 'js-send-buffer-and-go)
+  (define-key inferior-js-minor-mode-map "\C-cl" 'js-load-file-and-go)
 
-(define-minor-mode inferior-js-keys-mode
-  "Bindings for communicating with an inferior js interpreter."
-  nil " InfJS" inferior-js-minor-mode-map)
+  (define-minor-mode inferior-js-keys-mode
+    "Bindings for communicating with an inferior js interpreter."
+    nil " InfJS" inferior-js-minor-mode-map)
 
-(dolist (hook '(js2-mode-hook js-mode-hook))
-  (add-hook hook 'inferior-js-keys-mode))
+  (dolist (hook '(js2-mode-hook js-mode-hook))
+    (add-hook hook 'inferior-js-keys-mode)))
 
 ;; ---------------------------------------------------------------------------
 ;; Alternatively, use skewer-mode
