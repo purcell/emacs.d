@@ -2,7 +2,7 @@
 /.emacs.desktop
 /auto-save-list
 /.session
-/custom.el
+custom.el
 *.elc
 CVS
 .svn
