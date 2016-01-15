@@ -5,11 +5,13 @@
 (set-language-environment 'utf-8)
 ;; Set Default Font
 ;(add-to-list 'default-frame-alist '(font .  "WenQuanYi Micro Hei Mono-24" ))
-(add-to-list 'default-frame-alist '(font .  "Source Code Pro-20" ))
-;(add-to-list 'default-frame-alist '(font .  "DejaVu Sans Mono-24" ))
+;(add-to-list 'default-frame-alist '(font .  "Source Code Pro-20" ))
+(add-to-list 'default-frame-alist '(font .  "DejaVu Sans Mono-18" ))
 
 ;;; Enable line number.
 (global-linum-mode t)
+;; Disable menubar
+(menu-bar-mode nil)
 
 ;; set folder for auto-save
 (setq
@@ -40,6 +42,8 @@
 
 ;; Use Ctr-H to do backspace
 (global-set-key [(control h)] 'delete-backward-char)
+;; Disable Shift-Space key
+(global-set-key (kbd "S-SPC") nil)
 
 ;; turn on soft wrapping mode for org mode
 (add-hook 'org-mode-hook
