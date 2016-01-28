@@ -98,6 +98,7 @@
 (require 'init-ruby-mode)
 (require 'init-rails)
 (require 'init-sql)
+(require 'init-docker)
 
 (require 'init-paredit)
 (require 'init-lisp)
