@@ -298,4 +298,6 @@
       (aggressive-indent-indent-defun))))
 
 
+(maybe-require-package 'cask-mode)
+
 (provide 'init-lisp)
