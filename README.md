@@ -23,9 +23,10 @@ config adds improved defaults and extended support for the following:
 * Erlang
 * Common Lisp (with Slime)
 
-In particular, there's a nice config for *tab autocompletion*, and
-`flycheck` is used to immediately highlight syntax errors in Ruby, HAML,
-Python, Javascript, PHP and a number of other languages.
+In particular, there's a nice config for *autocompletion* with
+`company`, and `flycheck` is used to immediately highlight syntax
+errors in Ruby, HAML, Python, Javascript, PHP and a number of other
+languages.
 
 ## Supported Emacs versions
 
