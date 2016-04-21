@@ -21,21 +21,12 @@
 
 (add-hook 'ruby-mode-hook 'subword-mode)
 
-;; TODO: hippie-expand ignoring : for names in ruby-mode
-;; TODO: hippie-expand adaptor for auto-complete sources
-
 (after-load 'page-break-lines
   (push 'ruby-mode page-break-lines-modes))
 
 
 ;;; Inferior ruby
 (require-package 'inf-ruby)
-(require-package 'ac-inf-ruby)
-(after-load 'auto-complete
-  (add-to-list 'ac-modes 'inf-ruby-mode))
-(add-hook 'inf-ruby-mode-hook 'ac-inf-ruby-enable)
-(after-load 'inf-ruby
-  (define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
 
 
 
@@ -56,17 +47,10 @@
 (require-package 'robe)
 (after-load 'ruby-mode
   (add-hook 'ruby-mode-hook 'robe-mode))
-
-(defun sanityinc/maybe-enable-robe-ac ()
-  "Enable/disable robe auto-complete source as necessary."
-  (if robe-mode
-      (progn
-        (add-hook 'ac-sources 'ac-source-robe nil t)
-        (set-auto-complete-as-completion-at-point-function))
-    (remove-hook 'ac-sources 'ac-source-robe)))
-
-(after-load 'robe
-  (add-hook 'robe-mode-hook 'sanityinc/maybe-enable-robe-ac))
+(after-load 'company
+  (dolist (hook '(ruby-mode-hook inf-ruby-mode-hook html-erb-mode-hook haml-mode))
+    (add-hook hook
+              (lambda () (sanityinc/local-push-company-backend 'company-robe)))))
 
 
 

@@ -1,26 +1,22 @@
+;; TODO: https://wunki.org/posts/2014-05-17-haskell-packages-development.html
+;; https://github.com/chrisdone/chrisdone-emacs/blob/master/config/haskell.el
+;; TODO: ghci-ng
+;; TODO: don't pop up *Warnings* if haskell-stylish-on-save fails
+;; TODO: purescript-mode
 (require-package 'haskell-mode)
 
 
 ;; Completion
 
-;; Hook auto-complete into the completions provided by the inferior
-;; haskell process, if any.
-
-(require-package 'ac-haskell-process)
-
-(add-hook 'interactive-haskell-mode-hook 'ac-haskell-process-setup)
-(add-hook 'haskell-interactive-mode-hook 'ac-haskell-process-setup)
-
-(after-load 'haskell-mode
-  (define-key haskell-mode-map (kbd "C-c C-d") 'ac-haskell-process-popup-doc))
-
-(after-load 'auto-complete
-  (add-to-list 'ac-modes 'haskell-interactive-mode)
-  (add-hook 'haskell-interactive-mode-hook 'set-auto-complete-as-completion-at-point-function))
-
 (when (executable-find "ghci-ng")
   (setq-default haskell-process-args-cabal-repl
                 '("--ghc-option=-ferror-spans" "--with-ghc=ghci-ng")))
+
+(when (maybe-require-package 'company-ghci)
+  (after-load 'haskell-mode
+    (after-load 'company
+      (add-hook 'haskell-mode-hook
+                (lambda () (sanityinc/local-push-company-backend 'company-ghci))))))
 
 
 
@@ -43,6 +39,7 @@
 
     (after-load 'haskell-mode
       (require 'flycheck-hdevtools))))
+
 
 
 ;; Docs
