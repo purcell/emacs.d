@@ -24,9 +24,10 @@ config adds improved defaults and extended support for the following:
 * Common Lisp (with Slime)
 
 In particular, there's a nice config for *autocompletion* with
-`company`, and `flycheck` is used to immediately highlight syntax
-errors in Ruby, HAML, Python, Javascript, PHP and a number of other
-languages.
+[company](https://company-mode.github.io/), and
+[flycheck](http://www.flycheck.org) is used to immediately highlight
+syntax errors in Ruby, Python, Javascript, Haskell and a number of
+other languages.
 
 ## Supported Emacs versions
 
