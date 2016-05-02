@@ -6,7 +6,7 @@
       (file-expand-wildcards (concat user-emacs-directory "elpa/slime-2*/contrib/*.elc")))
 
 (require-package 'hippie-expand-slime)
-(require-package 'slime-company)
+(maybe-require-package 'slime-company)
 
 
 ;;; Lisp buffers
@@ -18,7 +18,9 @@
 (after-load 'slime
   (setq slime-protocol-version 'ignore)
   (setq slime-net-coding-system 'utf-8-unix)
-  (slime-setup '(slime-repl slime-fuzzy slime-company))
+  (let ((extras (when (require 'slime-company nil t)
+                  '(slime-company))))
+    (slime-setup (append '(slime-repl slime-fuzzy) extras)))
   (setq slime-complete-symbol*-fancy t)
   (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
   (add-hook 'slime-mode-hook 'sanityinc/slime-setup))
