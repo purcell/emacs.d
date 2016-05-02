@@ -79,6 +79,11 @@ the third-party packages regularly too:
 
 <kbd>M-x package-list-packages</kbd>, then <kbd>U</kbd> followed by <kbd>x</kbd>.
 
+You should usually restart Emacs after pulling changes or updating
+packages so that they can take effect. Emacs should usually restore
+your working buffers when you restart due to this configuration's use
+of the `desktop` and `session` packages.
+
 ## Adding your own customization
 
 To add your own customization, use <kbd>M-x customize</kbd> and/or
