@@ -40,7 +40,8 @@
         (delete-file zip-temp)))))
 
 (after-load 'ob-ditaa
-  (unless (file-exists-p org-ditaa-jar-path)
+  (unless (and (boundp 'org-ditaa-jar-path)
+               (file-exists-p org-ditaa-jar-path))
     (let ((jar-name "ditaa0_9.jar")
           (url "http://jaist.dl.sourceforge.net/project/ditaa/ditaa/0.9/ditaa0_9.zip"))
       (setq org-ditaa-jar-path (expand-file-name jar-name (file-name-directory user-init-file)))
