@@ -254,12 +254,22 @@
 
 
 
-(when (maybe-require-package 'rainbow-mode)
-  (defun sanityinc/enable-rainbow-mode-if-theme ()
-    (when (string-match "\\(color-theme-\\|-theme\\.el\\)" (buffer-name))
-      (rainbow-mode 1)))
+;; Extras for theme editing
 
-  (add-hook 'emacs-lisp-mode-hook 'sanityinc/enable-rainbow-mode-if-theme))
+(defvar sanityinc/theme-mode-hook nil
+  "Hook triggered when editing a theme file.")
+
+(defun sanityinc/run-theme-mode-hooks-if-theme ()
+  "Run `sanityinc/theme-mode-hook' if this appears to a theme."
+  (when (string-match "\\(color-theme-\\|-theme\\.el\\)" (buffer-name))
+    (run-hooks 'sanityinc/theme-mode-hook)))
+
+(add-hook 'emacs-lisp-mode-hook 'sanityinc/run-theme-mode-hooks-if-theme)
+
+(when (maybe-require-package 'rainbow-mode)
+  (add-hook 'sanityinc/theme-mode-hook 'rainbow-mode))
+
+
 
 (when (maybe-require-package 'highlight-quoted)
   (add-hook 'emacs-lisp-mode-hook 'highlight-quoted-mode))
