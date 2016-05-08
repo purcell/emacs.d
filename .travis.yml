@@ -1,5 +1,10 @@
 language: ruby
 
+addons:
+  apt:
+    packages:
+    - gnutls-bin
+
 before_install:
   - git clone https://github.com/rejeep/evm.git $HOME/.evm
   - export PATH=$HOME/.evm/bin:$PATH
