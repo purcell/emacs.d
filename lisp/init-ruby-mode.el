@@ -69,6 +69,12 @@
 
 
 
+(require-package 'goto-gem)
+
+
+(require-package 'bundler)
+
+
 ;;; YAML
 
 (when (maybe-require-package 'yaml-mode)
