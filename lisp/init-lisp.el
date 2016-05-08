@@ -158,16 +158,6 @@
 (when (maybe-require-package 'aggressive-indent)
   (add-to-list 'sanityinc/lispy-modes-hook 'aggressive-indent-mode))
 
-(when (maybe-require-package 'adjust-parens)
-  (defun sanityinc/adjust-parens-setup ()
-    (when (fboundp 'lisp-indent-adjust-parens)
-      (set (make-local-variable 'adjust-parens-fallback-dedent-function) 'ignore)
-      (set (make-local-variable 'adjust-parens-fallback-indent-function) 'ignore)
-      (local-set-key (kbd "<M-left>") 'lisp-dedent-adjust-parens)
-      (local-set-key (kbd "<M-right>") 'lisp-indent-adjust-parens)))
-
-  (add-to-list 'sanityinc/lispy-modes-hook 'sanityinc/adjust-parens-setup))
-
 (defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
   (run-hooks 'sanityinc/lispy-modes-hook))
