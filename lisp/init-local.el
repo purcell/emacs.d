@@ -1,6 +1,8 @@
 ;;; package --- Summary
 ;;; Commentary:
 ;;; Code:
+(add-to-list 'load-path "/home/justin/.emacs.d/site-lisp/")
+(require 'go-mode-autoloads)
 
 (set-language-environment 'utf-8)
 ;; Set Default Font
@@ -23,8 +25,9 @@
    version-control t) ; 多次备份
 
 (add-to-list 'exec-path "/usr/local/bin")
-(setenv "GOPATH" "/usr/local/go")
+(setenv "GOPATH" (concat "/usr/local/go" ":" "/home/justin/workspace/golang"))
 (setenv "PATH" (concat (getenv "PATH") ":" "/usr/local/bin" ":" "/usr/local/go/bin" ":" "/Users/justin/bin"))
+(add-hook 'before-save-hook 'gofmt-before-save)
 
 ;; use Meta-Return keys on Mac OS X to toggle maxmize full screen.
 (when *is-a-mac*
