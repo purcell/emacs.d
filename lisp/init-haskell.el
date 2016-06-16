@@ -40,6 +40,10 @@
     (after-load 'haskell-mode
       (require 'flycheck-hdevtools))))
 
+(when (maybe-require-package 'intero)
+  (after-load 'haskell-mode
+    (add-hook 'haskell-mode-hook 'intero-mode)))
+
 
 
 ;; Docs
