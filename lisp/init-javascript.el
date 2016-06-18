@@ -56,6 +56,14 @@
   (add-hook hook 'rainbow-delimiters-mode))
 
 
+(when (and (executable-find "ag")
+           (maybe-require-package 'xref-js2))
+  (after-load 'js2-mode
+    (define-key js2-mode-map (kbd "M-.") nil)
+    (add-hook 'js2-mode-hook
+              (lambda () (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))))
+
+
 
 ;;; Coffeescript
 
