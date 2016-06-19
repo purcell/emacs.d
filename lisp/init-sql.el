@@ -2,6 +2,10 @@
 (after-load 'sql
   (require 'sql-indent))
 
+(after-load 'sql
+  ;; sql-mode pretty much requires your psql to be uncustomised from stock settings
+  (push "--no-psqlrc" sql-postgres-options))
+
 (defun sanityinc/pop-to-sqli-buffer ()
   "Switch to the corresponding sqli buffer."
   (interactive)
