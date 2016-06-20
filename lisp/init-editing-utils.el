@@ -142,7 +142,6 @@
 (global-set-key (kbd "C-x C-.") 'pop-global-mark)
 
 (when (maybe-require-package 'avy)
-  (autoload 'avy-goto-word-or-subword-1 "avy")
   (global-set-key (kbd "C-;") 'avy-goto-word-or-subword-1))
 
 (require-package 'multiple-cursors)
