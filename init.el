@@ -79,6 +79,8 @@
 (require 'init-git)
 (require 'init-github)
 
+(require 'init-projectile)
+
 (require 'init-compile)
 (require 'init-crontab)
 (require 'init-textile)
