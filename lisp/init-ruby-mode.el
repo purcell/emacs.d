@@ -6,6 +6,7 @@
                "Rakefile\\'" "\\.rake\\'" "\\.rxml\\'"
                "\\.rjs\\'" "\\.irbrc\\'" "\\.pryrc\\'" "\\.builder\\'" "\\.ru\\'"
                "\\.gemspec\\'" "Gemfile\\'" "Kirkfile\\'")
+(add-auto-mode 'conf-mode "Gemfile\\.lock\\'")
 
 (setq ruby-use-encoding-map nil)
 
