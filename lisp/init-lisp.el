@@ -112,6 +112,9 @@
       (remove-hook 'pre-command-hook #'hl-sexp-unhighlight))))
 
 
+(require-package 'immortal-scratch)
+(add-hook 'after-init-hook 'immortal-scratch-mode)
+
 
 ;;; Support byte-compilation in a sub-process, as
 ;;; required by highlight-cl
