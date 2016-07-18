@@ -62,6 +62,10 @@
 
 
 
+(require-package 'nlinum)
+
+
+
 (when (fboundp 'global-prettify-symbols-mode)
   (global-prettify-symbols-mode))
 
