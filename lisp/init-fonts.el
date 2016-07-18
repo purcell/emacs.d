@@ -7,11 +7,6 @@
 (global-set-key (kbd "C-M-=") 'default-text-scale-increase)
 (global-set-key (kbd "C-M--") 'default-text-scale-decrease)
 
-(when (eq 'ns window-system)
-  (set-fontset-font
-   t 'symbol
-   (font-spec :family "Apple Color Emoji") nil 'prepend))
-
 
 (defun sanityinc/maybe-adjust-visual-fill-column ()
   "Readjust visual fill column when the global font size is modified.
