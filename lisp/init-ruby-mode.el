@@ -25,6 +25,8 @@
 (after-load 'page-break-lines
   (push 'ruby-mode page-break-lines-modes))
 
+(require-package 'rspec-mode)
+
 
 ;;; Inferior ruby
 (require-package 'inf-ruby)
