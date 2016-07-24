@@ -12,8 +12,8 @@
              "~/projects/tools/emacs/yasnippet")
 
 ;;
-;;(maybe-require-package 'popwin)
-;;(popwin-mode 1)
+(require 'popwin)
+(popwin-mode 1)
 
 ;;
 (maybe-require-package 'hungry-delete)
@@ -115,5 +115,41 @@
             (if (equal web-mode-content-type "javascript")
                 (web-mode-set-content-type "jsx")
               (message "now set to: %s" web-mode-content-type))))
+
+;;
+(global-auto-revert-mode 1)
+(setq auto-save-default nil)
+(setq ring-bell-function 'ignore)
+(fset 'yes-or-no-p 'y-or-n-p)
+
+;;
+(defun indent-buffer()
+  (interactive)
+  (indent-region (point-min) (point-max)))
+
+(defun indent-region-or-buffer()
+  (interactive)
+  (save-excursion
+    (if (region-active-p)
+        (progn
+          (indent-region (region-beginning) (region-end))
+          (message "Indent selected region."))
+      (progn
+        (indent-buffer)
+        (message "Indent buffer.")))))
+
+(global-set-key (kbd "C-M-\\") 'indent-region-or-buffer)
+
+(setq hippie-expand-try-function-list '(try-expand-debbrev
+                                        try-expand-debbrev-all-buffers
+                                        try-expand-debbrev-from-kill
+                                        try-complete-file-name-partially
+                                        try-complete-file-name
+                                        try-expand-all-abbrevs
+                                        try-expand-list
+                                        try-expand-line
+                                        try-complete-lisp-symbol-partially
+                                        try-complete-lisp-symbol))
+(global-set-key (kbd "s-/") 'hippie-expand)
 
 (provide 'init-local)
