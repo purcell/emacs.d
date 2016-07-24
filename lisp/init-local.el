@@ -152,4 +152,14 @@
                                         try-complete-lisp-symbol))
 (global-set-key (kbd "s-/") 'hippie-expand)
 
+;;dired config
+(setq dired-recursive-copies 'always)
+(put 'dired-find-alternate-file 'disabled nil)
+;; 延迟加载
+(with-eval-after-load 'dired
+  (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file))
+
+(require 'dired-x)
+(setq dired-dwin-target 1)
+
 (provide 'init-local)
