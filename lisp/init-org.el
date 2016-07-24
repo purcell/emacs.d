@@ -2,7 +2,7 @@
   (require-package 'org))
 (require-package 'org-fstree)
 (when *is-a-mac*
-  (maybe-require-package 'mac-grab-link)
+  (maybe-require-package 'grab-mac-link)
   (require-package 'org-mac-iCal))
 
 (define-key global-map (kbd "C-c l") 'org-store-link)
