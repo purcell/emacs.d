@@ -47,6 +47,11 @@
 (setq company-dabbrev-code-other-buffers 'all)
 (setq company-dabbrev-code-modes t)
 (setq company-dabbrev-ignore-buffers "nil")
+(with-eval-after-load 'company
+  (define-key company-active-map (kbd "M-n") nil)
+  (define-key company-active-map (kbd "M-p") nil)
+  (define-key company-active-map (kbd "C-n") #'company-select-next)
+  (define-key company-active-map (kbd "C-p") #'company-select-previous))
 ;;tramp
 (setq tramp-shell-prompt-pattern "^[^$>\n]*[#$%>] *\\(\[[0-9;]*[a-zA-Z] *\\)*")
 ;;(setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
@@ -115,6 +120,9 @@
             (if (equal web-mode-content-type "javascript")
                 (web-mode-set-content-type "jsx")
               (message "now set to: %s" web-mode-content-type))))
+(maybe-require-package 'smartparens)
+(require 'smartparens-config)
+(add-hook 'web-mode-hook #'smartparens-mode)
 
 ;;
 (global-auto-revert-mode 1)
@@ -122,7 +130,7 @@
 (setq ring-bell-function 'ignore)
 (fset 'yes-or-no-p 'y-or-n-p)
 
-;;
+;;my indent function
 (defun indent-buffer()
   (interactive)
   (indent-region (point-min) (point-max)))
@@ -139,18 +147,6 @@
         (message "Indent buffer.")))))
 
 (global-set-key (kbd "C-M-\\") 'indent-region-or-buffer)
-
-(setq hippie-expand-try-function-list '(try-expand-debbrev
-                                        try-expand-debbrev-all-buffers
-                                        try-expand-debbrev-from-kill
-                                        try-complete-file-name-partially
-                                        try-complete-file-name
-                                        try-expand-all-abbrevs
-                                        try-expand-list
-                                        try-expand-line
-                                        try-complete-lisp-symbol-partially
-                                        try-complete-lisp-symbol))
-(global-set-key (kbd "s-/") 'hippie-expand)
 
 ;;dired config
 (setq dired-recursive-copies 'always)
