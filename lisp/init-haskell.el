@@ -88,14 +88,6 @@
 (after-load 'page-break-lines
   (push 'haskell-mode page-break-lines-modes))
 
-;; Make compilation-mode understand "at blah.hs:11:34-50" lines output by GHC
-(after-load 'compile
-  (let ((alias 'ghc-at-regexp))
-    (add-to-list
-     'compilation-error-regexp-alist-alist
-     (list alias " at \\(.*\\.\\(?:l?[gh]hs\\|hi\\)\\):\\([0-9]+\\):\\([0-9]+\\)-[0-9]+$" 1 2 3 0 1))
-    (add-to-list
-     'compilation-error-regexp-alist alias)))
 
 (after-load 'haskell
   (define-key interactive-haskell-mode-map (kbd "M-N") 'haskell-goto-next-error)
