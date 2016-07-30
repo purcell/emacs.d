@@ -6,66 +6,14 @@
 (require-package 'haskell-mode)
 
 
-;; Completion
-
-(when (executable-find "ghci-ng")
-  (setq-default haskell-process-args-cabal-repl
-                '("--ghc-option=-ferror-spans" "--with-ghc=ghci-ng")))
-
-(when (maybe-require-package 'company-ghci)
-  (after-load 'haskell-mode
-    (after-load 'company
-      (add-hook 'haskell-mode-hook
-                (lambda () (sanityinc/local-push-company-backend 'company-ghci))))))
-
-
-
-;; Flycheck specifics
-
-(when (and (maybe-require-package 'flycheck-haskell)
-           (require-package 'flycheck-hdevtools))
-  (after-load 'flycheck
-    (add-hook 'haskell-mode-hook #'flycheck-haskell-setup)
-
-    (defun sanityinc/flycheck-haskell-reconfigure ()
-      "Reconfigure flycheck haskell settings, e.g. after changing cabal file."
-      (interactive)
-      (unless (eq major-mode 'haskell-mode)
-        (error "Expected to be in haskell-mode"))
-      (flycheck-haskell-clear-config-cache)
-      (flycheck-haskell-configure)
-      (flycheck-mode -1)
-      (flycheck-mode))
-
-    (after-load 'haskell-mode
-      (require 'flycheck-hdevtools))))
+;; Use intero for completion and flycheck
 
 (when (maybe-require-package 'intero)
   (after-load 'haskell-mode
     (add-hook 'haskell-mode-hook 'intero-mode)))
 
 
-
-;; Docs
-
-(dolist (hook '(haskell-mode-hook inferior-haskell-mode-hook haskell-interactive-mode-hook))
-  (add-hook hook (lambda () (subword-mode +1)))
-  (add-hook hook (lambda () (eldoc-mode 1))))
-(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
-
-(add-hook 'haskell-interactive-mode-hook 'sanityinc/no-trailing-whitespace)
-
-
-;; Interaction
-
-(after-load 'haskell
-  (diminish 'interactive-haskell-mode " IntHS"))
-
 (add-auto-mode 'haskell-mode "\\.ghci\\'")
-
-(when (maybe-require-package 'ghci-completion)
-  (add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion))
-
 
 
 ;; Indentation
