@@ -1,5 +1,6 @@
 ;; ui
 (maybe-require-package 'monokai-theme)
+(maybe-require-package 'dracula-theme)
 
 (setq-default cursor-type 'bar)
 (global-hl-line-mode t)
@@ -10,6 +11,9 @@
 (yas-global-mode t)
 (add-to-list 'load-path
              "~/projects/tools/emacs/yasnippet")
+(add-to-list 'load-path
+             "~/projects/tools/emacs/es6-snippets")
+(require 'es6-snippets)
 
 ;;
 (require 'popwin)
@@ -123,6 +127,7 @@
 (maybe-require-package 'smartparens)
 (require 'smartparens-config)
 (add-hook 'web-mode-hook #'smartparens-mode)
+(add-hook 'shell-mode-hook #'smartparens-mode)
 
 ;;
 (global-auto-revert-mode 1)
@@ -183,5 +188,26 @@
             (setq imenu-create-index-function 'js2-imenu-make-index)))
 
 (global-set-key (kbd "M-s i") 'counsel-imenu)
+
+;; helm ag
+(maybe-require-package 'helm-ag)
+(global-set-key (kbd "M-s a") 'helm-do-ag-project-root)
+
+;; auto yas
+(maybe-require-package 'auto-yasnippet)
+(global-set-key (kbd "H-w") #'aya-create)
+(global-set-key (kbd "H-y") #'aya-expand)
+(global-set-key (kbd "C-o") #'aya-open-line)
+
+;;window numbering
+(maybe-require-package 'window-numbering)
+(window-numbering-mode)
+
+;;powerline
+;;(maybe-require-package 'powerline)
+;;(powerline-center-theme)
+
+;; agenda
+(setq org-agenda-files '("~/Dropbox"))
 
 (provide 'init-local)
