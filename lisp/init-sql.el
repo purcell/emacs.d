@@ -19,7 +19,6 @@
 
 (after-load 'sql
   (define-key sql-mode-map (kbd "C-c C-z") 'sanityinc/pop-to-sqli-buffer)
-  (add-hook 'sql-interactive-mode-hook 'sanityinc/never-indent)
   (when (package-installed-p 'dash-at-point)
     (defun sanityinc/maybe-set-dash-db-docset ()
       (when (eq sql-product 'postgres)
