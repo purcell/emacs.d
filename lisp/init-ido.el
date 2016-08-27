@@ -6,6 +6,7 @@
 (setq ido-auto-merge-work-directories-length -1)
 (setq ido-use-virtual-buffers t)
 (setq-default org-completion-use-ido t)
+(setq-default magit-completing-read-function 'magit-ido-completing-read)
 
 (when (maybe-require-package 'ido-ubiquitous)
   (ido-ubiquitous-mode t))
