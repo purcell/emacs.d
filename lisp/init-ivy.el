@@ -1,5 +1,3 @@
-(maybe-require-package 'colir)
-
 (when (maybe-require-package 'ivy)
   (setq-default ivy-use-virtual-buffers t
                 ivy-count-format "")
