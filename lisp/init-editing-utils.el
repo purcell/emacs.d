@@ -65,6 +65,10 @@
 (require-package 'nlinum)
 
 
+(when (require-package 'rainbow-delimiters)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+
+
 
 (when (fboundp 'global-prettify-symbols-mode)
   (global-prettify-symbols-mode))

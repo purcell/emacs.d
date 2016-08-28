@@ -135,7 +135,6 @@
 ;; ----------------------------------------------------------------------------
 ;; Enable desired features for all lisp modes
 ;; ----------------------------------------------------------------------------
-(require-package 'rainbow-delimiters)
 (require-package 'redshank)
 (after-load 'redshank
   (diminish 'redshank-mode))
@@ -149,8 +148,7 @@
     (indent-guide-mode -1)))
 
 (defvar sanityinc/lispy-modes-hook
-  '(rainbow-delimiters-mode
-    enable-paredit-mode
+  '(enable-paredit-mode
     turn-on-eldoc-mode
     redshank-mode
     sanityinc/disable-indent-guide

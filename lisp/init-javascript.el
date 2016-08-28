@@ -51,11 +51,6 @@
 
 ;; Javascript nests {} and () a lot, so I find this helpful
 
-(require-package 'rainbow-delimiters)
-(dolist (hook '(js2-mode-hook js-mode-hook json-mode-hook))
-  (add-hook hook 'rainbow-delimiters-mode))
-
-
 (when (and (executable-find "ag")
            (maybe-require-package 'xref-js2))
   (after-load 'js2-mode
