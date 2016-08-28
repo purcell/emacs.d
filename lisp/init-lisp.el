@@ -257,7 +257,7 @@
   (when (string-match "\\(color-theme-\\|-theme\\.el\\)" (buffer-name))
     (run-hooks 'sanityinc/theme-mode-hook)))
 
-(add-hook 'emacs-lisp-mode-hook 'sanityinc/run-theme-mode-hooks-if-theme)
+(add-hook 'emacs-lisp-mode-hook 'sanityinc/run-theme-mode-hooks-if-theme t)
 
 (when (maybe-require-package 'rainbow-mode)
   (add-hook 'sanityinc/theme-mode-hook 'rainbow-mode))
