@@ -19,8 +19,6 @@
       (eval-region (min (point) (mark)) (max (point) (mark)))
     (pp-eval-last-sexp prefix)))
 
-(global-set-key [remap eval-expression] 'pp-eval-expression)
-
 (after-load 'lisp-mode
   (define-key emacs-lisp-mode-map (kbd "C-x C-e") 'sanityinc/eval-last-sexp-or-region))
 
@@ -33,6 +31,20 @@
   (when (get-buffer out-buffer-name)
     (with-current-buffer out-buffer-name
       (view-mode 1))))
+
+
+;; Enhanced M-:
+
+(when (maybe-require-package 'eval-expr)
+  (global-set-key [remap eval-expression] 'eval-expr)
+  (setq eval-expr-print-function 'pp
+        eval-expr-print-level 20
+        eval-expr-print-length 100)
+
+  (after-load 'eval-expr
+    (defun eval-expr-minibuffer-setup ()
+      (set-syntax-table emacs-lisp-mode-syntax-table)
+      (paredit-mode))))
 
 
 
