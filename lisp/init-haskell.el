@@ -32,6 +32,11 @@
 
 (setq-default haskell-stylish-on-save t)
 
+(when (maybe-require-package 'hindent)
+  (add-hook 'haskell-mode-hook 'hindent-mode)
+  (after-load 'haskell-mode
+    (define-key haskell-mode-map (kbd "M-q") 'hindent-reformat-decl-or-fill)))
+
 (maybe-require-package 'hayoo)
 (after-load 'haskell-mode
   (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
