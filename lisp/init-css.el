@@ -43,9 +43,14 @@
 
 ;;; LESS
 (require-package 'less-css-mode)
-(when (featurep 'js2-mode)
-  (require-package 'skewer-less))
+(when (maybe-require-package 'skewer-less)
+  (add-hook 'less-css-mode-hook 'skewer-less-mode))
 
+
+
+;; Skewer CSS
+(when (maybe-require-package 'skewer-mode)
+  (add-hook 'css-mode-hook 'skewer-css-mode))
 
 
 ;;; Use eldoc for syntax hints
