@@ -30,6 +30,8 @@
                                                 "http://melpa.org/packages/"
                                               "https://melpa.org/packages/")))
 
+;; NOTE: In case of MELPA problems, the official mirror URL is
+;; https://www.mirrorservice.org/sites/stable.melpa.org/packages/
 
 
 ;; If gpg cannot be found, signature checking will fail, so we
