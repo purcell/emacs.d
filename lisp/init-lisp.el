@@ -70,7 +70,7 @@
       (funcall sanityinc/repl-switch-function sanityinc/repl-original-buffer)
     (error "No original buffer.")))
 
-(after-load 'lisp-mode
+(after-load 'elisp-mode
   (define-key emacs-lisp-mode-map (kbd "C-c C-z") 'sanityinc/switch-to-ielm))
 (after-load 'ielm
   (define-key ielm-map (kbd "C-c C-z") 'sanityinc/repl-switch-back))
