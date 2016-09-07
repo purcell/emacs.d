@@ -2,7 +2,10 @@
   (after-load 'ivy
     (setq-default ivy-use-virtual-buffers t
                   ivy-count-format ""
-                  projectile-completion-system 'ivy)
+                  projectile-completion-system 'ivy
+                  ivy-initial-inputs-alist
+                  '((man . "^")
+                    (woman . "^")))
     ;; IDO-style directory navigation
     (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
     (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
