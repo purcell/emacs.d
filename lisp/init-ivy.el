@@ -4,7 +4,8 @@
                   ivy-count-format ""
                   projectile-completion-system 'ivy
                   ivy-initial-inputs-alist
-                  '((man . "^")
+                  '((counsel-M-x . "^")
+                    (man . "^")
                     (woman . "^")))
     ;; IDO-style directory navigation
     (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
