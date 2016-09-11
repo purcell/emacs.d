@@ -13,6 +13,13 @@
     (when (maybe-require-package 'diminish)
       (diminish 'ivy-mode)))
 
+  (defun sanityinc/enable-ivy-flx-matching ()
+    "Make `ivy' matching work more like IDO."
+    (interactive)
+    (require-package 'flx)
+    (setq-default ivy-re-builders-alist
+                  '((t . ivy--regex-fuzzy))))
+
   (add-hook 'after-init-hook
             (lambda ()
               (when (bound-and-true-p ido-ubiquitous-mode)
