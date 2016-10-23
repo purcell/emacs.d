@@ -7,9 +7,10 @@
 (defun sanityinc/alert-after-compilation-finish (buf result)
   "Use `alert' to report compilation RESULT if BUF is hidden."
   (unless (catch 'is-visible
-            (walk-windows (lambda (w)
-                            (when (eq (window-buffer w) buf)
-                              (throw 'is-visible t))))
+            (when (buffer-live-p buf)
+              (walk-windows (lambda (w)
+                              (when (eq (window-buffer w) buf)
+                                (throw 'is-visible t)))))
             nil)
     (alert (concat "Compilation " result)
            :buffer buf
