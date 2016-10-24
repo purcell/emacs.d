@@ -158,11 +158,6 @@
 ;;----------------------------------------------------------------------------
 (require 'init-locales)
 
-(add-hook 'after-init-hook
-          (lambda ()
-            (message "init completed in %.2fms"
-                     (sanityinc/time-subtract-millis after-init-time before-init-time))))
-
 
 (provide 'init)
 
