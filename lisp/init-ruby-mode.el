@@ -8,7 +8,9 @@
                "\\.gemspec\\'" "Gemfile\\'" "Kirkfile\\'")
 (add-auto-mode 'conf-mode "Gemfile\\.lock\\'")
 
-(setq ruby-use-encoding-map nil)
+(setq-default
+ ruby-use-encoding-map nil
+ ruby-insert-encoding-magic-comment nil)
 
 (after-load 'ruby-mode
   (define-key ruby-mode-map (kbd "TAB") 'indent-for-tab-command)
