@@ -63,7 +63,7 @@ locate PACKAGE."
   (condition-case err
       (require-package package min-version no-refresh)
     (error
-     (message "Couldn't install package `%s': %S" package err)
+     (message "Couldn't install optional package `%s': %S" package err)
      nil)))
 
 
