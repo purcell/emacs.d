@@ -101,6 +101,11 @@ you can also create an `~/.emacs.d/lisp/init-preload-local.el` file.
 
 If you plan to customize things more extensively, you should probably
 just fork the repo and hack away at the config to make it your own!
+Remember to regularly merge in changes from this repo, so that your
+config remains compatible with the latest package and Emacs versions.
+
+*Please note that I cannot provide support for customised versions of
+this configuration.*
 
 ## Similar configs
 
