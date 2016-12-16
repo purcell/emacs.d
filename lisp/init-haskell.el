@@ -11,6 +11,7 @@
 (when (maybe-require-package 'intero)
   (after-load 'haskell-mode
     (add-hook 'haskell-mode-hook 'intero-mode)
+    (add-hook 'haskell-mode-hook 'eldoc-mode)
     )
   (after-load 'intero
     (after-load 'flycheck
