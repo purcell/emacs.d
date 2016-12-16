@@ -23,7 +23,8 @@
   (add-hook 'after-init-hook
             (lambda ()
               (when (bound-and-true-p ido-ubiquitous-mode)
-                (ido-ubiquitous-mode -1)
+                (ido-ubiquitous-mode -1))
+              (when (bound-and-true-p ido-mode)
                 (ido-mode -1))
               (ivy-mode 1))))
 
