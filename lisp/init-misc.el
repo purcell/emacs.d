@@ -4,12 +4,11 @@
 (add-auto-mode 'tcl-mode "Portfile\\'")
 (fset 'yes-or-no-p 'y-or-n-p)
 
-(dolist (hook (if (fboundp 'prog-mode)
-                  '(prog-mode-hook ruby-mode-hook)
-                '(find-file-hooks)))
-  (add-hook hook 'goto-address-prog-mode))
-(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+(when (fboundp 'prog-mode)
+  (add-hook 'prog-mode-hook 'goto-address-prog-mode))
 (setq goto-address-mail-face 'link)
+
+(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 (setq-default regex-tool-backend 'perl)
 
