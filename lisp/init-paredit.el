@@ -10,17 +10,10 @@
 
 (after-load 'paredit
   (diminish 'paredit-mode " Par")
-  (dolist (binding (list (kbd "C-<left>") (kbd "C-<right>")
-                         (kbd "C-M-<left>") (kbd "C-M-<right>")))
-    (define-key paredit-mode-map binding nil))
-
-  ;; Modify kill-sentence, which is easily confused with the kill-sexp
-  ;; binding, but doesn't preserve sexp structure
-  (define-key paredit-mode-map [remap kill-sentence] 'paredit-kill)
-  (define-key paredit-mode-map [remap backward-kill-sentence] nil)
-
-  ;; Allow my global binding of M-? to work when paredit is active
-  (define-key paredit-mode-map (kbd "M-?") nil))
+  ;; Suppress certain paredit keybindings to avoid clashes, including
+  ;; my global binding of M-?
+  (dolist (binding '("C-<left>" "C-<right>" "C-M-<left>" "C-M-<right>" "M-s" "M-?"))
+    (define-key paredit-mode-map (read-kbd-macro binding) nil)))
 
 
 ;; Compatibility with other modes
@@ -50,9 +43,9 @@
 ;; ----------------------------------------------------------------------------
 
 (require-package 'paredit-everywhere)
+(after-load 'paredit-everywhere
+  (define-key paredit-everywhere-mode-map (kbd "M-s") nil))
 (add-hook 'prog-mode-hook 'paredit-everywhere-mode)
 (add-hook 'css-mode-hook 'paredit-everywhere-mode)
-(after-load 'paredit-everywhere
-  (define-key paredit-everywhere-mode-map [remap kill-sentence] 'paredit-kill))
 
 (provide 'init-paredit)

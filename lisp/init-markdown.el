@@ -1,6 +1,6 @@
-(require-package 'markdown-mode)
+(when (maybe-require-package 'markdown-mode)
+  (after-load 'whitespace-cleanup-mode
+    (push 'markdown-mode whitespace-cleanup-mode-ignore-modes)))
 
-(setq auto-mode-alist
-      (cons '("\\.\\(md\\|markdown\\)\\'" . markdown-mode) auto-mode-alist))
 
 (provide 'init-markdown)

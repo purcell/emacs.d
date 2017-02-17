@@ -75,5 +75,8 @@
           (lambda ()
             (setq line-spacing 0)))
 
+
+(require-package 'disable-mouse)
+
 
 (provide 'init-gui-frames)

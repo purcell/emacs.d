@@ -1,38 +1,29 @@
-language: emacs-lisp
+language: ruby
+
+before_install:
+  - git clone https://github.com/rejeep/evm.git $HOME/.evm
+  - export PATH=$HOME/.evm/bin:$PATH
+
+  - evm config path /tmp
+  - evm install $EVM_EMACS --use --skip
 
 env:
-  matrix:
-    - EMACS=emacs23
-    - EMACS=emacs24
-    - EMACS=emacs-snapshot
+  - EVM_EMACS=emacs-23.4-travis
+  - EVM_EMACS=emacs-24.1-travis
+  - EVM_EMACS=emacs-24.2-travis
+  - EVM_EMACS=emacs-24.3-travis
+  - EVM_EMACS=emacs-24.4-travis
+  - EVM_EMACS=emacs-24.5-travis
+  - EVM_EMACS=emacs-git-snapshot-travis
 
 matrix:
   allow_failures:
-    - env:
-        - EMACS=emacs-snapshot
-
-install:
-  - if [ "$EMACS" = "emacs23" ]; then
-        sudo apt-get update -qq &&
-        sudo apt-get install -qq emacs23-gtk emacs23-el;
-    fi
-  - if [ "$EMACS" = "emacs24" ]; then
-        sudo add-apt-repository -y ppa:cassou/emacs &&
-        sudo apt-get update -qq &&
-        sudo apt-get install -qq emacs24 emacs24-el;
-    fi
-  - if [ "$EMACS" = "emacs-snapshot" ]; then
-        sudo add-apt-repository -y ppa:ubuntu-elisp/ppa &&
-        sudo apt-get update -qq &&
-        sudo apt-get install -qq emacs-snapshot &&
-        sudo apt-get install -qq emacs-snapshot-el;
-    fi
+    - env: EVM_EMACS=emacs-24.1-travis
+    - env: EVM_EMACS=emacs-24.2-travis
+    - env: EVM_EMACS=emacs-git-snapshot-travis
 
 script:
-  lsb_release -a && EMACS=$EMACS ./test-startup.sh
-
-notifications:
-  email: false
+  lsb_release -a && ./test-startup.sh
 
 # Local Variables:
 # indent-tabs-mode: nil
