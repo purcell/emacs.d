@@ -44,3 +44,4 @@ site-lisp/package/
 /projectile-bookmarks.eld
 /anaconda-mode/
 /.historian
+/elpa-.*
