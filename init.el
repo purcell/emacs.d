@@ -159,6 +159,10 @@
 (require 'init-locales)
 
 
+(when (maybe-require-package 'uptimes)
+  (add-hook 'after-init-hook (lambda () (require 'uptimes))))
+
+
 (provide 'init)
 
 ;; Local Variables:
