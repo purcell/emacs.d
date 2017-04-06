@@ -109,6 +109,10 @@ typical word processor."
 (after-load 'org-agenda
   (add-to-list 'org-agenda-after-show-hook 'org-show-entry))
 
+(defadvice org-refile (after sanityinc/save-all-after-refile activate)
+  "Save all org buffers after each refile operation."
+  (org-save-all-org-buffers))
+
 ;; Exclude DONE state tasks from refile targets
 (defun sanityinc/verify-refile-target ()
   "Exclude todo keywords with a done state from refile targets."
