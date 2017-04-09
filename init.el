@@ -47,7 +47,7 @@
 (require-package 'project-local-variables)
 (require-package 'diminish)
 (require-package 'scratch)
-(require-package 'mwe-log-commands)
+(require-package 'command-log-mode)
 
 (require 'init-frame-hooks)
 (require 'init-xterm)
