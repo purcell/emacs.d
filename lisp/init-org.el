@@ -1,5 +1,3 @@
-(when (< emacs-major-version 24)
-  (require-package 'org))
 (require-package 'org-fstree)
 (when *is-a-mac*
   (maybe-require-package 'grab-mac-link)
@@ -69,8 +67,7 @@ typical word processor."
         (set (make-local-variable 'blink-cursor-interval) 0.6)
         (set (make-local-variable 'show-trailing-whitespace) nil)
         (flyspell-mode 1)
-        (when (fboundp 'visual-line-mode)
-          (visual-line-mode 1)))
+        (visual-line-mode 1))
     (kill-local-variable 'truncate-lines)
     (kill-local-variable 'word-wrap)
     (kill-local-variable 'cursor-type)
@@ -78,8 +75,7 @@ typical word processor."
     (buffer-face-mode -1)
     ;; (delete-selection-mode -1)
     (flyspell-mode -1)
-    (when (fboundp 'visual-line-mode)
-      (visual-line-mode -1))))
+    (visual-line-mode -1)))
 
 ;;(add-hook 'org-mode-hook 'buffer-face-mode)
 

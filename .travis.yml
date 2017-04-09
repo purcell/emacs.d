@@ -8,7 +8,6 @@ before_install:
   - evm install $EVM_EMACS --use --skip
 
 env:
-  - EVM_EMACS=emacs-23.4-travis
   - EVM_EMACS=emacs-24.1-travis
   - EVM_EMACS=emacs-24.2-travis
   - EVM_EMACS=emacs-24.3-travis

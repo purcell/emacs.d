@@ -4,8 +4,7 @@
 (add-auto-mode 'tcl-mode "Portfile\\'")
 (fset 'yes-or-no-p 'y-or-n-p)
 
-(when (fboundp 'prog-mode)
-  (add-hook 'prog-mode-hook 'goto-address-prog-mode))
+(add-hook 'prog-mode-hook 'goto-address-prog-mode)
 (setq goto-address-mail-face 'link)
 
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)

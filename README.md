@@ -31,7 +31,7 @@ other languages.
 
 ## Supported Emacs versions
 
-The config should run on Emacs 23.3 or greater and is designed to
+The config should run on Emacs 24.1 or greater and is designed to
 degrade smoothly - see the Travis build - but note that Emacs 24 and
 above is required for an increasing number of key packages, including
 `magit`, `company` and `flycheck`, so to get full you should use the
