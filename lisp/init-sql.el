@@ -2,6 +2,10 @@
 (after-load 'sql
   (require 'sql-indent))
 
+(after-load 'sql
+  ;; sql-mode pretty much requires your psql to be uncustomised from stock settings
+  (push "--no-psqlrc" sql-postgres-options))
+
 (defun sanityinc/pop-to-sqli-buffer ()
   "Switch to the corresponding sqli buffer."
   (interactive)
@@ -15,7 +19,6 @@
 
 (after-load 'sql
   (define-key sql-mode-map (kbd "C-c C-z") 'sanityinc/pop-to-sqli-buffer)
-  (add-hook 'sql-interactive-mode-hook 'sanityinc/never-indent)
   (when (package-installed-p 'dash-at-point)
     (defun sanityinc/maybe-set-dash-db-docset ()
       (when (eq sql-product 'postgres)

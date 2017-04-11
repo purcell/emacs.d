@@ -1,6 +1,5 @@
 (maybe-require-package 'json-mode)
 (maybe-require-package 'js2-mode)
-(maybe-require-package 'ac-js2)
 (maybe-require-package 'coffee-mode)
 
 (defcustom preferred-javascript-mode
@@ -52,9 +51,12 @@
 
 ;; Javascript nests {} and () a lot, so I find this helpful
 
-(require-package 'rainbow-delimiters)
-(dolist (hook '(js2-mode-hook js-mode-hook json-mode-hook))
-  (add-hook hook 'rainbow-delimiters-mode))
+(when (and (executable-find "ag")
+           (maybe-require-package 'xref-js2))
+  (after-load 'js2-mode
+    (define-key js2-mode-map (kbd "M-.") nil)
+    (add-hook 'js2-mode-hook
+              (lambda () (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))))
 
 
 
