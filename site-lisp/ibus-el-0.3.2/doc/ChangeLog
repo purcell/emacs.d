@@ -1,0 +1,126 @@
+2012-02-29  IRIE Shinsuke <irieshinsuke@yahoo.co.jp>
+	* Version0.3.2
+	* Added option `ibus-agent-search-paths' to fix problem that ibus-el-agent
+	cannot be found automatically if it has been moved to another directory
+	after loading ibus.el
+	* Fixed problem: Message of Xlib's BadWindow error sometimes is displayed
+	in particular environments (LP #932517)
+	* Changed command line options for ibus-daemon automatically launched
+	to start XIM server together ("-d" -> "-dx")
+2012-02-14  IRIE Shinsuke <irieshinsuke@yahoo.co.jp>
+	* Version0.3.1
+	* Fixed bug: An error occurs when using old version of IBus (< 1.4.0) which
+	doesn't support surrounding text (LP #930015)
+	* Fixed bug: ibus-mode aborts if newly created buffer is immediately
+	killed before receiving IMContext ID from IBus daemon (LP #930820)
+	* Fixed inappropriate error message "Couldn't receive data from agent."
+	in the synchronous communication
+	* Fixed bug: Prefix argument doesn't work for unhandled key events
+	* Fixed echo area's display for multiple strokes key sequence
+	* Changed to execute Emacs command directly as fallback for unhandled key
+	events, except for partial key sequences such as C-x
+	* Removed README.Debian file (Debian #648596)
+2011-12-24  IRIE Shinsuke <irieshinsuke@yahoo.co.jp>
+	* Version0.3.0
+	* Added support for surrounding text
+	* Added option `ibus-candidate-window-h-offset'
+	* Added option `ibus-prediction-window-h-offset'
+	* Added command `ibus-enable-specified-engine'
+	* Changed to enable setting of ibus-prediction-window-position=0 even in
+	minibuffer if IBus version is 1.3.8 or later
+	* Changed to show underlines even if their thicknesses are zero
+	* Fixed problem: Table created by `table-insert' command might corrupt
+	when preediting aborts
+	* Fixed problem: Preediting may abort when using some engines such as m17n
+	* Fixed problem: Input focus cannot be detected on Ubuntu Unity desktop
+	because get_input_focus() often returns root window incorrectly
+	* Fixed bug: auto-fill-mode doesn't work (LP #784452)
+	* Fixed bug: Input focus cannot be obtained correctly in StumpWM (LP #856358)
+2010-11-03  IRIE Shinsuke <irieshinsuke@yahoo.co.jp>
+	* Version0.2.1
+	* Added support for vim-mode
+	* Added libexec directories to search paths for `ibus-agent-file-name'
+	* Changed to execute fallback command in latin mode to simulate original
+	behavior for the key event (IBus issue #1058)
+	* Modified custom types of `ibus-kana-onbiki-x-keysym' and
+	`ibus-kana-onbiki-key-symbol' so that they can be disabled
+	* Modified to reset cursor color in consideration of color themes
+	* Modified not to unnecessarily set cursor color for non-X frame
+	* Modified not to unnecessarily check current buffer while command is running
+	* Fixed bug: Keymap might not be updated when switching input focus from
+	non-X frame to X frame
+	* Fixed bug: ibus-mode is abnormally exited when automatically turning off
+	monitor for power saving
+	* Fixed bug: If starting emacs-w3m in one of multiple frames, ibus-mode's
+	keymaps are incorrectly disabled in one of the other buffers
+	* Fixed problem (maybe): ibus-el-agent crashes if failing to connect to
+	X display when ibus-mode starts or display is changed (RH bug #627358)
+2010-08-19  IRIE Shinsuke <irieshinsuke@yahoo.co.jp>
+	* Version0.2.0
+	* Added `i18n' to parent groups of `ibus'
+	* Added option `ibus-agent-start-ibus-daemon'
+	* Changed not to start ibus-daemon automatically by default (RH bug #620349)
+	* Changed not to use xwininfo
+	* Changed not to ask X root window the property "_NET_ACTIVE_WINDOW"
+	* Modified so that Alt-Meta translation works correctly even when using
+	keyboards of different layouts in multi-displays environment
+	* Rewrote docstrings of custom variables
+	* Deleted internal option `ibus-meta-key-exists'
+	* Fixed bug: Shift modifier is ignored when keyval is non-alphabetical
+	ASCII character
+	* Fixed bug: Using `ibus-toggle' command during isearch-mode clears
+	minibuffer
+	* Fixed bug: X keymap is changed incorrectly if C-\ is bound to
+	`ibus-toggle' in `isearch-mode-map' and `ibus-use-kana-onbiki-key'
+	is non-nil
+	* Fixed bug: Keymaps are not enabled for about 0.3 second maximum after
+	focused in from the other applications
+	* Fixed bug: Alt + Romaji is ignored when actual meta key exists
+	* Fixed bug: forward_key_event incorrectly translates Romaji key into
+	Hiragana_Katakana key when actual meta key exists
+	* Fixed problem: ibus-el-agent might cause IndexError (list index out of
+	range) in multi-displays environment
+	* Fixed bug: post-command-hook might be executed after exiting ibus-mode
+	abnormally
+	* Fixed bug: `english-dvorak' input method doesn't work correctly together
+	with ibus-mode in isearch-mode
+	* Fixed bug: Incorrect row height is used after turning text-scale-mode off
+	when header line exists
+	* Fixed bug: An error "<ibus-resume-preedit> is undefined" sometimes occurs
+	when using IBus with isearch-mode
+	* Fixed bug: Preediting text is occasionally and incorrectly inserted to the
+	current buffer when using IBus with isearch-mode
+2010-06-11  IRIE Shinsuke <irieshinsuke@yahoo.co.jp>
+	* Version0.1.1
+	* Added option `ibus-prediction-window-position'
+	* Added option `ibus-agent-buffering-time'
+	* Changed so that key release events don't have to be sent to the agent
+	* Changed not to send cursor location if it's the same as previous one
+	* Changed ibus-el-agent not to send unnecessary `commit-text' signals
+	to Emacs when preedit text is empty
+	* Changed not to use unnecessary event `ibus-dummy-event'
+	* Modified not to send cursor location to agent just after text is committed
+	* Modified to work correctly when setting "Hold" to "Behavior on Focus Out"
+	in ibus-anthy's preferences
+	* Modified to redraw preedit text when switching frames showing same buffer
+	* Fixed bug: Candidate window is shown at incorrect position when using
+	text-scale-mode with header line shown
+	* Fixed bug: post-command-hook becomes extremely slow when using many frames
+	* Fixed bug: ibus-mode is unexpectedly exited when used with IBus 1.3
+	* Fixed bug: Agent might fail to launch IBus daemon
+2010-05-29  IRIE Shinsuke <irieshinsuke@yahoo.co.jp>
+	* Version0.1.0
+	* Initial release
+	* Added support for multi-displays environment
+	* Added support for isearch-mode
+	* Added support for INHERIT-INPUT-METHOD
+	* Added support for Japanese kana typing method
+	* Added support for Japanese thumb shift typing method
+	* Added debian directory
+	* Fixed a lot of bugs
+2010-05-09  IRIE Shinsuke <irieshinsuke@yahoo.co.jp>
+	* Version0.0.2
+	* Imported many functions from scim-bridge.el
+2010-04-12  IRIE Shinsuke <irieshinsuke@yahoo.co.jp>
+	* Version0.0.1
+	* Initial experimental version
