@@ -1,11 +1,11 @@
 (require 'package)
 
 
-(let ((local-package-el (find-library-name "package")))
+(let ((local-package-el (locate-library "package")))
   (when (string-match-p (concat "^" (regexp-quote user-emacs-directory))
                         local-package-el)
-    (error "Please remove the local package.el, which is no longer supported (%s)"
-           local-package-el)))
+    (warn "Please remove the local package.el, which is no longer supported (%s)"
+          local-package-el)))
 
 
 
