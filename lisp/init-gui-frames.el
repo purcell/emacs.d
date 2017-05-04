@@ -60,11 +60,6 @@
 (global-set-key (kbd "M-C-9") (lambda () (interactive) (sanityinc/adjust-opacity nil 2)))
 (global-set-key (kbd "M-C-0") (lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
 
-(add-hook 'after-make-frame-functions
-          (lambda (frame)
-            (with-selected-frame frame
-              (unless window-system
-                (set-frame-parameter nil 'menu-bar-lines 0)))))
 
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
