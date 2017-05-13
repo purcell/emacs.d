@@ -3,6 +3,7 @@
     (setq-default ivy-use-virtual-buffers t
                   ivy-count-format ""
                   projectile-completion-system 'ivy
+                  ivy-do-completion-in-region nil
                   ivy-initial-inputs-alist
                   '((man . "^")
                     (woman . "^")))
