@@ -37,7 +37,14 @@
   (when (maybe-require-package 'diminish)
     (after-load 'counsel
       (diminish 'counsel-mode)))
-  (add-hook 'after-init-hook 'counsel-mode))
+  (add-hook 'after-init-hook 'counsel-mode)
+
+  (when (and (executable-find "ag") (maybe-require-package 'projectile))
+    (defun sanityinc/counsel-ag-project (initial-input)
+      "Search using `counsel-ag' from the project root for INITIAL-INPUT."
+      (interactive (list (thing-at-point 'symbol)))
+      (counsel-ag initial-input (projectile-project-root)))
+    (global-set-key (kbd "M-?") 'sanityinc/counsel-ag-project)))
 
 
 ;;(when (maybe-require-package 'swiper)
