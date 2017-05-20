@@ -13,6 +13,8 @@
     (diminish 'company-mode "CMP")
     (define-key company-mode-map (kbd "M-/") 'company-complete)
     (define-key company-active-map (kbd "M-/") 'company-select-next)
+    (define-key company-active-map (kbd "C-n") 'company-select-next)
+    (define-key company-active-map (kbd "C-p") 'company-select-previous)
     (setq-default company-backends '((company-capf company-dabbrev-code) company-dabbrev)
                   company-dabbrev-other-buffers 'all))
   (global-set-key (kbd "M-C-/") 'company-complete)
