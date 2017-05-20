@@ -47,3 +47,4 @@ site-lisp/package/
 /anaconda-mode/
 /.historian
 /.uptimes.el
+/rake.cache
