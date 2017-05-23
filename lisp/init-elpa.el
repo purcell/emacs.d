@@ -38,6 +38,10 @@
                               "http://melpa.org/packages/"
                             "https://melpa.org/packages/")))
 
+(unless sanityinc/no-ssl
+  ;; Force SSL for GNU ELPA
+  (setcdr (assoc "gnu" package-archives) "https://elpa.gnu.org/packages/"))
+
 ;; NOTE: In case of MELPA problems, the official mirror URL is
 ;; https://www.mirrorservice.org/sites/stable.melpa.org/packages/
 
