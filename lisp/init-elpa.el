@@ -24,13 +24,17 @@
 
 ;;; Standard package repositories
 
-;; We include the org repository for completeness, but don't normally
-;; use it.
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-
-
+;; Disable SSL for package.el in certain configurations
 (defconst sanityinc/no-ssl (and (memq system-type '(windows-nt ms-dos))
                                 (not (gnutls-available-p))))
+
+;; We include the org repository for completeness, but don't normally
+;; use it.
+(add-to-list 'package-archives
+             `("org" . ,(if sanityinc/no-ssl
+                            "http://orgmode.org/elpa/"
+                          "https://orgmode.org/elpa/")))
+
 
 ;;; Also use Melpa for most packages
 (add-to-list 'package-archives
