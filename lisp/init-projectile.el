@@ -1,5 +1,6 @@
 (when (maybe-require-package 'projectile)
-  (add-hook 'after-init-hook 'projectile-global-mode)
+  (add-hook 'text-mode-hook 'projectile-mode)
+  (add-hook 'prog-mode-hook 'projectile-mode)
 
   ;; The following code means you get a menu if you hit "C-c p" and wait
   (after-load 'guide-key
