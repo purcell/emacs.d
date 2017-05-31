@@ -58,6 +58,7 @@
 (require 'init-grep)
 (require 'init-uniquify)
 (require 'init-ibuffer)
+(require 'init-rvm)
 (require 'init-flycheck)
 
 (require 'init-recentf)
