@@ -94,11 +94,6 @@
     (add-hook hook 'symbol-overlay-mode))
   (after-load 'symbol-overlay
     (diminish 'symbol-overlay-mode)
-    (defadvice symbol-overlay-temp-highlight (around sanityinc/maybe-suppress activate)
-      "Suppress symbol highlighting while isearching."
-      (unless (or isearch-mode
-                  (and (boundp 'multiple-cursors-mode) multiple-cursors-mode))
-        ad-do-it))
     (define-key symbol-overlay-mode-map (kbd "M-n") 'symbol-overlay-jump-next)
     (define-key symbol-overlay-mode-map (kbd "M-p") 'symbol-overlay-jump-prev)))
 
