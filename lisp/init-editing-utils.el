@@ -89,18 +89,20 @@
 (diminish 'undo-tree-mode)
 
 
-(require-package 'highlight-symbol)
+(require-package 'symbol-overlay)
 (dolist (hook '(prog-mode-hook html-mode-hook css-mode-hook))
-  (add-hook hook 'highlight-symbol-mode)
-  (add-hook hook 'highlight-symbol-nav-mode))
-(add-hook 'org-mode-hook 'highlight-symbol-nav-mode)
-(after-load 'highlight-symbol
-  (diminish 'highlight-symbol-mode)
-  (defadvice highlight-symbol-temp-highlight (around sanityinc/maybe-suppress activate)
+  (add-hook hook 'symbol-overlay-mode))
+(after-load 'symbol-overlay
+  (diminish 'symbol-overlay-mode)
+  (defadvice symbol-overlay-temp-highlight (around sanityinc/maybe-suppress activate)
     "Suppress symbol highlighting while isearching."
     (unless (or isearch-mode
                 (and (boundp 'multiple-cursors-mode) multiple-cursors-mode))
       ad-do-it)))
+(global-set-key (kbd "M-n") 'symbol-overlay-jump-next)
+(global-set-key (kbd "M-p") 'symbol-overlay-jump-prev)
+(global-set-key (kbd "M-I") 'symbol-overlay-put)
+(global-set-key (kbd "<f8>") 'symbol-overlay-remove-all)
 
 ;;----------------------------------------------------------------------------
 ;; Zap *up* to char is a handy pair for zap-to-char
