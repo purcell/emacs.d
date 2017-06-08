@@ -7,10 +7,14 @@
                   ivy-initial-inputs-alist
                   '((man . "^")
                     (woman . "^")))
+
     ;; IDO-style directory navigation
-    (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
     (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
+    (dolist (k '("C-j" "C-RET"))
+      (define-key ivy-minibuffer-map (kbd k) #'ivy-immediate-done))
+
     (define-key ivy-minibuffer-map (kbd "<up>") #'ivy-previous-line-or-history)
+
     (when (maybe-require-package 'diminish)
       (diminish 'ivy-mode)))
 
@@ -29,10 +33,8 @@
                 (ido-mode -1))
               (ivy-mode 1))))
 
-
 (when (maybe-require-package 'ivy-historian)
   (add-hook 'after-init-hook (lambda () (ivy-historian-mode t))))
-
 
 (when (maybe-require-package 'counsel)
   (setq-default counsel-mode-override-describe-bindings t)
