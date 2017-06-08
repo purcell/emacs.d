@@ -10,6 +10,7 @@
     ;; IDO-style directory navigation
     (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
     (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
+    (define-key ivy-minibuffer-map (kbd "<up>") #'ivy-previous-line-or-history)
     (when (maybe-require-package 'diminish)
       (diminish 'ivy-mode)))
 
