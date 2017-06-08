@@ -6,7 +6,7 @@
   (global-set-key [remap query-replace] 'anzu-query-replace))
 
 ;; Activate occur easily inside isearch
-(when (maybe-require-package 'emacs "24.3")
+(when (maybe-require-package 'emacs '(24 3))
   (define-key isearch-mode-map (kbd "C-c C-o") 'isearch-occur)) ;; to match ivy conventions
 
 ;; DEL during isearch should edit the search string, not jump back to the previous result
