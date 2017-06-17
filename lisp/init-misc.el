@@ -10,6 +10,9 @@
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 (setq-default regex-tool-backend 'perl)
+(after-load 're-builder
+  ;; Support a slightly more idiomatic quit binding in re-builder
+  (define-key reb-mode-map (kbd "C-c C-k") 'reb-quit))
 
 (add-auto-mode 'conf-mode "Procfile")
 
