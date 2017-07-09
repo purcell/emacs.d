@@ -20,7 +20,7 @@
                (sanityinc/time-subtract-millis (current-time)
                                                start-time)
                (when filename
-		 (abbreviate-file-name filename))))))
+                 (abbreviate-file-name filename))))))
 
 ;;----------------------------------------------------------------------------
 ;; Restore histories and registers after saving
