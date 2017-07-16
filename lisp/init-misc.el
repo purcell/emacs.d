@@ -8,6 +8,18 @@
 (setq goto-address-mail-face 'link)
 
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+(add-hook 'after-save-hook 'sanityinc/set-mode-for-new-scripts)
+
+(defun sanityinc/set-mode-for-new-scripts ()
+  "Invoke `normal-mode' if this file is a script and in `fundamental-mode'."
+  (and
+   (eq major-mode 'fundamental-mode)
+   (>= (buffer-size) 2)
+   (save-restriction
+     (widen)
+     (string= "#!" (buffer-substring (point-min) (+ 2 (point-min)))))
+   (normal-mode)))
+
 
 (setq-default regex-tool-backend 'perl)
 (after-load 're-builder
