@@ -67,12 +67,8 @@ SQLi session first, or otherwise set `sql-database' etc."
   (unless (eq sql-product 'postgres)
     (user-error "This command is for PostgreSQL only"))
   (unless (use-region-p)
-    (setq beg (save-excursion
-                (backward-paragraph)
-                (point))
-          end (save-excursion
-                (forward-paragraph)
-                (point))))
+    (setq beg (save-excursion (backward-paragraph) (point))
+          end (save-excursion (forward-paragraph) (point))))
   (let ((query (buffer-substring-no-properties beg end)))
     (with-current-buffer (if (sql-buffer-live-p sql-buffer)
                              sql-buffer
@@ -82,7 +78,6 @@ SQLi session first, or otherwise set `sql-database' etc."
                             (concat "PGHOST=" sql-server)
                             (concat "PGUSER=" sql-user))
                       process-environment))
-             (out-buffer (get-buffer-create "*sql-explain-json*"))
              (args (list "--no-psqlrc"
                          "-qAt"
                          "-w"             ; Never prompt for password
@@ -90,21 +85,23 @@ SQLi session first, or otherwise set `sql-database' etc."
                          "-c" (concat "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " query ";")
                          ))
              (err-file (make-temp-file "sql-explain-json")))
-        (with-current-buffer out-buffer
-          (delete-region (point-min) (point-max)))
-        (let ((retcode (apply 'call-process sql-postgres-program nil (list out-buffer err-file) nil args)))
-          (if (zerop retcode)
-              (with-current-buffer out-buffer
-                (json-mode)
-                (if copy
-                    (progn
-                      (kill-ring-save (buffer-substring-no-properties (point-min) (point-max)))
-                      (message "EXPLAIN output copied to kill-ring."))
-                  (display-buffer (current-buffer))))
-            (display-buffer (with-current-buffer (get-buffer-create "*sql-explain-errors*")
-                              (insert-file-contents err-file nil nil nil t)
-                              (current-buffer)))
-            (error "Explain failed")))))))
+        (with-current-buffer (get-buffer-create "*sql-explain-json*")
+          (setq buffer-read-only nil)
+          (delete-region (point-min) (point-max))
+          (let ((retcode (apply 'call-process sql-postgres-program nil (list (current-buffer) err-file) nil args)))
+            (if (zerop retcode)
+                (progn
+                  (json-mode)
+                  (if copy
+                      (progn
+                        (kill-ring-save (buffer-substring-no-properties (point-min) (point-max)))
+                        (message "EXPLAIN output copied to kill-ring."))
+                    (view-buffer (current-buffer))))
+              (with-current-buffer (get-buffer-create "*sql-explain-errors*")
+                (setq buffer-read-only nil)
+                (insert-file-contents err-file nil nil nil t)
+                (view-buffer (current-buffer))
+                (user-error "EXPLAIN failed")))))))))
 
 
 
