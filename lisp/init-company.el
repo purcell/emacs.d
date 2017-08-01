@@ -4,7 +4,7 @@
 (setq tab-always-indent 'complete)
 (add-to-list 'completion-styles 'initials t)
 ;; Stop completion-at-point from popping up completion buffers so eagerly
-(setq completion-cycle-threshold 5)
+(setq completion-cycle-threshold nil)
 
 
 (when (maybe-require-package 'company)
