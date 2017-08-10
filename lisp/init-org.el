@@ -1,4 +1,4 @@
-(require-package 'org-fstree)
+(maybe-require-package 'org-fstree)
 (when *is-a-mac*
   (maybe-require-package 'grab-mac-link)
   (require-package 'org-mac-iCal))
