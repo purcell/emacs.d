@@ -34,7 +34,8 @@
 
 
 ;; Convenient binding for vc-git-grep
-(global-set-key (kbd "C-x v f") 'vc-git-grep)
+(after-load 'vc
+  (define-key vc-prefix-map (kbd "f") 'vc-git-grep))
 
 
 
@@ -75,7 +76,8 @@
 
 (maybe-require-package 'git-messenger)
 ;; Though see also vc-annotate's "n" & "p" bindings
-(global-set-key (kbd "C-x v p") #'git-messenger:popup-message)
+(after-load 'vc
+  (define-key vc-prefix-map (kbd "p") #'git-messenger:popup-message))
 
 
 (provide 'init-git)
