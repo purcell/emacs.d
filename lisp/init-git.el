@@ -77,6 +77,7 @@
 (maybe-require-package 'git-messenger)
 ;; Though see also vc-annotate's "n" & "p" bindings
 (after-load 'vc
+  (setq git-messenger:show-detail t)
   (define-key vc-prefix-map (kbd "p") #'git-messenger:popup-message))
 
 
