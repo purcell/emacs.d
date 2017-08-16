@@ -101,4 +101,12 @@
               (lambda () (inferior-js-keys-mode -1)))))
 
 
+
+(when (maybe-require-package 'add-node-modules-path)
+  (after-load 'typescript-mode
+    (add-hook 'typescript-mode-hook 'add-node-modules-path))
+  (after-load 'js2-mode
+    (add-hook 'js2-mode-hook 'add-node-modules-path)))
+
+
 (provide 'init-javascript)
