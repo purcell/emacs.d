@@ -2,6 +2,7 @@
 (maybe-require-package 'js2-mode)
 (maybe-require-package 'coffee-mode)
 (maybe-require-package 'typescript-mode)
+(maybe-require-package 'prettier-js)
 
 (defcustom preferred-javascript-mode
   (first (remove-if-not #'fboundp '(js2-mode js-mode)))
