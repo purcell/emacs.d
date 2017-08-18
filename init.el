@@ -82,7 +82,7 @@
 (require 'init-projectile)
 
 (require 'init-compile)
-(require 'init-crontab)
+;;(require 'init-crontab)
 (require 'init-textile)
 (require 'init-markdown)
 (require 'init-csv)
