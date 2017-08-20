@@ -23,15 +23,7 @@
     (interactive)
     (require-package 'flx)
     (setq-default ivy-re-builders-alist
-                  '((t . ivy--regex-fuzzy))))
-
-  (add-hook 'after-init-hook
-            (lambda ()
-              (when (bound-and-true-p ido-ubiquitous-mode)
-                (ido-ubiquitous-mode -1))
-              (when (bound-and-true-p ido-mode)
-                (ido-mode -1))
-              (ivy-mode 1))))
+                  '((t . ivy--regex-fuzzy)))))
 
 (when (maybe-require-package 'ivy-historian)
   (add-hook 'after-init-hook (lambda () (ivy-historian-mode t))))
