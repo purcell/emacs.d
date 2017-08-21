@@ -102,6 +102,7 @@
 (require 'init-rails)
 (require 'init-sql)
 (maybe-require-package 'toml-mode)
+(maybe-require-package 'terraform-mode)
 
 (require 'init-paredit)
 (require 'init-lisp)
