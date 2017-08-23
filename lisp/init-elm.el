@@ -1,4 +1,5 @@
 (when (maybe-require-package 'elm-mode)
+  (setq-default elm-format-on-save t)
   (after-load 'elm-mode
     (diminish 'elm-indent-mode)
     (when (executable-find "elm-oracle")
