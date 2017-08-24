@@ -102,7 +102,8 @@
 (require 'init-rails)
 (require 'init-sql)
 (require 'init-rust)
-(maybe-require-package 'toml-mode)
+(require 'init-toml)
+(require 'init-yaml)
 (require 'init-docker)
 (maybe-require-package 'terraform-mode)
 

@@ -71,13 +71,6 @@
 (require-package 'bundler)
 
 
-;;; YAML
-
-(when (maybe-require-package 'yaml-mode)
-  (add-auto-mode 'yaml-mode "\\.yml\\.erb\\'"))
-
-
-
 ;;; ERB
 (require-package 'mmm-mode)
 (defun sanityinc/ensure-mmm-erb-loaded ()
