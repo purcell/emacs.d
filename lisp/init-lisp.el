@@ -245,7 +245,8 @@
 (add-hook 'emacs-lisp-mode-hook 'sanityinc/run-theme-mode-hooks-if-theme t)
 
 (when (maybe-require-package 'rainbow-mode)
-  (add-hook 'sanityinc/theme-mode-hook 'rainbow-mode))
+  (add-hook 'sanityinc/theme-mode-hook 'rainbow-mode)
+  (add-hook 'help-mode-hook 'rainbow-mode))
 
 (when (maybe-require-package 'aggressive-indent)
   ;; Can be prohibitively slow with very long forms
