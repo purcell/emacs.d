@@ -164,9 +164,6 @@
 (when (maybe-require-package 'uptimes)
   (add-hook 'after-init-hook (lambda () (require 'uptimes))))
 
-
-(provide 'init)
-
 ;; Local Variables:
 ;; coding: utf-8
 ;; no-byte-compile: t
