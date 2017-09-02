@@ -29,19 +29,6 @@
       (setq pos (match-end group)))
     result))
 
-(defun sanityinc/string-rtrim (str)
-  "Remove trailing whitespace from `STR'."
-  (replace-regexp-in-string "[ \t\n]+$" "" str))
-
-
-;;----------------------------------------------------------------------------
-;; Find the directory containing a given library
-;;----------------------------------------------------------------------------
-(autoload 'find-library-name "find-func")
-(defun sanityinc/directory-of-library (library-name)
-  "Return the directory in which the `LIBRARY-NAME' load file is found."
-  (file-name-as-directory (file-name-directory (find-library-name library-name))))
-
 
 ;;----------------------------------------------------------------------------
 ;; Delete the current file
@@ -49,7 +36,8 @@
 (defun delete-this-file ()
   "Delete the current file, and kill the buffer."
   (interactive)
-  (or (buffer-file-name) (error "No file is currently being edited"))
+  (unless (buffer-file-name)
+    (error "No file is currently being edited"))
   (when (yes-or-no-p (format "Really delete '%s'?"
                              (file-name-nondirectory buffer-file-name)))
     (delete-file (buffer-file-name))
@@ -66,13 +54,11 @@
         (filename (buffer-file-name)))
     (unless filename
       (error "Buffer '%s' is not visiting a file!" name))
-    (if (get-buffer new-name)
-        (message "A buffer named '%s' already exists!" new-name)
-      (progn
-        (when (file-exists-p filename)
-         (rename-file filename new-name 1))
-        (rename-buffer new-name)
-        (set-visited-file-name new-name)))))
+    (progn
+      (when (file-exists-p filename)
+        (rename-file filename new-name 1))
+      (set-visited-file-name new-name)
+      (rename-buffer new-name))))
 
 ;;----------------------------------------------------------------------------
 ;; Browse current HTML file

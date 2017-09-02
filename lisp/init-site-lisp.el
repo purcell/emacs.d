@@ -44,13 +44,4 @@ source file under ~/.emacs.d/site-lisp/name/"
     (and f (string-prefix-p (file-name-as-directory (site-lisp-dir-for name)) f))))
 
 
-
-;; Download these upstream libs
-
-(unless (> emacs-major-version 23)
-  (ensure-lib-from-url
-   'package
-   "http://repo.or.cz/w/emacs.git/blob_plain/ba08b24186711eaeb3748f3d1f23e2c2d9ed0d09:/lisp/emacs-lisp/package.el"))
-
-
 (provide 'init-site-lisp)

@@ -6,14 +6,15 @@
 
 (defun sanityinc/alert-after-compilation-finish (buf result)
   "Use `alert' to report compilation RESULT if BUF is hidden."
-  (unless (catch 'is-visible
-            (walk-windows (lambda (w)
-                            (when (eq (window-buffer w) buf)
-                              (throw 'is-visible t))))
-            nil)
-    (alert (concat "Compilation " result)
-           :buffer buf
-           :category 'compilation)))
+  (when (buffer-live-p buf)
+    (unless (catch 'is-visible
+              (walk-windows (lambda (w)
+                              (when (eq (window-buffer w) buf)
+                                (throw 'is-visible t))))
+              nil)
+      (alert (concat "Compilation " result)
+             :buffer buf
+             :category 'compilation))))
 
 (after-load 'compile
   (add-hook 'compilation-finish-functions
@@ -41,7 +42,7 @@
 
 (defadvice shell-command-on-region
     (after sanityinc/shell-command-in-view-mode
-           (start end command &optional output-buffer replace error-buffer display-error-buffer)
+           (start end command &optional output-buffer &rest other-args)
            activate)
   "Put \"*Shell Command Output*\" buffers into view-mode."
   (unless output-buffer
@@ -55,5 +56,9 @@
     (when (eq major-mode 'compilation-mode)
       (ansi-color-apply-on-region compilation-filter-start (point-max))))
   (add-hook 'compilation-filter-hook 'sanityinc/colourise-compilation-buffer))
+
+
+(maybe-require-package 'cmd-to-echo)
+
 
 (provide 'init-compile)

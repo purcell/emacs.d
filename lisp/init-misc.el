@@ -4,14 +4,27 @@
 (add-auto-mode 'tcl-mode "Portfile\\'")
 (fset 'yes-or-no-p 'y-or-n-p)
 
-(dolist (hook (if (fboundp 'prog-mode)
-                  '(prog-mode-hook ruby-mode-hook)
-                '(find-file-hooks)))
-  (add-hook hook 'goto-address-prog-mode))
-(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+(add-hook 'prog-mode-hook 'goto-address-prog-mode)
 (setq goto-address-mail-face 'link)
 
+(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+(add-hook 'after-save-hook 'sanityinc/set-mode-for-new-scripts)
+
+(defun sanityinc/set-mode-for-new-scripts ()
+  "Invoke `normal-mode' if this file is a script and in `fundamental-mode'."
+  (and
+   (eq major-mode 'fundamental-mode)
+   (>= (buffer-size) 2)
+   (save-restriction
+     (widen)
+     (string= "#!" (buffer-substring (point-min) (+ 2 (point-min)))))
+   (normal-mode)))
+
+
 (setq-default regex-tool-backend 'perl)
+(after-load 're-builder
+  ;; Support a slightly more idiomatic quit binding in re-builder
+  (define-key reb-mode-map (kbd "C-c C-k") 'reb-quit))
 
 (add-auto-mode 'conf-mode "Procfile")
 
