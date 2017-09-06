@@ -49,33 +49,33 @@
 (require-package 'scratch)
 (require-package 'command-log-mode)
 
-(require 'init-frame-hooks)
-(require 'init-xterm)
-(require 'init-themes)
-(require 'init-osx-keys)
+(require 'init-frame-hooks) ;; unclear
+(require 'init-xterm) ;; scroll with mouse in emacs??1
+(require 'init-themes) ;; changes themes
+(require 'init-osx-keys) ;; i unno
 (require 'init-gui-frames)
-(require 'init-dired)
-(require 'init-isearch)
-(require 'init-grep)
-(require 'init-uniquify)
-(require 'init-ibuffer)
-(require 'init-flycheck)
+(require 'init-dired);; the directory buffer -- make it better
+(require 'init-isearch) ;; you might need these commands
+(require 'init-grep) ;; use better grepping tools
+(require 'init-uniquify) ;; uniquify names of buffers
+(require 'init-ibuffer) ;; ibuffer is good for operating on multiple buffers
+(require 'init-flycheck) ;; syntax checking
 
-(require 'init-recentf)
-(require 'init-smex)
-(require 'init-ivy)
-;;(require 'init-helm)
-(require 'init-hippie-expand)
-(require 'init-company)
-(require 'init-windows)
-(require 'init-sessions)
-(require 'init-mmm)
+(require 'init-recentf) ;; for looking for recent files
+(require 'init-smex);; better way of doing M-x
+(require 'init-ivy) ;; completions: http://oremacs.com/swiper/
+(require 'init-hippie-expand) ;; for expanding at point
+(require 'init-company) ;; complete anything lib
+(require 'init-windows) ;; window mgmt
+(require 'init-sessions) ;; save windows when editing
+(require 'init-fonts)
+(require 'init-mmm) ;; multiple major modes
 
 (require 'init-editing-utils)
 (require 'init-whitespace)
 
 (require 'init-vc)
-(require 'init-darcs)
+;;(require 'init-darcs)
 (require 'init-git)
 (require 'init-github)
 
@@ -83,12 +83,12 @@
 
 (require 'init-compile)
 ;;(require 'init-crontab)
-(require 'init-textile)
+;;(require 'init-textile)
 (require 'init-markdown)
 (require 'init-csv)
-(require 'init-erlang)
-(require 'init-javascript)
-(require 'init-php)
+;;(require 'init-erlang)
+;;(require 'init-javascript)
+;;(require 'init-php)
 (require 'init-org)
 (require 'init-nxml)
 (require 'init-html)
@@ -113,9 +113,11 @@
 (require 'init-paredit)
 (require 'init-lisp)
 (require 'init-slime)
-(require 'init-clojure)
-(require 'init-clojure-cider)
+;;(unless (version<= emacs-version "24.2")
+;;  (require 'init-clojure)
+;;  (require 'init-clojure-cider))
 (require 'init-common-lisp)
+(require 'init-go)
 
 (when *spell-check-support-enabled*
   (require 'init-spelling))
@@ -124,14 +126,11 @@
 
 (require 'init-folding)
 (require 'init-dash)
-
-;;(require 'init-twitter)
-;; (require 'init-mu)
-(require 'init-ledger)
+;;(require 'init-ledger)
 ;; Extra packages which don't require any configuration
 
-(require-package 'gnuplot)
-(require-package 'lua-mode)
+;;(require-package 'gnuplot)
+;;(require-package 'lua-mode)
 (require-package 'htmlize)
 (require-package 'dsvn)
 (when *is-a-mac*
