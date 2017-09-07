@@ -1,4 +1,5 @@
 ;; copy shit into osx clipboard
+;; TODO: maybe we should only do this for macosx(yes -- we should)
 (defun copy-from-osx ()
   (shell-command-to-string "pbpaste"))
 
