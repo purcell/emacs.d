@@ -118,6 +118,7 @@
 ;;  (require 'init-clojure-cider))
 (require 'init-common-lisp)
 (require 'init-go)
+(require `init-protobuf)
 
 (when *spell-check-support-enabled*
   (require 'init-spelling))
