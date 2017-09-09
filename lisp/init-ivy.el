@@ -17,7 +17,8 @@
     (define-key ivy-minibuffer-map (kbd "<up>") #'ivy-previous-line-or-history)
 
     (when (maybe-require-package 'diminish)
-      (diminish 'ivy-mode)))
+      (diminish 'ivy-mode))
+    (add-hook 'after-init-hook 'ivy-mode))
 
   (defun sanityinc/enable-ivy-flx-matching ()
     "Make `ivy' matching work more like IDO."
