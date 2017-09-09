@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/purcell/emacs.d.png?branch=master)](https://travis-ci.org/purcell/emacs.d)
-[![Support me](https://www.patreon.com/sanityinc)](https://img.shields.io/badge/Support%20Me-💗-ff69b4.svg)
+[![Support me](https://www.patreon.com/sanityinc)](https://img.shields.io/badge/Support%20Me-%F0%9F%92%97-ff69b4.svg)
 
 # A reasonable Emacs config
 
