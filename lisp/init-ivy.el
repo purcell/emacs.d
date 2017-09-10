@@ -1,5 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 (when (maybe-require-package 'ivy)
+  (add-hook 'after-init-hook 'ivy-mode)
   (after-load 'ivy
     (setq-default ivy-use-virtual-buffers t
                   ivy-virtual-abbreviate 'fullpath
@@ -17,8 +18,7 @@
     (define-key ivy-minibuffer-map (kbd "<up>") #'ivy-previous-line-or-history)
 
     (when (maybe-require-package 'diminish)
-      (diminish 'ivy-mode))
-    (add-hook 'after-init-hook 'ivy-mode))
+      (diminish 'ivy-mode)))
 
   (defun sanityinc/enable-ivy-flx-matching ()
     "Make `ivy' matching work more like IDO."
