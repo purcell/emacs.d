@@ -14,8 +14,12 @@
 
 (global-set-key (kbd "M-j") 'windmove-left)
 (global-set-key (kbd "M-k") 'windmove-right)
-(global-set-key (kbd "M-p") 'windmove-up)
-(global-set-key (kbd "M-n") 'windmove-down)
+;; These two are actually incredibly useful in code. Consider another
+;; set of keys to replicate
+;;(global-set-key (kbd "M-p") 'windmove-up)
+;;(global-set-key (kbd "M-n") 'windmove-down)
 (global-set-key (kbd "RET") 'newline-and-indent)
+
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 (provide 'init-local)
