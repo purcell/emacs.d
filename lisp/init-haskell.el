@@ -32,8 +32,6 @@
 
 (add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
 
-(setq-default haskell-stylish-on-save t)
-
 (when (maybe-require-package 'hindent)
   (add-hook 'haskell-mode-hook 'hindent-mode))
 
