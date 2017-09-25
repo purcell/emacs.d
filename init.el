@@ -94,6 +94,7 @@
 (require 'init-html)
 (require 'init-css)
 (require 'init-haml)
+(require 'init-http)
 (require 'init-python-mode)
 (unless (version<= emacs-version "24.3")
   (require 'init-haskell))
