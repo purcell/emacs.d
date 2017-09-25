@@ -1,8 +1,3 @@
-;; TODO: https://wunki.org/posts/2014-05-17-haskell-packages-development.html
-;; https://github.com/chrisdone/chrisdone-emacs/blob/master/config/haskell.el
-;; TODO: ghci-ng
-;; TODO: don't pop up *Warnings* if haskell-stylish-on-save fails
-;; TODO: purescript-mode
 (require-package 'haskell-mode)
 
 
@@ -43,10 +38,6 @@
 (after-load 'page-break-lines
   (push 'haskell-mode page-break-lines-modes))
 
-
-(after-load 'haskell
-  (define-key interactive-haskell-mode-map (kbd "M-N") 'haskell-goto-next-error)
-  (define-key interactive-haskell-mode-map (kbd "M-P") 'haskell-goto-prev-error))
 
 
 (provide 'init-haskell)
