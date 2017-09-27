@@ -28,6 +28,12 @@
 (require-package 'rspec-mode)
 
 
+(define-derived-mode brewfile-mode ruby-mode "Brewfile"
+  "A major mode for Brewfiles, used by homebrew-bundle on MacOS.")
+
+(add-auto-mode 'brewfile-mode "Brewfile\\'")
+
+
 ;;; Inferior ruby
 (require-package 'inf-ruby)
 
