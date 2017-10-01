@@ -7,7 +7,7 @@
   (when gls (setq insert-directory-program gls)))
 
 (when (maybe-require-package 'diredfl)
-  (add-hook 'dired-mode-hook 'diredfl-mode))
+  (diredfl-global-mode))
 
 (after-load 'dired
   (require 'dired-sort)
