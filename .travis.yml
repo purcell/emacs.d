@@ -1,9 +1,20 @@
 language: ruby
 
-before_install:
-  - git clone https://github.com/rejeep/evm.git $HOME/.evm
-  - export PATH=$HOME/.evm/bin:$PATH
+cache:
+  directories:
+    - elpa-24.1
+    - elpa-24.2
+    - elpa-24.3
+    - elpa-24.4
+    - elpa-24.5
+    - elpa-25.1
+    - elpa-25.2
+    - elpa-25.3
+    - $HOME/.evm
 
+before_install:
+  - (cd $HOME/.evm && git pull) || git clone https://github.com/rejeep/evm.git $HOME/.evm
+  - export PATH=$HOME/.evm/bin:$PATH
   - evm config path /tmp
   - evm install $EVM_EMACS --use --skip
 
@@ -13,6 +24,9 @@ env:
   - EVM_EMACS=emacs-24.3-travis
   - EVM_EMACS=emacs-24.4-travis
   - EVM_EMACS=emacs-24.5-travis
+  - EVM_EMACS=emacs-25.1-travis
+  - EVM_EMACS=emacs-25.2-travis
+  - EVM_EMACS=emacs-25.3-travis
   - EVM_EMACS=emacs-git-snapshot-travis
 
 matrix:
