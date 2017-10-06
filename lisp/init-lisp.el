@@ -22,8 +22,8 @@
 (after-load 'lisp-mode
   (define-key emacs-lisp-mode-map (kbd "C-x C-e") 'sanityinc/eval-last-sexp-or-region))
 
-(require-package 'ipretty)
-(ipretty-mode 1)
+(when (maybe-require-package 'ipretty)
+  (ipretty-mode 1))
 
 
 (defadvice pp-display-expression (after sanityinc/make-read-only (expression out-buffer-name) activate)
