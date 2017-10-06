@@ -3,10 +3,10 @@
 ;;; This file bootstraps the configuration, which is divided into
 ;;; a number of other files.
 
-(let ((minver "24.1"))
+(let ((minver "24.3"))
   (when (version< emacs-version minver)
     (error "Your Emacs is too old -- this config requires v%s or higher" minver)))
-(when (version< emacs-version "24.4")
+(when (version< emacs-version "24.5")
   (message "Your Emacs is old, and some functionality in this config will be disabled. Please upgrade if possible."))
 
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
@@ -96,8 +96,7 @@
 (require 'init-haml)
 (require 'init-http)
 (require 'init-python-mode)
-(unless (version<= emacs-version "24.3")
-  (require 'init-haskell))
+(require 'init-haskell)
 (require 'init-elm)
 (require 'init-ruby-mode)
 (require 'init-rails)
@@ -111,9 +110,8 @@
 (require 'init-paredit)
 (require 'init-lisp)
 (require 'init-slime)
-(unless (version<= emacs-version "24.2")
-  (require 'init-clojure)
-  (require 'init-clojure-cider))
+(require 'init-clojure)
+(require 'init-clojure-cider)
 (require 'init-common-lisp)
 
 (when *spell-check-support-enabled*
