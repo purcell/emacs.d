@@ -45,6 +45,12 @@
 (setq-default
  ring-bell-function 'sanityinc/flash-mode-line)
 
+
+
+(when (maybe-require-package 'beacon)
+  (setq-default beacon-lighter "")
+  (beacon-mode))
+
 
 
 ;;; Newline behaviour
