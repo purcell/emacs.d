@@ -18,6 +18,9 @@
                 minibuffer-setup-hook))
   (add-hook hook #'sanityinc/no-trailing-whitespace))
 
+(setq whitespace-style '(face lines-tail))
+(setq whitespace-line-column 100)
+(add-hook 'prog-mode-hook 'whitespace-mode)
 
 (require-package 'whitespace-cleanup-mode)
 (add-hook 'after-init-hook 'global-whitespace-cleanup-mode)
