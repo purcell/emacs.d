@@ -19,9 +19,9 @@ cookies
 /newsticker
 /ac-comphist.dat
 \#*
-/elpa
-/elpa-*
-site-lisp/package/
+#/elpa
+#/elpa-*
+#site-lisp/package/
 /swank
 /.mc-lists.el
 /var

@@ -1,0 +1,138 @@
+* Ivy Generic Help
+
+=ivy= is an Emacs incremental completion framework.
+
+- Narrow the list by typing some pattern,
+- Multiple patterns are allowed by separating with a space,
+- Select with ~C-n~ and ~C-p~, choose with ~RET~.
+
+** Help
+
+- ~C-h m~ :: Pop to this generic help buffer.
+
+** Basic Operations
+*** Key bindings for navigation
+
+- ~C-n~ (=ivy-next-line=) :: next candidate.
+- ~C-p~ (=ivy-previous-line=) :: previous candidate.
+- ~C-v~ (=ivy-scroll-up-command=) :: next page.
+- ~M-v~ (=ivy-scroll-down-command=) :: previous page.
+- ~M-<~ (=ivy-beginning-of-buffer=) :: first candidate.
+- ~M->~ (=ivy-end-of-buffer=) :: last candidate.
+
+*** Key bindings for single selection
+
+When selecting a candidate, an action is called on it. You can think
+of an action as a function that takes the selected candidate as an
+argument and does something with it.
+
+Ivy can offer several actions from which to choose. This can be
+independently composed with whether you want to end completion when
+the action is called. Depending on this, the short term is either
+"calling an action" or "exiting with action".
+
+~C-m~ or ~RET~ (=ivy-done=) - exit with the current action.
+
+~M-o~ (=ivy-dispatching-done=) - select an action and exit with it.
+
+~C-j~ (=ivy-alt-done=) - when the candidate is a directory, enter
+it. Otherwise, exit with the current action.
+
+~TAB~ (=ivy-partial-or-done=) - attempt partial completion, extending
+the current input as much as possible. ~TAB TAB~ is the same as ~C-j~.
+
+~C-M-j~ (=ivy-immediate-done=) - exit with the current action, calling
+it on the /current input/ instead of the current candidate. This is
+useful especially when creating new files or directories - often the
+input will match an existing file, which you don't want to select.
+
+~C-'~ (=ivy-avy=) - select a candidate from the current page with avy
+and exit with the current action.
+
+** Advanced Operations
+*** Key bindings for multiple selection
+
+For repeatedly applying multiple actions or acting on multiple
+candidates, Ivy does not close the minibuffer between commands. It
+keeps the minibuffer open for applying subsequent actions.
+
+Adding an extra meta key to the normal key chord invokes the special
+version of the regular commands that enables applying multiple
+actions.
+
+~C-M-m~ (=ivy-call=) is the non-exiting version of ~C-m~ (=ivy-done=).
+
+~C-M-n~ (=ivy-next-line-and-call=) combines ~C-n~ and ~C-M-m~.
+
+~C-M-p~ (=ivy-previous-line-and-call=) combines ~C-p~ and ~C-M-m~.
+
+~C-M-o~ (=ivy-dispatching-call=) is a non-exiting version of ~M-o~
+(=ivy-dispatching-done=).
+
+*** Key bindings that alter the minibuffer input
+
+~M-n~ (=ivy-next-history-element=) select the next history element or
+symbol/URL at point.
+
+~M-p~ (=ivy-previous-history-element=) select the previous history
+element.
+
+~C-r~ (=ivy-reverse-i-search=) start a recursive completion session to
+select a history element.
+
+~M-i~ (=ivy-insert-current=) insert the current candidate into the
+minibuffer. Useful for copying and renaming files, for example: ~M-i~
+to insert the original file name string, edit it, and then ~C-m~ to
+complete the renaming.
+
+~M-j~ (=ivy-yank-word=) insert the sub-word at point into the
+minibuffer.
+
+~S-SPC~ (=ivy-restrict-to-matches=) deletes the current input, and
+resets the candidates list to the currently restricted matches. This
+is how Ivy provides narrowing in successive tiers.
+
+*** Other key bindings
+
+~M-w~ (=ivy-kill-ring-save=) copies the selected candidates to the
+kill ring; when the region is active, copies the active region.
+
+*** Saving the current completion session to a buffer
+
+~C-c C-o~ (=ivy-occur=) saves the current candidates to a new buffer;
+the list is active in the new buffer.
+
+~RET~ or ~mouse-1~ in the new buffer calls the appropriate action on
+the selected candidate.
+
+Ivy has no limit on the number of active buffers like these.
+
+Ivy takes care of making these buffer names unique. It applies
+descriptive names, for example: =*ivy-occur counsel-describe-variable
+"function$*=.
+
+*** Global key bindings
+
+=ivy-resume= recalls the state of the completion session just before
+its last exit. Useful after an accidental ~C-m~ (=ivy-done=).
+Recommended global binding: ~C-c C-r~.
+
+*** Hydra in the minibuffer
+
+~C-o~ (=hydra-ivy/body=) invokes Hydra menus with key shortcuts.
+
+When in Hydra, ~C-o~ or ~i~ resumes editing.
+
+Hydra reduces key strokes, for example: ~C-n C-n C-n C-n~ is ~C-o
+jjjj~ in Hydra. Besides certain shorter keys, Hydra shows useful info
+such as case folding and the current action.
+
+Additionally, here are the keys that are otherwise not bound:
+
+- ~<~ and ~>~ adjust the height of the minibuffer.
+- ~c~ (=ivy-toggle-calling=) - toggle calling the current action each
+  time a different candidate is selected.
+- ~m~ (=ivy-toggle-fuzzy=) - toggle regex matcher.
+- ~w~ and ~s~ scroll the actions list.
+
+Minibuffer editing is disabled when Hydra is active.

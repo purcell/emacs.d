@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: after do ... end
+# --
+after$1 do
+  $0
+end

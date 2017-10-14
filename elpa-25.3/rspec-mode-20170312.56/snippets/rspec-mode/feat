@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: feature "description" do ... end
+# --
+feature "${1:description}" do
+  $0
+end

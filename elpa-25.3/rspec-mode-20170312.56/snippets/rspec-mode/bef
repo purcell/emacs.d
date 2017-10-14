@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: before do ... end
+# --
+before$1 do
+  $0
+end

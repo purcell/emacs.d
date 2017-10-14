@@ -1,0 +1,4 @@
+# -*- mode: snippet -*-
+# name: specify { ... }
+# --
+specify { $0 }

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: background do ... end
+# --
+background do
+  $0
+end
