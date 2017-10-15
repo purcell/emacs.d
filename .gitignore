@@ -49,3 +49,5 @@ cookies
 /.uptimes.el
 /rake.cache
 /plantuml.jar
+/vender/ycmd/third_party/
+/vender/ycmd/clang_archives/
