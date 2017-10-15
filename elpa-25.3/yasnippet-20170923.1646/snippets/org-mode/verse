@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: verse
+# key: verse_
+# --
+#+begin_verse
+        $0
+#+end_verse

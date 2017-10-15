@@ -1,0 +1,6 @@
+#name : Highlight
+#contributor: nguyenvinhlinh <nguyenvinhlinh93@gmail.com>
+# --
+{% highlight ${1:language} %}
+${0:content}
+{% endhighlight %}

@@ -114,6 +114,9 @@
 (require 'init-clojure-cider)
 (require 'init-common-lisp)
 
+(require 'init-cpp)
+(require 'init-yasnippet)
+
 (when *spell-check-support-enabled*
   (require 'init-spelling))
 
