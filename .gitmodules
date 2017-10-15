@@ -1,0 +1,3 @@
+[submodule "vender/YCMD"]
+	path = vender/YCMD
+	url = https://github.com/Valloric/ycmd.git

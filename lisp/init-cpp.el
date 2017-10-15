@@ -8,8 +8,8 @@
 (add-hook 'c++-mode-hook 'ycmd-mode)
 (add-hook 'c-mode-hook 'ycmd-mode)
 (add-hook 'c++-mode-hook 'company-mode)
-(set-variable 'ycmd-server-command '("python" "../vender/ycmd/ycmd"))
-(set-variable 'ycmd-global-config "../vender/ycmd/cpp/ycm/.ycm_extra_conf.py")
+(set-variable 'ycmd-server-command '("python" "../vender/YCMD/ycmd"))
+(set-variable 'ycmd-global-config "../vender/YCMD/cpp/ycm/.ycm_extra_conf.py")
 (add-hook 'c++-mode-hook
           (lambda ()
             ;; quick compilation
