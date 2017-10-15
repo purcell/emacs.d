@@ -3,6 +3,7 @@
 (maybe-require-package 'coffee-mode)
 (maybe-require-package 'typescript-mode)
 (maybe-require-package 'prettier-js)
+(maybe-require-package 'tern)
 
 (defcustom preferred-javascript-mode
   (first (remove-if-not #'fboundp '(js2-mode js-mode)))
@@ -107,6 +108,13 @@
     (add-hook 'typescript-mode-hook 'add-node-modules-path))
   (after-load 'js2-mode
     (add-hook 'js2-mode-hook 'add-node-modules-path)))
+
+;;;; Tern auto-complete
+(after-load 'js2-mode 
+  '(progn
+      (require 'tern-auto-complete)
+      (tern-ac-setup)
+      (auto-complete-mode t)))
 
 
 (provide 'init-javascript)
