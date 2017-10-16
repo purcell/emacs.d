@@ -1,0 +1,11 @@
+{
+  "files": [
+    "lib.core.d.ts",
+    "lib.core.es6.d.ts",
+    "lib.d.ts",
+    "lib.dom.d.ts",
+    "lib.es6.d.ts",
+    "lib.scriptHost.d.ts",
+    "lib.webworker.d.ts"
+  ]
+}
