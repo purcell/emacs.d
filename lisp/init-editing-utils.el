@@ -191,10 +191,10 @@
 ;;----------------------------------------------------------------------------
 ;; Page break lines
 ;;----------------------------------------------------------------------------
-(require-package 'page-break-lines)
-(add-hook 'after-init-hook 'global-page-break-lines-mode)
-(after-load 'page-break-lines
-  (diminish 'page-break-lines-mode))
+(when (maybe-require-package 'page-break-lines)
+  (add-hook 'after-init-hook 'global-page-break-lines-mode)
+  (after-load 'page-break-lines
+    (diminish 'page-break-lines-mode)))
 
 ;;----------------------------------------------------------------------------
 ;; Shift lines up and down with M-up and M-down. When paredit is enabled,
