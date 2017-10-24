@@ -101,6 +101,7 @@
 (require 'init-ruby-mode)
 (require 'init-rails)
 (require 'init-sql)
+(require 'init-groovy-mode)
 (require 'init-rust)
 (require 'init-toml)
 (require 'init-yaml)
