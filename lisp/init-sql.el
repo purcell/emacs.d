@@ -18,7 +18,7 @@ Fix for the above hasn't been released as of Emacs 25.2."
 (defun sanityinc/pop-to-sqli-buffer ()
   "Switch to the corresponding sqli buffer."
   (interactive)
-  (if sql-buffer
+  (if (and sql-buffer (buffer-live-p sql-buffer))
       (progn
         (pop-to-buffer sql-buffer)
         (goto-char (point-max)))
