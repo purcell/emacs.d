@@ -128,6 +128,9 @@
 
 ;(add-to-list 'mmm-set-file-name-for-modes 'ruby-mode)
 
+(require-package 'rvm)
 
+(defadvice inf-ruby-console-auto (before activate-rvm-for-robe activate)
+  (rvm-activate-corresponding-ruby))
 
 (provide 'init-ruby-mode)
