@@ -37,4 +37,14 @@
 
 (global-set-key (kbd "C-c D")  'delete-file-and-buffer)
 
+(setq compilation-finish-function
+      (lambda (buf str)
+        (if (null (string-match ".*exited abnormally.*" str))
+            ;;no errors, make the compilation window go away in a few seconds
+            (progn
+              (run-at-time
+               "1 sec" nil 'delete-windows-on
+               (get-buffer-create "*compilation*"))
+              (message "Good shit!")))))
+
 (provide 'init-local)
