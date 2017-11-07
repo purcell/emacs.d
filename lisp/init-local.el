@@ -19,6 +19,10 @@
 
 (require-package 'counsel-gtags)
 
+;;; semantic
+(add-to-list 'semantic-default-submodes 'global-semantic-decoration-mode t)
+(semantic-mode)
+
 (defun fix-c-indent-offset-according-to-syntax-context (key val)
   "Remove the old element.
 KEY: key
@@ -26,10 +30,6 @@ VAL: value"
   (setq c-offsets-alist (delq (assoc key c-offsets-alist) c-offsets-alist))
   ;; new value
   (add-to-list 'c-offsets-alist '(key . val)))
-
-
-;;; semantic
-;;(add-to-list 'semantic-default-submodes 'global-semantic-decoration-mode t)
 
 (defun c-mode-common-hook-setup ()
   "My c mode common hook setup."
@@ -80,9 +80,8 @@ VAL: value"
   (defalias 'gt-backward 'counsel-gtags-go-backward)
 
   ;; eassist mode
-  (eassist-mode t)
   (local-set-key (kbd "C-c h") 'eassist-switch-h-cpp)
-  (lcoal-set-key (kbd "C-c m") 'eassist-list-methods))
+  (local-set-key (kbd "C-c m") 'eassist-list-methods))
 
 
 (add-hook 'c-mode-common-hook 'c-mode-common-hook-setup)
