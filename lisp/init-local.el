@@ -19,10 +19,6 @@
 
 (require-package 'counsel-gtags)
 
-;;; semantic
-(add-to-list 'semantic-default-submodes 'global-semantic-decoration-mode t)
-(semantic-mode)
-
 (defun fix-c-indent-offset-according-to-syntax-context (key val)
   "Remove the old element.
 KEY: key
@@ -45,6 +41,8 @@ VAL: value"
   (setq lazy-lock-defer-contextually t)
   (setq lazy-lock-defer-time 0)
 
+  (semantic-mode)
+
   ;; indent
   ;; google "C/C++/Java code indentation in Emacs" for more advanced skills
   ;; C code:
@@ -54,7 +52,12 @@ VAL: value"
   (fix-c-indent-offset-according-to-syntax-context 'func-decl-cont 0)
 
   ;; header
-  (setq cc-search-directories '("." "/usr/include" "/usr/local/include/*" "../*/include"))
+  (setq cc-search-directories '(
+                                "."
+                                "/usr/include"
+                                "/usr/local/include/*"
+                                "../include"
+                                "../*/include"))
 
   ;; make a #define be left-aligned
   (setq c-electric-pound-behavior (quote (alignleft)))
@@ -116,9 +119,21 @@ VAL: value"
 ;;; highlight
 (require 'highlight-symbol)
 
-(global-set-key [f3] 'highlight-symbol-next)
-(global-set-key [(shift f3)] 'highlight-symbol-prev)
-(global-set-key [(meta f3)] 'highlight-symbol-query-replace)
+(defun my-highlight (&optional symbol)
+  "My highlight function.
+If symbol at current pointer is highlight return `highlight-symbol-next',
+otherwise return `highlight-symbol',
+SYMBOL: symbol at pointer."
+  (interactive)
+  (let ((symbol (or symbol
+                    (highlight-symbol-get-symbol)
+                    (error "No symbol at point"))))
+    (if (highlight-symbol-symbol-highlighted-p symbol)
+        (highlight-symbol-next)
+      (highlight-symbol symbol))))
+
+(global-set-key [f3] 'my-highlight)
+(global-set-key [(shift f3)] 'highlight-symbol)
 
 (defalias 'hl 'highlight-symbol)
 
@@ -234,9 +249,6 @@ ARG arg: parentheses"
             ""
             (select-frame new-frame)
             (set-frame-font my-default-fonts)))
-
-;; Set selected region color.
-(set-face-attribute 'region nil :background "#00ff00")
 
 ;;; mode line : default-mode-line-format
 ;; (setq-default mode-line-format
