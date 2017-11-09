@@ -19,20 +19,11 @@ VAL: value"
 
 (defun c-mode-common-hook-setup ()
   "My c mode common hook setup."
-
   ;; basic
   (setq c-default-style "linux")
   (setq c-basic-offset 4)
   (setq c-auto-newline nil)
   (c-toggle-hungry-state 1)
-
-  ;; syntax-highlight aggressively
-  ;; (setq font-lock-support-mode 'lazy-lock-mode)
-  (setq lazy-lock-defer-contextually t)
-  (setq lazy-lock-defer-time 0)
-
-  ;; long names
-  (c-set-offset 'arglist-intro '+)
 
   ;; indent
   ;; google "C/C++/Java code indentation in Emacs" for more advanced skills
@@ -41,14 +32,6 @@ VAL: value"
   (fix-c-indent-offset-according-to-syntax-context 'substatement 0)
   ;;   void fn() // press ENTER here, zero means no indentation
   (fix-c-indent-offset-according-to-syntax-context 'func-decl-cont 0)
-
-  ;; header
-  ;; (setq cc-search-directories '(
-  ;;                               "."
-  ;;                               "/usr/include"
-  ;;                               "/usr/local/include/*"
-  ;;                               "../include"
-  ;;                               "../*/include"))
 
   ;; make a #define be left-aligned
   (setq c-electric-pound-behavior (quote (alignleft)))
@@ -68,7 +51,7 @@ VAL: value"
   (defalias 'gt-forward 'counsel-gtags-go-forward)
   (defalias 'gt-backward 'counsel-gtags-go-backward)
 
-  ;;
+  ;; switch between .c and .h and function list
   (local-set-key (kbd "C-c h") 'ff-find-other-file)
   (local-set-key (kbd "C-c m") 'imenu))
 
