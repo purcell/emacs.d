@@ -7,16 +7,6 @@
 
 
 ;;; c mode
-;;; cedet
-;; git clone http://git.code.sf.net/p/cedet/git cedet
-(load-file (expand-file-name "site-lisp/cedet/cedet-devel-load.el"
-                             user-emacs-directory))
-(load-file (expand-file-name "site-lisp/cedet/contrib/eassist.el"
-                             user-emacs-directory))
-
-(require 'semantic)
-(require 'eassist)
-
 (require-package 'counsel-gtags)
 
 (defun fix-c-indent-offset-according-to-syntax-context (key val)
@@ -41,7 +31,8 @@ VAL: value"
   (setq lazy-lock-defer-contextually t)
   (setq lazy-lock-defer-time 0)
 
-  (semantic-mode)
+  ;; long names
+  (c-set-offset 'arglist-intro '+)
 
   ;; indent
   ;; google "C/C++/Java code indentation in Emacs" for more advanced skills
@@ -52,24 +43,19 @@ VAL: value"
   (fix-c-indent-offset-according-to-syntax-context 'func-decl-cont 0)
 
   ;; header
-  (setq cc-search-directories '(
-                                "."
-                                "/usr/include"
-                                "/usr/local/include/*"
-                                "../include"
-                                "../*/include"))
+  ;; (setq cc-search-directories '(
+  ;;                               "."
+  ;;                               "/usr/include"
+  ;;                               "/usr/local/include/*"
+  ;;                               "../include"
+  ;;                               "../*/include"))
 
   ;; make a #define be left-aligned
   (setq c-electric-pound-behavior (quote (alignleft)))
 
-  ;; gtags (GNU global) stuff
-  (when (and (executable-find "global")
-             ;; `man global' to figure out why
-             (not (string-match-p "GTAGS not found"
-                                  (shell-command-to-string "global -p")))))
-
   ;; gtags
   (counsel-gtags-mode t)
+
   (with-eval-after-load 'counsel-gtags
     (define-key counsel-gtags-mode-map (kbd "M-.") 'counsel-gtags-dwim)
     (define-key counsel-gtags-mode-map (kbd "M-,") 'counsel-gtags-go-backward)
@@ -82,9 +68,9 @@ VAL: value"
   (defalias 'gt-forward 'counsel-gtags-go-forward)
   (defalias 'gt-backward 'counsel-gtags-go-backward)
 
-  ;; eassist mode
-  (local-set-key (kbd "C-c h") 'eassist-switch-h-cpp)
-  (local-set-key (kbd "C-c m") 'eassist-list-methods))
+  ;;
+  (local-set-key (kbd "C-c h") 'ff-find-other-file)
+  (local-set-key (kbd "C-c m") 'imenu))
 
 
 (add-hook 'c-mode-common-hook 'c-mode-common-hook-setup)
@@ -116,10 +102,15 @@ VAL: value"
 (add-hook 'before-save-hook 'gofmt-before-save)
 
 
+;;; which function
+(require 'which-func)
+(which-func-mode 1)
+
+
 ;;; highlight
 (require 'highlight-symbol)
 
-(defun my-highlight (&optional symbol)
+(defun my-highlight-next (&optional symbol)
   "My highlight function.
 If symbol at current pointer is highlight return `highlight-symbol-next',
 otherwise return `highlight-symbol',
@@ -129,13 +120,26 @@ SYMBOL: symbol at pointer."
                     (highlight-symbol-get-symbol)
                     (error "No symbol at point"))))
     (if (highlight-symbol-symbol-highlighted-p symbol)
-        (highlight-symbol-next)
+        (highlight-symbol-next-in-defun)
       (highlight-symbol symbol))))
 
-(global-set-key [f3] 'my-highlight)
-(global-set-key [(shift f3)] 'highlight-symbol)
+(defun my-highlight-prev (&optional symbol)
+  "My highlight function.
+If symbol at current pointer is highlight return `highlight-symbol-prev',
+otherwise return `highlight-symbol',
+SYMBOL: symbol at pointer."
+  (interactive)
+  (let ((symbol (or symbol
+                    (highlight-symbol-get-symbol)
+                    (error "No symbol at point"))))
+    (if (highlight-symbol-symbol-highlighted-p symbol)
+        (highlight-symbol-prev-in-defun)
+      (highlight-symbol symbol))))
 
-(defalias 'hl 'highlight-symbol)
+(global-set-key [f3] 'my-highlight-next)
+(global-set-key [(shift f3)] 'my-highlight-prev)
+
+(defalias 'hl-remove-all 'highlight-symbol-remove-all)
 
 
 ;;; scheme mode
