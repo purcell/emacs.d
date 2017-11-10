@@ -211,6 +211,7 @@ SYMBOL: symbol at pointer."
 
 ;;; misc
 (defalias 'fg 'find-grep)
+(global-set-key (kbd "<f2>") 'find-grep)
 
 ;;; fix osx-key
 (when *is-a-mac*
