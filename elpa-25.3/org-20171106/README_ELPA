@@ -1,0 +1,41 @@
+This is the Emacs Org project, an Emacs library for organizing your life.
+
+The homepage of Org is at:
+  http://orgmode.org
+
+Installations instructions are at:
+  http://orgmode.org/org.html#Installation
+
+This distribution contains an ELPA packaged version of Org.
+"ELPA" stands for the "Emacs Lisp Package Archive".
+
+The GNU ELPA is at:
+  http://elpa.gnu.org
+
+It contains the org-*.tar package, containing only the org files
+that are also part of GNU Emacs.
+
+There are other ELPA online, offering more packages.
+
+Some contain the org-plus-contrib-*.tar ELPA package, which bundles
+the core Org files plus many additional contributed libraries.
+
+All ELPA packages of Org contain:
+
+README_ELPA
+    This file.
+
+*.el
+    Elisp files.
+
+org
+    The Org info manual.
+
+orgcard.pdf
+    The Org reference card.
+
+etc/
+    Libraries for the ODT exporter.
+
+org-*-pkg.el
+    The name of the package, requested GNU Emacs packaging system.

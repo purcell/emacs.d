@@ -12,7 +12,7 @@
   :group 'programming
   :options '(js2-mode js-mode))
 
-(defconst preferred-javascript-indent-level 2)
+(defconst preferred-javascript-indent-level 4)
 
 ;; Need to first remove from list if present, since elpa adds entries too, which
 ;; may be in an arbitrary order
@@ -26,7 +26,7 @@
 ;; js2-mode
 
 ;; Change some defaults: customize them to override
-(setq-default js2-basic-offset 2
+(setq-default js2-basic-offset 4
               js2-bounce-indent-p nil)
 (after-load 'js2-mode
   ;; Disable js2 mode's syntax error highlighting by default...

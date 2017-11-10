@@ -25,5 +25,13 @@
 (global-set-key (kbd "C-c h") 'helm-command-prefix)
 (global-set-key (kbd "M-x") 'helm-M-x)
 
-
+;; config org2blog
+(require 'org2blog-autoloads)
+(setq org2blog/wp-blog-alist
+      '(("wordpress"
+         :url "http://zayafa.com/xmlrpc.php"
+         :username "zhangyunfeng0101@gmail.com"
+         :default-title "NONE TITLE"
+         :default-categories ("learning")
+         :tags-as-categories nil)))
 (provide 'init-locales)
