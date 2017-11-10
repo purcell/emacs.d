@@ -228,6 +228,9 @@ ARG arg: parentheses"
         (t (self-insert-command (or arg 1)))))
 (global-set-key (kbd "C-x [") 'match-paren)
 
+;;; magit
+(global-set-key (kbd "C-x p") 'magit-push)
+
 ;;; fonts
 ;;(defconst my-default-fonts "Source Code Pro 14")
 (defconst my-default-fonts "monaco 14")
