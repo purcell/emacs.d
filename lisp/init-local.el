@@ -119,8 +119,9 @@ SYMBOL: symbol at pointer."
         (highlight-symbol-prev-in-defun)
       (highlight-symbol symbol))))
 
-(global-set-key [f3] 'my-highlight-next)
-(global-set-key [(shift f3)] 'my-highlight-prev)
+(global-set-key (kbd "<f3>") 'my-highlight-next)
+(global-set-key (kbd "S-<f3>") 'my-highlight-prev)
+(global-set-key (kbd "M-<f3>") 'highlight-symbol-remove-all)
 
 (defalias 'hl-remove-all 'highlight-symbol-remove-all)
 
