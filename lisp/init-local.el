@@ -230,7 +230,7 @@ ARG arg: parentheses"
 
 ;;; fonts
 ;;(defconst my-default-fonts "Source Code Pro 14")
-(defconst my-default-fonts "monaco 13")
+(defconst my-default-fonts "monaco 14")
 (set-frame-font my-default-fonts)
 (add-hook 'after-make-frame-functions
           (lambda (new-frame)
