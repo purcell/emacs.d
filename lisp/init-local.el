@@ -243,21 +243,21 @@ ARG arg: parentheses"
             (set-frame-font my-default-fonts)))
 
 ;;; mode line : default-mode-line-format
-;; (setq-default mode-line-format
-;;               (list mode-line-front-space
-;;                     mode-line-mule-info
-;;                     mode-line-client
-;;                     mode-line-modified
-;;                     mode-line-remote
-;;                     mode-line-frame-identification
-;;                     mode-line-buffer-identification
-;;                     "   "
-;;                     mode-line-position
-;;                     ;;(vc-mode vc-mode)
-;;                     "  "
-;;                     ;;mode-line-modes
-;;                     mode-line-misc-info
-;;                     mode-line-end-spaces))
+(setq-default mode-line-format
+              (list mode-line-front-space
+                    mode-line-mule-info
+                    mode-line-client
+                    mode-line-modified
+                    mode-line-remote
+                    mode-line-frame-identification
+                    mode-line-buffer-identification
+                    "   "
+                    mode-line-position
+                    ;;(vc-mode vc-mode)
+                    "  "
+                    ;;mode-line-modes
+                    mode-line-misc-info
+                    mode-line-end-spaces))
 
 ;;; unset some global keys
 
