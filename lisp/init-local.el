@@ -242,6 +242,9 @@ ARG arg: parentheses"
             (select-frame new-frame)
             (set-frame-font my-default-fonts)))
 
+;;; org-mode
+(setq org-export-backends (quote (ascii html icalendar latex md)))
+
 (provide 'init-local)
 ;; Local Variables:
 ;; coding: utf-8
