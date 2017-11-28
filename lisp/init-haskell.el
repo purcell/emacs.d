@@ -40,6 +40,8 @@
 (after-load 'page-break-lines
   (push 'haskell-mode page-break-lines-modes))
 
+
+(maybe-require-package 'dhall-mode)
 
 
 (provide 'init-haskell)
