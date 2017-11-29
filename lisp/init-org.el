@@ -7,6 +7,14 @@
 (define-key global-map (kbd "C-c l") 'org-store-link)
 (define-key global-map (kbd "C-c a") 'org-agenda)
 
+(defun 4honor/org-mode-config ()
+  "For use in `org-mode-hook'."
+  (local-set-key (kbd "C-c i") 'org-time-stamp-inactive)
+  (4honor/fonts-profile-program)
+  )
+
+(add-hook 'org-mode-hook '4honor/org-mode-config)
+
 ;; Various preferences
 (setq org-log-done t
       org-edit-timestamp-down-means-later t
@@ -99,14 +107,26 @@ typical word processor."
 ;;; Capturing
 
 (global-set-key (kbd "C-c c") 'org-capture)
+(setq org-directory "~/Dropbox/orgs")
 
+;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
 (setq org-capture-templates
-      `(("t" "todo" entry (file "")  ; "" => `org-default-notes-file'
-         "* NEXT %?\n%U\n" :clock-resume t)
-        ("n" "note" entry (file "")
-         "* %? :NOTE:\n%U\n%a\n" :clock-resume t)
-        ))
-
+      (quote (("t" "todo" entry (file (concat org-directory "/gtd/inbox.org"))
+               "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+              ("r" "respond" entry (file (concat org-directory "/gtd/inbox.org"))
+               "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t :immediate-finish t)
+              ("n" "note" entry (file (concat org-directory "/gtd/inbox.org"))
+               "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+              ("j" "Journal" entry (file+datetree (concat org-directory "/gtd/4honor/diary.org"))
+               "* %?\n%U\n" :clock-in t :clock-resume t)
+              ("w" "org-protocol" entry (file (concat org-directory "/gtd/inbox.org"))
+               "* TODO Review %c\n%U\n" :immediate-finish t)
+              ("m" "Meeting" entry (file (concat org-directory "/gtd/inbox.org"))
+               "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+              ("p" "Phone call" entry (file (concat org-directory "/gtd/inbox.org"))
+               "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
+              ("h" "Habit" entry (file (concat org-directory "/gtd/4honor/habit.org"))
+               "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n"))))
 
 
 ;;; Refiling
@@ -155,13 +175,22 @@ typical word processor."
 (setq org-todo-keywords
       (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!/!)")
               (sequence "PROJECT(p)" "|" "DONE(d!/!)" "CANCELLED(c@/!)")
-              (sequence "WAITING(w@/!)" "DELEGATED(e!)" "HOLD(h)" "|" "CANCELLED(c@/!)")))
+              (sequence "WAITING(w@/!)" "DELEGATED(e!)" "HOLD(h)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING")))
       org-todo-repeat-to-state "NEXT")
+
+;; TODO state triggers
+;; (setq org-todo-state-tags-triggers
+;;       (quote (("CANCELLED" ("CANCELLED" . t))
+;;               ("WAITING" ("WAITING" . t))
+;;               ("HOLD" ("WAITING") ("HOLD" . t))
+;;               (done ("WAITING") ("HOLD"))
+;;               ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+;;               ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+;;               ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
 
 (setq org-todo-keyword-faces
       (quote (("NEXT" :inherit warning)
               ("PROJECT" :inherit font-lock-string-face))))
-
 
 
 ;;; Agenda views
@@ -326,7 +355,11 @@ typical word processor."
 (setq org-archive-mark-done nil)
 (setq org-archive-location "%s_archive::* Archive")
 
+
+;;; Presentation
 
+;;(require-package 'ox-reveal)
+;;(setq org-reveal-root (concat "file:/" org-directory "/pkm/assets/reveal.js/js/reveal.js"))
 
 
 
