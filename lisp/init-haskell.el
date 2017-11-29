@@ -41,7 +41,8 @@
   (push 'haskell-mode page-break-lines-modes))
 
 
-(maybe-require-package 'dhall-mode)
+(when (maybe-require-package 'dhall-mode)
+  (add-hook 'dhall-mode-hook 'sanityinc/no-trailing-whitespace))
 
 
 (provide 'init-haskell)
