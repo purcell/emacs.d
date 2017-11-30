@@ -234,8 +234,10 @@ ARG arg: parentheses"
 (global-set-key (kbd "C-x p") 'magit-push)
 
 ;;; fonts
-;;(defconst my-default-fonts "Source Code Pro 14")
-(defconst my-default-fonts "monaco 14")
+(if *is-a-mac*
+    (defconst my-default-fonts "monaco 14")
+  (defconst my-default-fonts "Source Code Pro 12"))
+
 (set-frame-font my-default-fonts)
 (add-hook 'after-make-frame-functions
           (lambda (new-frame)
