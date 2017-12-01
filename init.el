@@ -131,6 +131,7 @@
 (when *is-a-mac*
   (require-package 'osx-location))
 (maybe-require-package 'regex-tool)
+(maybe-require-package 'dotenv-mode)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
