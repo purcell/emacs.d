@@ -236,7 +236,8 @@ ARG arg: parentheses"
 
 ;;; fonts
 (if *is-a-mac*
-    (defconst my-default-fonts "monaco 14")
+    ;;(defconst my-default-fonts "monaco 14")
+    (defconst my-default-fonts "Source Code Pro 13")
   (defconst my-default-fonts "Source Code Pro 12"))
 
 (set-frame-font my-default-fonts)
