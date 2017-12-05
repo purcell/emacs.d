@@ -43,7 +43,7 @@ VAL: value"
     (define-key counsel-gtags-mode-map (kbd "M-.") 'counsel-gtags-dwim)
     (define-key counsel-gtags-mode-map (kbd "M-,") 'counsel-gtags-go-backward)
     (define-key counsel-gtags-mode-map (kbd "M-r") 'counsel-gtags-find-reference)
-    (define-key counsel-gtags-mode-map (kbd "M-s") 'counsel-gtags-find-symbol))
+    (define-key counsel-gtags-mode-map (kbd "M-s") 'counsel-gtags-find-definition))
 
   (defalias 'gt-find-file 'counsel-gtags-find-file)
   (defalias 'gt-create 'counsel-gtags-create-tags)
