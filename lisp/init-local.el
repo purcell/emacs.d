@@ -50,6 +50,7 @@ VAL: value"
   (defalias 'gt-update 'counsel-gtags-update-tags)
   (defalias 'gt-forward 'counsel-gtags-go-forward)
   (defalias 'gt-backward 'counsel-gtags-go-backward)
+  (defalias 'gt-find-file 'counsel-gtags-find-file)
 
   ;; switch between .c and .h and function list
   (local-set-key (kbd "C-c h") 'ff-find-other-file)
