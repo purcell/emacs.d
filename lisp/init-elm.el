@@ -2,8 +2,8 @@
   (setq-default elm-format-on-save t)
   (after-load 'elm-mode
     (diminish 'elm-indent-mode)
-    (when (executable-find "elm-oracle")
-      (add-hook 'elm-mode-hook 'elm-oracle-setup-completion))
+    (add-hook 'elm-mode-hook
+              (lambda () (sanityinc/local-push-company-backend 'company-elm)))
     (when (executable-find "elm-format")
       (setq-default elm-format-on-save t)))
   (when (maybe-require-package 'flycheck-elm)

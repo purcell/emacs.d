@@ -12,8 +12,7 @@
     (define-key company-active-map (kbd "M-/") 'company-select-next)
     (define-key company-active-map (kbd "C-n") 'company-select-next)
     (define-key company-active-map (kbd "C-p") 'company-select-previous)
-    (setq-default company-backends '((company-capf company-dabbrev-code) company-dabbrev)
-                  company-dabbrev-other-buffers 'all
+    (setq-default company-dabbrev-other-buffers 'all
                   company-tooltip-align-annotations t))
   (global-set-key (kbd "M-C-/") 'company-complete)
   (when (maybe-require-package 'company-quickhelp)
@@ -21,9 +20,8 @@
 
   (defun sanityinc/local-push-company-backend (backend)
     "Add BACKEND to a buffer-local version of `company-backends'."
-    (set (make-local-variable 'company-backends)
-         (append (list backend) company-backends))))
-
+    (make-local-variable 'company-backends)
+    (push backend company-backends)))
 
 ;; Suspend page-break-lines-mode while company menu is active
 ;; (see https://github.com/company-mode/company-mode/issues/416)
