@@ -30,7 +30,8 @@
 (add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
 
 (when (maybe-require-package 'hindent)
-  (add-hook 'haskell-mode-hook 'hindent-mode))
+  (add-hook 'haskell-mode-hook 'hindent-mode)
+  (setq-default hindent-extra-args nil))
 
 (after-load 'haskell-mode
   (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
