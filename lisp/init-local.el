@@ -246,6 +246,9 @@ ARG arg: parentheses"
 ;;; org-mode
 (setq org-export-backends (quote (ascii html icalendar latex md)))
 
+;;; tab width
+(setq tab-width 4)
+
 (provide 'init-local)
 ;; Local Variables:
 ;; coding: utf-8
