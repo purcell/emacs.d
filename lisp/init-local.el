@@ -249,6 +249,10 @@ ARG arg: parentheses"
 ;;; tab width
 (setq tab-width 4)
 
+;;; unst-keys
+(global-unset-key (kbd "<M-tab>"))
+(global-unset-key (kbd "C-M-i"))
+
 (provide 'init-local)
 ;; Local Variables:
 ;; coding: utf-8
