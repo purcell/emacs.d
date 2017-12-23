@@ -73,5 +73,8 @@ instead."
     (define-key ivy-mode-map (kbd "M-s /") 'sanityinc/swiper-at-point)))
 
 
+(when (maybe-require-package 'ivy-xref)
+  (setq xref-show-xrefs-function 'ivy-xref-show-xrefs))
+
 
 (provide 'init-ivy)
