@@ -315,8 +315,5 @@ With arg N, insert N newlines."
 (after-load 'guide-key
   (diminish 'guide-key-mode))
 
-
-(require-package 'disable-mouse)
-
 
 (provide 'init-editing-utils)
