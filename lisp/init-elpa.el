@@ -1,13 +1,5 @@
 (require 'package)
 
-
-(let ((local-package-el (locate-library "package")))
-  (when (string-match-p (concat "^" (regexp-quote user-emacs-directory))
-                        local-package-el)
-    (warn "Please remove the local package.el, which is no longer supported (%s)"
-          local-package-el)))
-
-
 
 ;;; Install into separate package dirs for each Emacs version, to prevent bytecode incompatibility
 (let ((versioned-package-dir
