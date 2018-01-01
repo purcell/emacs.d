@@ -304,18 +304,6 @@ typical word processor."
 
 
 
-;; Remove empty LOGBOOK drawers on clock out
-(defun sanityinc/remove-empty-drawer-on-clock-out ()
-  (interactive)
-  (save-excursion
-    (beginning-of-line 0)
-    (org-remove-empty-drawer-at "LOGBOOK" (point))))
-
-(after-load 'org-clock
-  (add-hook 'org-clock-out-hook 'sanityinc/remove-empty-drawer-on-clock-out 'append))
-
-
-
 ;; TODO: warn about inconsistent items, e.g. TODO inside non-PROJECT
 ;; TODO: nested projects!
 
