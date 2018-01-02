@@ -37,6 +37,9 @@
   (when (fboundp 'menu-bar-mode)
     (menu-bar-mode -1)))
 
+(when (fboundp 'pixel-scroll-mode)
+  (pixel-scroll-mode 1))
+
 (let ((no-border '(internal-border-width . 0)))
   (add-to-list 'default-frame-alist no-border)
   (add-to-list 'initial-frame-alist no-border))
