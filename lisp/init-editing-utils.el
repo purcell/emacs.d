@@ -39,7 +39,20 @@
 (when (maybe-require-package 'dynamic-spaces)
   (dynamic-spaces-global-mode))
 
+
  ;;; A simple visible bell which works in all terminal types
+;; Huge files
+
+(require-package 'vlf)
+
+(defun ffap-vlf ()
+  "Find file at point with VLF."
+  (interactive)
+  (let ((file (ffap-file-at-point)))
+    (unless (file-exists-p file)
+      (error "File does not exist: %s" file))
+    (vlf file)))
+
 
 (defun sanityinc/flash-mode-line ()
   (invert-face 'mode-line)
