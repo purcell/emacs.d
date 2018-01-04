@@ -54,12 +54,10 @@
     (vlf file)))
 
 
-(defun sanityinc/flash-mode-line ()
-  (invert-face 'mode-line)
-  (run-with-timer 0.05 nil 'invert-face 'mode-line))
 
-(setq-default
- ring-bell-function 'sanityinc/flash-mode-line)
+
+(require-package 'mode-line-bell)
+(add-hook 'after-init-hook 'mode-line-bell-mode)
 
 
 
