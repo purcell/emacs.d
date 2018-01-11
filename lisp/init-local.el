@@ -73,7 +73,6 @@ VAL: value"
 ;;; Code:
 (defun my-go-mode ()
   "My `go-mode' common hook."
-  (linum-mode)
   (auto-complete-mode 1)
   (go-eldoc-setup)
   (setq gofmt-command "goimports")
@@ -202,7 +201,6 @@ SYMBOL: symbol at pointer."
   "My `scheme' mode hook."
   (global-font-lock-mode 1)
   (paredit-mode)
-  (linum-mode)
   ;; key
   (define-key scheme-mode-map (kbd "<f5>") 'scheme-send-last-sexp-split-window)
   (define-key scheme-mode-map (kbd "<f6>") 'scheme-send-definition-split-window)
