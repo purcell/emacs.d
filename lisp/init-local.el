@@ -251,8 +251,8 @@ ARG arg: parentheses"
 (global-unset-key (kbd "<M-tab>"))
 (global-unset-key (kbd "C-M-i"))
 
-;;; use isearch-forward-symbol-at-point instead of isearch-forward
-(global-set-key (kbd "C-s") 'isearch-forward-symbol-at-point)
+;;; C-s-s isearch-forward-symbol-at-point
+(global-set-key (kbd "C-s C-s") 'isearch-forward-symbol-at-point)
 
 (provide 'init-local)
 ;; Local Variables:
