@@ -107,6 +107,7 @@
 (require 'init-yaml)
 (require 'init-docker)
 (require 'init-terraform)
+(require 'init-nix)
 
 (require 'init-paredit)
 (require 'init-lisp)
