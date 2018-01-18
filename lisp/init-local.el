@@ -254,6 +254,9 @@ ARG arg: parentheses"
 ;;; isearch-forward-symbol-at-point
 (defalias 'search-at-point 'isearch-forward-symbol-at-point)
 
+;;; global
+(global-linum-mode -1)
+
 (provide 'init-local)
 ;; Local Variables:
 ;; coding: utf-8
