@@ -1,4 +1,5 @@
 ;; -*- lexical-binding: t -*-
+(setq debug-on-error t)
 
 ;;; This file bootstraps the configuration, which is divided into
 ;;; a number of other files.
@@ -44,7 +45,6 @@
 ;;----------------------------------------------------------------------------
 
 (require-package 'wgrep)
-(require-package 'project-local-variables)
 (require-package 'diminish)
 (require-package 'scratch)
 (require-package 'command-log-mode)
@@ -64,6 +64,7 @@
 (require 'init-recentf)
 (require 'init-smex)
 (require 'init-ivy)
+;;(require 'init-helm)
 (require 'init-hippie-expand)
 (require 'init-company)
 (require 'init-windows)
@@ -124,6 +125,9 @@
 
 (require 'init-folding)
 (require 'init-dash)
+
+;;(require 'init-twitter)
+;; (require 'init-mu)
 (require 'init-ledger)
 ;; Extra packages which don't require any configuration
 
@@ -142,7 +146,6 @@
 (require 'server)
 (unless (server-running-p)
   (server-start))
-
 
 ;;----------------------------------------------------------------------------
 ;; Variables configured via the interactive 'customize' interface

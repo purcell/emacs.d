@@ -48,7 +48,8 @@ Fix for the above hasn't been released as of Emacs 25.2."
 (add-hook 'sql-interactive-mode-hook 'sanityinc/font-lock-everything-in-sql-interactive-mode)
 
 
-
+;; Package ideas:
+;;   - PEV
 (defun sanityinc/sql-explain-region-as-json (beg end &optional copy)
   "Explain the SQL between BEG and END in detailed JSON format.
 This is suitable for pasting into tools such as
