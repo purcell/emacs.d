@@ -1,12 +1,22 @@
-(require-package 'dired+)
+(setq-default dired-dwim-target t)
 
-(setq diredp-hide-details-initially-flag nil)
+;; Prefer g-prefixed coreutils version of standard utilities when available
+(let ((gls (executable-find "gls")))
+  (when gls (setq insert-directory-program gls)))
+
+(when (maybe-require-package 'diredfl)
+  (after-load 'dired
+    (diredfl-global-mode)))
 
 (after-load 'dired
-  (require 'dired+)
-  (when (fboundp 'global-dired-hide-details-mode)
-    (global-dired-hide-details-mode -1))
   (setq dired-recursive-deletes 'top)
-  (define-key dired-mode-map [mouse-2] 'dired-find-file))
+  (define-key dired-mode-map [mouse-2] 'dired-find-file)
+  (define-key dired-mode-map (kbd "C-c C-p") 'wdired-change-to-wdired-mode)
+  (add-hook 'dired-mode-hook
+            (lambda () (guide-key/add-local-guide-key-sequence "%"))))
+
+(when (maybe-require-package 'diff-hl)
+  (after-load 'dired
+    (add-hook 'dired-mode-hook 'diff-hl-dired-mode)))
 
 (provide 'init-dired)

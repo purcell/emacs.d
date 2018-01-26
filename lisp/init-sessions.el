@@ -2,9 +2,6 @@
 (setq desktop-path (list user-emacs-directory)
       desktop-auto-save-timeout 600)
 (desktop-save-mode 1)
-(defadvice desktop-read (around trace-desktop-errors activate)
-  (let ((debug-on-error t))
-    ad-do-it))
 
 (defadvice desktop-read (around time-restore activate)
     (let ((start-time (current-time)))
@@ -23,17 +20,20 @@
                (sanityinc/time-subtract-millis (current-time)
                                                start-time)
                (when filename
-		 (abbreviate-file-name filename))))))
+                 (abbreviate-file-name filename))))))
 
 ;;----------------------------------------------------------------------------
 ;; Restore histories and registers after saving
 ;;----------------------------------------------------------------------------
 (setq-default history-length 1000)
-(savehist-mode t)
+(add-hook 'after-init-hook 'savehist-mode)
 
 (require-package 'session)
 
 (setq session-save-file (expand-file-name ".session" user-emacs-directory))
+(setq session-name-disable-regexp "\\(?:\\`'/tmp\\|\\.git/[A-Z_]+\\'\\)")
+(setq session-save-file-coding-system 'utf-8)
+
 (add-hook 'after-init-hook 'session-initialize)
 
 ;; save a bunch of variables to the desktop file
@@ -52,6 +52,7 @@
                 (ido-last-directory-list  . 100)
                 (ido-work-directory-list  . 100)
                 (ido-work-file-list       . 100)
+                (ivy-history              . 100)
                 (magit-read-rev-history   . 50)
                 (minibuffer-history       . 50)
                 (org-clock-history        . 50)
@@ -66,13 +67,6 @@
                 (shell-command-history    . 50)
                 tags-file-name
                 tags-table-list)))
-
-(when (eval-when-compile (and (>= emacs-major-version 24)
-                              (string< emacs-version "24.3.50")
-                              ))
-  (unless (boundp 'desktop-restore-frames)
-    (require-package 'frame-restore)
-    (frame-restore)))
 
 
 (provide 'init-sessions)

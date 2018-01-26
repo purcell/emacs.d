@@ -1,39 +1,48 @@
 (require-package 'haskell-mode)
 
-(when (> emacs-major-version 23)
-  (require-package 'flycheck-hdevtools))
-(after-load 'flycheck
-  (require 'flycheck-hdevtools))
+
+;; Use intero for completion and flycheck
 
-(dolist (hook '(haskell-mode-hook inferior-haskell-mode-hook))
-  (add-hook hook 'turn-on-haskell-doc-mode))
+(when (maybe-require-package 'intero)
+  (after-load 'haskell-mode
+    (intero-global-mode)
+    (add-hook 'haskell-mode-hook 'eldoc-mode))
+  (after-load 'haskell-cabal
+    (define-key haskell-cabal-mode-map (kbd "C-c C-l") 'intero-restart))
+  (after-load 'intero
+    ;; Don't clobber sanityinc/counsel-search-project binding
+    (define-key intero-mode-map (kbd "M-?") nil)
+    (after-load 'flycheck
+      (flycheck-add-next-checker 'intero
+                                 '(warning . haskell-hlint)))))
+
 
 (add-auto-mode 'haskell-mode "\\.ghci\\'")
 
-(require-package 'hi2)
-;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-(add-hook 'haskell-mode-hook 'turn-on-hi2)
+
+;; Indentation
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
 
-(add-hook 'haskell-mode-hook (lambda () (subword-mode +1)))
+
+
+;; Source code helpers
+
+(add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
+
+(when (maybe-require-package 'hindent)
+  (add-hook 'haskell-mode-hook 'hindent-mode))
 
 (after-load 'haskell-mode
   (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
   (define-key haskell-mode-map (kbd "C-o") 'open-line))
 
-(when (eval-when-compile (>= emacs-major-version 24))
-  (require-package 'ghci-completion)
-  (add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion))
 
-(eval-after-load 'page-break-lines
-  '(push 'haskell-mode page-break-lines-modes))
+(after-load 'page-break-lines
+  (push 'haskell-mode page-break-lines-modes))
 
-;; Make compilation-mode understand "at blah.hs:11:34-50" lines output by GHC
-(after-load 'compile
-  (let ((alias 'ghc-at-regexp))
-    (add-to-list
-     'compilation-error-regexp-alist-alist
-     (list alias " at \\(.*\\.\\(?:l?[gh]hs\\|hi\\)\\):\\([0-9]+\\):\\([0-9]+\\)-[0-9]+$" 1 2 3 0 1))
-    (add-to-list
-     'compilation-error-regexp-alist alias)))
+
+(when (maybe-require-package 'dhall-mode)
+  (add-hook 'dhall-mode-hook 'sanityinc/no-trailing-whitespace))
+
 
 (provide 'init-haskell)
