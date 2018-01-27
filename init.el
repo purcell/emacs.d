@@ -140,6 +140,10 @@
 (maybe-require-package 'regex-tool)
 (maybe-require-package 'dotenv-mode)
 
+(when (maybe-require-package 'uptimes)
+  (add-hook 'after-init-hook (lambda () (require 'uptimes))))
+
+
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
 ;;----------------------------------------------------------------------------
@@ -166,8 +170,6 @@
 (require 'init-locales)
 
 
-(when (maybe-require-package 'uptimes)
-  (add-hook 'after-init-hook (lambda () (require 'uptimes))))
 
 
 (provide 'init)
