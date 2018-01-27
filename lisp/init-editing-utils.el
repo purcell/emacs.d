@@ -40,7 +40,7 @@
   (dynamic-spaces-global-mode))
 
 
- ;;; A simple visible bell which works in all terminal types
+
 ;; Huge files
 
 (require-package 'vlf)
@@ -53,9 +53,8 @@
       (error "File does not exist: %s" file))
     (vlf file)))
 
-
-
 
+;;; A simple visible bell which works in all terminal types
 (require-package 'mode-line-bell)
 (add-hook 'after-init-hook 'mode-line-bell-mode)
 
