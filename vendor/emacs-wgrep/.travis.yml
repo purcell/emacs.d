@@ -1,0 +1,12 @@
+language: emacs-lisp
+env:
+  matrix:
+    - EMACS=emacs24
+before_install:
+  - if [ "$EMACS" = "emacs24" ]; then
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get update -q &&
+        sudo apt-get install -q emacs24 emacs24-el;
+    fi
+script:
+  - make EMACS=${EMACS} check

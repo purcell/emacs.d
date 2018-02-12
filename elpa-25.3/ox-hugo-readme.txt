@@ -14,19 +14,19 @@ commands have bindings beginning with "H" (for Hugo).
 
 Commonly used export commands:
 
-* For one-post-per-subtree flow, where a single Org file can have
-  multiple Org subtrees which export to individual Hugo posts:
+## For one-post-per-subtree flow, where a single Org file can have
+   multiple Org subtrees which export to individual Hugo posts:
 
-  - C-c C-e H H  ->  Export the *current* 'valid Hugo post subtree'
-                      to a Hugo post in Markdown.
+   - C-c C-e H H  ->  Export the *current* 'valid Hugo post subtree'
+                       to a Hugo post in Markdown.
 
-  - C-c C-e H A  ->  Export *all* 'valid Hugo post subtrees' to
-                      Hugo posts in Markdown.
+   - C-c C-e H A  ->  Export *all* 'valid Hugo post subtrees' to
+                       Hugo posts in Markdown.
 
-* For one-post-per-file flow, where a single Org file exports to
-  only *one* Hugo post:
+## For one-post-per-file flow, where a single Org file exports to
+   only *one* Hugo post:
 
-  - C-c C-e H h  ->  Export the Org file to a Hugo post in Markdown.
+   - C-c C-e H h  ->  Export the Org file to a Hugo post in Markdown.
 
 Do M-x customize-group, and select `org-export-hugo' to see the
 available customization options for this package.

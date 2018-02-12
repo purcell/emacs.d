@@ -34,4 +34,8 @@
          :default-title "NONE TITLE"
          :default-categories ("learning")
          :tags-as-categories nil)))
+
+(with-eval-after-load 'ox
+  (require 'ox-hugo))
+
 (provide 'init-locales)
