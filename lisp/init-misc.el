@@ -22,6 +22,15 @@
    (normal-mode)))
 
 
+;; Handle the prompt pattern for the 1password command-line interface
+(after-load 'comint
+  (setq comint-password-prompt-regexp
+        (concat
+         comint-password-prompt-regexp
+         "\\|^Please enter your password for user .*?:\\s *\\'")))
+
+
+
 (setq-default regex-tool-backend 'perl)
 (after-load 're-builder
   ;; Support a slightly more idiomatic quit binding in re-builder
