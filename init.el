@@ -56,6 +56,7 @@
 (require 'init-gui-frames)
 (require 'init-dired)
 (require 'init-isearch)
+(require 'init-swiper)
 (require 'init-grep)
 (require 'init-uniquify)
 (require 'init-ibuffer)
