@@ -145,6 +145,8 @@
   (setq-default uptimes-keep-count 200)
   (add-hook 'after-init-hook (lambda () (require 'uptimes))))
 
+(require 'init-window-numbering)
+(require 'init-helm-gtags)
 
 ;;----------------------------------------------------------------------------
 ;; Allow access from emacsclient
