@@ -63,7 +63,9 @@ If the region is not active, uses the current paragraph, as per
 
 Connection information is taken from the special sql-* variables
 set in the current buffer, so you will usually want to start a
-SQLi session first, or otherwise set `sql-database' etc."
+SQLi session first, or otherwise set `sql-database' etc.
+
+This command currently blocks the UI, sorry."
   (interactive "rP")
   (unless (eq sql-product 'postgres)
     (user-error "This command is for PostgreSQL only"))
