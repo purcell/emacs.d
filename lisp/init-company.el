@@ -9,7 +9,7 @@
   (after-load 'company
     (diminish 'company-mode "CMP")
     (define-key company-mode-map (kbd "M-/") 'company-complete)
-    (define-key company-ac (kbd "M-/") 'company-other-backend)
+    (define-key company-active-map (kbd "M-/") 'company-other-backend)
     (define-key company-active-map (kbd "C-n") 'company-select-next)
     (define-key company-active-map (kbd "C-p") 'company-select-previous)
     (setq-default company-dabbrev-other-buffers 'all
