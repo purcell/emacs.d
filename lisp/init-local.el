@@ -59,6 +59,9 @@ VAL: value"
 
 (add-hook 'c-mode-common-hook 'c-mode-common-hook-setup)
 
+;;; bison
+(require-package 'bison-mode)
+
 
 ;;; go mode
 (require-package 'go-mode)
