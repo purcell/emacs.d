@@ -48,7 +48,7 @@
             ((executable-find "ack") 'counsel-ack))))
       (when search-function
         (defun sanityinc/counsel-search-project (initial-input &optional use-current-dir)
-          "Search using `counsel-ag' from the project root for INITIAL-INPUT.
+          "Search using `counsel-rg' or similar from the project root for INITIAL-INPUT.
 If there is no project root, or if the prefix argument
 USE-CURRENT-DIR is set, then search from the current directory
 instead."
