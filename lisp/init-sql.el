@@ -48,7 +48,8 @@ Fix for the above hasn't been released as of Emacs 25.2."
 (add-hook 'sql-interactive-mode-hook 'sanityinc/font-lock-everything-in-sql-interactive-mode)
 
 
-
+;; Package ideas:
+;;   - PEV
 (defun sanityinc/sql-explain-region-as-json (beg end &optional copy)
   "Explain the SQL between BEG and END in detailed JSON format.
 This is suitable for pasting into tools such as
@@ -62,7 +63,9 @@ If the region is not active, uses the current paragraph, as per
 
 Connection information is taken from the special sql-* variables
 set in the current buffer, so you will usually want to start a
-SQLi session first, or otherwise set `sql-database' etc."
+SQLi session first, or otherwise set `sql-database' etc.
+
+This command currently blocks the UI, sorry."
   (interactive "rP")
   (unless (eq sql-product 'postgres)
     (user-error "This command is for PostgreSQL only"))

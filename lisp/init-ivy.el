@@ -7,6 +7,7 @@
                   ivy-count-format ""
                   projectile-completion-system 'ivy
                   ivy-magic-tilde nil
+                  ivy-dynamic-exhibit-delay-ms 150
                   ivy-initial-inputs-alist
                   '((man . "^")
                     (woman . "^")))
@@ -72,6 +73,9 @@ instead."
 
     (define-key ivy-mode-map (kbd "M-s /") 'sanityinc/swiper-at-point)))
 
+
+(when (maybe-require-package 'ivy-xref)
+  (setq xref-show-xrefs-function 'ivy-xref-show-xrefs))
 
 
 (provide 'init-ivy)
