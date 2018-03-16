@@ -63,6 +63,21 @@ VAL: value"
 (require-package 'bison-mode)
 
 
+;;; deps
+;;; github.com/ramya-rao-a/go-outline
+;;; github.com/acroca/go-symbols
+;;; golang.org/x/tools/cmd/guru
+;;; golang.org/x/tools/cmd/gorename
+;;; github.com/rogpeppe/godef
+;;; github.com/nsf/gocode
+;;; github.com/golang/lint/golint
+;;; github.com/uudashr/gopkgs/cmd/gopkgs
+;;; github.com/sqs/goreturns
+;;; golang.org/x/tools/cmd/goimports
+;;; github.com/fatih/gomodifytags
+;;; github.com/cweill/gotests/gotests
+;;; github.com/derekparker/delve/cmd/dlv
+
 ;;; go mode
 (require-package 'go-mode)
 (require-package 'go-eldoc)
