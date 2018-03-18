@@ -6,6 +6,7 @@
     (add-hook 'racer-mode-hook #'company-mode)))
 
 (when (maybe-require-package 'flycheck-rust)
-  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+  (after-load 'rust-mode
+    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
 
 (provide 'init-rust)
