@@ -50,3 +50,5 @@ site-lisp/package/
 /rake.cache
 /plantuml.jar
 /magithub
+/lisp/init-local.el
+/lisp/init-preload-local.el
