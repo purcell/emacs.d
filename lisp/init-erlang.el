@@ -1,7 +1,4 @@
-(ignore-errors
-  (require-package 'erlang))
-
-(when (package-installed-p 'erlang)
+(when (maybe-require-package 'erlang)
   (require 'erlang-start))
 
 
