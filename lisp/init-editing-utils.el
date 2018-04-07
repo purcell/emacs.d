@@ -105,6 +105,7 @@
     (add-hook hook 'symbol-overlay-mode))
   (after-load 'symbol-overlay
     (diminish 'symbol-overlay-mode)
+    (define-key symbol-overlay-mode-map (kbd "M-i") 'symbol-overlay-put)
     (define-key symbol-overlay-mode-map (kbd "M-n") 'symbol-overlay-jump-next)
     (define-key symbol-overlay-mode-map (kbd "M-p") 'symbol-overlay-jump-prev)))
 
