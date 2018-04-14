@@ -30,12 +30,12 @@
 ;;; Also use Melpa for most packages
 (add-to-list 'package-archives
              `("melpa" . ,(if sanityinc/no-ssl
-                              "http://melpa.org/packages/"
-                            "https://melpa.org/packages/")))
+                              "http://elpa.emacs-china.org/melpa/"
+                            "https://elpa.emacs-china.org/melpa/")))
 
 (unless sanityinc/no-ssl
   ;; Force SSL for GNU ELPA
-  (setcdr (assoc "gnu" package-archives) "https://elpa.gnu.org/packages/"))
+  (setcdr (assoc "gnu" package-archives) "http://elpa.emacs-china.org/gnu/"))
 
 ;; NOTE: In case of MELPA problems, the official mirror URL is
 ;; https://www.mirrorservice.org/sites/stable.melpa.org/packages/
