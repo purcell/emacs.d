@@ -21,14 +21,14 @@ indentation rules."
     (setq beg (point-min)
           end (point-max)))
   ;; Use markers because our changes will move END
-  (setq beg (set-marker (make-marker) begin)
+  (setq beg (set-marker (make-marker) beg)
         end (set-marker (make-marker) end))
   (save-excursion
     (goto-char beg)
     (while (search-forward-regexp "\>[ \\t]*\<" end t)
       (backward-char) (insert "\n"))
     (nxml-mode)
-    (indent-region begin end)))
+    (indent-region beg end)))
 
 ;;----------------------------------------------------------------------------
 ;; Integration with tidy for html + xml
