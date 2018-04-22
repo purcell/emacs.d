@@ -6,6 +6,8 @@
                   ivy-virtual-abbreviate 'fullpath
                   ivy-count-format ""
                   projectile-completion-system 'ivy
+                  ivy-magic-tilde nil
+                  ivy-dynamic-exhibit-delay-ms 150
                   ivy-initial-inputs-alist
                   '((man . "^")
                     (woman . "^")))
@@ -46,7 +48,7 @@
             ((executable-find "ack") 'counsel-ack))))
       (when search-function
         (defun sanityinc/counsel-search-project (initial-input &optional use-current-dir)
-          "Search using `counsel-ag' from the project root for INITIAL-INPUT.
+          "Search using `counsel-rg' or similar from the project root for INITIAL-INPUT.
 If there is no project root, or if the prefix argument
 USE-CURRENT-DIR is set, then search from the current directory
 instead."
@@ -71,6 +73,9 @@ instead."
 
     (define-key ivy-mode-map (kbd "M-s /") 'sanityinc/swiper-at-point)))
 
+
+(when (maybe-require-package 'ivy-xref)
+  (setq xref-show-xrefs-function 'ivy-xref-show-xrefs))
 
 
 (provide 'init-ivy)

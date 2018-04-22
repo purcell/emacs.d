@@ -1,7 +1,4 @@
 (when (maybe-require-package 'ledger-mode)
-
-  (add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode))
-
   (when (maybe-require-package 'flycheck-ledger)
     (after-load 'flycheck
       (after-load 'ledger-mode

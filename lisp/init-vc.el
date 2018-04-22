@@ -1,7 +1,6 @@
 (when (maybe-require-package 'diff-hl)
-  (add-hook 'prog-mode-hook 'diff-hl-mode)
-  (add-hook 'vc-dir-mode-hook 'diff-hl-mode)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+  (add-hook 'after-init-hook 'global-diff-hl-mode)
 
   (after-load 'diff-hl
     (define-key diff-hl-mode-map

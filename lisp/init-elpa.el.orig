@@ -11,9 +11,6 @@
 
 ;;; Standard package repositories
 
-;(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
- ;                        ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
-
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
        (proto (if no-ssl "http" "https")))
@@ -32,7 +29,8 @@
 (add-to-list 'package-archives 
               '("org" . "http://orgmode.org/elpa/"))
 
-;;;; ????
+;;;; 中国的源
+
 
 
 (defconst sanityinc/no-ssl (and (memq system-type '(windows-nt ms-dos))
