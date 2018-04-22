@@ -1,0 +1,600 @@
+Haskell Mode NEWS                                -*- org -*-
+
+This file uses Org mode. Some useful (default) key-bindings:
+ - Use "C-c C-n"/"C-c C-p" to jump to next/prev heading
+ - Use "<tab>" to expand/collapse nodes
+ - Use "<backtab>" to cycle visibility of all nodes
+ - Use "C-c C-o" to open links
+
+* Changes in 16.1
+
+- Require at least Emacs 24.3
+
+- Implemented standalone deriving indentation
+
+- Removed haskell-indentation-ifte-offset
+
+- Implemented electric characters
+
+- Added LiquidHaskell annotation highlight
+
+- Introduced haskell-hasktags-path defcustom
+
+- Added font lock tests for pattern synonyms
+
+- Hardcoded haskell-ghc-supported-extensions/options
+
+- Added multi-line input in haskell-interactive
+
+- Added haskell-mode-stylish-haskell-path
+
+- Added Windows CI builds
+
+- Added syntax highlight to Yesod rules quasi quote
+
+- Added support for line continuation in #define's
+
+- Added support unterminated strings in indentation
+
+- Implemented /italic/ and *bold* for haddock
+
+- Added significant speedups in font-lock engine
+
+- Added support for full complexity of backtick syntax
+
+- Operators at the end or beggining of line force expression continuation in indentation
+
+- Map haskell-mode-format-imports to C-c C-, to avoid conflict with haskell-indent
+
+- Improve auto add dependencies in cabal
+
+- Fix inferior-haskell warning font lock for GHC 8.0
+
+* Changes in 13.20
+
+- Require at least Emacs 24.1
+
+- Honor equals on its own line in data decl
+
+- Honor equals on separate line after guards
+
+- Allow haskell-process-path-* to be lists
+
+- Fontify True/False in cabal mode
+
+- Align | with = in data declarations
+
+- Remove haskell-package.el
+
+- Run stylish-haskell before save
+
+- Improved lexeme parsing in haskell-lexeme
+
+- Add haskell-interactive-copy-to-prompt
+
+- Remove haskell-mode-contextual-space and related var
+
+- Make haskell-indent-region do nothing
+
+- Add c2hs mode
+
+- Improve hasktags handling
+
+- Move documentation from wiki to haskell-mode manual
+
+* Changes in 13.18
+
+- Removed haskell-bot
+
+- Implement shallow indentation
+
+- Removed haskell-simple-indent
+
+- Removed haskell-indentation show dynamic positions
+
+- Improved indentation inside multiline strings
+
+- Implemented font-lock for quasi quoted XML, HTML and JavaScript
+
+- Added '{type|data} family' to font-lock-keywords-create
+
+- Started using undercover.el for emacs lisp coverage
+
+- Added keybinding for `haskell-cabal-visit-file`
+
+- Added type role to font lock
+
+- Detect and respect the comma style of a section in cabal files
+
+* Changes in 13.16
+
+- Improved parsing of comma lists in haskell indentation
+
+- Declared turn-on-haskell-indentation as obsolete
+
+- Improved QuasiQuote font lock
+
+- Fixed indentation for Unicode symbols
+
+- Improved completion engine
+
+- Added support for interaction with stack ghci
+
+- Added haskell-forward-sexp
+
+- Added overlays to haskell load
+
+- Made use of lexical binding for all emacs lisp sources
+
+- Improved indentation of guards with commas
+
+- Made three indentation modes mutually turn each other off
+
+- Added an additional trigger for pragma suggestions
+
+- Improved and documented `toggle-scc-at-point` in manual
+
+* Changes in 13.14
+
+- Add official Haskell Mode logo
+
+- Add auto deploy for html manual
+
+- Improve presentation mode
+
+- Font Lock refactoring and improvements
+
+- Properly delimit operators in prettify mode
+
+- OPTIONS and LANGUAGE completion using ghci
+
+- Merge hi2 (haskell-indentation attempt 2) in place of haskell-indentation
+
+- Prompt to reconfigure when Cabal demands it
+
+- Fontify pragmas while fontifying comments
+
+- Operators are fontified
+
+- Remove all mentions of cabal-dev
+
+- Merge hsc-mode into haskell-mode
+
+- Get type information from ghci in interaction-mode
+
+- Prettify Haskell types in eldoc support
+
+- Added haskell-hoogle-url
+
+- Fix w3m-haddock in the case of no local files
+
+* Changes in 13.12
+
+- Added haskell-bot.el
+
+- Added support for cabal repl build targets
+
+- Automatically add import lines via Hoogle
+
+- Automatically add package to cabal file
+
+- Added w3m-haddock.el
+
+- Added debugger mode
+
+- Added preliminary :present support
+
+- Added haskell-sort-imports
+
+- Added haskell-complete-module
+
+- Support if and multi-way if in indentation
+
+- Add support to generate tags on windows
+
+- Add haskell-language-extensions variable
+
+- Improve haskell-simple-indent mode
+
+- Improve test cases
+
+* Changes in 13.10
+
+- Small fix for haskell-simple-indent: Certain indentation situations
+  cause valname-string to be nil, which haskell-trim did not handle
+  gracefully (naturally, since nil != "").
+
+- Luke Hoersten's Shnippet merged in under snippets/.
+
+- haskell-presentation-mode is now a haskell-mode derived mode.
+
+- Small improvement to haskell-process-do-info (works on constructors
+  now and underscored names).
+
+- Add haskell-indent-spaces configuration variable.
+
+- The command string to run cabal commands is slightly more
+  configurable. See: C-h f haskell-process-do-cabal-format-string
+
+* Changes in 13.8
+
+See also [[https://github.com/haskell/haskell-mode/compare/v13.07...v13.08][detailed Git history]].
+
+- Make `haskell-simple-indent-mode' a proper minor mode with `SInd` as
+  mode-line lighter
+
+- Support popular "λ> " prompt in inf-haskell by default
+
+- Hide internal `*print-haskell-mode*' buffers
+  (used when `haskell-interactive-mode-eval-mode' is active)
+
+- Add tab-completion support for haskell-interactive-mode
+  (requires `:complete' command support in GHCi)
+
+- Add support to `haskell-process-do-info` to perform `:browse!` query
+  on module name when called on import statement line
+
+- `haskell-decl-scan-mode':
+  - New customize group `haskell-decl-scan'
+  - New flag `haskell-decl-scan-bindings-as-variables' for controlling
+    whether to put value bindings into the "Variables" category.
+  - New flag `haskell-decl-scan-add-to-menubar' for controlling
+    whether to add "Declarations" menu entry to menu bar.
+  - New manual section node `(haskell-mode)haskell-decl-scan-mode'
+
+- Add support for [[http://www.haskell.org/ghc/docs/latest/html/users_guide/syntax-extns.html#lambda-case][LambdaCase]] syntax extension to `haskell-indentation`
+
+- Change `haskell-indentation-mode' to never jump back a whole line
+  when pressing DEL.  The old behavior can be restored by setting
+  `haskell-indentation-delete-backward-jump-line' to t
+
+- New convenience function `haskell-cabal-visit-file' for locating and
+  visiting most likely `.cabal` file associated with current buffer
+
+- Add support for [[http://www.haskell.org/ghc/docs/latest/html/users_guide/syntax-extns.html#package-import][PackageImports]] and [[http://www.haskell.org/ghc/docs/latest/html/users_guide/syntax-extns.html#safe-imports-ext][SafeHaskell]] syntax extensions to
+  `haskell-decl-scan-mode' parser
+
+- Add `turn-{on,off}-haskell-doc' commands as aliases for the existing
+  `turn-{on,off}-haskell-doc-mode' commands
+
+- Add support for "cabal repl" process type to `haskell-interactive-mode'
+
+- Add new Haskell compilation sub-mode and associated `haskell-compile'
+  command
+
+* Changes in 13.7
+
+See also [[https://github.com/haskell/haskell-mode/compare/v13.06...v13.07][detailed Git history]].
+
+- Convert NEWS (this file) to Org mode style and include NEWS file in
+  package and add command for visiting NEWS file
+  (M-x haskell-mode-view-news)
+
+- Officially drop support for versions prior to Emacs 23
+
+- New work-in-progress Info manual for haskell-mode
+
+- Remove deprecated `haskell-{hugs,ghci}' modules
+
+- Font-locking changes:
+  - Remove deprecated `turn-on-haskell-font-lock` function
+  - Improve font-locking of type-signatures in presence of newlines
+  - Use `font-lock-preprocessor-face' instead of the previously used
+    `font-lock-warning-face` for CPP directives
+  - Use `font-lock-warning-face` instead  of the previously used
+    `font-lock-preprocessor-face` for Git merge conflict annotations.
+
+- Improvements to `haskell-move-nested' module:
+  - Add support for operating on active regions
+  - New interactive commands `haskell-move-nested-{left,right}` which
+    support numeric prefix arguments for controlling the amount of
+    shifting to apply.
+
+- Add `haskell-unicode-input-method.el` to distribution
+  (enable with `turn-on-haskell-unicode-input-method`)
+
+- Fix all byte-compilation warnings
+
+- Build-system:
+  - For in-place installation, `haskell-site-file.el' is renamed
+    to `haskell-mode-autoloads.el`
+  - Auto-generate ELPA compatible README file by extracting header of
+    haskell-mode.el
+  - New "make check" target
+  - Add Travis-CI build jobs for testing byte-compilation with
+    multiple Emacs versions
+
+- Reorganize customize settings
+  - Add new convenience function for browsing all Haskell Mode settings
+    (M-x haskell-customize)
+  - Add `:link' keywords pointing to the new Info manual
+  - Add `:group' keywords to modes to make (M-x customize-mode) work
+  - Create new customization groups `haskell-interactive' and `inferior-haskell'
+    to clean up namespace
+  - Create new customization group `ghc-core` containing the two new
+    customization variables `ghc-core-program` and `ghc-core-program-args`.
+
+- Improvements to haskell-interactive-mode
+  - Add support for deleting compile messages superseded by recompile/reloads
+    (M-x customize-variable RET haskell-interactive-mode-delete-superseded-errors)
+  - Fix `C-u M-x haskell-process-do-type` inserting bad signatures
+  - Integrate with Emacs' `next-error` subsystem
+  - Add "C-c C-f" binding to REPL keymap for enabling `next-error-follow-minor-mode'
+  - Add support for `-ferror-spans`-style compile messages
+  - Add `-ferror-spans` as default for `haskell-process-args-ghci`
+  - Add optional argument to
+    `haskell-session-{all,installed,project}-modules' to suppress
+    session-creation. This is useful for yasnippet usage, see commit
+    517fd7e for an example.
+  - Change default for `haskell-process-path-ghci` to a static "ghci"
+  - Fix `haskell-interactive-switch` not selecting the REPL window
+  - Make `*haskell-process-log*` buffer configurable
+    (controlled via new `haskell-process-log` customize option)
+
+* Changes in 13.6
+
+See also [[https://github.com/haskell/haskell-mode/compare/2_9_1...v13.06][detailed Git history]].
+
+- Switch to new versioning scheme
+
+- Switch to MELPA/Marmalade based packaging
+
+- Cleanup/refactor build-system
+
+- Enhance `M-x haskell-version` to report more detailed versioning
+  information
+
+- Make haskell-interactive-mode emulate comint/eshell history navigation
+  (see commit 0e96843 for more details)
+
+- Improvements to haskell-interactive-mode
+  - Improve killing/restarting haskell-interactive sessions
+  - Improve directory prompting and resolution
+  - Fix redundant-import suggest trigger to support qualified imports
+  - Detect all abbreviations of an user-inputted ":quit"
+  - Fix regexps for recent GHC 7.x compiler messages
+  - Customizable commandline args for GHCi
+    (M-x customize-variable RET haskell-process-args-ghci)
+  - New command to load or reload via prefix argument
+    (M-x haskell-process-load-or-reload)
+  - Fix haskell-interactive-mode prompt detection
+  - Add cabal-ghci as supported process mode
+  - Add a customization option for the visibility of multi-line errors
+    (M-x customize-variable RET haskell-interactive-mode-hide-multi-line-errors)
+
+- Add forward declarations to reduce Elisp bytecompile warnings
+
+- Improvements to `haskell-indentation`
+  - Add support for the UnicodeSyntax tokens `→`, `←`, and `∷`.
+  - Indent "=" following data/type/newtype declarations.
+  - Align "->"/"→" arrows in types under "::"/"∷"
+  - Make customizable whether "<backspace>" deletes indentation too
+    (via `haskell-indentation-delete-backward-indentation` and
+     `haskell-indentation-delete-indentation`)
+  - Properly indent 'rec' keyword, same as 'mdo'
+  - Minor optimizations.
+
+- Add support for "'"-prefixed constructors (-> DataKinds) to font-locking
+
+- New experimental haskell session menu mode (M-x haskell-menu)
+
+- Various minor cleanups/fixes/improvements...
+
+* Changes in 2.9.1
+
+See also [[https://github.com/haskell/haskell-mode/compare/2_9_0...2_9_1][detailed Git history]].
+
+- Bugfix release adding missing autoload declaration
+
+* Changes in 2.9.0
+
+See also [[https://github.com/haskell/haskell-mode/compare/2_8_0...2_9_0][detailed Git history]].
+
+- This is the first release after haskell-mode was migrated to GitHub
+
+- New experimental `haskell-interactive-mode' module implementing a
+  new REPL interaction mode for GHCi sessions to eventually replace
+  the existing "inf-haskell" mode.
+
+- New `haskell-process-cabal' command for interaction with cabal-install
+
+- New `haskell-checkers' module
+
+- Update haskell-cabal-mode font-lock keywords
+
+- Improve scrolling of hoogle output (haskell-mode.el)
+
+- Derive `haskell-mode` from `prog-mode` for Emacs 24+
+
+- Add new binding for "<backtab>" to haskell-mode's keymap which
+  unindents current line
+
+- New modules `haskell-navigate-imports`, `haskell-sort-imports' and
+  `haskell-align-imports' for operating on module import lines in
+  Haskell source code
+
+- Add new binding for "C-c C-." to haskell-mode's keymap to sort and
+  realign Haskell module imports
+
+- Add new binding for "C-c i" to haskell-mode's keymap to jump back and
+  forth from/to the current Haskell module's module import section.
+
+- New `inferior-haskell-kind' function for querying kind via GHCi's ":kind"
+
+- New `inferior-haskell-send-decl' for sending declarations to GHCi
+  (bound to "C-x C-d" by default)
+
+- Add new `haskell-doc-use-inf-haskell` customization variable
+
+- Add support for bird-style literate haskell editing and a new
+  related customization variable
+  `haskell-indentation-birdtrack-extra-space'
+
+- Font locking improvements
+  - Add support for Git's merge annotation
+    (with `font-lock-preprocessor-face')
+  - Improve `import', `foreign import' and `foreign export' font
+    locking
+  - Add support for `rec', `proc' and `mdo` as keywords
+  - Make whitespace within `-- |' and `{- |' optional when possible
+
+- New `haskell-move-nested` module providing utilities for
+  interactively {in,de}denting nested "hanging" blocks.
+
+- Add stylish-haskell support
+  (enable via `haskell-stylish-on-save` customization variable)
+
+- Add support for generating tags on save
+  (enable via `haskell-tags-on-save' customization variable)
+
+- Set sensible dabbrev defaults in haskell-mode
+
+- Added `SCC` pragma insert/delete commands
+  (`haskell-mode-insert-scc-at-point` and `haskell-mode-kill-scc-at-point')
+
+- New experimental `haskell-mode-contextual-space' command
+
+- And a couple more cleanups/fixes/improvements...
+
+* Changes in 2.8.0 (since 2.7.0)
+
+See also [[https://github.com/haskell/haskell-mode/compare/2_7_0...2_8_0][detailed Git history]].
+
+- Minimal indentation support for arrow syntax
+
+- Avoid opening a new inf-haskell window if one is already visible.
+  Windows on other virtual desktops or iconified frames don't count.
+
+- Force comint-process-echoes to nil
+
+- Autolaunch haskell-mode for files starting with #!/usr/bin/runghc
+  and similar
+
+- Added minimal major mode for parsing GHC core files, courtesy of Johan Tibell.
+  There is a corresponding Haskell menu entry.
+
+- Allow configuration of where-clause indentation; M-x customize-group
+  haskell-indentation.
+
+* Changes since 2.6.4
+
+- fill-paragraph (M-q) now only affects comments, and correctly
+  handles Haddock commentary. adaptive-fill-mode is turned off, as it
+  was interfering.
+
+- Yet more unicode symbols
+
+- Better support for unicode encoding of haskell source files
+
+- mdo correctly indented
+
+- Indentation fixes, fixes to the fixes, and fixes to the fixes to the
+  fixes
+
+- New command: M-x haskell-check, calls (by default) hlint on the
+  current file. Also bound to C-c C-v.
+
+  You can also use the flymake minor mode with this.
+
+* Changes since 2.5.1
+
+- Parser corrections for haskell-indentation and haskell-decl-scan
+
+- haskell-indentation: Pressing tab in the rightmost position now
+  moves to the leftmost, by default with a warning.
+
+- Typo fix: One haskell-indentation variable had ended up in the
+  haskell-ntation customize group.
+
+- haskell-hoogle aliased to hoogle, haskell-hayoo aliased to hayoo
+
+- Courtesy of Alex Ott:
+  - Additional unicode symbols for font-lock-symbols: () == /= >= <= !! && || sqrt
+  - M-x haskell-hayoo search added, opens using browse-url
+  - Bug-fix for inferior-haskell-type
+
+- If haskell-indentation errors out, it now fail-safes to inserting
+  a literal newline or deleting one character, for return and
+  backspace respectively.
+
+* Changes since 2.4:
+
+- haskell-indentation, a new minor mode for indentation.
+
+* Changes since 2.3:
+
+- Update license to GPLv3.
+
+- New derived major mode for .hsc files.
+
+- Removed the C-c C-r binding to reload a file.  You can still call
+  inferior-haskell-reload-file (and/or bind it to your favorite key,
+  including C-c C-r) or you can now use C-u C-c C-l.
+
+- C-c C-d looks up the symbol at point in the Haddock docs.
+
+- Haddock comments are highlighted with font-lock-doc-face if it exists.
+
+- Use `tex' rather than `latex' for haskell-literate.
+
+- inf-haskell.el tries to find the root of the module hierarchy to determine
+  the root of a project (either by looking for a Cabal file or relying on
+  the `module' declaration line).  If all works well, this will make C-c C-l
+  automatically switch to the root dir, so that dependencies in other
+  directories are automatically found.  If it doesn't, complain and/or set
+  inferior-haskell-find-project-root to nil.
+
+- The new command haskell-hoogle helps you query Hoogle from Emacs.
+
+* Changes since 2.2:
+
+- Trivial support for Cabal package description files.
+
+- Minor bug fixes.
+
+* Changes since 2.1:
+
+- There are now commands to find type and info of identifiers by querying an
+  inferior haskell process.  Available under C-c C-t, C-c C-i, and C-c M-.
+
+- Indentation now looks back further, until a line that has no indentation.
+  To recover the earlier behavior of stopping at the first empty line
+  instead, configure haskell-indent-look-past-empty-line.
+
+- inf-haskell can wait until a file load completes and jump directly to the
+  first error, like haskell-ghci and haskell-hugs used to do.  See the var
+  inferior-haskell-wait-and-jump.
+
+* Changes since 2.0:
+
+- inf-haskell uses ghci if hugs is absent.
+
+- Fix up some binding conflicts (C-c C-o in haskell-doc)
+
+- Many (hopefully minor) changes to the indentation.
+
+- New symbols in haskell-font-lock-symbols-alist.
+
+* Changes since 1.45:
+
+- keybindings C-c <char> have been replaced by C-c C-<char> so as not
+  to collide with minor modes.
+
+- The following modules are now automatically activated without having to
+  add anything to haskell-mode-hook:
+  haskell-font-lock (just turn on global-font-lock-mode).
+  haskell-decl-scan (just bind `imenu' to some key).
+
+- In recent Emacsen, haskell-doc hooks into eldoc-mode.
+
+- haskell-hugs and haskell-ghci are superceded by inf-haskell.
+
+- Indentation rules have been improved when using layout inside parens/braces.
+
+- Symbols like -> and \ can be displayed as actual arrows and lambdas.
+  See haskell-font-lock-symbols.
+
+- Tweaks to the font-lock settings.  Among other things paren-matching
+  with things like \(x,y) should work correctly now.
+
+- New maintainer <monnier@gnu.org>.

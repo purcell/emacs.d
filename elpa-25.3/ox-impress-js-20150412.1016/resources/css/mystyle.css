@@ -1,0 +1,53 @@
+#title .title {
+    margin-top: 180px;
+    margin-bottom: 140px;
+    margin-left: 60px;
+    margin-right: 60px;
+    font-size: 73px;
+    line-height: 103px;
+}
+#title h1 {
+    font-size: 100px;
+}
+h1 {
+    font-size: 50px;
+    margin-bottom: 50px;
+}
+#title .author, #title .date, #title .creator {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    margin-left: 60px;
+    margin-right: 60px;
+}
+section {
+    text-shadow: rgba(0, 0, 0, 0.2) 0 2px 5px;
+    margin-top: 80px;
+}
+header {
+    font-weight: normal;
+    font-size: 50px;
+    letter-spacing: -.05em;
+    text-shadow: rgba(0, 0, 0, 0.2) 0 2px 5px;
+    position: absolute;
+    left: 30px;
+    top: 40px;
+    margin: 0;
+    padding: 0;
+}
+p {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+ol {
+    list-style: decimal;
+}
+ul {
+    list-style: disc;
+}
+li {
+    margin: 15px;
+    margin-left: 40px;
+}
+pre {
+    font-size: 70%;
+}

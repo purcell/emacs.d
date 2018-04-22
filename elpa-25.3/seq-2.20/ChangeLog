@@ -1,0 +1,195 @@
+2017-05-04  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to 2.20
+
+2016-12-16  Nicolas Petton  <nicolas@petton.fr>
+
+	Backport the latest changes to seq.el from Emacs master
+
+	* packages/seq/seq-24.el:
+	* packages/seq/seq-25.el (seq-into): Do not convert the sequence if not
+	needed.
+	* packages/seq/tests/seq-tests.el: Add a regression test.
+
+2016-12-15  Nicolas Petton  <nicolas@petton.fr>
+
+	Backport seq-mapn fix from Emacs master
+
+	* packages/seq/seq-24.el (seq-mapn):
+	* packages/seq/seq-25.el (seq-mapn): Fix for circular lists.
+	* packages/seq/tests/seq-tests.el: Add a regression test.
+
+2016-11-16  Nicolas Petton  <nicolas@petton.fr>
+
+	Do not use map.el in seq-tests.el
+
+	* packages/seq/tests/seq-tests.el: Do not use map.el.  map.el was 
+	introduced in Emacs 25.1, but seq.el is also available in GNU ELPA for 
+	Emacs 24.5.
+
+2016-10-25  Nicolas Petton  <nicolas@petton.fr>
+
+	Fix seq-random-elt docstring
+
+	* packages/seq/seq-24.el:
+	* packages/seq/seq-25.el (seq-random-elt): Fix the docstring.
+
+2016-10-25  Nicolas Petton  <nicolas@petton.fr>
+
+	Backport seq.el changes from Emacs master
+
+	* packages/seq/seq-24.el:
+	* packages/seq/seq-25.el (seq-random-elt): New function.
+	* packages/seq/seq.el: Bump version to 2.19.
+	* packages/seq/tests/seq-tests.el: Add tests for seq-random-elt.
+
+2016-09-02  Clément Pit--Claudel	 <clement.pitclaudel@live.com>
+
+	; Fix documentation of seq-subseq
+
+2016-08-28  Nicolas Petton  <nicolas@petton.fr>
+
+	* packages/seq/seq-24.el: Rename seq-p to seqp
+
+2016-06-12  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to 2.16
+
+	* packages/seq/seq-24.el:
+	* packages/seq/seq-25.el: Better implementation of seq-drop for lists.
+	* packages/seq/seq.el: Bump version number.
+
+2016-04-22  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* seq-24.el (seq-concatenate,seq-into,seq--make-bindings): Use _
+
+	rather than t as catch-all for pcase.
+
+2016-03-31  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq to version 2.15
+
+	* packages/seq/seq-25.el: Require cl-lib.
+	* packages/seq/seq.el: Bump version number.
+
+2016-03-29  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to version 2.14
+
+	* packages/seq/seq.el: Bump version number.
+	* packages/seq/seq-24.el (seq-sort-by): New function.
+	* packages/seq/seq-25.el (seq-sort-by): New function.
+	* packages/seq/tests/seq-tests.el: Add a test for seq-sort-by.
+
+2016-03-25  Nicolas Petton  <nicolas@petton.fr>
+
+	* packages/seq/seq-25.el: Better declarations for seq--when-emacs-25-p
+
+2016-03-25  Nicolas Petton  <nicolas@petton.fr>
+
+	Split seq.el into separate files for different versions of Emacs
+
+	All functions in seq-25.el are wrapped in a `seq--when-emacs-25-p' to 
+	make sure that the byte compiler won't emit warnings or errors when the 
+	file is byte compiled in Emacs < 25.
+
+	* packages/seq/seq-24.el:
+	* packages/seq/seq-25.el: New files.
+	* packages/seq/seq.el: Load seq-VERSION.el based on the version of
+	Emacs.
+	* packages/seq/test/seq.el-test.el: Backport a test from seq.el in Emacs
+	 master.
+
+2015-11-30  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* packages/seq: Don't define it as a :core package
+
+	Revert the removal of packages/seq/seq.el since it's different from the
+	one in lisp/emacs-lisp.
+	* .gitignore: Remove packages/seq.
+	* externals-list: Remove "seq" entry.
+
+2015-11-29  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* externals-list: Add seq and python as :core packages
+
+	* .gitignore: Add packages/{seq,python}.
+	* packages/seq: Remove.
+
+2015-10-20  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to version 1.11
+
+	* packages/seq/seq.el:
+	* packages/seq/tests/seq-tests.el: Update.
+
+2015-09-18  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to version 1.9
+
+	* packages/seq/seq.el: Update to version 1.9.
+	* packages/seq/tests/seq-tests.el: Update to version 1.9.
+
+2015-07-09  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to version 1.8
+
+	* packages/seq/seq.el: Update to version 1.8.
+	* packages/seq/tests/seq-tests.el: Update to version 1.8.
+
+2015-05-15  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to version 1.7
+
+	* packages/seq/seq.el: Update to version 1.7.
+	* packages/seq/tests/seq-tests.el: Update to version 1.7.
+
+2015-04-27  Nicolas Petton  <nicolas@petton.fr>
+
+	* packages/seq/seq.el: Update seq.el to version 1.5.
+
+2015-04-15  Nicolas Petton  <nicolas@petton.fr>
+
+	seq.el update
+
+	* packages/seq/seq.el: Update seq.el to version 1.4
+	* packages/seq/tests/seq-tests.el: Update seq.el to version 1.4
+
+2015-03-25  Nicolas Petton  <nicolas@petton.fr>
+
+	Rephrases a comment in seq.el about the order of the arguments
+
+	* packages/seq/seq.el: Better comment about the order of the arguments
+
+2015-03-09  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to version 1.3
+
+	* packages/seq/seq.el: update to version 1.3
+	* packages/seq/tests/seq-tests.el: update to version 1.3
+
+2015-02-11  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to version 1.2
+
+	* package/seq/seq.el: Update to version 1.2
+	* packages/seq/tests/seq-tests.el: Update to version 1.2
+
+2015-02-09  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to version 1.1.1
+
+	* package/seq/seq.el: Update to version 1.1.1
+	* packages/seq/tests/seq-tests.el: Update to version 1.1.1
+
+2015-02-06  Nicolas Petton  <nicolas@petton.fr>
+
+	Update seq.el to version 1.1
+
+	* packages/seq/seq.el: Update to version 1.1
+	* packages/seq/tests/seq-tests.el: Update to version 1.1
+
+2015-01-14  Nicolas Petton  <nicolas@petton.fr>
+
+	packages/seq: New package
+

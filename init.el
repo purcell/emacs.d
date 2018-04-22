@@ -83,12 +83,13 @@
 (require 'init-projectile)
 
 (require 'init-compile)
-;;(require 'init-crontab)
+(require 'init-crontab)
 (require 'init-textile)
 (require 'init-markdown)
 (require 'init-csv)
 (require 'init-erlang)
 (require 'init-javascript)
+(require 'init-typescript)
 (require 'init-php)
 (require 'init-org)
 (require 'init-nxml)
@@ -117,6 +118,9 @@
 (require 'init-clojure)
 (require 'init-clojure-cider)
 (require 'init-common-lisp)
+
+(require 'init-cpp)
+(require 'init-yasnippet)
 
 (when *spell-check-support-enabled*
   (require 'init-spelling))

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: describe Class do ... end
+# expand-env: ((top-level (rspec-top-level-desc-p)) (global-dsl rspec-expose-dsl-globally) (maybe-quote (unless top-level "\"")))
+# --
+`(and top-level (not global-dsl) "RSpec.")`describe `maybe-quote`${1:`(and top-level (rspec-class-from-file-name))`}`maybe-quote` do
+  $0
+end

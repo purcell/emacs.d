@@ -1,0 +1,4 @@
+# -*- mode: snippet -*-
+# name: let(:${1:name} { build_stubbed(:$1) })
+# --
+let(:${1:name}) { `(rspec-snippets-fg-method-call "build_stubbed")`(:$1) }

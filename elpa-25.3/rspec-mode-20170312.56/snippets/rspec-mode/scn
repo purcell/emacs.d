@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: scenario "does something" do ... end
+# --
+scenario "${1:does something}" do
+  $0
+end

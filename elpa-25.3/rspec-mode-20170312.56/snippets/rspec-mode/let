@@ -1,0 +1,4 @@
+# -*- mode: snippet -*-
+# name: let(:var) { ... }
+# --
+let(:${1:var}) { $0 }

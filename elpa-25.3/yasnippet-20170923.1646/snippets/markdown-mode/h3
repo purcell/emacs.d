@@ -1,0 +1,6 @@
+#name : Header 3
+#contributor: Peng Deng <dengpeng@gmail.com>
+# --
+### ${1:Header 3} ###
+
+$0

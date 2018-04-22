@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+#name : each
+# --
+${1:collection}.each(function($2) {
+  $0
+});

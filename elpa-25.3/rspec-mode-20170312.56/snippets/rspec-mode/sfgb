@@ -1,0 +1,4 @@
+# -*- mode: snippet -*-
+# name: subject(:${1:name} { build(:$1) })
+# --
+subject(:${1:name}) { `(rspec-snippets-fg-method-call "build")`(:$1) }

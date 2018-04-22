@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: describe Class, "modifier" do ... end
+# --
+`(and top-level (not global-dsl) "RSpec.")`describe ${1:`(rspec-class-from-file-name)`}, "${2:modifier}" do
+  $0
+end
