@@ -95,7 +95,7 @@ VAL: value"
   (local-set-key (kbd "M-.") 'godef-jump)
   (local-set-key (kbd "M-,") 'pop-tag-mark)
   ;; compile
-  (if (not (string-math "go" compile-command))
+  (if (not (string-match "go" compile-command))
       (set (make-local-variable 'compile-command)
            "go build -v && go test -v && go vet"))
   ;; indent
