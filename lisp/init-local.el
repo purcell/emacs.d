@@ -64,43 +64,47 @@ VAL: value"
 
 
 ;;; deps
-;;; github.com/ramya-rao-a/go-outline
-;;; github.com/acroca/go-symbols
-;;; golang.org/x/tools/cmd/guru
-;;; golang.org/x/tools/cmd/gorename
+;;; go get golang.org/x/tools/cmd/...
+;;; golang.org/x/tools/cmd/goimports
 ;;; github.com/rogpeppe/godef
 ;;; github.com/nsf/gocode
 ;;; github.com/golang/lint/golint
-;;; github.com/uudashr/gopkgs/cmd/gopkgs
-;;; github.com/sqs/goreturns
-;;; golang.org/x/tools/cmd/goimports
-;;; github.com/fatih/gomodifytags
-;;; github.com/cweill/gotests/gotests
-;;; github.com/derekparker/delve/cmd/dlv
 
 ;;; go mode
 (require-package 'go-mode)
 (require-package 'go-eldoc)
-(require-package 'go-autocomplete)
+(require-package 'company-go)
 
 (require 'golint)
-(require 'auto-complete-config)
-
-(ac-config-default)
 
 ;;; Code:
 (defun my-go-mode ()
   "My `go-mode' common hook."
-  (auto-complete-mode 1)
+  ;; Load GOROOT and GOPATH from shell env
+  (after-load 'exec-path-from-shell
+    (dolist (var '("GOPATH" "GOROOT"))
+      (add-to-list 'exec-path-from-shell-variables var)))
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
+  ;; need gocode
+  (set (make-local-variable 'company-backends) '(company-go))
+  (company-mode)
+  ;;
   (go-eldoc-setup)
-  (setq gofmt-command "goimports")
+  ;; need godef
   (local-set-key (kbd "M-.") 'godef-jump)
+  (local-set-key (kbd "M-,") 'pop-tag-mark)
+  ;; compile
+  (if (not (string-math "go" compile-command))
+      (set (make-local-variable 'compile-command)
+           "go build -v && go test -v && go vet"))
+  ;; indent
   (setq tab-width 4)
-  (setq indent-tabs-mode nil))
-
-;;; hook
+  (setq indent-tabs-mode nil)
+  ;;; need goimports
+  (setq gofmt-command "goimports")
+  (add-hook 'before-save-hook 'gofmt-before-save))
 (add-hook 'go-mode-hook 'my-go-mode)
-(add-hook 'before-save-hook 'gofmt-before-save)
 
 
 ;;; which function
