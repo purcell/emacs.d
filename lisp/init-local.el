@@ -5,6 +5,15 @@
 ;;; site-lisp
 (add-to-list 'load-path (expand-file-name "site-lisp" user-emacs-directory))
 
+;;; disable
+(setq exec-path-from-shell-check-startup-files nil)
+
+;;; company
+(setq company-tooltip-limit 20)                      ; bigger popup window
+(setq company-idle-delay .3)                         ; decrease delay before autocompletion popup shows
+(setq company-echo-delay 0)                          ; remove annoying blinking
+(setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
+
 
 ;;; c mode
 (require-package 'counsel-gtags)
