@@ -64,8 +64,7 @@ VAL: value"
 
 
 ;;; deps
-;;; go get golang.org/x/tools/cmd/...
-;;; golang.org/x/tools/cmd/goimports
+;;; golang.org/x/tools/cmd/...
 ;;; github.com/rogpeppe/godef
 ;;; github.com/nsf/gocode
 ;;; github.com/golang/lint/golint
@@ -74,7 +73,6 @@ VAL: value"
 (require-package 'go-mode)
 (require-package 'go-eldoc)
 (require-package 'company-go)
-
 (require 'golint)
 
 ;;; Code:
@@ -101,7 +99,7 @@ VAL: value"
   ;; indent
   (setq tab-width 4)
   (setq indent-tabs-mode nil)
-  ;;; need goimports
+  ;;; x/tools/cmd/...
   (setq gofmt-command "goimports")
   (add-hook 'before-save-hook 'gofmt-before-save))
 (add-hook 'go-mode-hook 'my-go-mode)
