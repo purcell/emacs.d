@@ -5,19 +5,32 @@
 ;;; site-lisp
 (add-to-list 'load-path (expand-file-name "site-lisp" user-emacs-directory))
 
-;;; disable
-(setq exec-path-from-shell-check-startup-files nil)
-
-;;; company
+;;; global company config
 (setq company-tooltip-limit 20)                      ; bigger popup window
 (setq company-idle-delay .3)                         ; decrease delay before autocompletion popup shows
 (setq company-echo-delay 0)                          ; remove annoying blinking
 (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
 
+;;; global
+(setq exec-path-from-shell-check-startup-files nil) ; disable shell check message
+(setq tab-width 4)                      ; table width 4
+(global-linum-mode -1)                  ; disable line number mode
+
+
+;;; cmake mode
+(require-package 'cmake-mode)
+(setq auto-mode-alist
+      (append '(("CMakeLists\\.txt\\'" . cmake-mode)
+                ("\\.cmake\\'" . cmake-mode))
+              auto-mode-alist))
+
+(defun my-cmake-mode ()
+  "My `cmake-mode' hook."
+  (company-mode))
+(add-hook 'cmake-mode-hook 'my-cmake-mode)
+
 
 ;;; c mode
-(require-package 'counsel-gtags)
-
 (defun fix-c-indent-offset-according-to-syntax-context (key val)
   "Remove the old element.
 KEY: key
@@ -29,9 +42,9 @@ VAL: value"
 (defun c-mode-common-hook-setup ()
   "My c mode common hook setup."
   ;; basic
-  (setq c-default-style "linux")
-  (setq c-basic-offset 4)
-  (setq c-auto-newline nil)
+  (setq c-default-style "linux"
+        c-basic-offset 4
+        c-auto-newline nil)
   (c-toggle-hungry-state 1)
 
   ;; indent
@@ -45,7 +58,19 @@ VAL: value"
   ;; make a #define be left-aligned
   (setq c-electric-pound-behavior (quote (alignleft)))
 
+  ;; company
+  (company-mode)
+
+  ;; company-c-headers
+  (require-package 'company-c-headers)
+  (with-eval-after-load 'company-c-headers
+    (add-to-list 'company-c-headers-path-user "./include")
+    (add-to-list 'company-c-headers-path-user "../include")
+    (add-to-list 'company-c-headers-path-user "/opt/lua/include")
+    (add-to-list (make-local-variable 'company-backends) 'company-c-headers))
+
   ;; gtags
+  (require-package 'counsel-gtags)
   (counsel-gtags-mode t)
 
   (with-eval-after-load 'counsel-gtags
@@ -68,17 +93,15 @@ VAL: value"
 
 (add-hook 'c-mode-common-hook 'c-mode-common-hook-setup)
 
-;;; bison
-(require-package 'bison-mode)
-
 
+;;; go mode
+
 ;;; deps
 ;;; golang.org/x/tools/cmd/...
 ;;; github.com/rogpeppe/godef
 ;;; github.com/nsf/gocode
 ;;; github.com/golang/lint/golint
 
-;;; go mode
 (require-package 'go-mode)
 (require-package 'go-eldoc)
 (require-package 'company-go)
@@ -114,46 +137,20 @@ VAL: value"
 (add-hook 'go-mode-hook 'my-go-mode)
 
 
-;;; which function
-(require 'which-func)
-(which-func-mode 1)
+;;; lua mode
 
-
-;;; highlight
-(require 'highlight-symbol)
+;; lua code indent
+(require-package 'lua-mode)
+(require-package 'company-lua)
 
-(defun my-highlight-next (&optional symbol)
-  "My highlight function.
-If symbol at current pointer is highlight return `highlight-symbol-next',
-otherwise return `highlight-symbol',
-SYMBOL: symbol at pointer."
-  (interactive)
-  (let ((symbol (or symbol
-                    (highlight-symbol-get-symbol)
-                    (error "No symbol at point"))))
-    (if (highlight-symbol-symbol-highlighted-p symbol)
-        (highlight-symbol-next-in-defun)
-      (highlight-symbol symbol))))
+(defun my-lua-mode ()
+  "My `lua-mode' common hook."
+  ;; compay lua
+  (set (make-local-variable 'company-backends) '(company-lua))
+  (company-mode)
+  (setq lua-indent-level 2))
 
-(defun my-highlight-prev (&optional symbol)
-  "My highlight function.
-If symbol at current pointer is highlight return `highlight-symbol-prev',
-otherwise return `highlight-symbol',
-SYMBOL: symbol at pointer."
-  (interactive)
-  (let ((symbol (or symbol
-                    (highlight-symbol-get-symbol)
-                    (error "No symbol at point"))))
-    (if (highlight-symbol-symbol-highlighted-p symbol)
-        (highlight-symbol-prev-in-defun)
-      (highlight-symbol symbol))))
-
-(global-set-key (kbd "<f3>") 'my-highlight-next)
-(global-set-key (kbd "<f4>") 'my-highlight-prev)
-(global-set-key (kbd "S-<f3>") 'highlight-symbol-remove-all)
-(global-set-key (kbd "S-<f4>") 'highlight-symbol-remove-all)
-
-(defalias 'hl-remove-all 'highlight-symbol-remove-all)
+(add-hook 'lua-mode-hook 'my-lua-mode)
 
 
 ;;; scheme mode
@@ -238,8 +235,46 @@ SYMBOL: symbol at pointer."
 (add-hook 'scheme-mode-hook 'my-scheme-mode)
 
 
+;;; highlight
+(require 'highlight-symbol)
+
+(defun my-highlight-next (&optional symbol)
+  "My highlight function.
+If symbol at current pointer is highlight return `highlight-symbol-next',
+otherwise return `highlight-symbol',
+SYMBOL: symbol at pointer."
+  (interactive)
+  (let ((symbol (or symbol
+                    (highlight-symbol-get-symbol)
+                    (error "No symbol at point"))))
+    (if (highlight-symbol-symbol-highlighted-p symbol)
+        (highlight-symbol-next-in-defun)
+      (highlight-symbol symbol))))
+
+(defun my-highlight-prev (&optional symbol)
+  "My highlight function.
+If symbol at current pointer is highlight return `highlight-symbol-prev',
+otherwise return `highlight-symbol',
+SYMBOL: symbol at pointer."
+  (interactive)
+  (let ((symbol (or symbol
+                    (highlight-symbol-get-symbol)
+                    (error "No symbol at point"))))
+    (if (highlight-symbol-symbol-highlighted-p symbol)
+        (highlight-symbol-prev-in-defun)
+      (highlight-symbol symbol))))
+
+(global-set-key (kbd "<f3>") 'my-highlight-next)
+(global-set-key (kbd "<f4>") 'my-highlight-prev)
+(global-set-key (kbd "S-<f3>") 'highlight-symbol-remove-all)
+(global-set-key (kbd "S-<f4>") 'highlight-symbol-remove-all)
+
+(defalias 'hl-remove-all 'highlight-symbol-remove-all)
+
+
 ;;; misc
 (defalias 'fg 'find-grep)
+(defalias 'search-at-point 'isearch-forward-symbol-at-point)
 (global-set-key (kbd "<f2>") 'find-grep)
 
 ;;; fix osx-key
@@ -273,18 +308,9 @@ ARG arg: parentheses"
 ;;; org-mode
 (setq org-export-backends (quote (ascii html icalendar latex md)))
 
-;;; tab width
-(setq tab-width 4)
-
 ;;; unst-keys
 (global-unset-key (kbd "<M-tab>"))
 (global-unset-key (kbd "C-M-i"))
-
-;;; isearch-forward-symbol-at-point
-(defalias 'search-at-point 'isearch-forward-symbol-at-point)
-
-;;; global
-(global-linum-mode -1)
 
 (provide 'init-local)
 ;; Local Variables:
