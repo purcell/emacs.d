@@ -49,4 +49,7 @@ site-lisp/package/
 /.uptimes.el
 /rake.cache
 /plantuml.jar
+semanticdb/
+site-lisp/cedet/
+srecode-map.el
 /magithub
