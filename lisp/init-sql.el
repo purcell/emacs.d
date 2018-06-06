@@ -43,6 +43,11 @@ Fix for the above hasn't been released as of Emacs 25.2."
     (sql-product-font-lock nil nil)))
 (add-hook 'sql-interactive-mode-hook 'sanityinc/font-lock-everything-in-sql-interactive-mode)
 
+(defun sanityinc/sqlformat (beg end)
+  "Reformat SQL in region from BEG to END using the \"sqlformat\" program.
+Install the Python \"sqlparse\" package to get \"sqlformat\"."
+  (interactive "r")
+  (shell-command-on-region beg end "sqlformat -r -" nil t "*sqlformat-errors*" t))
 
 ;; Package ideas:
 ;;   - PEV
