@@ -121,7 +121,10 @@ This command currently blocks the UI, sorry."
                 (user-error "EXPLAIN failed")))))))))
 
 
-
+;; Submitted upstream as https://github.com/stanaka/dash-at-point/pull/28
+(after-load 'sql
+  (after-load 'dash-at-point
+    (add-to-list 'dash-at-point-mode-alist '(sql-mode . "psql,mysql,sqlite,postgis"))))
 
 
 (after-load 'page-break-lines
