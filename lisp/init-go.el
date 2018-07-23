@@ -8,7 +8,7 @@
 (when (maybe-require-package 'go-mode)
   (add-hook 'before-save-hook #'gofmt-before-save)
   (add-hook 'go-mode-hook 'flycheck-mode)
-  (setq compile-command "go build -v && go test -v && golint")
+  (setq compile-command "go test -v ./...")
   (local-set-key (kbd "M-.") 'godef-jump)
 
   (require-package `company-go)
