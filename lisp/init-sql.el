@@ -1,7 +1,3 @@
-(require-package 'sql-indent)
-(after-load 'sql
-  (require 'sql-indent))
-
 (after-load 'sql
   ;; sql-mode pretty much requires your psql to be uncustomised from stock settings
   (push "--no-psqlrc" sql-postgres-options))
@@ -18,7 +14,7 @@ Fix for the above hasn't been released as of Emacs 25.2."
 (defun sanityinc/pop-to-sqli-buffer ()
   "Switch to the corresponding sqli buffer."
   (interactive)
-  (if sql-buffer
+  (if (and sql-buffer (buffer-live-p sql-buffer))
       (progn
         (pop-to-buffer sql-buffer)
         (goto-char (point-max)))
@@ -47,8 +43,27 @@ Fix for the above hasn't been released as of Emacs 25.2."
     (sql-product-font-lock nil nil)))
 (add-hook 'sql-interactive-mode-hook 'sanityinc/font-lock-everything-in-sql-interactive-mode)
 
+(defun sanityinc/sqlformat (beg end)
+  "Reformat SQL in region from BEG to END using the \"sqlformat\" program.
+If no region is active, the current statement (paragraph) is reformatted.
+Install the \"sqlparse\" (Python) package to get \"sqlformat\"."
+  (interactive "r")
+  (unless (use-region-p)
+    (setq beg (save-excursion
+		(backward-paragraph)
+                (skip-syntax-forward " >")
+		(point))
+          end (save-excursion
+		(forward-paragraph)
+                (skip-syntax-backward " >")
+		(point))))
+  (shell-command-on-region beg end "sqlformat -r -" nil t "*sqlformat-errors*" t))
 
+(after-load 'sql
+  (define-key sql-mode-map (kbd "C-c C-f") 'sanityinc/sqlformat))
 
+;; Package ideas:
+;;   - PEV
 (defun sanityinc/sql-explain-region-as-json (beg end &optional copy)
   "Explain the SQL between BEG and END in detailed JSON format.
 This is suitable for pasting into tools such as
@@ -62,7 +77,9 @@ If the region is not active, uses the current paragraph, as per
 
 Connection information is taken from the special sql-* variables
 set in the current buffer, so you will usually want to start a
-SQLi session first, or otherwise set `sql-database' etc."
+SQLi session first, or otherwise set `sql-database' etc.
+
+This command currently blocks the UI, sorry."
   (interactive "rP")
   (unless (eq sql-product 'postgres)
     (user-error "This command is for PostgreSQL only"))
@@ -104,7 +121,10 @@ SQLi session first, or otherwise set `sql-database' etc."
                 (user-error "EXPLAIN failed")))))))))
 
 
-
+;; Submitted upstream as https://github.com/stanaka/dash-at-point/pull/28
+(after-load 'sql
+  (after-load 'dash-at-point
+    (add-to-list 'dash-at-point-mode-alist '(sql-mode . "psql,mysql,sqlite,postgis"))))
 
 
 (after-load 'page-break-lines

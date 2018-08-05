@@ -1,50 +1,32 @@
 (require 'package)
 
-
-(let ((local-package-el (locate-library "package")))
-  (when (string-match-p (concat "^" (regexp-quote user-emacs-directory))
-                        local-package-el)
-    (warn "Please remove the local package.el, which is no longer supported (%s)"
-          local-package-el)))
-
-
 
 ;;; Install into separate package dirs for each Emacs version, to prevent bytecode incompatibility
 (let ((versioned-package-dir
        (expand-file-name (format "elpa-%s.%s" emacs-major-version emacs-minor-version)
                          user-emacs-directory)))
-  (when (file-directory-p package-user-dir)
-    (message "Default package locations have changed in this config: renaming old package dir %s to %s."
-             package-user-dir
-             versioned-package-dir)
-    (rename-file package-user-dir versioned-package-dir))
   (setq package-user-dir versioned-package-dir))
 
 
 
 ;;; Standard package repositories
 
+(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                    (not (gnutls-available-p))))
+       (proto (if no-ssl "http" "https")))
+  (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+  ;; Official MELPA Mirror, in case necessary.
+  ;;(add-to-list 'package-archives (cons "melpa-mirror" (concat proto "://www.mirrorservice.org/sites/melpa.org/packages/")) t)
+  (if (< emacs-major-version 24)
+      ;; For important compatibility libraries like cl-lib
+      (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))
+    (unless no-ssl
+      ;; Force SSL for GNU ELPA
+      (setcdr (assoc "gnu" package-archives) "https://elpa.gnu.org/packages/"))))
+
 ;; We include the org repository for completeness, but don't normally
 ;; use it.
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-
-
-(defconst sanityinc/no-ssl (and (memq system-type '(windows-nt ms-dos))
-                                (not (gnutls-available-p))))
-
-;;; Also use Melpa for most packages
-(add-to-list 'package-archives
-             `("melpa" . ,(if sanityinc/no-ssl
-                              "http://melpa.org/packages/"
-                            "https://melpa.org/packages/")))
-
-(unless sanityinc/no-ssl
-  ;; Force SSL for GNU ELPA
-  (setcdr (assoc "gnu" package-archives) "https://elpa.gnu.org/packages/"))
-
-;; NOTE: In case of MELPA problems, the official mirror URL is
-;; https://www.mirrorservice.org/sites/stable.melpa.org/packages/
-
 
 
 
