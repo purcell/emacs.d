@@ -1,6 +1,8 @@
 (when (maybe-require-package 'projectile)
   (add-hook 'after-init-hook 'projectile-mode)
 
+  (setq projectile-keymap-prefix (kbd "C-c C-p"))
+
   ;; Shorter modeline
   (after-load 'projectile
     (setq-default
