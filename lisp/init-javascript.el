@@ -40,8 +40,7 @@
 
   (add-hook 'js2-mode-hook (lambda () (setq mode-name "JS2")))
 
-  (after-load 'js2-mode
-    (js2-imenu-extras-setup)))
+  (js2-imenu-extras-setup))
 
 ;; js-mode
 (setq-default js-indent-level preferred-javascript-indent-level)
