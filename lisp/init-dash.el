@@ -14,7 +14,13 @@
   (when (sanityinc/dash-installed-p)
     (require-package 'dash-at-point)))
 
+(when (and (not *is-a-mac*) (not (package-installed-p 'helm-dash)))
+  (require-package 'helm-dash))
+
 (when (package-installed-p 'dash-at-point)
   (global-set-key (kbd "C-c D") 'dash-at-point))
+
+(when (package-installed-p 'helm-dash)
+  (global-set-key (kbd "C-c D") 'helm-dash-at-point))
 
 (provide 'init-dash)
