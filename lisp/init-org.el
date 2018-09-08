@@ -89,6 +89,7 @@ typical word processor."
     (kill-local-variable 'truncate-lines)
     (kill-local-variable 'word-wrap)
     (kill-local-variable 'cursor-type)
+    (kill-local-variable 'blink-cursor-interval)
     (kill-local-variable 'show-trailing-whitespace)
     (kill-local-variable 'line-spacing)
     (kill-local-variable 'electric-pair-mode)
