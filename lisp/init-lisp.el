@@ -126,14 +126,9 @@
   "Run `check-parens' when the current buffer is saved."
   (add-hook 'after-save-hook #'check-parens nil t))
 
-(defun sanityinc/disable-indent-guide ()
-  (when (bound-and-true-p indent-guide-mode)
-    (indent-guide-mode -1)))
-
 (defvar sanityinc/lispy-modes-hook
   '(enable-paredit-mode
     turn-on-eldoc-mode
-    sanityinc/disable-indent-guide
     sanityinc/enable-check-parens-on-save)
   "Hook run in all Lisp modes.")
 
