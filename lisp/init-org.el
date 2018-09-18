@@ -24,7 +24,7 @@
 (defun sanityinc/grab-ditaa (url jar-name)
   "Download URL and extract JAR-NAME as `org-ditaa-jar-path'."
   ;; TODO: handle errors
-  (message "Grabbing " jar-name " for org.")
+  (message "Grabbing %s for org." jar-name)
   (let ((zip-temp (make-temp-name "emacs-ditaa")))
     (unwind-protect
         (progn
