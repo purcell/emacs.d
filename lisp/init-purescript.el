@@ -5,6 +5,9 @@
                 (psc-ide-mode)
                 (company-mode)
                 (flycheck-mode)
-                (turn-on-purescript-indentation)))))
+                (turn-on-purescript-indentation))))
+  (when (maybe-require-package 'add-node-modules-path)
+    (after-load 'purescript-mode
+      (add-hook 'purescript-mode-hook 'add-node-modules-path))))
 
 (provide 'init-purescript)
