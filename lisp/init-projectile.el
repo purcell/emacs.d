@@ -5,12 +5,7 @@
     (define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
 
     ;; Shorter modeline
-    (setq-default
-     projectile-mode-line
-     '(:eval
-       (if (file-remote-p default-directory)
-           " Proj"
-         (format " Proj[%s]" (projectile-project-name))))))
+    (setq-default projectile-mode-line-lighter " Proj"))
 
   (maybe-require-package 'ibuffer-projectile))
 
