@@ -38,16 +38,12 @@
   "Install given PACKAGE, optionally requiring MIN-VERSION.
 If NO-REFRESH is non-nil, the available package lists will not be
 re-downloaded in order to locate PACKAGE."
-  (let ((available
-         (or (package-installed-p package min-version)
-             (if (or (assoc package package-archive-contents) no-refresh)
-                 (package-install package)
-               (progn
-                 (package-refresh-contents)
-                 (require-package package min-version t))))))
-    (prog1 available
-      (when (and available (boundp 'package-selected-packages))
-        (add-to-list 'sanityinc/required-packages package)))))
+  (or (package-installed-p package min-version)
+      (if (or no-refresh (assoc package package-archive-contents))
+          (package-install package)
+        (progn
+          (package-refresh-contents)
+          (require-package package min-version t)))))
 
 (defun maybe-require-package (package &optional min-version no-refresh)
   "Try to install PACKAGE, and return non-nil if successful.
@@ -67,9 +63,20 @@ locate PACKAGE."
 (setq package-enable-at-startup nil)
 (package-initialize)
 
+
 ;; package.el updates the saved version of package-selected-packages correctly only
 ;; after custom-file has been loaded, which is a bug. We work around this by adding
 ;; the required packages to package-selected-packages after startup is complete.
+
+(defun sanityinc/note-selected-package (oldfun package &rest args)
+  "If OLDFUN reports PACKAGE was successfully installed, note it in `sanityinc/required-packages'."
+  (let ((available (apply oldfun package args)))
+    (prog1 available
+      (when (and available (boundp 'package-selected-packages))
+        (add-to-list 'sanityinc/required-packages package)))))
+
+(advice-add 'require-package :around 'sanityinc/note-selected-package)
+
 (when (fboundp 'package--save-selected-packages)
   (require-package 'seq)
   (add-hook 'after-init-hook
