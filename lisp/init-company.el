@@ -27,8 +27,7 @@
 ;; (see https://github.com/company-mode/company-mode/issues/416)
 (after-load 'company
   (after-load 'page-break-lines
-    (defvar sanityinc/page-break-lines-on-p nil)
-    (make-variable-buffer-local 'sanityinc/page-break-lines-on-p)
+    (defvar-local sanityinc/page-break-lines-on-p nil)
 
     (defun sanityinc/page-break-lines-disable (&rest ignore)
       (when (setq sanityinc/page-break-lines-on-p (bound-and-true-p page-break-lines-mode))

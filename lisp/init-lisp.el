@@ -47,9 +47,8 @@
 ;; Use C-c C-z to toggle between elisp files and an ielm session
 ;; I might generalise this to ruby etc., or even just adopt the repl-toggle package.
 
-(defvar sanityinc/repl-original-buffer nil
+(defvar-local sanityinc/repl-original-buffer nil
   "Buffer from which we jumped to this REPL.")
-(make-variable-buffer-local 'sanityinc/repl-original-buffer)
 
 (defvar sanityinc/repl-switch-function 'switch-to-buffer-other-window)
 
