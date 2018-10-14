@@ -32,7 +32,6 @@
 
 ;;; On-demand installation of packages
 
-(defvar sanityinc/required-packages nil)
 
 (defun require-package (package &optional min-version no-refresh)
   "Install given PACKAGE, optionally requiring MIN-VERSION.
@@ -67,6 +66,8 @@ locate PACKAGE."
 ;; package.el updates the saved version of package-selected-packages correctly only
 ;; after custom-file has been loaded, which is a bug. We work around this by adding
 ;; the required packages to package-selected-packages after startup is complete.
+
+(defvar sanityinc/required-packages nil)
 
 (defun sanityinc/note-selected-package (oldfun package &rest args)
   "If OLDFUN reports PACKAGE was successfully installed, note it in `sanityinc/required-packages'."
