@@ -235,7 +235,9 @@
 
 (when (maybe-require-package 'rainbow-mode)
   (add-hook 'sanityinc/theme-mode-hook 'rainbow-mode)
-  (add-hook 'help-mode-hook 'rainbow-mode))
+  (add-hook 'help-mode-hook 'rainbow-mode)
+  (after-load 'rainbow-mode
+    (diminish 'rainbow-mode)))
 
 (when (maybe-require-package 'aggressive-indent)
   ;; Can be prohibitively slow with very long forms
