@@ -252,7 +252,8 @@
 (when (maybe-require-package 'flycheck)
   (require-package 'flycheck-package)
   (after-load 'flycheck
-    (flycheck-package-setup)))
+    (after-load 'elisp-mode
+      (flycheck-package-setup))))
 
 
 
