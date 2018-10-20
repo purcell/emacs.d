@@ -25,14 +25,13 @@ Fix for the above hasn't been released as of Emacs 25.2."
 (after-load 'sql
   (define-key sql-mode-map (kbd "C-c C-z") 'sanityinc/pop-to-sqli-buffer)
   (when (package-installed-p 'dash-at-point)
-    (defun sanityinc/maybe-set-dash-db-docset ()
+    (defun sanityinc/maybe-set-dash-db-docset (&rest _)
       (when (eq sql-product 'postgres)
         (set (make-local-variable 'dash-at-point-docset) "psql")))
 
     (add-hook 'sql-mode-hook 'sanityinc/maybe-set-dash-db-docset)
     (add-hook 'sql-interactive-mode-hook 'sanityinc/maybe-set-dash-db-docset)
-    (defadvice sql-set-product (after set-dash-docset activate)
-      (sanityinc/maybe-set-dash-db-docset))))
+    (advice-add 'sql-set-product :after 'sanityinc/maybe-set-dash-db-docset)))
 
 (setq-default sql-input-ring-file-name
               (expand-file-name ".sqli_history" user-emacs-directory))
