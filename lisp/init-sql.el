@@ -47,6 +47,9 @@ Fix for the above hasn't been released as of Emacs 25.2."
 (require-package 'sqlformat)
 (add-hook 'sql-mode-hook 'sqlformat-mode)
 
+(maybe-require-package 'sqlup-mode)
+(add-hook 'sql-mode-hook 'sqlup-mode)
+
 ;; Package ideas:
 ;;   - PEV
 (defun sanityinc/sql-explain-region-as-json (beg end &optional copy)
