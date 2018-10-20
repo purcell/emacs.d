@@ -22,6 +22,11 @@
    (normal-mode)))
 
 
+(when (maybe-require-package 'info-colors)
+  (after-load 'info
+    (add-hook 'Info-selection-hook 'info-colors-fontify-node)))
+
+
 ;; Handle the prompt pattern for the 1password command-line interface
 (after-load 'comint
   (setq comint-password-prompt-regexp
