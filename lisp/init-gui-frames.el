@@ -68,16 +68,8 @@
 
 
 (when *is-a-mac*
-  (defun sanityinc/set-frame-ns-appearance (frame)
-    (let ((mode (frame-parameter frame 'background-mode)))
-      (modify-frame-parameters frame `((ns-transparent-titlebar . t) (ns-appearance . ,mode)))))
-
-  (defun sanityinc/set-ns-appearance (&rest _)
-    (mapc 'sanityinc/set-frame-ns-appearance (frame-list)))
-  (add-hook 'after-init-hook 'sanityinc/set-ns-appearance)
-  (add-hook 'after-make-frame-functions 'sanityinc/set-frame-ns-appearance)
-  (advice-add 'load-theme :after 'sanityinc/set-ns-appearance)
-  (advice-add 'enable-theme :after 'sanityinc/set-ns-appearance))
+  (when (maybe-require-package 'ns-auto-titlebar)
+    (ns-auto-titlebar-mode)))
 
 
 (setq frame-title-format
