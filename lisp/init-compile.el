@@ -24,7 +24,7 @@
   "The last buffer in which compilation took place.")
 
 (after-load 'compile
-  (defun sanityinc/save-compilation-buffer ()
+  (defun sanityinc/save-compilation-buffer (&rest _)
     "Save the compilation buffer to find it later."
     (setq sanityinc/last-compilation-buffer next-error-last-buffer))
   (advice-add 'compilation-start :after 'sanityinc/save-compilation-buffer)
