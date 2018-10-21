@@ -18,12 +18,7 @@
                   company-tooltip-align-annotations t))
   (global-set-key (kbd "M-C-/") 'company-complete)
   (when (maybe-require-package 'company-quickhelp)
-    (add-hook 'after-init-hook 'company-quickhelp-mode))
-
-  (defun sanityinc/local-push-company-backend (backend)
-    "Add BACKEND to a buffer-local version of `company-backends'."
-    (make-local-variable 'company-backends)
-    (push backend company-backends)))
+    (add-hook 'after-init-hook 'company-quickhelp-mode)))
 
 ;; Suspend page-break-lines-mode while company menu is active
 ;; (see https://github.com/company-mode/company-mode/issues/416)
