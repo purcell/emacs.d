@@ -35,7 +35,7 @@
 
 
 
-(defun sanityinc/maybe-set-bundled-elisp-readonly (&rest _)
+(defun sanityinc/maybe-set-bundled-elisp-readonly ()
   "If this elisp appears to be part of Emacs, then disallow editing."
   (when (and (buffer-file-name)
              (string-match-p "\\.el\\.gz\\'" (buffer-file-name)))
