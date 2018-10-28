@@ -80,4 +80,7 @@
   ;;(paste-to-mark arg)
   )
 (global-set-key (kbd "C-c w")         (quote copy-word))
+;; jury's still out on whether this is a good idea
+(setq make-backup-files nil)
+
 (provide 'init-local)
