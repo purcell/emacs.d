@@ -18,7 +18,7 @@
 
 ;; Compatibility with other modes
 
-(suspend-mode-during-cua-rect-selection 'paredit-mode)
+(sanityinc/suspend-mode-during-cua-rect-selection 'paredit-mode)
 
 
 ;; Use paredit in the minibuffer
@@ -46,6 +46,5 @@
 (after-load 'paredit-everywhere
   (define-key paredit-everywhere-mode-map (kbd "M-s") nil))
 (add-hook 'prog-mode-hook 'paredit-everywhere-mode)
-(add-hook 'css-mode-hook 'paredit-everywhere-mode)
 
 (provide 'init-paredit)

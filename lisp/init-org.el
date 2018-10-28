@@ -9,7 +9,6 @@
 ;; Various preferences
 (setq org-log-done t
       org-edit-timestamp-down-means-later t
-      org-archive-mark-done nil
       org-hide-emphasis-markers t
       org-catch-invisible-edits 'show
       org-export-coding-system 'utf-8
@@ -25,7 +24,7 @@
 (defun sanityinc/grab-ditaa (url jar-name)
   "Download URL and extract JAR-NAME as `org-ditaa-jar-path'."
   ;; TODO: handle errors
-  (message "Grabbing " jar-name " for org.")
+  (message "Grabbing %s for org." jar-name)
   (let ((zip-temp (make-temp-name "emacs-ditaa")))
     (unwind-protect
         (progn
@@ -90,6 +89,7 @@ typical word processor."
     (kill-local-variable 'truncate-lines)
     (kill-local-variable 'word-wrap)
     (kill-local-variable 'cursor-type)
+    (kill-local-variable 'blink-cursor-interval)
     (kill-local-variable 'show-trailing-whitespace)
     (kill-local-variable 'line-spacing)
     (kill-local-variable 'electric-pair-mode)
@@ -128,9 +128,7 @@ typical word processor."
 (after-load 'org-agenda
   (add-to-list 'org-agenda-after-show-hook 'org-show-entry))
 
-(defadvice org-refile (after sanityinc/save-all-after-refile activate)
-  "Save all org buffers after each refile operation."
-  (org-save-all-org-buffers))
+(advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
 
 ;; Exclude DONE state tasks from refile targets
 (defun sanityinc/verify-refile-target ()

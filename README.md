@@ -33,11 +33,11 @@ other languages.
 
 ## Supported Emacs versions
 
-The config should run on Emacs 24.3 or greater and is designed to
-degrade smoothly - see the Travis build - but note that Emacs 24.5 and
-above is required for an increasing number of key packages, so to get
-full functionality you should use the latest Emacs version available
-to you.
+The config should run on Emacs 24.4 or greater and is designed to
+degrade smoothly - see the Travis build - but note that much newer
+versions are required for an increasing number of key packages, so to
+get full functionality you should use the latest Emacs version
+available to you.
 
 Some Windows users might need to follow
 [these instructions](http://xn--9dbdkw.se/diary/how_to_enable_GnuTLS_for_Emacs_24_on_Windows/index.en.html)
@@ -115,10 +115,11 @@ versions (see "Updates" above). If you still experience problems, go ahead and
 
 <hr>
 
-[Support this project and my other Open Source work](https://www.patreon.com/sanityinc)
 
-[![](http://www.linkedin.com/img/webpromo/btn_liprofile_blue_80x15.png)](http://uk.linkedin.com/in/stevepurcell)
+[💝 Support this project and my other Open Source work](https://www.patreon.com/sanityinc)
 
-[sanityinc.com](http://www.sanityinc.com/)
+[💼 LinkedIn profile](https://uk.linkedin.com/in/stevepurcell)
 
-[@sanityinc](https://twitter.com/sanityinc)
+[✍ sanityinc.com](http://www.sanityinc.com/)
+
+[🐦 @sanityinc](https://twitter.com/sanityinc)

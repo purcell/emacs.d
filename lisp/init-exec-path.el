@@ -6,6 +6,7 @@
 
 
 (when (memq window-system '(mac ns x))
+  (setq-default exec-path-from-shell-arguments nil)
   (exec-path-from-shell-initialize))
 
 (provide 'init-exec-path)

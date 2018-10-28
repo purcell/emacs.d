@@ -25,14 +25,13 @@ Fix for the above hasn't been released as of Emacs 25.2."
 (after-load 'sql
   (define-key sql-mode-map (kbd "C-c C-z") 'sanityinc/pop-to-sqli-buffer)
   (when (package-installed-p 'dash-at-point)
-    (defun sanityinc/maybe-set-dash-db-docset ()
+    (defun sanityinc/maybe-set-dash-db-docset (&rest _)
       (when (eq sql-product 'postgres)
         (set (make-local-variable 'dash-at-point-docset) "psql")))
 
     (add-hook 'sql-mode-hook 'sanityinc/maybe-set-dash-db-docset)
     (add-hook 'sql-interactive-mode-hook 'sanityinc/maybe-set-dash-db-docset)
-    (defadvice sql-set-product (after set-dash-docset activate)
-      (sanityinc/maybe-set-dash-db-docset))))
+    (advice-add 'sql-set-product :after 'sanityinc/maybe-set-dash-db-docset)))
 
 (setq-default sql-input-ring-file-name
               (expand-file-name ".sqli_history" user-emacs-directory))
@@ -43,24 +42,12 @@ Fix for the above hasn't been released as of Emacs 25.2."
     (sql-product-font-lock nil nil)))
 (add-hook 'sql-interactive-mode-hook 'sanityinc/font-lock-everything-in-sql-interactive-mode)
 
-(defun sanityinc/sqlformat (beg end)
-  "Reformat SQL in region from BEG to END using the \"sqlformat\" program.
-If no region is active, the current statement (paragraph) is reformatted.
-Install the \"sqlparse\" (Python) package to get \"sqlformat\"."
-  (interactive "r")
-  (unless (use-region-p)
-    (setq beg (save-excursion
-		(backward-paragraph)
-                (skip-syntax-forward " >")
-		(point))
-          end (save-excursion
-		(forward-paragraph)
-                (skip-syntax-backward " >")
-		(point))))
-  (shell-command-on-region beg end "sqlformat -r -" nil t "*sqlformat-errors*" t))
 
-(after-load 'sql
-  (define-key sql-mode-map (kbd "C-c C-f") 'sanityinc/sqlformat))
+(require-package 'sqlformat)
+(add-hook 'sql-mode-hook 'sqlformat-mode)
+
+(maybe-require-package 'sqlup-mode)
+(add-hook 'sql-mode-hook 'sqlup-mode)
 
 ;; Package ideas:
 ;;   - PEV

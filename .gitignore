@@ -13,11 +13,9 @@ CVS
 .*.lock
 /tramp
 /TODO
-/anything-c-adaptive-history
 /.org-id-locations
 cookies
 /newsticker
-/ac-comphist.dat
 \#*
 /elpa
 /elpa-*
