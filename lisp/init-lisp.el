@@ -239,10 +239,6 @@
   (after-load 'rainbow-mode
     (diminish 'rainbow-mode)))
 
-(when (maybe-require-package 'aggressive-indent)
-  ;; Can be prohibitively slow with very long forms
-  (add-to-list 'sanityinc/theme-mode-hook (lambda () (aggressive-indent-mode -1)) t))
-
 
 
 (when (maybe-require-package 'highlight-quoted)
