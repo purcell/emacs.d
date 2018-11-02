@@ -222,19 +222,11 @@
 
 
 ;; Extras for theme editing
-
-(defvar sanityinc/theme-mode-hook nil
-  "Hook triggered when editing a theme file.")
-
-(defun sanityinc/run-theme-mode-hooks-if-theme ()
-  "Run `sanityinc/theme-mode-hook' if this appears to a theme."
-  (when (string-match "\\(color-theme-\\|-theme\\.el\\)" (buffer-name))
-    (run-hooks 'sanityinc/theme-mode-hook)))
-
-(add-hook 'emacs-lisp-mode-hook 'sanityinc/run-theme-mode-hooks-if-theme t)
-
 (when (maybe-require-package 'rainbow-mode)
-  (add-hook 'sanityinc/theme-mode-hook 'rainbow-mode)
+  (defun sanityinc/enable-rainbow-mode-if-theme ()
+    (when (and (buffer-file-name) (string-match-p "\\(color-theme-\\|-theme\\.el\\)" (buffer-file-name)))
+      (rainbow-mode)))
+  (add-hook 'emacs-lisp-mode-hook 'sanityinc/enable-rainbow-mode-if-theme)
   (add-hook 'help-mode-hook 'rainbow-mode)
   (after-load 'rainbow-mode
     (diminish 'rainbow-mode)))
