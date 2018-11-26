@@ -32,11 +32,10 @@
 (define-key isearch-mode-map "\C-\M-w" 'isearch-yank-symbol)
 
 
-;; http://www.emacswiki.org/emacs/ZapToISearch
-(defun sanityinc/isearch-exit-other-end (rbeg rend)
+(defun sanityinc/isearch-exit-other-end ()
   "Exit isearch, but at the other end of the search string.
 This is useful when followed by an immediate kill."
-  (interactive "r")
+  (interactive)
   (isearch-exit)
   (goto-char isearch-other-end))
 
