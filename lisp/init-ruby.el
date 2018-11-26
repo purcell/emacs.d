@@ -12,14 +12,6 @@
  ruby-use-encoding-map nil
  ruby-insert-encoding-magic-comment nil)
 
-(after-load 'ruby-mode
-  ;; Stupidly the non-bundled ruby-mode isn't a derived mode of
-  ;; prog-mode: we run the latter's hooks anyway in that case.
-  (add-hook 'ruby-mode-hook
-            (lambda ()
-              (unless (derived-mode-p 'prog-mode)
-                (run-hooks 'prog-mode-hook)))))
-
 (add-hook 'ruby-mode-hook 'subword-mode)
 
 (after-load 'page-break-lines
