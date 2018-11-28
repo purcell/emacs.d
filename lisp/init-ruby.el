@@ -35,9 +35,8 @@
 (require-package 'ruby-compilation)
 
 (after-load 'ruby-mode
-  (let ((m ruby-mode-map))
-    (define-key m [S-f7] 'ruby-compilation-this-buffer)
-    (define-key m [f7] 'ruby-compilation-this-test)))
+  (define-key ruby-mode-map [S-f7] 'ruby-compilation-this-buffer)
+  (define-key ruby-mode-map [f7] 'ruby-compilation-this-test))
 
 (after-load 'ruby-compilation
   (defalias 'rake 'ruby-compilation-rake))
@@ -81,11 +80,10 @@
   (add-hook (derived-mode-hook-name mode) (lambda () (require 'mmm-erb)))
   (mmm-add-mode-ext-class mode "\\.erb\\'" 'erb))
 
-(let ((html-erb-modes '(html-mode html-erb-mode nxml-mode)))
-  (dolist (mode html-erb-modes)
-    (sanityinc/set-up-mode-for-erb mode)
-    (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-js)
-    (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css)))
+(dolist (mode '(html-mode html-erb-mode nxml-mode))
+  (sanityinc/set-up-mode-for-erb mode)
+  (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-js)
+  (mmm-add-mode-ext-class mode "\\.r?html\\(\\.erb\\)?\\'" 'html-css))
 
 (mapc 'sanityinc/set-up-mode-for-erb
       '(coffee-mode js-mode js2-mode js3-mode markdown-mode textile-mode))
