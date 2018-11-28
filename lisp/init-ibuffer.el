@@ -27,11 +27,6 @@
      (t (format "%8d" (buffer-size))))))
 
 
-;; Explicitly require ibuffer-vc to get its column definitions, which
-;; can't be autoloaded
-(after-load 'ibuffer
-  (require 'ibuffer-vc))
-
 ;; Modify the default ibuffer-formats (toggle with `)
 (setq ibuffer-formats
       '((mark modified read-only vc-status-mini " "
