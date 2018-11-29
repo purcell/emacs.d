@@ -33,7 +33,7 @@
               " "
               (mode 12 12 :left :elide)
               " "
-              filename-and-process)
+              vc-relative-file)
         (mark modified read-only vc-status-mini " "
               (name 22 22 :left :elide)
               " "
@@ -43,7 +43,7 @@
               " "
               (vc-status 12 12 :left)
               " "
-              filename-and-process)))
+              vc-relative-file)))
 
 (setq ibuffer-filter-group-name-face 'font-lock-doc-face)
 
