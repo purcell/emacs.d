@@ -127,7 +127,6 @@
 
 (defvar sanityinc/lispy-modes-hook
   '(enable-paredit-mode
-    turn-on-eldoc-mode
     sanityinc/enable-check-parens-on-save)
   "Hook run in all Lisp modes.")
 
