@@ -120,6 +120,8 @@
 
 ;; (add-to-list 'mmm-set-file-name-for-modes 'ruby-mode)
 
-
+(when (maybe-require-package 'rvm)
+  (after-load 'ruby-mode
+    (add-hook 'ruby-mode-hook 'rvm-activate-corresponding-ruby)))
 
 (provide 'init-ruby)
