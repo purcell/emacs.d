@@ -35,8 +35,7 @@
         (page-break-lines-mode 1)))
 
     (add-hook 'company-completion-started-hook 'sanityinc/page-break-lines-disable)
-    (add-hook 'company-completion-finished-hook 'sanityinc/page-break-lines-maybe-reenable)
-    (add-hook 'company-completion-cancelled-hook 'sanityinc/page-break-lines-maybe-reenable)))
+    (add-hook 'company-after-completion-hook 'sanityinc/page-break-lines-maybe-reenable)))
 
 
 
