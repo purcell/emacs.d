@@ -50,7 +50,7 @@
         (grep-find-history        . 30)
         (grep-history             . 30)
         (ivy-history              . 100)
-        (magit-read-rev-history   . 50)
+        (magit-revision-history   . 50)
         (minibuffer-history       . 50)
         (org-clock-history        . 50)
         (org-refile-history       . 50)
