@@ -10,11 +10,11 @@
       (sanityinc/utf8-locale-p (getenv "LANG"))))
 
 (when (or window-system (sanityinc/locale-is-utf8-p))
-  (set-language-environment 'utf-8)
-  (setq locale-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-selection-coding-system (if (eq system-type 'windows-nt) 'utf-16-le 'utf-8))
-  (prefer-coding-system 'utf-8))
+  (set-language-environment 'gb18030)
+  (setq locale-coding-system 'gb18030)
+  (set-default-coding-systems 'gb18030)
+  (set-terminal-coding-system 'gb18030)
+  (set-selection-coding-system (if (eq system-type 'windows-nt) 'gb18030 'gb18030))
+  (prefer-coding-system 'gb18030))
 
 (provide 'init-locales)
