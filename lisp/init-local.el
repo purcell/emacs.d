@@ -95,19 +95,19 @@
 ;; (global-set-key (kbd "C-c v") 'clipboard-yank)
 
 ;;利用自带的hippie-expand进行代码补全
-(global-set-key[(meta ?/)] 'hippie-expand)
-(setq hippie-expand-try-functions-list
-      '(try-expand-dabbrev
-        try-expand-dabbrev-visible
-        try-expand-dabbrev-all-buffers
-        try-expand-dabbrev-from-kill
-        try-complete-file-name-partially
-        try-complete-file-name
-        try-expand-all-abbrevs
-        try-expand-list
-        try-expand-line
-        try-complete-lisp-symbol-partially
-        try-complete-lisp-symbol))
+;; (global-set-key[(meta ?/)] 'hippie-expand)
+;; (setq hippie-expand-try-functions-list
+;;       '(try-expand-dabbrev
+;;         try-expand-dabbrev-visible
+;;         try-expand-dabbrev-all-buffers
+;;         try-expand-dabbrev-from-kill
+;;         try-complete-file-name-partially
+;;         try-complete-file-name
+;;         try-expand-all-abbrevs
+;;         try-expand-list
+;;         try-expand-line
+;;         try-complete-lisp-symbol-partially
+;;         try-complete-lisp-symbol))
 
 ;; ;;tabber.el list all buffers不开窗口就不启用
 ;; (if(not window-system) nil
@@ -152,7 +152,30 @@
 ;;; dired deleted to trash can
 (setq delete-by-moving-to-trash t)
 
+;;; solve the conflicts in Company and Yasnippet
+;; (defun check-expansion ()
+;;   (save-excursion
+;;     (if (looking-at "\\_>") t
+;;       (backward-char 1)
+;;       (if (looking-at "\\.") t
+;;         (backward-char 1)
+;;         (if (looking-at "->") t nil)))))
 
+;; (defun do-yas-expand ()
+;;   (let ((yas/fallback-behavior 'return-nil))
+;;     (yas/expand)))
+
+;; (defun tab-indent-or-complete ()
+;;   (interactive)
+;;   (if (minibufferp)
+;;       (minibuffer-complete)
+;;     (if (or (not yas/minor-mode)
+;;             (null (do-yas-expand)))
+;;         (if (check-expansion)
+;;             (company-complete-common)
+;;           (indent-for-tab-command)))))
+
+;; (global-set-key [tab] 'tab-indent-or-complete)
 
 (require 'init-pyim)
 (require 'init-javacompile)
