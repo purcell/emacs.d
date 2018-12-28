@@ -145,7 +145,15 @@
 
 ;;自动添加括号
 ;; (electric-pair-mode t)
+
+;;; yasnippet setting
 (yas-global-mode 1)
+
+;;; dired deleted to trash can
+(setq delete-by-moving-to-trash t)
+
+
+
 (require 'init-pyim)
 (require 'init-javacompile)
 (provide 'init-local)
