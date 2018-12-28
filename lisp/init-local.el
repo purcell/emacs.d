@@ -147,4 +147,5 @@
 ;; (electric-pair-mode t)
 (yas-global-mode 1)
 (require 'init-pyim)
+(require 'init-javacompile)
 (provide 'init-local)
