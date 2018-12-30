@@ -3,7 +3,9 @@
 (require-package 'git-blamed)
 (require-package 'gitignore-mode)
 (require-package 'gitconfig-mode)
-(maybe-require-package 'git-timemachine)
+(when (maybe-require-package 'git-timemachine)
+  (global-set-key (kbd "C-x v t") 'git-timemachine-toggle))
+
 
 
 (when (maybe-require-package 'magit)
