@@ -49,3 +49,4 @@ site-lisp/package/
 /plantuml.jar
 /magithub
 .cache/
+/forge-database.sqlite
