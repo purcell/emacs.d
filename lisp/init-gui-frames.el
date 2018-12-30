@@ -1,3 +1,7 @@
+;;; init-gui-frames.el --- Behaviour specific to non-TTY frames -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 ;;----------------------------------------------------------------------------
 ;; Stop C-z from minimizing windows under OS X
 ;;----------------------------------------------------------------------------
@@ -92,3 +96,4 @@
 
 
 (provide 'init-gui-frames)
+;;; init-gui-frames.el ends here

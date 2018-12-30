@@ -1,3 +1,7 @@
+;;; init-sessions.el --- Save and restore editor sessions between restarts -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 ;; save a list of open files in ~/.emacs.d/.emacs.desktop
 (setq desktop-path (list user-emacs-directory)
       desktop-auto-save-timeout 600)
@@ -71,3 +75,4 @@
 
 
 (provide 'init-sessions)
+;;; init-sessions.el ends here

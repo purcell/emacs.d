@@ -1,3 +1,7 @@
+;;; init-uniquify.el --- Configure uniquification of buffer names -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 ;;----------------------------------------------------------------------------
 ;; Nicer naming of buffers for files with identical names
 ;;----------------------------------------------------------------------------
@@ -9,4 +13,4 @@
 (setq uniquify-ignore-buffers-re "^\\*")
 
 
-(provide 'init-uniquify)
+(provide 'init-uniquify);;; init-uniquify.el ends here

@@ -1,3 +1,7 @@
+;;; init-elpa.el --- Settings and helpers for package.el -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (require 'package)
 
 
@@ -106,3 +110,4 @@ locate PACKAGE."
 
 
 (provide 'init-elpa)
+;;; init-elpa.el ends here

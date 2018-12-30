@@ -1,3 +1,7 @@
+;;; init-dired.el --- Dired customisations -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (setq-default dired-dwim-target t)
 
 ;; Prefer g-prefixed coreutils version of standard utilities when available
@@ -18,3 +22,4 @@
     (add-hook 'dired-mode-hook 'diff-hl-dired-mode)))
 
 (provide 'init-dired)
+;;; init-dired.el ends here

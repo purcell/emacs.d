@@ -1,3 +1,10 @@
+;;; init-git.el --- Git SCM support -*- lexical-binding: t -*-
+;;; Commentary:
+
+;; See also init-github.el.
+
+;;; Code:
+
 ;; TODO: link commits from vc-log to magit-show-commit
 ;; TODO: smerge-mode
 (require-package 'git-blamed)
@@ -92,3 +99,4 @@
 
 
 (provide 'init-git)
+;;; init-git.el ends here

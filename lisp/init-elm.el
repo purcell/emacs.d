@@ -1,3 +1,7 @@
+;;; init-elm.el --- Support for the Elm language -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (when (maybe-require-package 'elm-mode)
   (after-load 'elm-mode
     (diminish 'elm-indent-mode)
@@ -11,3 +15,4 @@
       (flycheck-elm-setup))))
 
 (provide 'init-elm)
+;;; init-elm.el ends here

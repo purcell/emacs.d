@@ -1,3 +1,7 @@
+;;; init-ledger.el --- Support for the ledger CLI accounting tool -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (when (maybe-require-package 'ledger-mode)
   (when (maybe-require-package 'flycheck-ledger)
     (after-load 'flycheck
@@ -18,3 +22,4 @@
   (add-hook 'ledger-mode-hook 'goto-address-prog-mode))
 
 (provide 'init-ledger)
+;;; init-ledger.el ends here

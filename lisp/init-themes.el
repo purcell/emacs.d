@@ -1,3 +1,7 @@
+;;; init-themes.el --- Defaults for themes -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (require-package 'color-theme-sanityinc-solarized)
 (require-package 'color-theme-sanityinc-tomorrow)
 
@@ -40,3 +44,4 @@
 
 
 (provide 'init-themes)
+;;; init-themes.el ends here

@@ -1,3 +1,7 @@
+;;; init-javascript.el --- Support for Javascript and derivatives -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (maybe-require-package 'json-mode)
 (maybe-require-package 'js2-mode)
 (maybe-require-package 'coffee-mode)
@@ -105,3 +109,4 @@
 
 
 (provide 'init-javascript)
+;;; init-javascript.el ends here

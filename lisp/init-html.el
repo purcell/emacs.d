@@ -1,3 +1,10 @@
+;;; init-html.el --- Editing HTML -*- lexical-binding: t -*-
+;;; Commentary:
+
+;; ERB is configured separately in init-ruby
+
+;;; Code:
+
 (require-package 'tagedit)
 (after-load 'sgml-mode
   (tagedit-add-paredit-like-keybindings)
@@ -7,6 +14,6 @@
 
 (add-auto-mode 'html-mode "\\.\\(jsp\\|tmpl\\)\\'")
 
-;; Note: ERB is configured in init-ruby
 
 (provide 'init-html)
+;;; init-html.el ends here

@@ -1,3 +1,7 @@
+;;; init-css.el --- CSS/Less/SASS/SCSS support -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 ;;; Colourise CSS colour literals
 (when (maybe-require-package 'rainbow-mode)
   (dolist (hook '(css-mode-hook html-mode-hook sass-mode-hook))
@@ -64,3 +68,4 @@
 
 
 (provide 'init-css)
+;;; init-css.el ends here

@@ -1,3 +1,7 @@
+;;; init-projectile.el --- Use Projectile for navigation within projects -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (when (maybe-require-package 'projectile)
   (add-hook 'after-init-hook 'projectile-mode)
 
@@ -11,3 +15,4 @@
 
 
 (provide 'init-projectile)
+;;; init-projectile.el ends here

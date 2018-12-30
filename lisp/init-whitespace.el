@@ -1,3 +1,7 @@
+;;; init-whitespace.el --- Special handling for whitespace -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (setq-default show-trailing-whitespace t)
 
 
@@ -28,3 +32,4 @@
 
 
 (provide 'init-whitespace)
+;;; init-whitespace.el ends here

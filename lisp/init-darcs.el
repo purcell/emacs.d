@@ -1,3 +1,7 @@
+;;; init-darcs.el --- Support for the Darcs DVCS -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (require-package 'darcsum)
 (require-package 'vc-darcs)
 
@@ -10,3 +14,4 @@
 (setq darcsum-whatsnew-switches "-l")
 
 (provide 'init-darcs)
+;;; init-darcs.el ends here

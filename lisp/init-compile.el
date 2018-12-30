@@ -1,3 +1,7 @@
+;;; init-compile.el --- Helpers for M-x compile -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (setq-default compilation-scroll-output t)
 
 (require-package 'alert)
@@ -63,3 +67,4 @@
 
 
 (provide 'init-compile)
+;;; init-compile.el ends here

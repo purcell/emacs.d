@@ -1,3 +1,7 @@
+;;; init-dash.el --- Integrate with the Mac app "Dash" -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 ;; Support for the http://kapeli.com/dash documentation browser
 
 (defun sanityinc/dash-installed-p ()
@@ -18,3 +22,4 @@
   (global-set-key (kbd "C-c D") 'dash-at-point))
 
 (provide 'init-dash)
+;;; init-dash.el ends here

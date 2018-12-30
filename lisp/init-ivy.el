@@ -1,3 +1,7 @@
+;;; init-ivy.el --- Use ivy for minibuffer completion and more -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 ;;; -*- lexical-binding: t -*-
 (when (maybe-require-package 'ivy)
   (add-hook 'after-init-hook 'ivy-mode)
@@ -81,3 +85,4 @@ instead."
 
 
 (provide 'init-ivy)
+;;; init-ivy.el ends here

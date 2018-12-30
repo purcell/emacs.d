@@ -1,3 +1,7 @@
+;;; init-sql.el --- Support for SQL -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (after-load 'sql
   ;; sql-mode pretty much requires your psql to be uncustomised from stock settings
   (push "--no-psqlrc" sql-postgres-options))
@@ -118,3 +122,4 @@ This command currently blocks the UI, sorry."
   (push 'sql-mode page-break-lines-modes))
 
 (provide 'init-sql)
+;;; init-sql.el ends here

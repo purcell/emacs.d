@@ -1,3 +1,7 @@
+;;; init-xterm.el --- Integrate with terminals such as xterm -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (require 'init-frame-hooks)
 
 (global-set-key [mouse-4] (lambda () (interactive) (scroll-down 1)))
@@ -14,3 +18,4 @@
 (add-hook 'after-make-console-frame-hooks 'sanityinc/console-frame-setup)
 
 (provide 'init-xterm)
+;;; init-xterm.el ends here

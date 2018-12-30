@@ -1,3 +1,7 @@
+;;; init-purescript.el --- Support the Purescript language -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (when (maybe-require-package 'purescript-mode)
   (when (maybe-require-package 'psc-ide)
     (add-hook 'purescript-mode-hook
@@ -20,3 +24,4 @@
                                     (apply oldfun args)))))))
 
 (provide 'init-purescript)
+;;; init-purescript.el ends here
