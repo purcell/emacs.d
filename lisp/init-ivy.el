@@ -2,7 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-;;; -*- lexical-binding: t -*-
 (when (maybe-require-package 'ivy)
   (add-hook 'after-init-hook 'ivy-mode)
   (after-load 'ivy
