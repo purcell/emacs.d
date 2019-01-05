@@ -49,7 +49,6 @@
 ;; Load configs for specific features and modes
 ;;----------------------------------------------------------------------------
 
-(require-package 'wgrep)
 (require-package 'diminish)
 (require-package 'scratch)
 (require-package 'command-log-mode)

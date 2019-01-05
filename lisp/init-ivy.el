@@ -23,6 +23,8 @@
 
     (define-key ivy-minibuffer-map (kbd "<up>") #'ivy-previous-line-or-history)
 
+    (define-key ivy-occur-mode-map (kbd "C-c C-q") #'ivy-wgrep-change-to-wgrep-mode)
+
     (when (maybe-require-package 'diminish)
       (diminish 'ivy-mode)))
 
