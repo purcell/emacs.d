@@ -10,7 +10,7 @@
       (sanityinc/utf8-locale-p (getenv "LANG"))))
 
 (when (or window-system (sanityinc/locale-is-utf8-p))
-  (set-language-environment 'utf-8)
+  (set-language-environment 'chinese-gb18030)
   (setq locale-coding-system 'utf-8)
   (set-default-coding-systems 'utf-8)
   (set-terminal-coding-system 'utf-8)
