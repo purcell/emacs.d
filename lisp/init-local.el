@@ -73,6 +73,22 @@
 
 ;; (global-set-key [tab] 'tab-indent-or-complete)
 
+;;; set default newline character
+(setq-default buffer-file-coding-system 'utf-8-unix)
+
+;;; utf-8 settings
+(set-terminal-coding-system 'utf-8)
+
+;;; set F9 to compile, set default compile command
+(defun compile-clang ()
+  (interactive)
+  (let ((compile-command (format "clang \"%s\""
+                                 (file-name-nondirectory (buffer-file-name))))
+        (compilation-ask-about-save nil))
+    (call-interactively #'compile)))
+
+(global-set-key [f9] 'compile)
+
 (require 'init-pyim)
 (require 'init-javacompile)
 (provide 'init-local)
