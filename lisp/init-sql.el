@@ -48,7 +48,8 @@ Fix for the above hasn't been released as of Emacs 25.2."
 
 
 (require-package 'sqlformat)
-(add-hook 'sql-mode-hook 'sqlformat-mode)
+(after-load 'sql
+  (define-key sql-mode-map (kbd "C-c C-f") 'sqlformat))
 
 (maybe-require-package 'sqlup-mode)
 (add-hook 'sql-mode-hook 'sqlup-mode)
