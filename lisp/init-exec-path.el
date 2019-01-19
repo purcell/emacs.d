@@ -9,7 +9,10 @@
     (add-to-list 'exec-path-from-shell-variables var)))
 
 
-(when (memq window-system '(mac ns x))
+(when (or (memq window-system '(mac ns x))
+          (and (daemonp)
+               (memq system-type '(gnu gnu/linux gnu/kfreebsd darwin aix
+                                       berkeley-unix hpux usg-unix-v))))
   (setq-default exec-path-from-shell-arguments nil)
   (exec-path-from-shell-initialize))
 
