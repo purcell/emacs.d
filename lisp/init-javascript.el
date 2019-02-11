@@ -8,23 +8,10 @@
 (maybe-require-package 'typescript-mode)
 (maybe-require-package 'prettier-js)
 
-(defcustom preferred-javascript-mode
-  (first (remove-if-not #'fboundp '(js2-mode js-mode)))
-  "Javascript mode to use for .js files."
-  :type 'symbol
-  :group 'programming
-  :options '(js2-mode js-mode))
-
-(defconst preferred-javascript-indent-level 2)
-
 ;; Need to first remove from list if present, since elpa adds entries too, which
 ;; may be in an arbitrary order
-(eval-when-compile (require 'cl))
-(setq auto-mode-alist (cons `("\\.\\(js\\|es6\\)\\(\\.erb\\)?\\'" . ,preferred-javascript-mode)
-                            (loop for entry in auto-mode-alist
-                                  unless (eq preferred-javascript-mode (cdr entry))
-                                  collect entry)))
 
+(add-to-list 'auto-mode-alist '("\\.\\(js\\|es6\\)\\(\\.erb\\)?\\'" . js2-mode))
 
 ;; js2-mode
 
@@ -46,11 +33,10 @@
 
   (js2-imenu-extras-setup))
 
-;; js-mode
-(setq-default js-indent-level preferred-javascript-indent-level)
+(setq-default js-indent-level 2)
 
 
-(add-to-list 'interpreter-mode-alist (cons "node" preferred-javascript-mode))
+(add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode))
 
 
 
@@ -66,8 +52,8 @@
 ;;; Coffeescript
 
 (after-load 'coffee-mode
-  (setq coffee-js-mode preferred-javascript-mode
-        coffee-tab-width preferred-javascript-indent-level))
+  (setq-default coffee-js-mode js2-mode
+                coffee-tab-width js-indent-level))
 
 (when (fboundp 'coffee-mode)
   (add-to-list 'auto-mode-alist '("\\.coffee\\.erb\\'" . coffee-mode)))
