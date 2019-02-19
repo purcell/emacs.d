@@ -9,7 +9,7 @@
 (add-hook 'prog-mode-hook 'bug-reference-prog-mode)
 
 (maybe-require-package 'github-clone)
-(maybe-require-package 'magithub)
+(maybe-require-package 'forge)
 
 (provide 'init-github)
 ;;; init-github.el ends here
