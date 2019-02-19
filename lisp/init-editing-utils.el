@@ -65,6 +65,7 @@
 (when (maybe-require-package 'beacon)
   (setq-default beacon-lighter "")
   (setq-default beacon-size 20)
+  (advice-add 'flycheck-jump-to-error :after (lambda (&rest _) (beacon-blink-automated)))
   (add-hook 'after-init-hook 'beacon-mode))
 
 
