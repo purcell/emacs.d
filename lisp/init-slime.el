@@ -35,8 +35,7 @@
 (defun sanityinc/slime-repl-setup ()
   "Mode setup function for slime REPL."
   (sanityinc/lisp-setup)
-  (set-up-slime-hippie-expand)
-  (setq show-trailing-whitespace nil))
+  (set-up-slime-hippie-expand))
 
 (after-load 'slime-repl
   ;; Stop SLIME's REPL from grabbing DEL, which is annoying when backspacing over a '('
