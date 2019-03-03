@@ -34,6 +34,8 @@
   (js2-imenu-extras-setup))
 
 (setq-default js-indent-level 2)
+;; In Emacs >= 25, the following is an alias for js-indent-level anyway
+(setq-default js2-basic-offset 2)
 
 
 (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode))
