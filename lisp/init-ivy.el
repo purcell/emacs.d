@@ -11,6 +11,7 @@
                   projectile-completion-system 'ivy
                   ivy-magic-tilde nil
                   ivy-dynamic-exhibit-delay-ms 150
+                  ivy-use-selectable-prompt t
                   ivy-initial-inputs-alist
                   '((Man-completion-table . "^")
                     (woman . "^")))
