@@ -249,7 +249,7 @@
 ;; Cut/copy the current line if no region is active
 ;;----------------------------------------------------------------------------
 (require-package 'whole-line-or-region)
-(add-hook 'after-init-hook 'whole-line-or-region-mode)
+(add-hook 'after-init-hook 'whole-line-or-region-global-mode)
 (after-load 'whole-line-or-region
   (diminish 'whole-line-or-region-local-mode))
 
