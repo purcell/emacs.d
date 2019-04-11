@@ -1,3 +1,7 @@
+;;; init-slime.el --- Slime support for Common Lisp -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (require-package 'slime)
 ;; package.el compiles the contrib subdir, but the compilation order
 ;; causes problems, so we remove the .elc files there. See
@@ -31,8 +35,7 @@
 (defun sanityinc/slime-repl-setup ()
   "Mode setup function for slime REPL."
   (sanityinc/lisp-setup)
-  (set-up-slime-hippie-expand)
-  (setq show-trailing-whitespace nil))
+  (set-up-slime-hippie-expand))
 
 (after-load 'slime-repl
   ;; Stop SLIME's REPL from grabbing DEL, which is annoying when backspacing over a '('
@@ -46,3 +49,4 @@
 
 
 (provide 'init-slime)
+;;; init-slime.el ends here

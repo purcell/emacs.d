@@ -1,3 +1,7 @@
+;;; init-mmm.el --- Multiple Major Modes support -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 ;;----------------------------------------------------------------------------
 ;; Multiple major modes
 ;;----------------------------------------------------------------------------
@@ -8,3 +12,4 @@
 
 
 (provide 'init-mmm)
+;;; init-mmm.el ends here

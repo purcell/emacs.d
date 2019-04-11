@@ -1,8 +1,10 @@
-(ignore-errors
-  (require-package 'erlang))
+;;; init-erlang.el --- Support for the Erlang language -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
 
-(when (package-installed-p 'erlang)
+(when (maybe-require-package 'erlang)
   (require 'erlang-start))
 
 
 (provide 'init-erlang)
+;;; init-erlang.el ends here

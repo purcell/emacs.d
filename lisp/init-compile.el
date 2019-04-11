@@ -1,3 +1,7 @@
+;;; init-compile.el --- Helpers for M-x compile -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 (setq-default compilation-scroll-output t)
 
 (require-package 'alert)
@@ -24,30 +28,31 @@
   "The last buffer in which compilation took place.")
 
 (after-load 'compile
-  (defadvice compilation-start (after sanityinc/save-compilation-buffer activate)
+  (defun sanityinc/save-compilation-buffer (&rest _)
     "Save the compilation buffer to find it later."
     (setq sanityinc/last-compilation-buffer next-error-last-buffer))
+  (advice-add 'compilation-start :after 'sanityinc/save-compilation-buffer)
 
-  (defadvice recompile (around sanityinc/find-prev-compilation (&optional edit-command) activate)
+  (defun sanityinc/find-prev-compilation (orig &optional edit-command)
     "Find the previous compilation buffer, if present, and recompile there."
     (if (and (null edit-command)
              (not (derived-mode-p 'compilation-mode))
              sanityinc/last-compilation-buffer
              (buffer-live-p (get-buffer sanityinc/last-compilation-buffer)))
         (with-current-buffer sanityinc/last-compilation-buffer
-          ad-do-it)
-      ad-do-it)))
+          (funcall orig edit-command))
+      (funcall orig edit-command)))
+  (advice-add 'recompile :around 'sanityinc/find-prev-compilation))
 
 (global-set-key [f6] 'recompile)
 
-(defadvice shell-command-on-region
-    (after sanityinc/shell-command-in-view-mode
-           (start end command &optional output-buffer &rest other-args)
-           activate)
+
+(defun sanityinc/shell-command-in-view-mode (start end command &optional output-buffer replace &rest other-args)
   "Put \"*Shell Command Output*\" buffers into view-mode."
-  (unless output-buffer
+  (unless (or output-buffer replace)
     (with-current-buffer "*Shell Command Output*"
       (view-mode 1))))
+(advice-add 'shell-command-on-region :after 'sanityinc/shell-command-in-view-mode)
 
 
 (after-load 'compile
@@ -62,3 +67,4 @@
 
 
 (provide 'init-compile)
+;;; init-compile.el ends here

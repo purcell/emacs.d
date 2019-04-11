@@ -1,4 +1,27 @@
-(maybe-require-package 'org-fstree)
+;;; init-org.el --- Org-mode config -*- lexical-binding: t -*-
+;;; Commentary:
+
+;; Among settings for many aspects of `org-mode', this code includes
+;; an opinionated setup for the Getting Things Done (GTD) system based
+;; around the Org Agenda.  I have an "inbox.org" file with a header
+;; including
+
+;;     #+CATEGORY: Inbox
+;;     #+FILETAGS: INBOX
+
+;; and then set this file as `org-default-notes-file'.  Captured org
+;; items will then go into this file with the file-level tag, and can
+;; be refiled to other locations as necessary.
+
+;; Those other locations are generally other org files, which should
+;; be added to `org-agenda-files-list' (along with "inbox.org" org).
+;; With that done, there's then an agenda view, accessible via the
+;; `org-agenda' command, which gives a convenient overview.
+;; `org-todo-keywords' is customised here to provide corresponding
+;; TODO states, which should make sense to GTD adherents.
+
+;;; Code:
+
 (when *is-a-mac*
   (maybe-require-package 'grab-mac-link))
 
@@ -10,7 +33,6 @@
 ;; Various preferences
 (setq org-log-done t
       org-edit-timestamp-down-means-later t
-      org-archive-mark-done nil
       org-hide-emphasis-markers t
       org-catch-invisible-edits 'show
       org-export-coding-system 'utf-8
@@ -26,7 +48,7 @@
 (defun sanityinc/grab-ditaa (url jar-name)
   "Download URL and extract JAR-NAME as `org-ditaa-jar-path'."
   ;; TODO: handle errors
-  (message "Grabbing " jar-name " for org.")
+  (message "Grabbing %s for org." jar-name)
   (let ((zip-temp (make-temp-name "emacs-ditaa")))
     (unwind-protect
         (progn
@@ -55,6 +77,11 @@
       (url-copy-file url org-plantuml-jar-path))))
 
 
+;; Re-align tags when window shape changes
+(after-load 'org-agenda
+  (add-hook 'org-agenda-mode-hook
+            (lambda () (add-hook 'window-configuration-change-hook 'org-agenda-align-tags nil t))))
+
 
 
 
@@ -77,16 +104,19 @@ typical word processor."
           (kill-local-variable 'buffer-face-mode-face))
         (buffer-face-mode 1)
         ;;(delete-selection-mode 1)
-        (set (make-local-variable 'blink-cursor-interval) 0.6)
-        (set (make-local-variable 'show-trailing-whitespace) nil)
-        (set (make-local-variable 'line-spacing) 0.2)
+        (setq-local blink-cursor-interval 0.6)
+        (setq-local show-trailing-whitespace nil)
+        (setq-local line-spacing 0.2)
+        (setq-local electric-pair-mode nil)
         (ignore-errors (flyspell-mode 1))
         (visual-line-mode 1))
     (kill-local-variable 'truncate-lines)
     (kill-local-variable 'word-wrap)
     (kill-local-variable 'cursor-type)
+    (kill-local-variable 'blink-cursor-interval)
     (kill-local-variable 'show-trailing-whitespace)
     (kill-local-variable 'line-spacing)
+    (kill-local-variable 'electric-pair-mode)
     (buffer-face-mode -1)
     ;; (delete-selection-mode -1)
     (flyspell-mode -1)
@@ -122,9 +152,7 @@ typical word processor."
 (after-load 'org-agenda
   (add-to-list 'org-agenda-after-show-hook 'org-show-entry))
 
-(defadvice org-refile (after sanityinc/save-all-after-refile activate)
-  "Save all org buffers after each refile operation."
-  (org-save-all-org-buffers))
+(advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
 
 ;; Exclude DONE state tasks from refile targets
 (defun sanityinc/verify-refile-target ()
@@ -372,8 +400,9 @@ typical word processor."
      (ruby . t)
      (screen . nil)
      (,(if (locate-library "ob-sh") 'sh 'shell) . t)
-     (sql . nil)
+     (sql . t)
      (sqlite . t))))
 
 
 (provide 'init-org)
+;;; init-org.el ends here

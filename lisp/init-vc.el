@@ -1,7 +1,14 @@
+;;; init-vc.el --- Version control support -*- lexical-binding: t -*-
+;;; Commentary:
+
+;; Most version control packages are configured separately: see
+;; init-git.el, for example.
+
+;;; Code:
+
 (when (maybe-require-package 'diff-hl)
-  (add-hook 'prog-mode-hook 'diff-hl-mode)
-  (add-hook 'vc-dir-mode-hook 'diff-hl-mode)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+  (add-hook 'after-init-hook 'global-diff-hl-mode)
 
   (after-load 'diff-hl
     (define-key diff-hl-mode-map
@@ -11,3 +18,4 @@
 (maybe-require-package 'browse-at-remote)
 
 (provide 'init-vc)
+;;; init-vc.el ends here

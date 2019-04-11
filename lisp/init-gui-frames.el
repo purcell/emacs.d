@@ -1,3 +1,7 @@
+;;; init-gui-frames.el --- Behaviour specific to non-TTY frames -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
+
 ;;----------------------------------------------------------------------------
 ;; Stop C-z from minimizing windows under OS X
 ;;----------------------------------------------------------------------------
@@ -37,9 +41,6 @@
   (when (fboundp 'menu-bar-mode)
     (menu-bar-mode -1)))
 
-(when (fboundp 'pixel-scroll-mode)
-  (pixel-scroll-mode 1))
-
 (let ((no-border '(internal-border-width . 0)))
   (add-to-list 'default-frame-alist no-border)
   (add-to-list 'initial-frame-alist no-border))
@@ -64,7 +65,12 @@
 ;; TODO: use seethru package instead?
 (global-set-key (kbd "M-C-8") (lambda () (interactive) (sanityinc/adjust-opacity nil -2)))
 (global-set-key (kbd "M-C-9") (lambda () (interactive) (sanityinc/adjust-opacity nil 2)))
-(global-set-key (kbd "M-C-0") (lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
+(global-set-key (kbd "M-C-7") (lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
+
+
+(when *is-a-mac*
+  (when (maybe-require-package 'ns-auto-titlebar)
+    (ns-auto-titlebar-mode)))
 
 
 (setq frame-title-format
@@ -79,7 +85,15 @@
             (setq line-spacing 0)))
 
 
+;; Change global font size easily
+
+(require-package 'default-text-scale)
+(add-hook 'after-init-hook 'default-text-scale-mode)
+
+
+
 (require-package 'disable-mouse)
 
 
 (provide 'init-gui-frames)
+;;; init-gui-frames.el ends here

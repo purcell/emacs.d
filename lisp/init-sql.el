@@ -1,6 +1,6 @@
-(require-package 'sql-indent)
-(after-load 'sql
-  (require 'sql-indent))
+;;; init-sql.el --- Support for SQL -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
 
 (after-load 'sql
   ;; sql-mode pretty much requires your psql to be uncustomised from stock settings
@@ -29,14 +29,13 @@ Fix for the above hasn't been released as of Emacs 25.2."
 (after-load 'sql
   (define-key sql-mode-map (kbd "C-c C-z") 'sanityinc/pop-to-sqli-buffer)
   (when (package-installed-p 'dash-at-point)
-    (defun sanityinc/maybe-set-dash-db-docset ()
+    (defun sanityinc/maybe-set-dash-db-docset (&rest _)
       (when (eq sql-product 'postgres)
-        (set (make-local-variable 'dash-at-point-docset) "psql")))
+        (setq-local dash-at-point-docset "psql")))
 
     (add-hook 'sql-mode-hook 'sanityinc/maybe-set-dash-db-docset)
     (add-hook 'sql-interactive-mode-hook 'sanityinc/maybe-set-dash-db-docset)
-    (defadvice sql-set-product (after set-dash-docset activate)
-      (sanityinc/maybe-set-dash-db-docset))))
+    (advice-add 'sql-set-product :after 'sanityinc/maybe-set-dash-db-docset)))
 
 (setq-default sql-input-ring-file-name
               (expand-file-name ".sqli_history" user-emacs-directory))
@@ -47,6 +46,10 @@ Fix for the above hasn't been released as of Emacs 25.2."
     (sql-product-font-lock nil nil)))
 (add-hook 'sql-interactive-mode-hook 'sanityinc/font-lock-everything-in-sql-interactive-mode)
 
+
+(require-package 'sqlformat)
+(after-load 'sql
+  (define-key sql-mode-map (kbd "C-c C-f") 'sqlformat))
 
 ;; Package ideas:
 ;;   - PEV
@@ -63,7 +66,9 @@ If the region is not active, uses the current paragraph, as per
 
 Connection information is taken from the special sql-* variables
 set in the current buffer, so you will usually want to start a
-SQLi session first, or otherwise set `sql-database' etc."
+SQLi session first, or otherwise set `sql-database' etc.
+
+This command currently blocks the UI, sorry."
   (interactive "rP")
   (unless (eq sql-product 'postgres)
     (user-error "This command is for PostgreSQL only"))
@@ -105,10 +110,14 @@ SQLi session first, or otherwise set `sql-database' etc."
                 (user-error "EXPLAIN failed")))))))))
 
 
-
+;; Submitted upstream as https://github.com/stanaka/dash-at-point/pull/28
+(after-load 'sql
+  (after-load 'dash-at-point
+    (add-to-list 'dash-at-point-mode-alist '(sql-mode . "psql,mysql,sqlite,postgis"))))
 
 
 (after-load 'page-break-lines
   (push 'sql-mode page-break-lines-modes))
 
 (provide 'init-sql)
+;;; init-sql.el ends here
