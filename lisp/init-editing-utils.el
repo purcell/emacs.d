@@ -88,7 +88,7 @@
 
 
 (when (fboundp 'display-line-numbers-mode)
-  (setq display-line-numbers-width 3)
+  (setq-default display-line-numbers-width 3)
   (add-hook 'prog-mode-hook 'display-line-numbers-mode))
 
 (when (maybe-require-package 'goto-line-preview)
