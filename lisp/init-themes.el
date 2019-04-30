@@ -36,7 +36,8 @@
 
 
 (when (maybe-require-package 'dimmer)
-  (setq-default dimmer-fraction 0.15)
+  (global-hl-line-mode)
+  (setq-default dimmer-fraction 0.3)
   (add-hook 'after-init-hook 'dimmer-mode)
   ;; TODO: file upstream as a PR
   (after-load 'dimmer
