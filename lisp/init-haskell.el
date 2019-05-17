@@ -39,15 +39,12 @@
 
 (add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
 
-(when (maybe-require-package 'hindent)
-  (add-hook 'haskell-mode-hook 'hindent-mode)
-  (after-load 'hindent
-    (when (require 'nadvice)
-      (defun sanityinc/hindent--before-save-wrapper (oldfun &rest args)
-        (with-demoted-errors "Error invoking hindent: %s"
-          (let ((debug-on-error nil))
-            (apply oldfun args))))
-      (advice-add 'hindent--before-save :around 'sanityinc/hindent--before-save-wrapper))))
+(when (maybe-require-package 'reformatter)
+  (reformatter-define hindent
+    :program "hindent"
+    :lighter " Hin")
+
+  (defalias 'hindent-mode 'hindent-on-save-mode))
 
 (after-load 'haskell-mode
   (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
