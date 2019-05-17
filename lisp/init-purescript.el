@@ -9,6 +9,8 @@
             (lambda ()
               (add-hook 'before-save-hook 'purescript-sort-imports nil t)))
 
+  (add-hook 'purescript-mode-hook (apply-partially 'prettify-symbols-mode -1))
+
   (after-load 'purescript-mode
     (define-key purescript-mode-map (kbd "C-o") 'open-line))
 
