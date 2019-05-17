@@ -67,17 +67,15 @@
   (if stack-exec-path-mode
       (when (and (executable-find "stack")
                  (locate-dominating-file default-directory "stack.yaml"))
-        (setq-local
-         exec-path
-         (seq-uniq
-          (append (list (concat (string-trim-right (shell-command-to-string "stack path --local-install-root")) "/bin"))
-                  (parse-colon-path
-                   (replace-regexp-in-string "[\r\n]+\\'" ""
-                                             (shell-command-to-string "stack path --bin-path"))))
-          'string-equal))
-                                        ;(add-to-list (make-local-variable 'process-environment) (format "PATH=%s" (string-join exec-path path-separator)))
-        )
-    (kill-local-variable 'exec-path)))
+        (let ((stack-path (replace-regexp-in-string
+                           "[\r\n]+\\'" ""
+                           (shell-command-to-string (concat "stack exec -- sh -c ")
+                                                    (shell-quote-argument "echo $PATH")))))
+          (setq-local exec-path (seq-uniq (parse-colon-path stack-path) 'string-equal))
+          (make-local-variable 'process-environment)
+          (setenv "PATH" (string-join exec-path path-separator))))
+    (kill-local-variable 'exec-path)
+    (kill-local-variable 'process-environment)))
 
 (add-hook 'haskell-mode-hook 'stack-exec-path-mode)
 
