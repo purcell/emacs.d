@@ -69,8 +69,8 @@
                  (locate-dominating-file default-directory "stack.yaml"))
         (let ((stack-path (replace-regexp-in-string
                            "[\r\n]+\\'" ""
-                           (shell-command-to-string (concat "stack exec -- sh -c ")
-                                                    (shell-quote-argument "echo $PATH")))))
+                           (shell-command-to-string (concat "stack exec -- sh -c "
+                                                            (shell-quote-argument "echo $PATH"))))))
           (setq-local exec-path (seq-uniq (parse-colon-path stack-path) 'string-equal))
           (make-local-variable 'process-environment)
           (setenv "PATH" (string-join exec-path path-separator))))
