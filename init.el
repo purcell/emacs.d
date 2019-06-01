@@ -244,6 +244,13 @@
  'c-mode
  '(("\\<\\(\\sw+\\) ?(" 1 'font-lock-function-name-face)))
 
+(font-lock-add-keywords
+ 'c++-mode
+ '(("\\<\\(\\sw+\\) ?(" 1 'font-lock-function-name-face)))
+
+(add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
+
+
 (provide 'init)
 
 ;; Local Variables:
