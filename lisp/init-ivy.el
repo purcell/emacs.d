@@ -55,7 +55,8 @@
 If there is no project root, or if the prefix argument
 USE-CURRENT-DIR is set, then search from the current directory
 instead."
-          (interactive (list (thing-at-point 'symbol)
+          (interactive (list (let ((sym (thing-at-point 'symbol)))
+                               (when sym (regexp-quote sym)))
                              current-prefix-arg))
           (let ((current-prefix-arg)
                 (dir (if use-current-dir
