@@ -176,6 +176,13 @@
 ;;----------------------------------------------------------------------------
 (require 'init-local nil t)
 
+;;----------------------------------------------------------------------------
+;; Alternatively, allow users to provide a more extensive optional annex.
+;;----------------------------------------------------------------------------
+(let ((annex-dir (expand-file-name "~/.emacs.d.annex")))
+  (if (file-directory-p annex-dir)
+      (progn (add-to-list 'load-path annex-dir)
+             (require 'init-annex nil t))))
 
 
 (provide 'init)

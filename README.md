@@ -92,10 +92,17 @@ customize-themes</kbd> etc. and/or create a file
 If you need initialisation code which executes earlier in the startup process,
 you can also create an `~/.emacs.d/lisp/init-preload-local.el` file.
 
-If you plan to customize things more extensively, you should probably
+If you plan to customize things more extensively, you could
 just fork the repo and hack away at the config to make it your own!
 Remember to regularly merge in changes from this repo, so that your
 config remains compatible with the latest package and Emacs versions.
+
+A better alternative if your customizations are simply additions, is use the
+annex mechanism.  Put all your changes in `~/.emacs.d.annex/init-annex.el`.
+Your annex configuration may be split into multiple files in that directory, but
+it is recommended that all files are given a prefix of `init-annex-`, to avoid
+name clashes with the main configuration.  This approach makes it easier to
+track upstream changes.
 
 *Please note that I cannot provide support for customised versions of
 this configuration.*
