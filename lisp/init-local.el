@@ -2,7 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-(set-default-font "monaco-16")
+(set-default-font "monaco-20")
 
 (require-package 'dracula-theme)
 (load-theme 'dracula t)
