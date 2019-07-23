@@ -6,6 +6,4 @@
 ## Custom my gtd
 ## Add yasnippet plugin
 
-# Log
-
 
