@@ -73,4 +73,10 @@
 
 (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
 
+(add-hook 'haskell-mode-hook
+          (lambda ()
+            (define-key evil-normal-state-local-map (kbd "C-,") 'intero-goto-definition)))
+
+
+
 (provide 'init-users)
