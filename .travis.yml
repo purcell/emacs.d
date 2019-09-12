@@ -1,27 +1,20 @@
-language: ruby
+language: nix
 
-cache:
-  directories:
-    - $HOME/.evm
-
-before_install:
-  - (cd $HOME/.evm && git pull) || git clone https://github.com/rejeep/evm.git $HOME/.evm
-  - export PATH=$HOME/.evm/bin:$PATH
-  - evm config path /tmp
-  - evm install $EVM_EMACS --use --skip
+install:
+  # Enable downloadable pre-built binaries stored on cachix
+  - nix-env -iA cachix -f https://cachix.org/api/v1/install
+  - cachix use emacs-ci
+  - nix-env -iA $EMACS_VER -f https://github.com/purcell/nix-emacs-ci/archive/master.tar.gz
 
 env:
-  - EVM_EMACS=emacs-24.4-travis
-  - EVM_EMACS=emacs-24.5-travis
-  - EVM_EMACS=emacs-25.1-travis
-  - EVM_EMACS=emacs-25.2-travis
-  - EVM_EMACS=emacs-25.3-travis
-  - EVM_EMACS=emacs-26.1-travis
-  #- EVM_EMACS=emacs-git-snapshot-travis
-
-matrix:
-  allow_failures:
-    - env: EVM_EMACS=emacs-git-snapshot-travis
+  - EMACS_VER=emacs-24-4
+  - EMACS_VER=emacs-24-5
+  - EMACS_VER=emacs-25-1
+  - EMACS_VER=emacs-25-2
+  - EMACS_VER=emacs-25-3
+  - EMACS_VER=emacs-26-1
+  - EMACS_VER=emacs-26-2
+  - EMACS_VER=emacs-26-3
 
 script:
   lsb_release -a && ./test-startup.sh
