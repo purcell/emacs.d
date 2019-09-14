@@ -19,7 +19,7 @@ env:
   - EMACS_VER=emacs-26-3
 
 script:
-  lsb_release -a && ./test-startup.sh
+  ./test-startup.sh
 
 # Local Variables:
 # indent-tabs-mode: nil
