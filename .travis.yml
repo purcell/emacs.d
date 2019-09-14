@@ -1,9 +1,11 @@
 language: nix
 
+os:
+  - linux
+  - osx
+
 install:
-  # Enable downloadable pre-built binaries stored on cachix
-  - nix-env -iA cachix -f https://cachix.org/api/v1/install
-  - cachix use emacs-ci
+  - bash <(curl https://raw.githubusercontent.com/purcell/nix-emacs-ci/master/travis-install)
   - nix-env -iA $EMACS_VER -f https://github.com/purcell/nix-emacs-ci/archive/master.tar.gz
 
 env:
