@@ -5,15 +5,15 @@ os:
   - osx
 
 env:
-  - EMACS_CI_VERSION=emacs-24-4
-  - EMACS_CI_VERSION=emacs-24-5
-  - EMACS_CI_VERSION=emacs-25-1
-  - EMACS_CI_VERSION=emacs-25-2
-  - EMACS_CI_VERSION=emacs-25-3
-  - EMACS_CI_VERSION=emacs-26-1
-  - EMACS_CI_VERSION=emacs-26-2
-  - EMACS_CI_VERSION=emacs-26-3
-  - EMACS_CI_VERSION=emacs-snapshot
+  - EMACS_CI=emacs-24-4
+  - EMACS_CI=emacs-24-5
+  - EMACS_CI=emacs-25-1
+  - EMACS_CI=emacs-25-2
+  - EMACS_CI=emacs-25-3
+  - EMACS_CI=emacs-26-1
+  - EMACS_CI=emacs-26-2
+  - EMACS_CI=emacs-26-3
+  - EMACS_CI=emacs-snapshot
 
 install:
   - bash <(curl https://raw.githubusercontent.com/purcell/nix-emacs-ci/master/travis-install)
