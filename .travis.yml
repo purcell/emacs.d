@@ -17,6 +17,7 @@ env:
   - EMACS_VER=emacs-26-1
   - EMACS_VER=emacs-26-2
   - EMACS_VER=emacs-26-3
+  - EMACS_VER=emacs-snapshot
 
 script:
   ./test-startup.sh
