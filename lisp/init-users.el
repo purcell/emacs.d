@@ -77,6 +77,6 @@
           (lambda ()
             (define-key evil-normal-state-local-map (kbd "C-,") 'intero-goto-definition)))
 
-
+(setq haskell-indent-spaces 4)
 
 (provide 'init-users)
