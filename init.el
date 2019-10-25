@@ -6,8 +6,8 @@
 
 ;;; Code:
 
-;; Produce backtraces when errors occur
-(setq debug-on-error t)
+;; Produce backtraces when errors occur: can be helpful to diagnose startup issues
+;;(setq debug-on-error t)
 
 (let ((minver "24.4"))
   (when (version< emacs-version minver)
