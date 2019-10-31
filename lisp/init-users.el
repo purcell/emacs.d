@@ -35,6 +35,7 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 (defvaralias 'c-basic-offset' tab-width)
+(setq js-indent-level 4)
 (setq-default LaTeX-indent-level tab-width)
 (setq-default LaTeX-item-indent 0)
 
@@ -75,8 +76,17 @@
 
 (add-hook 'haskell-mode-hook
           (lambda ()
-            (define-key evil-normal-state-local-map (kbd "C-,") 'intero-goto-definition)))
+            (define-key evil-normal-state-local-map (kbd "C-\\") 'intero-goto-definition)))
 
-(setq haskell-indent-spaces 4)
+
+(require 'smooth-scrolling)
+(smooth-scrolling-mode 1)
+(setq smooth-scroll-margin 5)
+
+(require 'flycheck-mypy)
+(add-hook 'python-mode-hook 'flycheck-mode)
+
+(add-to-list 'flycheck-disabled-checkers 'python-flake8)
+(add-to-list 'flycheck-disabled-checkers 'python-pylint)
 
 (provide 'init-users)
