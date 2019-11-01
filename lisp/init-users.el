@@ -86,10 +86,12 @@
 (require 'flycheck-mypy)
 (add-hook 'python-mode-hook 'flycheck-mode)
 
+(custom-set-variables
+ '(flycheck-python-pycompile-executable "python3"))
+
+(flycheck-add-next-checker 'python-pycompile 'python-mypy)
+
 (add-to-list 'flycheck-disabled-checkers 'python-flake8)
 (add-to-list 'flycheck-disabled-checkers 'python-pylint)
-
-(custom-set-variables
-    '(flycheck-python-pycompile-executable "python3"))
 
 (provide 'init-users)
