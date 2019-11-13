@@ -14,5 +14,9 @@
 (require-package 'graphql-mode)
 (require 'graphql-mode)
 
+(require-package 'editorconfig)
+(require 'editorconfig)
+(editorconfig-mode 1)
+
 (provide 'init-local)
 ;;; init-local.el ends here
