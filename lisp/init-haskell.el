@@ -20,16 +20,6 @@
 
 (add-auto-mode 'haskell-mode "\\.ghci\\'")
 
-;; Workaround for https://github.com/haskell/haskell-mode/issues/1577
-(when (eq 25 emacs-major-version)
-  (defun sanityinc/inhibit-bracket-inside-comment-or-default (ch)
-    (or (nth 4 (syntax-ppss))
-        (funcall #'electric-pair-default-inhibit ch)))
-  (add-hook 'haskell-mode-hook
-            (lambda ()
-              (setq-local electric-pair-inhibit-predicate 'sanityinc/inhibit-bracket-inside-comment-or-default))))
-
-
 ;; Indentation
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
 
