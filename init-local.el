@@ -13,6 +13,7 @@
 ;;         (clipboard-kill-region (point-min) (point-max)))
 ;;       (message filename))))
 
+;;; Code:
 
 (windmove-default-keybindings )
 

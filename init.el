@@ -178,6 +178,15 @@
 ;;----------------------------------------------------------------------------
 (require 'init-local nil t)
 
+(message "End of the init file run")
+(windmove-default-keybindings )
+
+(add-hook 'org-shiftup-final-hook 'windmove-up)
+(add-hook 'org-shiftleft-final-hook 'windmove-left)
+(add-hook 'org-shiftdown-final-hook 'windmove-down)
+(add-hook 'org-shiftright-final-hook 'windmove-right)
+
+
 
 
 (provide 'init)
