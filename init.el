@@ -187,6 +187,8 @@
 (add-hook 'org-shiftright-final-hook 'windmove-right)
 
 
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; from emacs so 2999
 
 
 (provide 'init)
