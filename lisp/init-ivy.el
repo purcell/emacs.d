@@ -11,10 +11,7 @@
                   projectile-completion-system 'ivy
                   ivy-magic-tilde nil
                   ivy-dynamic-exhibit-delay-ms 150
-                  ivy-use-selectable-prompt t
-                  ivy-initial-inputs-alist
-                  '((Man-completion-table . "^")
-                    (woman . "^")))
+                  ivy-use-selectable-prompt t)
 
     ;; IDO-style directory navigation
     (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
@@ -37,6 +34,10 @@
 
 (when (maybe-require-package 'counsel)
   (setq-default counsel-mode-override-describe-bindings t)
+  (after-load 'counsel
+    (setq-default ivy-initial-inputs-alist
+                  '((Man-completion-table . "^")
+                    (woman . "^"))))
   (when (maybe-require-package 'diminish)
     (after-load 'counsel
       (diminish 'counsel-mode)))

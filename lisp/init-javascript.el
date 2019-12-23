@@ -54,7 +54,7 @@
 ;;; Coffeescript
 
 (after-load 'coffee-mode
-  (setq-default coffee-js-mode js2-mode
+  (setq-default coffee-js-mode 'js2-mode
                 coffee-tab-width js-indent-level))
 
 (when (fboundp 'coffee-mode)

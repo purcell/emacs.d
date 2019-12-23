@@ -4,7 +4,7 @@
 
 (defun sanityinc/utf8-locale-p (v)
   "Return whether locale string V relates to a UTF-8 locale."
-  (and v (string-match "UTF-8" v)))
+  (and v (string-match-p "UTF-8" v)))
 
 (defun sanityinc/locale-is-utf8-p ()
   "Return t iff the \"locale\" command or environment variables prefer UTF-8."
