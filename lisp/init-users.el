@@ -88,10 +88,14 @@
 
 (custom-set-variables
  '(flycheck-python-pycompile-executable "python3"))
+(custom-set-variables
+ '(flycheck-python-flake8-executable "python3"))
+(custom-set-variables
+ '(flycheck-python-pylint-executable "python3"))
 
 (flycheck-add-next-checker 'python-pycompile 'python-mypy)
 
-(add-to-list 'flycheck-disabled-checkers 'python-flake8)
-(add-to-list 'flycheck-disabled-checkers 'python-pylint)
+;;(add-to-list 'flycheck-disabled-checkers 'python-flake8)
+;;(add-to-list 'flycheck-disabled-checkers 'python-pylint)
 
 (provide 'init-users)
