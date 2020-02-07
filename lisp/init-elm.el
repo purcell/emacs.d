@@ -12,7 +12,9 @@
   (maybe-require-package 'elm-test-runner)
   (when (maybe-require-package 'flycheck-elm)
     (after-load 'elm-mode
-      (flycheck-elm-setup))))
+      (flycheck-elm-setup)))
+  (when (maybe-require-package 'add-node-modules-path)
+    (add-hook 'elm-mode-hook 'add-node-modules-path)))
 
 (provide 'init-elm)
 ;;; init-elm.el ends here
