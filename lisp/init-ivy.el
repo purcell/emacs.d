@@ -18,7 +18,14 @@
     (dolist (k '("C-j" "C-RET"))
       (define-key ivy-minibuffer-map (kbd k) #'ivy-immediate-done))
 
-    (define-key ivy-minibuffer-map (kbd "<up>") #'ivy-previous-line-or-history)
+    (defun sanityinc/ivy-previous-line-or-history ()
+      (interactive)
+      (let ((orig-index ivy--index))
+        (ivy-previous-line)
+        (when (and (string= ivy-text "") (eq ivy--index orig-index))
+          (ivy-previous-history-element 1))))
+
+    (define-key ivy-minibuffer-map (kbd "<up>") #'sanityinc/ivy-previous-line-or-history)
 
     (define-key ivy-occur-mode-map (kbd "C-c C-q") #'ivy-wgrep-change-to-wgrep-mode)
 
