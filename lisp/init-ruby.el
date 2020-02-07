@@ -107,8 +107,6 @@
 ;; Ruby - my convention for heredocs containing SQL
 ;;----------------------------------------------------------------------------
 
-;; Needs to run after rinari to avoid clobbering font-lock-keywords?
-
 ;; (require-package 'mmm-mode)
 ;; (eval-after-load 'mmm-mode
 ;;   '(progn
