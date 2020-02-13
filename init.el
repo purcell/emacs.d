@@ -186,8 +186,12 @@
 (add-hook 'org-shiftdown-final-hook 'windmove-down)
 (add-hook 'org-shiftright-final-hook 'windmove-right)
 
+(add-hook 'prog-mode-hook 'linum-mode)
 
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+(require 'vlf-setup)
+
+
+;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; from emacs so 2999
 
 
