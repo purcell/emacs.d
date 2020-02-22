@@ -1,15 +1,11 @@
 (require 'init-local nil t)
 
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(package-initialize)
-
+;; Evil
+(require-package 'evil)
 (require 'evil)
 (evil-mode 1)
 
-(load "auctex.el" nil t t)
-
-(require 'neotree)
+(require-package 'neotree)
 (global-set-key [f2] 'neotree-toggle)
 (global-set-key [f8] 'sr-speedbar-toggle)
 
@@ -47,6 +43,7 @@
 (add-hook 'c-mode-common-hook 'hs-minor-mode)
 
 ;; Company
+(require-package 'company)
 (require 'company)
 (add-hook 'after-init-hook 'global-company-mode)
 ;; Company-clang
@@ -55,10 +52,11 @@
 ;;(define-key c++-mode-map  [(tab)] 'company-complete)
 
 ;; Switch window by number
-(require 'window-numbering)
+(require-package 'window-numbering)
 (window-numbering-mode 1)
 
 ;; YaSnippet
+(require-package 'yasnippet)
 (require 'yasnippet)
 (yas-global-mode 1)
 (yas-reload-all)
@@ -79,10 +77,12 @@
             (define-key evil-normal-state-local-map (kbd "C-\\") 'intero-goto-definition)))
 
 
+(require-package 'smooth-scrolling)
 (require 'smooth-scrolling)
 (smooth-scrolling-mode 1)
 (setq smooth-scroll-margin 5)
 
+(require-package 'flycheck-mypy)
 (require 'flycheck-mypy)
 (add-hook 'python-mode-hook 'flycheck-mode)
 
@@ -97,5 +97,14 @@
 
 ;;(add-to-list 'flycheck-disabled-checkers 'python-flake8)
 ;;(add-to-list 'flycheck-disabled-checkers 'python-pylint)
+
+;; Nameframe
+(require-package 'nameframe-projectile)
+(require 'nameframe-projectile)
+(projectile-global-mode)
+(nameframe-projectile-mode t)
+;; If your OS can't switch between applications windows by default *cough* OS X *cough*
+;; you can have a shortcut to switch between existing frames by name
+(global-set-key (kbd "M-P") 'nameframe-switch-frame)
 
 (provide 'init-users)
