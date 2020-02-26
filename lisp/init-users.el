@@ -111,20 +111,16 @@
 ;; Python3 as default interpreter
 (setq py-python-command "/usr/bin/python3")
 
-;; Company-jedi
-;;(require-package 'company-jedi)
-;;(require 'company-jedi)
-;;(defun my/python-mode-hook ()
-;;    (add-to-list 'company-backends 'company-jedi))
-;;(add-hook 'python-mode-hook 'my/python-mode-hook)
-
-;; anaconda-mode
-(add-hook 'python-mode-hook 'anaconda-mode)
-
 ;; Elpy
 (require-package 'elpy)
 (require 'elpy)
+(setq elpy-rpc-python-command "python3")
 (elpy-enable)
+
+(add-hook 'python-mode-hook
+          (lambda ()
+            (define-key evil-normal-state-local-map (kbd "C-\\") 'elpy-goto-definition)))
+
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/emacs-color-theme-solarized")
 (load-theme 'solarized t)
