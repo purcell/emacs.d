@@ -122,9 +122,9 @@
 (add-hook 'python-mode-hook 'anaconda-mode)
 
 ;; Elpy
-;;(require-package 'elpy)
-;;(require 'elpy)
-;;(elpy-enable)
+(require-package 'elpy)
+(require 'elpy)
+(elpy-enable)
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/emacs-color-theme-solarized")
 (load-theme 'solarized t)
