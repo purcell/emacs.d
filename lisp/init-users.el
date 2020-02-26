@@ -57,6 +57,7 @@
 
 ;; YaSnippet
 (require-package 'yasnippet)
+(require-package 'yasnippet-snippets)
 (require 'yasnippet)
 (yas-global-mode 1)
 (yas-reload-all)
@@ -106,5 +107,26 @@
 ;; If your OS can't switch between applications windows by default *cough* OS X *cough*
 ;; you can have a shortcut to switch between existing frames by name
 (global-set-key (kbd "M-P") 'nameframe-switch-frame)
+
+;; Python3 as default interpreter
+(setq py-python-command "/usr/bin/python3")
+
+;; Company-jedi
+;;(require-package 'company-jedi)
+;;(require 'company-jedi)
+;;(defun my/python-mode-hook ()
+;;    (add-to-list 'company-backends 'company-jedi))
+;;(add-hook 'python-mode-hook 'my/python-mode-hook)
+
+;; anaconda-mode
+(add-hook 'python-mode-hook 'anaconda-mode)
+
+;; Elpy
+;;(require-package 'elpy)
+;;(require 'elpy)
+;;(elpy-enable)
+
+(add-to-list 'custom-theme-load-path "~/.emacs.d/emacs-color-theme-solarized")
+(load-theme 'solarized t)
 
 (provide 'init-users)
