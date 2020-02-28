@@ -7,7 +7,17 @@
 
 (require-package 'neotree)
 (global-set-key [f2] 'neotree-toggle)
-(global-set-key [f8] 'sr-speedbar-toggle)
+
+(defun sr-speedbar-toggle-fixed-size ()
+  "Toggle sr-speedbar in fixed size."
+  (interactive)
+  (sr-speedbar-toggle)
+  (with-current-buffer sr-speedbar-buffer-name
+    (setq window-size-fixed 'width)))
+
+(global-set-key [f8] 'sr-speedbar-toggle-fixed-size)
+
+
 
 (add-hook 'neotree-mode-hook
           (lambda ()
