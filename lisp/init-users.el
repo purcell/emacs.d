@@ -104,7 +104,7 @@
 (custom-set-variables
  '(flycheck-python-pylint-executable "python3"))
 
-;;(flycheck-add-next-checker 'python-pycompile 'python-mypy)
+(flycheck-add-next-checker 'python-pycompile 'python-mypy)
 (flycheck-add-next-checker 'python-flake8 'python-mypy)
 
 ;;(add-to-list 'flycheck-disabled-checkers 'python-flake8)
