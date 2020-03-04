@@ -133,12 +133,14 @@
             (define-key evil-normal-state-local-map (kbd "C-\\") 'elpy-goto-definition)))
 
 ;; Solarized
-;;(add-to-list 'custom-theme-load-path "~/.emacs.d/emacs-color-theme-solarized")
-;;(setq solarized-italic nil)
+(add-to-list 'custom-theme-load-path "~/.emacs.d/emacs-color-theme-solarized")
+(setq solarized-italic nil)
+(load-theme 'solarized t)
+
 
 ;; Tango 2
-(require-package 'tango-2-theme)
-(load-theme 'tango-2)
+;;(require-package 'tango-2-theme)
+;;(load-theme 'tango-2)
 
 (add-hook 'after-make-frame-functions
           (lambda (frame)
