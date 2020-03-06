@@ -142,14 +142,6 @@
 ;;(require-package 'tango-2-theme)
 ;;(load-theme 'tango-2)
 
-(add-hook 'after-make-frame-functions
-          (lambda (frame)
-            (let ((mode (if (display-graphic-p frame) 'light 'dark)))
-              (set-frame-parameter frame 'background-mode mode)
-              (set-terminal-parameter frame 'background-mode mode))
-            (enable-the
-             me 'solarized)))
-
 ;; Powerline
 (require 'powerline)
 (powerline-default-theme)
