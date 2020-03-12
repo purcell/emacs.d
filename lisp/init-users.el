@@ -144,6 +144,14 @@
 
 ;; Powerline
 (require 'powerline)
-(powerline-default-theme)
+(powerline-center-theme)
+
+;; Org-mode
+(setq org-todo-keywords '((sequence "Todo" "Doing" "Verify" "|" "Done" "Delegated")))
+(setq org-todo-keyword-faces
+      '(("Todo" . (:background "" :foreground "red"))
+        ("Doing" . (:background "" :foreground "red"))
+        ("Verify" . (:background "" :foreground "orange"))
+        ("Done" . (:background "" :foreground "green"))))
 
 (provide 'init-users)
