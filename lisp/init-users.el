@@ -143,6 +143,7 @@
 ;;(load-theme 'tango-2)
 
 ;; Powerline
+(require-package 'powerline)
 (require 'powerline)
 (powerline-center-theme)
 
