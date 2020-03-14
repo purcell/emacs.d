@@ -91,7 +91,7 @@
 (require-package 'smooth-scrolling)
 (require 'smooth-scrolling)
 (smooth-scrolling-mode 1)
-(setq smooth-scroll-margin 5)
+(setq smooth-scroll-margin 1)
 
 (require-package 'flycheck-mypy)
 (require 'flycheck-mypy)
