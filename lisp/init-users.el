@@ -1,3 +1,7 @@
+;;; init-users.el --- Provide custom configurations
+;;; Commentary:
+;;; Code:
+
 (require 'init-local nil t)
 
 ;; Evil
@@ -91,7 +95,7 @@
 (require-package 'smooth-scrolling)
 (require 'smooth-scrolling)
 (smooth-scrolling-mode 1)
-(setq smooth-scroll-margin 1)
+(setq smooth-scroll-margin 5)
 
 (require-package 'flycheck-mypy)
 (require 'flycheck-mypy)
@@ -145,7 +149,7 @@
 ;; Powerline
 (require-package 'powerline)
 (require 'powerline)
-(powerline-center-theme)
+(powerline-center-evil-theme)
 
 ;; Org-mode
 (setq org-todo-keywords '((sequence "Todo" "Doing" "Verify" "|" "Done" "Delegated")))
@@ -156,3 +160,4 @@
         ("Done" . (:background "" :foreground "green"))))
 
 (provide 'init-users)
+;;; init-users.el ends here
