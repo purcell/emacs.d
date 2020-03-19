@@ -149,7 +149,7 @@
 ;; Powerline
 (require-package 'powerline)
 (require 'powerline)
-(powerline-center-evil-theme)
+(powerline-center-theme)
 
 ;; Org-mode
 (setq org-todo-keywords '((sequence "Todo" "Doing" "Verify" "|" "Done" "Delegated")))
