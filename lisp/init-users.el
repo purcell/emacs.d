@@ -90,6 +90,9 @@
 (add-hook 'haskell-mode-hook
           (lambda ()
             (define-key evil-normal-state-local-map (kbd "C-\\") 'intero-goto-definition)))
+(add-hook 'c-mode-hook
+          (lambda ()
+            (define-key evil-normal-state-local-map (kbd "C-\\") 'evil-jump-to-tag)))
 
 
 (require-package 'smooth-scrolling)
@@ -137,10 +140,21 @@
             (define-key evil-normal-state-local-map (kbd "C-\\") 'elpy-goto-definition)))
 
 ;; Solarized
-(add-to-list 'custom-theme-load-path "~/.emacs.d/emacs-color-theme-solarized")
-(setq solarized-italic nil)
-(load-theme 'solarized t)
+;;(add-to-list 'custom-theme-load-path "~/.emacs.d/emacs-color-theme-solarized")
+;;(setq solarized-italic nil)
+;;(load-theme 'solarized t)
 
+(require-package 'zenburn-theme)
+(require 'zenburn-theme)
+(setq zenburn-override-colors-alist
+      '(("zenburn-bg+05" . "#282828")
+        ("zenburn-bg-05" . "#000000")
+        ("zenburn-bg+1"  . "#2F2F2F")
+        ("zenburn-bg"    . "#000000")
+        ("zenburn-bg+2"  . "#3F3F3F")
+        ("zenburn-bg-08" . "#303030")
+        ("zenburn-bg+3"  . "#4F4F4F")))
+(load-theme 'zenburn t)
 
 ;; Tango 2
 ;;(require-package 'tango-2-theme)
