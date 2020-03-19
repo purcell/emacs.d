@@ -149,7 +149,7 @@
 (setq zenburn-override-colors-alist
       '(("zenburn-bg+05" . "#282828")
         ("zenburn-bg-05" . "#000000")
-        ("zenburn-bg+1"  . "#2F2F2F")
+        ("zenburn-bg+1"  . "#366060")
         ("zenburn-bg"    . "#000000")
         ("zenburn-bg+2"  . "#3F3F3F")
         ("zenburn-bg-08" . "#303030")
