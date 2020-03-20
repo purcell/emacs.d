@@ -139,11 +139,6 @@
           (lambda ()
             (define-key evil-normal-state-local-map (kbd "C-\\") 'elpy-goto-definition)))
 
-;; Solarized
-;;(add-to-list 'custom-theme-load-path "~/.emacs.d/emacs-color-theme-solarized")
-;;(setq solarized-italic nil)
-;;(load-theme 'solarized t)
-
 (require-package 'zenburn-theme)
 (require 'zenburn-theme)
 (setq zenburn-override-colors-alist
