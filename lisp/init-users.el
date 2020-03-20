@@ -146,10 +146,10 @@
         ("zenburn-bg-05" . "#000000")
         ("zenburn-bg+1"  . "#366060")
         ("zenburn-bg"    . "#000000")
-        ("zenburn-bg+2"  . "#3F3F3F")
+        ("zenburn-bg+2"  . "#2F4F2F")
         ("zenburn-bg-08" . "#303030")
-        ("zenburn-bg-1"  . "blue")
-        ("zenburn-bg+3"  . "#4F4F4F")))
+        ("zenburn-bg-1"  . "#2F4F2F")
+        ("zenburn-bg+3"  . "#3F5F3F")))
 (load-theme 'zenburn t)
 
 ;; Tango 2
