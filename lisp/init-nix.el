@@ -20,6 +20,8 @@
 
       (add-to-list 'company-backends 'company-nixos-options))))
 
+(when (featurep 'nix-mode)
+  (maybe-require-package 'nixpkgs-fmt))
 
 
 (provide 'init-nix)
