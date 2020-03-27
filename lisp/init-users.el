@@ -3,6 +3,7 @@
 ;;; Code:
 
 (require 'init-local nil t)
+(setq frame-resize-pixelwise t)
 
 ;; Evil
 (require-package 'evil)
@@ -141,15 +142,6 @@
 
 (require-package 'zenburn-theme)
 (require 'zenburn-theme)
-(setq zenburn-override-colors-alist
-      '(("zenburn-bg+05" . "#282828")
-        ("zenburn-bg-05" . "#000000")
-        ("zenburn-bg+1"  . "#366060")
-        ("zenburn-bg"    . "#000000")
-        ("zenburn-bg+2"  . "#2F4F2F")
-        ("zenburn-bg-08" . "#303030")
-        ("zenburn-bg-1"  . "#2F4F2F")
-        ("zenburn-bg+3"  . "#3F5F3F")))
 (load-theme 'zenburn t)
 
 ;; Tango 2
@@ -168,6 +160,13 @@
         ("Doing" . (:background "" :foreground "red"))
         ("Verify" . (:background "" :foreground "orange"))
         ("Done" . (:background "" :foreground "green"))))
+
+;; optional: this is the evil state that evil-magit will use
+;; (setq evil-magit-state 'normal)
+;; optional: disable additional bindings for yanking text
+;; (setq evil-magit-use-y-for-yank nil)
+(require-package 'evil-magit)
+(require 'evil-magit)
 
 (provide 'init-users)
 ;;; init-users.el ends here
