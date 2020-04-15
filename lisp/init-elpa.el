@@ -92,10 +92,7 @@ locate PACKAGE."
 (fullframe list-packages quit-window)
 
 
-;; For early Emacs 26 versions, make a special effort to grab the
-;; latest ELPA keyring if it's not already installed.
-(let ((package-check-signature nil)
-      (package-archives '(("elpa" . "http://elpa.gnu.org/packages/"))))
+(let ((package-check-signature nil))
   (require-package 'gnu-elpa-keyring-update))
 
 
