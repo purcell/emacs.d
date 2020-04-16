@@ -35,9 +35,8 @@
 (if *is-a-mac*
     (add-hook 'after-make-frame-functions
               (lambda (frame)
-                (set-frame-parameter frame 'menu-bar-lines
-                                     (if (display-graphic-p frame)
-                                         1 0))))
+                (unless (display-graphic-p frame)
+                  (set-frame-parameter frame 'menu-bar-lines 0))))
   (when (fboundp 'menu-bar-mode)
     (menu-bar-mode -1)))
 

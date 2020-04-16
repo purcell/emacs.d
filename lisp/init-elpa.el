@@ -92,7 +92,8 @@ locate PACKAGE."
 (fullframe list-packages quit-window)
 
 
-(require-package 'gnu-elpa-keyring-update)
+(let ((package-check-signature nil))
+  (require-package 'gnu-elpa-keyring-update))
 
 
 (defun sanityinc/set-tabulated-list-column-width (col-name width)

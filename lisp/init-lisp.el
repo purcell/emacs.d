@@ -53,6 +53,26 @@
 
 
 
+(defun sanityinc/load-this-file ()
+  "Load the current file or buffer.
+The current directory is temporarily added to `load-path'.  When
+there is no current file, eval the current buffer."
+  (interactive)
+  (let ((load-path (cons default-directory load-path))
+        (file (buffer-file-name)))
+    (if file
+        (progn
+          (save-some-buffers nil (apply-partially 'derived-mode-p 'emacs-lisp-mode))
+          (load-file (buffer-file-name))
+          (message "Loaded %s" file))
+      (eval-buffer)
+      (message "Evaluated %s" (current-buffer)))))
+
+(after-load 'lisp-mode
+  (define-key emacs-lisp-mode-map (kbd "C-c C-l") 'sanityinc/load-this-file))
+
+
+
 (defun sanityinc/maybe-set-bundled-elisp-readonly ()
   "If this elisp appears to be part of Emacs, then disallow editing."
   (when (and (buffer-file-name)
@@ -265,6 +285,14 @@
 
 
 (maybe-require-package 'cl-libify)
+
+
+(when (maybe-require-package 'flycheck-relint)
+  (after-load 'flycheck
+    (after-load 'elisp-mode
+      (flycheck-relint-setup))))
+
+
 
 (maybe-require-package 'cask-mode)
 
