@@ -189,6 +189,7 @@
 (add-hook 'prog-mode-hook 'linum-mode)
 
 (require 'vlf-setup)
+(require 'rust-mode)
 
 
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
