@@ -63,8 +63,5 @@
   (add-hook 'compilation-filter-hook 'sanityinc/colourise-compilation-buffer))
 
 
-(maybe-require-package 'cmd-to-echo)
-
-
 (provide 'init-compile)
 ;;; init-compile.el ends here
