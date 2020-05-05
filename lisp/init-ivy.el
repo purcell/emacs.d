@@ -24,7 +24,14 @@
     (define-key ivy-occur-mode-map (kbd "C-c C-q") #'ivy-wgrep-change-to-wgrep-mode)
 
     (when (maybe-require-package 'diminish)
-      (diminish 'ivy-mode))))
+      (diminish 'ivy-mode)))
+  (when (maybe-require-package 'ivy-rich)
+    (setq ivy-virtual-abbreviate 'abbreviate
+          ivy-rich-switch-buffer-align-virtual-buffer nil
+          ivy-rich-path-style 'abbrev)
+    (after-load 'ivy
+      (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line))
+    (add-hook 'ivy-mode-hook (lambda () (ivy-rich-mode ivy-mode)))))
 
 (when (maybe-require-package 'counsel)
   (setq-default counsel-mode-override-describe-bindings t)
