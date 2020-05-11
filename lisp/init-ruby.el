@@ -18,7 +18,7 @@
 (add-hook 'ruby-mode-hook 'subword-mode)
 
 (after-load 'page-break-lines
-  (push 'ruby-mode page-break-lines-modes))
+  (add-to-list 'page-break-lines-modes 'ruby-mode))
 
 (require-package 'rspec-mode)
 
@@ -52,7 +52,7 @@
     (add-hook 'ruby-mode-hook 'robe-mode))
   (after-load 'robe
     (after-load 'company
-      (push 'company-robe company-backends))))
+      (add-to-list 'company-backends 'company-robe))))
 
 
 

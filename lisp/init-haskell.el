@@ -37,7 +37,7 @@
 
 
   (after-load 'page-break-lines
-    (push 'haskell-mode page-break-lines-modes)))
+    (add-to-list 'page-break-lines-modes 'haskell-mode)))
 
 
 
