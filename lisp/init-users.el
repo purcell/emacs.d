@@ -168,6 +168,7 @@
 (require-package 'evil-magit)
 (require 'evil-magit)
 
+(setq evil-emacs-state-modes (delq 'ibuffer-mode evil-emacs-state-modes))
 
 ;; TypeScript
 (require-package 'tide)
