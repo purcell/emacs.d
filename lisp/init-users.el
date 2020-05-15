@@ -140,9 +140,9 @@
           (lambda ()
             (define-key evil-normal-state-local-map (kbd "C-\\") 'elpy-goto-definition)))
 
-(require-package 'zenburn-theme)
-(require 'zenburn-theme)
-(load-theme 'zenburn t)
+;;(require-package 'zenburn-theme)
+;;(require 'zenburn-theme)
+;;(load-theme 'zenburn t)
 
 ;; Tango 2
 ;;(require-package 'tango-2-theme)
