@@ -7,6 +7,8 @@
     (envrc-global-mode)))
 
 (when (maybe-require-package 'envrc)
-  (add-hook 'after-init-hook 'sanityinc/maybe-enable-envrc-global-mode t))
+  (add-hook 'after-init-hook 'sanityinc/maybe-enable-envrc-global-mode))
+
+(provide 'init-direnv)
 
 ;;; init-direnv.el ends here
