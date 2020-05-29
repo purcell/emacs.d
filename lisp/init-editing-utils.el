@@ -107,11 +107,6 @@
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 
-
-(when (fboundp 'global-prettify-symbols-mode)
-  (add-hook 'after-init-hook 'global-prettify-symbols-mode))
-
-
 (when (maybe-require-package 'symbol-overlay)
   (dolist (hook '(prog-mode-hook html-mode-hook yaml-mode-hook conf-mode-hook))
     (add-hook hook 'symbol-overlay-mode))
