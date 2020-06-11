@@ -246,7 +246,7 @@ there is no current file, eval the current buffer."
 (require-package 'macrostep)
 
 (after-load 'lisp-mode
-  (define-key emacs-lisp-mode-map (kbd "C-c e") 'macrostep-expand))
+  (define-key emacs-lisp-mode-map (kbd "C-c x") 'macrostep-expand))
 
 
 
