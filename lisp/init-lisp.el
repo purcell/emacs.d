@@ -287,10 +287,7 @@ there is no current file, eval the current buffer."
 (maybe-require-package 'cl-libify)
 
 
-(when (maybe-require-package 'flycheck-relint)
-  (after-load 'flycheck
-    (after-load 'elisp-mode
-      (flycheck-relint-setup))))
+(maybe-require-package 'flycheck-relint)
 
 
 
