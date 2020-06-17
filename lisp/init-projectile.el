@@ -8,6 +8,9 @@
   ;; Shorter modeline
   (setq-default projectile-mode-line-prefix " Proj")
 
+  (when (executable-find "rg")
+    (setq-default projectile-generic-command "rg --files --hidden"))
+
   (with-eval-after-load 'projectile
     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
 
