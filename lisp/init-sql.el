@@ -2,7 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-(after-load 'sql
+(with-eval-after-load 'sql
   ;; sql-mode pretty much requires your psql to be uncustomised from stock settings
   (add-to-list 'sql-postgres-options "--no-psqlrc"))
 
@@ -26,7 +26,7 @@ Fix for the above hasn't been released as of Emacs 25.2."
     (when sql-buffer
       (sanityinc/pop-to-sqli-buffer))))
 
-(after-load 'sql
+(with-eval-after-load 'sql
   (define-key sql-mode-map (kbd "C-c C-z") 'sanityinc/pop-to-sqli-buffer)
   (when (package-installed-p 'dash-at-point)
     (defun sanityinc/maybe-set-dash-db-docset (&rest _)
@@ -48,7 +48,7 @@ Fix for the above hasn't been released as of Emacs 25.2."
 
 
 (require-package 'sqlformat)
-(after-load 'sql
+(with-eval-after-load 'sql
   (define-key sql-mode-map (kbd "C-c C-f") 'sqlformat))
 
 ;; Package ideas:
@@ -112,12 +112,12 @@ This command currently blocks the UI, sorry."
 
 
 ;; Submitted upstream as https://github.com/stanaka/dash-at-point/pull/28
-(after-load 'sql
-  (after-load 'dash-at-point
+(with-eval-after-load 'sql
+  (with-eval-after-load 'dash-at-point
     (add-to-list 'dash-at-point-mode-alist '(sql-mode . "psql,mysql,sqlite,postgis"))))
 
 
-(after-load 'page-break-lines
+(with-eval-after-load 'page-break-lines
   (add-to-list 'page-break-lines-modes 'sql-mode))
 
 (provide 'init-sql)

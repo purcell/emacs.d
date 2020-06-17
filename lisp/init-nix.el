@@ -9,10 +9,10 @@
 
   (when (maybe-require-package 'nixos-options)
     (when (maybe-require-package 'company-nixos-options)
-      (after-load 'company
+      (with-eval-after-load 'company
 
         ;; Patch pending https://github.com/travisbhartwell/nix-emacs/pull/46
-        (after-load 'company-nixos-options
+        (with-eval-after-load 'company-nixos-options
           (defun company-nixos--in-nix-context-p ()
             (unless (executable-find "nix-build")
               (or (derived-mode-p 'nix-mode 'nix-repl-mode)

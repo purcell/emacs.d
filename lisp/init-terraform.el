@@ -6,7 +6,7 @@
 
 (when (maybe-require-package 'terraform-mode)
   (when (maybe-require-package 'company-terraform)
-    (after-load 'terraform-mode
+    (with-eval-after-load 'terraform-mode
       (company-terraform-init)
 
       ;; I find formatters based on "reformatter" to be more reliable

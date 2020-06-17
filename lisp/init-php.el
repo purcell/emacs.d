@@ -6,7 +6,7 @@
   (maybe-require-package 'smarty-mode)
 
   (when (maybe-require-package 'company-php)
-    (after-load 'company
+    (with-eval-after-load 'company
       (add-to-list 'company-backends 'company-ac-php-backend))))
 
 (provide 'init-php)

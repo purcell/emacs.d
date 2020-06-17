@@ -9,7 +9,7 @@
   (setq-default locate-command "mdfind"))
 
 (require-package 'wgrep)
-(after-load 'grep
+(with-eval-after-load 'grep
   (dolist (key (list (kbd "C-c C-q") (kbd "w")))
     (define-key grep-mode-map key 'wgrep-change-to-wgrep-mode)))
 

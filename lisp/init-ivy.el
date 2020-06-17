@@ -4,7 +4,7 @@
 
 (when (maybe-require-package 'ivy)
   (add-hook 'after-init-hook 'ivy-mode)
-  (after-load 'ivy
+  (with-eval-after-load 'ivy
     (setq-default ivy-use-virtual-buffers t
                   ivy-virtual-abbreviate 'fullpath
                   ivy-count-format ""
@@ -29,18 +29,18 @@
     (setq ivy-virtual-abbreviate 'abbreviate
           ivy-rich-switch-buffer-align-virtual-buffer nil
           ivy-rich-path-style 'abbrev)
-    (after-load 'ivy
+    (with-eval-after-load 'ivy
       (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line))
     (add-hook 'ivy-mode-hook (lambda () (ivy-rich-mode ivy-mode)))))
 
 (when (maybe-require-package 'counsel)
   (setq-default counsel-mode-override-describe-bindings t)
-  (after-load 'counsel
+  (with-eval-after-load 'counsel
     (setq-default ivy-initial-inputs-alist
                   '((Man-completion-table . "^")
                     (woman . "^"))))
   (when (maybe-require-package 'diminish)
-    (after-load 'counsel
+    (with-eval-after-load 'counsel
       (diminish 'counsel-mode)))
   (add-hook 'after-init-hook 'counsel-mode)
 
@@ -67,13 +67,13 @@ instead."
                            (projectile-project-root)
                          (error default-directory)))))
             (funcall search-function initial-input dir)))))
-    (after-load 'ivy
+    (with-eval-after-load 'ivy
       (add-to-list 'ivy-height-alist (cons 'counsel-ag 20)))
     (global-set-key (kbd "M-?") 'sanityinc/counsel-search-project)))
 
 
 (when (maybe-require-package 'swiper)
-  (after-load 'ivy
+  (with-eval-after-load 'ivy
     (define-key ivy-mode-map (kbd "M-s /") 'swiper-thing-at-point)))
 
 

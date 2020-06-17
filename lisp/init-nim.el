@@ -4,8 +4,8 @@
 
 (when (maybe-require-package 'nim-mode)
   (when (maybe-require-package 'flycheck-nim)
-    (after-load 'nim-mode
-      (after-load 'flycheck
+    (with-eval-after-load 'nim-mode
+      (with-eval-after-load 'flycheck
         (require 'flycheck-nim)))))
 
 (provide 'init-nim)

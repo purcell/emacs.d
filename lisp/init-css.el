@@ -10,7 +10,7 @@
 
 ;;; Embedding in html
 (require-package 'mmm-mode)
-(after-load 'mmm-vars
+(with-eval-after-load 'mmm-vars
   (mmm-add-group
    'html-css
    '((css-cdata
