@@ -5,6 +5,8 @@
 (require 'init-local nil t)
 (setq frame-resize-pixelwise t)
 
+(require-package 'use-package)
+
 ;; Evil
 (require-package 'evil)
 (require 'evil)
@@ -130,16 +132,6 @@
 ;; Python3 as default interpreter
 (setq py-python-command "/usr/bin/python3")
 
-;; Elpy
-(require-package 'elpy)
-(require 'elpy)
-(setq elpy-rpc-python-command "python3")
-(elpy-enable)
-
-(add-hook 'python-mode-hook
-          (lambda ()
-            (define-key evil-normal-state-local-map (kbd "C-\\") 'elpy-goto-definition)))
-
 ;;(require-package 'zenburn-theme)
 ;;(require 'zenburn-theme)
 ;;(load-theme 'zenburn t)
@@ -191,6 +183,20 @@
 (add-hook 'before-save-hook 'tide-format-before-save)
 
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
+
+
+;; LSP
+(require-package 'lsp-mode)
+(add-hook 'python-mode-hook #'lsp)
+
+(use-package lsp-ui :commands lsp-ui-mode)
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+
+
+;; Python LSP
+(setq-default lsp-pyls-configuration-sources ["flake8"])
+(with-eval-after-load 'lsp-mode  ; try this or similar
+  (lsp-register-custom-settings '(("pyls.plugins.pyls_mypy.enabled" t t))))
 
 (provide 'init-users)
 ;;; init-users.el ends here
