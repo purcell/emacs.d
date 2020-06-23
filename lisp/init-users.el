@@ -187,7 +187,6 @@
 
 ;; LSP
 (require-package 'lsp-mode)
-(add-hook 'python-mode-hook #'lsp)
 (require-package 'lsp-ui)
 (require-package 'lsp-treemacs)
 (use-package lsp-ui :commands lsp-ui-mode)
@@ -195,9 +194,13 @@
 
 
 ;; Python LSP
+(add-hook 'python-mode-hook #'lsp)
 (setq-default lsp-pyls-configuration-sources ["flake8"])
 (with-eval-after-load 'lsp-mode  ; try this or similar
   (lsp-register-custom-settings '(("pyls.plugins.pyls_mypy.enabled" t t))))
+
+;; Typescript LSP
+(add-hook 'typescript-mode-hook #'lsp)
 
 (provide 'init-users)
 ;;; init-users.el ends here
