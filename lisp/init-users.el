@@ -220,7 +220,6 @@
   (which-key-mode))
 
 
-
 ;; Python LSP
 (add-hook 'python-mode-hook #'lsp)
 (setq-default lsp-pyls-configuration-sources ["flake8"])
