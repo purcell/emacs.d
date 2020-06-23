@@ -188,7 +188,8 @@
 ;; LSP
 (require-package 'lsp-mode)
 (add-hook 'python-mode-hook #'lsp)
-
+(require-package 'lsp-ui)
+(require-package 'lsp-treemacs)
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 
