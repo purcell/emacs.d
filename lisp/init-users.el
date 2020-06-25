@@ -39,11 +39,6 @@
             (define-key evil-normal-state-local-map (kbd "H") 'neotree-hidden-file-toggle)))
 
 
-(add-hook 'c-mode-common-hook
-          (lambda ()
-            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
-              (ggtags-mode 1))))
-
 ;; Tab setting
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
@@ -228,6 +223,12 @@
 
 ;; Typescript LSP
 (add-hook 'typescript-mode-hook #'lsp)
+
+
+;; C LSP
+(add-hook 'c-mode-hook #'lsp)
+(require-package 'ccls)
+
 
 (provide 'init-users)
 ;;; init-users.el ends here
