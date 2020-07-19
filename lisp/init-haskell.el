@@ -29,7 +29,11 @@
       :program "hindent"
       :lighter " Hin")
 
-    (defalias 'hindent-mode 'hindent-on-save-mode))
+    (defalias 'hindent-mode 'hindent-on-save-mode)
+
+    (reformatter-define ormolu
+      :program "ormolu"
+      :lighter " Orm"))
 
   (with-eval-after-load 'haskell-mode
     (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
