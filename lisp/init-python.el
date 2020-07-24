@@ -7,6 +7,7 @@
                 ("SConscript\\'" . python-mode))
               auto-mode-alist))
 
+(require-package 'pyvenv)
 (require-package 'pip-requirements)
 
 (provide 'init-python)
