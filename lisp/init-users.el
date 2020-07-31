@@ -15,6 +15,13 @@
 (require-package 'neotree)
 (global-set-key [f2] 'neotree-toggle)
 
+
+;; google-this
+(require-package 'google-this)
+(google-this-mode 1)
+
+;; sr-speedbar
+(require-package 'sr-speedbar)
 (defun sr-speedbar-toggle-fixed-size ()
   "Toggle sr-speedbar in fixed size."
   (interactive)
