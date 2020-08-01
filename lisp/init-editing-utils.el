@@ -307,9 +307,12 @@ With arg N, insert N newlines."
 (global-set-key (kbd "C-o") 'sanityinc/open-line-with-reindent)
 
 
-;;----------------------------------------------------------------------------
+
+;; M-^ is inconvenient, so also bind M-j
+(global-set-key (kbd "M-j") 'join-line)
+
+
 ;; Random line sorting
-;;----------------------------------------------------------------------------
 (defun sanityinc/sort-lines-random (beg end)
   "Sort lines in region from BEG to END randomly."
   (interactive "r")
