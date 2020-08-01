@@ -3,13 +3,7 @@
 ;;; Code:
 
 (require-package 'slime)
-;; package.el compiles the contrib subdir, but the compilation order
-;; causes problems, so we remove the .elc files there. See
-;; http://lists.common-lisp.net/pipermail/slime-devel/2012-February/018470.html
-(mapc #'delete-file
-      (file-expand-wildcards (concat user-emacs-directory "elpa/slime-2*/contrib/*.elc")))
 
-(require-package 'hippie-expand-slime)
 (when (maybe-require-package 'slime-company)
   (setq slime-company-completion 'fuzzy
         slime-company-after-completion 'slime-company-just-one-space)
@@ -19,26 +13,20 @@
 
 ;;; Lisp buffers
 
-(defun sanityinc/slime-setup ()
-  "Mode setup function for slime lisp buffers."
-  (set-up-slime-hippie-expand))
-
 (with-eval-after-load 'slime
   (setq slime-protocol-version 'ignore)
   (setq slime-net-coding-system 'utf-8-unix)
   (let ((features '(slime-fancy slime-repl slime-fuzzy)))
     (when (require 'slime-company nil t)
       (push 'slime-company features))
-    (slime-setup features))
-  (add-hook 'slime-mode-hook 'sanityinc/slime-setup))
+    (slime-setup features)) )
 
 
 ;;; REPL
 
 (defun sanityinc/slime-repl-setup ()
   "Mode setup function for slime REPL."
-  (sanityinc/lisp-setup)
-  (set-up-slime-hippie-expand))
+  (sanityinc/lisp-setup))
 
 (with-eval-after-load 'slime-repl
   ;; Stop SLIME's REPL from grabbing DEL, which is annoying when backspacing over a '('
