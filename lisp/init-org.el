@@ -54,41 +54,8 @@
 
 ;; Lots of stuff from http://doc.norang.ca/org-mode.html
 
-;; TODO: fail gracefully
-(defun sanityinc/grab-ditaa (url jar-name)
-  "Download URL and extract JAR-NAME as `org-ditaa-jar-path'."
-  ;; TODO: handle errors
-  (message "Grabbing %s for org." jar-name)
-  (let ((zip-temp (make-temp-name "emacs-ditaa")))
-    (unwind-protect
-        (progn
-          (when (executable-find "unzip")
-            (url-copy-file url zip-temp)
-            (shell-command (concat "unzip -p " (shell-quote-argument zip-temp)
-                                   " " (shell-quote-argument jar-name) " > "
-                                   (shell-quote-argument org-ditaa-jar-path)))))
-      (when (file-exists-p zip-temp)
-        (delete-file zip-temp)))))
-
-(after-load 'ob-ditaa
-  (unless (and (boundp 'org-ditaa-jar-path)
-               (file-exists-p org-ditaa-jar-path))
-    (let ((jar-name "ditaa0_9.jar")
-          (url "http://jaist.dl.sourceforge.net/project/ditaa/ditaa/0.9/ditaa0_9.zip"))
-      (setq org-ditaa-jar-path (expand-file-name jar-name (file-name-directory user-init-file)))
-      (unless (file-exists-p org-ditaa-jar-path)
-        (sanityinc/grab-ditaa url jar-name)))))
-
-(after-load 'ob-plantuml
-  (let ((jar-name "plantuml.jar")
-        (url "http://jaist.dl.sourceforge.net/project/plantuml/plantuml.jar"))
-    (setq org-plantuml-jar-path (expand-file-name jar-name (file-name-directory user-init-file)))
-    (unless (file-exists-p org-plantuml-jar-path)
-      (url-copy-file url org-plantuml-jar-path))))
-
-
 ;; Re-align tags when window shape changes
-(after-load 'org-agenda
+(with-eval-after-load 'org-agenda
   (add-hook 'org-agenda-mode-hook
             (lambda () (add-hook 'window-configuration-change-hook 'org-agenda-align-tags nil t))))
 
@@ -159,7 +126,7 @@ typical word processor."
 ;; Targets include this file and any file contributing to the agenda - up to 5 levels deep
 (setq org-refile-targets '((nil :maxlevel . 5) (org-agenda-files :maxlevel . 5)))
 
-(after-load 'org-agenda
+(with-eval-after-load 'org-agenda
   (add-to-list 'org-agenda-after-show-hook 'org-show-entry))
 
 (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
@@ -300,7 +267,7 @@ typical word processor."
 ;;; Org clock
 
 ;; Save the running clock and all clock history when exiting Emacs, load it on startup
-(after-load 'org
+(with-eval-after-load 'org
   (org-clock-persistence-insinuate))
 (setq org-clock-persist t)
 (setq org-clock-in-resume t)
@@ -329,7 +296,7 @@ typical word processor."
 (add-hook 'org-clock-out-hook 'sanityinc/hide-org-clock-from-header-line)
 (add-hook 'org-clock-cancel-hook 'sanityinc/hide-org-clock-from-header-line)
 
-(after-load 'org-clock
+(with-eval-after-load 'org-clock
   (define-key org-clock-mode-line-map [header-line mouse-2] 'org-clock-goto)
   (define-key org-clock-mode-line-map [header-line mouse-1] 'org-clock-menu))
 
@@ -361,7 +328,7 @@ typical word processor."
 
 (require-package 'org-pomodoro)
 (setq org-pomodoro-keep-killed-pomodoro-time t)
-(after-load 'org-agenda
+(with-eval-after-load 'org-agenda
   (define-key org-agenda-mode-map (kbd "P") 'org-pomodoro))
 
 
@@ -386,13 +353,13 @@ typical word processor."
 ;;                 (insert (match-string 0))))))
 
 
-(after-load 'org
+(with-eval-after-load 'org
   (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
   (when *is-a-mac*
     (define-key org-mode-map (kbd "M-h") nil)
     (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link)))
 
-(after-load 'org
+(with-eval-after-load 'org
   (org-babel-do-load-languages
    'org-babel-load-languages
    `((R . t)

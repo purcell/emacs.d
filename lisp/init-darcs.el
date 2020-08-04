@@ -2,7 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-(require-package 'darcsum)
 (require-package 'vc-darcs)
 
 

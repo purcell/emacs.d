@@ -6,8 +6,8 @@
   (maybe-require-package 'smarty-mode)
 
   (when (maybe-require-package 'company-php)
-    (after-load 'company
-      (push 'company-ac-php-backend company-backends))))
+    (with-eval-after-load 'company
+      (add-to-list 'company-backends 'company-ac-php-backend))))
 
 (provide 'init-php)
 ;;; init-php.el ends here

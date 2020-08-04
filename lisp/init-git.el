@@ -33,17 +33,17 @@
           (magit-log-buffer-file t))
       (vc-print-log)))
 
-  (after-load 'vc
+  (with-eval-after-load 'vc
     (define-key vc-prefix-map (kbd "l") 'sanityinc/magit-or-vc-log-file)))
 
 
-(after-load 'magit
+(with-eval-after-load 'magit
   (define-key magit-status-mode-map (kbd "C-M-<up>") 'magit-section-up))
 
 (maybe-require-package 'magit-todos)
 
 (require-package 'fullframe)
-(after-load 'magit
+(with-eval-after-load 'magit
   (fullframe magit-status magit-mode-quit-window))
 
 (when (maybe-require-package 'git-commit)
@@ -51,13 +51,13 @@
 
 
 (when *is-a-mac*
-  (after-load 'magit
+  (with-eval-after-load 'magit
     (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)])))))
 
 
 
 ;; Convenient binding for vc-git-grep
-(after-load 'vc
+(with-eval-after-load 'vc
   (define-key vc-prefix-map (kbd "f") 'vc-git-grep))
 
 
@@ -72,7 +72,7 @@
 ;;       (magit-svn-mode)))
 ;;   (add-hook 'magit-status-mode-hook #'sanityinc/maybe-enable-magit-svn-mode))
 
-(after-load 'compile
+(with-eval-after-load 'compile
   (dolist (defn (list '(git-svn-updated "^\t[A-Z]\t\\(.*\\)$" 1 nil nil 0 1)
                       '(git-svn-needs-update "^\\(.*\\): needs update$" 1 nil nil 2 1)))
     (add-to-list 'compilation-error-regexp-alist-alist defn)
