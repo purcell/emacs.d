@@ -15,13 +15,14 @@ in the approximate order of how much I use them, from most to least:
 
 * Haskell / Purescript / Elm
 * Ruby / Ruby on Rails
+* SQL
 * CSS / LESS / SASS / SCSS
 * Javascript / Typescript / Coffeescript
 * HTML / HAML / Markdown / Textile / ERB
-* Rust
-* Python
-* Clojure (with Cider and nRepl)
 * Common Lisp (with Slime)
+* Python
+* Rust
+* Clojure (with Cider and nRepl)
 * PHP
 * Erlang
 
