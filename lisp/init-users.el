@@ -236,6 +236,9 @@
 (add-hook 'c-mode-hook #'lsp)
 (require-package 'ccls)
 
+;; CPP LSP
+(add-hook 'c++-mode-hook #'lsp)
+
 
 (provide 'init-users)
 ;;; init-users.el ends here
