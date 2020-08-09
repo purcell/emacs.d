@@ -4,7 +4,6 @@
 
 (maybe-require-package 'json-mode)
 (maybe-require-package 'js2-mode)
-(maybe-require-package 'coffee-mode)
 (maybe-require-package 'typescript-mode)
 (maybe-require-package 'prettier-js)
 
@@ -53,12 +52,12 @@
 
 ;;; Coffeescript
 
-(with-eval-after-load 'coffee-mode
-  (setq-default coffee-js-mode 'js2-mode
-                coffee-tab-width js-indent-level))
+(when (maybe-require-package 'coffee-mode)
+  (with-eval-after-load 'coffee-mode
+    (setq-default coffee-tab-width js-indent-level))
 
-(when (fboundp 'coffee-mode)
-  (add-to-list 'auto-mode-alist '("\\.coffee\\.erb\\'" . coffee-mode)))
+  (when (fboundp 'coffee-mode)
+    (add-to-list 'auto-mode-alist '("\\.coffee\\.erb\\'" . coffee-mode))))
 
 ;; ---------------------------------------------------------------------------
 ;; Run and interact with an inferior JS via js-comint.el
