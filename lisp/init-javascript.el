@@ -98,10 +98,8 @@
 
 
 (when (maybe-require-package 'add-node-modules-path)
-  (with-eval-after-load 'typescript-mode
-    (add-hook 'typescript-mode-hook 'add-node-modules-path))
-  (with-eval-after-load 'js2-mode
-    (add-hook 'js2-mode-hook 'add-node-modules-path)))
+  (dolist (mode '(typescript-mode js-mode js2-mode coffee-mode))
+    (add-hook (derived-mode-hook-name mode) 'add-node-modules-path)))
 
 
 (provide 'init-javascript)
