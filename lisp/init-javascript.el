@@ -41,12 +41,18 @@
 
 
 
-(when (and (executable-find "ag")
+(when (and (or (executable-find "rg") (executable-find "ag"))
            (maybe-require-package 'xref-js2))
+  (when (executable-find "rg")
+    (setq-default xref-js2-search-program 'rg))
+  (defun sanityinc/enable-xref-js2 ()
+    (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))
+  (with-eval-after-load 'js
+    (define-key js-mode-map (kbd "M-.") nil)
+    (add-hook 'js-mode-hook 'sanityinc/enable-xref-js2))
   (with-eval-after-load 'js2-mode
     (define-key js2-mode-map (kbd "M-.") nil)
-    (add-hook 'js2-mode-hook
-              (lambda () (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))))
+    (add-hook 'js2-mode-hook 'sanityinc/enable-xref-js2)))
 
 
 
