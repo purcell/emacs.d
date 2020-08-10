@@ -31,8 +31,6 @@
   (add-hook 'js-mode-hook 'sanityinc/enable-js2-checks-if-flycheck-inactive)
   (add-hook 'js2-mode-hook 'sanityinc/enable-js2-checks-if-flycheck-inactive)
 
-  (add-hook 'js2-mode-hook (lambda () (setq mode-name "JS2")))
-
   (js2-imenu-extras-setup))
 
 (setq-default js-indent-level 2)
@@ -41,6 +39,13 @@
 
 
 (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode))
+
+(with-eval-after-load 'js2-mode
+  (sanityinc/major-mode-lighter 'js2-mode "JS2")
+  (sanityinc/major-mode-lighter 'js2-jsx-mode "JSX2"))
+(with-eval-after-load 'js
+  (sanityinc/major-mode-lighter 'js-mode "JS")
+  (sanityinc/major-mode-lighter 'js-jsx-mode "JSX"))
 
 
 
