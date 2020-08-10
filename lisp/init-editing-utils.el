@@ -352,3 +352,6 @@ ORIG is the advised function, which is called with its ARGS."
 
 (provide 'init-editing-utils)
 ;;; init-editing-utils.el ends here
+
+;; Custom bindings
+(global-set-key (kbd "C-u") 'undo)
