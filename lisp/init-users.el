@@ -239,6 +239,16 @@
 ;; CPP LSP
 (add-hook 'c++-mode-hook #'lsp)
 
+;; Haskell LSP
+(require-package 'lsp-haskell)
+(add-hook 'haskell-mode-hook #'lsp)
+(use-package lsp-haskell
+  :ensure t
+  :config
+  (setq lsp-haskell-process-path-hie "haskell-language-server-wrapper")
+  ;; Comment/uncomment this line to see interactions between lsp client/server.
+  ;;(setq lsp-log-io t)
+  )
 
 (provide 'init-users)
 ;;; init-users.el ends here
