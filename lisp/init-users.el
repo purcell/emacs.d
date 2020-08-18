@@ -13,7 +13,20 @@
 (evil-mode 1)
 
 (require-package 'neotree)
+(setq neo-smart-open t)
 (global-set-key [f2] 'neotree-toggle)
+(setq projectile-switch-project-action 'neotree-projectile-action)
+(add-hook 'neotree-mode-hook
+          (lambda ()
+            (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
+            (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-quick-look)
+            (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+            (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
+            (define-key evil-normal-state-local-map (kbd "g") 'neotree-refresh)
+            (define-key evil-normal-state-local-map (kbd "n") 'neotree-next-line)
+            (define-key evil-normal-state-local-map (kbd "p") 'neotree-previous-line)
+            (define-key evil-normal-state-local-map (kbd "A") 'neotree-stretch-toggle)
+            (define-key evil-normal-state-local-map (kbd "H") 'neotree-hidden-file-toggle)))
 
 
 ;; google-this
@@ -28,23 +41,7 @@
   (sr-speedbar-toggle)
   (with-current-buffer sr-speedbar-buffer-name
     (setq window-size-fixed 'width)))
-
 (global-set-key [f8] 'sr-speedbar-toggle-fixed-size)
-
-
-
-(add-hook 'neotree-mode-hook
-          (lambda ()
-            (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
-            (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-quick-look)
-            (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
-            (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
-            (define-key evil-normal-state-local-map (kbd "g") 'neotree-refresh)
-            (define-key evil-normal-state-local-map (kbd "n") 'neotree-next-line)
-            (define-key evil-normal-state-local-map (kbd "p") 'neotree-previous-line)
-            (define-key evil-normal-state-local-map (kbd "A") 'neotree-stretch-toggle)
-            (define-key evil-normal-state-local-map (kbd "H") 'neotree-hidden-file-toggle)))
-
 
 ;; Tab setting
 (setq-default indent-tabs-mode nil)
