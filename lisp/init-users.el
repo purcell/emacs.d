@@ -44,11 +44,21 @@
 (global-set-key [f8] 'sr-speedbar-toggle-fixed-size)
 
 ;; Tab setting
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
-(defvaralias 'c-basic-offset' tab-width)
+(defun my-c++-mode-hook ()
+  (setq c-basic-offset 4)
+  (setq c-indent-level 4)
+  (setq tab-width 4)
+  (c-set-offset 'substatement-open 0))
+(add-hook 'c++-mode-hook 'my-c++-mode-hook)
+
+(defun my-c-mode-hook ()
+  (setq c-indent-level 4)
+  (setq tab-width 4)
+  (setq c-basic-offset 4))
+(add-hook 'c-mode-hook 'my-c-mode-hook)
+
 (setq js-indent-level 4)
-(setq-default LaTeX-indent-level tab-width)
+(setq-default LaTeX-indent-level 4)
 (setq-default LaTeX-item-indent 0)
 
 ;; syntax highlight
