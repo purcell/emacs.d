@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
         emacs_version:
           - 24.5
           - 25.1
@@ -22,6 +22,10 @@ jobs:
           - 26.3
           - 27.1
           - snapshot
+        include:
+          - os: macos-latest
+            emacs_version: 24.5
+            emacs_version: 27.1
     steps:
     - uses: purcell/setup-emacs@master
       with:
