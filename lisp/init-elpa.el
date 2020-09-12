@@ -3,13 +3,13 @@
 ;;; Code:
 
 (require 'package)
+(require 'cl-lib)
 
 
 ;;; Install into separate package dirs for each Emacs version, to prevent bytecode incompatibility
-(let ((versioned-package-dir
-       (expand-file-name (format "elpa-%s.%s" emacs-major-version emacs-minor-version)
-                         user-emacs-directory)))
-  (setq package-user-dir versioned-package-dir))
+(setq package-user-dir
+      (expand-file-name (format "elpa-%s.%s" emacs-major-version emacs-minor-version)
+                        user-emacs-directory))
 
 
 
@@ -28,8 +28,6 @@
 
 ;;; On-demand installation of packages
 
-(require 'cl-lib)
-
 (defun require-package (package &optional min-version no-refresh)
   "Install given PACKAGE, optionally requiring MIN-VERSION.
 If NO-REFRESH is non-nil, the available package lists will not be
@@ -37,7 +35,7 @@ re-downloaded in order to locate PACKAGE."
   (or (package-installed-p package min-version)
       (let* ((known (cdr (assoc package package-archive-contents)))
              (versions (mapcar #'package-desc-version known)))
-        (if (cl-find-if (lambda (v) (version-list-<= min-version v)) versions)
+        (if (cl-some (lambda (v) (version-list-<= min-version v)) versions)
             (package-install package)
           (if no-refresh
               (error "No version of %s >= %S is available" package min-version)
@@ -50,11 +48,9 @@ In the event of failure, return nil and print a warning message.
 Optionally require MIN-VERSION.  If NO-REFRESH is non-nil, the
 available package lists will not be re-downloaded in order to
 locate PACKAGE."
-  (condition-case err
-      (require-package package min-version no-refresh)
-    (error
-     (message "Couldn't install optional package `%s': %S" package err)
-     nil)))
+  (with-demoted-errors
+      (concat "Couldn't install optional package `" (symbol-name package) "': %S")
+    (require-package package min-version no-refresh)))
 
 
 ;;; Fire up package.el
@@ -70,10 +66,14 @@ locate PACKAGE."
 (defvar sanityinc/required-packages nil)
 
 (defun sanityinc/note-selected-package (oldfun package &rest args)
-  "If OLDFUN reports PACKAGE was successfully installed, note it in `sanityinc/required-packages'."
+  "If OLDFUN reports PACKAGE was successfully installed, note that fact.
+The package name is noted by adding it to
+`sanityinc/required-packages'.  This function is used as an
+advice for `require-package', to which ARGS are passed."
   (let ((available (apply oldfun package args)))
-    (prog1 available
-      (when (and available (boundp 'package-selected-packages))
+    (prog1
+        available
+      (when available
         (add-to-list 'sanityinc/required-packages package)))))
 
 (advice-add 'require-package :around 'sanityinc/note-selected-package)
@@ -81,8 +81,9 @@ locate PACKAGE."
 (when (fboundp 'package--save-selected-packages)
   (require-package 'seq)
   (add-hook 'after-init-hook
-            (lambda () (package--save-selected-packages
-                   (seq-uniq (append sanityinc/required-packages package-selected-packages))))))
+            (lambda ()
+              (package--save-selected-packages
+               (seq-uniq (append sanityinc/required-packages package-selected-packages))))))
 
 
 (require-package 'fullframe)
