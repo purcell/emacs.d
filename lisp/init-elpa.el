@@ -48,9 +48,11 @@ In the event of failure, return nil and print a warning message.
 Optionally require MIN-VERSION.  If NO-REFRESH is non-nil, the
 available package lists will not be re-downloaded in order to
 locate PACKAGE."
-  (with-demoted-errors
-      (concat "Couldn't install optional package `" (symbol-name package) "': %S")
-    (require-package package min-version no-refresh)))
+  (condition-case err
+      (require-package package min-version no-refresh)
+    (error
+     (message "Couldn't install optional package `%s': %S" package err)
+     nil)))
 
 
 ;;; Fire up package.el
