@@ -19,10 +19,6 @@
     (define-key paredit-mode-map (read-kbd-macro binding) nil)))
 
 
-;; Compatibility with other modes
-
-(sanityinc/suspend-mode-during-cua-rect-selection 'paredit-mode)
-
 
 ;; Use paredit in the minibuffer
 ;; TODO: break out into separate package
