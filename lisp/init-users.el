@@ -202,7 +202,7 @@
 (require-package 'which-key)
 
 ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-(setq lsp-keymap-prefix "s-l")
+(setq lsp-keymap-prefix "C-c l")
 
 (use-package lsp-mode
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
