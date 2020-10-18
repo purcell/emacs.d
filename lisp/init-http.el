@@ -3,6 +3,14 @@
 ;;; Code:
 
 (maybe-require-package 'httprepl)
+(with-eval-after-load 'httprepl
+  (push '("image" . image) httprepl-content-type-alist)
+  (push '(image . ((lambda (b) (with-current-buffer b
+                                 (image-mode)
+                                 b))))
+        httprepl-content-type-middleware-alist))
+
+
 (when (maybe-require-package 'restclient)
   (add-auto-mode 'restclient-mode "\\.rest\\'")
 
