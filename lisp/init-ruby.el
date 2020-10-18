@@ -31,6 +31,14 @@
 
 ;;; Inferior ruby
 (require-package 'inf-ruby)
+(with-eval-after-load 'inf-ruby
+  (defun sanityinc/ruby-load-file (&optional choose-file)
+    (interactive "P")
+    (if (or choose-file (not buffer-file-name))
+        (call-interactively 'ruby-load-file)
+      (save-some-buffers)
+      (ruby-load-file buffer-file-name)))
+  (define-key inf-ruby-minor-mode-map [remap ruby-load-file] 'sanityinc/ruby-load-file))
 
 
 
