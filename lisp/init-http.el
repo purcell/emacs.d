@@ -7,6 +7,7 @@
   (add-auto-mode 'restclient-mode "\\.rest\\'")
 
   (defun sanityinc/restclient ()
+    "Work with `rest' in the *restclient* buffer."
     (interactive)
     (with-current-buffer (get-buffer-create "*restclient*")
       (restclient-mode)
