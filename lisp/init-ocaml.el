@@ -8,6 +8,11 @@
     (add-hook 'tuareg-mode-hook 'merlin-mode)
 
     (with-eval-after-load 'merlin
+      (add-hook 'merlin-mode-hook
+                (lambda ()
+                  (if merlin-mode
+                      (add-hook 'xref-backend-functions 'merlin-xref-backend nil t)
+                    (remove-hook 'xref-backend-functions 'merlin-xref-backend t))))
       (with-eval-after-load 'company
         (push 'merlin-company-backend company-backends)))
 
