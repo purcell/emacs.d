@@ -287,5 +287,7 @@
         org-roam-server-network-label-truncate-length 60
         org-roam-server-network-label-wrap-length 20))
 
+(require 'org-roam-protocol)
+
 (provide 'init-users)
 ;;; init-users.el ends here
