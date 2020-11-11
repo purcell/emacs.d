@@ -272,5 +272,20 @@
               (("C-c n i" . org-roam-insert))
               (("C-c n I" . org-roam-insert-immediate))))
 
+(use-package org-roam-server
+  :ensure t
+  :config
+  (setq org-roam-server-host "localhost"
+        org-roam-server-port 30000
+        org-roam-server-authenticate nil
+        org-roam-server-export-inline-images t
+        org-roam-server-serve-files nil
+        org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
+        org-roam-server-network-poll t
+        org-roam-server-network-arrows nil
+        org-roam-server-network-label-truncate t
+        org-roam-server-network-label-truncate-length 60
+        org-roam-server-network-label-wrap-length 20))
+
 (provide 'init-users)
 ;;; init-users.el ends here
