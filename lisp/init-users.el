@@ -257,6 +257,9 @@
   ;;(setq lsp-log-io t)
   )
 
+;; Typescript LSP
+(add-hook 'typescript-mode-hook #'lsp)
+
 
 (use-package org-brain :ensure t
   :init
