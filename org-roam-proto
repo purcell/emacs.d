@@ -1,0 +1,4 @@
+str=$1
+prefix=org-protocol://roam-file/?file=
+val=${str:${#prefix}}
+echo ${val//\%2F//}
