@@ -24,6 +24,10 @@
 ;;----------------------------------------------------------------------------
 ;; Window size and features
 ;;----------------------------------------------------------------------------
+(setq-default
+ window-resize-pixelwise t
+ frame-resize-pixelwise t)
+
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
 (when (fboundp 'set-scroll-bar-mode)

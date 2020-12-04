@@ -105,6 +105,7 @@
 (require 'init-ruby)
 (require 'init-rails)
 (require 'init-sql)
+(require 'init-ocaml)
 (require 'init-nim)
 (require 'init-rust)
 (require 'init-toml)
