@@ -6,6 +6,7 @@
 (setq frame-resize-pixelwise t)
 
 (require-package 'use-package)
+(require-package 'alarm-clock)
 
 ;; Evil
 (require-package 'evil)
@@ -221,6 +222,9 @@
 
 ;; optionally if you want to use debugger
 (use-package dap-mode)
+;; This feature does not support terminal so disable
+(setq dap-auto-configure-features (remove 'controls dap-auto-configure-features))
+
 ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
 
 ;; optional if you want which-key integration
@@ -231,6 +235,7 @@
 
 ;; Python LSP
 (add-hook 'python-mode-hook #'lsp)
+(require 'dap-python)
 (setq-default lsp-pyls-configuration-sources ["flake8"])
 (with-eval-after-load 'lsp-mode  ; try this or similar
   (lsp-register-custom-settings '(("pyls.plugins.pyls_mypy.enabled" t t))))
