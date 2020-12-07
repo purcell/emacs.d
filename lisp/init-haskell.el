@@ -2,56 +2,46 @@
 ;;; Commentary:
 ;;; Code:
 
-(require-package 'haskell-mode)
+(when (maybe-require-package 'haskell-mode)
+  (add-hook 'haskell-mode-hook 'subword-mode)
+  (add-hook 'haskell-cabal-mode 'subword-mode)
 
-
-;; Use intero for completion and flycheck
+  (when (maybe-require-package 'dante)
+    (add-hook 'haskell-mode-hook 'dante-mode)
+    (with-eval-after-load 'dante
+      (flycheck-add-next-checker 'haskell-dante
+                                 '(warning . haskell-hlint))))
 
-(when (maybe-require-package 'intero)
-  (after-load 'haskell-mode
-    (intero-global-mode)
-    (add-hook 'haskell-mode-hook 'subword-mode)
-    (add-hook 'haskell-mode-hook 'eldoc-mode))
-  (after-load 'haskell-cabal
-    (add-hook 'haskell-cabal-mode 'subword-mode)
-    (define-key haskell-cabal-mode-map (kbd "C-c C-l") 'intero-restart))
-  (after-load 'intero
-    ;; Don't clobber sanityinc/counsel-search-project binding
-    (define-key intero-mode-map (kbd "M-?") nil)
-    (after-load 'flycheck
-      (flycheck-add-next-checker 'intero
-                                 '(warning . haskell-hlint)))))
+  (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+
+  (add-auto-mode 'haskell-mode "\\.ghci\\'")
+
+  ;; Indentation
+  (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
 
 
-(add-auto-mode 'haskell-mode "\\.ghci\\'")
+  ;; Source code helpers
 
-
-;; Indentation
-(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+  (add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
 
+  (when (maybe-require-package 'reformatter)
+    (reformatter-define hindent
+      :program "hindent"
+      :lighter " Hin")
 
-
-;; Source code helpers
+    (defalias 'hindent-mode 'hindent-on-save-mode)
 
-(add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
+    (reformatter-define ormolu
+      :program "ormolu"
+      :lighter " Orm"))
 
-(when (maybe-require-package 'hindent)
-  (add-hook 'haskell-mode-hook 'hindent-mode)
-  (after-load 'hindent
-    (when (require 'nadvice)
-      (defun sanityinc/hindent--before-save-wrapper (oldfun &rest args)
-        (with-demoted-errors "Error invoking hindent: %s"
-          (let ((debug-on-error nil))
-            (apply oldfun args))))
-      (advice-add 'hindent--before-save :around 'sanityinc/hindent--before-save-wrapper))))
-
-(after-load 'haskell-mode
-  (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
-  (define-key haskell-mode-map (kbd "C-o") 'open-line))
+  (with-eval-after-load 'haskell-mode
+    (define-key haskell-mode-map (kbd "C-c h") 'hoogle)
+    (define-key haskell-mode-map (kbd "C-o") 'open-line))
 
 
-(after-load 'page-break-lines
-  (push 'haskell-mode page-break-lines-modes))
+  (with-eval-after-load 'page-break-lines
+    (add-to-list 'page-break-lines-modes 'haskell-mode)))
 
 
 
@@ -63,17 +53,15 @@
   (if stack-exec-path-mode
       (when (and (executable-find "stack")
                  (locate-dominating-file default-directory "stack.yaml"))
-        (setq-local
-         exec-path
-         (seq-uniq
-          (append (list (concat (string-trim-right (shell-command-to-string "stack path --local-install-root")) "/bin"))
-                  (parse-colon-path
-                   (replace-regexp-in-string "[\r\n]+\\'" ""
-                                             (shell-command-to-string "stack path --bin-path"))))
-          'string-equal))
-                                        ;(add-to-list (make-local-variable 'process-environment) (format "PATH=%s" (string-join exec-path path-separator)))
-        )
-    (kill-local-variable 'exec-path)))
+        (let ((stack-path (replace-regexp-in-string
+                           "[\r\n]+\\'" ""
+                           (shell-command-to-string (concat "stack exec -- sh -c "
+                                                            (shell-quote-argument "echo $PATH"))))))
+          (setq-local exec-path (seq-uniq (parse-colon-path stack-path) 'string-equal))
+          (make-local-variable 'process-environment)
+          (setenv "PATH" (string-join exec-path path-separator))))
+    (kill-local-variable 'exec-path)
+    (kill-local-variable 'process-environment)))
 
 (add-hook 'haskell-mode-hook 'stack-exec-path-mode)
 

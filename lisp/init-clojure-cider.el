@@ -7,14 +7,14 @@
 (when (maybe-require-package 'cider)
   (setq nrepl-popup-stacktraces nil)
 
-  (after-load 'cider
+  (with-eval-after-load 'cider
     (add-hook 'cider-repl-mode-hook 'subword-mode)
     (add-hook 'cider-repl-mode-hook 'paredit-mode))
 
   (require-package 'flycheck-clojure)
-  (after-load 'clojure-mode
-    (after-load 'cider
-      (after-load 'flycheck
+  (with-eval-after-load 'clojure-mode
+    (with-eval-after-load 'cider
+      (with-eval-after-load 'flycheck
         (flycheck-clojure-setup)))))
 
 

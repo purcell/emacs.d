@@ -4,17 +4,14 @@
 
 (when (maybe-require-package 'ivy)
   (add-hook 'after-init-hook 'ivy-mode)
-  (after-load 'ivy
+  (with-eval-after-load 'ivy
     (setq-default ivy-use-virtual-buffers t
                   ivy-virtual-abbreviate 'fullpath
                   ivy-count-format ""
                   projectile-completion-system 'ivy
                   ivy-magic-tilde nil
                   ivy-dynamic-exhibit-delay-ms 150
-                  ivy-use-selectable-prompt t
-                  ivy-initial-inputs-alist
-                  '((Man-completion-table . "^")
-                    (woman . "^")))
+                  ivy-use-selectable-prompt t)
 
     ;; IDO-style directory navigation
     (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
@@ -22,23 +19,31 @@
       (define-key ivy-minibuffer-map (kbd k) #'ivy-immediate-done))
 
     (define-key ivy-minibuffer-map (kbd "<up>") #'ivy-previous-line-or-history)
+    (define-key ivy-minibuffer-map (kbd "<down>") #'ivy-next-line-or-history)
 
     (define-key ivy-occur-mode-map (kbd "C-c C-q") #'ivy-wgrep-change-to-wgrep-mode)
 
     (when (maybe-require-package 'diminish)
       (diminish 'ivy-mode)))
-
-  (defun sanityinc/enable-ivy-flx-matching ()
-    "Make `ivy' matching work more like IDO."
-    (interactive)
-    (require-package 'flx)
-    (setq-default ivy-re-builders-alist
-                  '((t . ivy--regex-fuzzy)))))
+  (when (maybe-require-package 'ivy-rich)
+    (setq ivy-virtual-abbreviate 'abbreviate
+          ivy-rich-switch-buffer-align-virtual-buffer nil
+          ivy-rich-path-style 'abbrev)
+    (with-eval-after-load 'ivy
+      (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line))
+    (add-hook 'ivy-mode-hook (lambda () (ivy-rich-mode ivy-mode)))))
 
 (when (maybe-require-package 'counsel)
   (setq-default counsel-mode-override-describe-bindings t)
+  (with-eval-after-load 'counsel
+    (setq-default ivy-initial-inputs-alist
+                  '((Man-completion-table . "^")
+                    (woman . "^")))
+    ;; I prefer the default behaviour or cycling in place, or
+    ;; explicit use of browse-kill-ring
+    (define-key counsel-mode-map [remap yank-pop] nil))
   (when (maybe-require-package 'diminish)
-    (after-load 'counsel
+    (with-eval-after-load 'counsel
       (diminish 'counsel-mode)))
   (add-hook 'after-init-hook 'counsel-mode)
 
@@ -55,7 +60,8 @@
 If there is no project root, or if the prefix argument
 USE-CURRENT-DIR is set, then search from the current directory
 instead."
-          (interactive (list (thing-at-point 'symbol)
+          (interactive (list (let ((sym (thing-at-point 'symbol)))
+                               (when sym (regexp-quote sym)))
                              current-prefix-arg))
           (let ((current-prefix-arg)
                 (dir (if use-current-dir
@@ -64,19 +70,14 @@ instead."
                            (projectile-project-root)
                          (error default-directory)))))
             (funcall search-function initial-input dir)))))
-    (after-load 'ivy
+    (with-eval-after-load 'ivy
       (add-to-list 'ivy-height-alist (cons 'counsel-ag 20)))
     (global-set-key (kbd "M-?") 'sanityinc/counsel-search-project)))
 
 
 (when (maybe-require-package 'swiper)
-  (after-load 'ivy
-    (defun sanityinc/swiper-at-point (sym)
-      "Use `swiper' to search for the symbol at point."
-      (interactive (list (thing-at-point 'symbol)))
-      (swiper sym))
-
-    (define-key ivy-mode-map (kbd "M-s /") 'sanityinc/swiper-at-point)))
+  (with-eval-after-load 'ivy
+    (define-key ivy-mode-map (kbd "M-s /") 'swiper-thing-at-point)))
 
 
 (when (maybe-require-package 'ivy-xref)

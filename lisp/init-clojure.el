@@ -8,7 +8,7 @@
   (require-package 'cljsbuild-mode)
   (require-package 'elein)
 
-  (after-load 'clojure-mode
+  (with-eval-after-load 'clojure-mode
     (add-hook 'clojure-mode-hook 'sanityinc/lisp-setup)
     (add-hook 'clojure-mode-hook 'subword-mode)))
 
