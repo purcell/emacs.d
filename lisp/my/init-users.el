@@ -15,7 +15,7 @@
 
 (require-package 'neotree)
 (setq neo-smart-open t)
-(global-set-key [f2] 'neotree-toggle)
+(global-set-key (kbd "C-x t") 'neotree-toggle)
 (setq projectile-switch-project-action 'neotree-projectile-action)
 (add-hook 'neotree-mode-hook
           (lambda ()
@@ -42,7 +42,7 @@
   (sr-speedbar-toggle)
   (with-current-buffer sr-speedbar-buffer-name
     (setq window-size-fixed 'width)))
-(global-set-key [f8] 'sr-speedbar-toggle-fixed-size)
+(global-set-key (kbd "C-x s") 'sr-speedbar-toggle-fixed-size)
 
 ;; Tab setting
 (defun my-c++-mode-hook ()

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: async function
+# key: asyf
+# --
+async def ${1:fun}(${2:args}) -> ${4:None}:
+    $0
