@@ -266,6 +266,11 @@
 ;; Typescript LSP
 (add-hook 'typescript-mode-hook #'lsp)
 
+;; Org mode
+
+;; Org preview
+(require-package 'org-preview-html)
+
 (use-package org-roam
   :ensure t
   :hook
@@ -273,6 +278,7 @@
   :custom
   (org-roam-directory "~/Notes/Brain")
   (org-roam-db-location "~/Notes/Brain/brain.db")
+  (org-roam-dailies-directory "~/Notes/Brain/Daily/")
   :bind (:map org-roam-mode-map
               (("C-c n l" . org-roam)
                ("C-c n f" . org-roam-find-file)
