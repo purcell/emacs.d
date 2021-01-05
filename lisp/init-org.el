@@ -33,7 +33,7 @@
 (defvar sanityinc/org-global-prefix-map (make-sparse-keymap)
   "A keymap for handy global access to org helpers, particularly clocking.")
 
-(define-key sanityinc/org-global-prefix-map (kbd "j") 'org-clock-jump-to-current-clock)
+(define-key sanityinc/org-global-prefix-map (kbd "j") 'org-clock-goto)
 (define-key sanityinc/org-global-prefix-map (kbd "l") 'org-clock-in-last)
 (define-key sanityinc/org-global-prefix-map (kbd "i") 'org-clock-in)
 (define-key sanityinc/org-global-prefix-map (kbd "o") 'org-clock-out)
@@ -357,7 +357,7 @@ typical word processor."
   (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
   (when *is-a-mac*
     (define-key org-mode-map (kbd "M-h") nil)
-    (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link)))
+    (define-key org-mode-map (kbd "C-c g") 'grab-mac-link)))
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
