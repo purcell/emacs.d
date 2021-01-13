@@ -34,7 +34,7 @@ other languages.
 
 ## Supported Emacs versions
 
-The config should run on Emacs 24.5 or greater and is designed to
+The config should run on Emacs 25.1 or greater and is designed to
 degrade smoothly - see the CI build - but note that much newer
 versions are required for an increasing number of key packages, so to
 get full functionality you should use the latest Emacs version
