@@ -42,7 +42,11 @@
     (add-hook 'after-init-hook 'marginalia-mode)
     (setq-default marginalia-annotators '(marginalia-annotators-heavy))))
 
-
+(with-eval-after-load 'desktop
+  ;; Try to prevent old minibuffer completion system being reactivated in
+  ;; buffers restored via desktop.el
+  (push (cons 'counsel-mode nil) desktop-minor-mode-table)
+  (push (cons 'ivy-mode nil) desktop-minor-mode-table))
 
 (provide 'init-selectrum)
 ;;; init-selectrum.el ends here
