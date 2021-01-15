@@ -15,8 +15,6 @@
     (global-set-key [remap execute-extended-command] nil)
     (global-set-key [remap execute-extended-command] 'execute-extended-command))
 
-  ;;(defun sanityinc/read-buffer-function (prompt &optional def require-match predicate))
-
   (when (maybe-require-package 'embark)
     (define-key selectrum-minibuffer-map (kbd "C-c C-o") 'embark-export)
     (define-key selectrum-minibuffer-map (kbd "C-c C-c") 'embark-act))
