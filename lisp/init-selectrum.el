@@ -27,9 +27,8 @@
     (global-set-key [remap switch-to-buffer-other-frame] 'consult-buffer-other-frame)
     (when (maybe-require-package 'embark-consult)
       (with-eval-after-load 'embark
-        (add-hook 'embark-collect-mode-hook 'embark-consult-preview-minor-mode)
-        (with-eval-after-load 'consult
-          (require 'embark-consult)))))
+        (require 'embark-consult)
+        (add-hook 'embark-collect-mode-hook 'embark-consult-preview-minor-mode))))
 
   (maybe-require-package 'consult-flycheck)
 
