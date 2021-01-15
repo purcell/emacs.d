@@ -2,8 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-(when (maybe-require-package 'orderless)
-  (setq completion-styles '(orderless)))
 
 (when (require-package 'selectrum)
   (add-hook 'after-init-hook 'selectrum-mode)
@@ -12,7 +10,6 @@
     (require 'prescient)
     (prescient-persist-mode 1)
     (selectrum-prescient-mode 1)
-    (global-set-key [remap execute-extended-command] nil)
     (global-set-key [remap execute-extended-command] 'execute-extended-command))
 
   (when (maybe-require-package 'embark)
