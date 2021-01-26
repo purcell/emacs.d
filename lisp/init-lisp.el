@@ -129,6 +129,7 @@ there is no current file, eval the current buffer."
 ;; Automatic byte compilation
 ;; ----------------------------------------------------------------------------
 (when (maybe-require-package 'auto-compile)
+  (setq auto-compile-delete-stray-dest nil)
   (add-hook 'after-init-hook 'auto-compile-on-save-mode)
   (add-hook 'after-init-hook 'auto-compile-on-load-mode))
 
