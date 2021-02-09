@@ -14,7 +14,7 @@
 
   (when (maybe-require-package 'embark)
     (define-key selectrum-minibuffer-map (kbd "C-c C-o") 'embark-export)
-    (define-key selectrum-minibuffer-map (kbd "C-c C-c") 'embark-act-noexit))
+    (define-key selectrum-minibuffer-map (kbd "C-c C-c") 'embark-act))
 
   (when (maybe-require-package 'consult)
     (when (maybe-require-package 'projectile)
