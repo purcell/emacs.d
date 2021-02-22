@@ -5,6 +5,7 @@
 
 (when (maybe-require-package 'selectrum)
   (add-hook 'after-init-hook 'selectrum-mode)
+  (setq-default selectrum-fix-vertical-window-height t)
 
   (when (maybe-require-package 'selectrum-prescient)
     (require 'prescient)
