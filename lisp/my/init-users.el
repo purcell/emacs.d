@@ -302,7 +302,6 @@
   (after-init . org-roam-mode)
   :custom
   (org-roam-directory "~/Notes/Brain")
-  (org-roam-db-location "~/Notes/Brain/brain.db")
   (org-roam-dailies-directory "~/Notes/Brain/Daily/")
   :bind (:map org-roam-mode-map
               (("C-c n l" . org-roam)
