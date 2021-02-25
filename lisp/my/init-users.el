@@ -63,9 +63,10 @@
   (setq indent-tabs-mode 1))
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
-(setq js-indent-level 4)
 (setq-default LaTeX-indent-level 4)
 (setq-default LaTeX-item-indent 0)
+
+(add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 4)))
 
 ;; syntax highlight
 (global-font-lock-mode 1)
@@ -327,6 +328,17 @@
         org-roam-server-network-label-wrap-length 20))
 
 (require 'org-roam-protocol)
+
+(use-package diff-hl
+  :ensure t
+  :demand
+  :config
+  (global-diff-hl-mode)
+  (diff-hl-flydiff-mode)
+  (defun user/maybe-diff-hl-margin-mode()
+    (diff-hl-margin-mode (if (window-system) -1 1)))
+  (dolist (it '(post-command-hook before-hack-local-variables-hook))
+    (add-hook it 'user/maybe-diff-hl-margin-mode nil 1)))
 
 (provide 'init-users)
 ;;; init-users.el ends here
