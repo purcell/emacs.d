@@ -173,8 +173,8 @@
 ;; (setq evil-magit-state 'normal)
 ;; optional: disable additional bindings for yanking text
 ;; (setq evil-magit-use-y-for-yank nil)
-(require-package 'evil-magit)
-(require 'evil-magit)
+;; (require-package 'evil-magit)
+;; (require 'evil-magit)
 
 (setq evil-emacs-state-modes (delq 'ibuffer-mode evil-emacs-state-modes))
 
@@ -219,7 +219,11 @@
   :commands lsp)
 
 ;; optionally
-(use-package lsp-ui :commands lsp-ui-mode)
+(use-package lsp-ui
+  :commands  lsp-ui-mode
+  :defer t
+  :config
+  (setq lsp-ui-imenu-auto-refresh t))
 ;; if you are helm user
 (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 ;; if you are ivy user
@@ -335,6 +339,7 @@
   :config
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode)
+  (diff-hl-margin-mode)
   (defun user/maybe-diff-hl-margin-mode()
     (diff-hl-margin-mode (if (window-system) -1 1)))
   (dolist (it '(post-command-hook before-hack-local-variables-hook))
