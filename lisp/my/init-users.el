@@ -284,6 +284,15 @@
 
 ;; Typescript LSP
 (add-hook 'typescript-mode-hook #'lsp)
+;; Angular LSP
+(setq lsp-clients-angular-language-server-command
+      '("node"
+        "/usr/local/lib/node_modules/@angular/language-server"
+        "--ngProbeLocations"
+        "/usr/local/lib/node_modules"
+        "--tsProbeLocations"
+        "/usr/local/lib/node_modules"
+        "--stdio"))
 
 ;; Org mode
 
