@@ -5,8 +5,13 @@
 (require 'init-local nil t)
 (setq frame-resize-pixelwise t)
 
+(setq warning-minimum-level :emergency)
+
 (require-package 'use-package)
 (require-package 'alarm-clock)
+
+;; Solarized
+(setq x-underline-at-descent-line t)
 
 ;; Evil
 (require-package 'evil)
@@ -262,15 +267,11 @@
 (add-hook 'c++-mode-hook #'lsp)
 
 ;; Haskell LSP
-(require-package 'lsp-haskell)
+(require 'lsp)
+(require 'lsp-haskell)
+;; Hooks so haskell and literate haskell major modes trigger LSP setup
 (add-hook 'haskell-mode-hook #'lsp)
-(use-package lsp-haskell
-  :ensure t
-  :config
-  (setq lsp-haskell-process-path-hie "haskell-language-server-wrapper")
-  ;; Comment/uncomment this line to see interactions between lsp client/server.
-  ;;(setq lsp-log-io t)
-  )
+(add-hook 'haskell-literate-mode-hook #'lsp)
 
 ;; Go LSP
 (add-hook 'go-mode-hook #'lsp-deferred)
