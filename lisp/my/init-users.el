@@ -29,6 +29,12 @@
             (define-key evil-normal-state-local-map (kbd "A") 'neotree-stretch-toggle)
             (define-key evil-normal-state-local-map (kbd "H") 'neotree-hidden-file-toggle)))
 
+;; Coq
+(require-package 'proof-general)
+(require-package 'company-coq)
+(require-package 'coq-commenter)
+(add-hook 'coq-mode-hook #'company-coq-mode)
+(add-hook 'coq-mode-hook 'coq-commenter-mode)
 
 ;; google-this
 (require-package 'google-this)
@@ -163,7 +169,7 @@
 
 ;; Org-mode
 (setq org-todo-keywords '((sequence "Todo" "Doing" "Verify" "|" "Done" "Delegated")))
-(setq org-todo-keyword-faces
+(setq or
       '(("Todo" . (:background "" :foreground "red"))
         ("Doing" . (:background "" :foreground "red"))
         ("Verify" . (:background "" :foreground "orange"))
