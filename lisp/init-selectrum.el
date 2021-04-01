@@ -23,14 +23,15 @@
 
     (when (executable-find "rg")
       (defun sanityinc/consult-ripgrep-at-point (&optional dir initial)
-        (interactive (list prefix-arg (let ((s (symbol-at-point)))
-                                        (when s (symbol-name s)))))
+        (interactive (list prefix-arg (when-let ((s (symbol-at-point)))
+                                        (symbol-name s))))
         (consult-ripgrep dir initial)))
     (global-set-key (kbd "M-?") 'sanityinc/consult-ripgrep-at-point)
     (global-set-key [remap switch-to-buffer] 'consult-buffer)
     (global-set-key [remap switch-to-buffer-other-window] 'consult-buffer-other-window)
     (global-set-key [remap switch-to-buffer-other-frame] 'consult-buffer-other-frame)
     (global-set-key [remap goto-line] 'consult-goto-line)
+    (global-set-key [remap yank-pop] 'consult-yank-replace)
     (when (maybe-require-package 'embark-consult)
       (with-eval-after-load 'embark
         (require 'embark-consult)
