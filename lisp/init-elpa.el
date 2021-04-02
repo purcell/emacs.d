@@ -15,7 +15,7 @@
 
 ;;; Standard package repositories
 
-(add-to-list 'package-archives '( "melpa" . "http://elpa.emacs-china.org/melpa/") t)
+(add-to-list 'package-archives '( "melpa" . "https://melpa.org/packages/") t)
 ;; Official MELPA Mirror, in case necessary.
 ;;(add-to-list 'package-archives (cons "melpa-mirror" (concat proto "://www.mirrorservice.org/sites/melpa.org/packages/")) t)
 

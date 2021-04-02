@@ -273,6 +273,7 @@
 (add-hook 'c++-mode-hook #'lsp)
 
 ;; Haskell LSP
+(require-package 'lsp-haskell)
 (require 'lsp)
 (require 'lsp-haskell)
 ;; Hooks so haskell and literate haskell major modes trigger LSP setup
@@ -317,6 +318,7 @@
               cmd
               cmd)))
 
+(require-package 'org-roam)
 (use-package org-roam
   :ensure t
   :hook
@@ -332,6 +334,7 @@
               (("C-c n i" . org-roam-insert))
               (("C-c n I" . org-roam-insert-immediate))))
 
+(require-package 'org-roam-server)
 (use-package org-roam-server
   :ensure t
   :config
