@@ -2,6 +2,10 @@
 ;;; Commentary:
 ;;; Code:
 
+(with-eval-after-load 'eglot
+  (put 'tuareg-mode 'eglot-language-id "ocaml")
+  (add-to-list 'eglot-server-programs '((tuareg-mode) . ("ocamllsp")) t))
+
 (when (maybe-require-package 'tuareg)
   (when (maybe-require-package 'merlin)
     (add-hook 'tuareg-mode-hook 'merlin-mode)
