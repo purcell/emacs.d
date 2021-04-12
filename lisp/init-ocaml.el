@@ -6,9 +6,10 @@
   (when (maybe-require-package 'merlin)
     (add-hook 'tuareg-mode-hook 'merlin-mode)
 
-    (with-eval-after-load 'merlin
-      (with-eval-after-load 'company
-        (push 'merlin-company-backend company-backends)))
+    (when (maybe-require-package 'merlin-company)
+      (with-eval-after-load 'merlin
+        (with-eval-after-load 'company
+          (push 'merlin-company-backend company-backends))))
 
     (when (maybe-require-package 'merlin-eldoc)
       (with-eval-after-load 'merlin
