@@ -114,9 +114,8 @@ there is no current file, eval the current buffer."
 (with-eval-after-load 'ielm
   (define-key ielm-map (kbd "C-c C-z") 'sanityinc/repl-switch-back))
 
-;; ----------------------------------------------------------------------------
+
 ;; Hippie-expand
-;; ----------------------------------------------------------------------------
 
 (defun set-up-hippie-expand-for-elisp ()
   "Locally set `hippie-expand' completion functions for use with Emacs Lisp."
@@ -125,17 +124,17 @@ there is no current file, eval the current buffer."
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially t))
 
 
-;; ----------------------------------------------------------------------------
+
 ;; Automatic byte compilation
-;; ----------------------------------------------------------------------------
+
 (when (maybe-require-package 'auto-compile)
   (setq auto-compile-delete-stray-dest nil)
   (add-hook 'after-init-hook 'auto-compile-on-save-mode)
   (add-hook 'after-init-hook 'auto-compile-on-load-mode))
 
-;; ----------------------------------------------------------------------------
+
 ;; Load .el if newer than corresponding .elc
-;; ----------------------------------------------------------------------------
+
 (setq load-prefer-newer t)
 
 
@@ -160,9 +159,9 @@ there is no current file, eval the current buffer."
        " ")))))
 
 
-;; ----------------------------------------------------------------------------
+
 ;; Enable desired features for all lisp modes
-;; ----------------------------------------------------------------------------
+
 (defun sanityinc/enable-check-parens-on-save ()
   "Run `check-parens' when the current buffer is saved."
   (add-hook 'after-save-hook #'check-parens nil t))
@@ -211,9 +210,8 @@ there is no current file, eval the current buffer."
 (with-eval-after-load 'lisp-mode
   (cl-lib-highlight-initialize))
 
-;; ----------------------------------------------------------------------------
+
 ;; Delete .elc files when reverting the .el from VC or magit
-;; ----------------------------------------------------------------------------
 
 ;; When .el files are open, we can intercept when they are modified
 ;; by VC or magit in order to remove .elc files that are likely to
