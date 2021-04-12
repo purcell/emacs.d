@@ -45,8 +45,10 @@
     (define-key tuareg-mode-map (kbd "C-c C-z") 'sanityinc/tuareg-repl-switch)
     (define-key tuareg-interactive-mode-map (kbd "C-c C-z") 'sanityinc/tuareg-repl-switch-back)))
 
-(maybe-require-package 'dune)
+(when (maybe-require-package 'dune)
+  (maybe-require-package 'dune-format))
 
+;; Add my own lightweight ocp-indent reformatter, instead of the clunky upstream package
 (when (maybe-require-package 'reformatter)
   (defcustom ocp-indent-args nil
     "Arguments for \"ocp-indent\" invocation.")
@@ -54,12 +56,7 @@
   (reformatter-define ocp-indent
     :program "ocp-indent"
     :args ocp-indent-args
-    :lighter " OCP")
-
-  (reformatter-define dune-format
-    :program "dune"
-    :args '("format-dune-file")
-    :lighter " DuneFmt"))
+    :lighter " OCP"))
 
 
 (provide 'init-ocaml)
