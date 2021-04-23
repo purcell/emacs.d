@@ -68,8 +68,9 @@ running `M-x package-refresh-contents` before doing so.
 
 ## Updates
 
-Update the config with `git pull`. You'll probably also want/need to update
-the third-party packages regularly too:
+Update the config with `git pull`. You'll probably also want/need to
+update the third-party packages regularly too, because that's what I
+do, and the config assumes it:
 
 <kbd>M-x package-list-packages</kbd>, then <kbd>U</kbd> followed by <kbd>x</kbd>.
 
