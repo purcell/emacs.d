@@ -1,39 +1,41 @@
-;;; init-selectrum.el --- Config for selectrum       -*- lexical-binding: t; -*-
+;;; init-minibuffer.el --- Config for minibuffer completion       -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
 
 
-(when (maybe-require-package 'selectrum)
-  (add-hook 'after-init-hook 'selectrum-mode)
-  (setq-default selectrum-fix-vertical-window-height t)
+(when (maybe-require-package 'vertico)
+  (add-hook 'after-init-hook 'vertico-mode)
 
-  (when (maybe-require-package 'selectrum-prescient)
-    (require 'prescient)
-    (prescient-persist-mode 1)
-    (selectrum-prescient-mode 1)
-    (global-set-key [remap execute-extended-command] 'execute-extended-command))
+  (require-package 'orderless)
+  (with-eval-after-load 'vertico
+    (require 'orderless))
+
+  (setq completion-styles '(substring orderless))
 
   (when (maybe-require-package 'embark)
-    (define-key selectrum-minibuffer-map (kbd "C-c C-o") 'embark-export)
-    (define-key selectrum-minibuffer-map (kbd "C-c C-c") 'embark-act))
+    (with-eval-after-load 'vertico
+      (define-key vertico-map (kbd "C-c C-o") 'embark-export)
+      (define-key vertico-map (kbd "C-c C-c") 'embark-act)))
 
   (when (maybe-require-package 'consult)
     (when (maybe-require-package 'projectile)
       (setq-default consult-project-root-function 'projectile-project-root))
 
     (when (executable-find "rg")
-      (defun sanityinc/consult-ripgrep-at-point (&optional dir initial)
+      (maybe-require-package 'affe)
+      (defun sanityinc/affe-grep-at-point (&optional dir initial)
         (interactive (list prefix-arg (when-let ((s (symbol-at-point)))
                                         (symbol-name s))))
-        (consult-ripgrep dir initial)))
-    (global-set-key (kbd "M-?") 'sanityinc/consult-ripgrep-at-point)
+        (affe-grep dir initial))
+      (global-set-key (kbd "M-?") 'sanityinc/affe-grep-at-point))
+
     (global-set-key [remap switch-to-buffer] 'consult-buffer)
     (global-set-key [remap switch-to-buffer-other-window] 'consult-buffer-other-window)
     (global-set-key [remap switch-to-buffer-other-frame] 'consult-buffer-other-frame)
     (global-set-key [remap goto-line] 'consult-goto-line)
 
     (with-eval-after-load 'consult
-      (dolist (cmd '(consult-ripgrep sanityinc/consult-ripgrep-at-point))
+      (dolist (cmd '(consult-ripgrep sanityinc/affe-grep-at-point))
         (add-to-list 'consult-config
                      `(,cmd :preview-key ,(kbd "M-P")))))
 
@@ -48,11 +50,6 @@
   (add-hook 'after-init-hook 'marginalia-mode)
   (setq-default marginalia-annotators '(marginalia-annotators-heavy)))
 
-(with-eval-after-load 'desktop
-  ;; Try to prevent old minibuffer completion system being reactivated in
-  ;; buffers restored via desktop.el
-  (push (cons 'counsel-mode nil) desktop-minor-mode-table)
-  (push (cons 'ivy-mode nil) desktop-minor-mode-table))
 
-(provide 'init-selectrum)
-;;; init-selectrum.el ends here
+(provide 'init-minibuffer)
+;;; init-minibuffer.el ends here

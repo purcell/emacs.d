@@ -63,7 +63,7 @@
 (require 'init-flycheck)
 
 (require 'init-recentf)
-(require 'init-selectrum)
+(require 'init-minibuffer)
 (require 'init-hippie-expand)
 (require 'init-company)
 (require 'init-windows)
