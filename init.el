@@ -138,8 +138,6 @@
 (require-package 'htmlize)
 (when *is-a-mac*
   (require-package 'osx-location))
-(unless (eq system-type 'windows-nt)
-  (maybe-require-package 'daemons))
 (maybe-require-package 'dotenv-mode)
 (maybe-require-package 'shfmt)
 
