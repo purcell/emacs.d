@@ -11,8 +11,6 @@
 (when (maybe-require-package 'company)
   (add-hook 'after-init-hook 'global-company-mode)
   (with-eval-after-load 'company
-    (dolist (backend '(company-eclim company-semantic))
-      (delq backend company-backends))
     (diminish 'company-mode)
     (define-key company-mode-map (kbd "M-/") 'company-complete)
     (define-key company-mode-map [remap completion-at-point] 'company-complete)
