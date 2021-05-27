@@ -35,7 +35,7 @@
     (global-set-key [remap goto-line] 'consult-goto-line)
 
     (with-eval-after-load 'consult
-      (dolist (cmd '(consult-ripgrep sanityinc/affe-grep-at-point))
+      (dolist (cmd '(consult-ripgrep affe-grep sanityinc/affe-grep-at-point))
         (add-to-list 'consult-config
                      `(,cmd :preview-key ,(kbd "M-P")))))
 
