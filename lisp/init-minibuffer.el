@@ -10,7 +10,7 @@
   (with-eval-after-load 'vertico
     (require 'orderless))
 
-  (setq completion-styles '(substring orderless))
+  (setq completion-styles '(basic partial-completion orderless))
 
   (when (maybe-require-package 'embark)
     (with-eval-after-load 'vertico
