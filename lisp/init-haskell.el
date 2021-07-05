@@ -45,28 +45,6 @@
 
 
 
-(define-minor-mode stack-exec-path-mode
-  "If this is a stack project, set `exec-path' to the path \"stack exec\" would use."
-  nil
-  :lighter ""
-  :global nil
-  (if stack-exec-path-mode
-      (when (and (executable-find "stack")
-                 (locate-dominating-file default-directory "stack.yaml"))
-        (let ((stack-path (replace-regexp-in-string
-                           "[\r\n]+\\'" ""
-                           (shell-command-to-string (concat "stack exec -- sh -c "
-                                                            (shell-quote-argument "echo $PATH"))))))
-          (setq-local exec-path (seq-uniq (parse-colon-path stack-path) 'string-equal))
-          (make-local-variable 'process-environment)
-          (setenv "PATH" (string-join exec-path path-separator))))
-    (kill-local-variable 'exec-path)
-    (kill-local-variable 'process-environment)))
-
-(add-hook 'haskell-mode-hook 'stack-exec-path-mode)
-
-
-
 (when (maybe-require-package 'dhall-mode)
   (add-hook 'dhall-mode-hook 'stack-exec-path-mode))
 
