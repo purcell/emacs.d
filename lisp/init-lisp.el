@@ -206,9 +206,6 @@ there is no current file, eval the current buffer."
 (add-to-list 'auto-mode-alist '("\\.emacs-project\\'" . emacs-lisp-mode))
 (add-to-list 'auto-mode-alist '("archive-contents\\'" . emacs-lisp-mode))
 
-(require-package 'cl-lib-highlight)
-(with-eval-after-load 'lisp-mode
-  (cl-lib-highlight-initialize))
 
 
 ;; Delete .elc files when reverting the .el from VC or magit
