@@ -45,8 +45,7 @@
 
 
 
-(when (maybe-require-package 'dhall-mode)
-  (add-hook 'dhall-mode-hook 'stack-exec-path-mode))
+(maybe-require-package 'dhall-mode)
 
 
 
