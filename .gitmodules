@@ -1,0 +1,3 @@
+[submodule "site-lisp/org-roam-ui"]
+	path = site-lisp/org-roam-ui
+	url = git@github.com:org-roam/org-roam-ui.git

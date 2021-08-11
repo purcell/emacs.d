@@ -321,35 +321,21 @@
 (require-package 'org-roam)
 (use-package org-roam
   :ensure t
-  :hook
-  (after-init . org-roam-mode)
   :custom
-  (org-roam-directory "~/Notes/Brain")
-  (org-roam-dailies-directory "~/Notes/Brain/Daily/")
-  :bind (:map org-roam-mode-map
-              (("C-c n l" . org-roam)
-               ("C-c n f" . org-roam-find-file)
-               ("C-c n g" . org-roam-graph))
-              :map org-mode-map
-              (("C-c n i" . org-roam-insert))
-              (("C-c n I" . org-roam-insert-immediate))))
-
-(require-package 'org-roam-server)
-(use-package org-roam-server
-  :ensure t
+  (org-roam-directory (file-truename "~/Notes/Brain"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
   :config
-  (setq org-roam-server-host "localhost"
-        org-roam-server-port 30000
-        org-roam-server-authenticate nil
-        org-roam-server-export-inline-images t
-        org-roam-server-serve-files nil
-        org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
-        org-roam-server-network-poll t
-        org-roam-server-network-arrows nil
-        org-roam-server-network-label-truncate t
-        org-roam-server-network-label-truncate-length 60
-        org-roam-server-network-label-wrap-length 20))
+  (org-roam-db-autosync-mode)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol))
 
+(require 'org-roam-ui)
 (require 'org-roam-protocol)
 
 (use-package diff-hl
