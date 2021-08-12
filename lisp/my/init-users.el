@@ -335,6 +335,7 @@
   ;; If using org-roam-protocol
   (require 'org-roam-protocol))
 
+(require-package 'websocket)
 (require 'org-roam-ui)
 (require 'org-roam-protocol)
 
