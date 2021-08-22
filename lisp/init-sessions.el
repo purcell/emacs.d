@@ -35,7 +35,7 @@
 
 (require-package 'session)
 
-(setq session-save-file (expand-file-name ".session" user-emacs-directory))
+(setq session-save-file (locate-user-emacs-file ".session"))
 (setq session-name-disable-regexp "\\(?:\\`'/tmp\\|\\.git/[A-Z_]+\\'\\)")
 (setq session-save-file-coding-system 'utf-8)
 
