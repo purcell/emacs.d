@@ -257,9 +257,11 @@
 ;; Python LSP
 (add-hook 'python-mode-hook #'lsp)
 (require 'dap-python)
-(setq-default lsp-pyls-configuration-sources ["flake8"])
-(with-eval-after-load 'lsp-mode  ; try this or similar
-  (lsp-register-custom-settings '(("pyls.plugins.pyls_mypy.enabled" t t))))
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))  ; or lsp-deferred
 
 ;; Typescript LSP
 (add-hook 'typescript-mode-hook #'lsp)
