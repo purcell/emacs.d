@@ -13,6 +13,7 @@
 (setq x-underline-at-descent-line t)
 
 ;; Evil
+(require-package 'evil-collection)
 (require-package 'evil)
 (require 'evil)
 (evil-collection-init)
