@@ -244,7 +244,9 @@
 ;; optionally if you want to use debugger
 (use-package dap-mode)
 ;; This feature does not support terminal so disable
-(setq dap-auto-configure-features (remove 'controls dap-auto-configure-features))
+(setq dap-auto-configure-features '(sessions locals controls tooltip))
+
+(require 'my-python)
 
 ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
 
