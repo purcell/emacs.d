@@ -15,6 +15,7 @@
 ;; Evil
 (require-package 'evil)
 (require 'evil)
+(evil-collection-init)
 (evil-mode 1)
 
 (require-package 'neotree)

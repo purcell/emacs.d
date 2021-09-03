@@ -41,6 +41,9 @@
   :config
   (which-key-mode))
 
+;; lsp-treemacs with evil
+(require-package 'treemacs-evil)
+(require 'treemacs-evil)
 
 (provide 'my-lsp)
 ;;; End
