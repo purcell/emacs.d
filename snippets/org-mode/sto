@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: sto
+# key: sto
+# --
+* Subtopic of
+$0

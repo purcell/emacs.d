@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: lexp
+# key: me
+# --
+\$$1\$$0

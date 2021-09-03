@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: Prove
+# key: prove
+# --
+$mathbb{Prove}$:
+        $0
