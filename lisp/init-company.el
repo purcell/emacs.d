@@ -11,6 +11,8 @@
 (when (maybe-require-package 'company)
   (add-hook 'after-init-hook 'global-company-mode)
   (with-eval-after-load 'company
+    (dolist (backend '(company-eclim company-semantic))
+      (delq backend company-backends))
     (diminish 'company-mode)
     (define-key company-mode-map (kbd "M-/") 'company-complete)
     (define-key company-mode-map [remap completion-at-point] 'company-complete)
@@ -23,8 +25,11 @@
     (setq-default company-dabbrev-other-buffers 'all
                   company-tooltip-align-annotations t))
   (global-set-key (kbd "M-C-/") 'company-complete)
-  (when (maybe-require-package 'company-quickhelp)
-    (add-hook 'after-init-hook 'company-quickhelp-mode)))
+
+  ;; (when (maybe-require-package 'company-quickhelp)
+  ;; (add-hook 'after-init-hook 'company-quickhelp-mode))
+
+  )
 
 
 (provide 'init-company)

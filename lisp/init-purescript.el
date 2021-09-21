@@ -45,7 +45,7 @@ corresponding .purs file is open."
 
     (define-minor-mode psc-ide-foreign-js-mode
       "Rebuild corresponding purescript file."
-      :init-value nil
+      nil
       :lighter " PursJS"
       :global nil
       (if psc-ide-foreign-js-mode

@@ -4,6 +4,7 @@
 
 (require-package 'paredit)
 
+
 (defun sanityinc/maybe-map-paredit-newline ()
   (unless (or (memq major-mode '(inferior-emacs-lisp-mode cider-repl-mode))
               (minibufferp))
@@ -36,7 +37,6 @@
   "Enable paredit during lisp-related minibuffer commands."
   (if (memq this-command paredit-minibuffer-commands)
       (enable-paredit-mode)))
-
 
 (provide 'init-paredit)
 ;;; init-paredit.el ends here

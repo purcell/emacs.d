@@ -15,7 +15,7 @@
 
 (setq-default
  blink-cursor-interval 0.4
- bookmark-default-file (locate-user-emacs-file ".bookmarks.el")
+ bookmark-default-file (expand-file-name ".bookmarks.el" user-emacs-directory)
  buffers-menu-max-size 30
  case-fold-search t
  column-number-mode t
@@ -105,19 +105,20 @@
 
 
 
-(when (require-package 'rainbow-delimiters)
-  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+;; (when (require-package 'rainbow-delimiters)
+;;   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 
-(when (maybe-require-package 'symbol-overlay)
-  (dolist (hook '(prog-mode-hook html-mode-hook yaml-mode-hook conf-mode-hook))
-    (add-hook hook 'symbol-overlay-mode))
-  (with-eval-after-load 'symbol-overlay
-    (diminish 'symbol-overlay-mode)
-    (define-key symbol-overlay-mode-map (kbd "M-i") 'symbol-overlay-put)
-    (define-key symbol-overlay-mode-map (kbd "M-I") 'symbol-overlay-remove-all)
-    (define-key symbol-overlay-mode-map (kbd "M-n") 'symbol-overlay-jump-next)
-    (define-key symbol-overlay-mode-map (kbd "M-p") 'symbol-overlay-jump-prev)))
+
+;; (when (maybe-require-package 'symbol-overlay)
+;;   (dolist (hook '(prog-mode-hook html-mode-hook yaml-mode-hook conf-mode-hook))
+;;     (add-hook hook 'symbol-overlay-mode))
+;;   (with-eval-after-load 'symbol-overlay
+;;     (diminish 'symbol-overlay-mode)
+;;     (define-key symbol-overlay-mode-map (kbd "M-i") 'symbol-overlay-put)
+;;     (define-key symbol-overlay-mode-map (kbd "M-I") 'symbol-overlay-remove-all)
+;;     (define-key symbol-overlay-mode-map (kbd "M-n") 'symbol-overlay-jump-next)
+;;     (define-key symbol-overlay-mode-map (kbd "M-p") 'symbol-overlay-jump-prev)))
 
 
 ;;; Zap *up* to char is a handy pair for zap-to-char
@@ -280,11 +281,11 @@ With arg N, insert N newlines."
 (add-hook 'after-init-hook 'hes-mode)
 
 
-(require-package 'which-key)
-(add-hook 'after-init-hook 'which-key-mode)
-(setq-default which-key-idle-delay 1.5)
-(with-eval-after-load 'which-key
-  (diminish 'which-key-mode))
+;; (require-package 'which-key)
+;; (add-hook 'after-init-hook 'which-key-mode)
+;; (setq-default which-key-idle-delay 1.5)
+;; (with-eval-after-load 'which-key
+;;   (diminish 'which-key-mode))
 
 
 (defun sanityinc/disable-features-during-macro-call (orig &rest args)
