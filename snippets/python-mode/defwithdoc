@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: defwithdoc
+# key: defd
+# --
+def ${1:function}(${2:args}):
+    """${3:short description}
+
+    $0
+
+    ${4:Parameters
+    ----------
+    ${5:Please press the tab key twice.$(replace-regexp-in-string
+                                           ".*" "parameters" yas-text)}
+    }"""

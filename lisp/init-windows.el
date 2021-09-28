@@ -16,9 +16,10 @@
 
 ;; Make "C-x o" prompt for a target window when there are more than 2
 (require-package 'switch-window)
-(setq-default switch-window-shortcut-style 'alphabet)
+(setq switch-window-threshold 6)
 (setq-default switch-window-timeout nil)
 (global-set-key (kbd "C-x o") 'switch-window)
+(setq switch-window-shortcut-appearance 'asciiart)
 
 
 ;;----------------------------------------------------------------------------

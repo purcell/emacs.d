@@ -99,7 +99,7 @@
 (require 'init-http)
 (require 'init-python)
 (require 'init-haskell)
-(require 'init-elm)
+;; (require 'init-elm)
 (require 'init-purescript)
 (require 'init-ruby)
 (require 'init-rails)
@@ -121,6 +121,7 @@
 (require 'init-clojure)
 (require 'init-clojure-cider)
 (require 'init-common-lisp)
+
 
 (when *spell-check-support-enabled*
   (require 'init-spelling))
