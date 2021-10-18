@@ -31,6 +31,7 @@
 (require-package 'flycheck-mypy)
 (require 'flycheck-mypy)
 (add-hook 'python-mode-hook 'flycheck-mode)
+(add-hook 'python-mode-hook 'highlight-indent-guides-mode)
 
 (custom-set-variables
  '(flycheck-python-pycompile-executable "python3"))

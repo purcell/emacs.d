@@ -56,7 +56,7 @@
 (powerline-center-theme)
 
 ;; Org-mode
-(setq org-todo-keywords '((sequence "Todo" "Doing" "Verify" "|" "Done" "Delegated")))
+(setq org-todo-keywords '((sequence "Todo" "Doing" "Verify" "|" "Done" "Delegated" "Canceled")))
 (setq or
       '(("Todo" . (:background "" :foreground "red"))
         ("Doing" . (:background "" :foreground "red"))
@@ -87,6 +87,15 @@
     (diff-hl-margin-mode (if (window-system) -1 1)))
   (dolist (it '(post-command-hook before-hack-local-variables-hook))
     (add-hook it 'user/maybe-diff-hl-margin-mode nil 1)))
+
+;; indent highlights
+(require-package 'highlight-indent-guides)
+(require 'highlight-indent-guides)
+
+;; magit-todo
+(magit-todos-mode t)
+
+;; awesome-tab
 
 (provide 'misc)
 ;; End

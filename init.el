@@ -181,7 +181,6 @@
 ;;----------------------------------------------------------------------------
 (add-to-list 'load-path (expand-file-name "lisp/my" user-emacs-directory))
 (require 'init-users)
-
 (provide 'init)
 
 ;; Local Variables:

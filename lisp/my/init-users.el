@@ -15,6 +15,7 @@
 (require 'my-ts)
 (require 'my-go)
 (require 'my-haskell)
+(require 'my-crypt)
 
 
 (provide 'init-users)
