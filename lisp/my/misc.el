@@ -52,13 +52,15 @@
 ;; you can have a shortcut to switch between existing frames by name
 (global-set-key (kbd "M-P") 'nameframe-switch-frame)
 
-;; Powerline
-(require-package 'spaceline-all-the-icons)
-(use-package spaceline-all-the-icons
-  :after spaceline
-  :config (spaceline-all-the-icons-theme))
-
-; Org-mode
+;; Spaceline
+(custom-set-faces
+ '(mode-line ((t (:underline nil))))
+ '(mode-line-inactive ((t (:underline nil)))))
+(require-package 'doom-modeline)
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode))
+                                        ; Org-mode
 (setq org-todo-keywords '((sequence "Todo" "Doing" "Verify" "|" "Done" "Delegated" "Canceled")))
 (setq or
       '(("Todo" . (:background "" :foreground "red"))
