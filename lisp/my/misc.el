@@ -60,7 +60,8 @@
 (use-package doom-modeline
   :ensure t
   :hook (after-init . doom-modeline-mode))
-                                        ; Org-mode
+
+;; Org-mode
 (setq org-todo-keywords '((sequence "Todo" "Doing" "Verify" "|" "Done" "Delegated" "Canceled")))
 (setq or
       '(("Todo" . (:background "" :foreground "red"))

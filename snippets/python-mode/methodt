@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: methodt
-# key: tm
+# key: mtt
 # --
-def ${1:method}(self${2:, $3}) -> $4:
+def ${1:method}(self${2:, $3}) -> ${4:None}:
     $0
