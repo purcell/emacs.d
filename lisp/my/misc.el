@@ -6,6 +6,8 @@
 (require-package 'google-this)
 (google-this-mode 1)
 
+(require 'all-the-icons)
+
 ;; Switch window by number
 (require-package 'window-numbering)
 (window-numbering-mode 1)
