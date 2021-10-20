@@ -53,11 +53,12 @@
 (global-set-key (kbd "M-P") 'nameframe-switch-frame)
 
 ;; Powerline
-(require-package 'powerline)
-(require 'powerline)
-(powerline-center-theme)
+(require-package 'spaceline-all-the-icons)
+(use-package spaceline-all-the-icons
+  :after spaceline
+  :config (spaceline-all-the-icons-theme))
 
-;; Org-mode
+; Org-mode
 (setq org-todo-keywords '((sequence "Todo" "Doing" "Verify" "|" "Done" "Delegated" "Canceled")))
 (setq or
       '(("Todo" . (:background "" :foreground "red"))
