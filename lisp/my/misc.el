@@ -101,7 +101,9 @@
 ;; magit-todo
 (magit-todos-mode t)
 
-;; awesome-tab
+;; free-keys
+(require-package 'free-keys)
+(require 'free-keys)
 
 (provide 'misc)
 ;; End
