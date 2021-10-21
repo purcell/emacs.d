@@ -49,7 +49,7 @@ LOAD-DURATION is the time taken in milliseconds to load FEATURE.")
 (defun sanityinc/require-times-tabulated-list-entries ()
   (cl-loop for (feature start-time millis) in sanityinc/require-times
            with order = 0
-           do (incf order)
+           do (cl-incf order)
            collect (list order
                          (vector
                           (format "%.3f" (sanityinc/time-subtract-millis start-time before-init-time))
