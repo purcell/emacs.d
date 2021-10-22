@@ -8,7 +8,6 @@
 
 ;; Python LSP
 (add-hook 'python-mode-hook #'lsp)
-(add-hook 'python-mode-hook 'display-line-numbers-mode)
 (require 'dap-python)
 (use-package lsp-pyright
   :ensure t
