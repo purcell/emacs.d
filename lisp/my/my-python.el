@@ -8,13 +8,13 @@
 
 ;; Python LSP
 (add-hook 'python-mode-hook #'lsp)
+(add-hook 'python-mode-hook 'display-line-numbers-mode)
 (require 'dap-python)
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda ()
                          (require 'lsp-pyright)
                          (lsp))))  ; or lsp-deferred
-
 
 (require 'dap-python)
 
@@ -23,7 +23,7 @@
  (list :type "python"
        :args ""
        :cwd nil
-       :program "/home/ayden/Codebase/DevWork/DevAutomator/src/lang/TestCases"
+       :program "/home/nzsn/WorkSpaces/Codes/DevAutomator/src/lang/TestCases"
        :module "pytest"
        :request "launch"
        :name "DevAutomator Testing"))

@@ -7,6 +7,8 @@
 ;; Org preview
 (require-package 'org-preview-html)
 
+(add-hook 'org-mode-hook 'display-line-numbers-mode)
+
 (setq org-latex-pdf-process
       (let
           ((cmd (concat "pdflatex -shell-escape -interaction nonstopmode"
