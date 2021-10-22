@@ -18,6 +18,7 @@
 
 (require 'dap-python)
 
+;; TODO: dap template should be local.
 (dap-register-debug-template
  "DevAutomator Testing"
  (list :type "python"
