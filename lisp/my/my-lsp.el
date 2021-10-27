@@ -35,6 +35,8 @@
 (use-package dap-mode)
 ;; This feature does not support terminal so disable
 (setq dap-auto-configure-features '(sessions locals controls tooltip))
+(add-hook 'dap-stopped-hook
+          (lambda (arg) (call-interactively #'dap-hydra)))
 
 ;; optional if you want which-key integration
 (use-package which-key

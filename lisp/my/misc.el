@@ -105,5 +105,7 @@
 (require-package 'free-keys)
 (require 'free-keys)
 
+(display-time)
+
 (provide 'misc)
 ;; End

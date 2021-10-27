@@ -21,8 +21,9 @@
 
 ;; C LSP
 (add-hook 'c-mode-hook #'lsp)
-(require-package 'ccls)
-
+(use-package ccls
+  :hook ((c-mode c++-mode objc-mode cuda-mode) .
+         (lambda () (require 'ccls) (lsp))))
 ;; CPP LSP
 (add-hook 'c++-mode-hook #'lsp)
 
