@@ -3,7 +3,7 @@
 ;;; Code:
 
 ;; DAP mode keybindings
-(add-hook 'python-mode-hook
+(add-hook 'lsp-mode-hook
           (lambda ()
             (define-key evil-normal-state-local-map (kbd "<f5> <f5>") 'dap-debug)))
 
