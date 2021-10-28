@@ -24,7 +24,8 @@
   :commands  lsp-ui-mode
   :defer t
   :config
-  (setq lsp-ui-imenu-auto-refresh t))
+  (setq lsp-ui-imenu-auto-refresh t)
+  (setq imenu-auto-rescan t))
 ;; if you are helm user
 (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 ;; if you are ivy user
@@ -37,6 +38,7 @@
 (setq dap-auto-configure-features '(sessions locals controls tooltip))
 (add-hook 'dap-stopped-hook
           (lambda (arg) (call-interactively #'dap-hydra)))
+(require 'dap-gdb-lldb)
 
 ;; optional if you want which-key integration
 (use-package which-key
