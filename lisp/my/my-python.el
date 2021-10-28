@@ -17,17 +17,6 @@
 
 (require 'dap-python)
 
-;; TODO: dap template should be local.
-(dap-register-debug-template
- "DevAutomator Testing"
- (list :type "python"
-       :args ""
-       :cwd nil
-       :program "/home/nzsn/WorkSpaces/Codes/DevAutomator/src/lang/TestCases"
-       :module "pytest"
-       :request "launch"
-       :name "DevAutomator Testing"))
-
 (require-package 'flycheck-mypy)
 (require 'flycheck-mypy)
 (add-hook 'python-mode-hook 'flycheck-mode)
