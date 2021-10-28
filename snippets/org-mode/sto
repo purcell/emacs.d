@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
-# name: sto
-# key: sto
+# name: referenced
+# key: refed
 # --
-* Subtopic of
+* Refed
 $0
