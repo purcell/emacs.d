@@ -104,8 +104,7 @@
 ;; free-keys
 (require-package 'free-keys)
 (require 'free-keys)
-
-(display-time)
+(setq org-startup-with-inline-images t)
 
 (provide 'misc)
 ;; End
