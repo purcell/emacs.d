@@ -106,5 +106,9 @@
 (require 'free-keys)
 (setq org-startup-with-inline-images t)
 
+(require-package 'good-scroll)
+(good-scroll-mode 1)
+
+
 (provide 'misc)
 ;; End
