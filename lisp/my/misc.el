@@ -21,6 +21,7 @@
 (add-hook 'prog-mode-hook #'yas-minor-mode)
 
 (font-lock-add-keywords
+
  'c-mode
  '(("\\<\\(\\sw+\\) ?(" 1 'font-lock-function-name-face)))
 
@@ -109,6 +110,9 @@
 (require-package 'good-scroll)
 (good-scroll-mode 1)
 
+(add-hook 'window-configuration-change-hook
+          (lambda ()
+            (set-window-margins (car (get-buffer-window-list (current-buffer) nil t)) 2 2)))
 
 (provide 'misc)
 ;; End
