@@ -110,6 +110,10 @@
 (require-package 'good-scroll)
 (good-scroll-mode 1)
 
+;; Time
+(display-time-mode 1)
+
+;; Add margin
 (add-hook 'window-configuration-change-hook
           (lambda ()
             (set-window-margins (car (get-buffer-window-list (current-buffer) nil t)) 2 2)))
