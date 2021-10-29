@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: method with type hints
-# key: mty
+# key: mth
 # --
 def ${1:method}(self${2:, $3}) -> ${4:None}:
     $0
