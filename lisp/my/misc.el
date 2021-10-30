@@ -112,7 +112,7 @@
 
 ;; Time
 (display-time-mode 1)
-(set q display-time-24hr-format t)
+(setq display-time-24hr-format t)
 
 ;; Add margin
 (add-hook 'window-configuration-change-hook
