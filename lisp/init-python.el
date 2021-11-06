@@ -37,7 +37,7 @@
   (add-to-list 'auto-mode-alist '("poetry\\.lock\\'" . toml-mode)))
 
 (when (maybe-require-package 'reformatter)
-  (reformatter-define black :program "black"))
+  (reformatter-define black :program "black" :args '("-")))
 
 (provide 'init-python)
 ;;; init-python.el ends here
