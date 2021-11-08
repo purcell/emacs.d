@@ -124,7 +124,9 @@
 (use-package super-save
   :ensure t
   :config
-  (super-save-mode +1))
+  (super-save-mode +1)
+  (setq super-save-auto-save-when-idle t)
+  (setq super-save-idle-duration 60))
 
 (provide 'misc)
 ;; End
