@@ -119,5 +119,13 @@
           (lambda ()
             (set-window-margins (car (get-buffer-window-list (current-buffer) nil t)) 2 2)))
 
+;; Auto save
+(require-package 'super-save)
+(use-package super-save
+  :ensure t
+  :config
+  (super-save-mode +1))
+(setq super-save-auto-save-when-idle t)
+
 (provide 'misc)
 ;; End
