@@ -125,7 +125,6 @@
   :ensure t
   :config
   (super-save-mode +1))
-(setq super-save-auto-save-when-idle t)
 
 (provide 'misc)
 ;; End
