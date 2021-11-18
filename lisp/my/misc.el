@@ -128,5 +128,10 @@
   (setq super-save-auto-save-when-idle t)
   (setq super-save-idle-duration 60))
 
+(require-package 'org-ql)
+(require-package 'quelpa-use-package)
+(require 'quelpa-use-package)
+
+
 (provide 'misc)
 ;; End

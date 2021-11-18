@@ -180,7 +180,16 @@
 ;; Allow users to provide an optional "init-local" containing personal settings
 ;;----------------------------------------------------------------------------
 (add-to-list 'load-path (expand-file-name "lisp/my" user-emacs-directory))
+
+(require 'ts)
+(require 's)
 (require 'init-users)
+
+;; Gantt
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/elgantt/")) ;; Or wherever it is located
+(require 'elgantt)
+
+(require 'dap-templates)
 (provide 'init)
 
 ;; Local Variables:

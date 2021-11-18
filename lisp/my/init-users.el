@@ -10,12 +10,12 @@
 ;; Language specified configs
 (require 'my-ccpp)
 (require 'my-python)
-(require 'keybindings)
 (require 'my-coq)
 (require 'my-org)
 (require 'my-ts)
 (require 'my-go)
 (require 'my-haskell)
+(require 'keybindings)
 
 
 (provide 'init-users)
