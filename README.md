@@ -34,7 +34,7 @@ other languages.
 
 ## Supported Emacs versions
 
-The config should run on Emacs 24.5 or greater and is designed to
+The config should run on Emacs 25.1 or greater and is designed to
 degrade smoothly - see the CI build - but note that much newer
 versions are required for an increasing number of key packages, so to
 get full functionality you should use the latest Emacs version
@@ -68,8 +68,9 @@ running `M-x package-refresh-contents` before doing so.
 
 ## Updates
 
-Update the config with `git pull`. You'll probably also want/need to update
-the third-party packages regularly too:
+Update the config with `git pull`. You'll probably also want/need to
+update the third-party packages regularly too, because that's what I
+do, and the config assumes it:
 
 <kbd>M-x package-list-packages</kbd>, then <kbd>U</kbd> followed by <kbd>x</kbd>.
 

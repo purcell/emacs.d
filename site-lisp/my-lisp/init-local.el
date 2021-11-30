@@ -1,8 +1,6 @@
-;;; init-users.el --- Provide custom configurations
+;;; init-local.el --- Provide custom configurations
 ;;; Commentary:
 ;;; Code:
-
-(require 'init-local nil t)
 
 (require 'basis)
 (require 'misc)
@@ -18,5 +16,5 @@
 (require 'keybindings)
 
 
-(provide 'init-users)
+(provide 'init-local)
 ;;; init-users.el ends here

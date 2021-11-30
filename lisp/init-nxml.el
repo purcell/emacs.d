@@ -34,9 +34,8 @@ indentation rules."
     (nxml-mode)
     (indent-region beg end)))
 
-;;----------------------------------------------------------------------------
+
 ;; Integration with tidy for html + xml
-;;----------------------------------------------------------------------------
 
 (defun sanityinc/tidy-buffer-xml (beg end)
   "Run \"tidy -xml\" on the region from BEG to END, or whole buffer."

@@ -2,9 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-;;----------------------------------------------------------------------------
 ;; Nicer naming of buffers for files with identical names
-;;----------------------------------------------------------------------------
 (require 'uniquify)
 
 (setq uniquify-buffer-name-style 'reverse)

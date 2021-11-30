@@ -33,7 +33,7 @@
 (defvar sanityinc/org-global-prefix-map (make-sparse-keymap)
   "A keymap for handy global access to org helpers, particularly clocking.")
 
-(define-key sanityinc/org-global-prefix-map (kbd "j") 'org-clock-jump-to-current-clock)
+(define-key sanityinc/org-global-prefix-map (kbd "j") 'org-clock-goto)
 (define-key sanityinc/org-global-prefix-map (kbd "l") 'org-clock-in-last)
 (define-key sanityinc/org-global-prefix-map (kbd "i") 'org-clock-in)
 (define-key sanityinc/org-global-prefix-map (kbd "o") 'org-clock-out)
@@ -69,7 +69,7 @@
 This enables or modifies a number of settings so that the
 experience of editing prose is a little more like that of a
 typical word processor."
-  nil " Prose" nil
+  :init-value nil :lighter " Prose" :keymap nil
   (if prose-mode
       (progn
         (when (fboundp 'writeroom-mode)
@@ -357,28 +357,32 @@ typical word processor."
   (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
   (when *is-a-mac*
     (define-key org-mode-map (kbd "M-h") nil)
-    (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link)))
+    (define-key org-mode-map (kbd "C-c g") 'grab-mac-link)))
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
    'org-babel-load-languages
-   `((R . t)
-     (ditaa . t)
-     (dot . t)
-     (emacs-lisp . t)
-     (gnuplot . t)
-     (haskell . nil)
-     (latex . t)
-     (ledger . t)
-     (ocaml . nil)
-     (octave . t)
-     (plantuml . t)
-     (python . t)
-     (ruby . t)
-     (screen . nil)
-     (,(if (locate-library "ob-sh") 'sh 'shell) . t)
-     (sql . t)
-     (sqlite . t))))
+   (seq-filter
+    (lambda (pair)
+      (featurep (intern (concat "ob-" (symbol-name (car pair))))))
+    '((R . t)
+      (ditaa . t)
+      (dot . t)
+      (emacs-lisp . t)
+      (gnuplot . t)
+      (haskell . nil)
+      (latex . t)
+      (ledger . t)
+      (ocaml . nil)
+      (octave . t)
+      (plantuml . t)
+      (python . t)
+      (ruby . t)
+      (screen . nil)
+      (sh . t) ;; obsolete
+      (shell . t)
+      (sql . t)
+      (sqlite . t)))))
 
 
 (provide 'init-org)

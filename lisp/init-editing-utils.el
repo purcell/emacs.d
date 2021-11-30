@@ -15,11 +15,10 @@
 
 (setq-default
  blink-cursor-interval 0.4
- bookmark-default-file (expand-file-name ".bookmarks.el" user-emacs-directory)
+ bookmark-default-file (locate-user-emacs-file ".bookmarks.el")
  buffers-menu-max-size 30
  case-fold-search t
  column-number-mode t
- delete-selection-mode t
  ediff-split-window-function 'split-window-horizontally
  ediff-window-setup-function 'ediff-setup-windows-plain
  indent-tabs-mode nil
@@ -33,6 +32,8 @@
  tooltip-delay 1.5
  truncate-lines nil
  truncate-partial-width-windows nil)
+
+(add-hook 'after-init-hook 'delete-selection-mode)
 
 (add-hook 'after-init-hook 'global-auto-revert-mode)
 (setq global-auto-revert-non-file-buffers t
@@ -98,15 +99,6 @@
 ;; (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 ;; )
 
-(when (maybe-require-package 'goto-line-preview)
-  (global-set-key [remap goto-line] 'goto-line-preview)
-
-  (when (fboundp 'display-line-numbers-mode)
-    (defun sanityinc/with-display-line-numbers (f &rest args)
-      (let ((display-line-numbers t))
-        (apply f args)))
-    (advice-add 'goto-line-preview :around #'sanityinc/with-display-line-numbers)))
-
 
 
 
@@ -127,8 +119,6 @@
 
 
 ;;; Zap *up* to char is a handy pair for zap-to-char
-
-(autoload 'zap-up-to-char "misc" "Kill up to, but not including ARGth occurrence of CHAR.")
 (global-set-key (kbd "M-Z") 'zap-up-to-char)
 
 
@@ -202,13 +192,13 @@
 ;; use M-S-up and M-S-down, which will work even in lisp modes.
 
 (require-package 'move-dup)
-(global-set-key [M-up] 'md-move-lines-up)
-(global-set-key [M-down] 'md-move-lines-down)
-(global-set-key [M-S-up] 'md-move-lines-up)
-(global-set-key [M-S-down] 'md-move-lines-down)
+(global-set-key [M-up] 'move-dup-move-lines-up)
+(global-set-key [M-down] 'move-dup-move-lines-down)
+(global-set-key [M-S-up] 'move-dup-move-lines-up)
+(global-set-key [M-S-down] 'move-dup-move-lines-down)
 
-(global-set-key (kbd "C-c d") 'md-duplicate-down)
-(global-set-key (kbd "C-c u") 'md-duplicate-up)
+(global-set-key (kbd "C-c d") 'move-dup-duplicate-down)
+(global-set-key (kbd "C-c u") 'move-dup-duplicate-up)
 
 
 ;;; Fix backward-up-list to understand quotes, see http://bit.ly/h7mdIL

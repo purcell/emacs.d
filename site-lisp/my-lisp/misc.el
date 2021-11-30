@@ -6,6 +6,7 @@
 (require-package 'google-this)
 (google-this-mode 1)
 
+(require-package 'all-the-icons)
 (require 'all-the-icons)
 
 ;; Switch window by number
