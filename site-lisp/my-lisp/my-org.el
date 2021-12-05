@@ -39,6 +39,8 @@
 (require 'org-roam-ui)
 (require 'org-roam-protocol)
 
+(require-package 'ebib)
+
 
 (plist-put org-format-latex-options :scale 3)
 
