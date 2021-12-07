@@ -39,8 +39,5 @@
 (require 'org-roam-ui)
 (require 'org-roam-protocol)
 
-
-(plist-put org-format-latex-options :scale 3)
-
 (provide 'my-org)
 ;;; End
