@@ -108,9 +108,8 @@
   (mmm-add-mode-ext-class mode "\\.js\\.erb\\'" 'erb))
 
 
-;;----------------------------------------------------------------------------
+
 ;; Ruby - my convention for heredocs containing SQL
-;;----------------------------------------------------------------------------
 
 ;; (require-package 'mmm-mode)
 ;; (eval-after-load 'mmm-mode

@@ -5,8 +5,6 @@
 (when (maybe-require-package 'elm-mode)
   (with-eval-after-load 'elm-mode
     (diminish 'elm-indent-mode)
-    (with-eval-after-load 'company
-      (add-to-list 'company-backends 'company-elm))
     (when (executable-find "elm-format")
       (setq-default elm-format-on-save t)))
   (maybe-require-package 'elm-test-runner)
