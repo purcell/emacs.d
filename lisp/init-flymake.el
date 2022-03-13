@@ -2,16 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-(with-eval-after-load 'flymake
-  (defun sanityinc/eldoc-flymake-first ()
-    "Gives flymake's eldoc function priority in the minibuffer."
-    (when flymake-mode
-      (setq-local eldoc-documentation-functions
-                  (cons 'flymake-eldoc-function
-                        (delq 'flymake-eldoc-function eldoc-documentation-functions)))))
-
-  (add-hook 'flymake-mode-hook 'sanityinc/eldoc-flymake-first))
-
 
 ;; Use flycheck checkers with flymake, to extend its coverage
 (when (maybe-require-package 'flymake-flycheck)
