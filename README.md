@@ -32,6 +32,8 @@ In particular, there's a nice config for *autocompletion* with
 is used to immediately highlight syntax errors in Ruby, Python,
 Javascript, Haskell and a number of other languages.
 
+LSP support is provided using `eglot`.
+
 ## Supported Emacs versions
 
 The config should run on Emacs 25.1 or greater and is designed to
