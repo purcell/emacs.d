@@ -2,6 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
+(maybe-require-package 'flymake "1.2.1")
 
 ;; Use flycheck checkers with flymake, to extend its coverage
 (when (maybe-require-package 'flymake-flycheck)
