@@ -60,7 +60,7 @@
 (require 'init-grep)
 (require 'init-uniquify)
 (require 'init-ibuffer)
-(require 'init-flycheck)
+(require 'init-flymake)
 
 (require 'init-recentf)
 (require 'init-minibuffer)
