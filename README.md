@@ -104,10 +104,6 @@ config remains compatible with the latest package and Emacs versions.
 *Please note that I cannot provide support for customised versions of
 this configuration.*
 
-## Similar configs
-
-You might also want to check out `emacs-starter-kit` and `prelude`.
-
 ## Support / issues
 
 If you hit any problems, please first ensure that you are using the latest version
