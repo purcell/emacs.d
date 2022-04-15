@@ -27,6 +27,7 @@
   (define-key flymake-mode-map (kbd "C-c ! p") 'flymake-goto-prev-error)
   (define-key flymake-mode-map (kbd "C-c ! c") 'flymake-start))
 
+(setq eldoc-documentation-function 'eldoc-documentation-compose)
 
 (provide 'init-flymake)
 ;;; init-flymake.el ends here
