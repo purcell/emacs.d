@@ -270,11 +270,8 @@ there is no current file, eval the current buffer."
   (add-hook 'emacs-lisp-mode-hook 'highlight-quoted-mode))
 
 
-(when (maybe-require-package 'flycheck)
-  (require-package 'flycheck-package)
-  (with-eval-after-load 'flycheck
-    (with-eval-after-load 'elisp-mode
-      (flycheck-package-setup))))
+(when (maybe-require-package 'package-lint-flymake)
+  (add-hook 'emacs-lisp-mode-hook #'package-lint-flymake-setup))
 
 
 

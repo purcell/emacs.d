@@ -28,9 +28,11 @@ in the approximate order of how much I use them, from most to least:
 
 In particular, there's a nice config for *autocompletion* with
 [company](https://company-mode.github.io/), and
-[flycheck](http://www.flycheck.org) is used to immediately highlight
-syntax errors in Ruby, Python, Javascript, Haskell and a number of
-other languages.
+`flymake` (re-using backends from [flycheck](http://www.flycheck.org))
+is used to immediately highlight syntax errors in Ruby, Python,
+Javascript, Haskell and a number of other languages.
+
+LSP support is provided using `eglot`.
 
 ## Supported Emacs versions
 
@@ -101,10 +103,6 @@ config remains compatible with the latest package and Emacs versions.
 
 *Please note that I cannot provide support for customised versions of
 this configuration.*
-
-## Similar configs
-
-You might also want to check out `emacs-starter-kit` and `prelude`.
 
 ## Support / issues
 

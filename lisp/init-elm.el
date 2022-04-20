@@ -7,12 +7,7 @@
     (diminish 'elm-indent-mode)
     (when (executable-find "elm-format")
       (setq-default elm-format-on-save t)))
-  (maybe-require-package 'elm-test-runner)
-  (when (maybe-require-package 'flycheck-elm)
-    (with-eval-after-load 'elm-mode
-      (flycheck-elm-setup)))
-  (when (maybe-require-package 'add-node-modules-path)
-    (add-hook 'elm-mode-hook 'add-node-modules-path)))
+  (maybe-require-package 'elm-test-runner))
 
 (provide 'init-elm)
 ;;; init-elm.el ends here

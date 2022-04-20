@@ -15,7 +15,5 @@
       (kbd "<left-fringe> <mouse-1>")
       'diff-hl-diff-goto-hunk)))
 
-(maybe-require-package 'browse-at-remote)
-
 (provide 'init-vc)
 ;;; init-vc.el ends here

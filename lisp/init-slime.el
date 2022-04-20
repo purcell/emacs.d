@@ -3,6 +3,7 @@
 ;;; Code:
 
 (require-package 'slime)
+(push (expand-file-name "contrib" (file-name-directory (locate-library "slime"))) load-path)
 
 (when (maybe-require-package 'slime-company)
   (setq slime-company-completion 'fuzzy
