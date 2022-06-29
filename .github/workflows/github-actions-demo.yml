@@ -16,4 +16,4 @@ jobs:
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: typos-action
-        uses: crate-ci/typos@vmaster
+        uses: crate-ci/typos@master
