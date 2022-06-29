@@ -1,0 +1,25 @@
+name: typos
+on: [pull_request]
+
+jobs:
+  run:
+    name: Spell Check with Typos
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Actions Repository
+      uses: actions/checkout@v2
+
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v23.1
+
+    - name: List all changed files
+      run: |
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          echo "$file was changed"
+        done
+
+    - name: Check spelling of changed files
+      uses: crate-ci/typos@master
+      with:
+        files: "${{ steps.changed-files.outputs.all_changed_files }}"
