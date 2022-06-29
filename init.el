@@ -170,6 +170,18 @@
 ;; Allow users to provide an optional "init-local" containing personal settings
 (require 'init-local nil t)
 
+;; sidebar for file view
+(require 'init-dired-sidebar)
+
+;; protobuf file preview
+(require 'init-protobuf)
+
+;; expand tokens
+(require 'init-expand-region)
+
+;; check typos in buffer
+(require 'init-typos)
+
 (provide 'init)
 
 ;; Local Variables:
