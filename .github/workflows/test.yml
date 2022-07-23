@@ -14,9 +14,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         emacs_version:
-          - 25.1
-          - 25.2
-          - 25.3
           - 26.1
           - 26.2
           - 26.3
