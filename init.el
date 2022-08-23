@@ -78,8 +78,8 @@
 
 (require 'init-vc)
 (require 'init-darcs)
-(require 'init-git)
-(require 'init-github)
+;; (require 'init-git)
+;; (require 'init-github)
 
 (require 'init-projectile)
 
@@ -113,6 +113,7 @@
 (require 'init-docker)
 (require 'init-terraform)
 (require 'init-nix)
+(require 'init-solidity)
 (maybe-require-package 'nginx-mode)
 
 (require 'init-paredit)
@@ -133,7 +134,7 @@
 
 ;;(require 'init-twitter)
 ;; (require 'init-mu)
-(require 'init-ledger)
+;; (require 'init-ledger)
 ;; Extra packages which don't require any configuration
 
 (require-package 'sudo-edit)
@@ -182,8 +183,6 @@
 ;; Allow users to provide an optional "init-local" containing personal settings
 ;;----------------------------------------------------------------------------
 (require 'init-local nil t)
-
-
 
 (provide 'init)
 

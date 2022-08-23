@@ -18,6 +18,8 @@
 (require-package 'pip-requirements)
 (require-package 'py-autopep8)
 (require-package 'python-black)
+(require-package 'isortify)
+
 
 (when (maybe-require-package 'anaconda-mode)
   (with-eval-after-load 'python
@@ -39,16 +41,20 @@
 (when (maybe-require-package 'toml-mode)
   (add-to-list 'auto-mode-alist '("poetry\\.lock\\'" . toml-mode)))
 
+
+
 (when (maybe-require-package 'elpy)
   (after-load 'python
     (add-hook 'python-mode-hook 'elpy-enable)
     (add-hook 'prog-mode-hook #'yas-minor-mode)
     (add-hook 'python-mode-hook 'python-black-on-save-mode)
     (add-hook 'python-mode-hook 'python-black-on-save-mode-enable-dwim)
+    (add-hook 'python-mode-hook 'isortify-mode)
     ;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
     ;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
     ;; (setq py-autopep8-options '("--max-line-length=120"))
-    (setq python-black-extra-args '("--line-length=120"))))
+    ;; (setq python-black-extra-args '("--line-length=120"))
+    ))
 (define-coding-system-alias 'UTF-8 'utf-8)
 
 (provide 'init-python)
