@@ -117,6 +117,7 @@
 (maybe-require-package 'nginx-mode)
 
 (require 'init-paredit)
+(require 'init-paredit-everywhere)
 (require 'init-lisp)
 (require 'init-slime)
 (require 'init-clojure)
