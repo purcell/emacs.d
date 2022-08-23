@@ -8,6 +8,7 @@
 (maybe-require-package 'typescript-mode)
 (maybe-require-package 'prettier-js)
 (maybe-require-package 'flycheck)
+(require-package 'paredit)
 
 
 ;;; Basic js-mode setup
@@ -30,6 +31,16 @@
   ;; Disable js2 mode's syntax error highlighting by default...
   (setq-default js2-mode-show-parse-errors nil
                 js2-mode-show-strict-warnings nil)
+  (defun my-paredit-nonlisp ()
+    "Turn on paredit mode for non-lisps."
+    (interactive)
+    (set (make-local-variable 'paredit-space-for-delimiter-predicates)
+         '((lambda (endp delimiter) nil)))
+    (paredit-mode 1))
+  (add-hook 'js-mode-hook 'my-paredit-nonlisp) ;use above fn
+  (add-hook 'js-mode-hook 'esk-paredit-nonlisp) ;for emacs starter kit
+  (define-key js-mode-map "{" 'paredit-open-curly)
+  (define-key js-mode-map "}" 'paredit-close-curly-and-newline)
   ;; ... but enable it if flycheck can't handle javascript
   (autoload 'flycheck-get-checker-for-buffer "flycheck")
   (defun sanityinc/enable-js2-checks-if-flycheck-inactive ()
