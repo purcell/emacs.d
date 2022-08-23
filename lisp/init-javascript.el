@@ -4,67 +4,25 @@
 
 (maybe-require-package 'json-mode)
 (maybe-require-package 'js2-mode)
+(maybe-require-package 'rjsx-mode)
 (maybe-require-package 'typescript-mode)
 (maybe-require-package 'prettier-js)
-(maybe-require-package 'xref-js2)
-(maybe-require-package 'js2-refactor)
-(require 'flycheck)
+(maybe-require-package 'flycheck)
 
+
 ;;; Basic js-mode setup
 
-;; (add-to-list 'auto-mode-alist '("\\.\\(js\\|es6\\)\\(\\.erb\\)?\\'" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.\\(js\\|jsx\\)\\(\\.mjs\\)?\\'" . js-mode))
 
-;; (with-eval-after-load 'js
-;;   (sanityinc/major-mode-lighter 'js-mode "JS")
-;;   (sanityinc/major-mode-lighter 'js-jsx-mode "JSX"))
+(with-eval-after-load 'js
+  (sanityinc/major-mode-lighter 'js-mode "JS")
+  (sanityinc/major-mode-lighter 'js-jsx-mode "JSX"))
 
 (setq-default js-indent-level 1)
 
 
+
 ;; js2-mode
-
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-(add-to-list 'auto-mode-alist '("\\.json\\'" . js2-mode))
-(add-to-list 'auto-mode-alist '("\\.mjs\\'" . js2-mode))
-
-(defun setup-tide-mode ()
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  ;; company is an optional dependency. You have to
-  ;; install it separately via package-install
-  ;; `M-x package-install [ret] company`
-  (company-mode +1))
-
-(flycheck-add-mode 'javascript-eslint 'web-mode)
-(flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
-
-(add-hook 'typescript-mode-hook 'eslint-rc-mode)
-(add-hook 'js2-mode-hook 'eslint-rc-mode)
-(add-hook 'web-mode-hook 'eslint-rc-mode)
-
-(require 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.ts\\'" . web-mode))
-(add-hook 'web-mode-hook
-          (lambda ()
-            (when (string-equal "tsx" (file-name-extension buffer-file-name))
-              (setup-tide-mode))))
-;; enable typescript-tslint checker
-(flycheck-add-mode 'typescript-tslint 'web-mode)
-
-
-;; aligns annotation to the right hand side
-(setq company-tooltip-align-annotations t)
-
-;; formats the buffer before saving
-;; (add-hook 'before-save-hook 'tide-format-before-save)
-(add-hook 'before-save-hook 'prettier-js)
-
-(add-hook 'typescript-mode-hook #'setup-tide-mode)
-
 
 ;; Change some defaults: customize them to override
 (setq-default js2-bounce-indent-p nil)
@@ -85,26 +43,57 @@
 
   (js2-imenu-extras-setup))
 
-;; In Emacs >= 25, the following is an alias for js-indent-level anyway
-(setq-default js2-basic-offset 1)
-
 (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode))
+(add-hook 'before-save-hook 'prettier-js)
 
 (with-eval-after-load 'js2-mode
   (sanityinc/major-mode-lighter 'js2-mode "JS2")
   (sanityinc/major-mode-lighter 'js2-jsx-mode "JSX2"))
-
-(add-hook 'js2-mode-hook #'js2-refactor-mode)
-(js2r-add-keybindings-with-prefix "C-c C-r")
-(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
-
-(define-key js-mode-map (kbd "M-.") nil)
-
-(add-hook 'js2-mode-hook (lambda ()
-                           (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
 (add-hook 'js2-mode-hook 'prettier-js-mode)
+
+;; rjsx-mode
+(with-eval-after-load 'rjsx-mode
+  (setq-default sgml-basic-offset 1)
+  (setq-default js-indent-level 1)  )
+(add-to-list 'auto-mode-alist '("components\\/.*\\.(j|t)sx?\\'" . rjsx-mode))
+(add-hook 'rjsx-mode-hook 'tide-setup-hook)
+
+;; web-mode extra config
+(add-hook 'web-mode-hook 'tide-setup-hook
+          (lambda () (pcase (file-name-extension buffer-file-name)
+                       ("tsx" ('tide-setup-hook))
+                       (_ (my-web-mode-hook)))))
+(with-eval-after-load 'flycheck
+  (flycheck-add-mode 'typescript-tslint 'web-mode))
+(add-hook 'web-mode-hook 'company-mode)
 (add-hook 'web-mode-hook 'prettier-js-mode)
-(setq-default js-prettier-modeindent-level 1)
+(add-hook 'web-mode-hook #'turn-on-smartparens-mode t)
+
+
+(add-to-list 'auto-mode-alist '("\\.tsx?\\'" . typescript-mode))
+(defun setup-tide-mode ()
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1)
+  ;; company is an optional dependency. You have to
+  ;; install it separately via package-install
+  ;; `M-x package-install [ret] company`
+  (company-mode +1))
+(add-hook 'typescript-mode-hook 'eslint-rc-mode)
+
+(maybe-require-package 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+(setq web-mode-content-types-alist
+      '(("jsx" . ".*\\.tsx?")))
+(add-hook 'web-mode-hook
+          (lambda ()
+            (when (string-equal "tsx" (file-name-extension buffer-file-name))
+              (setup-tide-mode))))
+;; enable typescript-tslint checker
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
 
 
 
@@ -122,19 +111,8 @@
     (add-hook 'js2-mode-hook 'sanityinc/enable-xref-js2)))
 
 
-
-;;; Coffeescript
-
-(when (maybe-require-package 'coffee-mode)
-  (with-eval-after-load 'coffee-mode
-    (setq-default coffee-tab-width js-indent-level))
-
-  (when (fboundp 'coffee-mode)
-    (add-to-list 'auto-mode-alist '("\\.coffee\\.erb\\'" . coffee-mode))))
-
-;; ---------------------------------------------------------------------------
+
 ;; Run and interact with an inferior JS via js-comint.el
-;; ---------------------------------------------------------------------------
 
 (when (maybe-require-package 'js-comint)
   (setq js-comint-program-command "node")
@@ -145,14 +123,13 @@
 
   (define-minor-mode inferior-js-keys-mode
     "Bindings for communicating with an inferior js interpreter."
-    nil " InfJS" inferior-js-minor-mode-map)
+    :init-value nil :lighter " InfJS" :keymap inferior-js-minor-mode-map)
 
   (dolist (hook '(js2-mode-hook js-mode-hook))
     (add-hook hook 'inferior-js-keys-mode)))
 
-;; ---------------------------------------------------------------------------
+
 ;; Alternatively, use skewer-mode
-;; ---------------------------------------------------------------------------
 
 (when (maybe-require-package 'skewer-mode)
   (with-eval-after-load 'skewer-mode
@@ -164,6 +141,7 @@
 (when (maybe-require-package 'add-node-modules-path)
   (dolist (mode '(typescript-mode js-mode js2-mode coffee-mode))
     (add-hook (derived-mode-hook-name mode) 'add-node-modules-path)))
+
 
 (provide 'init-javascript)
 ;;; init-javascript.el ends here
