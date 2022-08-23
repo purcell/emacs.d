@@ -13,7 +13,7 @@
 
 ;;; Basic js-mode setup
 
-(add-to-list 'auto-mode-alist '("\\.\\(js\\|jsx\\)\\(\\.mjs\\)?\\'" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.\\(js\\|jsx\\|mjs\\)\\)'" . js-mode))
 
 (with-eval-after-load 'js
   (sanityinc/major-mode-lighter 'js-mode "JS")
@@ -105,7 +105,7 @@
               (setup-tide-mode))))
 ;; enable typescript-tslint checker
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
-
+(add-to-list 'auto-mode-alist '(".\\.mjs\\'" . typescript-mode))
 
 
 (when (and (or (executable-find "rg") (executable-find "ag"))
