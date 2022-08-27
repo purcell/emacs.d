@@ -40,7 +40,11 @@
     (with-eval-after-load 'psci
       (advice-add 'psci :around (lambda (oldfun &rest args)
                                   (let ((psci/purs-path (or (executable-find "purs")
-                                                            psci/purs-path)))
+                                                            psci/purs-path))
+                                        (psci/psc-package-path (or (executable-find "psc-package")
+                                                                   psci/psc-package-path))
+                                        (psci/spago-path (or (executable-find "spago")
+                                                             psci/spago-path)))
                                     (apply oldfun args)))))))
 
 (provide 'init-purescript)
