@@ -4,21 +4,26 @@
 
 (load-file "/Users/drmarshall/.emacs.d/site-lisp/copilot/copilot.el")
 
-(when (maybe-require-package 'copilot)
-  (require-package 'dash)
-  (require-package 's)
-  (require-package 'editorconfig)
-  (require-package 'company)
+(maybe-require-package 'copilot)
+(maybe-require-package 'dash)
+(maybe-require-package 's)
+(maybe-require-package 'editorconfig)
+(maybe-require-package 'company)
 
-  (with-eval-after-load 'copilot
-    (add-hook 'prog-mode-hook 'copilot-mode))
+(add-hook 'prog-mode-hook 'copilot-mode)
 
-  (with-eval-after-load 'company
-    ;; disable inline previews
-    (delq 'company-preview-if-just-one-frontend company-frontends))
+(with-eval-after-load 'company
+  ;; disable inline previews
+  (delq 'company-preview-if-just-one-frontend company-frontends))
 
-  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)  )
+(defun my/copilot-tab ()
+  (interactive)
+  (or (copilot-accept-completion)
+      (indent-for-tab-command)))
+
+(with-eval-after-load 'copilot
+  (define-key copilot-mode-map (kbd "<tab>") #'my/copilot-tab))
+(define-key copilot-completion-map (kbd "C-c C-a") 'copilot-accept-completion)
 
 (provide 'init-copilot)
 ;;; init-copilot.el ends here

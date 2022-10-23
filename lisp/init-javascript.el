@@ -6,6 +6,7 @@
 (maybe-require-package 'js2-mode)
 (maybe-require-package 'rjsx-mode)
 (maybe-require-package 'typescript-mode)
+(require-package 'tide)
 (maybe-require-package 'prettier-js)
 (maybe-require-package 'flycheck)
 (require-package 'paredit)
@@ -20,7 +21,6 @@
   (sanityinc/major-mode-lighter 'js-jsx-mode "JSX"))
 
 (setq-default js-indent-level 1)
-
 
 
 ;; js2-mode
@@ -51,11 +51,11 @@
         (js2-minor-mode 1))))
   (add-hook 'js-mode-hook 'sanityinc/enable-js2-checks-if-flycheck-inactive)
   (add-hook 'js2-mode-hook 'sanityinc/enable-js2-checks-if-flycheck-inactive)
-
+  (add-hook 'before-save-hook 'prettier-js)
   (js2-imenu-extras-setup))
 
 (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode))
-(add-hook 'before-save-hook 'prettier-js)
+
 
 (with-eval-after-load 'js2-mode
   (sanityinc/major-mode-lighter 'js2-mode "JS2")
@@ -67,19 +67,19 @@
   (setq-default sgml-basic-offset 1)
   (setq-default js-indent-level 1)  )
 (add-to-list 'auto-mode-alist '("components\\/.*\\.(j|t)sx?\\'" . rjsx-mode))
-(add-hook 'rjsx-mode-hook 'tide-setup-hook)
+(add-to-list 'auto-mode-alist '("src\\/.*\\.(j|t)sx?\\'" . rjsx-mode))
+(add-to-list 'auto-mode-alist '("pages\\/.*\\.(j|t)sx?\\'" . rjsx-mode))
+(with-eval-after-load 'rjsx-mode
+  (with-eval-after-load 'tide-mode
+    (add-hook 'rjsx-mode-hook 'tide-setup-hook)))
+(add-hook 'rjsx-mode-hook 'rjsx-minor-mode)
+(add-hook 'rjsx-mode-hook 'prettier-js-mode)
 
 ;; web-mode extra config
-(add-hook 'web-mode-hook 'tide-setup-hook
-          (lambda () (pcase (file-name-extension buffer-file-name)
-                       ("tsx" ('tide-setup-hook))
-                       (_ (my-web-mode-hook)))))
-(with-eval-after-load 'flycheck
-  (flycheck-add-mode 'typescript-tslint 'web-mode))
-(add-hook 'web-mode-hook 'company-mode)
-(add-hook 'web-mode-hook 'prettier-js-mode)
-(add-hook 'web-mode-hook #'turn-on-smartparens-mode t)
-
+(with-eval-after-load 'tide-mode
+  (add-hook 'web-mode-hook 'tide-setup-hook
+            (lambda () (pcase (file-name-extension buffer-file-name)
+                         ("tsx" ('tide-setup-hook))))))
 
 (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . typescript-mode))
 (defun setup-tide-mode ()
@@ -94,18 +94,28 @@
   ;; `M-x package-install [ret] company`
   (company-mode +1))
 (add-hook 'typescript-mode-hook 'eslint-rc-mode)
+(add-hook 'typescript-mode-hook 'prettier-js-mode)
 
-(maybe-require-package 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
-(setq web-mode-content-types-alist
-      '(("jsx" . ".*\\.tsx?")))
+(add-to-list 'auto-mode-alist '("\\.(j|t)sx\\'" . web-mode))
 (add-hook 'web-mode-hook
           (lambda ()
             (when (string-equal "tsx" (file-name-extension buffer-file-name))
               (setup-tide-mode))))
 ;; enable typescript-tslint checker
+;;(setq web-mode-content-types-alist
+;;        '(("jsx" . ".*\\.tsx?")))
+(with-eval-after-load 'flycheck
+  (flycheck-add-mode 'typescript-tslint 'web-mode))
+;; enable typescript-tslint checker
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
-(add-to-list 'auto-mode-alist '(".\\.mjs\\'" . typescript-mode))
+;; (add-to-list 'auto-mode-alist '(".\\.mjs\\'" . typescript-mode))
+
+(add-hook 'web-mode-hook 'company-mode)
+(add-hook 'web-mode-hook 'prettier-js-mode)
+(with-eval-after-load 'paredit
+  (add-hook 'web-mode-hook #'turn-on-smartparens-mode t))
+
+
 
 
 (when (and (or (executable-find "rg") (executable-find "ag"))
@@ -152,7 +162,6 @@
 (when (maybe-require-package 'add-node-modules-path)
   (dolist (mode '(typescript-mode js-mode js2-mode coffee-mode))
     (add-hook (derived-mode-hook-name mode) 'add-node-modules-path)))
-
 
 (provide 'init-javascript)
 ;;; init-javascript.el ends here

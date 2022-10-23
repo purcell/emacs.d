@@ -35,9 +35,9 @@
  '(flycheck-flake8-maximum-line-length 120))
 
 
-(require 'yasnippet)
-(require 'yasnippet-snippets)
-(require 'cl)
+(maybe-require-package 'yasnippet)
+(maybe-require-package 'yasnippet-snippets)
+(maybe-require-package 'cl-lib)
 (setq yas-triggers-in-field t)
 
 (provide 'init-local)
