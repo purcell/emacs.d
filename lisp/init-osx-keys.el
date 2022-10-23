@@ -18,7 +18,10 @@
   (with-eval-after-load 'nxml-mode
     (define-key nxml-mode-map (kbd "M-h") nil))
   (global-set-key (kbd "M-ˍ") 'ns-do-hide-others) ;; what describe-key reports for cmd-option-h
-  )
+  (define-key input-decode-map "\e[1;5A" [C-up])
+  (define-key input-decode-map "\e[1;5B" [C-down])
+  (define-key input-decode-map "\e[1;5C" [C-right])
+  (define-key input-decode-map "\e[1;5D" [C-left])  )
 
 
 (provide 'init-osx-keys)

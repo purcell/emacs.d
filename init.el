@@ -123,6 +123,7 @@
 (require 'init-clojure)
 (require 'init-clojure-cider)
 (require 'init-common-lisp)
+(require 'init-copilot)
 
 
 (when *spell-check-support-enabled*
@@ -136,6 +137,7 @@
 ;;(require 'init-twitter)
 ;; (require 'init-mu)
 ;; (require 'init-ledger)
+(require 'init-prisma)
 ;; Extra packages which don't require any configuration
 
 (require-package 'sudo-edit)

@@ -1,0 +1,3 @@
+[submodule "site-lisp/emacs-prisma-mode"]
+	path = site-lisp/emacs-prisma-mode
+	url = git@github.com:pimeys/emacs-prisma-mode.git
