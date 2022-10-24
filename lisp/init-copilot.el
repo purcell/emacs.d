@@ -4,7 +4,7 @@
 
 (load-file "/Users/drmarshall/.emacs.d/site-lisp/copilot/copilot.el")
 
-(maybe-require-package 'copilot)
+;;(maybe-require-package 'copilot)
 (maybe-require-package 'dash)
 (maybe-require-package 's)
 (maybe-require-package 'editorconfig)

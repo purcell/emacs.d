@@ -14,7 +14,7 @@
 
 ;;; Basic js-mode setup
 
-(add-to-list 'auto-mode-alist '("\\.\\(js\\|jsx\\|mjs\\)\\)'" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.\\(jsx?|mjs\\)\\)'" . js-mode))
 
 (with-eval-after-load 'js
   (sanityinc/major-mode-lighter 'js-mode "JS")
@@ -74,6 +74,8 @@
     (add-hook 'rjsx-mode-hook 'tide-setup-hook)))
 (add-hook 'rjsx-mode-hook 'rjsx-minor-mode)
 (add-hook 'rjsx-mode-hook 'prettier-js-mode)
+(with-eval-after-load 'rjsx-mode
+  (define-key web-mode-map (kbd "C-c C-r") #'rjsx-rename-tag-at-point))
 
 ;; web-mode extra config
 (with-eval-after-load 'tide-mode
@@ -164,4 +166,5 @@
     (add-hook (derived-mode-hook-name mode) 'add-node-modules-path)))
 
 (provide 'init-javascript)
+
 ;;; init-javascript.el ends here
