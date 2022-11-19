@@ -6,6 +6,7 @@
   (when (maybe-require-package 'flycheck-ledger)
     (with-eval-after-load 'flycheck
       (with-eval-after-load 'ledger-mode
+        (advice-add 'ledger-mode :around #'envrc-propagate-environment)
         (require 'flycheck-ledger))))
 
   (with-eval-after-load 'ledger-mode
