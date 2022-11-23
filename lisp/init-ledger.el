@@ -13,7 +13,8 @@
     (define-key ledger-mode-map (kbd "C-o") 'open-line))
 
   (setq ledger-highlight-xact-under-point nil
-        ledger-use-iso-dates nil)
+        ledger-use-iso-dates nil
+        ledger-mode-should-check-version nil)
 
   (with-eval-after-load 'ledger-mode
     (when (memq window-system '(mac ns))
