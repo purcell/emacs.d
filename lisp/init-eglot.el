@@ -11,8 +11,8 @@
 (when (maybe-require-package 'eglot)
   (maybe-require-package 'consult-eglot))
 
-
-
+(with-eval-after-load 'eglot
+  (add-hook 'prog-mode-hook 'eglot-ensure))
 
 (provide 'init-eglot)
 ;;; init-eglot.el ends here
