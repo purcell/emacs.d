@@ -21,9 +21,9 @@
   (setq-default corfu-quit-no-match 'separator)
   (add-hook 'after-init-hook 'global-corfu-mode)
 
-  (when (maybe-require-package 'corfu-doc)
+  (when (featurep 'corfu-popupinfo)
     (with-eval-after-load 'corfu
-      (add-hook 'corfu-mode-hook #'corfu-doc-mode)))
+      (corfu-popupinfo-mode)))
 
   ;; TODO: https://github.com/jdtsmith/kind-icon
   )
