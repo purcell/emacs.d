@@ -12,7 +12,7 @@
 (when (maybe-require-package 'git-timemachine)
   (global-set-key (kbd "C-x v t") 'git-timemachine-toggle))
 
-
+(require-package 'git-link)
 
 (when (maybe-require-package 'magit)
   (setq-default magit-diff-refine-hunk t)

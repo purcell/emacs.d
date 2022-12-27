@@ -6,12 +6,6 @@
   (add-hook 'haskell-mode-hook 'subword-mode)
   (add-hook 'haskell-cabal-mode 'subword-mode)
 
-  (when (maybe-require-package 'dante)
-    (add-hook 'haskell-mode-hook 'dante-mode)
-    (with-eval-after-load 'dante
-      (flycheck-add-next-checker 'haskell-dante
-                                 '(warning . haskell-hlint))))
-
   (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 
   (add-auto-mode 'haskell-mode "\\.ghci\\'")

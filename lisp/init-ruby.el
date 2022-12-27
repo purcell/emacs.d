@@ -57,10 +57,7 @@
 ;;; Robe
 (when (maybe-require-package 'robe)
   (with-eval-after-load 'ruby-mode
-    (add-hook 'ruby-mode-hook 'robe-mode))
-  (with-eval-after-load 'robe
-    (with-eval-after-load 'company
-      (add-to-list 'company-backends 'company-robe))))
+    (add-hook 'ruby-mode-hook 'robe-mode)))
 
 
 

@@ -65,13 +65,6 @@
 (require-package 'mode-line-bell)
 (add-hook 'after-init-hook 'mode-line-bell-mode)
 
-
-
-(when (maybe-require-package 'beacon)
-  (setq-default beacon-lighter "")
-  (setq-default beacon-size 20)
-  (add-hook 'after-init-hook 'beacon-mode))
-
 
 
 ;;; Newline behaviour
