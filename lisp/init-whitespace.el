@@ -2,7 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-(setq-default show-trailing-whitespace nil)
+(setq-default show-trailing-whitespace t)
 
 
 ;;; Whitespace
