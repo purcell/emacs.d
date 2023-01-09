@@ -49,7 +49,12 @@
       org-fast-tag-selection-single-key 'expert
       org-html-validation-link nil
       org-export-kill-product-buffer-when-displayed t
-      org-tags-column 80)
+      org-tags-column 80
+      org-agenda-files '("~/org/")
+      org-agenda-files-list '("~/org/")
+      org-default-notes-file (expand-file-name "~/org/todo.org")
+      org-journal-dir (expand-file-name "~/org/journal")
+      )
 
 
 ;; Lots of stuff from http://doc.norang.ca/org-mode.html
