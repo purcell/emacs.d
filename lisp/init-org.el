@@ -189,7 +189,7 @@ typical word processor."
 
   (setq org-agenda-compact-blocks t
         org-agenda-sticky t
-        org-agenda-start-on-weekday nil
+        org-agenda-start-on-weekday 1
         org-agenda-span 'day
         org-agenda-include-diary nil
         org-agenda-sorting-strategy
