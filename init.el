@@ -167,11 +167,11 @@
 ;; Locales (setting them earlier in this file doesn't work in X)
 (require 'init-locales)
 
-;; Allow users to provide an optional "init-local" containing personal settings
-(require 'init-local nil t)
+
+;; extenstion added by personal used
 
 ;; sidebar for file view
-(require 'init-dired-sidebar)
+;; (require 'init-dired-sidebar)
 
 ;; protobuf file preview
 (require 'init-protobuf)
@@ -181,6 +181,13 @@
 
 ;; check typos in buffer
 (require 'init-typos)
+
+;; add treemacs
+;; (require 'init-treemacs)
+
+;; Allow users to provide an optional "init-local" containing personal settings
+;; (require 'init-local nil t)
+(require 'init-local)
 
 (provide 'init)
 
