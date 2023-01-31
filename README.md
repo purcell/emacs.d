@@ -27,7 +27,7 @@ in the approximate order of how much I use them, from most to least:
 * Erlang
 
 In particular, there's a nice config for *autocompletion* with
-[company](https://company-mode.github.io/), and
+[corfu](https://github.com/minad/corfu), and
 `flymake` (re-using backends from [flycheck](http://www.flycheck.org))
 is used to immediately highlight syntax errors in Ruby, Python,
 Javascript, Haskell and a number of other languages.
@@ -36,11 +36,12 @@ LSP support is provided using `eglot`.
 
 ## Supported Emacs versions
 
-The config should run on Emacs 25.1 or greater and is designed to
-degrade smoothly - see the CI build - but note that much newer
-versions are required for an increasing number of key packages, so to
-get full functionality you should use the latest Emacs version
-available to you.
+Use the latest released Emacs version available to you. The author
+typically uses the latest stable version.
+
+The config should run on Emacs 26.1 or greater and is designed to
+degrade smoothly - see the CI build - but even basic enhancements
+like completion may be unavailable if your Emacs is too old.
 
 Some Windows users might need to follow
 [these instructions](http://xn--9dbdkw.se/diary/how_to_enable_GnuTLS_for_Emacs_24_on_Windows/index.en.html)

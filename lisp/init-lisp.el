@@ -47,7 +47,7 @@
   (add-hook 'after-init-hook 'ipretty-mode))
 
 
-(defun sanityinc/make-read-only (expression out-buffer-name)
+(defun sanityinc/make-read-only (_expression out-buffer-name &rest _)
   "Enable `view-mode' in the output buffer - if any - so it can be closed with `\"q\"."
   (when (get-buffer out-buffer-name)
     (with-current-buffer out-buffer-name
