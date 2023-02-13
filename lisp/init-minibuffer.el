@@ -14,7 +14,7 @@
   (when (maybe-require-package 'consult)
     (defmacro sanityinc/no-consult-preview (&rest cmds)
       `(with-eval-after-load 'consult
-         (consult-customize ,@cmds :preview-key (kbd "M-P"))))
+         (consult-customize ,@cmds :preview-key "M-P")))
 
     (sanityinc/no-consult-preview
      consult-ripgrep
