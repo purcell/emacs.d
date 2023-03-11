@@ -27,7 +27,7 @@
                  (abbreviate-file-name filename))))))
 (advice-add 'desktop-create-buffer :around 'sanityinc/desktop-time-buffer-create)
 
-
+
 ;; Restore histories and registers after saving
 
 (setq-default history-length 1000)

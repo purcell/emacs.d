@@ -5,7 +5,7 @@
 (require-package 'slime)
 (push (expand-file-name "contrib" (file-name-directory (locate-library "slime"))) load-path)
 
-
+
 ;;; Lisp buffers
 
 (with-eval-after-load 'slime
@@ -14,7 +14,7 @@
   (let ((features '(slime-fancy slime-repl slime-fuzzy)))
     (slime-setup features)) )
 
-
+
 ;;; REPL
 
 (defun sanityinc/slime-repl-setup ()

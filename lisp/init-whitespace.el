@@ -4,7 +4,7 @@
 
 (setq-default show-trailing-whitespace nil)
 
-
+
 ;;; Whitespace
 
 (defun sanityinc/show-trailing-whitespace ()

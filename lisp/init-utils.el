@@ -4,7 +4,7 @@
 
 (define-obsolete-function-alias 'after-load 'with-eval-after-load "")
 
-
+
 ;; Handier way to add modes to auto-mode-alist
 (defun add-auto-mode (mode &rest patterns)
   "Add entries to `auto-mode-alist' to use `MODE' for all given file `PATTERNS'."
@@ -20,7 +20,7 @@
   (add-hook (derived-mode-hook-name mode)
             (apply-partially 'sanityinc/set-major-mode-name name)))
 
-
+
 ;; String utilities missing from core emacs
 
 (defun sanityinc/string-all-matches (regex str &optional group)
@@ -34,7 +34,7 @@
     result))
 
 
-
+
 ;; Delete the current file
 
 (defun delete-this-file ()
@@ -48,7 +48,7 @@
     (kill-this-buffer)))
 
 
-
+
 ;; Rename the current file
 
 (defun rename-this-file-and-buffer (new-name)
@@ -64,7 +64,7 @@
       (set-visited-file-name new-name)
       (rename-buffer new-name))))
 
-
+
 ;; Browse current HTML file
 
 (defun browse-current-file ()

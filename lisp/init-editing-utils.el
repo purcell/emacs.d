@@ -10,7 +10,7 @@
 
 (maybe-require-package 'list-unicode-display)
 
-
+
 ;;; Some basic preferences
 
 (setq-default
@@ -44,7 +44,7 @@
 (add-hook 'after-init-hook 'transient-mark-mode)
 
 
-
+
 ;; Huge files
 
 (when (fboundp 'so-long-enable)
@@ -60,13 +60,13 @@
       (error "File does not exist: %s" file))
     (vlf file)))
 
-
+
 ;;; A simple visible bell which works in all terminal types
 (require-package 'mode-line-bell)
 (add-hook 'after-init-hook 'mode-line-bell-mode)
 
 
-
+
 ;;; Newline behaviour
 
 (global-set-key (kbd "RET") 'newline-and-indent)
@@ -78,30 +78,30 @@
 
 (global-set-key (kbd "S-<return>") 'sanityinc/newline-at-end-of-line)
 
-
+
 
 (with-eval-after-load 'subword
   (diminish 'subword-mode))
 
-
+
 
 (when (fboundp 'display-line-numbers-mode)
   (setq-default display-line-numbers-width 3)
   (add-hook 'prog-mode-hook 'display-line-numbers-mode))
 
-
+
 
 (when (boundp 'display-fill-column-indicator)
   (setq-default indicate-buffer-boundaries 'left)
   (setq-default display-fill-column-indicator-character ?\u254e)
   (add-hook 'prog-mode-hook 'display-fill-column-indicator-mode))
 
-
+
 
 (when (require-package 'rainbow-delimiters)
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
-
+
 (when (maybe-require-package 'symbol-overlay)
   (dolist (hook '(prog-mode-hook html-mode-hook yaml-mode-hook conf-mode-hook))
     (add-hook hook 'symbol-overlay-mode))
@@ -112,12 +112,12 @@
     (define-key symbol-overlay-mode-map (kbd "M-n") 'symbol-overlay-jump-next)
     (define-key symbol-overlay-mode-map (kbd "M-p") 'symbol-overlay-jump-prev)))
 
-
+
 ;;; Zap *up* to char is a handy pair for zap-to-char
 (global-set-key (kbd "M-Z") 'zap-up-to-char)
 
 
-
+
 (require-package 'browse-kill-ring)
 (setq browse-kill-ring-separator "\f")
 (global-set-key (kbd "M-Y") 'browse-kill-ring)
@@ -142,7 +142,7 @@
 (add-hook 'after-init-hook 'show-paren-mode)
 
 
-
+
 ;;; Handy key bindings
 
 (global-set-key (kbd "C-.") 'set-mark-command)
@@ -172,7 +172,7 @@
 (global-set-key (kbd "C-M-<backspace>") 'kill-back-to-indentation)
 
 
-
+
 ;;; Page break lines
 
 (when (maybe-require-package 'page-break-lines)
@@ -181,7 +181,7 @@
     (diminish 'page-break-lines-mode)))
 
 
-
+
 ;; Shift lines up and down with M-up and M-down. When paredit is enabled,
 ;; it will use those keybindings. For this reason, you might prefer to
 ;; use M-S-up and M-S-down, which will work even in lisp modes.
@@ -195,7 +195,7 @@
 (global-set-key (kbd "C-c d") 'move-dup-duplicate-down)
 (global-set-key (kbd "C-c u") 'move-dup-duplicate-up)
 
-
+
 ;;; Fix backward-up-list to understand quotes, see http://bit.ly/h7mdIL
 
 (defun sanityinc/backward-up-sexp (arg)
@@ -210,14 +210,14 @@
 (global-set-key [remap backward-up-list] 'sanityinc/backward-up-sexp) ; C-M-u, C-M-up
 
 
-
+
 ;;; Cut/copy the current line if no region is active
 (require-package 'whole-line-or-region)
 (add-hook 'after-init-hook 'whole-line-or-region-global-mode)
 (with-eval-after-load 'whole-line-or-region
   (diminish 'whole-line-or-region-local-mode))
 
-
+
 
 (defun sanityinc/open-line-with-reindent (n)
   "A version of `open-line' which reindents the start and end positions.
@@ -249,11 +249,11 @@ With arg N, insert N newlines."
 (global-set-key (kbd "C-o") 'sanityinc/open-line-with-reindent)
 
 
-
+
 ;; M-^ is inconvenient, so also bind M-j
 (global-set-key (kbd "M-j") 'join-line)
 
-
+
 ;; Random line sorting
 (defun sanityinc/sort-lines-random (beg end)
   "Sort lines in region from BEG to END randomly."
@@ -267,19 +267,19 @@ With arg N, insert N newlines."
         (sort-subr nil 'forward-line 'end-of-line nil nil
                    (lambda (s1 s2) (eq (random 2) 0)))))))
 
-
+
 
 (require-package 'highlight-escape-sequences)
 (add-hook 'after-init-hook 'hes-mode)
 
-
+
 (require-package 'which-key)
 (add-hook 'after-init-hook 'which-key-mode)
 (setq-default which-key-idle-delay 1.5)
 (with-eval-after-load 'which-key
   (diminish 'which-key-mode))
 
-
+
 (defun sanityinc/disable-features-during-macro-call (orig &rest args)
   "When running a macro, disable features that might be expensive.
 ORIG is the advised function, which is called with its ARGS."

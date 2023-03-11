@@ -27,7 +27,7 @@
       (goto-char (point-max))
       (insert ";;; " fname " ends here\n"))))
 
-
+
 ;; Make C-x C-e run 'eval-region if the region is active
 
 (defun sanityinc/eval-last-sexp-or-region (prefix)
@@ -54,7 +54,7 @@
       (view-mode 1))))
 (advice-add 'pp-display-expression :after 'sanityinc/make-read-only)
 
-
+
 
 (defun sanityinc/load-this-file ()
   "Load the current file or buffer.
@@ -74,7 +74,7 @@ there is no current file, eval the current buffer."
 (with-eval-after-load 'lisp-mode
   (define-key emacs-lisp-mode-map (kbd "C-c C-l") 'sanityinc/load-this-file))
 
-
+
 
 (defun sanityinc/maybe-set-bundled-elisp-readonly ()
   "If this elisp appears to be part of Emacs, then disallow editing."
@@ -85,7 +85,7 @@ there is no current file, eval the current buffer."
 
 (add-hook 'emacs-lisp-mode-hook 'sanityinc/maybe-set-bundled-elisp-readonly)
 
-
+
 ;; Use C-c C-z to toggle between elisp files and an ielm session
 ;; I might generalise this to ruby etc., or even just adopt the repl-toggle package.
 
@@ -114,7 +114,7 @@ there is no current file, eval the current buffer."
 (with-eval-after-load 'ielm
   (define-key ielm-map (kbd "C-c C-z") 'sanityinc/repl-switch-back))
 
-
+
 ;; Hippie-expand
 
 (defun set-up-hippie-expand-for-elisp ()
@@ -124,7 +124,7 @@ there is no current file, eval the current buffer."
   (add-to-list 'hippie-expand-try-functions-list 'try-complete-lisp-symbol-partially t))
 
 
-
+
 ;; Automatic byte compilation
 
 (when (maybe-require-package 'auto-compile)
@@ -132,17 +132,17 @@ there is no current file, eval the current buffer."
   (add-hook 'after-init-hook 'auto-compile-on-save-mode)
   (add-hook 'after-init-hook 'auto-compile-on-load-mode))
 
-
+
 ;; Load .el if newer than corresponding .elc
 
 (setq load-prefer-newer t)
 
-
+
 
 (require-package 'immortal-scratch)
 (add-hook 'after-init-hook 'immortal-scratch-mode)
 
-
+
 ;;; Support byte-compilation in a sub-process, as
 ;;; required by highlight-cl
 
@@ -159,7 +159,7 @@ there is no current file, eval the current buffer."
        " ")))))
 
 
-
+
 ;; Enable desired features for all lisp modes
 
 (defun sanityinc/enable-check-parens-on-save ()
@@ -207,7 +207,7 @@ there is no current file, eval the current buffer."
 (add-to-list 'auto-mode-alist '("archive-contents\\'" . emacs-lisp-mode))
 
 
-
+
 ;; Delete .elc files when reverting the .el from VC or magit
 
 ;; When .el files are open, we can intercept when they are modified
@@ -241,18 +241,18 @@ there is no current file, eval the current buffer."
 (advice-add 'vc-revert-buffer-internal :around 'sanityinc/reverting)
 
 
-
+
 (require-package 'macrostep)
 
 (with-eval-after-load 'lisp-mode
   (define-key emacs-lisp-mode-map (kbd "C-c x") 'macrostep-expand))
 
-
+
 
 ;; A quick way to jump to the definition of a function given its key binding
 (global-set-key (kbd "C-h K") 'find-function-on-key)
 
-
+
 
 ;; Extras for theme editing
 (when (maybe-require-package 'rainbow-mode)
@@ -264,28 +264,28 @@ there is no current file, eval the current buffer."
   (with-eval-after-load 'rainbow-mode
     (diminish 'rainbow-mode)))
 
-
+
 
 (when (maybe-require-package 'highlight-quoted)
   (add-hook 'emacs-lisp-mode-hook 'highlight-quoted-mode))
 
-
+
 (when (maybe-require-package 'package-lint-flymake)
   (add-hook 'emacs-lisp-mode-hook #'package-lint-flymake-setup))
 
 
-
+
 ;; ERT
 (with-eval-after-load 'ert
   (define-key ert-results-mode-map (kbd "g") 'ert-results-rerun-all-tests))
 
-
+
 (maybe-require-package 'cl-libify)
 
-
+
 (maybe-require-package 'flycheck-relint)
 
-
+
 
 (maybe-require-package 'cask-mode)
 

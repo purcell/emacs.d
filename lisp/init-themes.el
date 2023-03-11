@@ -23,7 +23,7 @@
 (add-hook 'after-init-hook 'reapply-themes)
 
 
-
+
 ;; Toggle between light and dark
 
 (defun light ()

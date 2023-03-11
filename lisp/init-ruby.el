@@ -22,13 +22,13 @@
 
 (require-package 'rspec-mode)
 
-
+
 (define-derived-mode brewfile-mode ruby-mode "Brewfile"
   "A major mode for Brewfiles, used by homebrew-bundle on MacOS.")
 
 (add-auto-mode 'brewfile-mode "Brewfile\\'")
 
-
+
 ;;; Inferior ruby
 (require-package 'inf-ruby)
 (with-eval-after-load 'inf-ruby
@@ -41,7 +41,7 @@
   (define-key inf-ruby-minor-mode-map [remap ruby-load-file] 'sanityinc/ruby-load-file))
 
 
-
+
 ;;; Ruby compilation
 (require-package 'ruby-compilation)
 
@@ -53,29 +53,29 @@
   (defalias 'rake 'ruby-compilation-rake))
 
 
-
+
 ;;; Robe
 (when (maybe-require-package 'robe)
   (with-eval-after-load 'ruby-mode
     (add-hook 'ruby-mode-hook 'robe-mode)))
 
 
-
+
 ;;; ri support
 (require-package 'yari)
 (defalias 'ri 'yari)
 
 
-
+
 (require-package 'bundler)
 
-
+
 (when (maybe-require-package 'yard-mode)
   (add-hook 'ruby-mode-hook 'yard-mode)
   (with-eval-after-load 'yard-mode
     (diminish 'yard-mode)))
 
-
+
 ;;; ERB
 (require-package 'mmm-mode)
 
@@ -105,7 +105,7 @@
   (mmm-add-mode-ext-class mode "\\.js\\.erb\\'" 'erb))
 
 
-
+
 ;; Ruby - my convention for heredocs containing SQL
 
 ;; (require-package 'mmm-mode)

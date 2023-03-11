@@ -7,7 +7,7 @@
 (maybe-require-package 'typescript-mode)
 (maybe-require-package 'prettier-js)
 
-
+
 ;;; Basic js-mode setup
 
 (add-to-list 'auto-mode-alist '("\\.\\(js\\|es6\\)\\(\\.erb\\)?\\'" . js-mode))
@@ -19,7 +19,7 @@
 (setq-default js-indent-level 2)
 
 
-
+
 ;; js2-mode
 
 ;; Change some defaults: customize them to override
@@ -47,7 +47,7 @@
   (sanityinc/major-mode-lighter 'js2-mode "JS2")
   (sanityinc/major-mode-lighter 'js2-jsx-mode "JSX2"))
 
-
+
 
 (when (and (or (executable-find "rg") (executable-find "ag"))
            (maybe-require-package 'xref-js2))
@@ -63,7 +63,7 @@
     (add-hook 'js2-mode-hook 'sanityinc/enable-xref-js2)))
 
 
-
+
 ;;; Coffeescript
 
 (when (maybe-require-package 'coffee-mode)
@@ -73,7 +73,7 @@
   (when (fboundp 'coffee-mode)
     (add-to-list 'auto-mode-alist '("\\.coffee\\.erb\\'" . coffee-mode))))
 
-
+
 ;; Run and interact with an inferior JS via js-comint.el
 
 (when (maybe-require-package 'js-comint)
@@ -90,7 +90,7 @@
   (dolist (hook '(js2-mode-hook js-mode-hook))
     (add-hook hook 'inferior-js-keys-mode)))
 
-
+
 ;; Alternatively, use skewer-mode
 
 (when (maybe-require-package 'skewer-mode)
@@ -99,7 +99,7 @@
               (lambda () (inferior-js-keys-mode -1)))))
 
 
-
+
 (when (maybe-require-package 'add-node-modules-path)
   (dolist (mode '(typescript-mode js-mode js2-mode coffee-mode))
     (add-hook (derived-mode-hook-name mode) 'add-node-modules-path)))

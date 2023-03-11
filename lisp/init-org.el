@@ -60,7 +60,7 @@
             (lambda () (add-hook 'window-configuration-change-hook 'org-agenda-align-tags nil t))))
 
 
-
+
 
 (maybe-require-package 'writeroom-mode)
 
@@ -105,7 +105,7 @@ typical word processor."
 
 
 (setq org-support-shift-select t)
-
+
 ;;; Capturing
 
 (global-set-key (kbd "C-c c") 'org-capture)
@@ -118,7 +118,7 @@ typical word processor."
         ))
 
 
-
+
 ;;; Refiling
 
 (setq org-refile-use-cache nil)
@@ -157,7 +157,7 @@ typical word processor."
 ;; Allow refile to create parent tasks with confirmation
 (setq org-refile-allow-creating-parent-nodes 'confirm)
 
-
+
 ;;; To-do settings
 
 (setq org-todo-keywords
@@ -171,7 +171,7 @@ typical word processor."
               ("PROJECT" :inherit font-lock-string-face))))
 
 
-
+
 ;;; Agenda views
 
 (setq-default org-agenda-clockreport-parameter-plist '(:link t :maxlevel 3))
@@ -263,7 +263,7 @@ typical word processor."
 
 (add-hook 'org-agenda-mode-hook 'hl-line-mode)
 
-
+
 ;;; Org clock
 
 ;; Save the running clock and all clock history when exiting Emacs, load it on startup
@@ -284,7 +284,7 @@ typical word processor."
       '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
 
 
-
+
 ;;; Show the clocked-in task - if any - in the header line
 (defun sanityinc/show-org-clock-in-header-line ()
   (setq-default header-line-format '((" " org-mode-line-string " "))))
@@ -301,7 +301,7 @@ typical word processor."
   (define-key org-clock-mode-line-map [header-line mouse-1] 'org-clock-menu))
 
 
-
+
 (when (and *is-a-mac* (file-directory-p "/Applications/org-clock-statusbar.app"))
   (add-hook 'org-clock-in-hook
             (lambda () (call-process "/usr/bin/osascript" nil 0 nil "-e"
@@ -311,12 +311,12 @@ typical word processor."
                                 "tell application \"org-clock-statusbar\" to clock out"))))
 
 
-
+
 ;; TODO: warn about inconsistent items, e.g. TODO inside non-PROJECT
 ;; TODO: nested projects!
 
 
-
+
 ;;; Archiving
 
 (setq org-archive-mark-done nil)
@@ -324,7 +324,7 @@ typical word processor."
 
 
 
-
+
 
 (require-package 'org-pomodoro)
 (setq org-pomodoro-keep-killed-pomodoro-time t)

@@ -2,7 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-
+
 ;; Stop C-z from minimizing windows under OS X
 
 (defun sanityinc/maybe-suspend-frame ()
@@ -13,7 +13,7 @@
 (global-set-key (kbd "C-z") 'sanityinc/maybe-suspend-frame)
 
 
-
+
 ;; Suppress GUI features
 
 (setq use-file-dialog nil)
@@ -21,7 +21,7 @@
 (setq inhibit-startup-screen t)
 
 
-
+
 ;; Window size and features
 
 (setq-default
@@ -78,14 +78,14 @@
           (lambda ()
             (setq line-spacing 0)))
 
-
+
 ;; Change global font size easily
 
 (require-package 'default-text-scale)
 (add-hook 'after-init-hook 'default-text-scale-mode)
 
 
-
+
 (require-package 'disable-mouse)
 
 
