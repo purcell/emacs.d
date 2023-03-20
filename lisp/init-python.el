@@ -2,10 +2,9 @@
 ;;; Commentary:
 ;;; Code:
 
-;; I use nix + direnv instead of virtualenv/pyenv/pyvenv, and it is an
-;; approach which extends to other languages too. I recorded a
-;; screencast about this: https://www.youtube.com/watch?v=TbIHRHy7_JM
-
+;; See the following note about how I set up python + virtualenv to
+;; work seamlessly with Emacs:
+;; https://gist.github.com/purcell/81f76c50a42eee710dcfc9a14bfc7240
 
 (setq auto-mode-alist
       (append '(("SConstruct\\'" . python-mode)
