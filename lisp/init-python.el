@@ -25,6 +25,7 @@
   (reformatter-define black :program "black" :args '("-")))
 
 ;;; lsp-mode setup
+(require-package 'lsp-mode)
 (use-package lsp-mode
   :demand t
   :config
@@ -50,7 +51,7 @@
      lsp-enable-indentation t
      lsp-enable-links t
      lsp-enable-on-type-formatting nil
-     lsp-enable-snippet nil  ;; Not supported by company capf, which is the recommended company backend
+     lsp-enable-snippet nil ;; Not supported by company capf, which is the recommended company backend
      lsp-enable-symbol-highlighting nil
      lsp-enable-text-document-color nil
      lsp-enable-xref t
@@ -75,6 +76,7 @@
   :hook
   ((python-mode . lsp)))
 
+(require-package 'lsp-ui)
 (use-package lsp-ui
   :config (setq lsp-ui-sideline-show-hover t
                 lsp-ui-sideline-delay 0.5
