@@ -8,19 +8,23 @@
 (maybe-require-package 'typescript-mode)
 (require-package 'tide)
 (maybe-require-package 'prettier-js)
+(maybe-require-package 'eslint-rc)
+(maybe-require-package 'eslint-fix)
 (maybe-require-package 'flycheck)
 (require-package 'paredit)
 
 
 ;;; Basic js-mode setup
 
-(add-to-list 'auto-mode-alist '("\\.\\(jsx?|mjs\\)\\)'" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.\\(jsx?|mjs)\\)'" . js-mode))
 
 (with-eval-after-load 'js
   (sanityinc/major-mode-lighter 'js-mode "JS")
   (sanityinc/major-mode-lighter 'js-jsx-mode "JSX"))
 
 (setq-default js-indent-level 1)
+
+(add-to-list 'auto-mode-alist '("\\.\\json\\'" . json-mode))
 
 
 ;; js2-mode
@@ -66,9 +70,10 @@
 (with-eval-after-load 'rjsx-mode
   (setq-default sgml-basic-offset 1)
   (setq-default js-indent-level 1)  )
-(add-to-list 'auto-mode-alist '("components\\/.*\\.(j|t)sx?\\'" . rjsx-mode))
+
 (add-to-list 'auto-mode-alist '("src\\/.*\\.(j|t)sx?\\'" . rjsx-mode))
-(add-to-list 'auto-mode-alist '("pages\\/.*\\.(j|t)sx?\\'" . rjsx-mode))
+;;(add-to-list 'auto-mode-alist '("components\\/.*\\.(j|t)sx?\\'" . rjsx-mode))
+;;(add-to-list 'auto-mode-alist '("pages\\/.*\\.(j|t)sx?\\'" . rjsx-mode))
 (with-eval-after-load 'rjsx-mode
   (with-eval-after-load 'tide-mode
     (add-hook 'rjsx-mode-hook 'tide-setup-hook)))
@@ -96,6 +101,7 @@
   ;; `M-x package-install [ret] company`
   (company-mode +1))
 (add-hook 'typescript-mode-hook 'eslint-rc-mode)
+(add-hook 'typescript-mode-hook 'eslint-fix-auto-mode)
 (add-hook 'typescript-mode-hook 'prettier-js-mode)
 
 (add-to-list 'auto-mode-alist '("\\.(j|t)sx\\'" . web-mode))
