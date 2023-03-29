@@ -11,6 +11,8 @@
     ;; TODO: write a CAPF backend based on company-nixos-options
     ))
 
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs '((nix-mode) . ("nil"))))
 
 (provide 'init-nix)
 ;;; init-nix.el ends here
