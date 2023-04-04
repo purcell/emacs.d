@@ -73,6 +73,7 @@
        ("pyls.plugins.pycodestyle.enabled" nil t)
        ("pyls.plugins.mccabe.enabled" nil t)
        ("pyls.plugins.pyflakes.enabled" nil t))))
+
   :hook
   ((python-mode . lsp)))
 
