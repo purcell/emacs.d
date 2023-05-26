@@ -13,8 +13,6 @@
 ;; items will then go into this file with the file-level tag, and can
 ;; be refiled to other locations as necessary.
 
-;; Those other locations are generally other org files, which should
-;; be added to `org-agenda-files-list' (along with "inbox.org" org).
 ;; With that done, there's then an agenda view, accessible via the
 ;; `org-agenda' command, which gives a convenient overview.
 ;; `org-todo-keywords' is customised here to provide corresponding
@@ -26,9 +24,11 @@
   (maybe-require-package 'grab-mac-link))
 
 (maybe-require-package 'org-cliplink)
+(maybe-require-package 'org-journal)
 
 (define-key global-map (kbd "C-c l") 'org-store-link)
 (define-key global-map (kbd "C-c a") 'org-agenda)
+(define-key global-map (kbd "C-c C-j") 'org-journal-new-entry)
 
 (defvar sanityinc/org-global-prefix-map (make-sparse-keymap)
   "A keymap for handy global access to org helpers, particularly clocking.")
@@ -37,6 +37,7 @@
 (define-key sanityinc/org-global-prefix-map (kbd "l") 'org-clock-in-last)
 (define-key sanityinc/org-global-prefix-map (kbd "i") 'org-clock-in)
 (define-key sanityinc/org-global-prefix-map (kbd "o") 'org-clock-out)
+(define-key sanityinc/org-global-prefix-map (kbd "s") 'org-journal-search)
 (define-key global-map (kbd "C-c o") sanityinc/org-global-prefix-map)
 
 
@@ -51,10 +52,10 @@
       org-export-kill-product-buffer-when-displayed t
       org-tags-column 80
       org-agenda-files '("~/org/")
-      org-agenda-files-list '("~/org/")
+      org-journal-file-format  "%Y%m%d.org"
+      org-journal-enable-agenda-integration t
       org-default-notes-file (expand-file-name "~/org/todo.org")
-      org-journal-dir (expand-file-name "~/org/journal")
-      )
+      org-journal-dir (expand-file-name "~/org/journal"))
 
 
 ;; Lots of stuff from http://doc.norang.ca/org-mode.html
@@ -117,9 +118,9 @@ typical word processor."
 
 (setq org-capture-templates
       `(("t" "todo" entry (file "")  ; "" => `org-default-notes-file'
-         "* TODO %?\n%U\n" :clock-resume t)
+         "* TODO %?\n" :clock-resume t)
         ("n" "note" entry (file "")
-         "* %? :NOTE:\n%U\n%a\n" :clock-resume t)
+         "* %? :NOTE:\n%a\n" :clock-resume t)
         ))
 
 
