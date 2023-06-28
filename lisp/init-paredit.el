@@ -35,8 +35,8 @@
 
 (defun sanityinc/conditionally-enable-paredit-mode ()
   "Enable paredit during lisp-related minibuffer commands."
-  (if (memq this-command paredit-minibuffer-commands)
-      (enable-paredit-mode)))
+  (when (memq this-command paredit-minibuffer-commands)
+    (enable-paredit-mode)))
 
 
 (provide 'init-paredit)
