@@ -25,6 +25,8 @@
   (reformatter-define black :program "black" :args '("-")))
 
 ;;; lsp-mode setup
+(use-package lsp-ui
+  :disabled)
 (require-package 'lsp-mode)
 (use-package lsp-mode
   :demand t
@@ -50,6 +52,7 @@
      lsp-enable-imenu t
      lsp-enable-indentation t
      lsp-enable-links t
+     lsp-clients-python-library-directories `("/usr/" ,(expand-file-name "~/.virtualenvs")) ; This seems appropriate
      lsp-enable-on-type-formatting nil
      lsp-enable-snippet nil ;; Not supported by company capf, which is the recommended company backend
      lsp-enable-symbol-highlighting nil
@@ -73,22 +76,54 @@
        ("pyls.plugins.pycodestyle.enabled" nil t)
        ("pyls.plugins.mccabe.enabled" nil t)
        ("pyls.plugins.pyflakes.enabled" nil t))))
-
   :hook
-  ((python-mode . lsp)))
+  ;; NOTE: we don't have a python-mode hook - it gets handled by pyvenv-track-virtualenv
+  (;;(js-mode . lsp)
+   ;;(Web-mode . lsp)
+   (lsp-mode . lsp-enable-which-key-integration)
+   (lsp-before-initialize . md/lsp-setup)))
 
-(require-package 'lsp-ui)
-(use-package lsp-ui
-  :config (setq lsp-ui-sideline-show-hover t
-                lsp-ui-sideline-delay 0.5
-                lsp-ui-doc-delay 5
-                lsp-ui-sideline-ignore-duplicates t
-                lsp-ui-doc-position 'bottom
-                lsp-ui-doc-alignment 'frame
-                lsp-ui-doc-header nil
-                lsp-ui-doc-include-signature t
-                lsp-ui-doc-use-childframe t)
-  :commands lsp-ui-mode)
 
+;;; Pyvenv to support multiple venvs using conda and pyenv.
+;;; Is recommend to set up only one of them to automatically switch envs
+;;; without having to worry about setting the envs before hand.
+(use-package pyvenv
+  :demand t
+  :config
+  (setq pyvenv-workon "emacs")  ; Default venv
+  (pyvenv-workon pyvenv-workon)
+
+  (when (fboundp 'pyvenv-track-virtualenv)
+    (fmakunbound 'pyvenv-track-virtualenv))
+
+  (defun pyvenv-track-virtualenv ()
+    "Set a virtualenv as specified for the current buffer.
+
+This is originally provided by pyvenv, but I've added a couple
+of features. The most important one is that this invokes lsp
+/after/ all the pyvenv activate logic has been done, which means
+lsp can properly jump to definitions."
+    (when (string= major-mode "python-mode")
+      (cond
+       (pyvenv-activate
+        (when (and (not (equal (file-name-as-directory pyvenv-activate)
+                               pyvenv-virtual-env))
+                   (or (not pyvenv-tracking-ask-before-change)
+                       (y-or-n-p (format "Switch to virtualenv %s (currently %s)"
+                                         pyvenv-activate pyvenv-virtual-env))))
+          (pyvenv-activate pyvenv-activate)))
+       (pyvenv-workon
+        (when (and (not (equal pyvenv-workon pyvenv-virtual-env-name))
+                   (or (not pyvenv-tracking-ask-before-change)
+                       (y-or-n-p (format "Switch to virtualenv %s (currently %s)"
+                                         pyvenv-workon pyvenv-virtual-env-name))))
+          (message "pyvenv switching from %s to %s" pyvenv-virtual-env-name pyvenv-workon)
+          (pyvenv-workon pyvenv-workon))
+        ;; lsp needs to run after pyvenv-workon, so we make sure it's running here rather than
+        ;; in the python-mode-hook.
+        (when (not lsp-mode)
+          (lsp))))))
+
+  (pyvenv-tracking-mode 1))  ; Automatically use pyvenv-workon via dir-locals
 (provide 'init-python)
 ;;; init-python.el ends here
