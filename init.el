@@ -111,6 +111,7 @@
 (require 'init-docker)
 (require 'init-terraform)
 (require 'init-nix)
+(require 'init-scala)
 (maybe-require-package 'nginx-mode)
 
 (require 'init-paredit)
