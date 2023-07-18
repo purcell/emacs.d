@@ -5,7 +5,8 @@
 (size-indication-mode 1) ; display file size
 (display-time)
 (display-battery-mode)
-
+(when (version<= "27.1" emacs-version) ; speed up long lines
+  (global-so-long-mode 1))
 
 
 
