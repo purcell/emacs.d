@@ -111,11 +111,9 @@
 (require 'init-docker)
 (require 'init-terraform)
 (require 'init-nix)
-(require 'init-scala)
 (maybe-require-package 'nginx-mode)
 
 (require 'init-paredit)
-(require 'init-lisp)
 (require 'init-slime)
 (require 'init-clojure)
 (require 'init-clojure-cider)
