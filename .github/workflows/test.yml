@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
@@ -20,10 +21,13 @@ jobs:
           - 27.1
           - 27.2
           - 28.1
-          - snapshot
+          - 29.1
+        experimental: [false]
         include:
           - os: macos-latest
             emacs_version: 28.1
+          - emacs_version: snapshot
+            experimental: true
     steps:
     - uses: purcell/setup-emacs@master
       with:
