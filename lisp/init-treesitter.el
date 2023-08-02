@@ -52,13 +52,13 @@ Return a list of languages seen along the way."
 (sanityinc/auto-configure-treesitter)
 
 ;; When there's js-ts-mode, we prefer it to js2-mode
-(when-let (jsmap (alist-get 'js-mode major-mode-remap-alist))
+(when-let ((jsmap (alist-get 'js-mode major-mode-remap-alist)))
   (add-to-list 'major-mode-remap-alist (cons 'js2-mode jsmap)))
 
 
 
 ;; Default
-;; (setq treesit-font-lock-level 3)
+(setq treesit-font-lock-level 4)
 
 
 
