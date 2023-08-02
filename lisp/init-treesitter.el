@@ -43,8 +43,8 @@
 
 
 ;; When there's js-ts-mode, we prefer it to js2-mode
-(when-let (jsmap (assoc 'js-mode major-mode-remap-alist))
-  (push (cons 'js2-mode (cdr jsmap)) major-mode-remap-alist))
+(when-let (jsmap (alist-get 'js-mode major-mode-remap-alist))
+  (add-to-list 'major-mode-remap-alist (cons 'js2-mode jsmap)))
 
 
 
