@@ -16,31 +16,40 @@
 (setq treesit-load-name-override-list nil
       major-mode-remap-alist nil)
 
-;; Go through all the installed grammars and configure corresponding emacs ts-modes if they
-;; exist.
-(let ((alternates '(("c-sharp" . "csharp")
-                    ("cpp" . "c++")
-                    ("gomod" . "go-mod")
-                    ("javascript" . "js"))))
-  (dolist (dir (cons (expand-file-name "tree-sitter" user-emacs-directory) treesit-extra-load-path))
-    (when (file-directory-p dir)
-      (dolist (file (directory-files dir))
-        (let ((fname (file-name-sans-extension (file-name-nondirectory file))))
-          (when (string-match "libtree-sitter-\\(.*\\)" fname)
-            (let* ((file-lang (match-string 1 fname))
-                   (emacs-lang (or (cdr (assoc-string file-lang alternates)) file-lang)))
-              (unless (string-equal file-lang emacs-lang)
-                (push (list (intern emacs-lang)
-                            fname
-                            (concat "tree_sitter_" (replace-regexp-in-string "-" "_" file-lang)))
-                      treesit-load-name-override-list))
-              ;; TODO: don't reconfigure if we've already found a lib earlier in the treesit load path
-              (let ((ts-mode-name (intern (concat emacs-lang "-ts-mode")))
-                    (regular-mode-name (intern (concat emacs-lang "-mode"))))
-                (when (fboundp ts-mode-name)
-                  (push (cons regular-mode-name ts-mode-name)
-                        major-mode-remap-alist))))))))))
+(defun sanityinc/auto-configure-treesitter ()
+  "Find and configure installed grammars, remap to matching -ts-modes if present.
+Return a list of languages seen along the way."
+  (let ((grammar-name-to-emacs-lang '(("c-sharp" . "csharp")
+                                      ("cpp" . "c++")
+                                      ("gomod" . "go-mod")
+                                      ("javascript" . "js")))
+        seen-grammars)
+    (dolist (dir (cons (expand-file-name "tree-sitter" user-emacs-directory)
+                       treesit-extra-load-path))
+      (when (file-directory-p dir)
+        (dolist (file (directory-files dir))
+          (let ((fname (file-name-sans-extension (file-name-nondirectory file))))
+            (when (string-match "libtree-sitter-\\(.*\\)" fname)
+              (let* ((file-lang (match-string 1 fname))
+                     (emacs-lang (or (cdr (assoc-string file-lang grammar-name-to-emacs-lang)) file-lang)))
+                ;; Override library if its filename doesn't match the Emacs name
+                (unless (or (memq (intern emacs-lang) seen-grammars)
+                            (string-equal file-lang emacs-lang))
+                  (let ((libname (concat "tree_sitter_" (replace-regexp-in-string "-" "_" file-lang))))
+                    (add-to-list 'treesit-load-name-override-list
+                                 (list (intern emacs-lang) fname libname))))
+                ;; If there's a corresponding -ts mode, remap the standard mode to it
+                (let ((ts-mode-name (intern (concat emacs-lang "-ts-mode")))
+                      (regular-mode-name (intern (concat emacs-lang "-mode"))))
+                  (when (fboundp ts-mode-name)
+                    (add-to-list 'major-mode-remap-alist
+                                 (cons regular-mode-name ts-mode-name))))
+                ;; Remember we saw this language so we don't squash its config when we
+                ;; find another lib later in the treesit load path
+                (push (intern emacs-lang) seen-grammars)))))))
+    seen-grammars))
 
+(sanityinc/auto-configure-treesitter)
 
 ;; When there's js-ts-mode, we prefer it to js2-mode
 (when-let (jsmap (alist-get 'js-mode major-mode-remap-alist))
