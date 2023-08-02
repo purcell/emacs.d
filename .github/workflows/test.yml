@@ -8,11 +8,10 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
         emacs_version:
           - 26.1
           - 26.2
@@ -25,8 +24,6 @@ jobs:
         include:
           - emacs_version: snapshot
             experimental: true
-          - os: macos-latest
-            emacs_version: 28.1
     steps:
     - uses: purcell/setup-emacs@master
       with:
