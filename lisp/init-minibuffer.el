@@ -30,6 +30,7 @@
         (interactive (list prefix-arg (when-let ((s (symbol-at-point)))
                                         (symbol-name s))))
         (consult-ripgrep dir initial))
+      (sanityinc/no-consult-preview sanityinc/consult-ripgrep-at-point)
       (global-set-key (kbd "M-?") 'sanityinc/consult-ripgrep-at-point))
 
     (global-set-key [remap switch-to-buffer] 'consult-buffer)
