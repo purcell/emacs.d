@@ -128,7 +128,7 @@
 (require 'init-folding)
 (require 'init-dash)
 
-(when (featurep 'treesit)
+(when (require 'treesit nil t)
   (require 'init-treesitter))
 
 ;;(require 'init-twitter)
