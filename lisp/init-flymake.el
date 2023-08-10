@@ -14,8 +14,8 @@
 
   (defun sanityinc/enable-flymake-flycheck ()
     (setq-local flymake-diagnostic-functions
-                (append flymake-diagnostic-functions
-                        (flymake-flycheck-all-chained-diagnostic-functions))))
+                (seq-uniq (append flymake-diagnostic-functions
+                                  (flymake-flycheck-all-chained-diagnostic-functions)))))
 
   (add-hook 'flymake-mode-hook 'sanityinc/enable-flymake-flycheck)
   (add-hook 'prog-mode-hook 'flymake-mode)
