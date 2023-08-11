@@ -55,6 +55,9 @@ Return a list of languages seen along the way."
 (when-let ((jsmap (alist-get 'js-mode major-mode-remap-alist)))
   (add-to-list 'major-mode-remap-alist (cons 'js2-mode jsmap)))
 
+(when-let ((jsmap (alist-get 'clojure-mode major-mode-remap-alist)))
+  (add-to-list 'major-mode-remap-alist (cons 'clojurescript-mode 'clojurescript-ts-mode)))
+
 
 
 ;; Default
