@@ -39,6 +39,7 @@
   (when (memq this-command paredit-minibuffer-commands)
     (enable-paredit-mode)))
 
+(add-hook 'sanityinc/lispy-modes-hook 'enable-paredit-mode)
 
 (provide 'init-paredit)
 ;;; init-paredit.el ends here
