@@ -110,13 +110,6 @@ This command currently blocks the UI, sorry."
                 (display-buffer (current-buffer))
                 (user-error "EXPLAIN failed")))))))))
 
-
-;; Submitted upstream as https://github.com/stanaka/dash-at-point/pull/28
-(with-eval-after-load 'sql
-  (with-eval-after-load 'dash-at-point
-    (add-to-list 'dash-at-point-mode-alist '(sql-mode . "psql,mysql,sqlite,postgis"))))
-
-
 (with-eval-after-load 'page-break-lines
   (add-to-list 'page-break-lines-modes 'sql-mode))
 
