@@ -10,8 +10,7 @@
 
   (with-eval-after-load 'clojure-mode
     (dolist (m '(clojure-mode-hook clojure-ts-mode-hook))
-      (add-hook m 'sanityinc/lisp-setup)
-      (add-hook m 'subword-mode))))
+      (add-hook m 'sanityinc/lisp-setup))))
 
 
 (provide 'init-clojure)
