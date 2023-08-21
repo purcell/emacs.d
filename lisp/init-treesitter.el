@@ -1,6 +1,6 @@
-;; Install third-party treesitter-based modes
-(require-package 'clojure-ts-mode)
-
+;;; init-treesitter.el --- Enable Treesitter-based major modes -*- lexical-binding: t -*-
+;;; Commentary:
+;;; Code:
 
 ;; You can download per-architecture pre-compiled release from
 ;; https://github.com/emacs-tree-sitter/tree-sitter-langs Rename
@@ -66,3 +66,4 @@ Return a list of languages seen along the way."
 
 
 (provide 'init-treesitter)
+;;; init-treesitter.el ends here
