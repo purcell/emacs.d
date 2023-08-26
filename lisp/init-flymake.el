@@ -8,9 +8,10 @@
 (when (maybe-require-package 'flymake-flycheck)
   ;; Disable flycheck checkers for which we have flymake equivalents
   (with-eval-after-load 'flycheck
-    (setq-default flycheck-disabled-checkers
-                  (append (default-value 'flycheck-disabled-checkers)
-                          '(emacs-lisp emacs-lisp-checkdoc emacs-lisp-package))))
+    (setq-default
+     flycheck-disabled-checkers
+     (append (default-value 'flycheck-disabled-checkers)
+             '(emacs-lisp emacs-lisp-checkdoc emacs-lisp-package sh-shellcheck))))
 
   (defun sanityinc/enable-flymake-flycheck ()
     (setq-local flymake-diagnostic-functions
