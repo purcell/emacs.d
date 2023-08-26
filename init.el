@@ -129,13 +129,12 @@
 (require 'init-dash)
 
 (require 'init-ledger)
+(require 'init-lua)
+
 ;; Extra packages which don't require any configuration
 
 (require-package 'sudo-edit)
 (require-package 'gnuplot)
-(require-package 'lua-mode)
-(reformatter-define lua-format :program "lua-format" :args '("--indent-width=2" "--no-use-tab") :lighter "LuaFmt ")
-(setq-default lua-indent-level 2)
 (require-package 'htmlize)
 (when *is-a-mac*
   (require-package 'osx-location))
