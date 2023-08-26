@@ -33,9 +33,7 @@
 
   (add-hook 'flymake-mode-hook
             (lambda ()
-              (setq eldoc-documentation-functions
-                    (cons 'flymake-eldoc-function
-                          (delq 'flymake-eldoc-function eldoc-documentation-functions))))))
+              (add-hook 'eldoc-documentation-functions 'flymake-eldoc-function nil t))))
 
 (provide 'init-flymake)
 ;;; init-flymake.el ends here
