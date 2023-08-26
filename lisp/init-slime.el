@@ -2,8 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-(require-package 'slime)
-(push (expand-file-name "contrib" (file-name-directory (locate-library "slime"))) load-path)
 
 
 ;;; Lisp buffers
@@ -11,8 +9,8 @@
 (with-eval-after-load 'slime
   (setq slime-protocol-version 'ignore)
   (setq slime-net-coding-system 'utf-8-unix)
-  (let ((features '(slime-fancy slime-repl slime-fuzzy)))
-    (slime-setup features)) )
+  (let ((features '(slime-fancy slime-repl slime-fuzzy slime-autodoc)))
+    (slime-setup features)))
 
 
 ;;; REPL
