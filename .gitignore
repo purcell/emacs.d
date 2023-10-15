@@ -56,3 +56,4 @@ site-lisp/package/
 /smex-items
 /eln-cache/
 /projects
+/forge-*.sqlite
