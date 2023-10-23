@@ -8,7 +8,7 @@
 (add-auto-mode 'tcl-mode "^Portfile\\'")
 (fset 'yes-or-no-p 'y-or-n-p)
 (when (boundp 'use-short-answers)
-  (setopt use-short-answers t))
+  (setq use-short-answers t))
 
 (add-hook 'prog-mode-hook 'goto-address-prog-mode)
 (setq goto-address-mail-face 'link)
