@@ -13,12 +13,7 @@
      (append (default-value 'flycheck-disabled-checkers)
              '(emacs-lisp emacs-lisp-checkdoc emacs-lisp-package sh-shellcheck))))
 
-  (defun sanityinc/enable-flymake-flycheck ()
-    (setq-local flymake-diagnostic-functions
-                (seq-uniq (append flymake-diagnostic-functions
-                                  (flymake-flycheck-all-chained-diagnostic-functions)))))
-
-  (add-hook 'flymake-mode-hook 'sanityinc/enable-flymake-flycheck)
+  (add-hook 'flymake-mode-hook 'flymake-flycheck-auto)
   (add-hook 'prog-mode-hook 'flymake-mode)
   (add-hook 'text-mode-hook 'flymake-mode))
 
