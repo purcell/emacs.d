@@ -47,7 +47,7 @@
 (defun sanityinc/sql-explain-region-as-json (beg end &optional copy)
   "Explain the SQL between BEG and END in detailed JSON format.
 This is suitable for pasting into tools such as
-http://tatiyants.com/pev/.
+https://explain.dalibo.com/.
 
 When the prefix argument COPY is non-nil, do not display the
 resulting JSON, but instead copy it to the kill ring.
