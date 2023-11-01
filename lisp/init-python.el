@@ -16,6 +16,12 @@
 
 (require-package 'pip-requirements)
 
+(when (maybe-require-package 'flymake-ruff)
+  (defun sanityinc/flymake-ruff-maybe-enable ()
+    (when (executable-find flymake-ruff-program)
+      (flymake-ruff-load)))
+  (add-hook 'python-mode-hook 'sanityinc/flymake-ruff-maybe-enable))
+
 (when (maybe-require-package 'toml-mode)
   (add-to-list 'auto-mode-alist '("poetry\\.lock\\'" . toml-mode)))
 
