@@ -85,6 +85,11 @@ advice for `require-package', to which ARGS are passed."
 
 (advice-add 'require-package :around 'sanityinc/note-selected-package)
 
+;; Work around an issue in Emacs 29 where this gets implicitly
+;; reinstalled via the rg -> transient dependency chain, but fails to
+;; reload cleanly, breaking first-time start-up
+(require-package 'seq "2.24")
+
 (when (fboundp 'package--save-selected-packages)
   (require-package 'seq)
   (add-hook 'after-init-hook
