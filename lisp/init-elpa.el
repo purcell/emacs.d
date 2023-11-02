@@ -85,10 +85,18 @@ advice for `require-package', to which ARGS are passed."
 
 (advice-add 'require-package :around 'sanityinc/note-selected-package)
 
-;; Work around an issue in Emacs 29 where this gets implicitly
+
+;; Work around an issue in Emacs 29 where seq gets implicitly
 ;; reinstalled via the rg -> transient dependency chain, but fails to
-;; reload cleanly, breaking first-time start-up
-(require-package 'seq "2.24")
+;; reload cleanly due to not finding seq-25.el, breaking first-time
+;; start-up
+(defun sanityinc/reload-previously-loaded-with-load-path-updated (orig pkg-desc)
+  (let ((load-path (cons (package-desc-dir pkg-desc) load-path)))
+    (funcall orig pkg-desc)))
+
+(advice-add 'package--reload-previously-loaded :around
+            'sanityinc/reload-previously-loaded-with-load-path-updated)
+
 
 (when (fboundp 'package--save-selected-packages)
   (require-package 'seq)
