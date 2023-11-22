@@ -18,40 +18,6 @@
     (reformatter-define purty
       :program "purty" :lighter " purty"))
 
-  (when (maybe-require-package 'psc-ide)
-    (add-hook 'purescript-mode-hook 'psc-ide-mode)
-    (add-hook 'psc-ide-mode-hook
-              (lambda ()
-                (setq-local flycheck-check-syntax-automatically '(save mode-enabled))))
-
-    (defun psc-ide-foreign-js-after-save-handler ()
-      "Call `psc-ide-rebuild' in any neighbouring purescript file buffer, if `psc-ide-rebuild-on-save' is set.
-This is a little magical because it only works if the
-corresponding .purs file is open."
-      (let ((js-path (buffer-file-name)))
-        (when js-path
-          (let* ((purs-path (concat (file-name-sans-extension js-path) ".purs"))
-                 (purs-buf (get-file-buffer purs-path)))
-            (when purs-buf
-              (with-current-buffer purs-buf
-                (when psc-ide-mode
-                  (cond
-                   (psc-ide-rebuild-on-save
-                    (message "Triggering rebuild of %s" purs-path)
-                    (psc-ide-rebuild))
-                   (flycheck-mode
-                    (message "Flychecking %s" purs-path)
-                    (flycheck-buffer))))))))))
-
-    (define-minor-mode psc-ide-foreign-js-mode
-      "Rebuild corresponding purescript file."
-      :init-value nil
-      :lighter " PursJS"
-      :global nil
-      (if psc-ide-foreign-js-mode
-          (add-hook 'after-save-hook 'psc-ide-foreign-js-after-save-handler nil t)
-        (remove-hook 'after-save-hook 'psc-ide-foreign-js-after-save-handler t))))
-
   (when (maybe-require-package 'psci)
     (add-hook 'purescript-mode-hook 'inferior-psci-mode))
 
