@@ -16,6 +16,9 @@
 (setq treesit-load-name-override-list nil
       major-mode-remap-alist nil)
 
+
+;;; Enable built-in and pre-installed TS modes if the grammars are available
+
 (defun sanityinc/auto-configure-treesitter ()
   "Find and configure installed grammars, remap to matching -ts-modes if present.
 Return a list of languages seen along the way."
@@ -51,13 +54,19 @@ Return a list of languages seen along the way."
 
 (sanityinc/auto-configure-treesitter)
 
-;; When there's js-ts-mode, we prefer it to js2-mode
-(when-let ((jsmap (alist-get 'js-mode major-mode-remap-alist)))
-  (add-to-list 'major-mode-remap-alist (cons 'js2-mode jsmap)))
+
+;;; Support remapping of additional libraries
 
-(when-let ((jsmap (alist-get 'clojure-mode major-mode-remap-alist)))
-  (add-to-list 'major-mode-remap-alist (cons 'clojurescript-mode 'clojurescript-ts-mode)))
+(defun sanityinc/remap-ts-mode (non-ts-mode ts-mode grammar)
+  "Explicitly remap NON-TS-MODE to TS-MODE if GRAMMAR is available."
+  (when (and (fboundp 'treesit-ready-p)
+             (treesit-ready-p grammar t)
+             (fboundp ts-mode))
+    (add-to-list 'major-mode-remap-alist (cons non-ts-mode ts-mode))))
 
+;; When there's js-ts-mode, we also prefer it to js2-mode
+(sanityinc/remap-ts-mode 'js2-mode 'js-ts-mode 'javascript)
+(sanityinc/remap-ts-mode 'clojurescript-mode 'clojurescript-ts-mode 'clojure)
 
 
 ;; Default
