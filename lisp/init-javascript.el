@@ -60,7 +60,9 @@
   (let ((base-mode (if (fboundp 'js-base-mode) 'js-base-mode 'js-mode)))
     (with-eval-after-load 'js
       (add-hook (derived-mode-hook-name base-mode) 'sanityinc/enable-xref-js2)
-      (define-key js-mode-map (kbd "M-.") nil)))
+      (define-key js-mode-map (kbd "M-.") nil)
+      (when (boundp 'js-ts-mode-map)
+        (define-key js-ts-mode-map (kbd "M-.") nil))))
   (with-eval-after-load 'js2-mode
     (define-key js2-mode-map (kbd "M-.") nil)))
 
