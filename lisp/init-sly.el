@@ -10,26 +10,16 @@
 
 ;;; Lisp buffers
 
-(defun sanityinc/sly-setup ()
-  "Mode setup function for sly lisp buffers."
-  (set-up-sly-hippie-expand))
-
 (with-eval-after-load 'sly
   (setq sly-protocol-version 'ignore)
   (setq sly-net-coding-system 'utf-8-unix)
   (let ((features '(sly-fancy)))
     ;; (when (require 'sly-company nil t)
     ;;   (push 'sly-company features))
-    (sly-setup features))
-  (add-hook 'sly-mode-hook 'sanityinc/sly-setup))
+    (sly-setup features)))
 
 
 ;;; REPL
-
-(defun sanityinc/sly-repl-setup ()
-  "Mode setup function for sly REPL."
-  (sanityinc/lisp-setup)
-  (set-up-sly-hippie-expand))
 
 (with-eval-after-load 'sly-repl
   ;; Stop SLY's REPL from grabbing DEL, which is annoying when backspacing over a '('
@@ -39,7 +29,7 @@
   ;; Bind TAB to `indent-for-tab-command', as in regular Sly buffers.
   (define-key sly-repl-mode-map (kbd "TAB") 'indent-for-tab-command)
 
-  (add-hook 'sly-repl-mode-hook 'sanityinc/sly-repl-setup))
+  (add-hook 'sly-repl-mode-hook 'sanityinc/lisp-setup))
 
 
 (provide 'init-sly)
