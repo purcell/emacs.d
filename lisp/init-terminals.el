@@ -13,9 +13,9 @@
   (add-hook 'eat-exit-hook 'sanityinc/on-eat-exit)
 
   (with-eval-after-load 'eat
-    (add-to-list 'eat-semi-char-non-bound-keys [?\e ?w])
-    (eat-update-semi-char-mode-map)
-    (eat-reload))
+    (custom-set-variables
+     `(eat-semi-char-non-bound-keys
+       (quote ,(cons [?\e ?w] eat-semi-char-non-bound-keys)))))
 
   (defcustom sanityinc/eat-map
     (let ((map (make-sparse-keymap)))
