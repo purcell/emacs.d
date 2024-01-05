@@ -92,7 +92,7 @@
 
 (when (boundp 'display-fill-column-indicator)
   (setq-default indicate-buffer-boundaries 'left)
-  (setq-default display-fill-column-indicator-character ?\u254e)
+  (setq-default display-fill-column-indicator-character ?┊)
   (add-hook 'prog-mode-hook 'display-fill-column-indicator-mode))
 
 
@@ -140,6 +140,8 @@
 ;; Show matching parens
 (add-hook 'after-init-hook 'show-paren-mode)
 
+(when (fboundp 'repeat-mode)
+  (add-hook 'after-init-hook 'repeat-mode))
 
 
 ;;; Handy key bindings
@@ -189,8 +191,6 @@
 ;; use M-S-up and M-S-down, which will work even in lisp modes.
 
 (require-package 'move-dup)
-(global-set-key [M-up] 'move-dup-move-lines-up)
-(global-set-key [M-down] 'move-dup-move-lines-down)
 (global-set-key [M-S-up] 'move-dup-move-lines-up)
 (global-set-key [M-S-down] 'move-dup-move-lines-down)
 

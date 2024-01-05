@@ -6,15 +6,6 @@
   ;; sql-mode pretty much requires your psql to be uncustomised from stock settings
   (add-to-list 'sql-postgres-options "--no-psqlrc"))
 
-(defun sanityinc/fix-postgres-prompt-regexp ()
-  "Work around https://debbugs.gnu.org/cgi/bugreport.cgi?bug=22596.
-Fix for the above hasn't been released as of Emacs 25.2."
-  (when (eq sql-product 'postgres)
-    (setq-local sql-prompt-regexp "^[[:alnum:]_]*=[#>] ")
-    (setq-local sql-prompt-cont-regexp "^[[:alnum:]_]*[-(][#>] ")))
-
-(add-hook 'sql-interactive-mode-hook 'sanityinc/fix-postgres-prompt-regexp)
-
 (defun sanityinc/pop-to-sqli-buffer ()
   "Switch to the corresponding sqli buffer."
   (interactive)
@@ -56,7 +47,7 @@ Fix for the above hasn't been released as of Emacs 25.2."
 (defun sanityinc/sql-explain-region-as-json (beg end &optional copy)
   "Explain the SQL between BEG and END in detailed JSON format.
 This is suitable for pasting into tools such as
-http://tatiyants.com/pev/.
+https://explain.dalibo.com/.
 
 When the prefix argument COPY is non-nil, do not display the
 resulting JSON, but instead copy it to the kill ring.
@@ -109,13 +100,6 @@ This command currently blocks the UI, sorry."
                   (insert-file-contents err-file nil nil nil t))
                 (display-buffer (current-buffer))
                 (user-error "EXPLAIN failed")))))))))
-
-
-;; Submitted upstream as https://github.com/stanaka/dash-at-point/pull/28
-(with-eval-after-load 'sql
-  (with-eval-after-load 'dash-at-point
-    (add-to-list 'dash-at-point-mode-alist '(sql-mode . "psql,mysql,sqlite,postgis"))))
-
 
 (with-eval-after-load 'page-break-lines
   (add-to-list 'page-break-lines-modes 'sql-mode))
