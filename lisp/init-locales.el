@@ -22,5 +22,11 @@
 (unless (eq system-type 'windows-nt)
   (set-selection-coding-system 'utf-8))
 
+;;; UTF-8 support when running 'emacs -nw', inside terminal
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+
 (provide 'init-locales)
 ;;; init-locales.el ends here
