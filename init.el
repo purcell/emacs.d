@@ -22,13 +22,8 @@
 (defconst *is-a-mac* (eq system-type 'darwin))
 
 
-;; Adjust garbage collection thresholds during startup, and thereafter
-
-(let ((normal-gc-cons-threshold (* 20 1024 1024))
-      (init-gc-cons-threshold (* 128 1024 1024)))
-  (setq gc-cons-threshold init-gc-cons-threshold)
-  (add-hook 'emacs-startup-hook
-            (lambda () (setq gc-cons-threshold normal-gc-cons-threshold))))
+;; Adjust garbage collection threshold for early startup (see use of gcmh below)
+(setq gc-cons-threshold (* 128 1024 1024))
 
 
 ;; Process performance tuning
@@ -46,6 +41,15 @@
 ;; Calls (package-initialize)
 (require 'init-elpa)      ;; Machinery for installing required packages
 (require 'init-exec-path) ;; Set up $PATH
+
+
+;; General performance tuning
+(when (require-package 'gcmh)
+  (setq gcmh-high-cons-threshold (* 512 1024 1024))
+  (add-hook 'after-init-hook 'gcmh-mode)
+  (with-eval-after-load 'diminish
+    (diminish 'gcmh-mode)))
+(setq jit-lock-defer-time 0)
 
 
 ;; Allow users to provide an optional "init-preload-local.el"
