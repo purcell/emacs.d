@@ -11,6 +11,7 @@
   (setq use-short-answers t))
 
 (add-hook 'prog-mode-hook 'goto-address-prog-mode)
+(add-hook 'conf-mode-hook 'goto-address-prog-mode)
 (setq goto-address-mail-face 'link)
 
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
