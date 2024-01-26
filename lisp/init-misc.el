@@ -6,9 +6,10 @@
 ;; Misc config - yet to be placed in separate files
 
 (add-auto-mode 'tcl-mode "^Portfile\\'")
-(fset 'yes-or-no-p 'y-or-n-p)
-(when (boundp 'use-short-answers)
-  (setq use-short-answers t))
+
+(if (boundp 'use-short-answers)
+    (setq use-short-answers t)
+  (fset 'yes-or-no-p 'y-or-n-p))
 
 (add-hook 'prog-mode-hook 'goto-address-prog-mode)
 (add-hook 'conf-mode-hook 'goto-address-prog-mode)
