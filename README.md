@@ -17,7 +17,7 @@ in the approximate order of how much I use them, from most to least:
 * Ruby / Ruby on Rails
 * SQL
 * CSS / LESS / SASS / SCSS
-* Javascript / Typescript / Coffeescript
+* Javascript / Typescript
 * HTML / HAML / Markdown / Textile / ERB
 * Common Lisp (with Slime)
 * Python
