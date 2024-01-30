@@ -94,14 +94,6 @@
   (dolist (hook '(js2-mode-hook js-mode-hook))
     (add-hook hook 'inferior-js-keys-mode)))
 
-
-;; Alternatively, use skewer-mode
-
-(when (maybe-require-package 'skewer-mode)
-  (with-eval-after-load 'skewer-mode
-    (add-hook 'skewer-mode-hook
-              (lambda () (inferior-js-keys-mode -1)))))
-
 
 
 (when (maybe-require-package 'add-node-modules-path)

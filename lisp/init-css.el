@@ -51,14 +51,7 @@
 (unless (fboundp 'less-css-mode)
   ;; Prefer the scss-mode built into Emacs
   (require-package 'less-css-mode))
-(when (maybe-require-package 'skewer-less)
-  (add-hook 'less-css-mode-hook 'skewer-less-mode))
 
-
-
-;; Skewer CSS
-(when (maybe-require-package 'skewer-mode)
-  (add-hook 'css-mode-hook 'skewer-css-mode))
 
 
 ;;; Use eldoc for syntax hints
