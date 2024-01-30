@@ -85,11 +85,5 @@
     (add-hook hook 'inferior-js-keys-mode)))
 
 
-
-(when (maybe-require-package 'add-node-modules-path)
-  (dolist (mode '(typescript-mode js-mode js2-mode coffee-mode))
-    (add-hook (derived-mode-hook-name mode) 'add-node-modules-path)))
-
-
 (provide 'init-javascript)
 ;;; init-javascript.el ends here
