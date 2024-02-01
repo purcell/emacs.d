@@ -17,6 +17,8 @@
 
 (setq-default ibuffer-show-empty-filter-groups nil)
 
+(sanityinc/fullframe-mode 'ibuffer-mode)
+
 
 (with-eval-after-load 'ibuffer
   ;; Use human readable Size column instead of original one

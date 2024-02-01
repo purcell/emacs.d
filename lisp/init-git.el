@@ -17,6 +17,9 @@
 (when (maybe-require-package 'magit)
   (setq-default magit-diff-refine-hunk 'all)
 
+  (sanityinc/fullframe-mode 'magit-status-mode)
+  (setq-default magit-bury-buffer-function 'magit-restore-window-configuration)
+
   ;; Hint: customize `magit-repository-directories' so that you can use C-u M-F12 to
   ;; quickly open magit on any one of your projects.
   (global-set-key [(meta f12)] 'magit-status)
@@ -40,10 +43,6 @@
   (define-key magit-status-mode-map (kbd "C-M-<up>") 'magit-section-up))
 
 (maybe-require-package 'magit-todos)
-
-(require-package 'fullframe)
-(with-eval-after-load 'magit
-  (fullframe magit-status magit-mode-quit-window))
 
 (when (maybe-require-package 'git-commit)
   (add-hook 'git-commit-mode-hook 'goto-address-mode))

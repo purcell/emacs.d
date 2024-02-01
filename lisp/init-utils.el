@@ -2,6 +2,14 @@
 ;;; Commentary:
 ;;; Code:
 
+(defmacro sanityinc/fullframe-mode (mode)
+  "Configure buffers that open in MODE to start out full-frame."
+  `(add-to-list 'display-buffer-alist
+                (cons (cons 'major-mode ,mode)
+                      (list 'display-buffer-full-frame))))
+
+(sanityinc/fullframe-mode 'package-menu-mode)
+
 
 ;; Handier way to add modes to auto-mode-alist
 (defun add-auto-mode (mode &rest patterns)
