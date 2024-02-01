@@ -48,12 +48,6 @@
   (add-hook 'git-commit-mode-hook 'goto-address-mode))
 
 
-(when *is-a-mac*
-  (with-eval-after-load 'magit
-    (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)])))))
-
-
-
 ;; Convenient binding for vc-git-grep
 (with-eval-after-load 'vc
   (define-key vc-prefix-map (kbd "f") 'vc-git-grep))
