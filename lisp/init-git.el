@@ -18,7 +18,6 @@
   (setq-default magit-diff-refine-hunk 'all)
 
   (sanityinc/fullframe-mode 'magit-status-mode)
-  (setq-default magit-bury-buffer-function 'magit-restore-window-configuration)
 
   ;; Hint: customize `magit-repository-directories' so that you can use C-u M-F12 to
   ;; quickly open magit on any one of your projects.
