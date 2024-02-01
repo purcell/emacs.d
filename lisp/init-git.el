@@ -7,7 +7,6 @@
 
 ;; TODO: link commits from vc-log to magit-show-commit
 ;; TODO: smerge-mode
-(require-package 'git-blamed)
 (require-package 'git-modes)
 (when (maybe-require-package 'git-timemachine)
   (global-set-key (kbd "C-x v t") 'git-timemachine-toggle))
