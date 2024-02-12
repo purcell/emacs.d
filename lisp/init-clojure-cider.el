@@ -7,6 +7,8 @@
 (when (maybe-require-package 'cider)
   (setq nrepl-popup-stacktraces nil)
 
+  (add-hook 'clojure-ts-mode-hook #'cider-mode)
+
   (with-eval-after-load 'cider
     (add-hook 'cider-repl-mode-hook 'subword-mode)
     (add-hook 'cider-repl-mode-hook 'paredit-mode))
