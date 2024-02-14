@@ -13,8 +13,6 @@
 ;; Note that grammar files from different sources can be differently
 ;; named and configured, so there could be different results. Some
 ;; common remappings are included below.
-(setq treesit-load-name-override-list nil
-      major-mode-remap-alist nil)
 
 
 ;;; Enable built-in and pre-installed TS modes if the grammars are available
