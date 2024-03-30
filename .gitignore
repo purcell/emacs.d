@@ -58,3 +58,4 @@ site-lisp/package/
 /projects
 /.dap-breakpoints
 /forge-*.sqlite
+/projectile.cache

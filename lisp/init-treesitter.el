@@ -13,8 +13,6 @@
 ;; Note that grammar files from different sources can be differently
 ;; named and configured, so there could be different results. Some
 ;; common remappings are included below.
-(setq treesit-load-name-override-list nil
-      major-mode-remap-alist nil)
 
 
 ;;; Enable built-in and pre-installed TS modes if the grammars are available
@@ -45,6 +43,7 @@ Return a list of languages seen along the way."
                 (let ((ts-mode-name (intern (concat emacs-lang "-ts-mode")))
                       (regular-mode-name (intern (concat emacs-lang "-mode"))))
                   (when (fboundp ts-mode-name)
+                    (message "init-treesitter: using %s in place of %s" ts-mode-name regular-mode-name)
                     (add-to-list 'major-mode-remap-alist
                                  (cons regular-mode-name ts-mode-name))))
                 ;; Remember we saw this language so we don't squash its config when we

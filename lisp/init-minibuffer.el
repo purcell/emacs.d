@@ -40,9 +40,7 @@
     (when (maybe-require-package 'embark-consult)
       (with-eval-after-load 'embark
         (require 'embark-consult)
-        (add-hook 'embark-collect-mode-hook 'embark-consult-preview-minor-mode)))
-
-    (maybe-require-package 'consult-flycheck)))
+        (add-hook 'embark-collect-mode-hook 'embark-consult-preview-minor-mode)))))
 
 (when (maybe-require-package 'marginalia)
   (add-hook 'after-init-hook 'marginalia-mode))

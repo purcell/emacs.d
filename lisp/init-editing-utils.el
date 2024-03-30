@@ -219,37 +219,6 @@
 (with-eval-after-load 'whole-line-or-region
   (diminish 'whole-line-or-region-local-mode))
 
-
-
-(defun sanityinc/open-line-with-reindent (n)
-  "A version of `open-line' which reindents the start and end positions.
-If there is a fill prefix and/or a `left-margin', insert them
-on the new line if the line would have been blank.
-With arg N, insert N newlines."
-  (interactive "*p")
-  (let* ((do-fill-prefix (and fill-prefix (bolp)))
-         (do-left-margin (and (bolp) (> (current-left-margin) 0)))
-         (loc (point-marker))
-         ;; Don't expand an abbrev before point.
-         (abbrev-mode nil))
-    (delete-horizontal-space t)
-    (newline n)
-    (indent-according-to-mode)
-    (when (eolp)
-      (delete-horizontal-space t))
-    (goto-char loc)
-    (while (> n 0)
-      (cond ((bolp)
-             (if do-left-margin (indent-to (current-left-margin)))
-             (if do-fill-prefix (insert-and-inherit fill-prefix))))
-      (forward-line 1)
-      (setq n (1- n)))
-    (goto-char loc)
-    (end-of-line)
-    (indent-according-to-mode)))
-
-(global-set-key (kbd "C-o") 'sanityinc/open-line-with-reindent)
-
 
 
 ;; M-^ is inconvenient, so also bind M-j

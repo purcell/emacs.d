@@ -68,16 +68,6 @@
 
 
 
-;;; Coffeescript
-
-(when (maybe-require-package 'coffee-mode)
-  (with-eval-after-load 'coffee-mode
-    (setq-default coffee-tab-width js-indent-level))
-
-  (when (fboundp 'coffee-mode)
-    (add-to-list 'auto-mode-alist '("\\.coffee\\.erb\\'" . coffee-mode))))
-
-
 ;; Run and interact with an inferior JS via js-comint.el
 
 (when (maybe-require-package 'js-comint)
@@ -93,20 +83,6 @@
 
   (dolist (hook '(js2-mode-hook js-mode-hook))
     (add-hook hook 'inferior-js-keys-mode)))
-
-
-;; Alternatively, use skewer-mode
-
-(when (maybe-require-package 'skewer-mode)
-  (with-eval-after-load 'skewer-mode
-    (add-hook 'skewer-mode-hook
-              (lambda () (inferior-js-keys-mode -1)))))
-
-
-
-(when (maybe-require-package 'add-node-modules-path)
-  (dolist (mode '(typescript-mode js-mode js2-mode coffee-mode))
-    (add-hook (derived-mode-hook-name mode) 'add-node-modules-path)))
 
 
 (provide 'init-javascript)

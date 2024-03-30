@@ -8,6 +8,7 @@ ${EMACS:=emacs} -nw --batch \
                               (user-emacs-directory default-directory)
                               (user-init-file (expand-file-name "init.el"))
                               (load-path (delq default-directory load-path)))
+                           (setq package-check-signature nil)
                            (load-file user-init-file)
                            (run-hooks (quote after-init-hook))))'
 echo "Startup successful"

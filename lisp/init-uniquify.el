@@ -11,4 +11,5 @@
 (setq uniquify-ignore-buffers-re "^\\*")
 
 
-(provide 'init-uniquify);;; init-uniquify.el ends here
+(provide 'init-uniquify)
+;;; init-uniquify.el ends here

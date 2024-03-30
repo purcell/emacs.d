@@ -3,11 +3,11 @@
 ;;; Code:
 
 (when (maybe-require-package 'docker)
-  (fullframe docker-images tablist-quit)
-  (fullframe docker-machines tablist-quit)
-  (fullframe docker-volumes tablist-quit)
-  (fullframe docker-networks tablist-quit)
-  (fullframe docker-containers tablist-quit))
+  (sanityinc/fullframe-mode 'docker-image-mode)
+  (sanityinc/fullframe-mode 'docker-machine-mode)
+  (sanityinc/fullframe-mode 'docker-volume-mode)
+  (sanityinc/fullframe-mode 'docker-network-mode)
+  (sanityinc/fullframe-mode 'docker-container-mode))
 (maybe-require-package 'dockerfile-mode)
 (maybe-require-package 'docker-compose-mode)
 

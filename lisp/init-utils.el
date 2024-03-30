@@ -2,7 +2,34 @@
 ;;; Commentary:
 ;;; Code:
 
-(define-obsolete-function-alias 'after-load 'with-eval-after-load "")
+(defun sanityinc/display-buffer-full-frame (buffer alist)
+  "If it's not visible, display buffer full-frame, saving the prior window config.
+The saved config will be restored when the window is quit later.
+BUFFER and ALIST are as for `display-buffer-full-frame'."
+  (let ((initial-window-configuration (current-window-configuration)))
+    (or (display-buffer-reuse-window buffer alist)
+        (let ((full-window (display-buffer-full-frame buffer alist)))
+          (prog1
+              full-window
+            (set-window-parameter full-window 'sanityinc/previous-config initial-window-configuration))))))
+
+(defun sanityinc/maybe-restore-window-configuration (orig &optional kill window)
+  (let* ((window  (or window (selected-window)))
+         (to-restore (window-parameter window 'sanityinc/previous-config)))
+    (set-window-parameter window 'sanityinc/previous-config nil)
+    (funcall orig kill window)
+    (when to-restore
+      (set-window-configuration to-restore))))
+
+(advice-add 'quit-window :around 'sanityinc/maybe-restore-window-configuration)
+
+(defmacro sanityinc/fullframe-mode (mode)
+  "Configure buffers that open in MODE to display in full-frame."
+  `(add-to-list 'display-buffer-alist
+                (cons (cons 'major-mode ,mode)
+                      (list 'sanityinc/display-buffer-full-frame))))
+
+(sanityinc/fullframe-mode 'package-menu-mode)
 
 
 ;; Handier way to add modes to auto-mode-alist
