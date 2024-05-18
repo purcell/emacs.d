@@ -59,3 +59,5 @@ site-lisp/package/
 /.dap-breakpoints
 /forge-*.sqlite
 /projectile.cache
+/lisp/init-local.el
+/org-roam.db
