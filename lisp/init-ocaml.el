@@ -24,6 +24,11 @@
     (define-key tuareg-mode-map (kbd "C-c C-z") 'sanityinc/tuareg-repl-switch)
     (define-key tuareg-interactive-mode-map (kbd "C-c C-z") 'sanityinc/tuareg-repl-switch-back)))
 
+(when (and (fboundp 'treesit-available-p) (treesit-available-p))
+  (require-package 'ocaml-ts-mode)
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs '(((ocaml-ts-mode :language-id "ocaml")) "ocamllsp"))))
+
 (when (maybe-require-package 'dune)
   (maybe-require-package 'dune-format))
 
