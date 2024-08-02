@@ -11,6 +11,7 @@
   (add-to-list 'eglot-server-programs '((nix-mode nix-ts-mode) . ("nil"))))
 
 (maybe-require-package 'nixpkgs-fmt)
+(maybe-require-package 'nixfmt)
 
 (provide 'init-nix)
 ;;; init-nix.el ends here
