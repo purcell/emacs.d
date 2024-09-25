@@ -143,6 +143,7 @@
 (require 'init-ledger)
 (require 'init-lua)
 (require 'init-uiua)
+(require 'init-zig)
 (require 'init-terminals)
 
 ;; Extra packages which don't require any configuration
