@@ -86,7 +86,9 @@
 
 (when (fboundp 'display-line-numbers-mode)
   (setq-default display-line-numbers-width 3)
-  (add-hook 'prog-mode-hook 'display-line-numbers-mode))
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+  (add-hook 'yaml-mode-hook 'display-line-numbers-mode)
+  (add-hook 'yaml-ts-mode-hook 'display-line-numbers-mode))
 
 
 
