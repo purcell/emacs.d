@@ -24,8 +24,8 @@
 
     (when (and (executable-find "rg"))
       (defun sanityinc/consult-ripgrep-at-point (&optional dir initial)
-        (interactive (list prefix-arg (when-let ((s (symbol-at-point)))
-                                        (symbol-name s))))
+        (interactive (list current-prefix-arg (when-let ((s (symbol-at-point)))
+                                                (symbol-name s))))
         (consult-ripgrep dir initial))
       (sanityinc/no-consult-preview sanityinc/consult-ripgrep-at-point)
       (global-set-key (kbd "M-?") 'sanityinc/consult-ripgrep-at-point))
