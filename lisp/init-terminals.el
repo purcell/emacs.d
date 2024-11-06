@@ -15,7 +15,7 @@
   (with-eval-after-load 'eat
     (custom-set-variables
      `(eat-semi-char-non-bound-keys
-       (quote ,(cons [?\e ?w] eat-semi-char-non-bound-keys)))))
+       (quote ,(cons [?\e ?w] (cl-remove [?\e ?w] eat-semi-char-non-bound-keys :test 'equal))))))
 
   (defcustom sanityinc/eat-map
     (let ((map (make-sparse-keymap)))
