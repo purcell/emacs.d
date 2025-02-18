@@ -35,12 +35,7 @@
     (global-set-key [remap switch-to-buffer-other-frame] 'consult-buffer-other-frame)
     (global-set-key [remap goto-line] 'consult-goto-line)
 
-
-
-    (when (maybe-require-package 'embark-consult)
-      (with-eval-after-load 'embark
-        (require 'embark-consult)
-        (add-hook 'embark-collect-mode-hook 'embark-consult-preview-minor-mode)))))
+    (maybe-require-package 'embark-consult)))
 
 (when (maybe-require-package 'marginalia)
   (add-hook 'after-init-hook 'marginalia-mode))
