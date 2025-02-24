@@ -19,6 +19,8 @@ jobs:
           - 28.2
           - 29.1
           - 29.3
+          - 29.4
+          - 30.1
         experimental: [false]
         include:
           - emacs_version: snapshot
