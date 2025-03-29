@@ -61,3 +61,4 @@ site-lisp/package/
 /projectile.cache
 /lisp/init-local.el
 /org-roam.db
+/hackernews/

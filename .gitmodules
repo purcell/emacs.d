@@ -1,3 +1,3 @@
-[submodule "site-lisp/copilot.el"]
-	path = site-lisp/copilot.el
-	url = https://github.com/zerolfx/copilot.el
+[submodule "site-lisp/emacs-slack"]
+	path = site-lisp/emacs-slack
+	url = git@github.com:isamert/emacs-slack.git
