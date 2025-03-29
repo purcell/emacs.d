@@ -146,6 +146,7 @@
 (require 'init-terminals)
 (require 'init-org-roam)
 (require 'init-go)
+(require 'init-org-gtd)
 
 ;; Extra packages which don't require any configuration
 
