@@ -153,7 +153,7 @@
 ;; Extra packages which don't require any configuration
 
 (require-package 'sudo-edit)
-(require-package 'gnuplot)
+(maybe-require-package 'gnuplot)
 (require-package 'htmlize)
 (when *is-a-mac*
   (require-package 'osx-location))
