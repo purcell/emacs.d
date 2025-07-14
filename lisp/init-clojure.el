@@ -7,7 +7,6 @@
 (when (or (maybe-require-package 'clojure-ts-mode)
           (maybe-require-package 'clojure-mode))
   (require-package 'cljsbuild-mode)
-  (require-package 'elein)
 
   (with-eval-after-load 'clojure-mode
     (dolist (m '(clojure-mode-hook clojure-ts-mode-hook))
