@@ -133,6 +133,18 @@ there is no current file, eval the current buffer."
   (add-hook 'after-init-hook 'auto-compile-on-load-mode))
 
 
+(defun sanityinc/trust-current-file ()
+  "Quickly mark current elisp file as trusted content."
+  (interactive)
+  (if-let ((file (and (derived-mode-p 'emacs-lisp-mode)
+                      (buffer-file-name))))
+      (progn (push file trusted-content)
+             (when (bound-and-true-p flymake-mode)
+               (flymake-mode nil)
+               (flymake-mode)))
+    (user-error "Can't find or trust this buffer's file")))
+
+
 ;; Load .el if newer than corresponding .elc
 
 (setq load-prefer-newer t)
