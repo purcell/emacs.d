@@ -1,5 +1,8 @@
 ;;  -*- lexical-binding: t; -*-
 
+;; Load org config
+(load (expand-file-name "lisp/init-local-themes.el" user-emacs-directory))
+
 (use-package evil
   :ensure t
   :demand t
