@@ -29,6 +29,18 @@
   :config
   (evil-collection-init))
 
+(use-package undo-fu
+  :ensure t
+  :commands (undo-fu-only-undo
+             undo-fu-only-redo
+             undo-fu-only-redo-all
+             undo-fu-disable-checkpoint))
+
+(use-package undo-fu-session
+  :ensure t
+  :config
+  (undo-fu-session-global-mode))
+
 ;; Load OS-specific configurations
 (cond
  ((eq system-type 'windows-nt)
