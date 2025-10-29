@@ -77,6 +77,15 @@
 ;; Load org config
 (load (expand-file-name "lisp/init-local-org.el" user-emacs-directory))
 
+(use-package vim-tab-bar
+  :ensure t
+  :commands vim-tab-bar-mode
+  :init
+  (defun my/setup-vim-tab-bar ()
+    (vim-tab-bar-mode 1)
+    (setq tab-bar-tab-hints t))
+  :hook (after-init . my/setup-vim-tab-bar))
+
 ;; Load keybinding
 (load (expand-file-name "lisp/init-local-keybinding.el" user-emacs-directory))
 

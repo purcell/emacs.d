@@ -2,6 +2,16 @@
 ;; -------------------------------------------------------------------------- ;;
 ;; ----------------------------- customize key ------------------------------ ;;
 ;; -------------------------------------------------------------------------- ;;
+
+;; Bind M-1 through M-9 globally to switch tabs
+;; Assumes built-in tab-bar-mode or tab-line-mode
+(dotimes (i 9)
+  (let ((key (format "M-%d" (1+ i))) ; Create key string like "M-1", "M-2", etc.
+        (tab-number (1+ i)))        ; Tab index (1-based)
+    (global-set-key (kbd key)
+                    ;; Define a command to select the corresponding tab
+                    `(lambda () (interactive) (tab-bar-select-tab ,tab-number)))))
+
 ;; Bind Super+v to paste (yank)
 (global-set-key (kbd "s-v") 'yank)
 ;; Disable the space key in Dired so that it can be used as a leader key.
