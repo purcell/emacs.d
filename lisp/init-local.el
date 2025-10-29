@@ -57,6 +57,14 @@
            "gpg"
            (file-name-extension (buffer-name)) t))))
 
+;; denote
+(use-package zoxide
+  :ensure t)
+
+(defun dired-jump-with-zoxide (&optional other-window)
+  (interactive "P")
+  (zoxide-open-with nil (lambda (file) (dired-jump other-window file)) t))
+
 ;; Load OS-specific configurations
 (cond
  ((eq system-type 'windows-nt)
