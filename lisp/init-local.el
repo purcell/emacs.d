@@ -1,3 +1,4 @@
+;;  -*- lexical-binding: t; -*-
 ;; evil-want-keybinding must be declared before Evil and Evil Collection
 (setq evil-want-keybinding nil)
 

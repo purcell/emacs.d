@@ -1,4 +1,4 @@
-;; macos-config.el - macOS specific settings
+;; macos-config.el - macOS specific settings  -*- lexical-binding: t; -*-
 
 ;; macOS specific key bindings
 (setq mac-option-modifier 'meta)
