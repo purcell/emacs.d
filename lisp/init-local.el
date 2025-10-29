@@ -44,5 +44,8 @@
  ((eq system-type 'gnu/linux)
   (load (expand-file-name "lisp/init-local-linux.el" user-emacs-directory))))
 
+;; Load keybinding
+(load (expand-file-name "lisp/init-local-keybinding.el" user-emacs-directory))
+
 (provide 'init-local)
 
