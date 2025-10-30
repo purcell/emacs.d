@@ -5,26 +5,6 @@
 
 ;;; Code:
 
-;; Ensure with-editor is available for Majutsu workflows
-(use-package with-editor
-  :ensure t
-  :defer t)
-
-;; Restore sane with-editor bindings under Evil
-(with-eval-after-load 'evil
-  (defun init-majutsu--with-editor-evil-bindings ()
-    (define-key evil-insert-state-local-map (kbd "C-c") nil)
-    (define-key evil-normal-state-local-map (kbd "C-c") nil)
-    (evil-local-set-key 'insert (kbd "C-c C-c") #'with-editor-finish)
-    (evil-local-set-key 'insert (kbd "C-c C-k") #'with-editor-cancel)
-    (evil-local-set-key 'normal (kbd "C-c C-c") #'with-editor-finish)
-    (evil-local-set-key 'normal (kbd "C-c C-k") #'with-editor-cancel)
-    (evil-local-set-key 'normal (kbd "ZZ") #'with-editor-finish)
-    (evil-local-set-key 'normal (kbd "ZQ") #'with-editor-cancel)
-    (evil-normalize-keymaps))
-  (with-eval-after-load 'with-editor
-    (add-hook 'with-editor-mode-hook #'init-majutsu--with-editor-evil-bindings)))
-
 ;; Declare autoloaded commands via use-package for lazy loading
 (use-package majutsu
   :ensure t
@@ -48,6 +28,13 @@
 
 ;; Per-mode evil bindings (equivalent to Doom's `after! majutsu`)
 (with-eval-after-load 'majutsu
+  ;; Allow Majutsu with-editor buffers in non-/tmp directories (e.g. macOS /var/folders)
+  (setq majutsu--with-editor-description-regexp
+        (rx (zero-or-more (not (any "\n")))
+            "/editor-" (+ (in "0-9A-Za-z_-"))
+            ".jjdescription"
+            string-end))
+
   (with-eval-after-load 'evil
     ;; Disable evil-snipe in majutsu buffers if evil-snipe is loaded
     (when (fboundp 'turn-off-evil-snipe-mode)
