@@ -57,6 +57,7 @@
 
     ;; Define keybindings for normal and visual states
     (evil-define-key '(normal visual) majutsu-mode-map
+      (kbd "g")     #'majutsu-git-transient
       (kbd ".")     #'majutsu-goto-current
       (kbd "R")     #'majutsu-log-refresh
       (kbd "g r")   #'majutsu-log-refresh
