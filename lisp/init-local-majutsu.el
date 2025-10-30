@@ -5,17 +5,25 @@
 
 ;;; Code:
 
-;; Ensure with-editor is loaded and configured
+;; Ensure with-editor is available for Majutsu workflows
 (use-package with-editor
   :ensure t
-  :config
-  ;; Keybindings for commit message buffers
-  (define-key with-editor-mode-map (kbd "C-c C-c") #'with-editor-finish)
-  (define-key with-editor-mode-map (kbd "C-c C-k") #'with-editor-cancel))
+  :defer t)
 
-;; Transient is also required
-(use-package transient
-  :ensure t)
+;; Restore sane with-editor bindings under Evil
+(with-eval-after-load 'evil
+  (defun init-majutsu--with-editor-evil-bindings ()
+    (define-key evil-insert-state-local-map (kbd "C-c") nil)
+    (define-key evil-normal-state-local-map (kbd "C-c") nil)
+    (evil-local-set-key 'insert (kbd "C-c C-c") #'with-editor-finish)
+    (evil-local-set-key 'insert (kbd "C-c C-k") #'with-editor-cancel)
+    (evil-local-set-key 'normal (kbd "C-c C-c") #'with-editor-finish)
+    (evil-local-set-key 'normal (kbd "C-c C-k") #'with-editor-cancel)
+    (evil-local-set-key 'normal (kbd "ZZ") #'with-editor-finish)
+    (evil-local-set-key 'normal (kbd "ZQ") #'with-editor-cancel)
+    (evil-normalize-keymaps))
+  (with-eval-after-load 'with-editor
+    (add-hook 'with-editor-mode-hook #'init-majutsu--with-editor-evil-bindings)))
 
 ;; Declare autoloaded commands via use-package for lazy loading
 (use-package majutsu
@@ -36,10 +44,10 @@
       (kbd "SPC j j") #'majutsu
       (kbd "SPC j c") #'majutsu-commit
       (kbd "SPC j d") #'majutsu-describe
-      (kbd "SPC j D") #'majutsu-diff))
+      (kbd "SPC j D") #'majutsu-diff)))
 
-  :config
-  ;; Per-mode evil bindings
+;; Per-mode evil bindings (equivalent to Doom's `after! majutsu`)
+(with-eval-after-load 'majutsu
   (with-eval-after-load 'evil
     ;; Disable evil-snipe in majutsu buffers if evil-snipe is loaded
     (when (fboundp 'turn-off-evil-snipe-mode)
