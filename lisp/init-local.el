@@ -1,4 +1,4 @@
-;;  -*- lexical-binding: t; -*-
+;;; init-local.el --- Local configuration -*- lexical-binding: t; -*-
 
 ;; Load themes config
 (require 'init-local-themes)
@@ -105,7 +105,7 @@
   :query ask
   :format literal
   :files "everything"
-  :flags ("--hidden --no-ignore")
+  :flags ("--hidden" "--no-ignore")
   :menu ("Search" "hn" "Everything"))
 
 (require 'init-local-denote)
