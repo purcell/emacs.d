@@ -5,7 +5,6 @@
 
 ;;; Code:
 
-;; Declare autoloaded commands via use-package for lazy loading
 (use-package majutsu
   :ensure t
   :vc (:url "https://github.com/0WD0/majutsu"
@@ -26,15 +25,7 @@
       (kbd "SPC j d") #'majutsu-describe
       (kbd "SPC j D") #'majutsu-diff)))
 
-;; Per-mode evil bindings (equivalent to Doom's `after! majutsu`)
 (with-eval-after-load 'majutsu
-  ;; Allow Majutsu with-editor buffers in non-/tmp directories (e.g. macOS /var/folders)
-  (setq majutsu--with-editor-description-regexp
-        (rx (zero-or-more (not (any "\n")))
-            "/editor-" (+ (in "0-9A-Za-z_-"))
-            ".jjdescription"
-            string-end))
-
   (with-eval-after-load 'evil
     ;; Disable evil-snipe in majutsu buffers if evil-snipe is loaded
     (when (fboundp 'turn-off-evil-snipe-mode)
@@ -42,32 +33,37 @@
     (when (fboundp 'turn-off-evil-snipe-override-mode)
       (add-hook 'majutsu-mode-hook #'turn-off-evil-snipe-override-mode))
 
-    ;; Define keybindings for normal and visual states
-    (evil-define-key '(normal visual) majutsu-mode-map
-      (kbd "g")     #'majutsu-git-transient
-      (kbd ".")     #'majutsu-goto-current
-      (kbd "R")     #'majutsu-log-refresh
-      (kbd "g r")   #'majutsu-log-refresh
-      (kbd "c")     #'majutsu-commit
-      (kbd "e")     #'majutsu-edit-changeset
-      (kbd "u")     #'majutsu-undo
-      (kbd "C-r")   #'majutsu-redo
-      (kbd "s")     #'majutsu-squash-transient
-      (kbd "l")     #'majutsu-log-transient
-      (kbd "d")     #'majutsu-describe
-      (kbd "x")     #'majutsu-abandon
-      (kbd "b")     #'majutsu-bookmark-transient
-      (kbd "r")     #'majutsu-rebase-transient
-      (kbd "D")     #'majutsu-diff
-      (kbd "E")     #'majutsu-diffedit-emacs
-      (kbd "M")     #'majutsu-diffedit-smerge
-      (kbd "?")     #'majutsu-mode-transient
-      (kbd "]")     #'magit-section-forward-sibling
-      (kbd "[")     #'magit-section-backward-sibling)
+    ;; Define keybindings only if the keymap exists
+    (when (boundp 'majutsu-mode-map)
+      ;; Define keybindings for normal and visual states
+      (evil-define-key '(normal visual) majutsu-mode-map
+        (kbd "g")     #'majutsu-git-transient
+        (kbd ".")     #'majutsu-goto-current
+        (kbd "R")     #'majutsu-log-refresh
+        ;; (kbd "g r")   #'majutsu-log-refresh
+        (kbd "c")     #'majutsu-commit
+        (kbd "e")     #'majutsu-edit-changeset
+        (kbd "u")     #'majutsu-undo
+        (kbd "C-r")   #'majutsu-redo
+        (kbd "s")     #'majutsu-squash-transient
+        (kbd "l")     #'majutsu-log-transient
+        (kbd "d")     #'majutsu-describe
+        (kbd "x")     #'majutsu-abandon
+        (kbd "b")     #'majutsu-bookmark-transient
+        (kbd "r")     #'majutsu-rebase-transient
+        (kbd "D")     #'majutsu-diff
+        (kbd "E")     #'majutsu-diffedit-emacs
+        (kbd "M")     #'majutsu-diffedit-smerge
+        (kbd "?")     #'majutsu-mode-transient
+        (kbd "]")     #'magit-section-forward-sibling
+        (kbd "[")     #'magit-section-backward-sibling)
 
-    ;; RET binding for normal state only
-    (evil-define-key 'normal majutsu-mode-map
-      (kbd "RET")   #'majutsu-enter-dwim)))
+      ;; RET binding for normal state only
+      (evil-define-key 'normal majutsu-mode-map
+        (kbd "RET")   #'majutsu-enter-dwim)
+
+      ;; Force Evil to update the keymap state
+      (evil-normalize-keymaps))))
 
 (provide 'init-local-majutsu)
 ;;; init-local-majutsu.el ends here
