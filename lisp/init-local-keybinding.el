@@ -1,4 +1,15 @@
 ;; -*- lexical-binding: t; -*-
+
+;; You can also add the following code to enable commenting and uncommenting by pressing gcc
+;; in normal mode and gc in visual mode
+;; (thanks you to the Reddit user u/mistakenuser for this contribution, which replaces the evil-commentary package):
+(with-eval-after-load "evil"
+  (evil-define-operator my-evil-comment-or-uncomment (beg end)
+    "Toggle comment for the region between BEG and END."
+    (interactive "<r>")
+    (comment-or-uncomment-region beg end))
+  (evil-define-key 'normal 'global (kbd "gc") 'my-evil-comment-or-uncomment))
+
 ;; -------------------------------------------------------------------------- ;;
 ;; ----------------------------- customize key ------------------------------ ;;
 ;; -------------------------------------------------------------------------- ;;
@@ -7,7 +18,7 @@
 ;; Assumes built-in tab-bar-mode or tab-line-mode
 (dotimes (i 9)
   (let ((key (format "M-%d" (1+ i))) ; Create key string like "M-1", "M-2", etc.
-        (tab-number (1+ i)))        ; Tab index (1-based)
+        (tab-number (1+ i)))         ; Tab index (1-based)
     (global-set-key (kbd key)
                     ;; Define a command to select the corresponding tab
                     `(lambda () (interactive) (tab-bar-select-tab ,tab-number)))))
