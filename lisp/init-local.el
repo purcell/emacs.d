@@ -1,7 +1,7 @@
 ;;  -*- lexical-binding: t; -*-
 
 ;; Load themes config
-(load (expand-file-name "lisp/init-local-themes.el" user-emacs-directory))
+(require 'init-local-themes)
 
 (use-package evil
   :ensure t
@@ -71,14 +71,14 @@
 ;; Load OS-specific configurations
 (cond
  ((eq system-type 'windows-nt)
-  (load (expand-file-name "lisp/init-local-windows.el" user-emacs-directory)))
+  (require 'init-local-windows nil t))  ;; nil t = don't error if missing
  ((eq system-type 'darwin)
-  (load (expand-file-name "lisp/init-local-macos.el" user-emacs-directory)))
+  (require 'init-local-macos nil t))
  ((eq system-type 'gnu/linux)
-  (load (expand-file-name "lisp/init-local-linux.el" user-emacs-directory))))
+  (require 'init-local-linux nil t)))
 
 ;; Load org config
-(load (expand-file-name "lisp/init-local-org.el" user-emacs-directory))
+(require 'init-local-org)
 
 (use-package vim-tab-bar
   :ensure t
@@ -101,6 +101,6 @@
   (insert (format-time-string "%Y%m%dT%H%M")))
 
 ;; Load keybinding
-(load (expand-file-name "lisp/init-local-keybinding.el" user-emacs-directory))
+(require 'init-local-keybinding)
 
 (provide 'init-local)
