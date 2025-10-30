@@ -1,5 +1,10 @@
 ;; -*- lexical-binding: t; -*-
 
+;; cliboard setting for mouse
+(setq select-active-regions nil)
+(setq mouse-drag-copy-region t)
+(global-set-key [mouse-2] 'mouse-yank-at-click)
+
 ;; You can also add the following code to enable commenting and uncommenting by pressing gcc
 ;; in normal mode and gc in visual mode
 ;; (thanks you to the Reddit user u/mistakenuser for this contribution, which replaces the evil-commentary package):
