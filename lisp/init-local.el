@@ -118,6 +118,13 @@
 (use-package yasnippet-snippets
   :ensure t)
 
+(use-package substitute
+  :ensure t)
+
+;; If you want a message reporting the matches that changed in the
+;; given context.  We don't do it by default.
+(add-hook 'substitute-post-replace-functions #'substitute-report-operation)
+
 ;; Load keybinding
 (require 'init-local-keybinding)
 
