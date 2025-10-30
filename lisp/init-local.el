@@ -93,6 +93,8 @@
 (use-package restart-emacs
   :ensure t)
 
+(setq dired-listing-switches "-Ahlt --time-style=long-iso")
+
 ;; Load keybinding
 (load (expand-file-name "lisp/init-local-keybinding.el" user-emacs-directory))
 
