@@ -60,7 +60,7 @@
            "gpg"
            (file-name-extension (buffer-name)) t))))
 
-;; denote
+;; zoxide
 (use-package zoxide
   :ensure t)
 
@@ -94,6 +94,11 @@
   :ensure t)
 
 (setq dired-listing-switches "-Ahlt --time-style=long-iso")
+
+(defun insert-timestamp ()
+  "Insert current timestamp in format YYYYMMDDTHHMM."
+  (interactive)
+  (insert (format-time-string "%Y%m%dT%H%M")))
 
 ;; Load keybinding
 (load (expand-file-name "lisp/init-local-keybinding.el" user-emacs-directory))
