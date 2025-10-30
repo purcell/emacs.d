@@ -1,6 +1,6 @@
 ;;  -*- lexical-binding: t; -*-
 
-;; Load org config
+;; Load themes config
 (load (expand-file-name "lisp/init-local-themes.el" user-emacs-directory))
 
 (use-package evil
@@ -88,6 +88,10 @@
     (vim-tab-bar-mode 1)
     (setq tab-bar-tab-hints t))
   :hook (after-init . my/setup-vim-tab-bar))
+
+;; restart emacs command
+(use-package restart-emacs
+  :ensure t)
 
 ;; Load keybinding
 (load (expand-file-name "lisp/init-local-keybinding.el" user-emacs-directory))
