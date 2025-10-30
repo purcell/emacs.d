@@ -100,6 +100,8 @@
   (interactive)
   (insert (format-time-string "%Y%m%dT%H%M")))
 
+(require 'init-local-denote)
+
 ;; Load keybinding
 (require 'init-local-keybinding)
 
