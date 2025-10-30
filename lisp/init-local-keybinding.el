@@ -142,9 +142,9 @@
     (kbd "<leader> ss")  '("Start server" . server-start)
 
     ;; Majutsu
-    (kbd "<leader> jj") '("Show status" . majutsu)
-    (kbd "<leader> jl") '("Show log" . majutsu-log)
-    (kbd "<leader> jd") '("Show diff" . majutsu-diff)
+    ;; (kbd "<leader> jj") '("Show status" . majutsu)
+    ;; (kbd "<leader> jl") '("Show log" . majutsu-log)
+    ;; (kbd "<leader> jd") '("Show diff" . majutsu-diff)
 
     ;; gptel
     (kbd "<leader> gpt") '("start a chat" . gptel)
