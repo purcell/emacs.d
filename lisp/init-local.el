@@ -127,6 +127,68 @@
 ;; given context.  We don't do it by default.
 (add-hook 'substitute-post-replace-functions #'substitute-report-operation)
 
+(use-package ztree
+  :ensure t)
+
+(with-eval-after-load 'ztree-diff
+  ;; Automatically show hidden files (like .config, .bashrc, etc.)
+  (setq ztree-show-hidden-files t)
+
+  ;; Optional: Set filter patterns for files you DO want to ignore
+  (setq ztree-diff-filter-list
+        '("^\\.git$"
+          "^\\.jj$"
+          "^node_modules$"
+          "^__pycache__$"      ;; Added ^ for exact match
+          "\\.pyc$"            ;; Matches any .pyc file
+          "~$"                 ;; Backup files ending with ~
+          "^\\.DS_Store$"      ;; Optional: macOS files
+          "^target$"))         ;; Optional: Rust/Java build dirs
+
+  (evil-define-key 'normal ztree-mode-map
+    ;; Navigation
+    (kbd "j") 'ztree-next-line
+    (kbd "k") 'ztree-previous-line
+    (kbd "g g") 'ztree-jump-to-first-line
+    (kbd "G") 'ztree-jump-to-last-line
+
+    ;; Open/close directories and diff
+    (kbd "RET") 'ztree-perform-action
+    (kbd "SPC") 'ztree-perform-soft-action
+
+    ;; Directory navigation
+    (kbd "<backspace>") 'ztree-move-up-in-tree
+    (kbd "DEL") 'ztree-move-up-in-tree
+    (kbd "x") 'ztree-toggle-expand-subtree
+
+    ;; Panel switching
+    (kbd "TAB") 'ztree-jump-side
+    (kbd "<tab>") 'ztree-jump-side
+
+    ;; Toggle visibility
+    (kbd "h") 'ztree-diff-toggle-show-equal-files
+    (kbd "H") 'ztree-diff-toggle-show-filtered-files
+
+    ;; File operations
+    (kbd "C") 'ztree-diff-copy
+    (kbd "D") 'ztree-diff-delete-file
+    (kbd "v") 'ztree-diff-view-file
+
+    ;; Refresh
+    (kbd "r") 'ztree-diff-partial-rescan
+    (kbd "<f5>") 'ztree-diff-full-rescan
+    (kbd "F5") 'ztree-diff-full-rescan
+
+    ;; Quit
+    (kbd "q") 'quit-window
+    (kbd "Q") 'kill-this-buffer
+
+    ;; Help
+    (kbd "?") 'ztree-diff-toggle-help))
+
+(use-package dash
+  :ensure t)
+
 ;; Load keybinding
 (require 'init-local-keybinding)
 
