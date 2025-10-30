@@ -74,6 +74,7 @@
   (require 'init-local-windows nil t))  ;; nil t = don't error if missing
  ((eq system-type 'darwin)
   (require 'init-local-macos nil t)
+  (require 'init-local-ai nil t)
   (require 'init-local-majutsu nil t))
  ((eq system-type 'gnu/linux)
   (require 'init-local-linux nil t)))
