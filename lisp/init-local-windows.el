@@ -25,7 +25,7 @@
            return (set-fontset-font t 'unicode
                                     (font-spec :family font
                                                :size (cond ((eq system-type 'gnu/linux) 16.5)
-                                                           ((eq system-type 'windows-nt) 15.0)))
+                                                           ((eq system-type 'windows-nt) 12.5)))
                                     nil 'prepend))
 
   (cl-loop for font in '("Maple Mono NL NF CN" "思源黑体CN" "思源宋体CN" "微软雅黑CN"
@@ -38,7 +38,7 @@
                                                :weight 'normal
                                                :slant 'normal
                                                :size (cond ((eq system-type 'gnu/linux) 16.5)
-                                                           ((eq system-type 'windows-nt) 15.0)))
+                                                           ((eq system-type 'windows-nt) 12.5)))
                                     nil 'prepend))
 
   (cl-loop for font in '("HanaMinB" "SimSun-ExtB")
@@ -48,7 +48,7 @@
                                                :weight 'normal
                                                :slant 'normal
                                                :size (cond ((eq system-type 'gnu/linux) 16.5)
-                                                           ((eq system-type 'windows-nt) 15.0)))
+                                                           ((eq system-type 'windows-nt) 12.5)))
                                     nil 'prepend)))
 
 ;; Windows paths with forward slashes
