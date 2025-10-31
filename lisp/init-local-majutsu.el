@@ -57,8 +57,8 @@ When REMOTE is nil, rely on jj's default remote selection."
     (evil-define-key 'normal 'global
       (kbd "SPC j j") #'majutsu
       (kbd "SPC j c") #'majutsu-commit
-      (kbd "SPC j d") #'majutsu-describe
-      (kbd "SPC j D") #'majutsu-diff
+      (kbd "SPC j D") #'majutsu-describe
+      (kbd "SPC j d") #'majutsu-diff
       (kbd "SPC j p") #'majutsu-bookmark-main-and-push)))
 
 (with-eval-after-load 'majutsu
