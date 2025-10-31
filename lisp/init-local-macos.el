@@ -26,9 +26,9 @@
            when (font-installed-p font)
            return (set-fontset-font t 'unicode
                                     (font-spec :family font
-                                               :size 18.0)
+                                               :size 16.0)
                                     nil 'prepend))
-  (cl-loop for font in '("MapleMono NF CN" "思源黑体 CN" "思源宋体 CN" "Source Han Sans CN" "Source Han Serif CN"
+  (cl-loop for font in '("Maple Mono NF CN" "思源黑体 CN" "思源宋体 CN" "Source Han Sans CN" "Source Han Serif CN"
                          "微软雅黑 CN" "WenQuanYi Micro Hei" "文泉驿等宽微米黑"
                          "Microsoft Yahei UI" "Microsoft Yahei")
            when (font-installed-p font)
@@ -36,13 +36,13 @@
                                     (font-spec :name font
                                                :weight 'normal
                                                :slant 'normal
-                                               :size 18.0)))
+                                               :size 16.0)))
   (cl-loop for font in '("HanaMinB" "SimSun-ExtB")
            when (font-installed-p font)
            return (set-fontset-font t '(#x20000 . #x2A6DF)
                                     (font-spec :name font
                                                :weight 'normal
                                                :slant 'normal
-                                               :size 18.0))))
+                                               :size 16.0))))
 
 (provide 'init-local-macos)
