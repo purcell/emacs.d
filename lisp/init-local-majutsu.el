@@ -6,7 +6,7 @@
 ;;; Code:
 
 (defun majutsu-bookmark-main-and-push (&optional remote)
-  "Move bookmark `main' to `@' and push it to REMOTE using jj.
+  "Set bookmark `main' to `@' and push it to REMOTE using jj.
 When called interactively, prompt for REMOTE if multiple remotes exist.
 When REMOTE is nil, rely on jj's default remote selection."
   (interactive
@@ -21,13 +21,13 @@ When REMOTE is nil, rely on jj's default remote selection."
   (unless (majutsu--root)
     (user-error "Not in a majutsu repository"))
   (let ((default-directory (majutsu--root)))
-    ;; Move bookmark 'main' to @
-    (let* ((move-args '("bookmark" "set" "main" "--revision=@"))
-           (move-result (apply #'majutsu--run-command move-args)))
+    ;; Set bookmark 'main' to @
+    (let* ((set-args '("bookmark" "set" "main" "--revision=@"))
+           (set-result (apply #'majutsu--run-command set-args)))
       (if (majutsu--handle-command-result
-           move-args move-result
-           "Moved bookmark 'main' to @"
-           "Failed to move bookmark 'main'")
+           set-args set-result
+           "Set bookmark 'main' to @"
+           "Failed to set bookmark 'main'")
           ;; Push bookmark to remote
           (let* ((push-args (append '("git" "push")
                                     (and remote (list "--remote" remote))
@@ -38,41 +38,7 @@ When REMOTE is nil, rely on jj's default remote selection."
                                 "Pushed bookmark 'main'")))
             (when (majutsu--handle-push-result push-args push-result success-msg)
               (majutsu-log-refresh)))
-        (message "Bookmark move failed, skipping push")))))
-
-(defun init-majutsu-bookmark-main-and-push (&optional remote)
-  "Move bookmark `main' to `@' and push it to REMOTE using jj.
-When REMOTE is nil, rely on jj's default remote selection."
-  (interactive
-   (list
-    (progn
-      (require 'majutsu)
-      (let* ((remotes (or (majutsu--get-git-remotes) '()))
-             (default (car remotes)))
-        (pcase remotes
-          ('() nil)
-          ((pred (lambda (lst) (= (length lst) 1)))
-           default)
-          (_
-           (let ((choice (completing-read
-                          (format "Push remote (default %s, RET for default): " default)
-                          remotes nil nil nil nil default)))
-             (if (string= choice "") nil choice))))))))
-  (require 'majutsu)
-  (let ((default-directory (majutsu--root)))
-    (let* ((move-args '("bookmark" "move" "main" "-r" "@"))
-           (move-result (apply #'majutsu--run-command move-args)))
-      (when (majutsu--handle-command-result
-             move-args move-result "Moved bookmark 'main' to @" "Failed to move bookmark 'main'")
-        (let* ((push-args (append '("git" "push")
-                                  (when remote (list "--remote" remote))
-                                  '("--bookmark" "main")))
-               (push-result (apply #'majutsu--run-command push-args))
-               (success-msg (if remote
-                                (format "Pushed bookmark main to %s" remote)
-                              "Pushed bookmark main")))
-          (when (majutsu--handle-push-result push-args push-result success-msg)
-            (majutsu-log-refresh)))))))
+        (message "Bookmark set failed, skipping push")))))
 
 (use-package majutsu
   :ensure t
