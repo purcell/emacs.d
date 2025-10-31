@@ -36,6 +36,100 @@
         org-fontify-quote-and-verse-blocks t
         org-pretty-entities t))
 
+
+;;; config from https://doc.norang.ca/org-mode.html
+
+(setq org-use-fast-todo-selection t)
+(setq ido-max-directory-size 100000)
+
+;; 9 Time Clocking
+(defun bh/punch-in (arg)
+  "Start continuous clocking and set the default task to the
+   selected task.  If no task is selected set the Organization task
+   as the default task."
+  (interactive "p")
+  (setq bh/keep-clock-running t)
+  (if (equal major-mode 'org-agenda-mode)
+      ;;
+      ;; We're in the agenda
+      ;;
+      (let* ((marker (org-get-at-bol 'org-hd-marker))
+             (tags (org-with-point-at marker (org-get-tags-at))))
+        (if (and (eq arg 4) tags)
+            (org-agenda-clock-in '(16))
+          (bh/clock-in-organization-task-as-default)))
+    ;;
+    ;; We are not in the agenda
+    ;;
+    (save-restriction
+      (widen)
+                                        ; Find the tags on the current task
+      (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
+          (org-clock-in '(16))
+        (bh/clock-in-organization-task-as-default)))))
+
+(defun bh/punch-out ()
+  (interactive)
+  (setq bh/keep-clock-running nil)
+  (when (org-clock-is-active)
+    (org-clock-out))
+  (org-agenda-remove-restriction-lock))
+
+(defun bh/clock-in-default-task ()
+  (save-excursion
+    (org-with-point-at org-clock-default-task
+      (org-clock-in))))
+
+(defun bh/clock-in-parent-task ()
+  "Move point to the parent (project) task if any and clock in"
+  (let ((parent-task))
+    (save-excursion
+      (save-restriction
+        (widen)
+        (while (and (not parent-task) (org-up-heading-safe))
+          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+            (setq parent-task (point))))
+        (if parent-task
+            (org-with-point-at parent-task
+              (org-clock-in))
+          (when bh/keep-clock-running
+            (bh/clock-in-default-task)))))))
+
+(defvar bh/organization-task-id "6B6FB404-85A4-4212-B9D0-D4C2C527DD9D")
+
+(defun bh/clock-in-organization-task-as-default ()
+  (interactive)
+  (org-with-point-at (org-id-find bh/organization-task-id 'marker)
+    (org-clock-in '(16))))
+
+;; 17 Reminders
+;; Erase all reminders and rebuilt reminders for today from the agenda
+(defun bh/org-agenda-to-appt ()
+  (interactive)
+  (setq appt-time-msg-list nil)
+  (org-agenda-to-appt))
+
+;; Rebuild the reminders everytime the agenda is displayed
+(add-hook 'org-agenda-finalize-hook 'bh/org-agenda-to-appt 'append)
+
+;; This is at the end of my .emacs - so appointments are set up when Emacs starts
+(bh/org-agenda-to-appt)
+
+;; Activate appointments so we get notifications
+(appt-activate t)
+
+;; If we leave Emacs running overnight - reset the appointments one minute after midnight
+(run-at-time "24:01" nil 'bh/org-agenda-to-appt)
+
+;; 20 custom command by ken
+(defun kk/org-clock-in-switch-task ()
+  "Clock in and switch task."
+  (interactive)
+  (let ((current-prefix-arg '(4)))  ;; This sets the C-u prefix argument
+    (call-interactively 'org-clock-in)))
+
+
+
 (add-to-list 'load-path "~/github/org-now/")
 (require 'org-now)
 (setq org-now-location '("~/org/now.org" "Now"))
