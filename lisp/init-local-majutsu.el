@@ -6,7 +6,7 @@
 ;;; Code:
 
 (defun majutsu-bookmark-main-and-push (&optional remote)
-  "Set bookmark `main' to `@' and push it to REMOTE using jj.
+  "Set bookmark `main' to `@-' and push it to REMOTE using jj.
 When called interactively, prompt for REMOTE if multiple remotes exist.
 When REMOTE is nil, rely on jj's default remote selection."
   (interactive
@@ -21,12 +21,12 @@ When REMOTE is nil, rely on jj's default remote selection."
   (unless (majutsu--root)
     (user-error "Not in a majutsu repository"))
   (let ((default-directory (majutsu--root)))
-    ;; Set bookmark 'main' to @
-    (let* ((set-args '("bookmark" "set" "main" "--revision=@"))
+    ;; Set bookmark 'main' to @-
+    (let* ((set-args '("bookmark" "set" "main" "--revision=@-"))
            (set-result (apply #'majutsu--run-command set-args)))
       (if (majutsu--handle-command-result
            set-args set-result
-           "Set bookmark 'main' to @"
+           "Set bookmark 'main' to @-"
            "Failed to set bookmark 'main'")
           ;; Push bookmark to remote
           (let* ((push-args (append '("git" "push")
