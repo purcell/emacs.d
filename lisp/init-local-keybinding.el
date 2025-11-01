@@ -1,5 +1,26 @@
 ;; -*- lexical-binding: t; -*-
 
+;; Install sis
+(use-package sis
+  :ensure t
+  :config
+  (when (and (eq system-type 'darwin)
+             (display-graphic-p))
+    (let ((macism-bin (or (executable-find "macism")
+                          "/opt/homebrew/bin/macism")))
+      (when (and macism-bin (file-executable-p macism-bin))
+        (setq sis-external-ism macism-bin)))
+    ;; Configure input sources via macism
+    (sis-ism-lazyman-config
+     "com.apple.keylayout.ABC"            ; English
+     "im.rime.inputmethod.Squirrel.Hans"  ; Squirrel
+     'macism)
+    (sis-global-cursor-color-mode 1)
+    (sis-global-respect-mode 1)
+    (sis-global-context-mode 1)
+    ;; (sis-global-inline-mode 1) ; enable if inline English/Chinese is desired
+    ))
+
 ;; cliboard setting for mouse
 (setq select-active-regions nil)
 (setq mouse-drag-copy-region t)
