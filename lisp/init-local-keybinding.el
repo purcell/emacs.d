@@ -9,30 +9,15 @@
       (sis-ism-lazyman-config
        "com.apple.keylayout.ABC"
        "im.rime.inputmethod.Squirrel.Hans")
-    ;; Fallback for non-Mac systems
-    (setq sis-english-source "com.apple.keylayout.ABC"))
 
-  ;; ;; General settings (apply to all platforms)
-  ;; (setq ;; Inline mode settings
-  ;;  sis-inline-tighten-head-rule nil
+    ;; Enable global modes
+    (sis-global-cursor-color-mode nil)
+    (sis-global-respect-mode t)
+    (sis-global-context-mode t)))
 
-  ;;  ;; Cursor colors for different input sources
-  ;;  sis-default-cursor-color "#cf7fa7"   ; English input
-  ;;  sis-other-cursor-color "orange")     ; Other input (e.g., Chinese)
-
-  ;; External input source manager (commented out - using built-in method)
-  ;; (setq sis-external-ism "macism")
-
-  ;; Enable global modes
-  (sis-global-cursor-color-mode nil)
-  (sis-global-respect-mode t)
-  (sis-global-context-mode t)
-
-  ;; Inline English mode (uncomment if needed for inline English in non-English text)
-  ;; (sis-global-inline-mode t)
-
-  ;; Auto-switch to other input source when entering Evil insert mode
-  (add-hook 'evil-insert-state-entry-hook #'sis-set-other))
+;; Auto-switch to other input source when entering Evil insert mode
+(add-hook 'evil-insert-state-entry-hook #'sis-set-other)
+(add-hook 'evil-insert-state-exit-hook #'sis-set-english)
 
 ;; cliboard setting for mouse
 (setq select-active-regions nil)
