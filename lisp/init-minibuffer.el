@@ -22,12 +22,16 @@
      consult-bookmark consult-recent-file consult-xref
      consult--source-recent-file consult--source-project-recent-file consult--source-bookmark)
 
-    (when (and (executable-find "rg"))
-      (defun sanityinc/consult-ripgrep-at-point (&optional dir initial)
-        (interactive (list current-prefix-arg (when-let ((s (symbol-at-point)))
-                                                (symbol-name s))))
-        (consult-ripgrep dir initial))
-      (sanityinc/no-consult-preview sanityinc/consult-ripgrep-at-point)
+    (defun sanityinc/consult-ripgrep-at-point (&optional dir initial)
+      (interactive (list current-prefix-arg
+                         (if (use-region-p)
+                             (buffer-substring-no-properties
+                              (region-beginning) (region-end))
+                           (if-let ((s (symbol-at-point)))
+                               (symbol-name s)))))
+      (consult-ripgrep dir initial))
+    (sanityinc/no-consult-preview sanityinc/consult-ripgrep-at-point)
+    (when (executable-find "rg")
       (global-set-key (kbd "M-?") 'sanityinc/consult-ripgrep-at-point))
 
     (global-set-key [remap switch-to-buffer] 'consult-buffer)
