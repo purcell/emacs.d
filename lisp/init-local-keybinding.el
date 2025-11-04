@@ -1,23 +1,6 @@
-;; -*- lexical-binding: t; -*-
-
-;; Install sis
-(use-package sis
-  :ensure t
-  :config
-  ;; Configure input sources based on platform
-  (if *is-a-mac*
-      (sis-ism-lazyman-config
-       "com.apple.keylayout.ABC"
-       "im.rime.inputmethod.Squirrel.Hans")
-
-    ;; Enable global modes
-    (sis-global-cursor-color-mode nil)
-    (sis-global-respect-mode t)
-    (sis-global-context-mode t)))
-
-;; Auto-switch to other input source when entering Evil insert mode
-(add-hook 'evil-insert-state-entry-hook #'sis-set-other)
-(add-hook 'evil-insert-state-exit-hook #'sis-set-english)
+;;; Package --- keybinding -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
 
 ;; cliboard setting for mouse
 (setq select-active-regions nil)
@@ -34,9 +17,21 @@
     (comment-or-uncomment-region beg end))
   (evil-define-key 'normal 'global (kbd "gc") 'my-evil-comment-or-uncomment))
 
+;; (defun my/evil-delete (orig-fn beg end &optional type _ &rest args)
+;;   "Make evil-delete use the black hole register (_) instead of default register."
+;;   (apply orig-fn beg end type ?_ args))
+
+;; (advice-add 'evil-delete :around 'my/evil-delete)
+
 (defun my/evil-delete (orig-fn beg end &optional type _ &rest args)
+  "Make `evil-delete' use the black hole register (_) instead of default register.
+ORIG-FN is the original function being advised.
+BEG and END are the region boundaries.
+TYPE is the motion type.
+ARGS are additional arguments."
   (apply orig-fn beg end type ?_ args))
-(advice-add 'evil-delete :around 'my/evil-delete)
+
+(advice-add 'evil-delete :around #'my/evil-delete)
 
 ;; -------------------------------------------------------------------------- ;;
 ;; ----------------------------- customize key ------------------------------ ;;
@@ -182,3 +177,4 @@
   (define-key org-agenda-mode-map (kbd "l") 'evil-forward-char))    ; Move right
 
 (provide 'init-local-keybinding)
+;;; init-local-keybinding.el ends here
