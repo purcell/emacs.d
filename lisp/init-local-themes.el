@@ -1,5 +1,8 @@
-;; init-local-themes  -*- lexical-binding: t; -*-
-;;; modus theme
+;;; package --- init-local-themes  -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
+
+;; modus theme
 (use-package modus-themes
   :ensure t
   :config
@@ -59,4 +62,18 @@
           ("PHONE" . (:foreground ,(modus-themes-get-color-value 'rust) :weight bold))
           ("MEETING" . (:foreground ,(modus-themes-get-color-value 'rust) :weight bold)))))
 
+
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+
+(setq doom-modeline-height 18
+      doom-modeline-buffer-file-name-style 'auto
+      doom-modeline-buffer-modification-icon t
+      doom-modeline-bar-width 4
+      doom-modeline-hud t
+      doom-modeline-hud-min-height 1)
+
 (provide 'init-local-themes)
+;;; init-local-themes.el ends here
