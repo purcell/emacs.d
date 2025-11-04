@@ -1,27 +1,15 @@
 ;; init-local-org.el - org specific settings  -*- lexical-binding: t; -*-
 
 (setq org-directory "~/org/"
-      org-default-notes-file (expand-file-name "inbox.org" org-directory)
-      org-agenda-files (list org-default-notes-file
-                             (expand-file-name "software.org" org-directory)
-                             (expand-file-name "web.org" org-directory)
-                             (expand-file-name "network.org" org-directory)
-                             (expand-file-name "bookmark.org" org-directory)
-                             (expand-file-name "ai.org" org-directory)
-                             (expand-file-name "weekly.org" org-directory)
-                             (expand-file-name "habits.org" org-directory)
-                             (expand-file-name "learning.org" org-directory)
-                             (expand-file-name "diary.org" org-directory)
-                             (expand-file-name "todo.org" org-directory)
-                             (expand-file-name "shopping.org" org-directory)
-                             (expand-file-name "game.org" org-directory)
-                             (expand-file-name "coffee.org" org-directory)
-                             (expand-file-name "movies.org" org-directory)
-                             (expand-file-name "other.org" org-directory)
-                             (expand-file-name "notes.org" org-directory)
-                             (expand-file-name "camera.org" org-directory)
-                             (expand-file-name "musics.org" org-directory)
-                             (expand-file-name "now.org" org-directory)))
+      org-default-notes-file (expand-file-name "inbox.org" org-directory))
+
+(setq org-agenda-files
+      (seq-filter (lambda(x) (not (string-match "/.stversions/"(file-name-directory x))))
+                  (directory-files-recursively "~/org/" "\\.org$")
+                  ))
+
+(setq org-agenda-clockreport-parameter-plist
+      (quote (:maxlevel 5 :fileskip0 t :compact t :narrow 80 :formula % )))
 
 (with-eval-after-load 'org
   (setq org-hide-emphasis-markers t
