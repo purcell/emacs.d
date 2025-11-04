@@ -44,7 +44,8 @@
     (global-set-key [remap switch-to-buffer-other-frame] 'consult-buffer-other-frame)
     (global-set-key [remap goto-line] 'consult-goto-line)
 
-    (maybe-require-package 'embark-consult)))
+    (when (maybe-require-package 'embark-consult)
+      (require 'embark-consult))))
 
 (when (maybe-require-package 'marginalia)
   (add-hook 'after-init-hook 'marginalia-mode))
