@@ -1,4 +1,6 @@
-;;; init-local.el --- Local configuration -*- lexical-binding: t; -*-
+;; init-local.el --- Local configuration -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
 
 ;; Load themes config
 (require 'init-local-themes)
@@ -65,13 +67,16 @@
   :ensure t)
 
 (defun dired-jump-with-zoxide (&optional other-window)
+  "Jump to a directory using zoxide and open it in Dired.
+If OTHER-WINDOW is non-nil, open the directory in another window."
   (interactive "P")
   (zoxide-open-with nil (lambda (file) (dired-jump other-window file)) t))
+
 
 ;; Load OS-specific configurations
 (cond
  ((eq system-type 'windows-nt)
-  (require 'init-local-windows nil t))  ;; nil t = don't error if missing
+  (require 'init-local-windows nil t)) ;; nil t = don't error if missing
  ((eq system-type 'darwin)
   (require 'init-local-macos nil t)
   (require 'init-local-ai nil t)
@@ -189,7 +194,12 @@
 (use-package dash
   :ensure t)
 
+(setq warning-minimum-level :error           ; Only pop up *Warnings* buffer for errors
+      warning-minimum-log-level :warning)    ; Log warnings and above to *Messages*
+
+
 ;; Load keybinding
 (require 'init-local-keybinding)
 
 (provide 'init-local)
+;;; init-local.el ends here
