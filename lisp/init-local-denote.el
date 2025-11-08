@@ -1,4 +1,6 @@
-;; init-local-denot.el - denote settings  -*- lexical-binding: t; -*-
+;;; init-local-denot.el --- denote settings  -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
 
 ;; denote
 ;; Remember that the website version of this manual shows the latest
@@ -53,4 +55,23 @@
 ;; Automatically rename Denote buffers using the `denote-rename-buffer-format'.
 (denote-rename-buffer-mode 1)
 
+(use-package denote-journal
+  :ensure t
+  ;; Bind those to some key for your convenience.
+  ;; :commands ( denote-journal-new-entry
+  ;;             denote-journal-new-or-existing-entry
+  ;;             denote-journal-link-or-create-entry )
+  :hook (calendar-mode . denote-journal-calendar-mode)
+  :config
+  ;; Use the "journal" subdirectory of the `denote-directory'.  Set this
+  ;; to nil to use the `denote-directory' instead.
+  (setq denote-journal-directory
+        (expand-file-name "journal" denote-directory))
+  ;; Default keyword for new journal entries. It can also be a list of
+  ;; strings.
+  (setq denote-journal-keyword "journal")
+  ;; Read the doc string of `denote-journal-title-format'.
+  (setq denote-journal-title-format ""))
+
 (provide 'init-local-denote)
+;;; init-local-denote.el ends here

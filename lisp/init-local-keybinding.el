@@ -165,9 +165,9 @@ ARGS are additional arguments."
   (kbd "<leader> gps") '("submit prompt to llm" . gptel-send)
   (kbd "<leader> gpm") '("change prompt" . gptel-menu)
 
-  ;; org journal
-  (kbd "<leader> jn") '("Creat a entry" . org-journal-new-entry)
-  (kbd "<leader> jo") '("Open current journal" . org-journal-open-current-journal-file))
+  ;; denote journal
+  (kbd "<leader> jn") '("Creat a entry" . denote-journal-new-or-existing-entry)
+  (kbd "<leader> jo") '("Open current journal" . denote-journal-new-or-existing-entry))
 
 ;; Configure hjkl for Org Agenda
 (with-eval-after-load 'org-agenda
