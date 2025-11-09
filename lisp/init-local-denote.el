@@ -55,6 +55,22 @@
 ;; Automatically rename Denote buffers using the `denote-rename-buffer-format'.
 (denote-rename-buffer-mode 1)
 
+(defun my/denote-journal-new-or-existing-entry (&optional date)
+  "Open/create journal entry, append timestamp, then enter Evil insert state."
+  (interactive
+   (list
+    (when current-prefix-arg
+      (denote-date-prompt))))
+  (denote-journal-new-or-existing-entry date)
+  (let ((file buffer-file-name))
+    (when (and file
+               (fboundp 'denote-journal-file-is-journal-p)
+               (denote-journal-file-is-journal-p file))
+      (goto-char (point-max))
+      (insert (format-time-string "\n# %H:%M #\n\n"))
+      (when (fboundp 'evil-insert-state)
+        (evil-insert-state)))))
+
 (use-package denote-journal
   :ensure t
   ;; Bind those to some key for your convenience.

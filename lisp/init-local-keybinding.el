@@ -119,7 +119,6 @@ ARGS are additional arguments."
   (kbd "<leader> dc") '("Cd current file directory" . ai/cd-to-current-buffer)
   (kbd "<leader> pwd") '("Show current directory" . pwd)
   (kbd "<leader> di") '("Dired" . dired)
-
   ;; zoxide
   (kbd "<leader> zf") '("Find file under a path saved in zoxide" . zoxide-find-file)
   (kbd "<leader> zt") '("Travel to a path saved in zoxide" . zoxide-travel)
@@ -166,7 +165,7 @@ ARGS are additional arguments."
   (kbd "<leader> gpm") '("change prompt" . gptel-menu)
 
   ;; denote journal
-  (kbd "<leader> jn") '("Creat a entry" . denote-journal-new-or-existing-entry)
+  (kbd "<leader> jn") '("Creat a entry" . my/denote-journal-new-or-existing-entry)
   (kbd "<leader> jo") '("Open current journal" . denote-journal-new-or-existing-entry))
 
 ;; Configure hjkl for Org Agenda
