@@ -29,7 +29,7 @@
            :host "api.perplexity.ai"
            :stream t
            :key #'gptel-api-key-from-auth-source
-           :models '("sonar"))
+           :models '(sonar))
 
          (gptel-make-openai "sone"
            :host "sone.19982002.xyz"
