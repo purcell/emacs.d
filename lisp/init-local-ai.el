@@ -48,6 +48,14 @@
 (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
 (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
 
+(use-package gptel-prompts
+  :vc (:url "https://github.com/jwiegley/gptel-prompts" :rev :newest)
+  :after gptel
+  :demand t
+  :config
+  (gptel-prompts-update)
+  (gptel-prompts-add-update-watchers))
+
 (require 'init-local-gptel-proof nil t)
 
 (provide 'init-local-ai)
