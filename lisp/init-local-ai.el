@@ -27,6 +27,7 @@
    (list gptel-backend
          (gptel-make-perplexity "perplexity"
            :host "api.perplexity.ai"
+           :endpoint "/chat/completions"
            :stream t
            :key #'gptel-api-key-from-auth-source
            :models '(sonar))
