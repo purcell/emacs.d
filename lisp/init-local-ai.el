@@ -49,6 +49,34 @@
 (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
 (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
 
+(defun gjg/gptel-backend-and-model ()
+  "Return gptel backend and model (if any)."
+  (let ((backend (if  (boundp 'gptel-backend)  (aref gptel-backend 1)))
+        (model (if  (boundp 'gptel-model) gptel-model)))
+    (format "(%s %s)" backend model)))
+
+(defun gjg/gptel-insert-model-in-non-gptel-buffers ()
+  "This function will add the backend and model in the \"dynamic\" buffers, not in dedicated chat buffers.
+To be used in `gptel-pre-response-hook'."
+  (unless (member 'gptel-mode local-minor-modes)
+    (goto-char (point-max))
+    (insert (format "\n%s: " (gjg/gptel-backend-and-model)))
+    (goto-char (point-max))))
+(add-hook 'gptel-pre-response-hook 'gjg/gptel-insert-model-in-non-gptel-buffers)
+
+(defun gjg/gptel-insert-model-in-chat-buffers (response-begin-pos response-end-pos)
+  "This function adds the backend and model in dedicated chat buffers.
+Can be used with the `gptel-post-response-functions' hook."
+  (let* ((gptel-org-prefix (alist-get 'org-mode gptel-prompt-prefix-alist))
+         (inserted-string (format "%s %s\n"
+                                  (substring gptel-org-prefix 0 (string-match " " gptel-org-prefix))
+                                  (gjg/gptel-backend-and-model)))
+         (len-inserted (length inserted-string )))
+    (goto-char response-begin-pos)
+    (insert inserted-string)
+    (goto-char (+ response-end-pos len-inserted))))
+(add-hook 'gptel-post-response-functions 'gjg/gptel-insert-model-in-chat-buffers)
+
 (use-package gptel-prompts
   :vc (:url "https://github.com/jwiegley/gptel-prompts" :rev :newest)
   :after gptel
