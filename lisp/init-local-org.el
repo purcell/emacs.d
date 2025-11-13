@@ -1,4 +1,6 @@
-;; init-local-org.el - org specific settings  -*- lexical-binding: t; -*-
+;; init-local-org.el --- org specific settings  -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
 
 (setq org-directory "~/org/"
       org-default-notes-file (expand-file-name "inbox.org" org-directory))
@@ -32,9 +34,7 @@
 
 ;; 9 Time Clocking
 (defun bh/punch-in (arg)
-  "Start continuous clocking and set the default task to the
-   selected task.  If no task is selected set the Organization task
-   as the default task."
+  "Start continuous clocking and set the default task to the selected task.  If no task is selected set the Organization task as the default task."
   (interactive "p")
   (setq bh/keep-clock-running t)
   (if (equal major-mode 'org-agenda-mode)
@@ -69,7 +69,7 @@
       (org-clock-in))))
 
 (defun bh/clock-in-parent-task ()
-  "Move point to the parent (project) task if any and clock in"
+  "Move point to the parent (project) task if any and clock in."
   (let ((parent-task))
     (save-excursion
       (save-restriction
@@ -165,4 +165,9 @@
                 (window-height . 0.2)))))))))
 
 
+
+;; Show only top-level headlines
+(setq org-startup-folded 'content)
+
 (provide 'init-local-org)
+;;; init-local-org.el ends here

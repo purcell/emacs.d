@@ -119,10 +119,19 @@ ARGS are additional arguments."
   (kbd "<leader> dc") '("Cd current file directory" . ai/cd-to-current-buffer)
   (kbd "<leader> pwd") '("Show current directory" . pwd)
   (kbd "<leader> di") '("Dired" . dired)
+
   ;; zoxide
   (kbd "<leader> zf") '("Find file under a path saved in zoxide" . zoxide-find-file)
   (kbd "<leader> zt") '("Travel to a path saved in zoxide" . zoxide-travel)
-  (kbd "<leader> zc") '("Change working directory to a path" . zoxide-cd)
+  (kbd "<leader> zd") '("Change working directory to a path" . zoxide-cd)
+
+  ;; fold
+  (kbd "<leader> zo") '("Open fold at point" . evil-open-fold)
+  (kbd "<leader> zc") '("Close fold at point" . evil-close-fold)
+  (kbd "<leader> za") '("Toggle a fold" . evil-toggle-fold)
+  (kbd "<leader> zO") '("Open fold at point" . evil-open-folds)
+  (kbd "<leader> zC") '("Close fold at point" . evil-close-folds)
+  (kbd "<leader> zr") '("Toggle a fold" . evil-open-fold-rec)
 
   ;; delete
   (kbd "<leader> dd") '("Kill line" . kill-line)
