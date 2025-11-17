@@ -81,5 +81,19 @@
   :ensure t
   :init (spacious-padding-mode 1))
 
+
+
+(use-package all-the-icons
+  :ensure t
+  :defer
+  :if (display-graphic-p))
+
+(use-package all-the-icons-completion
+  :ensure t
+  :defer
+  :hook (marginalia-mode . #'all-the-icons-completion-marginalia-setup)
+  :init
+  (all-the-icons-completion-mode))
+
 (provide 'init-local-themes)
 ;;; init-local-themes.el ends here
