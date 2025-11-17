@@ -95,5 +95,9 @@
   :init
   (all-the-icons-completion-mode))
 
+(use-package nerd-icons-dired
+  :ensure t
+  :hook (dired-mode . nerd-icons-dired-mode))
+
 (provide 'init-local-themes)
 ;;; init-local-themes.el ends here
