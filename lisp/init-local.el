@@ -206,6 +206,18 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
    '((left-fringe . 8)
      (right-fringe . 8))))
 
+(use-package golden-ratio
+  :ensure t
+  :config
+  (golden-ratio-mode 1)
+  :custom
+  ;; Exclude specific modes from golden-ratio
+  (golden-ratio-exclude-modes '(ediff-mode))
+  ;; Exclude specific buffer names
+  (golden-ratio-exclude-buffer-names '("*NeoTree*" "*Treemacs*"))
+  ;; Auto-scale windows
+  (golden-ratio-auto-scale t))
+
 ;; Load keybinding
 (require 'init-local-keybinding)
 
