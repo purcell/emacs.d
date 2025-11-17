@@ -197,6 +197,14 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
 (setq warning-minimum-level :error           ; Only pop up *Warnings* buffer for errors
       warning-minimum-log-level :warning)    ; Log warnings and above to *Messages*
 
+;; just for looks
+(use-package vertico-posframe
+  :ensure t
+  :hook (after-init . vertico-posframe-mode)
+  :custom
+  (vertico-posframe-parameters
+   '((left-fringe . 8)
+     (right-fringe . 8))))
 
 ;; Load keybinding
 (require 'init-local-keybinding)
