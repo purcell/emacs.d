@@ -75,5 +75,11 @@
       doom-modeline-hud t
       doom-modeline-hud-min-height 1)
 
+
+
+(use-package spacious-padding
+  :ensure t
+  :init (spacious-padding-mode 1))
+
 (provide 'init-local-themes)
 ;;; init-local-themes.el ends here
