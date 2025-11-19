@@ -218,6 +218,8 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
   ;; Auto-scale windows
   (golden-ratio-auto-scale t))
 
+(require 'init-local-shell)
+
 ;; Load keybinding
 (require 'init-local-keybinding)
 
