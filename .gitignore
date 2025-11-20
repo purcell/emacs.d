@@ -34,7 +34,7 @@ site-lisp/package/
 /emms/
 /.smex-items
 /image-dired/
-/eshell
+/eshell/*
 /.cask/
 /.sx/
 /org-clock-save.el

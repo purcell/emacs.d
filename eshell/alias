@@ -1,0 +1,12 @@
+alias em /Applications/Emacs.app/Contents/MacOS/bin/emacsclient -n $1
+
+alias e eza
+alias el eza -l
+alias et eza -T
+alias ea eza -a
+alias eta eza -T -a
+alias ela eza -la -snew --icons
+alias l eza -l -snew --icons
+alias ll eza -l -g --icons
+alias ls eza --icons
+alias la eza -la -snew --icons
