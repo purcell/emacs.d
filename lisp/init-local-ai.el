@@ -18,9 +18,12 @@
      :key #'gptel-api-key-from-auth-source
      :models '("openai/gpt-4o-mini"
                "openai/gpt-4.1"
+               "openai/gpt-5.1"
                "google/gemini-2.0-flash-exp:free"
                "google/gemini-2.5-pro"
+               "google/gemini-3-pro-preview"
                "anthropic/claude-sonnet-4.5"
+               "x-ai/grok-code-fast-1"
                "minimax/minimax-m2:free"))
 
    gptel-backends
