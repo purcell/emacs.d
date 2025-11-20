@@ -5,9 +5,8 @@
 ;; macOS specific key bindings
 (setq mac-option-modifier 'meta)
 (setq mac-command-modifier 'super)
-;; (setq mac-control-modifier 'super)
 
-; macOS specific font settings
+;; macOS specific font settings
 (defun font-installed-p (font-name)
   "Check if font with FONT-NAME is available."
   (find-font (font-spec :name font-name)))
@@ -45,7 +44,23 @@
                                     (font-spec :name font
                                                :weight 'normal
                                                :slant 'normal
-                                               :size 16.0))))
+                                               :size 16.0)))
+
+  ;; Nerd Font icons
+  (cl-loop for nf-font in '("Symbols Nerd Font Mono"
+                            "MonoLisa Nerd Font"
+                            "JetBrainsMono Nerd Font Mono"
+                            "CaskaydiaMono Nerd Font Mono"
+                            "Hack Nerd Font Mono")
+           when (font-installed-p nf-font)
+           return (progn
+                    (message "Using Nerd Font: %s" nf-font)
+                    ;; Basic PUA (standard icons)
+                    (set-fontset-font t '(#xe000 . #xf8ff) nf-font nil 'append)
+                    ;; Supplementary Private Use Area-A (Material icons, etc.)
+                    (set-fontset-font t '(#xf0000 . #xfffff) nf-font nil 'append)
+                    ;; Supplementary Private Use Area-B (additional glyphs)
+                    (set-fontset-font t '(#x100000 . #x10ffff) nf-font nil 'append))))
 
 ;; Install sis
 (use-package sis
@@ -58,8 +73,8 @@
      "im.rime.inputmethod.Squirrel.Hans")
 
     ;; Set cursor colors for different input sources
-    (setq sis-default-cursor-color "#b81e19")  ; English input source
-    (setq sis-other-cursor-color "#b81e19")    ; Other input source (change as needed)
+    (setq sis-default-cursor-color "#b81e19") ; English input source
+    (setq sis-other-cursor-color "#b81e19") ; Other input source (change as needed)
 
     ;; Enable global modes
     (sis-global-cursor-color-mode t)
