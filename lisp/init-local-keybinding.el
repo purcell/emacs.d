@@ -173,6 +173,9 @@ ARGS are additional arguments."
   (kbd "<leader> gps") '("submit prompt to llm" . gptel-send)
   (kbd "<leader> gpm") '("change prompt" . gptel-menu)
 
+  ;; shell
+  (kbd "<leader> es") '("start a eshell" . eshell)
+
   ;; denote journal
   (kbd "<leader> jn") '("Creat a entry" . my/denote-journal-new-or-existing-entry)
   (kbd "<leader> jo") '("Open current journal" . denote-journal-new-or-existing-entry))

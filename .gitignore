@@ -61,3 +61,4 @@ site-lisp/package/
 recentf.eld
 /undo-fu-session/
 projects.eld
+!/eshell/alias
