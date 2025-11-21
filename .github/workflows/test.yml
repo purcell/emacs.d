@@ -30,6 +30,6 @@ jobs:
       with:
         version: ${{ matrix.emacs_version }}
 
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Check startup
       run: ./test-startup.sh
