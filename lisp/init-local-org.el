@@ -27,6 +27,7 @@
         org-pretty-entities t))
 
 
+
 ;;; config from https://doc.norang.ca/org-mode.html
 
 (setq org-use-fast-todo-selection t)
@@ -166,8 +167,30 @@
 
 
 
+
 ;; Show only top-level headlines
 (setq org-startup-folded 'content)
+
+
+
+(with-eval-after-load 'org
+  (let ((cmd '("v" "A better agenda view"
+               ((tags-todo "+PRIORITY=\"A\""
+                           ((org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT")))
+                            (org-agenda-overriding-header "High-priority unfinished tasks:")))
+                (tags-todo "+PRIORITY=\"B\""
+                           ((org-agenda-skip-function
+                             '(let ((skip (org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT"))))
+                                (or skip
+                                    (unless (string-match-p "\\[#B\\]" (org-get-heading nil nil nil nil))
+                                      (or (outline-next-heading) (point-max))))))
+                            (org-agenda-overriding-header "Medium-priority unfinished tasks:")))
+                (tags-todo "+PRIORITY=\"C\""
+                           ((org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT")))
+                            (org-agenda-overriding-header "Low-priority unfinished tasks:")))
+                (agenda "")))))
+    (unless (assoc "v" org-agenda-custom-commands)
+      (add-to-list 'org-agenda-custom-commands cmd t))))
 
 (provide 'init-local-org)
 ;;; init-local-org.el ends here
