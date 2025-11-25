@@ -173,8 +173,10 @@
 
 
 
+(setq org-agenda-block-separator (make-string 120 45))
+
 (with-eval-after-load 'org
-  (let ((cmd '("v" "A better agenda view"
+  (let ((cmd '("p" "List priority and schedule tasks"
                ((tags-todo "+PRIORITY=\"A\""
                            ((org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT")))
                             (org-agenda-overriding-header "High-priority unfinished tasks:")))
@@ -188,8 +190,9 @@
                 (tags-todo "+PRIORITY=\"C\""
                            ((org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT")))
                             (org-agenda-overriding-header "Low-priority unfinished tasks:")))
-                (agenda "")))))
-    (unless (assoc "v" org-agenda-custom-commands)
+                (agenda ""))
+               ((org-agenda-compact-blocks nil)))))  ; Set compact-blocks to nil only for this view
+    (unless (assoc "p" org-agenda-custom-commands)
       (add-to-list 'org-agenda-custom-commands cmd t))))
 
 (provide 'init-local-org)
