@@ -204,6 +204,7 @@
   ;; IMPORTANT: Disable org-modern's TODO styling to let svg-tag-mode handle it
   (setq org-modern-todo nil)
   (setq org-modern-priority nil)
+  (setq org-modern-timestamp nil)
   (setq org-modern-tag nil))  ; Also let svg-tag handle tags if desired
 
 (with-eval-after-load 'org
