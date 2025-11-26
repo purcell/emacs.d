@@ -203,6 +203,7 @@
   (setq org-modern-star '("◉" "○" "◈" "◇" "*"))
   ;; IMPORTANT: Disable org-modern's TODO styling to let svg-tag-mode handle it
   (setq org-modern-todo nil)
+  (setq org-modern-priority nil)
   (setq org-modern-tag nil))  ; Also let svg-tag handle tags if desired
 
 (with-eval-after-load 'org
@@ -239,6 +240,11 @@
   ;; Define svg-tag patterns
   (setq svg-tag-tags
         `(
+          ;; Task priority
+          ("\\[#[A-Z]\\]" . ( (lambda (tag)
+                                (svg-tag-make tag :face 'org-priority
+                                              :beg 2 :end -1 :margin 0))))
+
           ;; TODO keywords (using org-todo-keyword-faces)
           ("TODO" . ((lambda (tag)
                         (svg-tag-make "TODO" :face (modus-themes-get-color-value 'green-intense) :margin 0))))
