@@ -173,7 +173,7 @@
 
 
 
-(setq org-agenda-block-separator (make-string 120 ?─))
+(setq org-agenda-block-separator (make-string 100 ?─))
 
 (with-eval-after-load 'org
   (let ((cmd '("p" "List priority and schedule tasks"
