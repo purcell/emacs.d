@@ -50,17 +50,17 @@
 
   (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
 
-;; work with modus theme
-(with-eval-after-load 'modus-themes
-  (setq org-todo-keyword-faces
-        `(("TODO" . (:foreground ,(modus-themes-get-color-value 'green-intense) :weight bold))
-          ("NEXT" . (:foreground ,(modus-themes-get-color-value 'blue) :weight bold))
-          ("DONE" . (:foreground ,(modus-themes-get-color-value 'fg-dim) :weight bold))
-          ("WAITING" . (:foreground ,(modus-themes-get-color-value 'cyan) :weight bold))
-          ("HOLD" . (:foreground ,(modus-themes-get-color-value 'magenta) :weight bold))
-          ("CANCELLED" . (:foreground ,(modus-themes-get-color-value 'fg-dim) :weight bold))
-          ("PHONE" . (:foreground ,(modus-themes-get-color-value 'rust) :weight bold))
-          ("MEETING" . (:foreground ,(modus-themes-get-color-value 'rust) :weight bold)))))
+;; ;; work with modus theme
+;; (with-eval-after-load 'modus-themes
+;;   (setq org-todo-keyword-faces
+;;         `(("TODO" . (:foreground ,(modus-themes-get-color-value 'green-intense) :weight bold))
+;;           ("NEXT" . (:foreground ,(modus-themes-get-color-value 'blue) :weight bold))
+;;           ("DONE" . (:foreground ,(modus-themes-get-color-value 'fg-dim) :weight bold))
+;;           ("WAITING" . (:foreground ,(modus-themes-get-color-value 'cyan) :weight bold))
+;;           ("HOLD" . (:foreground ,(modus-themes-get-color-value 'magenta) :weight bold))
+;;           ("CANCELLED" . (:foreground ,(modus-themes-get-color-value 'fg-dim) :weight bold))
+;;           ("PHONE" . (:foreground ,(modus-themes-get-color-value 'rust) :weight bold))
+;;           ("MEETING" . (:foreground ,(modus-themes-get-color-value 'rust) :weight bold)))))
 
 
 
