@@ -150,5 +150,13 @@ Stolen from aweshell."
 ;;   (setq eshell-highlight-prompt nil
 ;;         eshell-prompt-function 'epe-theme-dakrone))
 
+(use-package eshell-z
+  :after eshell
+  :ensure t)
+
+(add-hook 'eshell-mode-hook
+          (defun my-eshell-mode-hook ()
+            (require 'eshell-z)))
+
 (provide 'init-local-shell)
 ;;; init-local-shell.el ends here
