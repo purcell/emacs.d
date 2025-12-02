@@ -59,8 +59,8 @@
           ("WAITING" . (:foreground ,(modus-themes-get-color-value 'cyan) :weight bold))
           ("HOLD" . (:foreground ,(modus-themes-get-color-value 'magenta) :weight bold))
           ("CANCELLED" . (:foreground ,(modus-themes-get-color-value 'fg-dim) :weight bold))
-          ("PHONE" . (:foreground ,(modus-themes-get-color-value 'rust) :weight bold))
-          ("MEETING" . (:foreground ,(modus-themes-get-color-value 'rust) :weight bold)))))
+          ("PROJECT" . (:foreground ,(modus-themes-get-color-value 'rust) :weight bold))
+          ("DELEGATED" . (:foreground ,(modus-themes-get-color-value 'rust) :weight bold)))))
 
 
 

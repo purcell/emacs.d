@@ -178,17 +178,17 @@
 (with-eval-after-load 'org
   (let ((cmd '("p" "List priority and schedule tasks"
                ((tags-todo "+PRIORITY=\"A\""
-                           ((org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT")))
+                           ((org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT" "PROJECT" "DELEGATED")))
                             (org-agenda-overriding-header "High-priority unfinished tasks:")))
                 (tags-todo "+PRIORITY=\"B\""
                            ((org-agenda-skip-function
-                             '(let ((skip (org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT"))))
+                             '(let ((skip (org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT" "PROJECT" "DELEGATED"))))
                                 (or skip
                                     (unless (string-match-p "\\[#B\\]" (org-get-heading nil nil nil nil))
                                       (or (outline-next-heading) (point-max))))))
                             (org-agenda-overriding-header "Medium-priority unfinished tasks:")))
                 (tags-todo "+PRIORITY=\"C\""
-                           ((org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT")))
+                           ((org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo '("TODO" "NEXT" "PROJECT" "DELEGATED")))
                             (org-agenda-overriding-header "Low-priority unfinished tasks:")))
                 (agenda ""))
                ((org-agenda-compact-blocks nil)))))  ; Set compact-blocks to nil only for this view
