@@ -175,6 +175,7 @@ ARGS are additional arguments."
 
   ;; shell
   (kbd "<leader> es") '("start a eshell" . eshell)
+  (kbd "<leader> ec") '("Open eshell current directory" . eshell-current-directory)
 
   ;; denote journal
   (kbd "<leader> jn") '("Creat a entry" . my/denote-journal-new-or-existing-entry)
