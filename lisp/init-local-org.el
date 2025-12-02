@@ -205,82 +205,84 @@
   (setq org-modern-todo nil)
   (setq org-modern-priority nil)
   (setq org-modern-timestamp nil)
-  (setq org-modern-tag nil))  ; Also let svg-tag handle tags if desired
+  (setq org-modern-tag t))  ; Also let svg-tag handle tags if desired
 
 (with-eval-after-load 'org
   (global-org-modern-mode))
 
-(use-package svg-tag-mode
-  :ensure t)
+
 
-;; Configure svg-tag-mode for Org mode
-(with-eval-after-load 'svg-tag-mode
-  (defun svg-progress-percent (value)
-    (save-match-data
-      (svg-image (svg-lib-concat
-                  (svg-lib-progress-bar (/ (string-to-number value) 100.0)
-                                        nil :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
-                  (svg-lib-tag (concat value "%")
-                               nil :stroke 0 :margin 0)) :ascent 'center)))
+;; (use-package svg-tag-mode
+;;   :ensure t)
 
-  (defun svg-progress-count (value)
-    (save-match-data
-      (let* ((seq (split-string value "/"))
-             (count (if (stringp (car seq))
-                        (float (string-to-number (car seq)))
-                      0))
-             (total (if (stringp (cadr seq))
-                        (float (string-to-number (cadr seq)))
-                      1000)))
-        (svg-image (svg-lib-concat
-                    (svg-lib-progress-bar (/ count total) nil
-                                          :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
-                    (svg-lib-tag value nil
-                                 :stroke 0 :margin 0)) :ascent 'center))))
+;; ;; Configure svg-tag-mode for Org mode
+;; (with-eval-after-load 'svg-tag-mode
+;;   (defun svg-progress-percent (value)
+;;     (save-match-data
+;;       (svg-image (svg-lib-concat
+;;                   (svg-lib-progress-bar (/ (string-to-number value) 100.0)
+;;                                         nil :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
+;;                   (svg-lib-tag (concat value "%")
+;;                                nil :stroke 0 :margin 0)) :ascent 'center)))
 
-  ;; Define svg-tag patterns
-  (setq svg-tag-tags
-        `(
-          ;; Task priority
-          ("\\[#[A-Z]\\]" . ( (lambda (tag)
-                                (svg-tag-make tag :face 'org-priority
-                                              :beg 2 :end -1 :margin 0))))
+;;   (defun svg-progress-count (value)
+;;     (save-match-data
+;;       (let* ((seq (split-string value "/"))
+;;              (count (if (stringp (car seq))
+;;                         (float (string-to-number (car seq)))
+;;                       0))
+;;              (total (if (stringp (cadr seq))
+;;                         (float (string-to-number (cadr seq)))
+;;                       1000)))
+;;         (svg-image (svg-lib-concat
+;;                     (svg-lib-progress-bar (/ count total) nil
+;;                                           :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
+;;                     (svg-lib-tag value nil
+;;                                  :stroke 0 :margin 0)) :ascent 'center))))
 
-          ;; TODO keywords (using org-todo-keyword-faces)
-          ("TODO" . ((lambda (tag)
-                        (svg-tag-make "TODO" :face (modus-themes-get-color-value 'green-intense) :margin 0))))
-          ("NEXT" . ((lambda (tag)
-                        (svg-tag-make "NEXT" :face (modus-themes-get-color-value 'blue) :margin 0))))
-          ("DONE" . ((lambda (tag)
-                        (svg-tag-make "DONE" :face (modus-themes-get-color-value 'fg-dim) :margin 0))))
-          ("WAITING" . ((lambda (tag)
-                           (svg-tag-make "WAITING" :face (modus-themes-get-color-value 'cyan) :margin 0))))
-          ("CANCELLED" . ((lambda (tag)
-                             (svg-tag-make "CANCELLED" :face (modus-themes-get-color-value 'fg-dim) :margin 0))))
-          ("HOLD" . ((lambda (tag)
-                        (svg-tag-make "HOLD" :face (modus-themes-get-color-value 'magenta) :margin 0))))
-          ("PROJECT" . ((lambda (tag)
-                           (svg-tag-make "PROJECT" :face (modus-themes-get-color-value 'rust) :margin 0))))
-          ("DELEGATED" . ((lambda (tag)
-                             (svg-tag-make "DELEGATED" :face (modus-themes-get-color-value 'rust) :margin 0))))
+;;   ;; Define svg-tag patterns
+;;   (setq svg-tag-tags
+;;         `(
+;;           ;; Task priority
+;;           ("\\[#[A-Z]\\]" . ( (lambda (tag)
+;;                                 (svg-tag-make tag :face 'org-priority
+;;                                               :beg 2 :end -1 :margin 0))))
+
+;;           ;; TODO keywords (using org-todo-keyword-faces)
+;;           ("TODO" . ((lambda (tag)
+;;                         (svg-tag-make "TODO" :face (modus-themes-get-color-value 'green-intense) :margin 0))))
+;;           ("NEXT" . ((lambda (tag)
+;;                         (svg-tag-make "NEXT" :face (modus-themes-get-color-value 'blue) :margin 0))))
+;;           ("DONE" . ((lambda (tag)
+;;                         (svg-tag-make "DONE" :face (modus-themes-get-color-value 'fg-dim) :margin 0))))
+;;           ("WAITING" . ((lambda (tag)
+;;                            (svg-tag-make "WAITING" :face (modus-themes-get-color-value 'cyan) :margin 0))))
+;;           ("CANCELLED" . ((lambda (tag)
+;;                              (svg-tag-make "CANCELLED" :face (modus-themes-get-color-value 'fg-dim) :margin 0))))
+;;           ("HOLD" . ((lambda (tag)
+;;                         (svg-tag-make "HOLD" :face (modus-themes-get-color-value 'magenta) :margin 0))))
+;;           ("PROJECT" . ((lambda (tag)
+;;                            (svg-tag-make "PROJECT" :face (modus-themes-get-color-value 'rust) :margin 0))))
+;;           ("DELEGATED" . ((lambda (tag)
+;;                              (svg-tag-make "DELEGATED" :face (modus-themes-get-color-value 'rust) :margin 0))))
 
 
-          ;; Citation [cite:@Author:year]
-          ("\\(\\[cite:@[A-Za-z]+:\\)" . ((lambda (tag)
-                                            (svg-tag-make tag :inverse t
-                                                          :beg 7 :end -1 :crop-right t))))
-          ("\\[cite:@[A-Za-z]+:\\([0-9]+\\]\\)" . ((lambda (tag)
-                                                     (svg-tag-make tag :end -1 :crop-left t))))
+;;           ;; Citation [cite:@Author:year]
+;;           ("\\(\\[cite:@[A-Za-z]+:\\)" . ((lambda (tag)
+;;                                             (svg-tag-make tag :inverse t
+;;                                                           :beg 7 :end -1 :crop-right t))))
+;;           ("\\[cite:@[A-Za-z]+:\\([0-9]+\\]\\)" . ((lambda (tag)
+;;                                                      (svg-tag-make tag :end -1 :crop-left t))))
 
-          ;; Progress bars
-          ("\\(\\[[0-9]\\{1,3\\}%\\]\\)" . ((lambda (tag)
-                                              (svg-progress-percent (substring tag 1 -2)))))
-          ("\\(\\[[0-9]+/[0-9]+\\]\\)" . ((lambda (tag)
-                                            (svg-progress-count (substring tag 1 -1)))))
-          ))
+;;           ;; Progress bars
+;;           ("\\(\\[[0-9]\\{1,3\\}%\\]\\)" . ((lambda (tag)
+;;                                               (svg-progress-percent (substring tag 1 -2)))))
+;;           ("\\(\\[[0-9]+/[0-9]+\\]\\)" . ((lambda (tag)
+;;                                             (svg-progress-count (substring tag 1 -1)))))
+;;           ))
 
-  ;; Enable svg-tag-mode in org-mode
-  (add-hook 'org-mode-hook #'svg-tag-mode))
+;;   ;; Enable svg-tag-mode in org-mode
+;;   (add-hook 'org-mode-hook #'svg-tag-mode))
 
 ;; To do:         TODO DONE
 ;; Tags:          :TAG1:TAG2:TAG3:
