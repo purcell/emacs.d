@@ -40,7 +40,10 @@
   (defun gopar/eshell-setup-keybinding ()
     ;; Workaround since bind doesn't work w/ eshell??
     (define-key eshell-mode-map (kbd "C-c >") 'gopar/eshell-redirect-to-buffer)
-    (define-key eshell-hist-mode-map (kbd "M-r") 'consult-history))
+    (define-key eshell-hist-mode-map (kbd "M-r") 'consult-history)
+    ;; Align with zsh habit: M-l accepts current completion (company popup).
+    (when (fboundp 'company-complete-selection)
+      (define-key eshell-mode-map (kbd "M-l") 'company-complete-selection)))
 
   (defun gopar/adviced-eshell-add-input-to-history (orig-fun &rest r)
     "Cd to relative paths aren't that useful in history. Change to absolute paths."
@@ -175,6 +178,13 @@ Stolen from aweshell."
       (eshell-kill-input)
       (eshell-send-input nil nil nil)
       (yank))))
+
+(use-package esh-autosuggest
+  :hook (eshell-mode . esh-autosuggest-mode)
+  ;; If you have use-package-hook-name-suffix set to nil, uncomment and use the
+  ;; line below instead:
+  ;; :hook (eshell-mode-hook . esh-autosuggest-mode)
+  :ensure t)
 
 (provide 'init-local-shell)
 ;;; init-local-shell.el ends here
