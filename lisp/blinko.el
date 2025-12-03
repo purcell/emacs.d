@@ -31,6 +31,7 @@
 (require 'subr-x)
 (require 'url)
 (require 'url-http)
+(require 'auth-source)
 
 ;;; Customizations
 
@@ -39,13 +40,25 @@
   :group 'tools
   :prefix "blinko-")
 
-(defcustom blinko-api-endpoint "https://xxx.yyy"
-  "Blinko API endpoint for sending posts."
+(defcustom blinko-api-endpoint ""
+  "Full Blinko API endpoint for sending posts.
+If empty, it will be built from host/port found in auth-source and `blinko-api-path'."
   :type 'string
   :group 'blinko)
 
-(defcustom blinko-api-token "xxxyyy"
-  "API token for authenticating with Blinko."
+(defcustom blinko-api-path "/api/v1/note/upsert"
+  "Path component appended to host/port when building the endpoint."
+  :type 'string
+  :group 'blinko)
+
+(defcustom blinko-api-token ""
+  "Fallback API token for authenticating with Blinko.
+Prefer storing credentials in `~/.authinfo' and let `auth-source' load them."
+  :type 'string
+  :group 'blinko)
+
+(defcustom blinko-authinfo-user "apikey"
+  "Login/user for locating Blinko credentials in `auth-source'."
   :type 'string
   :group 'blinko)
 
@@ -56,18 +69,66 @@
 
 ;;; Core API Function
 
+(defun blinko--auth-source-entry ()
+  "Return first auth-source entry for Blinko or nil."
+  (let* ((parsed (unless (string-empty-p blinko-api-endpoint)
+                   (url-generic-parse-url blinko-api-endpoint)))
+         (host (and parsed (url-host parsed)))
+         (port (and parsed (url-portspec parsed))))
+    (let ((entry (or (car (auth-source-search
+                           :host host :port port :user blinko-authinfo-user :max 1))
+                     (car (auth-source-search
+                           :user blinko-authinfo-user :max 1)))))
+      (when (and entry (or (not (plist-get entry :host))
+                           (not (plist-get entry :port))))
+        (setq entry (or (car (auth-source-search
+                              :user blinko-authinfo-user
+                              :require '(:host :port)
+                              :max 1))
+                        entry)))
+      entry)))
+
+(defun blinko--auth-source-token (entry)
+  "Return token from auth-source ENTRY or nil."
+  (when entry
+    (let ((secret (plist-get entry :secret)))
+      (if (functionp secret) (funcall secret) secret))))
+
+(defun blinko--resolve-endpoint (entry)
+  "Resolve endpoint from custom settings or auth-source ENTRY."
+  (if (not (string-empty-p blinko-api-endpoint))
+      blinko-api-endpoint
+    (let* ((host (and entry (plist-get entry :host)))
+           (port (and entry (or (plist-get entry :port)
+                                (plist-get entry :service))))
+           (port (cond
+                  ((numberp port) (number-to-string port))
+                  ((stringp port) port)
+                  (t port)))
+           (path (or blinko-api-path "")))
+      (unless host
+        (user-error "Blinko: no host found; set `blinko-api-endpoint' or add host in authinfo"))
+      (unless port
+        (user-error "Blinko: no port found; set `blinko-api-endpoint' or add port in authinfo"))
+      (format "https://%s:%s%s" host port path))))
+
 (defun blinko--request (content)
   "Internal helper to send CONTENT to Blinko using built-in URL libs."
-  (let* ((url-request-method "POST")
+  (let* ((entry (blinko--auth-source-entry))
+         (token (or (blinko--auth-source-token entry)
+                    (unless (string-empty-p blinko-api-token) blinko-api-token)
+                    (user-error "Blinko: no token configured; set authinfo entry or `blinko-api-token'")))
+         (endpoint (blinko--resolve-endpoint entry))
+         (url-request-method "POST")
          (url-request-extra-headers
           `(("Content-Type" . "application/json; charset=utf-8")
-          ("Authorization" . ,(concat "Bearer " blinko-api-token))))
+            ("Authorization" . ,(concat "Bearer " token))))
          (url-request-data
           (encode-coding-string
            (json-encode `(("content" . ,content)
                           ("type" . ,blinko-note-type)))
            'utf-8))
-         (response (url-retrieve-synchronously blinko-api-endpoint t t 5)))
+         (response (url-retrieve-synchronously endpoint t t 5)))
     (unless response
       (user-error "Blinko: no HTTP response"))
     (unwind-protect
@@ -109,15 +170,20 @@
   "Send CONTENT and dump raw HTTP exchange into *blinko-debug*."
   (interactive "sContent: ")
   (let* ((url-debug t)
+         (entry (blinko--auth-source-entry))
+         (token (or (blinko--auth-source-token entry)
+                    (unless (string-empty-p blinko-api-token) blinko-api-token)
+                    (user-error "Blinko: no token configured; set authinfo entry or `blinko-api-token'")))
+         (endpoint (blinko--resolve-endpoint entry))
          (url-request-method "POST")
          (url-request-extra-headers
           `(("Content-Type" . "application/json; charset=utf-8")
-            ("Authorization" . ,(concat "Bearer " blinko-api-token))))
+            ("Authorization" . ,(concat "Bearer " token))))
          (url-request-data (encode-coding-string
                             (json-encode `(("content" . ,content)
                                            ("type" . ,blinko-note-type)))
                             'utf-8))
-         (resp (url-retrieve-synchronously blinko-api-endpoint t t 10)))
+         (resp (url-retrieve-synchronously endpoint t t 10)))
     (unless resp (user-error "Blinko: no HTTP response"))
     (with-current-buffer (get-buffer-create "*blinko-debug*")
       (erase-buffer)
@@ -125,7 +191,7 @@
       ;; Avoid leaking token
       (save-excursion
         (goto-char (point-min))
-        (while (search-forward blinko-api-token nil t)
+        (while (search-forward token nil t)
           (replace-match "***TOKEN***" t t)))
       (display-buffer (current-buffer)))
     (when (buffer-live-p resp) (kill-buffer resp))))
