@@ -20,3 +20,5 @@ alias jgf jj git fetch
 alias jsp jj split
 alias jdm jj describe -m
 alias jn jj new
+alias jsh jj show
+alias jlng jj log --no-graph
