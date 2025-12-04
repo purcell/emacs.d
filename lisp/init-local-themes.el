@@ -79,7 +79,16 @@
 
 (use-package spacious-padding
   :ensure t
-  :init (spacious-padding-mode 1))
+  :init
+  (setq spacious-padding-widths
+        '(:internal-border-width 12
+                                 :header-line-width 4
+                                 :mode-line-width 10
+                                 :tab-width 4
+                                 :right-divider-width 24
+                                 :scroll-bar-width 8
+                                 :fringe-width 4))
+  (spacious-padding-mode 1))
 
 
 
