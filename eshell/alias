@@ -10,3 +10,13 @@ alias l eza -l -snew --icons
 alias ll eza -l -g --icons
 alias ls eza --icons
 alias la eza -la -snew --icons
+
+alias js jj st
+alias jl jj log
+alias jd jj diff
+alias jbsm jj bookmark set main --revision=@-
+alias jgpm jj git push --bookmark main
+alias jgf jj git fetch
+alias jsp jj split
+alias jdm jj describe -m
+alias jn jj new

@@ -14,6 +14,7 @@
   :hook ((eshell-directory-change . gopar/sync-dir-in-buffer-name)
          (eshell-mode . gopar/eshell-specific-outline-regexp)
          (eshell-mode . gopar/eshell-setup-keybinding)
+         (eshell-first-time-mode . gopar/eshell-ensure-pager)
          (eshell-mode . (lambda ()
                           (setq-local completion-styles '(basic)) ; maybe emacs21?
                           (setq-local corfu-count 10)
@@ -37,6 +38,12 @@
               #'gopar/adviced-eshell-add-input-to-history)
 
   :init
+  (defun gopar/eshell-ensure-pager ()
+    (let ((pager (getenv "PAGER")))
+      (when (or (null pager) (string= "" pager))
+        ;; Eshell uses a dumb terminal; avoid less' "terminal is not fully functional".
+        (setenv "PAGER" "cat"))))
+
   (defun gopar/eshell-setup-keybinding ()
     ;; Workaround since bind doesn't work w/ eshell??
     (define-key eshell-mode-map (kbd "C-c >") 'gopar/eshell-redirect-to-buffer)
