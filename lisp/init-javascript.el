@@ -49,10 +49,9 @@
 
 
 (require 'derived)
-(when (and (or (executable-find "rg") (executable-find "ag"))
-           (maybe-require-package 'xref-js2))
-  (when (executable-find "rg")
-    (setq-default xref-js2-search-program 'rg))
+(when (executable-find "rg")
+  (maybe-require-package 'xref-js2)
+  (setq-default xref-js2-search-program 'rg)
 
   (defun sanityinc/enable-xref-js2 ()
     (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))
