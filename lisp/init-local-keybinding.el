@@ -153,6 +153,7 @@ ARGS are additional arguments."
   (kbd "<leader> scf") '("Search with consult fd" . consult-fd)
   (kbd "<leader> sch") '("Search with consult org heading" . consult-org-heading)
   (kbd "<leader> sghn") '("Search with rg everything" . rg-search-everything)
+  (kbd "<leader> scd") '("Search with consult dir" . consult-dir)
 
   ;; find
   (kbd "<leader> ff") '("Find file" . find-file)

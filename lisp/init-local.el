@@ -218,6 +218,13 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
   ;; Auto-scale windows
   (golden-ratio-auto-scale t))
 
+(use-package consult-dir
+  :ensure t
+  :bind (("C-x C-d" . consult-dir)
+         :map vertico-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file)))
+
 (require 'init-local-shell)
 
 (require 'blinko)
