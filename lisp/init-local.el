@@ -229,6 +229,8 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
 
 (require 'blinko)
 
+(require 'init-local-program)
+
 ;; Load keybinding
 (require 'init-local-keybinding)
 
