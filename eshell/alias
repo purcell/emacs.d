@@ -22,3 +22,4 @@ alias jdm jj describe -m
 alias jn jj new
 alias jsh jj show
 alias jlng jj log --no-graph
+alias jre jj restore
