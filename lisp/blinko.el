@@ -1,7 +1,7 @@
 ;;; blinko.el --- Simple API client for posting to Blinko  -*- lexical-binding: t; -*-
 
 ;; Author: Marcus Lannister (ChatGPT-assisted)
-;; Version: 0.1
+;; Version: 1.1
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: convenience, tools, notes, blinko
 ;; URL: https://github.com/marcuslannister/blinko.el
@@ -15,6 +15,7 @@
 ;; - Post arbitrary content string
 ;; - Post selected region
 ;; - Post entire buffer
+;; - Proper UTF-8 support for Chinese and other multibyte characters
 ;;
 ;; Configure:
 ;;   M-x customize-group RET blinko RET
@@ -112,6 +113,26 @@ Prefer storing credentials in `~/.authinfo' and let `auth-source' load them."
         (user-error "Blinko: no port found; set `blinko-api-endpoint' or add port in authinfo"))
       (format "https://%s:%s%s" host port path))))
 
+(defun blinko--make-unibyte-string (str)
+  "Convert STR to unibyte string safely."
+  (if (multibyte-string-p str)
+      (string-to-unibyte str)
+    str))
+
+(defun blinko--encode-json-payload (content)
+  "Encode CONTENT as JSON with proper UTF-8 handling.
+Returns a unibyte string suitable for HTTP transmission."
+  (let* ((json-encoding-pretty-print nil)
+         (json-object-type 'alist)
+         (json-array-type 'list)
+         (json-key-type 'string)
+         (json-false :json-false)
+         ;; Create the payload
+         (payload (json-encode `(("content" . ,content)
+                                 ("type" . ,blinko-note-type)))))
+    ;; Encode to UTF-8 bytes and return as unibyte string
+    (encode-coding-string payload 'utf-8 t)))
+
 (defun blinko--request (content)
   "Internal helper to send CONTENT to Blinko using built-in URL libs."
   (let* ((entry (blinko--auth-source-entry))
@@ -120,25 +141,32 @@ Prefer storing credentials in `~/.authinfo' and let `auth-source' load them."
                     (user-error "Blinko: no token configured; set authinfo entry or `blinko-api-token'")))
          (endpoint (blinko--resolve-endpoint entry))
          (url-request-method "POST")
+         ;; ALL strings must be unibyte for url.el
          (url-request-extra-headers
-          `(("Content-Type" . "application/json; charset=utf-8")
-            ("Authorization" . ,(concat "Bearer " token))))
-         (url-request-data
-          (encode-coding-string
-           (json-encode `(("content" . ,content)
-                          ("type" . ,blinko-note-type)))
-           'utf-8))
-         (response (url-retrieve-synchronously endpoint t t 5)))
+          (list (cons (blinko--make-unibyte-string "Content-Type")
+                      (blinko--make-unibyte-string "application/json; charset=utf-8"))
+                (cons (blinko--make-unibyte-string "Authorization")
+                      (blinko--make-unibyte-string (concat "Bearer " token)))))
+         ;; Payload must be unibyte
+         (url-request-data (blinko--encode-json-payload content))
+         (response nil))
+    ;; Retrieve with proper coding
+    (let ((coding-system-for-read 'utf-8)
+          (coding-system-for-write 'binary))
+      (setq response (url-retrieve-synchronously endpoint t t 5)))
     (unless response
       (user-error "Blinko: no HTTP response"))
     (unwind-protect
         (with-current-buffer response
+          (set-buffer-multibyte t)
           (goto-char (point-min))
           (unless (re-search-forward "^HTTP/1\\.[01] \\([0-9]+\\)" nil t)
             (error "Blinko: invalid HTTP response"))
           (let ((status (string-to-number (match-string 1))))
             (re-search-forward "\r?\n\r?\n" nil t)
-            (let ((body (string-trim (buffer-substring-no-properties (point) (point-max)))))
+            (let ((body (decode-coding-string
+                         (buffer-substring-no-properties (point) (point-max))
+                         'utf-8 t)))
               (if (< status 300)
                   (message "Blinko: posted (HTTP %d)" status)
                 (error "Blinko: HTTP %d %s" status body)))))
@@ -177,16 +205,19 @@ Prefer storing credentials in `~/.authinfo' and let `auth-source' load them."
          (endpoint (blinko--resolve-endpoint entry))
          (url-request-method "POST")
          (url-request-extra-headers
-          `(("Content-Type" . "application/json; charset=utf-8")
-            ("Authorization" . ,(concat "Bearer " token))))
-         (url-request-data (encode-coding-string
-                            (json-encode `(("content" . ,content)
-                                           ("type" . ,blinko-note-type)))
-                            'utf-8))
-         (resp (url-retrieve-synchronously endpoint t t 10)))
+          (list (cons (blinko--make-unibyte-string "Content-Type")
+                      (blinko--make-unibyte-string "application/json; charset=utf-8"))
+                (cons (blinko--make-unibyte-string "Authorization")
+                      (blinko--make-unibyte-string (concat "Bearer " token)))))
+         (url-request-data (blinko--encode-json-payload content))
+         (resp nil))
+    (let ((coding-system-for-read 'utf-8)
+          (coding-system-for-write 'binary))
+      (setq resp (url-retrieve-synchronously endpoint t t 10)))
     (unless resp (user-error "Blinko: no HTTP response"))
     (with-current-buffer (get-buffer-create "*blinko-debug*")
       (erase-buffer)
+      (set-buffer-multibyte t)
       (insert (with-current-buffer resp (buffer-string)))
       ;; Avoid leaking token
       (save-excursion
