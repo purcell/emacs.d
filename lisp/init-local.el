@@ -231,6 +231,12 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
 
 (require 'init-local-program)
 
+(defun ml-update-all-packages ()
+  "Update all installed packages."
+  (interactive)
+  (package-refresh-contents)
+  (package-upgrade-all))
+
 ;; Load keybinding
 (require 'init-local-keybinding)
 
