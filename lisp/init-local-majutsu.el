@@ -22,8 +22,8 @@ When REMOTE is nil, rely on jj's default remote selection."
     (user-error "Not in a majutsu repository"))
   (let ((default-directory (majutsu--root)))
     ;; Set bookmark 'main' to @-
-    (let* ((set-args '("bookmark" "set" "main" "--revision=@-"))
-           (set-result (apply #'majutsu--run-command set-args)))
+    (let* ((set-args '("bookmark" "set" "main" "-r" "@-"))
+           (set-result (apply #'majutsu-run-jj set-args)))
       (if (majutsu--handle-command-result
            set-args set-result
            "Set bookmark 'main' to @-"
@@ -32,7 +32,7 @@ When REMOTE is nil, rely on jj's default remote selection."
           (let* ((push-args (append '("git" "push")
                                     (and remote (list "--remote" remote))
                                     '("--bookmark" "main")))
-                 (push-result (apply #'majutsu--run-command push-args))
+                 (push-result (apply #'majutsu-run-jj push-args))
                  (success-msg (if remote
                                   (format "Pushed bookmark 'main' to %s" remote)
                                 "Pushed bookmark 'main'")))
