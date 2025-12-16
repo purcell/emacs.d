@@ -1,6 +1,6 @@
 ;;; blinko.el --- Simple API client for posting to Blinko  -*- lexical-binding: t; -*-
 
-;; Author: Marcus Lannister (ChatGPT-assisted)
+;; Author: Marcus Lannister (ChatGPT and Claude Code assisted)
 ;; Version: 1.1
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: convenience, tools, notes, blinko
