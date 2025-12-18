@@ -2,11 +2,18 @@
 ;;; Commentary:
 ;;; Code:
 
-;; (use-package eat
-;;   :ensure t
-;;   :config
-;;   (eat-compile-terminfo)       ;; optional but advised
-;;   (setq eat-kill-buffer-on-exit t))
+(use-package eat
+  :ensure t
+  :config
+  (eat-compile-terminfo)       ;; optional but advised
+  (setq eat-kill-buffer-on-exit t))
+
+;; For `eat-eshell-visual-command-mode'.
+;; (add-hook 'eshell-first-time-mode-hook
+;;           #'eat-eshell-visual-command-mode)
+
+;; For `eat-eshell-mode'.
+(add-hook 'eshell-first-time-mode-hook #'eat-eshell-mode)
 
 (use-package eshell
   :ensure nil
