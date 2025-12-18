@@ -5,53 +5,80 @@
 
 ;;; Code:
 
+(defun init-local-majutsu--read-remote ()
+  "Prompt for a Git remote when multiple remotes exist.
+Return nil to let jj pick the default remote."
+  (unless (require 'majutsu nil t)
+    (user-error "Majutsu is not available"))
+  (let ((remotes (majutsu--get-git-remotes)))
+    (when (> (length remotes) 1)
+      (completing-read
+       (format "Push remote (default %s): " (car remotes))
+       remotes nil nil nil nil (car remotes)))))
+
+(defun init-local-majutsu--normalize-remote (remote)
+  "Return REMOTE as a non-empty string, or nil."
+  (when (and (stringp remote) (not (string= remote "")))
+    remote))
+
+(defun init-local-majutsu--message-output (output)
+  "Echo OUTPUT when it is non-empty."
+  (when (and (stringp output) (not (string= output "")))
+    (message "%s" output)))
+
+(defun init-local-majutsu--push-bookmark-main (remote)
+  "Push bookmark `main' to REMOTE using jj."
+  (let* ((remote (init-local-majutsu--normalize-remote remote))
+         (push-args (append '("git" "push")
+                            (and remote (list "--remote" remote))
+                            '("--bookmark" "main")))
+         (success-msg (if remote
+                          (format "Pushed bookmark 'main' to %s" remote)
+                        "Pushed bookmark 'main'")))
+    (majutsu-run-jj-async
+     push-args
+     (lambda (result)
+       (let ((ok (if (fboundp 'majutsu--handle-push-result)
+                     (majutsu--handle-push-result push-args result success-msg)
+                   (progn
+                     (init-local-majutsu--message-output result)
+                     t))))
+         (when ok
+           (when (fboundp 'majutsu-log-refresh)
+             (majutsu-log-refresh)))))
+     (lambda (err)
+       (if (fboundp 'majutsu--handle-push-result)
+           (majutsu--handle-push-result push-args err success-msg)
+         (init-local-majutsu--message-output err))
+       (message "Push failed")))))
+
 (defun majutsu-bookmark-main-and-push (&optional remote)
   "Set bookmark `main' to `@-' and push it to REMOTE using jj.
 When called interactively, prompt for REMOTE if multiple remotes exist.
 When REMOTE is nil, rely on jj's default remote selection."
   (interactive
-   (list
-    (when (require 'majutsu nil t)
-      (let ((remotes (majutsu--get-git-remotes)))
-        (when (> (length remotes) 1)
-          (completing-read
-           (format "Push remote (default %s): " (car remotes))
-           remotes nil nil nil nil (car remotes)))))))
+   (list (init-local-majutsu--read-remote)))
   (require 'majutsu)
-  (unless (majutsu--root)
-    (user-error "Not in a majutsu repository"))
-  (let ((default-directory (majutsu--root)))
-    ;; Set bookmark 'main' to @-
-    (let* ((set-args '("bookmark" "set" "main" "-r" "@-"))
-           (set-result (apply #'majutsu-run-jj set-args)))
-      (if (majutsu--handle-command-result
-           set-args set-result
-           "Set bookmark 'main' to @-"
-           "Failed to set bookmark 'main'")
-          ;; Push bookmark to remote
-          (let* ((push-args (append '("git" "push")
-                                    (and remote (list "--remote" remote))
-                                    '("--bookmark" "main")))
-                 (push-result (apply #'majutsu-run-jj push-args))
-                 (success-msg (if remote
-                                  (format "Pushed bookmark 'main' to %s" remote)
-                                "Pushed bookmark 'main'")))
-            (when (majutsu--handle-push-result push-args push-result success-msg)
-              (majutsu-log-refresh)))
-        (message "Bookmark set failed, skipping push")))))
+  (majutsu--root)
+  (majutsu-run-jj-async
+   '("bookmark" "set" "main" "-r" "@-")
+   (lambda (result)
+     (init-local-majutsu--message-output result)
+     (init-local-majutsu--push-bookmark-main remote))
+   (lambda (err)
+     (init-local-majutsu--message-output err)
+     (message "Failed to set bookmark 'main'"))))
 
 (use-package majutsu
   :ensure t
   :vc (:url "https://github.com/0WD0/majutsu"
-            :rev :newest)
-  :commands (majutsu majutsu-log
-                     majutsu-rebase-transient majutsu-bookmark-transient majutsu-git-transient
-                     majutsu-commit majutsu-describe majutsu-diff majutsu-diffedit-emacs majutsu-diffedit-smerge
-                     majutsu-log-refresh majutsu-mode-transient majutsu-squash-transient
-                     majutsu-abandon majutsu-undo majutsu-new majutsu-enter-dwim majutsu-goto-current
-                     majutsu-edit-changeset majutsu-redo majutsu-log-transient)
+            :rev "c6f8fa784b30783ccdccb34ed1fcb192ef31a385")
+  :commands (majutsu majutsu-commit majutsu-describe majutsu-diff)
 
   :init
+  ;; Majutsu defines EIEIO classes inheriting from `magit-section'.  If the
+  ;; class isn't loaded yet, EIEIO will error ("magit-section is not a class").
+  (require 'magit-section)
   ;; Keybindings: SPC j prefix (evil leader) - set before loading
   (with-eval-after-load 'evil
     (evil-define-key 'normal 'global
@@ -62,44 +89,12 @@ When REMOTE is nil, rely on jj's default remote selection."
       (kbd "SPC j p") #'majutsu-bookmark-main-and-push)))
 
 (with-eval-after-load 'majutsu
-  (with-eval-after-load 'evil
-    ;; Disable evil-snipe in majutsu buffers if evil-snipe is loaded
-    (when (fboundp 'turn-off-evil-snipe-mode)
-      (add-hook 'majutsu-mode-hook #'turn-off-evil-snipe-mode))
-    (when (fboundp 'turn-off-evil-snipe-override-mode)
-      (add-hook 'majutsu-mode-hook #'turn-off-evil-snipe-override-mode))
-
-    ;; Define keybindings only if the keymap exists
-    (when (boundp 'majutsu-mode-map)
-      ;; Define keybindings for normal and visual states
-      (evil-define-key '(normal visual) majutsu-mode-map
-        (kbd "g")     #'majutsu-git-transient
-        (kbd ".")     #'majutsu-goto-current
-        (kbd "R")     #'majutsu-log-refresh
-        ;; (kbd "g r")   #'majutsu-log-refresh
-        (kbd "c")     #'majutsu-commit
-        (kbd "e")     #'majutsu-edit-changeset
-        (kbd "u")     #'majutsu-undo
-        (kbd "C-r")   #'majutsu-redo
-        (kbd "s")     #'majutsu-squash-transient
-        (kbd "l")     #'majutsu-log-transient
-        (kbd "d")     #'majutsu-describe
-        (kbd "x")     #'majutsu-abandon
-        (kbd "b")     #'majutsu-bookmark-transient
-        (kbd "r")     #'majutsu-rebase-transient
-        (kbd "D")     #'majutsu-diff
-        (kbd "E")     #'majutsu-diffedit-emacs
-        (kbd "M")     #'majutsu-diffedit-smerge
-        (kbd "?")     #'majutsu-mode-transient
-        (kbd "]")     #'magit-section-forward-sibling
-        (kbd "[")     #'magit-section-backward-sibling)
-
-      ;; RET binding for normal state only
-      (evil-define-key 'normal majutsu-mode-map
-        (kbd "RET")   #'majutsu-enter-dwim)
-
-      ;; Force Evil to update the keymap state
-      (evil-normalize-keymaps))))
+  ;; Majutsu renamed a few entry points in 0.3.0; keep compatibility with older
+  ;; muscle memory and stale autoloads.
+  (when (fboundp 'majutsu-dispatch)
+    (defalias 'majutsu-mode-transient #'majutsu-dispatch))
+  (when (fboundp 'majutsu-log-goto-@)
+    (defalias 'majutsu-goto-current #'majutsu-log-goto-@)))
 
 (provide 'init-local-majutsu)
 ;;; init-local-majutsu.el ends here
