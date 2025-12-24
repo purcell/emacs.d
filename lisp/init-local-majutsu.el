@@ -26,6 +26,36 @@ Return nil to let jj pick the default remote."
   (when (and (stringp output) (not (string= output "")))
     (message "%s" output)))
 
+(unless (fboundp 'majutsu-run-jj-async)
+  (defun majutsu-run-jj-async (args success-callback error-callback)
+    "Run jj with ARGS asynchronously.
+Invoke SUCCESS-CALLBACK or ERROR-CALLBACK with the command output."
+    (unless (require 'majutsu nil t)
+      (user-error "Majutsu is not available"))
+    (require 'ansi-color)
+    (let* ((default-directory (majutsu--root))
+           (buffer (generate-new-buffer " *majutsu-jj*"))
+           (process (apply #'start-file-process "majutsu-jj"
+                           buffer majutsu-executable args)))
+      (set-process-query-on-exit-flag process nil)
+      (set-process-sentinel
+       process
+       (lambda (proc _event)
+         (when (memq (process-status proc) '(exit signal))
+           (let* ((proc-buffer (process-buffer proc))
+                  (output (when (buffer-live-p proc-buffer)
+                            (with-current-buffer proc-buffer
+                              (ansi-color-filter-apply (buffer-string)))))
+                  (exit-code (process-exit-status proc)))
+             (when (buffer-live-p proc-buffer)
+               (kill-buffer proc-buffer))
+             (if (and (eq (process-status proc) 'exit) (zerop exit-code))
+                 (when success-callback
+                   (funcall success-callback output))
+               (when error-callback
+                 (funcall error-callback output)))))))
+      process)))
+
 (defun init-local-majutsu--push-bookmark-main (remote)
   "Push bookmark `main' to REMOTE using jj."
   (let* ((remote (init-local-majutsu--normalize-remote remote))
