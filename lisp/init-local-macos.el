@@ -52,15 +52,23 @@
                             "JetBrainsMono Nerd Font Mono"
                             "CaskaydiaMono Nerd Font Mono"
                             "Hack Nerd Font Mono")
-           when (font-installed-p nf-font)
+           for nf-entity = (find-font (font-spec :family nf-font))
+           when (and nf-entity (font-has-char-p nf-entity #xF48A))
            return (progn
                     (message "Using Nerd Font: %s" nf-font)
-                    ;; Basic PUA (standard icons)
-                    (set-fontset-font t '(#xe000 . #xf8ff) nf-font nil 'append)
-                    ;; Supplementary Private Use Area-A (Material icons, etc.)
-                    (set-fontset-font t '(#xf0000 . #xfffff) nf-font nil 'append)
-                    ;; Supplementary Private Use Area-B (additional glyphs)
-                    (set-fontset-font t '(#x100000 . #x10ffff) nf-font nil 'append))))
+                    (dolist (fontset (list t nil))
+                      ;; Basic PUA (standard icons)
+                      (set-fontset-font fontset '(#xe000 . #xf8ff)
+                                        (font-spec :family nf-font)
+                                        nil 'prepend)
+                      ;; Supplementary Private Use Area-A (Material icons, etc.)
+                      (set-fontset-font fontset '(#xf0000 . #xfffff)
+                                        (font-spec :family nf-font)
+                                        nil 'prepend)
+                      ;; Supplementary Private Use Area-B (additional glyphs)
+                      (set-fontset-font fontset '(#x100000 . #x10ffff)
+                                        (font-spec :family nf-font)
+                                        nil 'prepend)))))
 
 ;; Install sis
 (use-package sis
