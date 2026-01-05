@@ -178,6 +178,12 @@ ARGS are additional arguments."
   (kbd "<leader> es") '("start a eshell" . eshell)
   (kbd "<leader> ec") '("Open eshell current directory" . eshell-current-directory)
 
+  ;; blinko
+  ;; Define the prefix first
+  (kbd "<leader> bp") '("blinko prefix" . nil)  ; or use :prefix-map
+  ;; Then define the full binding
+  (kbd "<leader> bpr") '("blinko post region" . blinko-post-region)
+
   ;; denote journal
   (kbd "<leader> jn") '("Creat a entry" . my/denote-journal-new-or-existing-entry)
   (kbd "<leader> jo") '("Open current journal" . denote-journal-new-or-existing-entry))
