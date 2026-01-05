@@ -2,130 +2,132 @@
 ;;; Commentary:
 ;;; Code:
 
-(use-package eat
-  :ensure t
-  :config
-  (eat-compile-terminfo)       ;; optional but advised
-  (setq eat-kill-buffer-on-exit t))
+(cond
+ ((eq system-type 'darwin)
+  (use-package eat
+    :ensure t
+    :config
+    (eat-compile-terminfo)       ;; optional but advised
+    (setq eat-kill-buffer-on-exit t))
 
-;; For `eat-eshell-visual-command-mode'.
-;; (add-hook 'eshell-first-time-mode-hook
-;;           #'eat-eshell-visual-command-mode)
+  ;; For `eat-eshell-visual-command-mode'.
+  ;; (add-hook 'eshell-first-time-mode-hook
+  ;;           #'eat-eshell-visual-command-mode)
 
-;; For `eat-eshell-mode'.
-(add-hook 'eshell-first-time-mode-hook #'eat-eshell-mode)
+  ;; For `eat-eshell-mode'.
+  (add-hook 'eshell-first-time-mode-hook #'eat-eshell-mode)))
 
-(use-package eshell
-  :ensure nil
-  :defer t
-  :hook ((eshell-directory-change . gopar/sync-dir-in-buffer-name)
-         (eshell-mode . gopar/eshell-specific-outline-regexp)
-         (eshell-mode . gopar/eshell-setup-keybinding)
-         (eshell-first-time-mode . gopar/eshell-ensure-pager)
-         (eshell-mode . (lambda ()
-                          (setq-local completion-styles '(basic)) ; maybe emacs21?
-                          (setq-local corfu-count 10)
-                          (setq-local corfu-auto nil)
-                          (setq-local corfu-preview-current nil)
-                          (setq-local completion-at-point-functions '(pcomplete-completions-at-point cape-file)))))
-  :custom
-  (eshell-scroll-to-bottom-on-input t)
-  (eshell-highlight-prompt t)
-  (eshell-history-size 1024)
-  (eshell-hist-ignoredups t)
-  (eshell-input-filter 'gopar/eshell-input-filter)
-  (eshell-cd-on-directory t)
-  (eshell-list-files-after-cd nil)
-  (eshell-pushd-dunique t)
-  (eshell-last-dir-unique t)
-  (eshell-last-dir-ring-size 32)
-  :config
-  (advice-add #'eshell-add-input-to-history
-              :around
-              #'gopar/adviced-eshell-add-input-to-history)
+ (use-package eshell
+   :ensure nil
+   :defer t
+   :hook ((eshell-directory-change . gopar/sync-dir-in-buffer-name)
+          (eshell-mode . gopar/eshell-specific-outline-regexp)
+          (eshell-mode . gopar/eshell-setup-keybinding)
+          (eshell-first-time-mode . gopar/eshell-ensure-pager)
+          (eshell-mode . (lambda ()
+                           (setq-local completion-styles '(basic)) ; maybe emacs21?
+                           (setq-local corfu-count 10)
+                           (setq-local corfu-auto nil)
+                           (setq-local corfu-preview-current nil)
+                           (setq-local completion-at-point-functions '(pcomplete-completions-at-point cape-file)))))
+   :custom
+   (eshell-scroll-to-bottom-on-input t)
+   (eshell-highlight-prompt t)
+   (eshell-history-size 1024)
+   (eshell-hist-ignoredups t)
+   (eshell-input-filter 'gopar/eshell-input-filter)
+   (eshell-cd-on-directory t)
+   (eshell-list-files-after-cd nil)
+   (eshell-pushd-dunique t)
+   (eshell-last-dir-unique t)
+   (eshell-last-dir-ring-size 32)
+   :config
+   (advice-add #'eshell-add-input-to-history
+               :around
+               #'gopar/adviced-eshell-add-input-to-history)
 
-  :init
-  (defun gopar/eshell-ensure-pager ()
-    (let ((pager (getenv "PAGER")))
-      (when (or (null pager) (string= "" pager))
-        ;; Eshell uses a dumb terminal; avoid less' "terminal is not fully functional".
-        (setenv "PAGER" "cat"))))
+   :init
+   (defun gopar/eshell-ensure-pager ()
+     (let ((pager (getenv "PAGER")))
+       (when (or (null pager) (string= "" pager))
+         ;; Eshell uses a dumb terminal; avoid less' "terminal is not fully functional".
+         (setenv "PAGER" "cat"))))
 
-  (defun gopar/eshell-setup-keybinding ()
-    ;; Workaround since bind doesn't work w/ eshell??
-    (define-key eshell-mode-map (kbd "C-c >") 'gopar/eshell-redirect-to-buffer)
-    (define-key eshell-hist-mode-map (kbd "M-r") 'consult-history)
-    ;; Align with zsh habit: M-l accepts current completion (company popup).
-    (when (fboundp 'company-complete-selection)
-      (define-key eshell-mode-map (kbd "M-l") 'company-complete-selection)))
+   (defun gopar/eshell-setup-keybinding ()
+     ;; Workaround since bind doesn't work w/ eshell??
+     (define-key eshell-mode-map (kbd "C-c >") 'gopar/eshell-redirect-to-buffer)
+     (define-key eshell-hist-mode-map (kbd "M-r") 'consult-history)
+     ;; Align with zsh habit: M-l accepts current completion (company popup).
+     (when (fboundp 'company-complete-selection)
+       (define-key eshell-mode-map (kbd "M-l") 'company-complete-selection)))
 
-  (defun gopar/adviced-eshell-add-input-to-history (orig-fun &rest r)
-    "Cd to relative paths aren't that useful in history. Change to absolute paths."
-    (require 'seq)
-    (let* ((input (nth 0 r))
-           (args (progn
-                   (set-text-properties 0 (length input) nil input)
-                   (split-string input))))
-      (if (and (equal "cd" (nth 0 args))
-               (not (seq-find (lambda (item)
-                                ;; Don't rewrite "cd /ssh:" in history.
-                                (string-prefix-p "/ssh:" item))
-                              args))
-               (not (seq-find (lambda (item)
-                                ;; Don't rewrite "cd -" in history.
-                                (string-equal "-" item))
-                              args)))
-          (apply orig-fun (list (format "cd %s"
-                                        (expand-file-name (concat default-directory
-                                                                  (nth 1 args))))))
-        (apply orig-fun r))))
+   (defun gopar/adviced-eshell-add-input-to-history (orig-fun &rest r)
+     "Cd to relative paths aren't that useful in history. Change to absolute paths."
+     (require 'seq)
+     (let* ((input (nth 0 r))
+            (args (progn
+                    (set-text-properties 0 (length input) nil input)
+                    (split-string input))))
+       (if (and (equal "cd" (nth 0 args))
+                (not (seq-find (lambda (item)
+                                 ;; Don't rewrite "cd /ssh:" in history.
+                                 (string-prefix-p "/ssh:" item))
+                               args))
+                (not (seq-find (lambda (item)
+                                 ;; Don't rewrite "cd -" in history.
+                                 (string-equal "-" item))
+                               args)))
+           (apply orig-fun (list (format "cd %s"
+                                         (expand-file-name (concat default-directory
+                                                                   (nth 1 args))))))
+         (apply orig-fun r))))
 
-  (defun gopar/eshell-input-filter (input)
-    "Do not save on the following:
+   (defun gopar/eshell-input-filter (input)
+     "Do not save on the following:
        - empty lines
        - commands that start with a space, `ls`/`l`/`lsd`"
-    (and
-     (eshell-input-filter-default input)
-     (eshell-input-filter-initial-space input)
-     (not (string-prefix-p "ls " input))
-     (not (string-prefix-p "lsd " input))
-     (not (string-prefix-p "l " input))))
+     (and
+      (eshell-input-filter-default input)
+      (eshell-input-filter-initial-space input)
+      (not (string-prefix-p "ls " input))
+      (not (string-prefix-p "lsd " input))
+      (not (string-prefix-p "l " input))))
 
-  (defun eshell/cat-with-syntax-highlighting (filename)
-    "Like cat(1) but with syntax highlighting.
+   (defun eshell/cat-with-syntax-highlighting (filename)
+     "Like cat(1) but with syntax highlighting.
 Stole from aweshell"
-    (let ((existing-buffer (get-file-buffer filename))
-          (buffer (find-file-noselect filename)))
-      (eshell-print
-       (with-current-buffer buffer
-         (if (fboundp 'font-lock-ensure)
-             (font-lock-ensure)
-           (with-no-warnings
-             (font-lock-fontify-buffer)))
-         (let ((contents (buffer-string)))
-           (remove-text-properties 0 (length contents) '(read-only nil) contents)
-           contents)))
-      (unless existing-buffer
-        (kill-buffer buffer))
-      nil))
-  (advice-add 'eshell/cat :override #'eshell/cat-with-syntax-highlighting)
+     (let ((existing-buffer (get-file-buffer filename))
+           (buffer (find-file-noselect filename)))
+       (eshell-print
+        (with-current-buffer buffer
+          (if (fboundp 'font-lock-ensure)
+              (font-lock-ensure)
+            (with-no-warnings
+              (font-lock-fontify-buffer)))
+          (let ((contents (buffer-string)))
+            (remove-text-properties 0 (length contents) '(read-only nil) contents)
+            contents)))
+       (unless existing-buffer
+         (kill-buffer buffer))
+       nil))
+   (advice-add 'eshell/cat :override #'eshell/cat-with-syntax-highlighting)
 
-  (defun gopar/sync-dir-in-buffer-name ()
-    "Update eshell buffer to show directory path.
+   (defun gopar/sync-dir-in-buffer-name ()
+     "Update eshell buffer to show directory path.
 Stolen from aweshell."
-    (let* ((root (projectile-project-root))
-           (root-name (projectile-project-name root)))
-      (if root-name
-          (rename-buffer (format "*eshell %s* %s" root-name (s-chop-prefix root default-directory)) t)
-        (rename-buffer (format "*eshell %s*" default-directory) t))))
+     (let* ((root (projectile-project-root))
+            (root-name (projectile-project-name root)))
+       (if root-name
+           (rename-buffer (format "*eshell %s* %s" root-name (s-chop-prefix root default-directory)) t)
+         (rename-buffer (format "*eshell %s*" default-directory) t))))
 
-  (defun gopar/eshell-redirect-to-buffer (buffer)
-    "Auto create command for redirecting to buffer."
-    (interactive (list (read-buffer "Redirect to buffer: ")))
-    (insert (format " >>> #<%s>" buffer)))
+   (defun gopar/eshell-redirect-to-buffer (buffer)
+     "Auto create command for redirecting to buffer."
+     (interactive (list (read-buffer "Redirect to buffer: ")))
+     (insert (format " >>> #<%s>" buffer)))
 
-  (defun gopar/eshell-specific-outline-regexp ()
-    (setq-local outline-regexp eshell-prompt-regexp)))
+   (defun gopar/eshell-specific-outline-regexp ()
+     (setq-local outline-regexp eshell-prompt-regexp)))
 
 (use-package eshell-syntax-highlighting
   :ensure t
