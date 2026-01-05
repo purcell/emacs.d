@@ -184,6 +184,11 @@ ARGS are additional arguments."
   ;; Then define the full binding
   (kbd "<leader> bpr") '("blinko post region" . blinko-post-region)
 
+  ;; diff
+  (kbd "<leader> ed") '("ediff" . ediff)
+  (kbd "<leader> eb") '("ediff buffer" . ediff-buffers)
+  (kbd "<leader> ew") '("ediff windows" . ml-init-ediff-current-with-other-window)
+
   ;; other
   (kbd "<leader> rc") '("repeat-complex-command" . repeat-complex-command)
 

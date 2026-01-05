@@ -224,7 +224,6 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
          :map vertico-map
          ("C-x C-d" . consult-dir)
          ("C-x C-j" . consult-dir-jump-file)))
-
 (require 'init-local-shell)
 
 (require 'blinko)
@@ -236,6 +235,14 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
   (interactive)
   (package-refresh-contents)
   (package-upgrade-all))
+
+(defun ml-init-ediff-current-with-other-window ()
+  "Ediff current window buffer with the next window buffer."
+  (interactive)
+  (if (< (count-windows) 2)
+      (user-error "Need at least two windows")
+    (ediff-buffers (window-buffer)
+                   (window-buffer (next-window (selected-window) 0)))))
 
 ;; Load keybinding
 (require 'init-local-keybinding)
