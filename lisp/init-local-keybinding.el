@@ -184,6 +184,9 @@ ARGS are additional arguments."
   ;; Then define the full binding
   (kbd "<leader> bpr") '("blinko post region" . blinko-post-region)
 
+  ;; other
+  (kbd "<leader> rc") '("repeat-complex-command" . repeat-complex-command)
+
   ;; denote journal
   (kbd "<leader> jn") '("Creat a entry" . my/denote-journal-new-or-existing-entry)
   (kbd "<leader> jo") '("Open current journal" . denote-journal-new-or-existing-entry))
