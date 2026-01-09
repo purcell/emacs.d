@@ -102,5 +102,29 @@
   :ensure t
   :hook (dired-mode . nerd-icons-dired-mode))
 
+;; UI setting
+(when window-system
+  ;; Load lib-face
+  (require 'lib-face)
+
+  ;; Setup fonts on various hooks
+  (add-hook 'window-setup-hook #'+setup-fonts)
+  (add-hook 'server-after-make-frame-hook #'+setup-fonts)
+  (add-hook 'default-text-scale-mode-hook #'+setup-fonts)
+
+  ;; Set org-mode font
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (set-face-attribute 'default nil :font ORG-FONT)))
+
+  ;; Advice for face-at-point
+  (advice-add 'face-at-point :around #'+suggest-other-faces)
+
+  ;; nerd-icons setup
+  (with-eval-after-load 'nerd-icons
+    (when (and (display-graphic-p)
+               (not (find-font (font-spec :name nerd-icons-font-family))))
+      (nerd-icons-install-fonts t))))
+
 (provide 'init-local-themes)
 ;;; init-local-themes.el ends here
