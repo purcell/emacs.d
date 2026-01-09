@@ -2,6 +2,32 @@
 ;;; Commentary:
 ;;; Code:
 
+
+(defconst IS-MAC (eq system-type 'darwin))
+(defconst IS-LINUX (memq system-type '(gnu gnu/linux gnu/kfreebsd berkeley-unix)))
+(defconst IS-WINDOWS (eq system-type 'windows-nt))
+;; (defconst ORG-PATH
+;;   (cond (IS-MAC "~/Library/CloudStorage/Dropbox/org")
+;;         (IS-LINUX "~/Dropbox/org")))
+(defconst FALLBACK-FONTS '("Jigmo" "Jigmo2" "Jigmo3"))
+(defconst FONT-SIZE (if IS-MAC 14 13))
+(defconst DEFAULT-FONT (format "MonoLisa Nerd Font %d" FONT-SIZE))
+(defconst ORG-FONT (format "MonoLisa Nerd Font %d" FONT-SIZE))
+(defconst ZH-DEFAULT-FONT "Maple Mono NF CN")
+(defconst NERD-ICONS-FONT "MonoLisa Nerd Font")
+(defconst EMOJI-FONTS '("Apple Color Emoji"
+                        "Noto Color Emoji"
+                        "Noto Emoji"
+                        "Segoe UI Emoji"))
+(defconst SYMBOL-FONT '("PragmataPro"
+                        "Apple Symbols"
+                        "Segoe UI Symbol"
+                        "Symbola"
+                        "Symbol"))
+;; load module settings
+(dolist (dir '("lisp" "lib" "site-lisp"))
+  (add-to-list 'load-path (expand-file-name dir user-emacs-directory)))
+
 ;; Load themes config
 (require 'init-local-themes)
 
