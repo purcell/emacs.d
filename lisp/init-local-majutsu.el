@@ -10,7 +10,10 @@
 Return nil to let jj pick the default remote."
   (unless (require 'majutsu nil t)
     (user-error "Majutsu is not available"))
-  (let ((remotes (majutsu--get-git-remotes)))
+  (require 'majutsu-git nil t)
+  (let ((remotes (when (fboundp 'majutsu-git--remote-names)
+                   (majutsu-git--remote-names
+                    (ignore-errors (majutsu--toplevel-safe))))))
     (when (> (length remotes) 1)
       (completing-read
        (format "Push remote (default %s): " (car remotes))
@@ -33,7 +36,7 @@ Invoke SUCCESS-CALLBACK or ERROR-CALLBACK with the command output."
     (unless (require 'majutsu nil t)
       (user-error "Majutsu is not available"))
     (require 'ansi-color)
-    (let* ((default-directory (majutsu--root))
+    (let* ((default-directory (majutsu--toplevel-safe))
            (buffer (generate-new-buffer " *majutsu-jj*"))
            (process (apply #'start-file-process "majutsu-jj"
                            buffer majutsu-executable args)))
@@ -65,22 +68,15 @@ Invoke SUCCESS-CALLBACK or ERROR-CALLBACK with the command output."
          (success-msg (if remote
                           (format "Pushed bookmark 'main' to %s" remote)
                         "Pushed bookmark 'main'")))
-    (majutsu-run-jj-async
-     push-args
-     (lambda (result)
-       (let ((ok (if (fboundp 'majutsu--handle-push-result)
-                     (majutsu--handle-push-result push-args result success-msg)
-                   (progn
-                     (init-local-majutsu--message-output result)
-                     t))))
-         (when ok
-           (when (fboundp 'majutsu-log-refresh)
-             (majutsu-log-refresh)))))
-     (lambda (err)
-       (if (fboundp 'majutsu--handle-push-result)
-           (majutsu--handle-push-result push-args err success-msg)
-         (init-local-majutsu--message-output err))
-       (message "Push failed")))))
+    (majutsu-with-toplevel
+      (majutsu-start-jj
+       push-args
+       success-msg
+       (lambda (_process exit-code)
+         (if (zerop exit-code)
+             (when (fboundp 'majutsu-log-refresh)
+               (majutsu-log-refresh))
+           (message "Push failed")))))))
 
 (defun majutsu-bookmark-main-and-push (&optional remote)
   "Set bookmark `main' to `@-' and push it to REMOTE using jj.
@@ -89,15 +85,14 @@ When REMOTE is nil, rely on jj's default remote selection."
   (interactive
    (list (init-local-majutsu--read-remote)))
   (require 'majutsu)
-  (majutsu--root)
-  (majutsu-run-jj-async
-   '("bookmark" "set" "main" "-r" "@-")
-   (lambda (result)
-     (init-local-majutsu--message-output result)
-     (init-local-majutsu--push-bookmark-main remote))
-   (lambda (err)
-     (init-local-majutsu--message-output err)
-     (message "Failed to set bookmark 'main'"))))
+  (majutsu-with-toplevel
+    (majutsu-start-jj
+     '("bookmark" "set" "main" "-r" "@-")
+     nil
+     (lambda (_process exit-code)
+       (if (zerop exit-code)
+           (init-local-majutsu--push-bookmark-main remote)
+         (message "Failed to set bookmark 'main'"))))))
 
 (use-package majutsu
   :ensure t
