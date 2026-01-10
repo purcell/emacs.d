@@ -101,8 +101,7 @@ When REMOTE is nil, rely on jj's default remote selection."
 
 (use-package majutsu
   :ensure t
-  :vc (:url "https://github.com/0WD0/majutsu"
-            :rev "c6f8fa784b30783ccdccb34ed1fcb192ef31a385")
+  :vc (:url "https://github.com/0WD0/majutsu")
   :commands (majutsu majutsu-commit majutsu-describe majutsu-diff)
 
   :init

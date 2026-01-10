@@ -260,7 +260,8 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
   "Update all installed packages."
   (interactive)
   (package-refresh-contents)
-  (package-upgrade-all))
+  (package-upgrade-all)
+  (package-vc-upgrade-all))
 
 (defun ml-init-ediff-current-with-other-window ()
   "Ediff current window buffer with the next window buffer."
