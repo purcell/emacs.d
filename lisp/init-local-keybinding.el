@@ -179,10 +179,7 @@ ARGS are additional arguments."
   (kbd "<leader> ec") '("Open eshell current directory" . eshell-current-directory)
 
   ;; blinko
-  ;; Define the prefix first
-  (kbd "<leader> bp") '("blinko prefix" . nil)  ; or use :prefix-map
-  ;; Then define the full binding
-  (kbd "<leader> bpr") '("blinko post region" . blinko-post-region)
+  (kbd "<leader> blr") '("blinko post region" . blinko-post-region)
 
   ;; diff
   (kbd "<leader> ed") '("ediff" . ediff)
