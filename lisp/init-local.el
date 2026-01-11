@@ -2,7 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-
 (defconst IS-MAC (eq system-type 'darwin))
 (defconst IS-LINUX (memq system-type '(gnu gnu/linux gnu/kfreebsd berkeley-unix)))
 (defconst IS-WINDOWS (eq system-type 'windows-nt))
@@ -14,7 +13,7 @@
 (defconst DEFAULT-FONT (format "MonoLisa Nerd Font %d" FONT-SIZE))
 (defconst ORG-FONT (format "MonoLisa Nerd Font %d" FONT-SIZE))
 (defconst ZH-DEFAULT-FONT "Maple Mono NF CN")
-(defconst NERD-ICONS-FONT "MonoLisa Nerd Font")
+(defconst NERD-ICONS-FONT "Symbols Nerd Font Mono")
 (defconst EMOJI-FONTS '("Apple Color Emoji"
                         "Noto Color Emoji"
                         "Noto Emoji"
@@ -27,6 +26,8 @@
 ;; load module settings
 (dolist (dir '("lisp" "lib" "site-lisp"))
   (add-to-list 'load-path (expand-file-name dir user-emacs-directory)))
+
+
 
 ;; Load themes config
 (require 'init-local-themes)
