@@ -86,21 +86,23 @@
 
 
 
-(use-package all-the-icons
-  :ensure t
-  :defer
-  :if (display-graphic-p))
+(use-package nerd-icons
+  :ensure t)
 
-(use-package all-the-icons-completion
+(use-package nerd-icons-completion
   :ensure t
-  :defer
-  :hook (marginalia-mode . #'all-the-icons-completion-marginalia-setup)
+  :after marginalia
+  :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
   :init
-  (all-the-icons-completion-mode))
+  (nerd-icons-completion-mode))
 
 (use-package nerd-icons-dired
   :ensure t
   :hook (dired-mode . nerd-icons-dired-mode))
+
+;; (use-package nerd-icons-devicon :ensure t)
+
+
 
 ;; UI setting
 (when window-system
