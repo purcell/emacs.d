@@ -2,8 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-(cond
- ((eq system-type 'darwin)
+(when IS-MAC
   (use-package eat
     :ensure t
     :config
@@ -15,7 +14,7 @@
   ;;           #'eat-eshell-visual-command-mode)
 
   ;; For `eat-eshell-mode'.
-  (add-hook 'eshell-first-time-mode-hook #'eat-eshell-mode)))
+  (add-hook 'eshell-first-time-mode-hook #'eat-eshell-mode))
 
  (use-package eshell
    :ensure nil
