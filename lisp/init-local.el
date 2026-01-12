@@ -32,6 +32,8 @@
 ;; Load themes config
 (require 'init-local-themes)
 
+
+
 (use-package evil
   :ensure t
   :demand t
@@ -251,11 +253,22 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
          :map vertico-map
          ("C-x C-d" . consult-dir)
          ("C-x C-j" . consult-dir-jump-file)))
+
+
+;; useage /sshx:host:
+(setq tramp-default-method "sshx")
+(use-package tramp-term
+  :ensure t)
+
+
+
 (require 'init-local-shell)
 
 (require 'blinko)
 
 (require 'init-local-program)
+
+
 
 (defun ml-update-all-packages ()
   "Update all installed packages."
@@ -271,6 +284,8 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
       (user-error "Need at least two windows")
     (ediff-buffers (window-buffer)
                    (window-buffer (next-window (selected-window) 0)))))
+
+
 
 ;; Load keybinding
 (require 'init-local-keybinding)
