@@ -255,10 +255,41 @@ If OTHER-WINDOW is non-nil, open the directory in another window."
          ("C-x C-j" . consult-dir-jump-file)))
 
 
-;; useage /sshx:host:
+;; useage /sshx:host: or /-:host:
 (setq tramp-default-method "sshx")
 (use-package tramp-term
   :ensure t)
+
+(use-package pulsar
+  :ensure t
+
+  :bind
+  ( :map global-map
+    ("C-x l" . pulsar-pulse-line) ; overrides `count-lines-page'
+    ("C-x L" . pulsar-highlight-permanently-dwim)) ; or use `pulsar-highlight-temporarily-dwim'
+
+  :init
+  (pulsar-global-mode 1)
+
+  :config
+  (setq pulsar-delay 0.055)
+  (setq pulsar-iterations 5)
+  (setq pulsar-face 'pulsar-green)
+  (setq pulsar-region-face 'pulsar-yellow)
+  (setq pulsar-highlight-face 'pulsar-magenta)
+
+  :hook
+  ;; Minibuffer + next-error
+  (minibuffer-setup-hook . pulsar-pulse-line)
+  (next-error-hook       . pulsar-pulse-line)
+
+  ;; consult integration
+  (consult-after-jump-hook . pulsar-recenter-top)
+  (consult-after-jump-hook . pulsar-reveal-entry)
+
+  ;; imenu integration
+  (imenu-after-jump-hook . pulsar-recenter-top)
+  (imenu-after-jump-hook . pulsar-reveal-entry))
 
 
 

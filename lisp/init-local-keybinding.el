@@ -186,6 +186,9 @@ ARGS are additional arguments."
   (kbd "<leader> eb") '("ediff buffer" . ediff-buffers)
   (kbd "<leader> ew") '("ediff windows" . ml-init-ediff-current-with-other-window)
 
+  ;; pulsar
+  (kbd "<leader> ph") '("permanently highlight curren line" . pulsar-highlight-permanently-dwim)
+
   ;; other
   (kbd "<leader> rc") '("repeat-complex-command" . repeat-complex-command)
 
