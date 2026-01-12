@@ -128,5 +128,50 @@
                (not (find-font (font-spec :name nerd-icons-font-family))))
       (nerd-icons-install-fonts t))))
 
+(use-package highlight-parentheses
+  :ensure t)
+
+(add-hook 'prog-mode-hook #'highlight-parentheses-mode)
+(add-hook 'minibuffer-setup-hook #'highlight-parentheses-minibuffer-setup)
+
+(defvar my-highlight-parentheses-use-background t
+  "Prefer `highlight-parentheses-background-colors'.")
+
+(setq my-highlight-parentheses-use-background nil) ; Set to nil to disable backgrounds
+
+(defun my-modus-themes-highlight-parentheses (&rest _)
+  (modus-themes-with-colors
+    ;; Our preference for setting either background or foreground
+    ;; styles, depending on `my-highlight-parentheses-use-background'.
+    (if my-highlight-parentheses-use-background
+
+        ;; Here we set color combinations that involve both a background
+        ;; and a foreground value.
+        (setq highlight-parentheses-background-colors (list bg-cyan-intense
+                                                            bg-magenta-intense
+                                                            bg-green-intense
+                                                            bg-yellow-intense)
+              highlight-parentheses-colors (list cyan
+                                                 magenta
+                                                 green
+                                                 yellow))
+
+      ;; And here we pass only foreground colors while disabling any
+      ;; backgrounds.
+      (setq highlight-parentheses-colors (list green-intense
+                                               magenta-intense
+                                               blue-intense
+                                               red-intense)
+            highlight-parentheses-background-colors nil)))
+
+  ;; Include this if you also want to make the parentheses bold:
+  (set-face-attribute 'highlight-parentheses-highlight nil :inherit 'bold)
+
+  ;; Our changes must be evaluated before enabling the relevant mode, so
+  ;; this comes last.
+  (global-highlight-parentheses-mode 1))
+
+(add-hook 'modus-themes-after-load-theme-hook #'my-modus-themes-highlight-parentheses)
+
 (provide 'init-local-themes)
 ;;; init-local-themes.el ends here
