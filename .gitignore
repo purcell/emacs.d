@@ -62,3 +62,4 @@ recentf.eld
 /undo-fu-session/
 projects.eld
 !/eshell/alias
+!/eshell/profile
