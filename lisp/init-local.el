@@ -9,9 +9,19 @@
 ;;   (cond (IS-MAC "~/Library/CloudStorage/Dropbox/org")
 ;;         (IS-LINUX "~/Dropbox/org")))
 (defconst FALLBACK-FONTS '("Jigmo" "Jigmo2" "Jigmo3"))
-(defconst FONT-SIZE (if IS-MAC 14 13))
-(defconst DEFAULT-FONT (format "MonoLisa Nerd Font %d" FONT-SIZE))
-(defconst ORG-FONT (format "MonoLisa Nerd Font %d" FONT-SIZE))
+(defconst FONT-SIZE (if IS-MAC 16 13))
+(defconst DEFAULT-FONT
+  (format "%s %d"
+          (if IS-WINDOWS
+              "Aporetic Sans M Nerd Font"
+            "MonoLisa Nerd Font")
+          FONT-SIZE))
+(defconst ORG-FONT
+  (format "%s %d"
+          (if IS-WINDOWS
+              "Aporetic Sans M Nerd Font"
+            "MonoLisa Nerd Font")
+          FONT-SIZE))
 (defconst ZH-DEFAULT-FONT "Maple Mono NF CN")
 (defconst NERD-ICONS-FONT "Symbols Nerd Font Mono")
 (defconst EMOJI-FONTS '("Apple Color Emoji"
