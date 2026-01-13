@@ -24,6 +24,16 @@
     "Prefix map for commands that create and manipulate eat buffers.")
   (fset 'sanityinc/eat-map sanityinc/eat-map)
 
+  (setq-default eat-term-scrollback-size (* 2 1024 1024))
+
+  (defun sanityinc/eat-term-get-suitable-term-name (&optional display)
+    "Version of `eat-term-get-suitable-term-name' which uses better-known TERM values."
+    (let ((colors (display-color-cells display)))
+      (cond ((> colors 8) "xterm-256color")
+            ((> colors 1) "xterm-color")
+            (t "xterm"))))
+  (setq eat-term-name 'sanityinc/eat-term-get-suitable-term-name)
+
   (global-set-key (kbd "C-c t") 'sanityinc/eat-map))
 
 

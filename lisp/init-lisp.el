@@ -136,8 +136,8 @@ there is no current file, eval the current buffer."
 (defun sanityinc/trust-current-file ()
   "Quickly mark current elisp file as trusted content."
   (interactive)
-  (if-let ((file (and (derived-mode-p 'emacs-lisp-mode)
-                      (buffer-file-name))))
+  (if-let* ((file (and (derived-mode-p 'emacs-lisp-mode)
+                       (buffer-file-name))))
       (progn (push file trusted-content)
              (when (bound-and-true-p flymake-mode)
                (flymake-mode nil)
