@@ -13,5 +13,12 @@
       (reformatter-define terraform-format
         :program "terraform" :args '("fmt" "-")))))
 
+(with-eval-after-load 'eglot
+  (push `((terraform-mode)
+          . ,(eglot-alternatives
+              '(("terraform-ls" "serve")
+                ("tofu-ls" "serve"))))
+        eglot-server-programs))
+
 (provide 'init-terraform)
 ;;; init-terraform.el ends here
