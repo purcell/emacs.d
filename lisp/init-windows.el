@@ -114,5 +114,8 @@ Call a second time to restore the original window configuration."
   (setq-default pulsar-pulse-region-functions nil)
   (pulsar-global-mode t))
 
+(setq-default window-combination-resize t)
+
+
 (provide 'init-windows)
 ;;; init-windows.el ends here
