@@ -238,7 +238,7 @@
       (let ;; To make `end-of-line' and etc. to ignore fields.
           ((inhibit-field-text-motion t))
         (sort-subr nil 'forward-line 'end-of-line nil nil
-                   (lambda (s1 s2) (eq (random 2) 0)))))))
+                   (lambda (_ _) (eq (random 2) 0)))))))
 
 
 
