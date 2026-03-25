@@ -170,6 +170,10 @@ there is no current file, eval the current buffer."
        (list "-Q" "-batch" "-f" "batch-byte-compile" filename)
        " ")))))
 
+
+(with-eval-after-load 'page-break-lines
+  (add-to-list 'page-break-lines-modes 'emacs-lisp-compilation-mode))
+
 
 
 ;; Enable desired features for all lisp modes
