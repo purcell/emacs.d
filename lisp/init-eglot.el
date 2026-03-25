@@ -6,6 +6,7 @@
 
 (when (maybe-require-package 'eglot)
   (setq-default eglot-extend-to-xref t)
+  (setq eglot-code-action-indicator "✓")
   (setq eglot-code-action-indications '(eldoc-hint mode-line))
   (maybe-require-package 'consult-eglot))
 
