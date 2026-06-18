@@ -44,7 +44,7 @@ Various popular Emacs tools are included and configured here, such as
 Use the latest released Emacs version available to you. The author
 typically uses the latest stable version.
 
-The config should run on Emacs 27.1 or greater and is designed to
+The config should run on Emacs 28.1 or greater and is designed to
 degrade smoothly - see the CI build - but many enhancements may be
 unavailable if your Emacs is too old, and in general you should try
 to use the latest stable Emacs release like I do.
