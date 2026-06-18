@@ -176,6 +176,9 @@ typical word processor."
 
 (setq-default org-agenda-clockreport-parameter-plist '(:link t :maxlevel 3))
 
+;;; From org-mode 9.8 empty comparator will error. 
+(unless (functionp org-agenda-cmp-user-defined)
+        (setq org-agenda-cmp-user-defined (lambda (_a _b) nil)))
 
 (setq org-stuck-projects
       '("-INBOX/PROJECT" ("NEXT")))
