@@ -30,7 +30,7 @@ Included is a nice setup for in-buffer autocompletion with
 [corfu](https://github.com/minad/corfu), and minibuffer completion using
 [vertico](https://github.com/minad/vertico).
 
-`flymake` (re-using backends from [flycheck](http://www.flycheck.org))
+`flymake` (re-using backends from [flycheck](https://www.flycheck.org))
 is used to immediately highlight syntax errors in Ruby, Python,
 Javascript, Haskell and a number of other languages.
 
@@ -122,4 +122,4 @@ versions (see "Updates" above). If you still experience problems, go ahead and
 
 [💼 LinkedIn profile](https://uk.linkedin.com/in/stevepurcell)
 
-[✍ sanityinc.com](http://www.sanityinc.com/)
+[✍ sanityinc.com](https://www.sanityinc.com/)
