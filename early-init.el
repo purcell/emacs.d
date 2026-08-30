@@ -10,6 +10,14 @@
 
 (setq package-enable-at-startup nil)
 
+;; Emacs 31 added a startup warning for any plain .el source file that lacks
+;; a `lexical-binding' cookie. It fires for several bundled packages' (often
+;; auto-generated) autoloads files -- e.g. sly-macrostep, org-pomodoro,
+;; elm-mode, purescript-mode. 
+;; Suppress just this specific warning type so a stock Emacs 31 startup stays 
+;; quiet, without hiding other `files'-category warnings/errors.
+(add-to-list 'warning-suppress-log-types '(files missing-lexbind-cookie))
+
 ;; So we can detect this having been loaded
 (provide 'early-init)
 
