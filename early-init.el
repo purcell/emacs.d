@@ -16,6 +16,7 @@
 ;; elm-mode, purescript-mode. 
 ;; Suppress just this specific warning type so a stock Emacs 31 startup stays 
 ;; quiet, without hiding other `files'-category warnings/errors.
+(require 'warnings)
 (add-to-list 'warning-suppress-log-types '(files missing-lexbind-cookie))
 
 ;; So we can detect this having been loaded
